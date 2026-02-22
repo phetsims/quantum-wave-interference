@@ -23,7 +23,8 @@ const addToMapIfDefined = ( key: string, path: string ) => {
   }
 };
 
-
+addToMapIfDefined( 'quantum_wave_interference_title', 'quantum-wave-interference.titleStringProperty' );
+addToMapIfDefined( 'screen_name', 'screen.nameStringProperty' );
 
 // A function that creates contents for a new Fluent file, which will be needed if any string changes.
 const createFluentFile = (): string => {
