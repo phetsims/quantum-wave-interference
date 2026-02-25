@@ -1,33 +1,31 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * TODO Describe this class and its responsibilities.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import TModel from '../../../../joist/js/TModel.js';
+import { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 
-type SelfOptions = {
-  //TODO add options that are specific to QuantumWaveInterferenceModel here
-};
+type SelfOptions = EmptySelfOptions;
 
 type QuantumWaveInterferenceModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class QuantumWaveInterferenceModel implements TModel {
 
   public constructor( providedOptions: QuantumWaveInterferenceModelOptions ) {
-    //TODO
+    // no-op
   }
 
   /**
    * Resets the model.
    */
   public reset(): void {
-    //TODO
+    // no-op
   }
 
   /**
@@ -35,7 +33,7 @@ export default class QuantumWaveInterferenceModel implements TModel {
    * @param dt - time step, in seconds
    */
   public step( dt: number ): void {
-    //TODO
+    // no-op
   }
 }
 

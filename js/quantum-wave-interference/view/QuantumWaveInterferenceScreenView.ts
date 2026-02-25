@@ -1,21 +1,17 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * TODO Describe this class and its responsibilities.
- *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
-import optionize from '../../../../phet-core/js/optionize.js';
+import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
 
-type SelfOptions = {
- //TODO add options that are specific to QuantumWaveInterferenceScreenView here
-};
+type SelfOptions = EmptySelfOptions;
 
 type QuantumWaveInterferenceScreenViewOptions = SelfOptions & ScreenViewOptions;
 
@@ -23,12 +19,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
   public constructor( model: QuantumWaveInterferenceModel, providedOptions: QuantumWaveInterferenceScreenViewOptions ) {
 
-    const options = optionize<QuantumWaveInterferenceScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
-
-      //TODO add default values for optional SelfOptions here
-
-      //TODO add default values for optional ScreenViewOptions here
-    }, providedOptions );
+    const options = optionize<QuantumWaveInterferenceScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
 
     super( options );
 
@@ -48,7 +39,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
    * Resets the view.
    */
   public reset(): void {
-    //TODO
+    // no-op
   }
 
   /**
@@ -56,7 +47,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
    * @param dt - time step, in seconds
    */
   public override step( dt: number ): void {
-    //TODO
+    // no-op
   }
 }
 
