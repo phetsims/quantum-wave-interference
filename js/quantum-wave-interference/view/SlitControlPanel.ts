@@ -249,27 +249,24 @@ export default class SlitControlPanel extends Panel {
   }
 
   /**
-   * Determines appropriate decimal places based on the range magnitude.
+   * Determines appropriate decimal places based on the precision needed to represent the range
+   * boundary values. Uses the maximum number of decimal places from the min and max values.
    */
-  private static getDecimalPlaces( range: { min: number; max: number } ): number {
-    const span = range.max - range.min;
-    if ( span < 0.1 ) {
-      return 4;
-    }
-    else if ( span < 1 ) {
-      return 3;
-    }
-    else if ( span < 10 ) {
-      return 1;
-    }
-    return 0;
+  private static getDecimalPlaces( range: Range ): number {
+    return Math.max(
+      SlitControlPanel.getTickDecimalPlaces( range.min ),
+      SlitControlPanel.getTickDecimalPlaces( range.max )
+    );
   }
 
   /**
-   * Determines an appropriate delta (step size) for a NumberControl based on the range.
+   * Determines an appropriate delta (step size) for a NumberControl based on the decimal
+   * precision of the range boundaries. The step size is the smallest increment representable
+   * at that precision (e.g., 1 decimal place → delta = 0.1).
    */
-  private static getDelta( range: { min: number; max: number } ): number {
-    return ( range.max - range.min ) / 100;
+  private static getDelta( range: Range ): number {
+    const decimalPlaces = SlitControlPanel.getDecimalPlaces( range );
+    return Math.pow( 10, -decimalPlaces );
   }
 }
 
