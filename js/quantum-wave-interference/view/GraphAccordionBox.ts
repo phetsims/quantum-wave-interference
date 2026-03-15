@@ -17,6 +17,7 @@ import Property from '../../../../axon/js/Property.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -257,9 +258,11 @@ export default class GraphAccordionBox extends Node {
     dataPath.stroke = 'black';
     dataPath.lineWidth = 1.5;
 
-    // Fill with a semi-transparent color matching the source type
+    // Fill with a semi-transparent color matching the source type. For photons, use the
+    // wavelength-derived color so the graph visually matches the detector screen display.
     if ( sceneModel.sourceType === SourceType.PHOTONS ) {
-      dataPath.fill = 'rgba(180,50,50,0.3)';
+      const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
+      dataPath.fill = color.withAlpha( 0.3 );
     }
     else {
       dataPath.fill = 'rgba(100,100,180,0.3)';
@@ -326,9 +329,20 @@ export default class GraphAccordionBox extends Node {
     }
 
     dataPath.shape = shape;
-    dataPath.stroke = 'rgb(180,0,0)';
     dataPath.lineWidth = 0.5;
-    dataPath.fill = 'rgb(220,50,50)'; // Red for histogram bars, matching the design mockup
+
+    // Histogram bar color matches the source type. For photons, use the wavelength-derived
+    // color so the graph visually matches the detector screen display and reinforces the
+    // wavelength-color connection that supports the learning goals.
+    if ( sceneModel.sourceType === SourceType.PHOTONS ) {
+      const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
+      dataPath.fill = color.withAlpha( 0.7 );
+      dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
+    }
+    else {
+      dataPath.fill = 'rgba(100,100,180,0.7)';
+      dataPath.stroke = 'rgba(50,50,130,0.8)';
+    }
   }
 
   public reset(): void {
