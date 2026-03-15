@@ -13,7 +13,8 @@ import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
 import Utils from '../../../../dot/js/Utils.js';
 import Shape from '../../../../kite/js/Shape.js';
-import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import Property from '../../../../axon/js/Property.js';
+import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -39,7 +40,12 @@ const HISTOGRAM_BINS = 40;
 // Grid line styling
 const GRID_LINE_COLOR = 'rgb(200,200,200)';
 
-type SelfOptions = EmptySelfOptions;
+type SelfOptions = {
+
+  // Shared expandedProperty so that switching scenes preserves the accordion box open/closed state,
+  // per the design requirement that scene changes should not affect the graph accordion box state.
+  expandedProperty: Property<boolean>;
+};
 
 type GraphAccordionBoxOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
 
@@ -125,11 +131,13 @@ export default class GraphAccordionBox extends Node {
       maxWidth: 120
     } );
 
-    // Create the accordion box
+    // Create the accordion box, using the shared expandedProperty so that all scenes'
+    // graph accordion boxes stay in sync (per the design: scene changes should not affect
+    // the accordion box open/closed state).
     this.accordionBox = new AccordionBox( chartNode, {
       titleNode: titleText,
       titleAlignX: 'left',
-      expandedDefaultValue: false,
+      expandedProperty: options.expandedProperty,
       fill: 'rgb(230,230,230)',
       stroke: 'rgb(160,160,160)',
       cornerRadius: 5,

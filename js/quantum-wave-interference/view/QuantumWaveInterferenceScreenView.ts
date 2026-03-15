@@ -9,6 +9,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
@@ -62,6 +63,10 @@ type QuantumWaveInterferenceScreenViewOptions = SelfOptions & ScreenViewOptions;
 export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
   private readonly graphAccordionBoxes: GraphAccordionBox[];
+
+  // Shared expanded state for the graph accordion boxes across all scenes, so that switching
+  // scenes preserves the open/closed state per the design requirement.
+  private readonly graphExpandedProperty: BooleanProperty;
 
   public constructor( model: QuantumWaveInterferenceModel, providedOptions: QuantumWaveInterferenceScreenViewOptions ) {
 
@@ -636,10 +641,17 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     // Trigger initial position update now that bounds are set
     updateDetectorScreenPosition();
 
+    // Shared expanded property for the graph accordion box, so switching scenes does not
+    // change the open/closed state (per design requirement).
+    this.graphExpandedProperty = new BooleanProperty( false, {
+      tandem: options.tandem.createTandem( 'graphExpandedProperty' )
+    } );
+
     // Graph accordion box - one per scene, positioned below the front-facing detector screen
     const graphTandem = options.tandem.createTandem( 'graphAccordionBoxes' );
     this.graphAccordionBoxes = model.scenes.map( ( scene, index ) => {
       const graphBox = new GraphAccordionBox( scene, {
+        expandedProperty: this.graphExpandedProperty,
         tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
       } );
       // Position below the front-facing detector screen, left-aligned
@@ -836,6 +848,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
    * Resets the view.
    */
   public reset(): void {
+    this.graphExpandedProperty.reset();
     this.graphAccordionBoxes.forEach( box => box.reset() );
   }
 
