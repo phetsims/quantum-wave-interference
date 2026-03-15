@@ -703,8 +703,10 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     frontFacingScreenLeft = detectorScreenNodes[ 0 ].x;
     frontFacingScreenRight = detectorScreenNodes[ 0 ].x + DETECTOR_SCREEN_RECT_WIDTH;
 
-    // Trigger initial position update now that bounds are set
+    // Trigger initial position update now that bounds are set, then re-run beam update
+    // so the fan beam uses the corrected detector screen parallelogram position.
     updateDetectorScreenPosition();
+    updateBeam();
 
     // Shared expanded property for the graph accordion box, so switching scenes does not
     // change the open/closed state (per design requirement).
