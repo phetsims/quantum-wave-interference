@@ -130,12 +130,13 @@ export default class GraphAccordionBox extends Node {
     } );
     this.addChild( this.accordionBox );
 
-    // Zoom buttons to the right of the accordion box, top-aligned
+    // Zoom buttons to the right of the accordion box, vertically centered.
+    // Cannot be top-aligned because that overlaps with snapshot buttons on the detector screen.
     const zoomButtonGroup = new MagnifyingGlassZoomButtonGroup( this.zoomLevelProperty, {
       orientation: 'vertical',
       spacing: 8,
       left: this.accordionBox.right + 6,
-      top: this.accordionBox.top,
+      centerY: this.accordionBox.centerY,
       buttonOptions: {
         baseColor: 'rgb(200,215,240)'
       },
