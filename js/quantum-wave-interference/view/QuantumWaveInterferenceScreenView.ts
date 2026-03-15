@@ -918,7 +918,11 @@ class OverheadDetectorPatternNode extends CanvasNode {
   private intensityValues: number[] = [];
   private brightness = 0.5;
   private isHitsMode = false;
-  private hitXPositions: number[] = [];
+
+  // Pre-computed density bins for Hits mode, downsampled from the model's intensityBins.
+  // This avoids the O(n) cost of iterating all hits each frame.
+  private hitDensityBins: number[] = [];
+  private hitDensityMax = 0;
 
   public constructor( dx: number, dy: number, leftHeight: number ) {
     super( {
@@ -981,12 +985,31 @@ class OverheadDetectorPatternNode extends CanvasNode {
       }
     }
 
-    // Cache hit x positions for Hits mode rendering
-    if ( this.isHitsMode ) {
-      this.hitXPositions = sceneModel.hits.map( hit => ( hit.x + 1 ) / 2 ); // Normalize to 0-1
+    // Downsample model intensity bins to density bins for Hits mode rendering.
+    // This avoids the O(n) cost of mapping and re-binning all hits each frame.
+    if ( this.isHitsMode && maxBin > 0 ) {
+      const NUM_DENSITY_BINS = 50;
+      const modelBins = sceneModel.intensityBins;
+      const modelBinCount = modelBins.length;
+      const binsPerDensityBin = modelBinCount / NUM_DENSITY_BINS;
+      this.hitDensityBins = [];
+      this.hitDensityMax = 0;
+      for ( let i = 0; i < NUM_DENSITY_BINS; i++ ) {
+        const startBin = Math.floor( i * binsPerDensityBin );
+        const endBin = Math.floor( ( i + 1 ) * binsPerDensityBin );
+        let sum = 0;
+        for ( let j = startBin; j < endBin; j++ ) {
+          sum += modelBins[ j ];
+        }
+        this.hitDensityBins.push( sum );
+        if ( sum > this.hitDensityMax ) {
+          this.hitDensityMax = sum;
+        }
+      }
     }
     else {
-      this.hitXPositions = [];
+      this.hitDensityBins = [];
+      this.hitDensityMax = 0;
     }
 
     this.invalidatePaint();
@@ -996,7 +1019,7 @@ class OverheadDetectorPatternNode extends CanvasNode {
    * Renders the interference pattern bands on the canvas.
    */
   public paintCanvas( context: CanvasRenderingContext2D ): void {
-    if ( !this.isEmitting && this.hitXPositions.length === 0 && this.intensityValues.length === 0 ) {
+    if ( !this.isEmitting && this.hitDensityBins.length === 0 && this.intensityValues.length === 0 ) {
       return;
     }
 
@@ -1008,34 +1031,16 @@ class OverheadDetectorPatternNode extends CanvasNode {
     const b = this.beamColor.blue;
 
     if ( this.isHitsMode ) {
-      // In Hits mode, render accumulated hits as small dots on the parallelogram
-      if ( this.hitXPositions.length === 0 ) {
+      // In Hits mode, render density bands from pre-computed bins
+      if ( this.hitDensityMax === 0 ) {
         return;
       }
 
-      // Bin hits into vertical columns for a density display
-      const NUM_BINS = 50;
-      const bins = new Array<number>( NUM_BINS ).fill( 0 );
-      for ( let i = 0; i < this.hitXPositions.length; i++ ) {
-        const binIndex = Math.min( NUM_BINS - 1, Math.max( 0, Math.floor( this.hitXPositions[ i ] * NUM_BINS ) ) );
-        bins[ binIndex ]++;
-      }
-
-      let maxCount = 0;
-      for ( let i = 0; i < bins.length; i++ ) {
-        if ( bins[ i ] > maxCount ) {
-          maxCount = bins[ i ];
-        }
-      }
-
-      if ( maxCount === 0 ) {
-        return;
-      }
-
+      const NUM_BINS = this.hitDensityBins.length;
       const bandWidth = dx / NUM_BINS;
       for ( let i = 0; i < NUM_BINS; i++ ) {
-        if ( bins[ i ] > 0 ) {
-          const alpha = Math.min( 1, ( bins[ i ] / maxCount ) * this.brightness );
+        if ( this.hitDensityBins[ i ] > 0 ) {
+          const alpha = Math.min( 1, ( this.hitDensityBins[ i ] / this.hitDensityMax ) * this.brightness );
           context.fillStyle = `rgba(${r},${g},${b},${alpha})`;
 
           // Draw a vertical strip that follows the parallelogram skew

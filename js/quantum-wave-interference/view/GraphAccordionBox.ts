@@ -262,22 +262,28 @@ export default class GraphAccordionBox extends Node {
 
   /**
    * Paints the histogram (bar chart) on the data path for Hits mode.
+   * Downsamples from the model's pre-accumulated intensityBins (200 bins) to HISTOGRAM_BINS (40),
+   * avoiding the O(n) cost of re-binning all hits from scratch each frame.
    */
   private paintHistogram( dataPath: Path, sceneModel: SceneModel ): void {
-    const hits = sceneModel.hits;
+    const modelBins = sceneModel.intensityBins;
+    const modelBinCount = modelBins.length;
 
-    if ( hits.length === 0 ) {
+    if ( sceneModel.intensityBinsMax === 0 ) {
       dataPath.shape = null;
       return;
     }
 
-    // Bin the hits into HISTOGRAM_BINS bins across [-1, 1]
+    // Downsample from model bins (200) to histogram bins (40): each histogram bin
+    // sums 5 model bins, giving the same distribution without iterating all hits.
+    const binsPerHistogramBin = modelBinCount / HISTOGRAM_BINS;
     const bins = new Array<number>( HISTOGRAM_BINS ).fill( 0 );
-    for ( let i = 0; i < hits.length; i++ ) {
-      const normalizedX = hits[ i ].x; // Already in [-1, 1]
-      const binIndex = Math.min( HISTOGRAM_BINS - 1,
-        Math.max( 0, Math.floor( ( normalizedX + 1 ) / 2 * HISTOGRAM_BINS ) ) );
-      bins[ binIndex ]++;
+    for ( let i = 0; i < HISTOGRAM_BINS; i++ ) {
+      const startBin = Math.floor( i * binsPerHistogramBin );
+      const endBin = Math.floor( ( i + 1 ) * binsPerHistogramBin );
+      for ( let j = startBin; j < endBin; j++ ) {
+        bins[ i ] += modelBins[ j ];
+      }
     }
 
     // Find the max bin count for scaling
