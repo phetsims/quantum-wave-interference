@@ -72,22 +72,31 @@ export default class GraphAccordionBox extends Node {
       lineWidth: 1
     } );
 
-    // Horizontal grid lines
-    const NUM_GRID_LINES = 4;
-    for ( let i = 1; i < NUM_GRID_LINES; i++ ) {
-      const y = ( i / NUM_GRID_LINES ) * CHART_HEIGHT;
+    // Grid lines matching the design mockup: evenly-spaced horizontal and vertical lines
+    // create a grid that helps correlate graph peaks with detector screen positions.
+
+    // Horizontal grid lines (4 divisions)
+    const NUM_HORIZONTAL_GRID_LINES = 4;
+    for ( let i = 1; i < NUM_HORIZONTAL_GRID_LINES; i++ ) {
+      const y = ( i / NUM_HORIZONTAL_GRID_LINES ) * CHART_HEIGHT;
       chartBackground.addChild( new Line( 0, y, CHART_WIDTH, y, {
         stroke: GRID_LINE_COLOR,
         lineWidth: 0.5
       } ) );
     }
 
-    // Vertical center line
-    chartBackground.addChild( new Line( CHART_WIDTH / 2, 0, CHART_WIDTH / 2, CHART_HEIGHT, {
-      stroke: GRID_LINE_COLOR,
-      lineWidth: 0.5,
-      lineDash: [ 4, 4 ]
-    } ) );
+    // Vertical grid lines (10 divisions, matching the design's evenly-spaced vertical gridlines).
+    // The center line (i=5) uses a dashed style to distinguish it as the axis of symmetry.
+    const NUM_VERTICAL_DIVISIONS = 10;
+    for ( let i = 1; i < NUM_VERTICAL_DIVISIONS; i++ ) {
+      const x = ( i / NUM_VERTICAL_DIVISIONS ) * CHART_WIDTH;
+      const isCenterLine = ( i === NUM_VERTICAL_DIVISIONS / 2 );
+      chartBackground.addChild( new Line( x, 0, x, CHART_HEIGHT, {
+        stroke: GRID_LINE_COLOR,
+        lineWidth: isCenterLine ? 0.75 : 0.5,
+        lineDash: isCenterLine ? [ 4, 4 ] : []
+      } ) );
+    }
 
     // Curve/histogram path, clipped to the chart area
     const dataPath = new Path( null, {
