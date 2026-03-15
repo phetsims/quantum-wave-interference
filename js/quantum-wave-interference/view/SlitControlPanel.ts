@@ -239,22 +239,27 @@ export default class SlitControlPanel extends Panel {
    * The range is in mm but the labels display the values converted to μm for readability.
    */
   private static createMicrometerTicks( range: Range ): { value: number; label: Node }[] {
-    const formatTickValue = ( valueMM: number ): string => {
-      const valueUM = valueMM * 1000;
-      const decimalPlaces = SlitControlPanel.getTickDecimalPlaces( valueUM );
-      return Utils.toFixed( valueUM, decimalPlaces );
-    };
+
+    // Use consistent decimal places across both tick labels so they visually match.
+    // E.g., for range 0.5–1.0 μm, both ticks should show 1 decimal place: "0.5" and "1.0".
+    const minUM = range.min * 1000;
+    const maxUM = range.max * 1000;
+    const decimalPlaces = Math.max(
+      SlitControlPanel.getTickDecimalPlaces( minUM ),
+      SlitControlPanel.getTickDecimalPlaces( maxUM )
+    );
+
     return [
       {
         value: range.min,
-        label: new Text( formatTickValue( range.min ), {
+        label: new Text( Utils.toFixed( minUM, decimalPlaces ), {
           font: TICK_LABEL_FONT,
           maxWidth: 40
         } )
       },
       {
         value: range.max,
-        label: new Text( formatTickValue( range.max ), {
+        label: new Text( Utils.toFixed( maxUM, decimalPlaces ), {
           font: TICK_LABEL_FONT,
           maxWidth: 40
         } )
@@ -267,22 +272,25 @@ export default class SlitControlPanel extends Panel {
    * Uses minimal decimal places needed to represent the values without trailing zeros.
    */
   private static createNumericTicks( range: Range ): { value: number; label: Node }[] {
-    const formatTickValue = ( value: number ): string => {
-      // Use enough decimal places to show the value accurately, but strip unnecessary trailing zeros.
-      const decimalPlaces = SlitControlPanel.getTickDecimalPlaces( value );
-      return Utils.toFixed( value, decimalPlaces );
-    };
+
+    // Use consistent decimal places across both tick labels so they visually match.
+    // E.g., for range 0.2–1.0 mm, both ticks should show 1 decimal place: "0.2" and "1.0".
+    const decimalPlaces = Math.max(
+      SlitControlPanel.getTickDecimalPlaces( range.min ),
+      SlitControlPanel.getTickDecimalPlaces( range.max )
+    );
+
     return [
       {
         value: range.min,
-        label: new Text( formatTickValue( range.min ), {
+        label: new Text( Utils.toFixed( range.min, decimalPlaces ), {
           font: TICK_LABEL_FONT,
           maxWidth: 40
         } )
       },
       {
         value: range.max,
-        label: new Text( formatTickValue( range.max ), {
+        label: new Text( Utils.toFixed( range.max, decimalPlaces ), {
           font: TICK_LABEL_FONT,
           maxWidth: 40
         } )
