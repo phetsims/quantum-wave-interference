@@ -63,7 +63,7 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
     super( sceneProperty, items, {
       orientation: 'horizontal',
       wrap: true,
-      preferredWidth: 180,
+      preferredWidth: 250,
       spacing: 10,
       lineSpacing: 8,
       radioButtonOptions: {

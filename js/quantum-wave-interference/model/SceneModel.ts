@@ -127,14 +127,13 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'isEmittingProperty' )
     } );
 
-    // Wavelength in nm. For photons, this is directly controlled. For particles, it's computed from velocity.
-    this.wavelengthProperty = new NumberProperty(
-      options.sourceType === SourceType.PHOTONS ? 650 : 0, {
-        range: new Range( 380, 780 ), // Visible spectrum in nm (only relevant for photons)
-        units: 'nm',
-        tandem: tandem.createTandem( 'wavelengthProperty' )
-      }
-    );
+    // Wavelength in nm. For photons, this is directly controlled via a slider. For particles, this property is
+    // not used directly — the effective wavelength is computed from velocity via de Broglie relation.
+    this.wavelengthProperty = new NumberProperty( options.sourceType === SourceType.PHOTONS ? 650 : 0, {
+      range: options.sourceType === SourceType.PHOTONS ? new Range( 380, 780 ) : new Range( 0, 0 ),
+      units: 'nm',
+      tandem: tandem.createTandem( 'wavelengthProperty' )
+    } );
 
     this.velocityProperty = new NumberProperty(
       options.sourceType !== SourceType.PHOTONS ?
