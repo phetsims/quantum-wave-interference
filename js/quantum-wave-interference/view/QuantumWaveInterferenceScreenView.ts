@@ -727,6 +727,10 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     slitControlPanel.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     this.addChild( slitControlPanel );
 
+    // Move front-facing slit nodes above the slit control panel so the slit separation
+    // span below the view is not obscured by the panel's background.
+    frontFacingSlitNodes.forEach( n => n.moveToFront() );
+
     // Screen settings panel (detection mode + brightness)
     const screenSettingsPanel = new ScreenSettingsPanel( model.sceneProperty, {
       tandem: options.tandem.createTandem( 'screenSettingsPanel' )

@@ -37,9 +37,9 @@ import SnapshotsDialog from './SnapshotsDialog.js';
 import SourceType from '../model/SourceType.js';
 
 // Dimensions of the front-facing detector screen display.
-// Height matches the front-facing slit view (175px) per the design mockup.
+// Height matches the front-facing slit view (155px) per the design mockup.
 const SCREEN_WIDTH = 217;
-const SCREEN_HEIGHT = 175;
+const SCREEN_HEIGHT = 155;
 const SCREEN_CORNER_RADIUS = 10;
 
 // Hit dot rendering: a bright core with a soft halo to match the design mockup's

@@ -28,11 +28,11 @@ import SourceType from '../model/SourceType.js';
 
 // Dimensions of the front-facing slit view
 const VIEW_WIDTH = 200;
-const VIEW_HEIGHT = 175;
+const VIEW_HEIGHT = 155;
 const VIEW_CORNER_RADIUS = 10;
 
 // Slit visual dimensions
-const SLIT_HEIGHT = 145; // Height of the white slit rectangles
+const SLIT_HEIGHT = 130; // Height of the white slit rectangles
 const SLIT_VISUAL_WIDTH = 6; // Width of each slit rectangle in view coordinates
 
 // Span arrow constants
