@@ -556,7 +556,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       const beamRight = doubleSlitNode.left;
 
       emitterBeamNode.setRect( beamLeft, laserCenterY - beamHeight / 2, beamRight - beamLeft, beamHeight );
-      emitterBeamNode.fill = beamColor.withAlpha( 0.4 * intensity );
+      emitterBeamNode.fill = beamColor.withAlpha( 0.8 * intensity );
 
       // Fan beam: trapezoid from double slit right edge to detector screen left edge.
       // It fans out vertically — narrow at the slit side, wider at the screen side.
@@ -579,9 +579,11 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
         .close();
       fanBeamNode.shape = fanShape;
 
-      // Gradient that fades from beam color (with opacity) to transparent
+      // Gradient that fades from beam color (with opacity) to transparent, matching the
+      // LaserOn.svg design where the fan beam starts at stop-opacity 0.2 (at default intensity)
+      // and fades to fully transparent at the detector screen.
       const gradient = new LinearGradient( fanLeft, 0, fanRight, 0 )
-        .addColorStop( 0, beamColor.withAlpha( 0.3 * intensity ) )
+        .addColorStop( 0, beamColor.withAlpha( 0.4 * intensity ) )
         .addColorStop( 1, beamColor.withAlpha( 0 ) );
       fanBeamNode.fill = gradient;
     };
