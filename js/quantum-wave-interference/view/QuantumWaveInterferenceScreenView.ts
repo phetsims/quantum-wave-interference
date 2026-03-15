@@ -44,7 +44,7 @@ import SceneModel from '../model/SceneModel.js';
 import DetectionMode from '../model/DetectionMode.js';
 import SlitSetting from '../model/SlitSetting.js';
 import SourceType from '../model/SourceType.js';
-import DetectorScreenNode from './DetectorScreenNode.js';
+import DetectorScreenNode, { DETECTOR_SCREEN_RECT_WIDTH } from './DetectorScreenNode.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
 import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
@@ -627,13 +627,18 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
     // Front-facing detector screen - one per scene, with visibility toggling.
     // The front-facing screen has a fixed position; the overhead parallelogram slides above it.
-    const FRONT_FACING_SCREEN_RIGHT = 740; // Fixed right edge for all front-facing detector screens
+    // Position is based on the screen rect's right edge (not the full node bounds, which include
+    // buttons extending past the screen rect). This creates proper spacing between the slit view
+    // and the detector screen, matching the design mockup.
+    const FRONT_FACING_SCREEN_RECT_RIGHT = 740; // Right edge of the screen rect (not buttons)
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
       const detectorScreen = new DetectorScreenNode( scene, {
         tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
       } );
-      detectorScreen.right = FRONT_FACING_SCREEN_RIGHT;
+      // Position so the screen rect's right edge is at FRONT_FACING_SCREEN_RECT_RIGHT.
+      // The screen rect starts at local x=0, so .x = desired right edge - screen rect width.
+      detectorScreen.x = FRONT_FACING_SCREEN_RECT_RIGHT - DETECTOR_SCREEN_RECT_WIDTH;
       // Use y (not top) to position the background rect at FRONT_FACING_ROW_TOP.
       // The scale indicators extend above y=0 in the node's local frame but are now
       // positioned below the overhead distance span text.
@@ -643,9 +648,10 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     } );
 
     // Now that front-facing screens are positioned, set the reference bounds for the
-    // overhead parallelogram's horizontal range.
-    frontFacingScreenLeft = detectorScreenNodes[ 0 ].left;
-    frontFacingScreenRight = detectorScreenNodes[ 0 ].right;
+    // overhead parallelogram's horizontal range. Use the screen rect bounds (not the full
+    // node bounds which include buttons) for accurate alignment with the overhead view.
+    frontFacingScreenLeft = detectorScreenNodes[ 0 ].x;
+    frontFacingScreenRight = detectorScreenNodes[ 0 ].x + DETECTOR_SCREEN_RECT_WIDTH;
 
     // Trigger initial position update now that bounds are set
     updateDetectorScreenPosition();

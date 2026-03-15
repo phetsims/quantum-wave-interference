@@ -38,7 +38,8 @@ import SourceType from '../model/SourceType.js';
 
 // Dimensions of the front-facing detector screen display.
 // Height matches the front-facing slit view (155px) per the design mockup.
-const SCREEN_WIDTH = 217;
+export const DETECTOR_SCREEN_RECT_WIDTH = 217;
+const SCREEN_WIDTH = DETECTOR_SCREEN_RECT_WIDTH;
 const SCREEN_HEIGHT = 155;
 const SCREEN_CORNER_RADIUS = 10;
 

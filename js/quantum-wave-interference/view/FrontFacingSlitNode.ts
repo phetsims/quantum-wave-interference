@@ -26,8 +26,10 @@ import SceneModel from '../model/SceneModel.js';
 import SlitSetting from '../model/SlitSetting.js';
 import SourceType from '../model/SourceType.js';
 
-// Dimensions of the front-facing slit view
-const VIEW_WIDTH = 200;
+// Dimensions of the front-facing slit view. Width is narrower than the detector screen,
+// matching the design mockup proportions where the slit view and detector screen are
+// clearly separate elements with a visible gap between them.
+const VIEW_WIDTH = 170;
 const VIEW_HEIGHT = 155;
 const VIEW_CORNER_RADIUS = 10;
 
