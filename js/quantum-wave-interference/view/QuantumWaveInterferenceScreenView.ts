@@ -86,21 +86,28 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     // Top Row: Emitter, Double Slit, Detector Screen (overhead perspective)
     // ==============================
 
-    // Source label that changes with the selected scene
+    // Source label that changes with the selected scene. All four string properties are
+    // declared as dependencies so the label updates correctly when the locale changes.
     const sourceLabelStringProperty = new DerivedProperty(
-      [ model.sceneProperty ],
-      scene => {
+      [
+        model.sceneProperty,
+        QuantumWaveInterferenceFluent.photonSourceStringProperty,
+        QuantumWaveInterferenceFluent.electronSourceStringProperty,
+        QuantumWaveInterferenceFluent.neutronSourceStringProperty,
+        QuantumWaveInterferenceFluent.heliumAtomSourceStringProperty
+      ],
+      ( scene, photonSource, electronSource, neutronSource, heliumAtomSource ) => {
         if ( scene.sourceType === SourceType.PHOTONS ) {
-          return QuantumWaveInterferenceFluent.photonSourceStringProperty.value;
+          return photonSource;
         }
         else if ( scene.sourceType === SourceType.ELECTRONS ) {
-          return QuantumWaveInterferenceFluent.electronSourceStringProperty.value;
+          return electronSource;
         }
         else if ( scene.sourceType === SourceType.NEUTRONS ) {
-          return QuantumWaveInterferenceFluent.neutronSourceStringProperty.value;
+          return neutronSource;
         }
         else {
-          return QuantumWaveInterferenceFluent.heliumAtomSourceStringProperty.value;
+          return heliumAtomSource;
         }
       }
     );
