@@ -616,7 +616,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
     // Front-facing detector screen - one per scene, with visibility toggling.
     // The front-facing screen has a fixed position; the overhead parallelogram slides above it.
-    const FRONT_FACING_SCREEN_RIGHT = 940; // Fixed right edge for all front-facing detector screens
+    const FRONT_FACING_SCREEN_RIGHT = 740; // Fixed right edge for all front-facing detector screens
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
       const detectorScreen = new DetectorScreenNode( scene, {
@@ -644,7 +644,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       } );
       // Position below the front-facing detector screen, left-aligned
       graphBox.left = detectorScreenNodes[ 0 ].left;
-      graphBox.top = detectorScreenNodes[ 0 ].top + 250 + 8; // SCREEN_HEIGHT + spacing
+      graphBox.top = detectorScreenNodes[ 0 ].bottom + 8;
       this.addChild( graphBox );
       return graphBox;
     } );

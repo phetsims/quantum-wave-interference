@@ -36,9 +36,10 @@ import SceneModel from '../model/SceneModel.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 import SourceType from '../model/SourceType.js';
 
-// Dimensions of the front-facing detector screen display
+// Dimensions of the front-facing detector screen display.
+// Height matches the front-facing slit view (200px) per the design mockup.
 const SCREEN_WIDTH = 217;
-const SCREEN_HEIGHT = 250;
+const SCREEN_HEIGHT = 200;
 const SCREEN_CORNER_RADIUS = 10;
 
 // Hit dot radius in view coordinates
