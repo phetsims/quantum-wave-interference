@@ -54,13 +54,13 @@
     "value": "Max"
   },
   "slitSeparation": {
-    "value": "Slit separation"
+    "value": "Slit Separation"
   },
   "screenDistance": {
-    "value": "Screen distance"
+    "value": "Screen Distance"
   },
   "slitSettings": {
-    "value": "Slit settings"
+    "value": "Slit Settings"
   },
   "slitSeparationPattern": {
     "value": "{{value}} mm"
@@ -72,22 +72,22 @@
     "value": "{{value}} m"
   },
   "bothOpen": {
-    "value": "Both open"
+    "value": "Both Open"
   },
   "leftCovered": {
-    "value": "Left covered"
+    "value": "Left Covered"
   },
   "rightCovered": {
-    "value": "Right covered"
+    "value": "Right Covered"
   },
   "leftDetector": {
-    "value": "Left detector"
+    "value": "Left Detector"
   },
   "rightDetector": {
-    "value": "Right detector"
+    "value": "Right Detector"
   },
   "averageIntensity": {
-    "value": "Average intensity"
+    "value": "Average Intensity"
   },
   "hits": {
     "value": "Hits"
@@ -96,7 +96,7 @@
     "value": "Hits: {{count}}"
   },
   "screenBrightness": {
-    "value": "Screen brightness"
+    "value": "Screen Brightness"
   },
   "intensityGraph": {
     "value": "Intensity Graph"

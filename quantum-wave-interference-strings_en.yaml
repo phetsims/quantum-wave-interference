@@ -16,21 +16,21 @@ emissionRate:   Emission Rate
 particleSpeedKmPerSecondPattern: '{{value}} km/s'
 min:            Min
 max:            Max
-slitSeparation: Slit separation
-screenDistance:  Screen distance
-slitSettings:   Slit settings
+slitSeparation: Slit Separation
+screenDistance:  Screen Distance
+slitSettings:   Slit Settings
 slitSeparationPattern: '{{value}} mm'
 slitSeparationMicrometerPattern: '{{value}} μm'
 screenDistancePattern: '{{value}} m'
-bothOpen:       Both open
-leftCovered:    Left covered
-rightCovered:   Right covered
-leftDetector:   Left detector
-rightDetector:  Right detector
-averageIntensity: Average intensity
+bothOpen:       Both Open
+leftCovered:    Left Covered
+rightCovered:   Right Covered
+leftDetector:   Left Detector
+rightDetector:  Right Detector
+averageIntensity: Average Intensity
 hits:           Hits
 hitsCountPattern: 'Hits: {{count}}'
-screenBrightness: Screen brightness
+screenBrightness: Screen Brightness
 intensityGraph:   Intensity Graph
 hitsGraph:        Hits Graph
 count:            Count
