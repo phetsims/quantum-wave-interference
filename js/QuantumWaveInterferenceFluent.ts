@@ -50,7 +50,8 @@ addToMapIfDefined( 'rightDetector', 'rightDetectorStringProperty' );
 addToMapIfDefined( 'averageIntensity', 'averageIntensityStringProperty' );
 addToMapIfDefined( 'hits', 'hitsStringProperty' );
 addToMapIfDefined( 'screenBrightness', 'screenBrightnessStringProperty' );
-addToMapIfDefined( 'graph', 'graphStringProperty' );
+addToMapIfDefined( 'intensityGraph', 'intensityGraphStringProperty' );
+addToMapIfDefined( 'hitsGraph', 'hitsGraphStringProperty' );
 addToMapIfDefined( 'count', 'countStringProperty' );
 addToMapIfDefined( 'ruler', 'rulerStringProperty' );
 addToMapIfDefined( 'centimeters', 'centimetersStringProperty' );
@@ -102,7 +103,8 @@ const QuantumWaveInterferenceFluent = {
   averageIntensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'averageIntensityStringProperty' ),
   hitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsStringProperty' ),
   screenBrightnessStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenBrightnessStringProperty' ),
-  graphStringProperty: _.get( QuantumWaveInterferenceStrings, 'graphStringProperty' ),
+  intensityGraphStringProperty: _.get( QuantumWaveInterferenceStrings, 'intensityGraphStringProperty' ),
+  hitsGraphStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsGraphStringProperty' ),
   countStringProperty: _.get( QuantumWaveInterferenceStrings, 'countStringProperty' ),
   snapshotNumberPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotNumberPatternStringProperty' ),
   rulerStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerStringProperty' ),

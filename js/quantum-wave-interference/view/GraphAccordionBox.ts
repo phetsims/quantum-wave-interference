@@ -8,6 +8,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
 import Utils from '../../../../dot/js/Utils.js';
@@ -106,10 +107,16 @@ export default class GraphAccordionBox extends Node {
       children: [ yAxisLabel, chartBackground, dataPath ]
     } );
 
-    // Determine the title text for the accordion box - "Intensity" or "Count"
-    const titleText = new Text( QuantumWaveInterferenceFluent.graphStringProperty, {
+    // Title text changes dynamically based on detection mode: "Intensity Graph" vs "Hits Graph"
+    const titleStringProperty = new DerivedProperty(
+      [ sceneModel.detectionModeProperty ],
+      detectionMode => detectionMode === DetectionMode.HITS
+                        ? QuantumWaveInterferenceFluent.hitsGraphStringProperty.value
+                        : QuantumWaveInterferenceFluent.intensityGraphStringProperty.value
+    );
+    const titleText = new Text( titleStringProperty, {
       font: new PhetFont( 14 ),
-      maxWidth: 100
+      maxWidth: 120
     } );
 
     // Create the accordion box

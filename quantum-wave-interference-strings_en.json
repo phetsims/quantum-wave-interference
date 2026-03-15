@@ -89,8 +89,11 @@
   "screenBrightness": {
     "value": "Screen brightness"
   },
-  "graph": {
+  "intensityGraph": {
     "value": "Intensity Graph"
+  },
+  "hitsGraph": {
+    "value": "Hits Graph"
   },
   "count": {
     "value": "Count"

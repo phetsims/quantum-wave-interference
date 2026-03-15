@@ -46,7 +46,8 @@ type StringsType = {
   'averageIntensityStringProperty': LocalizedStringProperty;
   'hitsStringProperty': LocalizedStringProperty;
   'screenBrightnessStringProperty': LocalizedStringProperty;
-  'graphStringProperty': LocalizedStringProperty;
+  'intensityGraphStringProperty': LocalizedStringProperty;
+  'hitsGraphStringProperty': LocalizedStringProperty;
   'countStringProperty': LocalizedStringProperty;
   'snapshotNumberPatternStringProperty': LocalizedStringProperty;
   'rulerStringProperty': LocalizedStringProperty;

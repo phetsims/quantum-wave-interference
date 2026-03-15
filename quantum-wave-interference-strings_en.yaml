@@ -28,7 +28,8 @@ rightDetector:  Right detector
 averageIntensity: Average intensity
 hits:           Hits
 screenBrightness: Screen brightness
-graph:            Intensity Graph
+intensityGraph:   Intensity Graph
+hitsGraph:        Hits Graph
 count:            Count
 snapshotNumberPattern: 'Snapshot {{number}}'
 ruler:              Ruler
