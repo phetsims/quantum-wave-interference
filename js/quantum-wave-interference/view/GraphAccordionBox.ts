@@ -147,6 +147,11 @@ export default class GraphAccordionBox extends Node {
     } );
     this.addChild( zoomButtonGroup );
 
+    // Hide zoom buttons when the accordion box is collapsed (per design spec)
+    this.accordionBox.expandedProperty.link( expanded => {
+      zoomButtonGroup.visible = expanded;
+    } );
+
     // Update the graph when data changes
     const updateGraph = () => {
       const isHitsMode = sceneModel.detectionModeProperty.value === DetectionMode.HITS;
