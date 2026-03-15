@@ -10,6 +10,7 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
@@ -17,6 +18,8 @@ import Shape from '../../../../kite/js/Shape.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
+import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
@@ -25,6 +28,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
+import SceneModel from '../model/SceneModel.js';
 import SourceType from '../model/SourceType.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
@@ -78,8 +82,15 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     } );
     this.addChild( sourceLabel );
 
-    // Laser pointer node for the photon emitter source
-    const laserPointerNode = new LaserPointerNode( model.sceneProperty.value.isEmittingProperty, {
+    // DynamicProperty that follows the active scene's isEmittingProperty, so the laser button
+    // always controls the currently selected scene's emitter.
+    const isEmittingProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
+      derive: scene => scene.isEmittingProperty,
+      bidirectional: true
+    } );
+
+    // Laser pointer node for the emitter source
+    const laserPointerNode = new LaserPointerNode( isEmittingProperty, {
       bodySize: new Dimension2( 88, 40 ),
       nozzleSize: new Dimension2( 16, 32 ),
       buttonOptions: {
@@ -266,6 +277,27 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     slitControlPanel.left = sceneRadioButtonGroup.right + 20;
     slitControlPanel.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     this.addChild( slitControlPanel );
+
+    // Time controls: play/pause button with step-forward and speed radio buttons
+    const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
+      timeSpeedProperty: model.timeSpeedProperty,
+      timeSpeeds: [ TimeSpeed.FAST, TimeSpeed.NORMAL, TimeSpeed.SLOW ],
+      flowBoxSpacing: 15,
+      playPauseStepButtonOptions: {
+        stepForwardButtonOptions: {
+          listener: () => {
+            model.sceneProperty.value.step( 1 / 60 ); // Step one frame
+          }
+        },
+        playPauseButtonOptions: {
+          radius: 22
+        }
+      },
+      tandem: options.tandem.createTandem( 'timeControlNode' )
+    } );
+    timeControlNode.centerX = slitControlPanel.centerX;
+    timeControlNode.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+    this.addChild( timeControlNode );
 
     const resetAllButton = new ResetAllButton( {
       listener: () => {
