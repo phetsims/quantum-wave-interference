@@ -42,8 +42,10 @@ const SCREEN_WIDTH = 217;
 const SCREEN_HEIGHT = 200;
 const SCREEN_CORNER_RADIUS = 10;
 
-// Hit dot radius in view coordinates
-const HIT_DOT_RADIUS = 1.5;
+// Hit dot rendering: a bright core with a soft halo to match the design mockup's
+// phosphorescent screen look, where each detection event is clearly visible.
+const HIT_CORE_RADIUS = 2.5;
+const HIT_GLOW_RADIUS = 5;
 
 type SelfOptions = EmptySelfOptions;
 
@@ -276,7 +278,9 @@ class DetectorScreenCanvasNode extends CanvasNode {
   }
 
   /**
-   * Renders individual hit dots on the canvas.
+   * Renders individual hit dots on the canvas with a soft glow effect to match the design
+   * mockup's phosphorescent screen appearance. Uses an efficient two-pass approach:
+   * first a semi-transparent glow halo, then a solid bright core.
    */
   private paintHits( context: CanvasRenderingContext2D, brightness: number ): void {
     const hits = this.sceneModel.hits;
@@ -286,20 +290,27 @@ class DetectorScreenCanvasNode extends CanvasNode {
 
     const width = SCREEN_WIDTH;
     const height = SCREEN_HEIGHT;
+    const rgb = this.getHitRGB();
 
-    // Determine the hit dot color based on source type
-    const hitColor = this.getHitColor( brightness );
-    context.fillStyle = hitColor;
-
+    // Pass 1: Draw glow halos (semi-transparent, larger radius)
+    context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness * 0.15})`;
     for ( let i = 0; i < hits.length; i++ ) {
       const hit = hits[ i ];
-
-      // Map normalized coordinates [-1, 1] to view coordinates
       const viewX = ( hit.x + 1 ) / 2 * width;
       const viewY = ( hit.y + 1 ) / 2 * height;
-
       context.beginPath();
-      context.arc( viewX, viewY, HIT_DOT_RADIUS, 0, Math.PI * 2 );
+      context.arc( viewX, viewY, HIT_GLOW_RADIUS, 0, Math.PI * 2 );
+      context.fill();
+    }
+
+    // Pass 2: Draw solid cores (bright, smaller radius)
+    context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness})`;
+    for ( let i = 0; i < hits.length; i++ ) {
+      const hit = hits[ i ];
+      const viewX = ( hit.x + 1 ) / 2 * width;
+      const viewY = ( hit.y + 1 ) / 2 * height;
+      context.beginPath();
+      context.arc( viewX, viewY, HIT_CORE_RADIUS, 0, Math.PI * 2 );
       context.fill();
     }
   }
@@ -341,20 +352,14 @@ class DetectorScreenCanvasNode extends CanvasNode {
   }
 
   /**
-   * Returns the CSS color string for a hit dot based on the source type and brightness.
+   * Returns the RGB components for hit dots based on the source type.
    */
-  private getHitColor( brightness: number ): string {
-    const sourceType = this.sceneModel.sourceType;
-
-    if ( sourceType === SourceType.PHOTONS ) {
-      // Use wavelength-based color for photons
-      const wavelength = this.sceneModel.wavelengthProperty.value;
-      const rgb = wavelengthToRGB( wavelength );
-      return `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness})`;
+  private getHitRGB(): { r: number; g: number; b: number } {
+    if ( this.sceneModel.sourceType === SourceType.PHOTONS ) {
+      return wavelengthToRGB( this.sceneModel.wavelengthProperty.value );
     }
     else {
-      // White dots for particles
-      return `rgba(255,255,255,${brightness})`;
+      return { r: 255, g: 255, b: 255 };
     }
   }
 

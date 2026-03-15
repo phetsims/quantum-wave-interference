@@ -292,9 +292,9 @@ export default class GraphAccordionBox extends Node {
     }
 
     dataPath.shape = shape;
-    dataPath.stroke = 'rgb(80,80,80)';
+    dataPath.stroke = 'rgb(180,0,0)';
     dataPath.lineWidth = 0.5;
-    dataPath.fill = 'rgb(100,149,237)'; // Cornflower blue for histogram bars
+    dataPath.fill = 'rgb(220,50,50)'; // Red for histogram bars, matching the design mockup
   }
 
   public reset(): void {
