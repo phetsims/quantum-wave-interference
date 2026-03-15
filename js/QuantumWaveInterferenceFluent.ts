@@ -109,7 +109,11 @@ const QuantumWaveInterferenceFluent = {
   snapshotNumberPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotNumberPatternStringProperty' ),
   rulerStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerStringProperty' ),
   centimetersStringProperty: _.get( QuantumWaveInterferenceStrings, 'centimetersStringProperty' ),
-  detectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorStringProperty' )
+  detectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorStringProperty' ),
+  wavelengthPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'wavelengthPatternStringProperty' ),
+  deBroglieWavelengthPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'deBroglieWavelengthPatternStringProperty' ),
+  slitSeparationValuePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationValuePatternStringProperty' ),
+  screenDistanceValuePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistanceValuePatternStringProperty' )
 };
 
 export default QuantumWaveInterferenceFluent;

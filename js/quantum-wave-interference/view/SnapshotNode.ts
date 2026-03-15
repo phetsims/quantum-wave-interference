@@ -2,7 +2,12 @@
 
 /**
  * SnapshotNode displays a single snapshot in the SnapshotsDialog. It shows a miniature rendering of the
- * detector screen state at the time the snapshot was taken, along with a title and delete button.
+ * detector screen state at the time the snapshot was taken, along with a title, key physics parameters
+ * (slit separation, screen distance, wavelength), and a delete button.
+ *
+ * The parameter labels allow users to compare how different settings produce different interference
+ * patterns, directly supporting the learning goal of predicting how changes to wavelength, particle
+ * properties, or slit geometry affect the observed pattern.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -11,11 +16,13 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Utils from '../../../../dot/js/Utils.js';
+import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import TrashButton from '../../../../scenery-phet/js/buttons/TrashButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
+import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -33,6 +40,18 @@ const CORNER_RADIUS = 6;
 const HIT_DOT_RADIUS = 1;
 const INTENSITY_BINS = 150;
 
+const PARAM_FONT = new PhetFont( 11 );
+const TITLE_FONT = new PhetFont( { size: 12, weight: 'bold' } );
+
+// Map from slitSetting name strings to their display string properties
+const SLIT_SETTING_DISPLAY_MAP: Record<string, TReadOnlyProperty<string>> = {
+  BOTH_OPEN: QuantumWaveInterferenceFluent.bothOpenStringProperty,
+  LEFT_COVERED: QuantumWaveInterferenceFluent.leftCoveredStringProperty,
+  RIGHT_COVERED: QuantumWaveInterferenceFluent.rightCoveredStringProperty,
+  LEFT_DETECTOR: QuantumWaveInterferenceFluent.leftDetectorStringProperty,
+  RIGHT_DETECTOR: QuantumWaveInterferenceFluent.rightDetectorStringProperty
+};
+
 export default class SnapshotNode extends Node {
 
   public constructor( sceneModel: SceneModel, index: number ) {
@@ -42,29 +61,79 @@ export default class SnapshotNode extends Node {
       snapshots => ( index < snapshots.length ) ? snapshots[ index ] : null
     );
 
-    // Background rectangle
+    // Background rectangle for the snapshot image
     const background = new Rectangle( 0, 0, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT, CORNER_RADIUS, CORNER_RADIUS, {
       fill: 'black',
       stroke: '#555',
       lineWidth: 1
     } );
 
-    // Canvas node for rendering the snapshot content
+    // Canvas node for rendering the snapshot content (hits or intensity bands)
     const canvasNode = new SnapshotCanvasNode( snapshotProperty, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT );
     canvasNode.clipArea = background.shape!;
 
-    // Title text showing "Snapshot N"
+    // Title text showing "Snapshot N", overlaid on the snapshot image
     const titleText = new Text( '', {
-      font: new PhetFont( 12 ),
+      font: TITLE_FONT,
       fill: 'white',
       maxWidth: SNAPSHOT_WIDTH - 12
     } );
 
+    // Parameter labels showing the physics settings at the time of capture
+    const slitSepText = new Text( '', { font: PARAM_FONT, fill: 'black', maxWidth: 130 } );
+    const screenDistText = new Text( '', { font: PARAM_FONT, fill: 'black', maxWidth: 130 } );
+    const wavelengthText = new Text( '', { font: PARAM_FONT, fill: 'black', maxWidth: 130 } );
+    const slitSettingText = new Text( '', { font: PARAM_FONT, fill: '#666', maxWidth: 130 } );
+    const detectionModeText = new Text( '', { font: PARAM_FONT, fill: '#666', maxWidth: 130 } );
+
+    const parameterLabels = new VBox( {
+      spacing: 2,
+      align: 'left',
+      children: [ slitSepText, screenDistText, wavelengthText, slitSettingText, detectionModeText ]
+    } );
+
+    // Update all text content when the snapshot changes
     snapshotProperty.link( snapshot => {
       if ( snapshot ) {
         titleText.string = QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty.value
           .replace( '{{number}}', `${snapshot.snapshotNumber}` );
+
+        // Slit separation: d = X.XX mm
+        slitSepText.string = QuantumWaveInterferenceFluent.slitSeparationValuePatternStringProperty.value
+          .replace( '{{value}}', toFixed( snapshot.slitSeparation, 2 ) );
+
+        // Screen distance: D = X.X m
+        screenDistText.string = QuantumWaveInterferenceFluent.screenDistanceValuePatternStringProperty.value
+          .replace( '{{value}}', toFixed( snapshot.screenDistance, 1 ) );
+
+        // Wavelength: show the photon wavelength directly, or the de Broglie wavelength for particles
+        if ( snapshot.sourceType === SourceType.PHOTONS ) {
+          wavelengthText.string = QuantumWaveInterferenceFluent.wavelengthPatternStringProperty.value
+            .replace( '{{value}}', `${Utils.roundSymmetric( snapshot.wavelength )}` );
+        }
+        else {
+          // Convert effective wavelength from meters to nanometers for display
+          const lambdaNm = snapshot.effectiveWavelength * 1e9;
+          wavelengthText.string = QuantumWaveInterferenceFluent.deBroglieWavelengthPatternStringProperty.value
+            .replace( '{{value}}', toFixed( lambdaNm, 3 ) );
+        }
+
+        // Slit setting (only show if not the default "Both open")
+        if ( snapshot.slitSetting !== 'BOTH_OPEN' ) {
+          const displayProperty = SLIT_SETTING_DISPLAY_MAP[ snapshot.slitSetting ];
+          slitSettingText.string = displayProperty ? displayProperty.value : snapshot.slitSetting;
+          slitSettingText.visible = true;
+        }
+        else {
+          slitSettingText.visible = false;
+        }
+
+        // Detection mode
+        detectionModeText.string = snapshot.detectionMode === DetectionMode.HITS
+                                    ? QuantumWaveInterferenceFluent.hitsStringProperty.value
+                                    : QuantumWaveInterferenceFluent.averageIntensityStringProperty.value;
       }
+
       titleText.left = 6;
       titleText.top = 4;
       canvasNode.invalidatePaint();
@@ -84,11 +153,13 @@ export default class SnapshotNode extends Node {
       touchAreaYDilation: 8
     } );
 
+    // Layout: [snapshot image] [parameter labels] [trash button]
     const contentBox = new HBox( {
-      spacing: 8,
+      spacing: 10,
       align: 'center',
       children: [
         new Node( { children: [ background, canvasNode, titleText ] } ),
+        parameterLabels,
         trashButton
       ]
     } );
