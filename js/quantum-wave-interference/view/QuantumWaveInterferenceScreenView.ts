@@ -31,6 +31,7 @@ import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.
 import SceneModel from '../model/SceneModel.js';
 import SourceType from '../model/SourceType.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
+import FrontFacingSlitNode from './FrontFacingSlitNode.js';
 import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
@@ -219,6 +220,19 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     // Middle Row: Source controls, front-facing slits, front-facing screen, graph
     // ==============================
 
+    // Front-facing slit view - one per scene, with visibility toggling
+    const frontFacingSlitTandem = options.tandem.createTandem( 'frontFacingSlitNodes' );
+    const frontFacingSlitNodes = model.scenes.map( ( scene, index ) => {
+      const slitNode = new FrontFacingSlitNode( scene, {
+        tandem: frontFacingSlitTandem.createTandem( `frontFacingSlitNode${index}` )
+      } );
+      // Position in the middle column, centered under the overhead double slit parallelogram
+      slitNode.centerX = doubleSlitNode.centerX;
+      slitNode.top = 120;
+      this.addChild( slitNode );
+      return slitNode;
+    } );
+
     // Front-facing detector screen - one per scene, with visibility toggling
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
@@ -233,10 +247,12 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       return detectorScreen;
     } );
 
-    // Toggle visibility of detector screens based on the selected scene
+    // Toggle visibility of front-facing slits and detector screens based on the selected scene
     model.sceneProperty.link( selectedScene => {
       model.scenes.forEach( ( scene, index ) => {
-        detectorScreenNodes[ index ].visible = ( scene === selectedScene );
+        const isSelected = scene === selectedScene;
+        frontFacingSlitNodes[ index ].visible = isSelected;
+        detectorScreenNodes[ index ].visible = isSelected;
       } );
     } );
 
