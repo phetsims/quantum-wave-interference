@@ -26,8 +26,10 @@ import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
+import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
+import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -416,6 +418,13 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     detectorScreenParallelogram.y = 48;
     this.addChild( detectorScreenParallelogram );
 
+    // Interference pattern overlay on the overhead detector screen parallelogram.
+    // Renders intensity bands clipped to the parallelogram shape, showing the same
+    // interference pattern that appears on the front-facing detector screen.
+    const overheadPatternNode = new OverheadDetectorPatternNode(
+      DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT );
+    detectorScreenParallelogram.addChild( overheadPatternNode );
+
     // Distance span line between double slit and detector screen (redrawn dynamically)
     const spanLineNode = new Path( null, { stroke: 'black', lineWidth: 1 } );
     this.addChild( spanLineNode );
@@ -559,6 +568,32 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       for ( const propName of beamProperties ) {
         newScene[ propName ].link( updateBeam );
       }
+    } );
+
+    // Wire up overhead pattern updates. The pattern depends on the same properties as the
+    // interference calculation plus detection mode and hits for Hits mode rendering.
+    const updateOverheadPattern = () => {
+      const scene = model.sceneProperty.value;
+      overheadPatternNode.updatePattern( scene );
+    };
+
+    const patternProperties = [
+      'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'velocityProperty',
+      'slitSeparationProperty', 'screenDistanceProperty', 'slitSettingProperty',
+      'detectionModeProperty', 'screenBrightnessProperty'
+    ] as const;
+
+    model.sceneProperty.link( ( newScene, oldScene ) => {
+      if ( oldScene ) {
+        for ( const propName of patternProperties ) {
+          oldScene[ propName ].unlink( updateOverheadPattern );
+        }
+        oldScene.hitsChangedEmitter.removeListener( updateOverheadPattern );
+      }
+      for ( const propName of patternProperties ) {
+        newScene[ propName ].link( updateOverheadPattern );
+      }
+      newScene.hitsChangedEmitter.addListener( updateOverheadPattern );
     } );
 
     // ==============================
@@ -802,6 +837,159 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
    */
   public override step( dt: number ): void {
     // no-op
+  }
+}
+
+/**
+ * CanvasNode that renders the interference pattern on the overhead detector screen parallelogram.
+ * Draws vertical bands whose opacity is proportional to the theoretical intensity at each position.
+ * The node is clipped to the parallelogram shape so bands follow the perspective skew.
+ */
+class OverheadDetectorPatternNode extends CanvasNode {
+
+  private readonly dx: number;
+  private readonly dy: number;
+  private readonly leftHeight: number;
+
+  // Cached scene state for painting
+  private isEmitting = false;
+  private beamColor: Color = new Color( 255, 0, 0 );
+  private intensityValues: number[] = [];
+  private brightness = 0.5;
+  private isHitsMode = false;
+  private hitXPositions: number[] = [];
+
+  public constructor( dx: number, dy: number, leftHeight: number ) {
+    super( {
+      canvasBounds: new Bounds2( 0, 0, dx, leftHeight + dy )
+    } );
+
+    this.dx = dx;
+    this.dy = dy;
+    this.leftHeight = leftHeight;
+
+    // Clip to the parallelogram shape
+    this.clipArea = new Shape()
+      .moveTo( 0, 0 )
+      .lineTo( 0, leftHeight )
+      .lineTo( dx, leftHeight + dy )
+      .lineTo( dx, dy )
+      .close();
+  }
+
+  /**
+   * Updates the cached pattern data from the current scene model, then repaints.
+   */
+  public updatePattern( sceneModel: SceneModel ): void {
+    this.isEmitting = sceneModel.isEmittingProperty.value;
+    this.brightness = sceneModel.screenBrightnessProperty.value;
+    this.isHitsMode = sceneModel.detectionModeProperty.value === DetectionMode.HITS;
+
+    // Determine beam color
+    if ( sceneModel.sourceType === SourceType.PHOTONS ) {
+      this.beamColor = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
+    }
+    else {
+      this.beamColor = new Color( 255, 255, 255 );
+    }
+
+    // Compute intensity values for Average Intensity mode
+    const NUM_BANDS = 50;
+    this.intensityValues = [];
+    for ( let i = 0; i < NUM_BANDS; i++ ) {
+      const fraction = ( i + 0.5 ) / NUM_BANDS; // 0 to 1
+      const normalizedX = fraction * 2 - 1; // -1 to 1
+      const physicalX = normalizedX * sceneModel.screenHalfWidth;
+      this.intensityValues.push( sceneModel.getIntensityAtPosition( physicalX ) );
+    }
+
+    // Cache hit x positions for Hits mode rendering
+    if ( this.isHitsMode ) {
+      this.hitXPositions = sceneModel.hits.map( hit => ( hit.x + 1 ) / 2 ); // Normalize to 0-1
+    }
+    else {
+      this.hitXPositions = [];
+    }
+
+    this.invalidatePaint();
+  }
+
+  /**
+   * Renders the interference pattern bands on the canvas.
+   */
+  public paintCanvas( context: CanvasRenderingContext2D ): void {
+    if ( !this.isEmitting && this.hitXPositions.length === 0 && this.intensityValues.length === 0 ) {
+      return;
+    }
+
+    const dx = this.dx;
+    const dy = this.dy;
+    const leftHeight = this.leftHeight;
+    const r = this.beamColor.red;
+    const g = this.beamColor.green;
+    const b = this.beamColor.blue;
+
+    if ( this.isHitsMode ) {
+      // In Hits mode, render accumulated hits as small dots on the parallelogram
+      if ( this.hitXPositions.length === 0 ) {
+        return;
+      }
+
+      // Bin hits into vertical columns for a density display
+      const NUM_BINS = 50;
+      const bins = new Array<number>( NUM_BINS ).fill( 0 );
+      for ( let i = 0; i < this.hitXPositions.length; i++ ) {
+        const binIndex = Math.min( NUM_BINS - 1, Math.max( 0, Math.floor( this.hitXPositions[ i ] * NUM_BINS ) ) );
+        bins[ binIndex ]++;
+      }
+
+      let maxCount = 0;
+      for ( let i = 0; i < bins.length; i++ ) {
+        if ( bins[ i ] > maxCount ) {
+          maxCount = bins[ i ];
+        }
+      }
+
+      if ( maxCount === 0 ) {
+        return;
+      }
+
+      const bandWidth = dx / NUM_BINS;
+      for ( let i = 0; i < NUM_BINS; i++ ) {
+        if ( bins[ i ] > 0 ) {
+          const alpha = Math.min( 1, ( bins[ i ] / maxCount ) * this.brightness );
+          context.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+
+          // Draw a vertical strip that follows the parallelogram skew
+          const x = i * bandWidth;
+          const topY = ( x / dx ) * dy;
+          context.fillRect( x, topY, bandWidth + 0.5, leftHeight );
+        }
+      }
+    }
+    else {
+      // Average Intensity mode: draw smooth intensity bands
+      if ( !this.isEmitting ) {
+        return;
+      }
+
+      const NUM_BANDS = this.intensityValues.length;
+      const bandWidth = dx / NUM_BANDS;
+
+      for ( let i = 0; i < NUM_BANDS; i++ ) {
+        const intensity = this.intensityValues[ i ];
+        const alpha = intensity * this.brightness;
+
+        if ( alpha > 0.01 ) {
+          context.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+
+          // Draw a vertical strip that follows the parallelogram skew
+          const x = i * bandWidth;
+          const topY = ( x / dx ) * dy;
+          context.fillRect( x, topY, bandWidth + 0.5, leftHeight );
+        }
+      }
+    }
   }
 }
 
