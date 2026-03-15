@@ -74,14 +74,14 @@ export default class DetectorScreenNode extends Node {
     this.screenCanvasNode.clipArea = backgroundRect.shape!;
     this.addChild( this.screenCanvasNode );
 
-    // Hit count text - only visible in Hits mode, positioned inside the screen at top-right
+    // Hit count text - only visible in Hits mode, positioned above the screen on the right side
+    // (per design: "Above the screen... on the right, there is a readout displaying the total number
+    // of detected hits (only if 'Hits' selected)")
     const hitCountText = new Text( '', {
-      font: new PhetFont( 13 ),
-      fill: 'white',
+      font: new PhetFont( 11 ),
+      fill: 'black',
       maxWidth: 100
     } );
-    hitCountText.right = SCREEN_WIDTH - 8;
-    hitCountText.top = 6;
     this.addChild( hitCountText );
 
     // Scale indicator: a double-headed span arrow spanning the full width of the detector screen,
@@ -128,15 +128,16 @@ export default class DetectorScreenNode extends Node {
     else {
       scaleLabelText.string = `${toFixed( fullWidth * 1e6, 1 )} μm`;
     }
-    scaleLabelText.centerX = SCREEN_WIDTH / 2;
+    // Position scale label on the left side above the screen (per design: scale on left, hit count on right)
+    scaleLabelText.left = 0;
     scaleLabelText.bottom = SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2 - 2;
 
     // Update the hit count text and canvas when hits change
     const updateDisplay = () => {
       if ( sceneModel.detectionModeProperty.value === DetectionMode.HITS ) {
         hitCountText.string = `${sceneModel.totalHitsProperty.value} hits`;
-        hitCountText.right = SCREEN_WIDTH - 8;
-        hitCountText.top = 6;
+        hitCountText.right = SCREEN_WIDTH;
+        hitCountText.bottom = SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2 - 2;
         hitCountText.visible = true;
       }
       else {
