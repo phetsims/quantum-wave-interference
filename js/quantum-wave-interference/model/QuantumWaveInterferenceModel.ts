@@ -24,6 +24,7 @@ import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import DetectionMode from './DetectionMode.js';
 import SceneModel from './SceneModel.js';
+import SlitSetting from './SlitSetting.js';
 import SourceType from './SourceType.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -149,6 +150,56 @@ export default class QuantumWaveInterferenceModel implements TModel {
       };
       if ( speedMap[ speedParam ] ) {
         this.timeSpeedProperty.value = speedMap[ speedParam ];
+      }
+    }
+
+    // Apply physics query parameters to the active scene (selected by ?scene or default photons).
+    // String params are parsed as numbers and clamped to the active scene's valid range.
+    const activeScene = this.sceneProperty.value;
+
+    const wavelengthParam = QuantumWaveInterferenceQueryParameters.wavelength;
+    if ( wavelengthParam !== null && activeScene.sourceType === SourceType.PHOTONS ) {
+      const value = parseFloat( wavelengthParam );
+      if ( !isNaN( value ) ) {
+        activeScene.wavelengthProperty.value = activeScene.wavelengthProperty.range.constrainValue( value );
+      }
+    }
+
+    const slitSeparationParam = QuantumWaveInterferenceQueryParameters.slitSeparation;
+    if ( slitSeparationParam !== null ) {
+      const value = parseFloat( slitSeparationParam );
+      if ( !isNaN( value ) ) {
+        activeScene.slitSeparationProperty.value = activeScene.slitSeparationRange.constrainValue( value );
+      }
+    }
+
+    const screenDistanceParam = QuantumWaveInterferenceQueryParameters.screenDistance;
+    if ( screenDistanceParam !== null ) {
+      const value = parseFloat( screenDistanceParam );
+      if ( !isNaN( value ) ) {
+        activeScene.screenDistanceProperty.value = activeScene.screenDistanceRange.constrainValue( value );
+      }
+    }
+
+    const intensityParam = QuantumWaveInterferenceQueryParameters.intensity;
+    if ( intensityParam !== null ) {
+      const value = parseFloat( intensityParam );
+      if ( !isNaN( value ) ) {
+        activeScene.intensityProperty.value = activeScene.intensityProperty.range.constrainValue( value );
+      }
+    }
+
+    const slitSettingParam = QuantumWaveInterferenceQueryParameters.slitSetting;
+    if ( slitSettingParam !== null ) {
+      const settingMap: Record<string, SlitSetting> = {
+        bothOpen: SlitSetting.BOTH_OPEN,
+        leftCovered: SlitSetting.LEFT_COVERED,
+        rightCovered: SlitSetting.RIGHT_COVERED,
+        leftDetector: SlitSetting.LEFT_DETECTOR,
+        rightDetector: SlitSetting.RIGHT_DETECTOR
+      };
+      if ( settingMap[ slitSettingParam ] ) {
+        activeScene.slitSettingProperty.value = settingMap[ slitSettingParam ];
       }
     }
   }

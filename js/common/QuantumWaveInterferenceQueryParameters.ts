@@ -40,6 +40,39 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
   // Starts with the graph accordion box expanded
   graphExpanded: {
     type: 'flag'
+  },
+
+  // Sets the initial wavelength (nm) for the photon scene (e.g., ?wavelength=500).
+  // Useful for testing wavelength-dependent rendering (beam color, hit dot color, intensity bands).
+  wavelength: {
+    type: 'string',
+    defaultValue: null
+  },
+
+  // Sets the initial slit separation (mm) for the active scene (e.g., ?slitSeparation=0.5).
+  slitSeparation: {
+    type: 'string',
+    defaultValue: null
+  },
+
+  // Sets the initial screen distance (m) for the active scene (e.g., ?screenDistance=0.6).
+  screenDistance: {
+    type: 'string',
+    defaultValue: null
+  },
+
+  // Sets the initial intensity (0–1) for the active scene (e.g., ?intensity=0.8).
+  intensity: {
+    type: 'string',
+    defaultValue: null
+  },
+
+  // Sets the initial slit setting. Values: 'bothOpen', 'leftCovered', 'rightCovered',
+  // 'leftDetector', 'rightDetector'
+  slitSetting: {
+    type: 'string',
+    defaultValue: null,
+    validValues: [ null, 'bothOpen', 'leftCovered', 'rightCovered', 'leftDetector', 'rightDetector' ]
   }
 } );
 
