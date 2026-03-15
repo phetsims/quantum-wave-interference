@@ -18,6 +18,7 @@ import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import RulerNode from '../../../../scenery-phet/js/RulerNode.js';
@@ -31,6 +32,7 @@ import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
+import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -435,9 +437,29 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT );
     detectorScreenParallelogram.addChild( overheadPatternNode );
 
-    // Distance span line between double slit and detector screen (redrawn dynamically)
-    const spanLineNode = new Path( null, { stroke: 'black', lineWidth: 1 } );
-    this.addChild( spanLineNode );
+    // Distance span between double slit and detector screen: a double-headed arrow
+    // with tick marks at each end and a distance label, matching the span indicator style
+    // used in FrontFacingSlitNode and the design mockup.
+    const SPAN_TICK_LENGTH = 8;
+    const distanceSpanArrow = new ArrowNode( 0, 0, 1, 0, {
+      headHeight: 5,
+      headWidth: 5,
+      tailWidth: 1,
+      doubleHead: true,
+      fill: 'black',
+      stroke: null
+    } );
+    this.addChild( distanceSpanArrow );
+
+    const distanceSpanLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
+      stroke: 'black', lineWidth: 1
+    } );
+    this.addChild( distanceSpanLeftTick );
+
+    const distanceSpanRightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
+      stroke: 'black', lineWidth: 1
+    } );
+    this.addChild( distanceSpanRightTick );
 
     // Distance readout text (updates with screen distance)
     const distanceText = new Text( '', {
@@ -473,23 +495,21 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       detectorScreenLabel.centerX = detectorScreenParallelogram.centerX;
       detectorScreenLabel.bottom = detectorScreenParallelogram.top - 4;
 
-      // Update span line between double slit and detector screen
+      // Update distance span between double slit and detector screen
       const spanY = Math.max( doubleSlitNode.bottom, detectorScreenParallelogram.bottom ) + 12;
       const leftX = doubleSlitNode.centerX;
       const rightX = detectorScreenParallelogram.centerX;
-      const TICK_HALF = 4;
-      spanLineNode.shape = new Shape()
-        // Horizontal line
-        .moveTo( leftX, spanY ).lineTo( rightX, spanY )
-        // Left tick
-        .moveTo( leftX, spanY - TICK_HALF ).lineTo( leftX, spanY + TICK_HALF )
-        // Right tick
-        .moveTo( rightX, spanY - TICK_HALF ).lineTo( rightX, spanY + TICK_HALF );
+
+      distanceSpanArrow.setTailAndTip( leftX, spanY, rightX, spanY );
+      distanceSpanLeftTick.x = leftX;
+      distanceSpanLeftTick.centerY = spanY;
+      distanceSpanRightTick.x = rightX;
+      distanceSpanRightTick.centerY = spanY;
 
       // Update distance text
       distanceText.string = `${toFixed( distance, 1 )} m`;
       distanceText.centerX = ( leftX + rightX ) / 2;
-      distanceText.bottom = spanY - 3;
+      distanceText.bottom = spanY - SPAN_TICK_LENGTH / 2 - 2;
     };
 
     // Link to current scene and its screen distance
