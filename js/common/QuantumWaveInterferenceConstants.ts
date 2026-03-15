@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * QuantumWaveInterferenceConstants is the set of constants used throughout the 'Simula Rasa' simulation.
+ * QuantumWaveInterferenceConstants is the set of constants used throughout the 'Quantum Wave Interference' simulation.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

@@ -29,8 +29,6 @@ type StringsType = {
   'doubleSlitStringProperty': LocalizedStringProperty;
   'detectorScreenStringProperty': LocalizedStringProperty;
   'intensityStringProperty': LocalizedStringProperty;
-  'velocityStringProperty': LocalizedStringProperty;
-  'velocityPatternStringProperty': LocalizedStringProperty;
   'particleSpeedStringProperty': LocalizedStringProperty;
   'emissionRateStringProperty': LocalizedStringProperty;
   'particleSpeedKmPerSecondPatternStringProperty': LocalizedStringProperty;

@@ -25,15 +25,12 @@ simLauncher.launch( () => {
 
   const options: SimOptions = {
 
-    //TODO fill in credits, all of these fields are optional, see joist.CreditsNode, see https://github.com/phetsims/quantum-wave-interference/issues/3
     credits: {
-      leadDesign: '',
-      softwareDevelopment: '',
-      team: '',
-      contributors: '',
+      leadDesign: 'Amy Rouinfar',
+      softwareDevelopment: 'Sam Reid',
+      team: 'Wendy Adams, Diana L\u00f3pez Tavares, Ariel Paul, Kathy Perkins',
       qualityAssurance: '',
       graphicArts: '',
-      soundDesign: '',
       thanks: ''
     }
   };

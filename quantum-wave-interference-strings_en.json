@@ -38,12 +38,6 @@
   "intensity": {
     "value": "Intensity"
   },
-  "velocity": {
-    "value": "Velocity"
-  },
-  "velocityPattern": {
-    "value": "{0} m/s"
-  },
   "particleSpeed": {
     "value": "Particle Speed"
   },

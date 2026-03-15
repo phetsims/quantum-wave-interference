@@ -36,7 +36,6 @@ addToMapIfDefined( 'heliumAtomSource', 'heliumAtomSourceStringProperty' );
 addToMapIfDefined( 'doubleSlit', 'doubleSlitStringProperty' );
 addToMapIfDefined( 'detectorScreen', 'detectorScreenStringProperty' );
 addToMapIfDefined( 'intensity', 'intensityStringProperty' );
-addToMapIfDefined( 'velocity', 'velocityStringProperty' );
 addToMapIfDefined( 'particleSpeed', 'particleSpeedStringProperty' );
 addToMapIfDefined( 'emissionRate', 'emissionRateStringProperty' );
 addToMapIfDefined( 'min', 'minStringProperty' );
@@ -89,8 +88,6 @@ const QuantumWaveInterferenceFluent = {
   doubleSlitStringProperty: _.get( QuantumWaveInterferenceStrings, 'doubleSlitStringProperty' ),
   detectorScreenStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorScreenStringProperty' ),
   intensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'intensityStringProperty' ),
-  velocityStringProperty: _.get( QuantumWaveInterferenceStrings, 'velocityStringProperty' ),
-  velocityPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'velocityPatternStringProperty' ),
   particleSpeedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedStringProperty' ),
   emissionRateStringProperty: _.get( QuantumWaveInterferenceStrings, 'emissionRateStringProperty' ),
   particleSpeedKmPerSecondPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedKmPerSecondPatternStringProperty' ),
