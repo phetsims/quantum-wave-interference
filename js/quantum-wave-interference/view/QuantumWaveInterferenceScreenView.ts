@@ -758,15 +758,33 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     // span below the view is not obscured by the panel's background.
     frontFacingSlitNodes.forEach( n => n.moveToFront() );
 
-    // Screen settings panel (detection mode + brightness)
+    // Screen settings panel (detection mode + brightness).
+    // Per the design mockup, the screen settings panel is in the right column of the bottom row,
+    // positioned below the graph accordion box and left-aligned with it.
     const screenSettingsPanel = new ScreenSettingsPanel( model.sceneProperty, {
       tandem: options.tandem.createTandem( 'screenSettingsPanel' )
     } );
-    screenSettingsPanel.left = slitControlPanel.right + 20;
+    screenSettingsPanel.left = this.graphAccordionBoxes[ 0 ].left;
     screenSettingsPanel.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     this.addChild( screenSettingsPanel );
 
-    // Time controls: play/pause button with step-forward and speed radio buttons
+    // Ruler checkbox - positioned to the right of the screen settings panel, per the design mockup
+    const rulerCheckboxLabel = new Text( QuantumWaveInterferenceFluent.rulerStringProperty, {
+      font: new PhetFont( 15 ),
+      maxWidth: 80
+    } );
+    const rulerCheckbox = new Checkbox( model.isRulerVisibleProperty, rulerCheckboxLabel, {
+      boxWidth: 16,
+      spacing: 6,
+      tandem: options.tandem.createTandem( 'rulerCheckbox' )
+    } );
+    rulerCheckbox.left = screenSettingsPanel.right + 20;
+    rulerCheckbox.top = screenSettingsPanel.top;
+    this.addChild( rulerCheckbox );
+
+    // Time controls: play/pause button with step-forward and speed radio buttons.
+    // Per the design mockup, the time controls are below the ruler checkbox, to the right
+    // of the screen settings panel.
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
       timeSpeeds: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
@@ -783,23 +801,9 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       },
       tandem: options.tandem.createTandem( 'timeControlNode' )
     } );
-    timeControlNode.left = screenSettingsPanel.right + 20;
-    timeControlNode.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+    timeControlNode.left = rulerCheckbox.left;
+    timeControlNode.top = rulerCheckbox.bottom + 8;
     this.addChild( timeControlNode );
-
-    // Ruler checkbox - positioned above the time controls, per the design mockup
-    const rulerCheckboxLabel = new Text( QuantumWaveInterferenceFluent.rulerStringProperty, {
-      font: new PhetFont( 15 ),
-      maxWidth: 80
-    } );
-    const rulerCheckbox = new Checkbox( model.isRulerVisibleProperty, rulerCheckboxLabel, {
-      boxWidth: 16,
-      spacing: 6,
-      tandem: options.tandem.createTandem( 'rulerCheckbox' )
-    } );
-    rulerCheckbox.left = timeControlNode.left;
-    rulerCheckbox.bottom = timeControlNode.top - 10;
-    this.addChild( rulerCheckbox );
 
     // Draggable ruler - 10 cm with major ticks each cm, displayed in front of all other content
     const RULER_CM_COUNT = 10;
