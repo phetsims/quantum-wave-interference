@@ -1006,11 +1006,8 @@ class OverheadDetectorPatternNode extends CanvasNode {
       }
     }
     else {
-      // Average Intensity mode: draw smooth intensity bands
-      if ( !this.isEmitting ) {
-        return;
-      }
-
+      // Average Intensity mode: draw smooth intensity bands from accumulated data.
+      // Data persists even when the emitter is turned off.
       const NUM_BANDS = this.intensityValues.length;
       const bandWidth = dx / NUM_BANDS;
 
