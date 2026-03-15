@@ -20,9 +20,13 @@ import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
+import Color from '../../../../scenery/js/util/Color.js';
+import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
+import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
@@ -104,6 +108,22 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       tandem: options.tandem.createTandem( 'laserPointerNode' )
     } );
     this.addChild( laserPointerNode );
+
+    // ==============================
+    // Beam visualization (behind the slit and screen parallelograms)
+    // ==============================
+
+    // Beam rectangle from emitter nozzle tip to double slit
+    const emitterBeamNode = new Rectangle( 0, 0, 1, 1, {
+      visible: false
+    } );
+    this.addChild( emitterBeamNode );
+
+    // Trapezoid beam from double slit to detector screen (fans out and fades)
+    const fanBeamNode = new Path( null, {
+      visible: false
+    } );
+    this.addChild( fanBeamNode );
 
     // Double slit label
     const doubleSlitLabel = new Text( QuantumWaveInterferenceFluent.doubleSlitStringProperty, {
@@ -214,6 +234,84 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
         oldScene.screenDistanceProperty.unlink( updateDistanceText );
       }
       newScene.screenDistanceProperty.link( updateDistanceText );
+    } );
+
+    // ==============================
+    // Beam update logic
+    // ==============================
+
+    // The beam color depends on source type and wavelength. For photons, use the visible color
+    // corresponding to the wavelength. For particles, use gray.
+    const PARTICLE_BEAM_COLOR = new Color( 180, 180, 180 );
+
+    const updateBeam = () => {
+      const scene = model.sceneProperty.value;
+      const isEmitting = scene.isEmittingProperty.value;
+      const intensity = scene.intensityProperty.value;
+
+      emitterBeamNode.visible = isEmitting;
+      fanBeamNode.visible = isEmitting;
+
+      if ( !isEmitting ) {
+        return;
+      }
+
+      // Determine beam color
+      const beamColor = scene.sourceType === SourceType.PHOTONS
+                         ? VisibleColor.wavelengthToColor( scene.wavelengthProperty.value )
+                         : PARTICLE_BEAM_COLOR;
+
+      // Emitter beam: rectangle from laser nozzle tip to the left edge of the double slit parallelogram.
+      // The laser nozzle height is 32 (nozzleSize height from LaserPointerNode options).
+      const nozzleTipX = laserPointerNode.right;
+      const laserCenterY = laserPointerNode.centerY;
+      const beamHeight = 32; // matches nozzle height
+      const beamLeft = nozzleTipX;
+      const beamRight = doubleSlitNode.left;
+
+      emitterBeamNode.setRect( beamLeft, laserCenterY - beamHeight / 2, beamRight - beamLeft, beamHeight );
+      emitterBeamNode.fill = beamColor.withAlpha( 0.4 * intensity );
+
+      // Fan beam: trapezoid from double slit right edge to detector screen left edge.
+      // It fans out vertically — narrow at the slit side, wider at the screen side.
+      const fanLeft = doubleSlitNode.right;
+      const fanRight = detectorScreenNode.left;
+      const narrowHalfHeight = beamHeight / 2; // Same as beam height at the slit
+
+      // Use the visual center of each parallelogram for beam alignment.
+      // Parallelogram vertices span from y=0 to y=leftHeight on the left and y=dy to y=leftHeight+dy
+      // on the right, so the vertical center is at (leftHeight + dy) / 2.
+      const slitCenterY = doubleSlitNode.y + ( 50 + 21 ) / 2; // doubleSlitNode params: leftHeight=50, dy=21
+      const screenCenterY = detectorScreenNode.y + ( 48 + 24 ) / 2; // detectorScreenNode params: leftHeight=48, dy=24
+      const wideHalfHeight = ( detectorScreenNode.height ) / 2; // Fans out to detector screen height
+
+      const fanShape = new Shape()
+        .moveTo( fanLeft, slitCenterY - narrowHalfHeight )
+        .lineTo( fanRight, screenCenterY - wideHalfHeight )
+        .lineTo( fanRight, screenCenterY + wideHalfHeight )
+        .lineTo( fanLeft, slitCenterY + narrowHalfHeight )
+        .close();
+      fanBeamNode.shape = fanShape;
+
+      // Gradient that fades from beam color (with opacity) to transparent
+      const gradient = new LinearGradient( fanLeft, 0, fanRight, 0 )
+        .addColorStop( 0, beamColor.withAlpha( 0.3 * intensity ) )
+        .addColorStop( 1, beamColor.withAlpha( 0 ) );
+      fanBeamNode.fill = gradient;
+    };
+
+    // Wire up beam updates to the relevant properties via DynamicProperty-style manual linking.
+    // When the scene changes, unlink from the old scene's properties and link to the new ones.
+    const beamProperties = [ 'isEmittingProperty', 'intensityProperty', 'wavelengthProperty' ] as const;
+    model.sceneProperty.link( ( newScene, oldScene ) => {
+      if ( oldScene ) {
+        for ( const propName of beamProperties ) {
+          oldScene[ propName ].unlink( updateBeam );
+        }
+      }
+      for ( const propName of beamProperties ) {
+        newScene[ propName ].link( updateBeam );
+      }
     } );
 
     // ==============================
