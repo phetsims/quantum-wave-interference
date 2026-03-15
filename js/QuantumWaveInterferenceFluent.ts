@@ -47,6 +47,9 @@ addToMapIfDefined( 'leftCovered', 'leftCoveredStringProperty' );
 addToMapIfDefined( 'rightCovered', 'rightCoveredStringProperty' );
 addToMapIfDefined( 'leftDetector', 'leftDetectorStringProperty' );
 addToMapIfDefined( 'rightDetector', 'rightDetectorStringProperty' );
+addToMapIfDefined( 'averageIntensity', 'averageIntensityStringProperty' );
+addToMapIfDefined( 'hits', 'hitsStringProperty' );
+addToMapIfDefined( 'screenBrightness', 'screenBrightnessStringProperty' );
 
 // A function that creates contents for a new Fluent file, which will be needed if any string changes.
 const createFluentFile = (): string => {
@@ -90,7 +93,10 @@ const QuantumWaveInterferenceFluent = {
   leftCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'leftCoveredStringProperty' ),
   rightCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'rightCoveredStringProperty' ),
   leftDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'leftDetectorStringProperty' ),
-  rightDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'rightDetectorStringProperty' )
+  rightDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'rightDetectorStringProperty' ),
+  averageIntensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'averageIntensityStringProperty' ),
+  hitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsStringProperty' ),
+  screenBrightnessStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenBrightnessStringProperty' )
 };
 
 export default QuantumWaveInterferenceFluent;

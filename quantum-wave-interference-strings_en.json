@@ -79,5 +79,14 @@
   },
   "rightDetector": {
     "value": "Right detector"
+  },
+  "averageIntensity": {
+    "value": "Average intensity"
+  },
+  "hits": {
+    "value": "Hits"
+  },
+  "screenBrightness": {
+    "value": "Screen brightness"
   }
 }

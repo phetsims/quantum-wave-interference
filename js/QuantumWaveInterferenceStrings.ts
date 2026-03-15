@@ -43,6 +43,9 @@ type StringsType = {
   'rightCoveredStringProperty': LocalizedStringProperty;
   'leftDetectorStringProperty': LocalizedStringProperty;
   'rightDetectorStringProperty': LocalizedStringProperty;
+  'averageIntensityStringProperty': LocalizedStringProperty;
+  'hitsStringProperty': LocalizedStringProperty;
+  'screenBrightnessStringProperty': LocalizedStringProperty;
 };
 
 const QuantumWaveInterferenceStrings = getStringModule( 'QUANTUM_WAVE_INTERFERENCE' ) as StringsType;

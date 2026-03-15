@@ -32,6 +32,7 @@ import SceneModel from '../model/SceneModel.js';
 import SourceType from '../model/SourceType.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
+import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
 import SourceControlPanel from './SourceControlPanel.js';
 
@@ -278,6 +279,14 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     slitControlPanel.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     this.addChild( slitControlPanel );
 
+    // Screen settings panel (detection mode + brightness)
+    const screenSettingsPanel = new ScreenSettingsPanel( model.sceneProperty, {
+      tandem: options.tandem.createTandem( 'screenSettingsPanel' )
+    } );
+    screenSettingsPanel.left = slitControlPanel.right + 20;
+    screenSettingsPanel.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+    this.addChild( screenSettingsPanel );
+
     // Time controls: play/pause button with step-forward and speed radio buttons
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
@@ -295,7 +304,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       },
       tandem: options.tandem.createTandem( 'timeControlNode' )
     } );
-    timeControlNode.centerX = slitControlPanel.centerX;
+    timeControlNode.left = screenSettingsPanel.right + 20;
     timeControlNode.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     this.addChild( timeControlNode );
 
