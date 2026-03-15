@@ -36,6 +36,7 @@ import SceneModel from '../model/SceneModel.js';
 import SourceType from '../model/SourceType.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
+import GraphAccordionBox from './GraphAccordionBox.js';
 import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
@@ -50,6 +51,8 @@ type SelfOptions = EmptySelfOptions;
 type QuantumWaveInterferenceScreenViewOptions = SelfOptions & ScreenViewOptions;
 
 export default class QuantumWaveInterferenceScreenView extends ScreenView {
+
+  private readonly graphAccordionBoxes: GraphAccordionBox[];
 
   public constructor( model: QuantumWaveInterferenceModel, providedOptions: QuantumWaveInterferenceScreenViewOptions ) {
 
@@ -345,12 +348,26 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       return detectorScreen;
     } );
 
-    // Toggle visibility of front-facing slits and detector screens based on the selected scene
+    // Graph accordion box - one per scene, positioned below the front-facing detector screen
+    const graphTandem = options.tandem.createTandem( 'graphAccordionBoxes' );
+    this.graphAccordionBoxes = model.scenes.map( ( scene, index ) => {
+      const graphBox = new GraphAccordionBox( scene, {
+        tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
+      } );
+      // Position below the front-facing detector screen, left-aligned
+      graphBox.left = detectorScreenNodes[ 0 ].left;
+      graphBox.top = detectorScreenNodes[ 0 ].top + 250 + 8; // SCREEN_HEIGHT + spacing
+      this.addChild( graphBox );
+      return graphBox;
+    } );
+
+    // Toggle visibility of front-facing slits, detector screens, and graphs based on the selected scene
     model.sceneProperty.link( selectedScene => {
       model.scenes.forEach( ( scene, index ) => {
         const isSelected = scene === selectedScene;
         frontFacingSlitNodes[ index ].visible = isSelected;
         detectorScreenNodes[ index ].visible = isSelected;
+        this.graphAccordionBoxes[ index ].visible = isSelected;
       } );
     } );
 
@@ -461,7 +478,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
    * Resets the view.
    */
   public reset(): void {
-    // no-op
+    this.graphAccordionBoxes.forEach( box => box.reset() );
   }
 
   /**

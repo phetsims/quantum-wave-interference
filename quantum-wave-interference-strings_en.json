@@ -88,5 +88,11 @@
   },
   "screenBrightness": {
     "value": "Screen brightness"
+  },
+  "graph": {
+    "value": "Graph"
+  },
+  "count": {
+    "value": "Count"
   }
 }
