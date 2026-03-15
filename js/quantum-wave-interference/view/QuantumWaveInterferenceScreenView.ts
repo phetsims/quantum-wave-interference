@@ -244,8 +244,9 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     doubleSlitLabel.centerX = doubleSlitNode.centerX;
     doubleSlitLabel.bottom = doubleSlitNode.top - 4;
 
-    // Slit lines on the parallelogram (two thin white vertical lines representing the slits)
-    // These are positioned within the parallelogram, offset to account for the skew
+    // Slit lines on the parallelogram (two thin white vertical lines representing the slits).
+    // These update dynamically based on the scene's slit separation, matching the front-facing
+    // slit view behavior per the design requirement.
     const slitLineLength = 25;
     const slitXFraction = 0.55; // fraction across the parallelogram width
     const slitYCenter = 25; // center of the left edge height
@@ -254,17 +255,17 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     const slitBaseX = slitXFraction * 51;
     const slitBaseY = slitYCenter + slitXFraction * 21;
 
-    // Slit spacing (visual representation of slit separation)
-    const visualSlitSpacing = 3;
+    // Visual spacing range for the slit lines on the parallelogram (in local coordinates).
+    // At minimum slit separation, lines are close together; at maximum, far apart.
+    const MIN_VISUAL_SLIT_SPACING = 2;
+    const MAX_VISUAL_SLIT_SPACING = 12;
 
-    const leftSlitLine = new Path( Shape.lineSegment( slitBaseX - visualSlitSpacing / 2, slitBaseY - slitLineLength / 2,
-      slitBaseX - visualSlitSpacing / 2, slitBaseY + slitLineLength / 2 ), {
+    const leftSlitLine = new Path( null, {
       stroke: 'white',
       lineWidth: 1
     } );
 
-    const rightSlitLine = new Path( Shape.lineSegment( slitBaseX + visualSlitSpacing / 2, slitBaseY - slitLineLength / 2,
-      slitBaseX + visualSlitSpacing / 2, slitBaseY + slitLineLength / 2 ), {
+    const rightSlitLine = new Path( null, {
       stroke: 'white',
       lineWidth: 1
     } );
@@ -276,58 +277,76 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     const slitOverlayHeight = slitLineLength + 4;
     const slitOverlayWidth = 5;
 
-    const leftSlitCover = new Rectangle(
-      slitBaseX - visualSlitSpacing / 2 - slitOverlayWidth / 2,
-      slitBaseY - slitOverlayHeight / 2,
-      slitOverlayWidth, slitOverlayHeight, {
-        fill: '#555',
-        visible: false
-      } );
+    const leftSlitCover = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
+      fill: '#555',
+      visible: false
+    } );
     doubleSlitNode.addChild( leftSlitCover );
 
-    const rightSlitCover = new Rectangle(
-      slitBaseX + visualSlitSpacing / 2 - slitOverlayWidth / 2,
-      slitBaseY - slitOverlayHeight / 2,
-      slitOverlayWidth, slitOverlayHeight, {
-        fill: '#555',
-        visible: false
-      } );
+    const rightSlitCover = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
+      fill: '#555',
+      visible: false
+    } );
     doubleSlitNode.addChild( rightSlitCover );
 
     // Detector overlays (yellow, distinct from gray covers)
-    const leftSlitDetectorOverlay = new Rectangle(
-      slitBaseX - visualSlitSpacing / 2 - slitOverlayWidth / 2,
-      slitBaseY - slitOverlayHeight / 2,
-      slitOverlayWidth, slitOverlayHeight, {
-        fill: new Color( 255, 200, 50, 0.8 ),
-        visible: false
-      } );
+    const leftSlitDetectorOverlay = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
+      fill: new Color( 255, 200, 50, 0.8 ),
+      visible: false
+    } );
     doubleSlitNode.addChild( leftSlitDetectorOverlay );
 
-    const rightSlitDetectorOverlay = new Rectangle(
-      slitBaseX + visualSlitSpacing / 2 - slitOverlayWidth / 2,
-      slitBaseY - slitOverlayHeight / 2,
-      slitOverlayWidth, slitOverlayHeight, {
-        fill: new Color( 255, 200, 50, 0.8 ),
-        visible: false
-      } );
+    const rightSlitDetectorOverlay = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
+      fill: new Color( 255, 200, 50, 0.8 ),
+      visible: false
+    } );
     doubleSlitNode.addChild( rightSlitDetectorOverlay );
 
-    // Update cover/detector visibility on the overhead parallelogram based on slit setting
-    const updateSlitOverlays = () => {
-      const slitSetting = model.sceneProperty.value.slitSettingProperty.value;
+    // Updates the positions of slit lines, covers, and detector overlays on the overhead
+    // parallelogram to reflect the current slit separation and slit setting.
+    const updateOverheadSlits = () => {
+      const scene = model.sceneProperty.value;
+      const separation = scene.slitSeparationProperty.value;
+      const range = scene.slitSeparationRange;
+      const fraction = ( separation - range.min ) / ( range.max - range.min );
+      const visualSpacing = MIN_VISUAL_SLIT_SPACING + fraction * ( MAX_VISUAL_SLIT_SPACING - MIN_VISUAL_SLIT_SPACING );
+
+      const leftX = slitBaseX - visualSpacing / 2;
+      const rightX = slitBaseX + visualSpacing / 2;
+
+      // Update slit line shapes
+      leftSlitLine.shape = Shape.lineSegment( leftX, slitBaseY - slitLineLength / 2,
+        leftX, slitBaseY + slitLineLength / 2 );
+      rightSlitLine.shape = Shape.lineSegment( rightX, slitBaseY - slitLineLength / 2,
+        rightX, slitBaseY + slitLineLength / 2 );
+
+      // Reposition cover and detector overlays to track the slit positions
+      leftSlitCover.x = leftX - slitOverlayWidth / 2;
+      leftSlitCover.y = slitBaseY - slitOverlayHeight / 2;
+      rightSlitCover.x = rightX - slitOverlayWidth / 2;
+      rightSlitCover.y = slitBaseY - slitOverlayHeight / 2;
+
+      leftSlitDetectorOverlay.x = leftX - slitOverlayWidth / 2;
+      leftSlitDetectorOverlay.y = slitBaseY - slitOverlayHeight / 2;
+      rightSlitDetectorOverlay.x = rightX - slitOverlayWidth / 2;
+      rightSlitDetectorOverlay.y = slitBaseY - slitOverlayHeight / 2;
+
+      // Update cover/detector visibility based on slit setting
+      const slitSetting = scene.slitSettingProperty.value;
       leftSlitCover.visible = ( slitSetting === SlitSetting.LEFT_COVERED );
       rightSlitCover.visible = ( slitSetting === SlitSetting.RIGHT_COVERED );
       leftSlitDetectorOverlay.visible = ( slitSetting === SlitSetting.LEFT_DETECTOR );
       rightSlitDetectorOverlay.visible = ( slitSetting === SlitSetting.RIGHT_DETECTOR );
     };
 
-    // Wire up overlay updates when scene or slit setting changes
+    // Wire up overhead slit updates when scene, slit separation, or slit setting changes
     model.sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
-        oldScene.slitSettingProperty.unlink( updateSlitOverlays );
+        oldScene.slitSeparationProperty.unlink( updateOverheadSlits );
+        oldScene.slitSettingProperty.unlink( updateOverheadSlits );
       }
-      newScene.slitSettingProperty.link( updateSlitOverlays );
+      newScene.slitSeparationProperty.link( updateOverheadSlits );
+      newScene.slitSettingProperty.link( updateOverheadSlits );
     } );
 
     // ==============================
