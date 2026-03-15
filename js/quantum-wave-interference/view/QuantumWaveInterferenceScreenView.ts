@@ -738,7 +738,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     // Time controls: play/pause button with step-forward and speed radio buttons
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
-      timeSpeeds: [ TimeSpeed.FAST, TimeSpeed.NORMAL, TimeSpeed.SLOW ],
+      timeSpeeds: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
       flowBoxSpacing: 15,
       playPauseStepButtonOptions: {
         stepForwardButtonOptions: {

@@ -145,6 +145,9 @@ export default class SceneModel extends PhetioObject {
 
     // Set per-source-type constants. screenHalfWidth is the physical half-width of the detector
     // screen in meters, chosen so that approximately 10 fringes are visible at default settings.
+    // defaultScreenDistance is set per source type to match the design mockup initial state.
+    let defaultScreenDistance: number;
+
     if ( options.sourceType === SourceType.PHOTONS ) {
       this.particleMass = 0;
       this.slitWidth = 0.1; // mm
@@ -152,6 +155,7 @@ export default class SceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.2, 1.0 ); // mm
       this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
       this.screenHalfWidth = 0.005; // 5 mm
+      defaultScreenDistance = 0.5; // Per design mockup
     }
     else if ( options.sourceType === SourceType.ELECTRONS ) {
       this.particleMass = ELECTRON_MASS;
@@ -160,6 +164,7 @@ export default class SceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.002, 0.01 ); // mm
       this.screenDistanceRange = new Range( 0.1, 0.5 ); // m
       this.screenHalfWidth = 5e-5; // 0.05 mm
+      defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
     }
     else if ( options.sourceType === SourceType.NEUTRONS ) {
       this.particleMass = NEUTRON_MASS;
@@ -168,6 +173,7 @@ export default class SceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.02, 0.1 ); // mm
       this.screenDistanceRange = new Range( 0.5, 5.0 ); // m
       this.screenHalfWidth = 1e-4; // 0.1 mm
+      defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
     }
     else {
       // Helium atoms
@@ -177,6 +183,7 @@ export default class SceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.002, 0.01 ); // mm
       this.screenDistanceRange = new Range( 0.5, 2.0 ); // m
       this.screenHalfWidth = 1e-4; // 0.1 mm
+      defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
     }
 
     this.hits = [];
@@ -219,13 +226,11 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'slitSeparationProperty' )
     } );
 
-    this.screenDistanceProperty = new NumberProperty(
-      ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2, {
-        range: this.screenDistanceRange,
-        units: 'm',
-        tandem: tandem.createTandem( 'screenDistanceProperty' )
-      }
-    );
+    this.screenDistanceProperty = new NumberProperty( defaultScreenDistance, {
+      range: this.screenDistanceRange,
+      units: 'm',
+      tandem: tandem.createTandem( 'screenDistanceProperty' )
+    } );
 
     this.slitSettingProperty = new EnumerationProperty( SlitSetting.BOTH_OPEN, {
       tandem: tandem.createTandem( 'slitSettingProperty' )
