@@ -97,9 +97,11 @@ export default class SourceControlPanel extends Panel {
       maxWidth: 40
     } ) );
 
-    // Both photon and particle scenes use "Intensity" per the design document:
-    // "the panel contains a Velocity NumberControl and Intensity Slider"
-    const intensityLabelStringProperty = QuantumWaveInterferenceFluent.intensityStringProperty;
+    // Photon scenes use "Intensity" while particle scenes use "Emission Rate" per the
+    // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
+    const intensityLabelStringProperty = scene.sourceType === SourceType.PHOTONS
+                                          ? QuantumWaveInterferenceFluent.intensityStringProperty
+                                          : QuantumWaveInterferenceFluent.emissionRateStringProperty;
     const intensityLabel = new Text( intensityLabelStringProperty, {
       font: TITLE_FONT,
       maxWidth: 120
@@ -173,8 +175,10 @@ export default class SourceControlPanel extends Panel {
         }
       };
 
+      // Use "Particle Speed" per the ElectronEmitter.svg design mockup, which is more
+      // student-friendly than the physics term "Velocity".
       topControl = new NumberControl(
-        QuantumWaveInterferenceFluent.velocityStringProperty,
+        QuantumWaveInterferenceFluent.particleSpeedStringProperty,
         scene.velocityProperty,
         velocityRange,
         {
