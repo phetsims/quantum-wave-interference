@@ -28,7 +28,6 @@ import Checkbox from '../../../../sun/js/Checkbox.js';
 import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
-import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -187,60 +186,77 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
     // Detector screen parallelogram (overhead perspective view)
     // Based on SVG: left edge height 48, right edge offset (60, 24)
-    const detectorScreenNode = QuantumWaveInterferenceScreenView.createParallelogramNode( 60, 24, 48, 'black' );
-    detectorScreenNode.x = 870;
-    detectorScreenNode.y = 48;
-    this.addChild( detectorScreenNode );
+    const DETECTOR_DX = 60;
+    const DETECTOR_DY = 24;
+    const DETECTOR_LEFT_HEIGHT = 48;
+    const detectorScreenParallelogram = QuantumWaveInterferenceScreenView.createParallelogramNode(
+      DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT, 'black' );
+    detectorScreenParallelogram.y = 48;
+    this.addChild( detectorScreenParallelogram );
 
-    // Position label centered above the detector screen
-    detectorScreenLabel.centerX = detectorScreenNode.centerX;
-    detectorScreenLabel.bottom = detectorScreenNode.top - 4;
-
-    // Distance span line between double slit and detector screen
-    const spanY = Math.max( doubleSlitNode.bottom, detectorScreenNode.bottom ) + 12;
-    const spanLineNode = new Node( {
-      children: [
-        // Horizontal line
-        new Path( Shape.lineSegment(
-          doubleSlitNode.centerX, spanY,
-          detectorScreenNode.centerX, spanY
-        ), { stroke: 'black', lineWidth: 1 } ),
-        // Left tick
-        new Path( Shape.lineSegment(
-          doubleSlitNode.centerX, spanY - 4,
-          doubleSlitNode.centerX, spanY + 4
-        ), { stroke: 'black', lineWidth: 1 } ),
-        // Right tick
-        new Path( Shape.lineSegment(
-          detectorScreenNode.centerX, spanY - 4,
-          detectorScreenNode.centerX, spanY + 4
-        ), { stroke: 'black', lineWidth: 1 } )
-      ]
-    } );
+    // Distance span line between double slit and detector screen (redrawn dynamically)
+    const spanLineNode = new Path( null, { stroke: 'black', lineWidth: 1 } );
     this.addChild( spanLineNode );
 
     // Distance readout text (updates with screen distance)
     const distanceText = new Text( '', {
-      font: new PhetFont( 13 ),
-      centerX: ( doubleSlitNode.centerX + detectorScreenNode.centerX ) / 2,
-      bottom: spanY - 3
+      font: new PhetFont( 13 )
     } );
     this.addChild( distanceText );
 
-    // Update the distance text when the active scene's screen distance changes
-    const updateDistanceText = () => {
+    // The detector screen parallelogram slides horizontally based on screen distance.
+    // At max distance, the right edge of the parallelogram aligns with the right edge
+    // of the front-facing detector screen. At min distance, the left edge of the
+    // parallelogram aligns with the left edge of the front-facing detector screen.
+    // These reference positions are set after front-facing screens are created (below).
+    // For now, define the range bounds — they will be set once front-facing screens are positioned.
+    let frontFacingScreenLeft = 0;
+    let frontFacingScreenRight = 0;
+
+    // Update the detector screen parallelogram position and the span line/distance text
+    const updateDetectorScreenPosition = () => {
       const scene = model.sceneProperty.value;
       const distance = scene.screenDistanceProperty.value;
+      const range = scene.screenDistanceRange;
+
+      // Interpolate: fraction 0 at min distance, 1 at max distance
+      const fraction = ( distance - range.min ) / ( range.max - range.min );
+
+      // At fraction 0 (min distance): parallelogram left edge = front-facing screen left
+      // At fraction 1 (max distance): parallelogram right edge = front-facing screen right
+      const xAtMin = frontFacingScreenLeft;
+      const xAtMax = frontFacingScreenRight - DETECTOR_DX;
+      detectorScreenParallelogram.x = xAtMin + fraction * ( xAtMax - xAtMin );
+
+      // Update label above the parallelogram
+      detectorScreenLabel.centerX = detectorScreenParallelogram.centerX;
+      detectorScreenLabel.bottom = detectorScreenParallelogram.top - 4;
+
+      // Update span line between double slit and detector screen
+      const spanY = Math.max( doubleSlitNode.bottom, detectorScreenParallelogram.bottom ) + 12;
+      const leftX = doubleSlitNode.centerX;
+      const rightX = detectorScreenParallelogram.centerX;
+      const TICK_HALF = 4;
+      spanLineNode.shape = new Shape()
+        // Horizontal line
+        .moveTo( leftX, spanY ).lineTo( rightX, spanY )
+        // Left tick
+        .moveTo( leftX, spanY - TICK_HALF ).lineTo( leftX, spanY + TICK_HALF )
+        // Right tick
+        .moveTo( rightX, spanY - TICK_HALF ).lineTo( rightX, spanY + TICK_HALF );
+
+      // Update distance text
       distanceText.string = `${toFixed( distance, 1 )} m`;
-      distanceText.centerX = ( doubleSlitNode.centerX + detectorScreenNode.centerX ) / 2;
+      distanceText.centerX = ( leftX + rightX ) / 2;
+      distanceText.bottom = spanY - 3;
     };
 
     // Link to current scene and its screen distance
     model.sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
-        oldScene.screenDistanceProperty.unlink( updateDistanceText );
+        oldScene.screenDistanceProperty.unlink( updateDetectorScreenPosition );
       }
-      newScene.screenDistanceProperty.link( updateDistanceText );
+      newScene.screenDistanceProperty.link( updateDetectorScreenPosition );
     } );
 
     // ==============================
@@ -282,15 +298,15 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       // Fan beam: trapezoid from double slit right edge to detector screen left edge.
       // It fans out vertically — narrow at the slit side, wider at the screen side.
       const fanLeft = doubleSlitNode.right;
-      const fanRight = detectorScreenNode.left;
+      const fanRight = detectorScreenParallelogram.left;
       const narrowHalfHeight = beamHeight / 2; // Same as beam height at the slit
 
       // Use the visual center of each parallelogram for beam alignment.
       // Parallelogram vertices span from y=0 to y=leftHeight on the left and y=dy to y=leftHeight+dy
       // on the right, so the vertical center is at (leftHeight + dy) / 2.
       const slitCenterY = doubleSlitNode.y + ( 50 + 21 ) / 2; // doubleSlitNode params: leftHeight=50, dy=21
-      const screenCenterY = detectorScreenNode.y + ( 48 + 24 ) / 2; // detectorScreenNode params: leftHeight=48, dy=24
-      const wideHalfHeight = ( detectorScreenNode.height ) / 2; // Fans out to detector screen height
+      const screenCenterY = detectorScreenParallelogram.y + ( DETECTOR_LEFT_HEIGHT + DETECTOR_DY ) / 2;
+      const wideHalfHeight = ( detectorScreenParallelogram.height ) / 2; // Fans out to detector screen height
 
       const fanShape = new Shape()
         .moveTo( fanLeft, slitCenterY - narrowHalfHeight )
@@ -309,7 +325,8 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
     // Wire up beam updates to the relevant properties via DynamicProperty-style manual linking.
     // When the scene changes, unlink from the old scene's properties and link to the new ones.
-    const beamProperties = [ 'isEmittingProperty', 'intensityProperty', 'wavelengthProperty' ] as const;
+    // screenDistanceProperty is included because the detector parallelogram position affects the fan beam.
+    const beamProperties = [ 'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'screenDistanceProperty' ] as const;
     model.sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         for ( const propName of beamProperties ) {
@@ -338,19 +355,27 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       return slitNode;
     } );
 
-    // Front-facing detector screen - one per scene, with visibility toggling
+    // Front-facing detector screen - one per scene, with visibility toggling.
+    // The front-facing screen has a fixed position; the overhead parallelogram slides above it.
+    const FRONT_FACING_SCREEN_RIGHT = 940; // Fixed right edge for all front-facing detector screens
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
       const detectorScreen = new DetectorScreenNode( scene, {
         tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
       } );
-      // Position the front-facing screen in the right column of the middle row,
-      // aligned horizontally with the overhead detector screen parallelogram
-      detectorScreen.right = detectorScreenNode.right + 10;
+      detectorScreen.right = FRONT_FACING_SCREEN_RIGHT;
       detectorScreen.top = 120;
       this.addChild( detectorScreen );
       return detectorScreen;
     } );
+
+    // Now that front-facing screens are positioned, set the reference bounds for the
+    // overhead parallelogram's horizontal range.
+    frontFacingScreenLeft = detectorScreenNodes[ 0 ].left;
+    frontFacingScreenRight = detectorScreenNodes[ 0 ].right;
+
+    // Trigger initial position update now that bounds are set
+    updateDetectorScreenPosition();
 
     // Graph accordion box - one per scene, positioned below the front-facing detector screen
     const graphTandem = options.tandem.createTandem( 'graphAccordionBoxes' );
