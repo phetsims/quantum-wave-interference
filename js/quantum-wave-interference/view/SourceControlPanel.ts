@@ -15,6 +15,7 @@ import Property from '../../../../axon/js/Property.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import Utils from '../../../../dot/js/Utils.js';
+import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
@@ -22,6 +23,7 @@ import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import WavelengthNumberControl from '../../../../scenery-phet/js/WavelengthNumberControl.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
+import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
@@ -214,10 +216,35 @@ export default class SourceControlPanel extends Panel {
       );
     }
 
+    // For particle scenes, add a de Broglie wavelength readout between the velocity control
+    // and the intensity slider. This directly supports the learning goal: "Relate particle
+    // momentum to wavelength using the de Broglie relationship."
+    const children: Node[] = [ topControl ];
+
+    if ( scene.sourceType !== SourceType.PHOTONS ) {
+      const deBroglieText = new RichText( '', {
+        font: new PhetFont( 12 ),
+        maxWidth: 150,
+        fill: '#444'
+      } );
+
+      // Compute de Broglie wavelength: λ = h / (m * v), displayed in nm
+      const updateWavelengthText = () => {
+        const lambdaM = scene.getEffectiveWavelength();
+        const lambdaNm = lambdaM * 1e9;
+        deBroglieText.string = `λ<sub>dB</sub> = ${toFixed( lambdaNm, 3 )} nm`;
+      };
+
+      scene.velocityProperty.link( updateWavelengthText );
+      children.push( deBroglieText );
+    }
+
+    children.push( intensityControl );
+
     return new VBox( {
       spacing: 10,
       align: 'center',
-      children: [ topControl, intensityControl ]
+      children: children
     } );
   }
 }
