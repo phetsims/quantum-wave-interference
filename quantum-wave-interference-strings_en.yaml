@@ -10,3 +10,8 @@ neutronSource:  Neutron source
 heliumAtomSource: Helium atom source
 doubleSlit:     Double slit
 detectorScreen: Detector screen
+intensity:      Intensity
+velocity:       Velocity
+velocityPattern: '{0} m/s'
+min:            Min
+max:            Max

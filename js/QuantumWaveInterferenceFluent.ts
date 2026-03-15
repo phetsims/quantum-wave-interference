@@ -35,6 +35,10 @@ addToMapIfDefined( 'neutronSource', 'neutronSourceStringProperty' );
 addToMapIfDefined( 'heliumAtomSource', 'heliumAtomSourceStringProperty' );
 addToMapIfDefined( 'doubleSlit', 'doubleSlitStringProperty' );
 addToMapIfDefined( 'detectorScreen', 'detectorScreenStringProperty' );
+addToMapIfDefined( 'intensity', 'intensityStringProperty' );
+addToMapIfDefined( 'velocity', 'velocityStringProperty' );
+addToMapIfDefined( 'min', 'minStringProperty' );
+addToMapIfDefined( 'max', 'maxStringProperty' );
 
 // A function that creates contents for a new Fluent file, which will be needed if any string changes.
 const createFluentFile = (): string => {
@@ -63,7 +67,12 @@ const QuantumWaveInterferenceFluent = {
   neutronSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'neutronSourceStringProperty' ),
   heliumAtomSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'heliumAtomSourceStringProperty' ),
   doubleSlitStringProperty: _.get( QuantumWaveInterferenceStrings, 'doubleSlitStringProperty' ),
-  detectorScreenStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorScreenStringProperty' )
+  detectorScreenStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorScreenStringProperty' ),
+  intensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'intensityStringProperty' ),
+  velocityStringProperty: _.get( QuantumWaveInterferenceStrings, 'velocityStringProperty' ),
+  velocityPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'velocityPatternStringProperty' ),
+  minStringProperty: _.get( QuantumWaveInterferenceStrings, 'minStringProperty' ),
+  maxStringProperty: _.get( QuantumWaveInterferenceStrings, 'maxStringProperty' )
 };
 
 export default QuantumWaveInterferenceFluent;

@@ -28,6 +28,11 @@ type StringsType = {
   'heliumAtomSourceStringProperty': LocalizedStringProperty;
   'doubleSlitStringProperty': LocalizedStringProperty;
   'detectorScreenStringProperty': LocalizedStringProperty;
+  'intensityStringProperty': LocalizedStringProperty;
+  'velocityStringProperty': LocalizedStringProperty;
+  'velocityPatternStringProperty': LocalizedStringProperty;
+  'minStringProperty': LocalizedStringProperty;
+  'maxStringProperty': LocalizedStringProperty;
 };
 
 const QuantumWaveInterferenceStrings = getStringModule( 'QUANTUM_WAVE_INTERFERENCE' ) as StringsType;

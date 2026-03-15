@@ -34,5 +34,20 @@
   },
   "detectorScreen": {
     "value": "Detector screen"
+  },
+  "intensity": {
+    "value": "Intensity"
+  },
+  "velocity": {
+    "value": "Velocity"
+  },
+  "velocityPattern": {
+    "value": "{0} m/s"
+  },
+  "min": {
+    "value": "Min"
+  },
+  "max": {
+    "value": "Max"
   }
 }

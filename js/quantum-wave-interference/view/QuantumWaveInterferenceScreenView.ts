@@ -27,6 +27,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
 import SourceType from '../model/SourceType.js';
 import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
+import SourceControlPanel from './SourceControlPanel.js';
 
 // Layout constants derived from the design mockup (1024x618 layout bounds)
 const LABEL_FONT = new PhetFont( 16 );
@@ -199,6 +200,22 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       }
       newScene.screenDistanceProperty.link( updateDistanceText );
     } );
+
+    // ==============================
+    // Middle Row: Source controls, front-facing slits, front-facing screen, graph
+    // ==============================
+
+    // Source controls panel (beneath the emitter)
+    const sourceControlPanel = new SourceControlPanel(
+      model.sceneProperty,
+      model.scenes,
+      {
+        tandem: options.tandem.createTandem( 'sourceControlPanel' )
+      }
+    );
+    sourceControlPanel.left = laserPointerNode.left;
+    sourceControlPanel.top = laserPointerNode.bottom + 14;
+    this.addChild( sourceControlPanel );
 
     // ==============================
     // Bottom Row
