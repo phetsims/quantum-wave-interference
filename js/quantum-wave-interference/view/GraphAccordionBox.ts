@@ -31,7 +31,7 @@ import DetectionMode from '../model/DetectionMode.js';
 import SourceType from '../model/SourceType.js';
 
 // Chart dimensions
-const CHART_WIDTH = 217; // Same width as the front-facing detector screen
+const CHART_WIDTH = 370; // Same width as the front-facing detector screen
 const CHART_HEIGHT = 80;
 
 // Number of bins for the histogram in Hits mode

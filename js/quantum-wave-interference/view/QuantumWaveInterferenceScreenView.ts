@@ -649,8 +649,9 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     // The front-facing screen has a fixed position; the overhead parallelogram slides above it.
     // Position is based on the screen rect's right edge (not the full node bounds, which include
     // buttons extending past the screen rect). This creates proper spacing between the slit view
-    // and the detector screen, matching the design mockup.
-    const FRONT_FACING_SCREEN_RECT_RIGHT = 740; // Right edge of the screen rect (not buttons)
+    // and the detector screen, matching the design mockup where the detector screen extends
+    // to approximately x=950 in the 1024-wide layout.
+    const FRONT_FACING_SCREEN_RECT_RIGHT = 920; // Right edge of the screen rect (not buttons)
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
       const detectorScreen = new DetectorScreenNode( scene, {
