@@ -15,6 +15,7 @@ import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import Color from '../../../../scenery/js/util/Color.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -192,10 +193,34 @@ export default class FrontFacingSlitNode extends Node {
 
     sceneModel.slitSeparationProperty.link( updateSlits );
 
-    // Update cover visibility based on slit setting
-    Multilink.multilink( [ sceneModel.slitSettingProperty ], slitSetting => {
+    // Detector indicator rectangles (yellow/orange translucent overlays, distinct from gray covers)
+    const DETECTOR_COLOR = new Color( 255, 200, 50, 0.6 );
+    const leftDetector = new Rectangle( 0, slitY, SLIT_VISUAL_WIDTH, SLIT_HEIGHT, {
+      fill: DETECTOR_COLOR,
+      stroke: new Color( 200, 150, 0 ),
+      lineWidth: 1,
+      visible: false
+    } );
+    this.addChild( leftDetector );
+
+    const rightDetector = new Rectangle( 0, slitY, SLIT_VISUAL_WIDTH, SLIT_HEIGHT, {
+      fill: DETECTOR_COLOR,
+      stroke: new Color( 200, 150, 0 ),
+      lineWidth: 1,
+      visible: false
+    } );
+    this.addChild( rightDetector );
+
+    // Update cover and detector visibility based on slit setting
+    Multilink.multilink( [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty ], slitSetting => {
       leftCover.visible = ( slitSetting === SlitSetting.LEFT_COVERED );
       rightCover.visible = ( slitSetting === SlitSetting.RIGHT_COVERED );
+      leftDetector.visible = ( slitSetting === SlitSetting.LEFT_DETECTOR );
+      rightDetector.visible = ( slitSetting === SlitSetting.RIGHT_DETECTOR );
+
+      // Position detectors to match slit positions
+      leftDetector.x = leftSlit.x;
+      rightDetector.x = rightSlit.x;
     } );
   }
 }

@@ -33,3 +33,4 @@ count:            Count
 snapshotNumberPattern: 'Snapshot {{number}}'
 ruler:              Ruler
 centimeters:        cm
+detector:           Detector

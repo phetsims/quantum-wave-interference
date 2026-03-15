@@ -51,6 +51,7 @@ type StringsType = {
   'snapshotNumberPatternStringProperty': LocalizedStringProperty;
   'rulerStringProperty': LocalizedStringProperty;
   'centimetersStringProperty': LocalizedStringProperty;
+  'detectorStringProperty': LocalizedStringProperty;
 };
 
 const QuantumWaveInterferenceStrings = getStringModule( 'QUANTUM_WAVE_INTERFERENCE' ) as StringsType;

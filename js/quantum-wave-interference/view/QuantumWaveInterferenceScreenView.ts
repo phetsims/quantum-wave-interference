@@ -28,6 +28,7 @@ import Checkbox from '../../../../sun/js/Checkbox.js';
 import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
+import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -36,6 +37,7 @@ import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
 import SceneModel from '../model/SceneModel.js';
+import SlitSetting from '../model/SlitSetting.js';
 import SourceType from '../model/SourceType.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
@@ -176,6 +178,101 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
     doubleSlitNode.addChild( leftSlitLine );
     doubleSlitNode.addChild( rightSlitLine );
+
+    // Cover/detector overlays on the parallelogram slit lines
+    const slitOverlayHeight = slitLineLength + 4;
+    const slitOverlayWidth = 5;
+
+    const leftSlitCover = new Rectangle(
+      slitBaseX - visualSlitSpacing / 2 - slitOverlayWidth / 2,
+      slitBaseY - slitOverlayHeight / 2,
+      slitOverlayWidth, slitOverlayHeight, {
+        fill: '#555',
+        visible: false
+      } );
+    doubleSlitNode.addChild( leftSlitCover );
+
+    const rightSlitCover = new Rectangle(
+      slitBaseX + visualSlitSpacing / 2 - slitOverlayWidth / 2,
+      slitBaseY - slitOverlayHeight / 2,
+      slitOverlayWidth, slitOverlayHeight, {
+        fill: '#555',
+        visible: false
+      } );
+    doubleSlitNode.addChild( rightSlitCover );
+
+    // Detector overlays (yellow, distinct from gray covers)
+    const leftSlitDetectorOverlay = new Rectangle(
+      slitBaseX - visualSlitSpacing / 2 - slitOverlayWidth / 2,
+      slitBaseY - slitOverlayHeight / 2,
+      slitOverlayWidth, slitOverlayHeight, {
+        fill: new Color( 255, 200, 50, 0.8 ),
+        visible: false
+      } );
+    doubleSlitNode.addChild( leftSlitDetectorOverlay );
+
+    const rightSlitDetectorOverlay = new Rectangle(
+      slitBaseX + visualSlitSpacing / 2 - slitOverlayWidth / 2,
+      slitBaseY - slitOverlayHeight / 2,
+      slitOverlayWidth, slitOverlayHeight, {
+        fill: new Color( 255, 200, 50, 0.8 ),
+        visible: false
+      } );
+    doubleSlitNode.addChild( rightSlitDetectorOverlay );
+
+    // Update cover/detector visibility on the overhead parallelogram based on slit setting
+    const updateSlitOverlays = () => {
+      const slitSetting = model.sceneProperty.value.slitSettingProperty.value;
+      leftSlitCover.visible = ( slitSetting === SlitSetting.LEFT_COVERED );
+      rightSlitCover.visible = ( slitSetting === SlitSetting.RIGHT_COVERED );
+      leftSlitDetectorOverlay.visible = ( slitSetting === SlitSetting.LEFT_DETECTOR );
+      rightSlitDetectorOverlay.visible = ( slitSetting === SlitSetting.RIGHT_DETECTOR );
+    };
+
+    // Wire up overlay updates when scene or slit setting changes
+    model.sceneProperty.link( ( newScene, oldScene ) => {
+      if ( oldScene ) {
+        oldScene.slitSettingProperty.unlink( updateSlitOverlays );
+      }
+      newScene.slitSettingProperty.link( updateSlitOverlays );
+    } );
+
+    // ==============================
+    // Which-path detector indicator (appears next to double slit when detector slit setting is active)
+    // ==============================
+    const DETECTOR_BOX_WIDTH = 50;
+    const DETECTOR_BOX_HEIGHT = 30;
+    const detectorIndicatorBox = new Rectangle( 0, 0, DETECTOR_BOX_WIDTH, DETECTOR_BOX_HEIGHT, 5, 5, {
+      fill: new Color( 255, 200, 50 ),
+      stroke: new Color( 180, 140, 0 ),
+      lineWidth: 1
+    } );
+    const detectorIndicatorLabel = new Text( QuantumWaveInterferenceFluent.detectorStringProperty, {
+      font: new PhetFont( 11 ),
+      maxWidth: DETECTOR_BOX_WIDTH - 6,
+      center: detectorIndicatorBox.center
+    } );
+    const detectorIndicatorNode = new Node( {
+      children: [ detectorIndicatorBox, detectorIndicatorLabel ],
+      visible: false,
+      // Position to the right of the double slit parallelogram
+      left: doubleSlitNode.right + 4,
+      centerY: doubleSlitNode.centerY
+    } );
+    this.addChild( detectorIndicatorNode );
+
+    // DynamicProperty following the active scene's slitSettingProperty
+    const slitSettingProperty = new DynamicProperty<SlitSetting, SlitSetting, SceneModel>( model.sceneProperty, {
+      derive: scene => scene.slitSettingProperty
+    } );
+
+    // Show/hide detector indicator based on slit setting
+    slitSettingProperty.link( slitSetting => {
+      detectorIndicatorNode.visible = (
+        slitSetting === SlitSetting.LEFT_DETECTOR ||
+        slitSetting === SlitSetting.RIGHT_DETECTOR
+      );
+    } );
 
     // Detector screen label
     const detectorScreenLabel = new Text( QuantumWaveInterferenceFluent.detectorScreenStringProperty, {

@@ -103,5 +103,8 @@
   },
   "centimeters": {
     "value": "cm"
+  },
+  "detector": {
+    "value": "Detector"
   }
 }
