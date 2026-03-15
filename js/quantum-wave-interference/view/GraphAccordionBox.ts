@@ -95,15 +95,15 @@ export default class GraphAccordionBox extends Node {
     // Prevent bounds recomputation on every update for performance
     dataPath.computeShapeBounds = () => chartBackground.bounds;
 
-    const chartNode = new Node( {
-      children: [ chartBackground, dataPath ]
-    } );
-
-    // Y-axis label that changes based on detection mode
+    // Y-axis label that changes based on detection mode, positioned to the left of the chart
     const yAxisLabel = new Text( '', {
       font: new PhetFont( 11 ),
       rotation: -Math.PI / 2,
       maxWidth: CHART_HEIGHT
+    } );
+
+    const chartNode = new Node( {
+      children: [ yAxisLabel, chartBackground, dataPath ]
     } );
 
     // Determine the title text for the accordion box - "Intensity" or "Count"
@@ -164,6 +164,9 @@ export default class GraphAccordionBox extends Node {
         this.paintIntensityCurve( dataPath, sceneModel );
         yAxisLabel.string = QuantumWaveInterferenceFluent.intensityStringProperty.value;
       }
+      // Position y-axis label to the left of the chart, vertically centered
+      yAxisLabel.right = chartBackground.left - 4;
+      yAxisLabel.centerY = CHART_HEIGHT / 2;
     };
 
     // Wire up updates
