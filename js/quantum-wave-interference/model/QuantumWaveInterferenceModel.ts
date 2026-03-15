@@ -85,7 +85,7 @@ export default class QuantumWaveInterferenceModel implements TModel {
       phetioValueType: ReferenceIO( IOType.ObjectIO )
     } );
 
-    this.isPlayingProperty = new BooleanProperty( false, {
+    this.isPlayingProperty = new BooleanProperty( true, {
       tandem: tandem.createTandem( 'isPlayingProperty' )
     } );
 

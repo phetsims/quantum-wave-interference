@@ -105,7 +105,10 @@ export default class ScreenSettingsPanel extends Panel {
       tandem: options.tandem.createTandem( 'brightnessSlider' )
     } );
 
-    brightnessSlider.addMajorTick( 0, new Text( '0', { font: TICK_LABEL_FONT } ) );
+    brightnessSlider.addMajorTick( 0, new Text( QuantumWaveInterferenceFluent.minStringProperty, {
+      font: TICK_LABEL_FONT,
+      maxWidth: 40
+    } ) );
     brightnessSlider.addMajorTick( 1, new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
       font: TICK_LABEL_FONT,
       maxWidth: 40

@@ -80,28 +80,9 @@ export default class FrontFacingSlitNode extends Node {
     // Particle beam color (gray for all non-photon particles)
     const PARTICLE_BEAM_COLOR = new Color( 180, 180, 180 );
 
-    // Update beam overlay visibility and color based on emitter state
-    const updateBeamOverlay = () => {
-      const isEmitting = sceneModel.isEmittingProperty.value;
-      const intensity = sceneModel.intensityProperty.value;
-
-      if ( !isEmitting ) {
-        beamOverlay.visible = false;
-        return;
-      }
-
-      beamOverlay.visible = true;
-      const beamColor = sceneModel.sourceType === SourceType.PHOTONS
-                         ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
-                         : PARTICLE_BEAM_COLOR;
-      beamOverlay.fill = beamColor.withAlpha( 0.15 + 0.35 * intensity );
-    };
-
-    sceneModel.isEmittingProperty.link( updateBeamOverlay );
-    sceneModel.intensityProperty.link( updateBeamOverlay );
-    sceneModel.wavelengthProperty.link( updateBeamOverlay );
-
-    // Two white slit rectangles, centered vertically in the view
+    // Two white slit rectangles, centered vertically in the view.
+    // When the source is emitting, the slits glow with the beam color to show
+    // light/particles passing through the openings.
     const slitY = ( VIEW_HEIGHT - SLIT_HEIGHT ) / 2;
 
     const leftSlit = new Rectangle( 0, slitY, SLIT_VISUAL_WIDTH, SLIT_HEIGHT, {
@@ -113,6 +94,33 @@ export default class FrontFacingSlitNode extends Node {
       fill: 'white'
     } );
     this.addChild( rightSlit );
+
+    // Update beam overlay visibility, color, and slit glow based on emitter state
+    const updateBeamOverlay = () => {
+      const isEmitting = sceneModel.isEmittingProperty.value;
+      const intensity = sceneModel.intensityProperty.value;
+
+      if ( !isEmitting ) {
+        beamOverlay.visible = false;
+        leftSlit.fill = 'white';
+        rightSlit.fill = 'white';
+        return;
+      }
+
+      beamOverlay.visible = true;
+      const beamColor = sceneModel.sourceType === SourceType.PHOTONS
+                         ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
+                         : PARTICLE_BEAM_COLOR;
+      beamOverlay.fill = beamColor.withAlpha( 0.15 + 0.35 * intensity );
+
+      // Slit openings glow with a brighter version of the beam color
+      leftSlit.fill = beamColor.withAlpha( 0.5 + 0.5 * intensity );
+      rightSlit.fill = beamColor.withAlpha( 0.5 + 0.5 * intensity );
+    };
+
+    sceneModel.isEmittingProperty.link( updateBeamOverlay );
+    sceneModel.intensityProperty.link( updateBeamOverlay );
+    sceneModel.wavelengthProperty.link( updateBeamOverlay );
 
     // Cover rectangles for when a slit is covered
     const leftCover = new Rectangle( 0, slitY, SLIT_VISUAL_WIDTH, SLIT_HEIGHT, {
