@@ -236,24 +236,50 @@ class SnapshotCanvasNode extends CanvasNode {
   }
 
   private paintIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
+    const hits = snapshot.hits;
+    if ( hits.length === 0 ) {
+      return;
+    }
+
     const width = SNAPSHOT_WIDTH;
     const height = SNAPSHOT_HEIGHT;
     const binWidth = width / INTENSITY_BINS;
 
-    for ( let i = 0; i < INTENSITY_BINS; i++ ) {
-      const normalizedX = ( ( i + 0.5 ) / INTENSITY_BINS ) * 2 - 1;
-      const intensity = snapshot.getIntensityAtPosition( normalizedX );
-      const alpha = intensity * snapshot.brightness;
+    // Bin the captured hits to reproduce the actual accumulated pattern that was displayed
+    // on screen at capture time, rather than the theoretical intensity formula. This makes
+    // snapshots faithfully capture the state of the screen including statistical noise from
+    // limited sampling, which is pedagogically meaningful: early snapshots show granular
+    // patterns while later snapshots show smoother convergence to the theoretical curve.
+    const bins = new Array<number>( INTENSITY_BINS ).fill( 0 );
+    let maxBin = 0;
+    for ( let i = 0; i < hits.length; i++ ) {
+      const binIndex = Math.min( INTENSITY_BINS - 1,
+        Math.max( 0, Math.floor( ( hits[ i ].x + 1 ) / 2 * INTENSITY_BINS ) ) );
+      bins[ binIndex ]++;
+      if ( bins[ binIndex ] > maxBin ) {
+        maxBin = bins[ binIndex ];
+      }
+    }
 
-      if ( alpha > 0.01 ) {
-        if ( snapshot.sourceType === SourceType.PHOTONS ) {
-          const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
-          context.fillStyle = `rgba(${color.red},${color.green},${color.blue},${alpha})`;
+    if ( maxBin === 0 ) {
+      return;
+    }
+
+    for ( let i = 0; i < INTENSITY_BINS; i++ ) {
+      if ( bins[ i ] > 0 ) {
+        const intensity = bins[ i ] / maxBin;
+        const alpha = intensity * snapshot.brightness;
+
+        if ( alpha > 0.01 ) {
+          if ( snapshot.sourceType === SourceType.PHOTONS ) {
+            const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
+            context.fillStyle = `rgba(${color.red},${color.green},${color.blue},${alpha})`;
+          }
+          else {
+            context.fillStyle = `rgba(255,255,255,${Utils.clamp( alpha, 0, 1 )})`;
+          }
+          context.fillRect( i * binWidth, 0, binWidth + 0.5, height );
         }
-        else {
-          context.fillStyle = `rgba(255,255,255,${Utils.clamp( alpha, 0, 1 )})`;
-        }
-        context.fillRect( i * binWidth, 0, binWidth + 0.5, height );
       }
     }
   }
