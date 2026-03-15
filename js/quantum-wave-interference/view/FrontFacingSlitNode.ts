@@ -142,14 +142,17 @@ export default class FrontFacingSlitNode extends Node {
     const slitWidthLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
     const slitWidthRightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
 
-    // Format slit width label
+    // Format slit width label: use μm for values < 0.01 mm, mm otherwise.
+    // Determine decimal places for μm display based on the actual value.
     const slitWidthMM = sceneModel.slitWidth;
     let slitWidthLabel: string;
     if ( slitWidthMM >= 0.01 ) {
       slitWidthLabel = `${toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )} mm`;
     }
     else {
-      slitWidthLabel = `${toFixed( slitWidthMM * 1000, 0 )} μm`;
+      const slitWidthUM = slitWidthMM * 1000;
+      const umDecimalPlaces = slitWidthUM >= 1 ? 0 : ( slitWidthUM >= 0.1 ? 1 : 2 );
+      slitWidthLabel = `${toFixed( slitWidthUM, umDecimalPlaces )} μm`;
     }
     const slitWidthText = new Text( slitWidthLabel, {
       font: SPAN_FONT,

@@ -145,8 +145,9 @@ export default class SceneModel extends PhetioObject {
 
     // Set per-source-type constants. screenHalfWidth is the physical half-width of the detector
     // screen in meters, chosen so that approximately 10 fringes are visible at default settings.
-    // defaultScreenDistance is set per source type to match the design mockup initial state.
+    // defaultScreenDistance and defaultVelocity are set per source type to match the design mockup.
     let defaultScreenDistance: number;
+    let defaultVelocity: number;
 
     if ( options.sourceType === SourceType.PHOTONS ) {
       this.particleMass = 0;
@@ -156,15 +157,17 @@ export default class SceneModel extends PhetioObject {
       this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
       this.screenHalfWidth = 0.005; // 5 mm
       defaultScreenDistance = 0.5; // Per design mockup
+      defaultVelocity = 0;
     }
     else if ( options.sourceType === SourceType.ELECTRONS ) {
       this.particleMass = ELECTRON_MASS;
-      this.slitWidth = 0.001; // mm (1 μm, typical for electron diffraction)
-      this.velocityRange = new Range( 1e5, 1e7 ); // m/s
-      this.slitSeparationRange = new Range( 0.002, 0.01 ); // mm
-      this.screenDistanceRange = new Range( 0.1, 0.5 ); // m
-      this.screenHalfWidth = 5e-5; // 0.05 mm
-      defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
+      this.slitWidth = 0.0002; // mm (0.2 μm, per design mockup)
+      this.velocityRange = new Range( 7e5, 1.5e6 ); // m/s (700–1500 km/s per design mockup)
+      this.slitSeparationRange = new Range( 0.0005, 0.001 ); // mm (0.5–1.0 μm per design mockup)
+      this.screenDistanceRange = new Range( 0.4, 0.8 ); // m (per design mockup)
+      this.screenHalfWidth = 0.005; // 5 mm (10 mm total, matching design mockup scale indicator)
+      defaultScreenDistance = 0.5; // Per design mockup
+      defaultVelocity = 1e6; // 1000 km/s per design mockup
     }
     else if ( options.sourceType === SourceType.NEUTRONS ) {
       this.particleMass = NEUTRON_MASS;
@@ -174,6 +177,7 @@ export default class SceneModel extends PhetioObject {
       this.screenDistanceRange = new Range( 0.5, 5.0 ); // m
       this.screenHalfWidth = 1e-4; // 0.1 mm
       defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
+      defaultVelocity = ( this.velocityRange.min + this.velocityRange.max ) / 2;
     }
     else {
       // Helium atoms
@@ -184,6 +188,7 @@ export default class SceneModel extends PhetioObject {
       this.screenDistanceRange = new Range( 0.5, 2.0 ); // m
       this.screenHalfWidth = 1e-4; // 0.1 mm
       defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
+      defaultVelocity = ( this.velocityRange.min + this.velocityRange.max ) / 2;
     }
 
     this.hits = [];
@@ -206,14 +211,11 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'wavelengthProperty' )
     } );
 
-    this.velocityProperty = new NumberProperty(
-      options.sourceType !== SourceType.PHOTONS ?
-      ( this.velocityRange.min + this.velocityRange.max ) / 2 : 0, {
-        range: this.velocityRange,
-        units: 'm/s',
-        tandem: tandem.createTandem( 'velocityProperty' )
-      }
-    );
+    this.velocityProperty = new NumberProperty( defaultVelocity, {
+      range: this.velocityRange,
+      units: 'm/s',
+      tandem: tandem.createTandem( 'velocityProperty' )
+    } );
 
     this.intensityProperty = new NumberProperty( 0.5, {
       range: new Range( 0, 1 ),
