@@ -22,6 +22,7 @@ import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import RulerNode from '../../../../scenery-phet/js/RulerNode.js';
+import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
@@ -782,8 +783,22 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     rulerCheckbox.top = screenSettingsPanel.top;
     this.addChild( rulerCheckbox );
 
+    // Stopwatch checkbox - positioned below the ruler checkbox
+    const stopwatchCheckboxLabel = new Text( QuantumWaveInterferenceFluent.stopwatchStringProperty, {
+      font: new PhetFont( 15 ),
+      maxWidth: 80
+    } );
+    const stopwatchCheckbox = new Checkbox( model.stopwatch.isVisibleProperty, stopwatchCheckboxLabel, {
+      boxWidth: 16,
+      spacing: 6,
+      tandem: options.tandem.createTandem( 'stopwatchCheckbox' )
+    } );
+    stopwatchCheckbox.left = rulerCheckbox.left;
+    stopwatchCheckbox.top = rulerCheckbox.bottom + 6;
+    this.addChild( stopwatchCheckbox );
+
     // Time controls: play/pause button with step-forward and speed radio buttons.
-    // Per the design mockup, the time controls are below the ruler checkbox, to the right
+    // Per the design mockup, the time controls are below the stopwatch checkbox, to the right
     // of the screen settings panel.
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
@@ -802,7 +817,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       tandem: options.tandem.createTandem( 'timeControlNode' )
     } );
     timeControlNode.left = rulerCheckbox.left;
-    timeControlNode.top = rulerCheckbox.bottom + 8;
+    timeControlNode.top = stopwatchCheckbox.bottom + 8;
     this.addChild( timeControlNode );
 
     // Draggable ruler - 10 cm with major ticks each cm, displayed in front of all other content
@@ -852,6 +867,13 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     } ) );
 
     this.addChild( rulerNode );
+
+    // Draggable stopwatch for timing experiments
+    const stopwatchNode = new StopwatchNode( model.stopwatch, {
+      dragBoundsProperty: this.visibleBoundsProperty,
+      tandem: options.tandem.createTandem( 'stopwatchNode' )
+    } );
+    this.addChild( stopwatchNode );
 
     const resetAllButton = new ResetAllButton( {
       listener: () => {

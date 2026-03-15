@@ -15,6 +15,7 @@ import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import TModel from '../../../../joist/js/TModel.js';
 import { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import Stopwatch from '../../../../scenery-phet/js/Stopwatch.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
@@ -46,6 +47,9 @@ export default class QuantumWaveInterferenceModel implements TModel {
   // Shared state: ruler visibility and position
   public readonly isRulerVisibleProperty: BooleanProperty;
   public readonly rulerPositionProperty: Vector2Property;
+
+  // Shared state: stopwatch for timing experiments
+  public readonly stopwatch: Stopwatch;
 
   public constructor( providedOptions: QuantumWaveInterferenceModelOptions ) {
 
@@ -102,6 +106,14 @@ export default class QuantumWaveInterferenceModel implements TModel {
     this.rulerPositionProperty = new Vector2Property( new Vector2( 300, 350 ), {
       tandem: tandem.createTandem( 'rulerPositionProperty' )
     } );
+
+    this.stopwatch = new Stopwatch( {
+      position: new Vector2( 60, 420 ),
+      tandem: tandem.createTandem( 'stopwatch' ),
+      timePropertyOptions: {
+        range: Stopwatch.ZERO_TO_ALMOST_SIXTY
+      }
+    } );
   }
 
   /**
@@ -117,6 +129,7 @@ export default class QuantumWaveInterferenceModel implements TModel {
     this.timeSpeedProperty.reset();
     this.isRulerVisibleProperty.reset();
     this.rulerPositionProperty.reset();
+    this.stopwatch.reset();
 
     // Reset selected scene last so listeners see reset scenes
     this.sceneProperty.reset();
@@ -143,6 +156,9 @@ export default class QuantumWaveInterferenceModel implements TModel {
 
       // Only step the active scene
       this.sceneProperty.value.step( effectiveDt );
+
+      // Step the stopwatch with the effective dt so it tracks simulation time, not wall time
+      this.stopwatch.step( effectiveDt );
     }
   }
 }
