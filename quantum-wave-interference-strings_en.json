@@ -49,5 +49,35 @@
   },
   "max": {
     "value": "Max"
+  },
+  "slitSeparation": {
+    "value": "Slit separation"
+  },
+  "screenDistance": {
+    "value": "Screen distance"
+  },
+  "slitSettings": {
+    "value": "Slit settings"
+  },
+  "slitSeparationPattern": {
+    "value": "{{value}} mm"
+  },
+  "screenDistancePattern": {
+    "value": "{{value}} m"
+  },
+  "bothOpen": {
+    "value": "Both open"
+  },
+  "leftCovered": {
+    "value": "Left covered"
+  },
+  "rightCovered": {
+    "value": "Right covered"
+  },
+  "leftDetector": {
+    "value": "Left detector"
+  },
+  "rightDetector": {
+    "value": "Right detector"
   }
 }

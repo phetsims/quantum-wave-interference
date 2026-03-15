@@ -39,6 +39,14 @@ addToMapIfDefined( 'intensity', 'intensityStringProperty' );
 addToMapIfDefined( 'velocity', 'velocityStringProperty' );
 addToMapIfDefined( 'min', 'minStringProperty' );
 addToMapIfDefined( 'max', 'maxStringProperty' );
+addToMapIfDefined( 'slitSeparation', 'slitSeparationStringProperty' );
+addToMapIfDefined( 'screenDistance', 'screenDistanceStringProperty' );
+addToMapIfDefined( 'slitSettings', 'slitSettingsStringProperty' );
+addToMapIfDefined( 'bothOpen', 'bothOpenStringProperty' );
+addToMapIfDefined( 'leftCovered', 'leftCoveredStringProperty' );
+addToMapIfDefined( 'rightCovered', 'rightCoveredStringProperty' );
+addToMapIfDefined( 'leftDetector', 'leftDetectorStringProperty' );
+addToMapIfDefined( 'rightDetector', 'rightDetectorStringProperty' );
 
 // A function that creates contents for a new Fluent file, which will be needed if any string changes.
 const createFluentFile = (): string => {
@@ -72,7 +80,17 @@ const QuantumWaveInterferenceFluent = {
   velocityStringProperty: _.get( QuantumWaveInterferenceStrings, 'velocityStringProperty' ),
   velocityPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'velocityPatternStringProperty' ),
   minStringProperty: _.get( QuantumWaveInterferenceStrings, 'minStringProperty' ),
-  maxStringProperty: _.get( QuantumWaveInterferenceStrings, 'maxStringProperty' )
+  maxStringProperty: _.get( QuantumWaveInterferenceStrings, 'maxStringProperty' ),
+  slitSeparationStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationStringProperty' ),
+  screenDistanceStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistanceStringProperty' ),
+  slitSettingsStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSettingsStringProperty' ),
+  slitSeparationPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationPatternStringProperty' ),
+  screenDistancePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistancePatternStringProperty' ),
+  bothOpenStringProperty: _.get( QuantumWaveInterferenceStrings, 'bothOpenStringProperty' ),
+  leftCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'leftCoveredStringProperty' ),
+  rightCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'rightCoveredStringProperty' ),
+  leftDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'leftDetectorStringProperty' ),
+  rightDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'rightDetectorStringProperty' )
 };
 
 export default QuantumWaveInterferenceFluent;

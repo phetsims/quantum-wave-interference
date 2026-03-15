@@ -27,6 +27,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
 import SourceType from '../model/SourceType.js';
 import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
+import SlitControlPanel from './SlitControlPanel.js';
 import SourceControlPanel from './SourceControlPanel.js';
 
 // Layout constants derived from the design mockup (1024x618 layout bounds)
@@ -230,6 +231,19 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     sceneRadioButtonGroup.left = this.layoutBounds.minX + QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
     sceneRadioButtonGroup.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     this.addChild( sceneRadioButtonGroup );
+
+    // Slit controls panel (center of bottom row)
+    const slitControlPanel = new SlitControlPanel(
+      model.sceneProperty,
+      model.scenes,
+      this, // ComboBox list parent
+      {
+        tandem: options.tandem.createTandem( 'slitControlPanel' )
+      }
+    );
+    slitControlPanel.left = sceneRadioButtonGroup.right + 20;
+    slitControlPanel.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+    this.addChild( slitControlPanel );
 
     const resetAllButton = new ResetAllButton( {
       listener: () => {

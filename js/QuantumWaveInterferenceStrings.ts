@@ -33,6 +33,16 @@ type StringsType = {
   'velocityPatternStringProperty': LocalizedStringProperty;
   'minStringProperty': LocalizedStringProperty;
   'maxStringProperty': LocalizedStringProperty;
+  'slitSeparationStringProperty': LocalizedStringProperty;
+  'screenDistanceStringProperty': LocalizedStringProperty;
+  'slitSettingsStringProperty': LocalizedStringProperty;
+  'slitSeparationPatternStringProperty': LocalizedStringProperty;
+  'screenDistancePatternStringProperty': LocalizedStringProperty;
+  'bothOpenStringProperty': LocalizedStringProperty;
+  'leftCoveredStringProperty': LocalizedStringProperty;
+  'rightCoveredStringProperty': LocalizedStringProperty;
+  'leftDetectorStringProperty': LocalizedStringProperty;
+  'rightDetectorStringProperty': LocalizedStringProperty;
 };
 
 const QuantumWaveInterferenceStrings = getStringModule( 'QUANTUM_WAVE_INTERFERENCE' ) as StringsType;

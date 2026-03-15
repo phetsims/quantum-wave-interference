@@ -15,3 +15,13 @@ velocity:       Velocity
 velocityPattern: '{0} m/s'
 min:            Min
 max:            Max
+slitSeparation: Slit separation
+screenDistance:  Screen distance
+slitSettings:   Slit settings
+slitSeparationPattern: '{{value}} mm'
+screenDistancePattern: '{{value}} m'
+bothOpen:       Both open
+leftCovered:    Left covered
+rightCovered:   Right covered
+leftDetector:   Left detector
+rightDetector:  Right detector
