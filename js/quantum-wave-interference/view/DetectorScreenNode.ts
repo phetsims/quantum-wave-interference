@@ -149,6 +149,13 @@ export default class DetectorScreenNode extends Node {
     sceneModel.detectionModeProperty.link( () => updateDisplay() );
     sceneModel.screenBrightnessProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
+    // In Average Intensity mode, the pattern is computed from the theoretical interference formula
+    // and must update whenever properties that affect the formula change. These properties don't
+    // fire hitsChangedEmitter, so we need explicit listeners.
+    sceneModel.isEmittingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.wavelengthProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.velocityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+
     // Eraser button to clear the screen - positioned to the right of the screen, top-aligned
     const eraserButton = new EraserButton( {
       iconWidth: 18,
