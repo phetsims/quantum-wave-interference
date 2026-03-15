@@ -10,13 +10,13 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import Utils from '../../../../dot/js/Utils.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
@@ -392,10 +392,13 @@ class DetectorScreenCanvasNode extends CanvasNode {
 
   /**
    * Returns the RGB components for hit dots based on the source type.
+   * For photons, uses VisibleColor to get the wavelength-dependent color.
+   * For particles, returns white.
    */
   private getHitRGB(): { r: number; g: number; b: number } {
     if ( this.sceneModel.sourceType === SourceType.PHOTONS ) {
-      return wavelengthToRGB( this.sceneModel.wavelengthProperty.value );
+      const color = VisibleColor.wavelengthToColor( this.sceneModel.wavelengthProperty.value );
+      return { r: color.red, g: color.green, b: color.blue };
     }
     else {
       return { r: 255, g: 255, b: 255 };
@@ -404,76 +407,17 @@ class DetectorScreenCanvasNode extends CanvasNode {
 
   /**
    * Returns the CSS color string for an intensity band based on the source type and alpha.
+   * For photons, uses VisibleColor to ensure consistent wavelength-dependent colors across all views.
    */
   private getIntensityColor( alpha: number ): string {
-    const sourceType = this.sceneModel.sourceType;
-
-    if ( sourceType === SourceType.PHOTONS ) {
-      const wavelength = this.sceneModel.wavelengthProperty.value;
-      const rgb = wavelengthToRGB( wavelength );
-      return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;
+    if ( this.sceneModel.sourceType === SourceType.PHOTONS ) {
+      const color = VisibleColor.wavelengthToColor( this.sceneModel.wavelengthProperty.value );
+      return `rgba(${color.red},${color.green},${color.blue},${alpha})`;
     }
     else {
-      // White glow for particles
       return `rgba(255,255,255,${alpha})`;
     }
   }
-}
-
-/**
- * Converts a visible light wavelength (380-780 nm) to an RGB color.
- * Based on Dan Bruton's algorithm.
- */
-function wavelengthToRGB( wavelength: number ): { r: number; g: number; b: number } {
-  let r = 0;
-  let g = 0;
-  let b = 0;
-
-  if ( wavelength >= 380 && wavelength < 440 ) {
-    r = -( wavelength - 440 ) / ( 440 - 380 );
-    g = 0;
-    b = 1;
-  }
-  else if ( wavelength >= 440 && wavelength < 490 ) {
-    r = 0;
-    g = ( wavelength - 440 ) / ( 490 - 440 );
-    b = 1;
-  }
-  else if ( wavelength >= 490 && wavelength < 510 ) {
-    r = 0;
-    g = 1;
-    b = -( wavelength - 510 ) / ( 510 - 490 );
-  }
-  else if ( wavelength >= 510 && wavelength < 580 ) {
-    r = ( wavelength - 510 ) / ( 580 - 510 );
-    g = 1;
-    b = 0;
-  }
-  else if ( wavelength >= 580 && wavelength < 645 ) {
-    r = 1;
-    g = -( wavelength - 645 ) / ( 645 - 580 );
-    b = 0;
-  }
-  else if ( wavelength >= 645 && wavelength <= 780 ) {
-    r = 1;
-    g = 0;
-    b = 0;
-  }
-
-  // Intensity factor for edges of visible spectrum
-  let factor = 1;
-  if ( wavelength >= 380 && wavelength < 420 ) {
-    factor = 0.3 + 0.7 * ( wavelength - 380 ) / ( 420 - 380 );
-  }
-  else if ( wavelength >= 700 && wavelength <= 780 ) {
-    factor = 0.3 + 0.7 * ( 780 - wavelength ) / ( 780 - 700 );
-  }
-
-  return {
-    r: Utils.roundSymmetric( 255 * r * factor ),
-    g: Utils.roundSymmetric( 255 * g * factor ),
-    b: Utils.roundSymmetric( 255 * b * factor )
-  };
 }
 
 quantumWaveInterference.register( 'DetectorScreenNode', DetectorScreenNode );
