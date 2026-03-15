@@ -208,7 +208,9 @@ export default class GraphAccordionBox extends Node {
   }
 
   /**
-   * Paints the intensity curve (smooth line) on the data path for Average Intensity mode.
+   * Paints the intensity curve as a filled area chart for Average Intensity mode.
+   * The shape traces the intensity values along the top and closes back along the baseline,
+   * creating a filled region that makes the interference pattern visually prominent.
    * Uses the accumulated intensity bins from the model, so the curve builds up over time
    * as hits are registered, matching the design requirement for running-average behavior.
    */
@@ -225,6 +227,11 @@ export default class GraphAccordionBox extends Node {
     const numBins = bins.length;
     const shape = new Shape();
 
+    // Start at the bottom-left corner of the chart
+    const firstX = ( 0.5 / numBins ) * CHART_WIDTH;
+    shape.moveTo( firstX, CHART_HEIGHT );
+
+    // Trace the intensity curve along the top
     for ( let i = 0; i < numBins; i++ ) {
       const fraction = ( i + 0.5 ) / numBins; // Center of each bin
       const intensity = bins[ i ] / maxBin; // Normalize to [0, 1]
@@ -232,18 +239,25 @@ export default class GraphAccordionBox extends Node {
       const viewX = fraction * CHART_WIDTH;
       const viewY = CHART_HEIGHT - ( intensity * CHART_HEIGHT * zoomScale );
 
-      if ( i === 0 ) {
-        shape.moveTo( viewX, viewY );
-      }
-      else {
-        shape.lineTo( viewX, viewY );
-      }
+      shape.lineTo( viewX, viewY );
     }
+
+    // Close back to the baseline to form a filled area
+    const lastX = ( ( numBins - 0.5 ) / numBins ) * CHART_WIDTH;
+    shape.lineTo( lastX, CHART_HEIGHT );
+    shape.close();
 
     dataPath.shape = shape;
     dataPath.stroke = 'black';
     dataPath.lineWidth = 1.5;
-    dataPath.fill = null;
+
+    // Fill with a semi-transparent color matching the source type
+    if ( sceneModel.sourceType === SourceType.PHOTONS ) {
+      dataPath.fill = 'rgba(180,50,50,0.3)';
+    }
+    else {
+      dataPath.fill = 'rgba(100,100,180,0.3)';
+    }
   }
 
   /**
