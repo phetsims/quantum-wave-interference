@@ -17,7 +17,15 @@ type StringsType = {
   };
   'screen': {
     'nameStringProperty': LocalizedStringProperty;
-  }
+  };
+  'photonsStringProperty': LocalizedStringProperty;
+  'electronsStringProperty': LocalizedStringProperty;
+  'neutronsStringProperty': LocalizedStringProperty;
+  'heliumAtomsStringProperty': LocalizedStringProperty;
+  'photonSourceStringProperty': LocalizedStringProperty;
+  'electronSourceStringProperty': LocalizedStringProperty;
+  'neutronSourceStringProperty': LocalizedStringProperty;
+  'heliumAtomSourceStringProperty': LocalizedStringProperty;
 };
 
 const QuantumWaveInterferenceStrings = getStringModule( 'QUANTUM_WAVE_INTERFERENCE' ) as StringsType;

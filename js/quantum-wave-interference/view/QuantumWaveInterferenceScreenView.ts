@@ -10,6 +10,7 @@ import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.j
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
+import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -22,6 +23,16 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     const options = optionize<QuantumWaveInterferenceScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
 
     super( options );
+
+    // Scene radio buttons - 2x2 grid at the bottom-left
+    const sceneRadioButtonGroup = new SceneRadioButtonGroup(
+      model.sceneProperty,
+      model.scenes,
+      options.tandem.createTandem( 'sceneRadioButtonGroup' )
+    );
+    sceneRadioButtonGroup.left = this.layoutBounds.minX + QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
+    sceneRadioButtonGroup.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+    this.addChild( sceneRadioButtonGroup );
 
     const resetAllButton = new ResetAllButton( {
       listener: () => {

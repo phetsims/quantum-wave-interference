@@ -1,2 +1,10 @@
 quantum-wave-interference.title: 'Quantum Wave Interference'
 screen.name: 'Quantum Wave Interference'
+photons:        Photons
+electrons:      Electrons
+neutrons:       Neutrons
+heliumAtoms:    Helium atoms
+photonSource:   Photon source
+electronSource: Electron source
+neutronSource:  Neutron source
+heliumAtomSource: Helium atom source

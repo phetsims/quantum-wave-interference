@@ -4,5 +4,29 @@
   },
   "screen.name": {
     "value": "Quantum Wave Interference"
+  },
+  "photons": {
+    "value": "Photons"
+  },
+  "electrons": {
+    "value": "Electrons"
+  },
+  "neutrons": {
+    "value": "Neutrons"
+  },
+  "heliumAtoms": {
+    "value": "Helium atoms"
+  },
+  "photonSource": {
+    "value": "Photon source"
+  },
+  "electronSource": {
+    "value": "Electron source"
+  },
+  "neutronSource": {
+    "value": "Neutron source"
+  },
+  "heliumAtomSource": {
+    "value": "Helium atom source"
   }
 }
