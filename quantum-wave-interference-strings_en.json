@@ -28,5 +28,11 @@
   },
   "heliumAtomSource": {
     "value": "Helium atom source"
+  },
+  "doubleSlit": {
+    "value": "Double slit"
+  },
+  "detectorScreen": {
+    "value": "Detector screen"
   }
 }

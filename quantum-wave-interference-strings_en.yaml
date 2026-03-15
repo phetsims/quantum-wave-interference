@@ -8,3 +8,5 @@ photonSource:   Photon source
 electronSource: Electron source
 neutronSource:  Neutron source
 heliumAtomSource: Helium atom source
+doubleSlit:     Double slit
+detectorScreen: Detector screen

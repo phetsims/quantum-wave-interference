@@ -33,6 +33,8 @@ addToMapIfDefined( 'photonSource', 'photonSourceStringProperty' );
 addToMapIfDefined( 'electronSource', 'electronSourceStringProperty' );
 addToMapIfDefined( 'neutronSource', 'neutronSourceStringProperty' );
 addToMapIfDefined( 'heliumAtomSource', 'heliumAtomSourceStringProperty' );
+addToMapIfDefined( 'doubleSlit', 'doubleSlitStringProperty' );
+addToMapIfDefined( 'detectorScreen', 'detectorScreenStringProperty' );
 
 // A function that creates contents for a new Fluent file, which will be needed if any string changes.
 const createFluentFile = (): string => {
@@ -59,7 +61,9 @@ const QuantumWaveInterferenceFluent = {
   photonSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'photonSourceStringProperty' ),
   electronSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'electronSourceStringProperty' ),
   neutronSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'neutronSourceStringProperty' ),
-  heliumAtomSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'heliumAtomSourceStringProperty' )
+  heliumAtomSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'heliumAtomSourceStringProperty' ),
+  doubleSlitStringProperty: _.get( QuantumWaveInterferenceStrings, 'doubleSlitStringProperty' ),
+  detectorScreenStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorScreenStringProperty' )
 };
 
 export default QuantumWaveInterferenceFluent;
