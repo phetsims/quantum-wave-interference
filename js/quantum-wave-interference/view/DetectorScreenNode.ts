@@ -119,11 +119,13 @@ export default class DetectorScreenNode extends Node {
     const halfWidth = sceneModel.screenHalfWidth;
     const fullWidth = halfWidth * 2;
 
-    if ( fullWidth >= 0.01 ) {
-      scaleLabelText.string = `${toFixed( fullWidth * 100, 1 )} cm`;
-    }
-    else if ( fullWidth >= 1e-4 ) {
-      scaleLabelText.string = `${toFixed( fullWidth * 1e3, 2 )} mm`;
+    // Use mm for values >= 0.1 mm (consistent with slit measurements), μm for smaller values.
+    // The design mockup shows "10 mm" for the photon screen, not "1.0 cm".
+    const fullWidthMM = fullWidth * 1e3;
+    if ( fullWidthMM >= 0.1 ) {
+      // Show integer mm when the value is a whole number, otherwise one decimal place
+      const decimalPlaces = ( fullWidthMM % 1 === 0 ) ? 0 : 1;
+      scaleLabelText.string = `${toFixed( fullWidthMM, decimalPlaces )} mm`;
     }
     else {
       scaleLabelText.string = `${toFixed( fullWidth * 1e6, 1 )} μm`;
