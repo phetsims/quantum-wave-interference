@@ -109,8 +109,16 @@ export default class GraphAccordionBox extends Node {
     // Prevent bounds recomputation on every update for performance
     dataPath.computeShapeBounds = () => chartBackground.bounds;
 
-    // Y-axis label that changes based on detection mode, positioned to the left of the chart
-    const yAxisLabel = new Text( '', {
+    // Y-axis label that changes based on detection mode, positioned to the left of the chart.
+    // Depends on both the detection mode and the string properties for proper locale change support.
+    const yAxisLabelStringProperty = new DerivedProperty(
+      [ sceneModel.detectionModeProperty,
+        QuantumWaveInterferenceFluent.countStringProperty,
+        QuantumWaveInterferenceFluent.intensityStringProperty ],
+      ( detectionMode, countString, intensityString ) =>
+        detectionMode === DetectionMode.HITS ? countString : intensityString
+    );
+    const yAxisLabel = new Text( yAxisLabelStringProperty, {
       font: new PhetFont( 11 ),
       rotation: -Math.PI / 2,
       maxWidth: CHART_HEIGHT
@@ -120,12 +128,14 @@ export default class GraphAccordionBox extends Node {
       children: [ yAxisLabel, chartBackground, dataPath ]
     } );
 
-    // Title text changes dynamically based on detection mode: "Intensity Graph" vs "Hits Graph"
+    // Title text changes dynamically based on detection mode: "Intensity Graph" vs "Hits Graph".
+    // Must depend on all three properties so the title updates on both mode change and locale change.
     const titleStringProperty = new DerivedProperty(
-      [ sceneModel.detectionModeProperty ],
-      detectionMode => detectionMode === DetectionMode.HITS
-                        ? QuantumWaveInterferenceFluent.hitsGraphStringProperty.value
-                        : QuantumWaveInterferenceFluent.intensityGraphStringProperty.value
+      [ sceneModel.detectionModeProperty,
+        QuantumWaveInterferenceFluent.hitsGraphStringProperty,
+        QuantumWaveInterferenceFluent.intensityGraphStringProperty ],
+      ( detectionMode, hitsGraphString, intensityGraphString ) =>
+        detectionMode === DetectionMode.HITS ? hitsGraphString : intensityGraphString
     );
     const titleText = new Text( titleStringProperty, {
       font: new PhetFont( 14 ),
@@ -186,11 +196,9 @@ export default class GraphAccordionBox extends Node {
 
       if ( isHitsMode ) {
         this.paintHistogram( dataPath, sceneModel );
-        yAxisLabel.string = QuantumWaveInterferenceFluent.countStringProperty.value;
       }
       else {
         this.paintIntensityCurve( dataPath, sceneModel );
-        yAxisLabel.string = QuantumWaveInterferenceFluent.intensityStringProperty.value;
       }
       // Position y-axis label to the left of the chart, vertically centered
       yAxisLabel.right = chartBackground.left - 4;
@@ -255,17 +263,19 @@ export default class GraphAccordionBox extends Node {
     shape.close();
 
     dataPath.shape = shape;
-    dataPath.stroke = 'black';
     dataPath.lineWidth = 1.5;
 
-    // Fill with a semi-transparent color matching the source type. For photons, use the
-    // wavelength-derived color so the graph visually matches the detector screen display.
+    // Fill and stroke with colors matching the source type. For photons, use the
+    // wavelength-derived color so the graph visually matches the detector screen display
+    // and the histogram bars (which already use wavelength-dependent colors).
     if ( sceneModel.sourceType === SourceType.PHOTONS ) {
       const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
       dataPath.fill = color.withAlpha( 0.3 );
+      dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
     }
     else {
       dataPath.fill = 'rgba(100,100,180,0.3)';
+      dataPath.stroke = 'rgba(50,50,130,0.8)';
     }
   }
 
