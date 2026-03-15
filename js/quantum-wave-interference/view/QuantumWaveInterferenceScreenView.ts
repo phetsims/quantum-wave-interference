@@ -668,8 +668,16 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       }
     );
     sourceControlPanel.left = laserPointerNode.left;
-    sourceControlPanel.top = laserPointerNode.bottom + 14;
     this.addChild( sourceControlPanel );
+
+    // Update the source control panel position dynamically. When the scene changes, the active emitter
+    // may move (e.g., the particle mass label pushes the emitter down), so the panel must follow.
+    const updateSourceControlPanelPosition = () => {
+      const isPhoton = model.sceneProperty.value.sourceType === SourceType.PHOTONS;
+      const activeEmitter = isPhoton ? laserPointerNode : particleEmitterNode;
+      sourceControlPanel.top = activeEmitter.bottom + 14;
+    };
+    model.sceneProperty.link( updateSourceControlPanelPosition );
 
     // ==============================
     // Bottom Row
