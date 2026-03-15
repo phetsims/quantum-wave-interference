@@ -187,26 +187,30 @@ export default class FrontFacingSlitNode extends Node {
       leftCover.x = leftSlit.x;
       rightCover.x = rightSlit.x;
 
-      // Update slit width span (above the left slit)
+      // Update slit width span (above the left slit).
+      // Per the design mockup, tick marks flank the slit edges and the label is to the right.
       const slitLeft = leftSlit.left;
       const slitRight = leftSlit.right;
       const spanWidth = slitRight - slitLeft;
 
-      if ( spanWidth > 12 ) {
+      if ( spanWidth > 8 ) {
         slitWidthArrow.setTailAndTip( slitLeft, 0, slitRight, 0 );
         slitWidthArrow.visible = true;
       }
       else {
-        // Arrow too small to render nicely, hide it
+        // Arrow too small to render nicely, hide it but keep ticks and label
         slitWidthArrow.visible = false;
       }
       slitWidthLeftTick.x = slitLeft;
       slitWidthRightTick.x = slitRight;
-      slitWidthText.centerX = ( slitLeft + slitRight ) / 2;
-      slitWidthText.bottom = -4;
+
+      // Position label to the right of the right tick mark (matching the design SVG)
+      slitWidthText.left = slitRight + 5;
+      slitWidthText.centerY = 0;
       slitWidthSpanNode.bottom = slitY - 4;
 
-      // Update slit separation span (below the view)
+      // Update slit separation span (below the view).
+      // Per the design mockup, the label is to the right of the right tick mark.
       const sepLeft = leftSlit.centerX;
       const sepRight = rightSlit.centerX;
 
@@ -221,8 +225,10 @@ export default class FrontFacingSlitNode extends Node {
       else {
         separationText.string = `${toFixed( separationMM * 1000, 0 )} μm`;
       }
-      separationText.centerX = ( sepLeft + sepRight ) / 2;
-      separationText.top = 4;
+
+      // Position label to the right of the right tick mark (matching the design SVG)
+      separationText.left = sepRight + 5;
+      separationText.centerY = 0;
       separationSpanNode.top = VIEW_HEIGHT + 4;
     };
 
