@@ -94,7 +94,7 @@ export default class FrontFacingSlitNode extends Node {
       const beamColor = sceneModel.sourceType === SourceType.PHOTONS
                          ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
                          : PARTICLE_BEAM_COLOR;
-      beamOverlay.fill = beamColor.withAlpha( 0.25 * intensity );
+      beamOverlay.fill = beamColor.withAlpha( 0.15 + 0.35 * intensity );
     };
 
     sceneModel.isEmittingProperty.link( updateBeamOverlay );
