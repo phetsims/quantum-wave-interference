@@ -131,7 +131,10 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       bidirectional: true
     } );
 
-    // Laser pointer node for the emitter source. Position depends on whether mass label is visible.
+    // Emitter left position, shared by both laser and particle emitters
+    const emitterLeft = this.layoutBounds.minX + QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN + 20;
+
+    // Laser pointer node for the photon emitter source.
     const laserPointerNode = new LaserPointerNode( isEmittingProperty, {
       bodySize: new Dimension2( 88, 40 ),
       nozzleSize: new Dimension2( 16, 32 ),
@@ -139,19 +142,54 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
         baseColor: 'red',
         radius: 14
       },
-      left: this.layoutBounds.minX + QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN + 20,
+      left: emitterLeft,
       tandem: options.tandem.createTandem( 'laserPointerNode' )
     } );
     this.addChild( laserPointerNode );
 
-    // Position the mass label below the source label, and the laser below the mass label (or source label for photons).
+    // Particle emitter node for non-photon scenes (electrons, neutrons, helium atoms).
+    // Uses LaserPointerNode with different styling: blue-gray body to look like a generic
+    // particle source rather than a laser, matching the electron emitter design mockup.
+    const particleEmitterNode = new LaserPointerNode( isEmittingProperty, {
+      bodySize: new Dimension2( 88, 40 ),
+      nozzleSize: new Dimension2( 16, 32 ),
+      topColor: 'rgb(100, 120, 180)',
+      bottomColor: 'rgb(30, 40, 80)',
+      highlightColor: 'rgb(160, 180, 230)',
+      buttonOptions: {
+        baseColor: 'red',
+        radius: 14
+      },
+      hasGlass: true,
+      glassOptions: {
+        mainColor: 'rgb(160, 190, 220)',
+        highlightColor: 'white',
+        shadowColor: 'rgb(100, 130, 160)',
+        heightProportion: 0.7,
+        proportionStickingOut: 0.3
+      },
+      left: emitterLeft,
+      visible: false,
+      tandem: options.tandem.createTandem( 'particleEmitterNode' )
+    } );
+    this.addChild( particleEmitterNode );
+
+    // Position the mass label below the source label, and the emitter below the mass label (or source label for photons).
+    // Toggle visibility of the two emitter nodes based on whether the scene is photons or particles.
     const updateEmitterLayout = () => {
+      const isPhoton = model.sceneProperty.value.sourceType === SourceType.PHOTONS;
+      laserPointerNode.visible = isPhoton;
+      particleEmitterNode.visible = !isPhoton;
+
+      // The active emitter node for positioning
+      const activeEmitter = isPhoton ? laserPointerNode : particleEmitterNode;
+
       particleMassLabel.top = sourceLabel.bottom + 2;
       if ( particleMassLabel.visible ) {
-        laserPointerNode.top = particleMassLabel.bottom + 4;
+        activeEmitter.top = particleMassLabel.bottom + 4;
       }
       else {
-        laserPointerNode.top = sourceLabel.bottom + 6;
+        activeEmitter.top = sourceLabel.bottom + 6;
       }
     };
 
@@ -468,10 +506,11 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
                          ? VisibleColor.wavelengthToColor( scene.wavelengthProperty.value )
                          : PARTICLE_BEAM_COLOR;
 
-      // Emitter beam: rectangle from laser nozzle tip to the left edge of the double slit parallelogram.
-      // The laser nozzle height is 32 (nozzleSize height from LaserPointerNode options).
-      const nozzleTipX = laserPointerNode.right;
-      const laserCenterY = laserPointerNode.centerY;
+      // Emitter beam: rectangle from emitter nozzle tip to the left edge of the double slit parallelogram.
+      // The nozzle height is 32 (nozzleSize height from LaserPointerNode options).
+      const activeEmitter = scene.sourceType === SourceType.PHOTONS ? laserPointerNode : particleEmitterNode;
+      const nozzleTipX = activeEmitter.right;
+      const laserCenterY = activeEmitter.centerY;
       const beamHeight = 32; // matches nozzle height
       const beamLeft = nozzleTipX;
       const beamRight = doubleSlitNode.left;
