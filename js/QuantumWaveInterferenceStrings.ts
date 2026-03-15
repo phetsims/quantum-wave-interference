@@ -49,6 +49,7 @@ type StringsType = {
   'rightDetectorStringProperty': LocalizedStringProperty;
   'averageIntensityStringProperty': LocalizedStringProperty;
   'hitsStringProperty': LocalizedStringProperty;
+  'hitsCountPatternStringProperty': LocalizedStringProperty;
   'screenBrightnessStringProperty': LocalizedStringProperty;
   'intensityGraphStringProperty': LocalizedStringProperty;
   'hitsGraphStringProperty': LocalizedStringProperty;

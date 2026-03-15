@@ -98,6 +98,9 @@
   "hits": {
     "value": "Hits"
   },
+  "hitsCountPattern": {
+    "value": "Hits: {{count}}"
+  },
   "screenBrightness": {
     "value": "Screen brightness"
   },

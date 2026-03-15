@@ -147,6 +147,12 @@ export default class GraphAccordionBox extends Node {
       buttonXMargin: 8,
       buttonYMargin: 6,
       minWidth: CHART_WIDTH + 16, // contentXMargin * 2
+
+      // Per the design specification: "each graph should have a heading with a white background
+      // next to the expand/collapse button"
+      titleBarOptions: {
+        fill: 'white'
+      },
       tandem: providedOptions.tandem.createTandem( 'accordionBox' )
     } );
     this.addChild( this.accordionBox );

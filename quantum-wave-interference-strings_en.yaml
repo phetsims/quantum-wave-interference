@@ -31,6 +31,7 @@ leftDetector:   Left detector
 rightDetector:  Right detector
 averageIntensity: Average intensity
 hits:           Hits
+hitsCountPattern: 'Hits: {{count}}'
 screenBrightness: Screen brightness
 intensityGraph:   Intensity Graph
 hitsGraph:        Hits Graph
