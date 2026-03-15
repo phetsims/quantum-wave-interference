@@ -234,19 +234,20 @@ export default class FrontFacingSlitNode extends Node {
       separationLeftTick.x = sepLeft;
       separationRightTick.x = sepRight;
 
-      // Format separation value: use μm for values ≤ 0.1 mm for readability
+      // Format separation value: use μm for values ≤ 0.1 mm for readability.
+      // Always use 1 decimal place for consistency with the design mockup (e.g., "1.0 μm" not "1 μm").
       if ( separationMM > 0.1 ) {
         separationText.string = `${toFixed( separationMM, 1 )} mm`;
       }
       else {
         const valueUM = separationMM * 1000;
-        const decimalPlaces = valueUM >= 1 ? 0 : 1;
-        separationText.string = `${toFixed( valueUM, decimalPlaces )} μm`;
+        separationText.string = `${toFixed( valueUM, 1 )} μm`;
       }
 
-      // Center the label below the arrow span
-      separationText.centerX = ( sepLeft + sepRight ) / 2;
-      separationText.top = SPAN_TICK_LENGTH / 2 + 2;
+      // Position the label to the right of the right tick mark, matching the
+      // slit width span label style above the view (per the design mockup).
+      separationText.left = sepRight + 5;
+      separationText.centerY = 0;
       separationSpanNode.top = VIEW_HEIGHT + 2;
     };
 
