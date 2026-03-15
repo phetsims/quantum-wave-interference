@@ -87,6 +87,10 @@ export default class SceneModel extends PhetioObject {
   // Total number of hits accumulated on the detector screen
   public readonly totalHitsProperty: NumberProperty;
 
+  // Number of hits detected by the which-path detector (when LEFT_DETECTOR or RIGHT_DETECTOR is active).
+  // Approximately half of all hits pass through the monitored slit.
+  public readonly detectorHitsProperty: NumberProperty;
+
   // Ranges for velocity (m/s) - specific to each particle type
   public readonly velocityRange: Range;
 
@@ -227,6 +231,11 @@ export default class SceneModel extends PhetioObject {
       phetioReadOnly: true
     } );
 
+    this.detectorHitsProperty = new NumberProperty( 0, {
+      tandem: tandem.createTandem( 'detectorHitsProperty' ),
+      phetioReadOnly: true
+    } );
+
     this.snapshotsProperty = new Property<Snapshot[]>( [] );
 
     this.numberOfSnapshotsProperty = new DerivedProperty(
@@ -312,6 +321,7 @@ export default class SceneModel extends PhetioObject {
     this.hits.length = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.value = 0;
+    this.detectorHitsProperty.value = 0;
     this.hitsChangedEmitter.emit();
   }
 
@@ -363,6 +373,7 @@ export default class SceneModel extends PhetioObject {
     this.hits.length = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.reset();
+    this.detectorHitsProperty.reset();
     this.snapshotsProperty.value = [];
     this.nextSnapshotNumber = 1;
     this.hitsChangedEmitter.emit();
@@ -410,6 +421,10 @@ export default class SceneModel extends PhetioObject {
       return;
     }
 
+    const slitSetting = this.slitSettingProperty.value;
+    const isDetectorActive = slitSetting === SlitSetting.LEFT_DETECTOR || slitSetting === SlitSetting.RIGHT_DETECTOR;
+    let detectorHitsThisFrame = 0;
+
     for ( let i = 0; i < numHits; i++ ) {
 
       // Horizontal position determined by interference pattern probability distribution
@@ -419,9 +434,18 @@ export default class SceneModel extends PhetioObject {
       const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * 0.95; // [-0.95, 0.95] to leave padding
 
       this.hits.push( new Vector2( x, y ) );
+
+      // When a which-path detector is active, each particle has ~50% probability of going
+      // through the monitored slit (the one with the detector on it).
+      if ( isDetectorActive && dotRandom.nextDouble() < 0.5 ) {
+        detectorHitsThisFrame++;
+      }
     }
 
     this.totalHitsProperty.value = this.hits.length;
+    if ( isDetectorActive ) {
+      this.detectorHitsProperty.value += detectorHitsThisFrame;
+    }
     this.hitsChangedEmitter.emit();
   }
 }

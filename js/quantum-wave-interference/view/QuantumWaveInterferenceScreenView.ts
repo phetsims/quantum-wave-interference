@@ -37,6 +37,7 @@ import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
 import SceneModel from '../model/SceneModel.js';
+import DetectionMode from '../model/DetectionMode.js';
 import SlitSetting from '../model/SlitSetting.js';
 import SourceType from '../model/SourceType.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
@@ -240,8 +241,8 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     // ==============================
     // Which-path detector indicator (appears next to double slit when detector slit setting is active)
     // ==============================
-    const DETECTOR_BOX_WIDTH = 50;
-    const DETECTOR_BOX_HEIGHT = 30;
+    const DETECTOR_BOX_WIDTH = 58;
+    const DETECTOR_BOX_HEIGHT = 38;
     const detectorIndicatorBox = new Rectangle( 0, 0, DETECTOR_BOX_WIDTH, DETECTOR_BOX_HEIGHT, 5, 5, {
       fill: new Color( 255, 200, 50 ),
       stroke: new Color( 180, 140, 0 ),
@@ -249,11 +250,22 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     } );
     const detectorIndicatorLabel = new Text( QuantumWaveInterferenceFluent.detectorStringProperty, {
       font: new PhetFont( 11 ),
-      maxWidth: DETECTOR_BOX_WIDTH - 6,
-      center: detectorIndicatorBox.center
+      maxWidth: DETECTOR_BOX_WIDTH - 6
     } );
+
+    // Hit count text shown below the "Detector" label when in Hits mode
+    const detectorHitCountText = new Text( '', {
+      font: new PhetFont( 10 ),
+      maxWidth: DETECTOR_BOX_WIDTH - 6,
+      visible: false
+    } );
+
+    const detectorLabelContainer = new Node( {
+      children: [ detectorIndicatorLabel, detectorHitCountText ]
+    } );
+
     const detectorIndicatorNode = new Node( {
-      children: [ detectorIndicatorBox, detectorIndicatorLabel ],
+      children: [ detectorIndicatorBox, detectorLabelContainer ],
       visible: false,
       // Position to the right of the double slit parallelogram
       left: doubleSlitNode.right + 4,
@@ -261,18 +273,54 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     } );
     this.addChild( detectorIndicatorNode );
 
+    // Center the label content within the box
+    const updateDetectorLabelLayout = () => {
+      detectorIndicatorLabel.centerX = DETECTOR_BOX_WIDTH / 2;
+      if ( detectorHitCountText.visible ) {
+        // Stack label and count vertically
+        detectorIndicatorLabel.centerY = DETECTOR_BOX_HEIGHT / 2 - 7;
+        detectorHitCountText.centerX = DETECTOR_BOX_WIDTH / 2;
+        detectorHitCountText.centerY = DETECTOR_BOX_HEIGHT / 2 + 7;
+      }
+      else {
+        detectorIndicatorLabel.centerY = DETECTOR_BOX_HEIGHT / 2;
+      }
+    };
+
     // DynamicProperty following the active scene's slitSettingProperty
     const slitSettingProperty = new DynamicProperty<SlitSetting, SlitSetting, SceneModel>( model.sceneProperty, {
       derive: scene => scene.slitSettingProperty
     } );
 
-    // Show/hide detector indicator based on slit setting
-    slitSettingProperty.link( slitSetting => {
-      detectorIndicatorNode.visible = (
-        slitSetting === SlitSetting.LEFT_DETECTOR ||
-        slitSetting === SlitSetting.RIGHT_DETECTOR
-      );
+    // DynamicProperty following the active scene's detectionModeProperty
+    const detectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>( model.sceneProperty, {
+      derive: scene => scene.detectionModeProperty
     } );
+
+    // DynamicProperty following the active scene's detectorHitsProperty
+    const detectorHitsProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
+      derive: scene => scene.detectorHitsProperty
+    } );
+
+    // Update the detector indicator: show/hide and display hit count when in Hits mode
+    const updateDetectorIndicator = () => {
+      const slitSetting = slitSettingProperty.value;
+      const isDetectorActive = slitSetting === SlitSetting.LEFT_DETECTOR || slitSetting === SlitSetting.RIGHT_DETECTOR;
+      detectorIndicatorNode.visible = isDetectorActive;
+
+      if ( isDetectorActive ) {
+        const isHitsMode = detectionModeProperty.value === DetectionMode.HITS;
+        detectorHitCountText.visible = isHitsMode;
+        if ( isHitsMode ) {
+          detectorHitCountText.string = `${detectorHitsProperty.value}`;
+        }
+        updateDetectorLabelLayout();
+      }
+    };
+
+    slitSettingProperty.link( updateDetectorIndicator );
+    detectionModeProperty.link( updateDetectorIndicator );
+    detectorHitsProperty.link( updateDetectorIndicator );
 
     // Detector screen label
     const detectorScreenLabel = new Text( QuantumWaveInterferenceFluent.detectorScreenStringProperty, {
