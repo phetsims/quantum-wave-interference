@@ -156,7 +156,7 @@ export default class SceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.2, 1.0 ); // mm
       this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
       this.screenHalfWidth = 0.005; // 5 mm
-      defaultScreenDistance = 0.5; // Per design mockup
+      defaultScreenDistance = this.screenDistanceRange.max; // Per design: "it starts all the way to the right"
       defaultVelocity = 0;
     }
     else if ( options.sourceType === SourceType.ELECTRONS ) {
@@ -166,7 +166,7 @@ export default class SceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.0005, 0.001 ); // mm (0.5–1.0 μm per design mockup)
       this.screenDistanceRange = new Range( 0.4, 0.8 ); // m (per design mockup)
       this.screenHalfWidth = 0.005; // 5 mm (10 mm total, matching design mockup scale indicator)
-      defaultScreenDistance = 0.5; // Per design mockup
+      defaultScreenDistance = this.screenDistanceRange.max; // Per design: "it starts all the way to the right"
       defaultVelocity = 1e6; // 1000 km/s per design mockup
     }
     else if ( options.sourceType === SourceType.NEUTRONS ) {
@@ -176,7 +176,7 @@ export default class SceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.02, 0.1 ); // mm
       this.screenDistanceRange = new Range( 0.5, 5.0 ); // m
       this.screenHalfWidth = 1e-4; // 0.1 mm
-      defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
+      defaultScreenDistance = this.screenDistanceRange.max; // Per design: "it starts all the way to the right"
       defaultVelocity = ( this.velocityRange.min + this.velocityRange.max ) / 2;
     }
     else {
@@ -187,7 +187,7 @@ export default class SceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.002, 0.01 ); // mm
       this.screenDistanceRange = new Range( 0.5, 2.0 ); // m
       this.screenHalfWidth = 1e-4; // 0.1 mm
-      defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
+      defaultScreenDistance = this.screenDistanceRange.max; // Per design: "it starts all the way to the right"
       defaultVelocity = ( this.velocityRange.min + this.velocityRange.max ) / 2;
     }
 
