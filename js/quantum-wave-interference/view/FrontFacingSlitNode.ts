@@ -35,13 +35,23 @@ const VIEW_CORNER_RADIUS = 10;
 
 // Slit visual dimensions
 const SLIT_HEIGHT = 130; // Height of the white slit rectangles
-const SLIT_VISUAL_WIDTH = 6; // Width of each slit rectangle in view coordinates
+const SLIT_VISUAL_WIDTH = 8; // Width of each slit rectangle in view coordinates
 
-// Span arrow constants
+// Span arrow constants for slit separation (full-size span below the view)
 const SPAN_ARROW_OPTIONS = {
   headHeight: 5,
   headWidth: 5,
   tailWidth: 1,
+  doubleHead: true,
+  fill: 'black',
+  stroke: null as string | null
+};
+
+// Smaller arrow options for the slit width span (compact span above one slit)
+const SLIT_WIDTH_ARROW_OPTIONS = {
+  headHeight: 3,
+  headWidth: 3,
+  tailWidth: 0.75,
   doubleHead: true,
   fill: 'black',
   stroke: null as string | null
@@ -138,7 +148,7 @@ export default class FrontFacingSlitNode extends Node {
     this.addChild( rightCover );
 
     // --- Slit width span (above the left slit) ---
-    const slitWidthArrow = new ArrowNode( 0, 0, 1, 0, SPAN_ARROW_OPTIONS );
+    const slitWidthArrow = new ArrowNode( 0, 0, 1, 0, SLIT_WIDTH_ARROW_OPTIONS );
     const slitWidthLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
     const slitWidthRightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
 
@@ -206,7 +216,7 @@ export default class FrontFacingSlitNode extends Node {
       const slitRight = leftSlit.right;
       const spanWidth = slitRight - slitLeft;
 
-      if ( spanWidth > 8 ) {
+      if ( spanWidth > 5 ) {
         slitWidthArrow.setTailAndTip( slitLeft, 0, slitRight, 0 );
         slitWidthArrow.visible = true;
       }
