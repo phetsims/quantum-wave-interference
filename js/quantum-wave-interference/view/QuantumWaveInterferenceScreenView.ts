@@ -40,6 +40,7 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
@@ -708,9 +709,10 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
     // Shared expanded property for the graph accordion box, so switching scenes does not
     // change the open/closed state (per design requirement).
-    this.graphExpandedProperty = new BooleanProperty( false, {
-      tandem: options.tandem.createTandem( 'graphExpandedProperty' )
-    } );
+    this.graphExpandedProperty = new BooleanProperty(
+      QuantumWaveInterferenceQueryParameters.graphExpanded, {
+        tandem: options.tandem.createTandem( 'graphExpandedProperty' )
+      } );
 
     // Graph accordion box - one per scene, positioned below the front-facing detector screen
     const graphTandem = options.tandem.createTandem( 'graphAccordionBoxes' );

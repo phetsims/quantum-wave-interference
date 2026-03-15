@@ -21,6 +21,8 @@ import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
+import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
+import DetectionMode from './DetectionMode.js';
 import SceneModel from './SceneModel.js';
 import SourceType from './SourceType.js';
 
@@ -114,6 +116,41 @@ export default class QuantumWaveInterferenceModel implements TModel {
         range: Stopwatch.ZERO_TO_ALMOST_SIXTY
       }
     } );
+
+    // Apply query parameters for initial state configuration.
+    // These are useful for testing specific scenarios without manual UI interaction.
+    const sceneParam = QuantumWaveInterferenceQueryParameters.scene;
+    if ( sceneParam ) {
+      const sceneMap: Record<string, SceneModel> = {
+        photons: this.photonsScene,
+        electrons: this.electronsScene,
+        neutrons: this.neutronsScene,
+        helium: this.heliumAtomsScene
+      };
+      if ( sceneMap[ sceneParam ] ) {
+        this.sceneProperty.value = sceneMap[ sceneParam ];
+      }
+    }
+
+    if ( QuantumWaveInterferenceQueryParameters.emitting ) {
+      this.sceneProperty.value.isEmittingProperty.value = true;
+    }
+
+    if ( QuantumWaveInterferenceQueryParameters.hitsMode ) {
+      this.sceneProperty.value.detectionModeProperty.value = DetectionMode.HITS;
+    }
+
+    const speedParam = QuantumWaveInterferenceQueryParameters.timeSpeed;
+    if ( speedParam ) {
+      const speedMap: Record<string, TimeSpeed> = {
+        slow: TimeSpeed.SLOW,
+        normal: TimeSpeed.NORMAL,
+        fast: TimeSpeed.FAST
+      };
+      if ( speedMap[ speedParam ] ) {
+        this.timeSpeedProperty.value = speedMap[ speedParam ];
+      }
+    }
   }
 
   /**
