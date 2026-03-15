@@ -13,6 +13,7 @@
 
 import Property from '../../../../axon/js/Property.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
+import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Range from '../../../../dot/js/Range.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
@@ -141,6 +142,10 @@ export default class SourceControlPanel extends Panel {
       // Velocity NumberControl for particle scenes
       const velocityRange = scene.velocityRange;
 
+      // Use scientific notation for large velocities (electrons: 1e5–1e7 m/s),
+      // normal formatting for smaller velocities (neutrons, helium atoms).
+      const useScientificNotation = velocityRange.max >= 10000;
+
       topControl = new NumberControl(
         QuantumWaveInterferenceFluent.velocityStringProperty,
         scene.velocityProperty,
@@ -151,7 +156,21 @@ export default class SourceControlPanel extends Panel {
             font: TITLE_FONT,
             maxWidth: 80
           },
-          numberDisplayOptions: {
+          numberDisplayOptions: useScientificNotation ? {
+            numberFormatter: ( value: number ) => {
+              if ( value === 0 ) {
+                return '0 m/s';
+              }
+              const exponent = Math.floor( Math.log10( Math.abs( value ) ) );
+              const mantissa = value / Math.pow( 10, exponent );
+              return `${toFixed( mantissa, 2 )} \u00D7 10<sup>${exponent}</sup> m/s`;
+            },
+            useRichText: true,
+            textOptions: {
+              font: new PhetFont( 13 )
+            },
+            maxWidth: 150
+          } : {
             valuePattern: QuantumWaveInterferenceFluent.velocityPatternStringProperty,
             textOptions: {
               font: new PhetFont( 13 )
