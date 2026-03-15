@@ -15,6 +15,7 @@ import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -23,6 +24,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import SceneModel from '../model/SceneModel.js';
 import SlitSetting from '../model/SlitSetting.js';
+import SourceType from '../model/SourceType.js';
 
 // Dimensions of the front-facing slit view
 const VIEW_WIDTH = 200;
@@ -65,6 +67,39 @@ export default class FrontFacingSlitNode extends Node {
       lineWidth: 1
     } );
     this.addChild( backgroundRect );
+
+    // Beam color overlay: shown when the source is emitting, tinting the black barrier
+    // with the beam color to indicate light/particles hitting the slit barrier.
+    // Clipped to the background rectangle shape.
+    const beamOverlay = new Rectangle( 0, 0, VIEW_WIDTH, VIEW_HEIGHT, VIEW_CORNER_RADIUS, VIEW_CORNER_RADIUS, {
+      fill: 'red',
+      visible: false
+    } );
+    this.addChild( beamOverlay );
+
+    // Particle beam color (gray for all non-photon particles)
+    const PARTICLE_BEAM_COLOR = new Color( 180, 180, 180 );
+
+    // Update beam overlay visibility and color based on emitter state
+    const updateBeamOverlay = () => {
+      const isEmitting = sceneModel.isEmittingProperty.value;
+      const intensity = sceneModel.intensityProperty.value;
+
+      if ( !isEmitting ) {
+        beamOverlay.visible = false;
+        return;
+      }
+
+      beamOverlay.visible = true;
+      const beamColor = sceneModel.sourceType === SourceType.PHOTONS
+                         ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
+                         : PARTICLE_BEAM_COLOR;
+      beamOverlay.fill = beamColor.withAlpha( 0.25 * intensity );
+    };
+
+    sceneModel.isEmittingProperty.link( updateBeamOverlay );
+    sceneModel.intensityProperty.link( updateBeamOverlay );
+    sceneModel.wavelengthProperty.link( updateBeamOverlay );
 
     // Two white slit rectangles, centered vertically in the view
     const slitY = ( VIEW_HEIGHT - SLIT_HEIGHT ) / 2;
