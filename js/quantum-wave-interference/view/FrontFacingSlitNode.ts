@@ -28,11 +28,11 @@ import SourceType from '../model/SourceType.js';
 
 // Dimensions of the front-facing slit view
 const VIEW_WIDTH = 200;
-const VIEW_HEIGHT = 250;
+const VIEW_HEIGHT = 200;
 const VIEW_CORNER_RADIUS = 10;
 
 // Slit visual dimensions
-const SLIT_HEIGHT = 200; // Height of the white slit rectangles
+const SLIT_HEIGHT = 170; // Height of the white slit rectangles
 const SLIT_VISUAL_WIDTH = 6; // Width of each slit rectangle in view coordinates
 
 // Span arrow constants
@@ -210,7 +210,7 @@ export default class FrontFacingSlitNode extends Node {
         slitWidthText.right = VIEW_WIDTH;
       }
       slitWidthText.centerY = 0;
-      slitWidthSpanNode.bottom = slitY - 4;
+      slitWidthSpanNode.bottom = -4;
 
       // Update slit separation span (below the view).
       // Per the design mockup, the label is to the right of the right tick mark.
@@ -229,13 +229,10 @@ export default class FrontFacingSlitNode extends Node {
         separationText.string = `${toFixed( separationMM * 1000, 0 )} μm`;
       }
 
-      // Position label to the right of the right tick mark, but don't overflow past the view width
-      separationText.left = sepRight + 5;
-      if ( separationText.right > VIEW_WIDTH ) {
-        separationText.right = VIEW_WIDTH;
-      }
-      separationText.centerY = 0;
-      separationSpanNode.top = VIEW_HEIGHT + 4;
+      // Center the label below the arrow span
+      separationText.centerX = ( sepLeft + sepRight ) / 2;
+      separationText.top = SPAN_TICK_LENGTH / 2 + 2;
+      separationSpanNode.top = VIEW_HEIGHT + 2;
     };
 
     sceneModel.slitSeparationProperty.link( updateSlits );

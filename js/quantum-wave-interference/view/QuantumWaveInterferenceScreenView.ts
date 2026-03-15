@@ -532,9 +532,10 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       const slitNode = new FrontFacingSlitNode( scene, {
         tandem: frontFacingSlitTandem.createTandem( `frontFacingSlitNode${index}` )
       } );
-      // Position in the middle column, centered under the overhead double slit parallelogram
+      // Position in the middle column, centered under the overhead double slit parallelogram.
+      // Use y instead of top because the slit width span extends above y=0 in the node's coordinate frame.
       slitNode.centerX = doubleSlitNode.centerX;
-      slitNode.top = 120;
+      slitNode.y = 105;
       this.addChild( slitNode );
       return slitNode;
     } );
