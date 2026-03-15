@@ -224,13 +224,14 @@ class SnapshotCanvasNode extends CanvasNode {
       context.fillStyle = `rgba(255,255,255,${snapshot.brightness})`;
     }
 
+    // Use fillRect for performance — at the snapshot's small scale (1px dots), squares and
+    // circles are visually indistinguishable.
+    const dotDiameter = HIT_DOT_RADIUS * 2;
     for ( let i = 0; i < hits.length; i++ ) {
       const hit = hits[ i ];
       const viewX = ( hit.x + 1 ) / 2 * width;
       const viewY = ( hit.y + 1 ) / 2 * height;
-      context.beginPath();
-      context.arc( viewX, viewY, HIT_DOT_RADIUS, 0, Math.PI * 2 );
-      context.fill();
+      context.fillRect( viewX - HIT_DOT_RADIUS, viewY - HIT_DOT_RADIUS, dotDiameter, dotDiameter );
     }
   }
 

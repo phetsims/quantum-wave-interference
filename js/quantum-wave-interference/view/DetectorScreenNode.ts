@@ -50,6 +50,16 @@ const SCREEN_CORNER_RADIUS = 10;
 const HIT_CORE_RADIUS = 2.5;
 const HIT_GLOW_RADIUS = 5;
 
+// Performance: When hit count exceeds this threshold, skip the expensive glow halo pass and
+// use fillRect instead of arc for cores. At high counts, overlapping dots already create a
+// natural glow effect, so per-dot halos add visual clutter with no pedagogical benefit.
+const GLOW_THRESHOLD = 2000;
+
+// Maximum number of dots to render individually. Beyond this, the interference pattern is
+// clearly established and additional dots don't aid learning. The model continues accumulating
+// hits in intensityBins for correct histogram/overhead rendering.
+const MAX_RENDERED_HITS = 20000;
+
 type SelfOptions = EmptySelfOptions;
 
 type DetectorScreenNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
@@ -281,9 +291,10 @@ class DetectorScreenCanvasNode extends CanvasNode {
   }
 
   /**
-   * Renders individual hit dots on the canvas with a soft glow effect to match the design
-   * mockup's phosphorescent screen appearance. Uses an efficient two-pass approach:
-   * first a semi-transparent glow halo, then a solid bright core.
+   * Renders individual hit dots on the canvas. For low hit counts, uses a two-pass approach
+   * (glow halo + bright core via arc) for the design mockup's phosphorescent screen look.
+   * For high hit counts, switches to fillRect cores only for performance — overlapping dots
+   * create a natural glow, and arc calls become the dominant render cost.
    */
   private paintHits( context: CanvasRenderingContext2D, brightness: number ): void {
     const hits = this.sceneModel.hits;
@@ -294,27 +305,50 @@ class DetectorScreenCanvasNode extends CanvasNode {
     const width = SCREEN_WIDTH;
     const height = SCREEN_HEIGHT;
     const rgb = this.getHitRGB();
+    const hitCount = hits.length;
 
-    // Pass 1: Draw glow halos (semi-transparent, larger radius)
-    context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness * 0.15})`;
-    for ( let i = 0; i < hits.length; i++ ) {
-      const hit = hits[ i ];
-      const viewX = ( hit.x + 1 ) / 2 * width;
-      const viewY = ( hit.y + 1 ) / 2 * height;
-      context.beginPath();
-      context.arc( viewX, viewY, HIT_GLOW_RADIUS, 0, Math.PI * 2 );
-      context.fill();
+    // Cap the number of rendered hits to prevent frame drops. Start rendering from the end
+    // of the array so that the most recent hits are always shown.
+    const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
+    const startIndex = hitCount - renderCount;
+
+    if ( hitCount <= GLOW_THRESHOLD ) {
+
+      // Low hit count: full quality rendering with glow halos and circular cores
+      // Pass 1: Draw glow halos (semi-transparent, larger radius)
+      context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness * 0.15})`;
+      for ( let i = startIndex; i < hitCount; i++ ) {
+        const hit = hits[ i ];
+        const viewX = ( hit.x + 1 ) / 2 * width;
+        const viewY = ( hit.y + 1 ) / 2 * height;
+        context.beginPath();
+        context.arc( viewX, viewY, HIT_GLOW_RADIUS, 0, Math.PI * 2 );
+        context.fill();
+      }
+
+      // Pass 2: Draw solid cores (bright, smaller radius)
+      context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness})`;
+      for ( let i = startIndex; i < hitCount; i++ ) {
+        const hit = hits[ i ];
+        const viewX = ( hit.x + 1 ) / 2 * width;
+        const viewY = ( hit.y + 1 ) / 2 * height;
+        context.beginPath();
+        context.arc( viewX, viewY, HIT_CORE_RADIUS, 0, Math.PI * 2 );
+        context.fill();
+      }
     }
+    else {
 
-    // Pass 2: Draw solid cores (bright, smaller radius)
-    context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness})`;
-    for ( let i = 0; i < hits.length; i++ ) {
-      const hit = hits[ i ];
-      const viewX = ( hit.x + 1 ) / 2 * width;
-      const viewY = ( hit.y + 1 ) / 2 * height;
-      context.beginPath();
-      context.arc( viewX, viewY, HIT_CORE_RADIUS, 0, Math.PI * 2 );
-      context.fill();
+      // High hit count: performance-optimized rendering using fillRect (no path computation)
+      // and skipping the glow pass (overlapping dots at this density create natural glow).
+      const coreDiameter = HIT_CORE_RADIUS * 2;
+      context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness})`;
+      for ( let i = startIndex; i < hitCount; i++ ) {
+        const hit = hits[ i ];
+        const viewX = ( hit.x + 1 ) / 2 * width;
+        const viewY = ( hit.y + 1 ) / 2 * height;
+        context.fillRect( viewX - HIT_CORE_RADIUS, viewY - HIT_CORE_RADIUS, coreDiameter, coreDiameter );
+      }
     }
   }
 
