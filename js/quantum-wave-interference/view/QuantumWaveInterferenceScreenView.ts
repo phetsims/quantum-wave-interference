@@ -31,6 +31,7 @@ import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
@@ -97,6 +98,32 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     } );
     this.addChild( sourceLabel );
 
+    // Particle mass label (hidden for photons, shown for electrons/neutrons/helium atoms).
+    // Displays the particle mass in scientific notation with proper sub/superscripts.
+    const MASS_LABEL_FONT = new PhetFont( 15 );
+
+    // Map from source type to formatted mass string using RichText markup for sub/superscripts.
+    const massLabelMap = new Map<SourceType, string>();
+    massLabelMap.set( SourceType.ELECTRONS, 'm<sub>e</sub> = 9.1\u00D710<sup>\u221231</sup> kg' );
+    massLabelMap.set( SourceType.NEUTRONS, 'm<sub>n</sub> = 1.7\u00D710<sup>\u221227</sup> kg' );
+    massLabelMap.set( SourceType.HELIUM_ATOMS, 'm<sub>He</sub> = 6.6\u00D710<sup>\u221227</sup> kg' );
+
+    const particleMassLabel = new RichText( '', {
+      font: MASS_LABEL_FONT,
+      left: sourceLabel.left,
+      maxWidth: 200
+    } );
+    this.addChild( particleMassLabel );
+
+    // Update mass label visibility and content when the scene changes
+    model.sceneProperty.link( scene => {
+      const isParticle = scene.sourceType !== SourceType.PHOTONS;
+      particleMassLabel.visible = isParticle;
+      if ( isParticle ) {
+        particleMassLabel.string = massLabelMap.get( scene.sourceType )!;
+      }
+    } );
+
     // DynamicProperty that follows the active scene's isEmittingProperty, so the laser button
     // always controls the currently selected scene's emitter.
     const isEmittingProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
@@ -104,7 +131,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       bidirectional: true
     } );
 
-    // Laser pointer node for the emitter source
+    // Laser pointer node for the emitter source. Position depends on whether mass label is visible.
     const laserPointerNode = new LaserPointerNode( isEmittingProperty, {
       bodySize: new Dimension2( 88, 40 ),
       nozzleSize: new Dimension2( 16, 32 ),
@@ -113,10 +140,22 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
         radius: 14
       },
       left: this.layoutBounds.minX + QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN + 20,
-      top: sourceLabel.bottom + 6,
       tandem: options.tandem.createTandem( 'laserPointerNode' )
     } );
     this.addChild( laserPointerNode );
+
+    // Position the mass label below the source label, and the laser below the mass label (or source label for photons).
+    const updateEmitterLayout = () => {
+      particleMassLabel.top = sourceLabel.bottom + 2;
+      if ( particleMassLabel.visible ) {
+        laserPointerNode.top = particleMassLabel.bottom + 4;
+      }
+      else {
+        laserPointerNode.top = sourceLabel.bottom + 6;
+      }
+    };
+
+    model.sceneProperty.link( updateEmitterLayout );
 
     // ==============================
     // Beam visualization (behind the slit and screen parallelograms)
