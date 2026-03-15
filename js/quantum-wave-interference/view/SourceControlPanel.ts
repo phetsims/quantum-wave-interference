@@ -95,10 +95,9 @@ export default class SourceControlPanel extends Panel {
       maxWidth: 40
     } ) );
 
-    // For particles, the design shows "Emission Rate" instead of "Intensity"
-    const intensityLabelStringProperty = scene.sourceType === SourceType.PHOTONS
-                                          ? QuantumWaveInterferenceFluent.intensityStringProperty
-                                          : QuantumWaveInterferenceFluent.emissionRateStringProperty;
+    // Both photon and particle scenes use "Intensity" per the design document:
+    // "the panel contains a Velocity NumberControl and Intensity Slider"
+    const intensityLabelStringProperty = QuantumWaveInterferenceFluent.intensityStringProperty;
     const intensityLabel = new Text( intensityLabelStringProperty, {
       font: TITLE_FONT,
       maxWidth: 120
@@ -143,9 +142,9 @@ export default class SourceControlPanel extends Panel {
       } );
     }
     else {
-      // Particle Speed NumberControl for particle scenes.
-      // The design mockup shows "Particle Speed" as the label, with speed displayed in km/s
-      // for electrons (whose velocities are large: 1e5–1e7 m/s) and m/s for slower particles.
+      // Velocity NumberControl for particle scenes, per the design document:
+      // "the panel contains a Velocity NumberControl and Intensity Slider".
+      // Speed is displayed in km/s for electrons (large: 1e5–1e7 m/s) and m/s for slower particles.
       const velocityRange = scene.velocityRange;
 
       // Use km/s for electrons (large velocities), m/s for neutrons and helium atoms
@@ -173,7 +172,7 @@ export default class SourceControlPanel extends Panel {
       };
 
       topControl = new NumberControl(
-        QuantumWaveInterferenceFluent.particleSpeedStringProperty,
+        QuantumWaveInterferenceFluent.velocityStringProperty,
         scene.velocityProperty,
         velocityRange,
         {
