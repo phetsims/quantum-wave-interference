@@ -94,6 +94,7 @@ const QuantumWaveInterferenceFluent = {
   screenDistanceStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistanceStringProperty' ),
   slitSettingsStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSettingsStringProperty' ),
   slitSeparationPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationPatternStringProperty' ),
+  slitSeparationMicrometerPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationMicrometerPatternStringProperty' ),
   screenDistancePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistancePatternStringProperty' ),
   bothOpenStringProperty: _.get( QuantumWaveInterferenceStrings, 'bothOpenStringProperty' ),
   leftCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'leftCoveredStringProperty' ),
@@ -113,6 +114,7 @@ const QuantumWaveInterferenceFluent = {
   wavelengthPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'wavelengthPatternStringProperty' ),
   deBroglieWavelengthPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'deBroglieWavelengthPatternStringProperty' ),
   slitSeparationValuePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationValuePatternStringProperty' ),
+  slitSeparationMicrometerValuePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationMicrometerValuePatternStringProperty' ),
   screenDistanceValuePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistanceValuePatternStringProperty' )
 };
 

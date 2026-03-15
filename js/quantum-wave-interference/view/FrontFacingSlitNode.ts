@@ -231,12 +231,14 @@ export default class FrontFacingSlitNode extends Node {
       separationLeftTick.x = sepLeft;
       separationRightTick.x = sepRight;
 
-      // Format separation value
-      if ( separationMM >= 0.01 ) {
-        separationText.string = `${toFixed( separationMM, separationMM >= 0.1 ? 1 : 3 )} mm`;
+      // Format separation value: use μm for values ≤ 0.1 mm for readability
+      if ( separationMM > 0.1 ) {
+        separationText.string = `${toFixed( separationMM, 1 )} mm`;
       }
       else {
-        separationText.string = `${toFixed( separationMM * 1000, 0 )} μm`;
+        const valueUM = separationMM * 1000;
+        const decimalPlaces = valueUM >= 1 ? 0 : 1;
+        separationText.string = `${toFixed( valueUM, decimalPlaces )} μm`;
       }
 
       // Center the label below the arrow span

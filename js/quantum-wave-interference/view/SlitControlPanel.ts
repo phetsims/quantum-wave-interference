@@ -83,10 +83,48 @@ export default class SlitControlPanel extends Panel {
 
     const sceneTandemName = scene.sourceType.tandemName;
 
-    // Slit separation NumberControl
+    // Slit separation NumberControl.
+    // For scenes with very small slit separations (max < 0.1 mm), display in μm instead of mm
+    // for readability. E.g., "10 μm" instead of "0.010 mm" for the electron/helium atom scenes.
     const slitSeparationRange = scene.slitSeparationRange;
-    const slitSeparationDecimalPlaces = SlitControlPanel.getDecimalPlaces( slitSeparationRange );
-    const slitSeparationDelta = SlitControlPanel.getDelta( slitSeparationRange );
+    const usesMicrometers = slitSeparationRange.max <= 0.1; // mm threshold for switching to μm
+
+    let slitSeparationNumberDisplayOptions;
+    let slitSeparationTicks;
+    let slitSeparationDelta;
+
+    if ( usesMicrometers ) {
+      // Display in μm: convert mm values to μm (×1000) for the number display and ticks
+      const mmToMicrometerDecimalPlaces = SlitControlPanel.getDecimalPlaces(
+        new Range( slitSeparationRange.min * 1000, slitSeparationRange.max * 1000 )
+      );
+      slitSeparationDelta = SlitControlPanel.getDelta( slitSeparationRange );
+      slitSeparationNumberDisplayOptions = {
+        numberFormatter: ( valueMM: number ) => {
+          const valueUM = valueMM * 1000;
+          return QuantumWaveInterferenceFluent.slitSeparationMicrometerPatternStringProperty.value
+            .replace( '{{value}}', Utils.toFixed( valueUM, mmToMicrometerDecimalPlaces ) );
+        },
+        textOptions: {
+          font: new PhetFont( 13 )
+        },
+        maxWidth: 100
+      };
+      slitSeparationTicks = SlitControlPanel.createMicrometerTicks( slitSeparationRange );
+    }
+    else {
+      const slitSeparationDecimalPlaces = SlitControlPanel.getDecimalPlaces( slitSeparationRange );
+      slitSeparationDelta = SlitControlPanel.getDelta( slitSeparationRange );
+      slitSeparationNumberDisplayOptions = {
+        decimalPlaces: slitSeparationDecimalPlaces,
+        valuePattern: QuantumWaveInterferenceFluent.slitSeparationPatternStringProperty,
+        textOptions: {
+          font: new PhetFont( 13 )
+        },
+        maxWidth: 100
+      };
+      slitSeparationTicks = SlitControlPanel.createNumericTicks( slitSeparationRange );
+    }
 
     const slitSeparationControl = new NumberControl(
       QuantumWaveInterferenceFluent.slitSeparationStringProperty,
@@ -98,19 +136,12 @@ export default class SlitControlPanel extends Panel {
           font: TITLE_FONT,
           maxWidth: 120
         },
-        numberDisplayOptions: {
-          decimalPlaces: slitSeparationDecimalPlaces,
-          valuePattern: QuantumWaveInterferenceFluent.slitSeparationPatternStringProperty,
-          textOptions: {
-            font: new PhetFont( 13 )
-          },
-          maxWidth: 100
-        },
+        numberDisplayOptions: slitSeparationNumberDisplayOptions,
         sliderOptions: {
           trackSize: SLIDER_TRACK_SIZE,
           thumbSize: new Dimension2( 13, 22 ),
           majorTickLength: 12,
-          majorTicks: SlitControlPanel.createNumericTicks( slitSeparationRange )
+          majorTicks: slitSeparationTicks
         },
         layoutFunction: NumberControl.createLayoutFunction3( { ySpacing: 3 } ),
         tandem: tandem.createTandem( `${sceneTandemName}SlitSeparationControl` )
@@ -201,6 +232,34 @@ export default class SlitControlPanel extends Panel {
         slitSettingsComboBox
       ]
     } );
+  }
+
+  /**
+   * Creates major tick marks with μm labels for slit separation ranges that are in the micrometer scale.
+   * The range is in mm but the labels display the values converted to μm for readability.
+   */
+  private static createMicrometerTicks( range: Range ): { value: number; label: Node }[] {
+    const formatTickValue = ( valueMM: number ): string => {
+      const valueUM = valueMM * 1000;
+      const decimalPlaces = SlitControlPanel.getTickDecimalPlaces( valueUM );
+      return Utils.toFixed( valueUM, decimalPlaces );
+    };
+    return [
+      {
+        value: range.min,
+        label: new Text( formatTickValue( range.min ), {
+          font: TICK_LABEL_FONT,
+          maxWidth: 40
+        } )
+      },
+      {
+        value: range.max,
+        label: new Text( formatTickValue( range.max ), {
+          font: TICK_LABEL_FONT,
+          maxWidth: 40
+        } )
+      }
+    ];
   }
 
   /**

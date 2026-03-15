@@ -19,6 +19,7 @@ slitSeparation: Slit separation
 screenDistance:  Screen distance
 slitSettings:   Slit settings
 slitSeparationPattern: '{{value}} mm'
+slitSeparationMicrometerPattern: '{{value}} μm'
 screenDistancePattern: '{{value}} m'
 bothOpen:       Both open
 leftCovered:    Left covered
@@ -38,4 +39,5 @@ detector:           Detector
 wavelengthPattern:  'λ = {{value}} nm'
 deBroglieWavelengthPattern: 'λ = {{value}} nm'
 slitSeparationValuePattern: 'd = {{value}} mm'
+slitSeparationMicrometerValuePattern: 'd = {{value}} μm'
 screenDistanceValuePattern: 'D = {{value}} m'

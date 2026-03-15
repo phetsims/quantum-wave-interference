@@ -37,6 +37,7 @@ type StringsType = {
   'screenDistanceStringProperty': LocalizedStringProperty;
   'slitSettingsStringProperty': LocalizedStringProperty;
   'slitSeparationPatternStringProperty': LocalizedStringProperty;
+  'slitSeparationMicrometerPatternStringProperty': LocalizedStringProperty;
   'screenDistancePatternStringProperty': LocalizedStringProperty;
   'bothOpenStringProperty': LocalizedStringProperty;
   'leftCoveredStringProperty': LocalizedStringProperty;
@@ -56,6 +57,7 @@ type StringsType = {
   'wavelengthPatternStringProperty': LocalizedStringProperty;
   'deBroglieWavelengthPatternStringProperty': LocalizedStringProperty;
   'slitSeparationValuePatternStringProperty': LocalizedStringProperty;
+  'slitSeparationMicrometerValuePatternStringProperty': LocalizedStringProperty;
   'screenDistanceValuePatternStringProperty': LocalizedStringProperty;
 };
 

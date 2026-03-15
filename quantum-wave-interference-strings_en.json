@@ -62,6 +62,9 @@
   "slitSeparationPattern": {
     "value": "{{value}} mm"
   },
+  "slitSeparationMicrometerPattern": {
+    "value": "{{value}} μm"
+  },
   "screenDistancePattern": {
     "value": "{{value}} m"
   },
@@ -118,6 +121,9 @@
   },
   "slitSeparationValuePattern": {
     "value": "d = {{value}} mm"
+  },
+  "slitSeparationMicrometerValuePattern": {
+    "value": "d = {{value}} μm"
   },
   "screenDistanceValuePattern": {
     "value": "D = {{value}} m"

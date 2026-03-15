@@ -98,9 +98,16 @@ export default class SnapshotNode extends Node {
         titleText.string = QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty.value
           .replace( '{{number}}', `${snapshot.snapshotNumber}` );
 
-        // Slit separation: d = X.XX mm
-        slitSepText.string = QuantumWaveInterferenceFluent.slitSeparationValuePatternStringProperty.value
-          .replace( '{{value}}', toFixed( snapshot.slitSeparation, 2 ) );
+        // Slit separation: use μm for small values (< 0.1 mm) for readability
+        if ( snapshot.slitSeparation < 0.1 ) {
+          const valueUM = snapshot.slitSeparation * 1000;
+          slitSepText.string = QuantumWaveInterferenceFluent.slitSeparationMicrometerValuePatternStringProperty.value
+            .replace( '{{value}}', toFixed( valueUM, 1 ) );
+        }
+        else {
+          slitSepText.string = QuantumWaveInterferenceFluent.slitSeparationValuePatternStringProperty.value
+            .replace( '{{value}}', toFixed( snapshot.slitSeparation, 2 ) );
+        }
 
         // Screen distance: D = X.X m
         screenDistText.string = QuantumWaveInterferenceFluent.screenDistanceValuePatternStringProperty.value
