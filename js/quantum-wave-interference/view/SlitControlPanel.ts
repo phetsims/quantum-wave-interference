@@ -12,6 +12,8 @@
  */
 
 import Property from '../../../../axon/js/Property.js';
+import Range from '../../../../dot/js/Range.js';
+import Utils from '../../../../dot/js/Utils.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
@@ -108,22 +110,7 @@ export default class SlitControlPanel extends Panel {
           trackSize: SLIDER_TRACK_SIZE,
           thumbSize: new Dimension2( 13, 22 ),
           majorTickLength: 12,
-          majorTicks: [
-            {
-              value: slitSeparationRange.min,
-              label: new Text( QuantumWaveInterferenceFluent.minStringProperty, {
-                font: TICK_LABEL_FONT,
-                maxWidth: 30
-              } )
-            },
-            {
-              value: slitSeparationRange.max,
-              label: new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
-                font: TICK_LABEL_FONT,
-                maxWidth: 30
-              } )
-            }
-          ]
+          majorTicks: SlitControlPanel.createNumericTicks( slitSeparationRange )
         },
         layoutFunction: NumberControl.createLayoutFunction3( { ySpacing: 3 } ),
         tandem: tandem.createTandem( `${sceneTandemName}SlitSeparationControl` )
@@ -157,22 +144,7 @@ export default class SlitControlPanel extends Panel {
           trackSize: SLIDER_TRACK_SIZE,
           thumbSize: new Dimension2( 13, 22 ),
           majorTickLength: 12,
-          majorTicks: [
-            {
-              value: screenDistanceRange.min,
-              label: new Text( QuantumWaveInterferenceFluent.minStringProperty, {
-                font: TICK_LABEL_FONT,
-                maxWidth: 30
-              } )
-            },
-            {
-              value: screenDistanceRange.max,
-              label: new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
-                font: TICK_LABEL_FONT,
-                maxWidth: 30
-              } )
-            }
-          ]
+          majorTicks: SlitControlPanel.createNumericTicks( screenDistanceRange )
         },
         layoutFunction: NumberControl.createLayoutFunction3( { ySpacing: 3 } ),
         tandem: tandem.createTandem( `${sceneTandemName}ScreenDistanceControl` )
@@ -229,6 +201,51 @@ export default class SlitControlPanel extends Panel {
         slitSettingsComboBox
       ]
     } );
+  }
+
+  /**
+   * Creates major tick marks with numeric labels showing the min and max values of the range.
+   * Uses minimal decimal places needed to represent the values without trailing zeros.
+   */
+  private static createNumericTicks( range: Range ): { value: number; label: Node }[] {
+    const formatTickValue = ( value: number ): string => {
+      // Use enough decimal places to show the value accurately, but strip unnecessary trailing zeros.
+      const decimalPlaces = SlitControlPanel.getTickDecimalPlaces( value );
+      return Utils.toFixed( value, decimalPlaces );
+    };
+    return [
+      {
+        value: range.min,
+        label: new Text( formatTickValue( range.min ), {
+          font: TICK_LABEL_FONT,
+          maxWidth: 40
+        } )
+      },
+      {
+        value: range.max,
+        label: new Text( formatTickValue( range.max ), {
+          font: TICK_LABEL_FONT,
+          maxWidth: 40
+        } )
+      }
+    ];
+  }
+
+  /**
+   * Determines the number of decimal places needed to display a tick value without trailing zeros.
+   * For example, 0.2 -> 1, 0.002 -> 3, 5.0 -> 1, 0.1 -> 1
+   */
+  private static getTickDecimalPlaces( value: number ): number {
+    if ( value === Math.floor( value ) ) {
+      return 0;
+    }
+    // Convert to string, find decimals needed
+    const str = value.toString();
+    const decimalIndex = str.indexOf( '.' );
+    if ( decimalIndex === -1 ) {
+      return 0;
+    }
+    return str.length - decimalIndex - 1;
   }
 
   /**
