@@ -247,9 +247,10 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     doubleSlitNode.y = 45;
     this.addChild( doubleSlitNode );
 
-    // Position label centered above the double slit
+    // Position label centered above the double slit, at the same vertical position as the
+    // source label per the design mockup where all top-row labels are at a consistent height.
     doubleSlitLabel.centerX = doubleSlitNode.centerX;
-    doubleSlitLabel.bottom = doubleSlitNode.top - 4;
+    doubleSlitLabel.top = LABEL_Y;
 
     // Slit lines on the parallelogram (two thin white vertical lines representing the slits).
     // These update dynamically based on the scene's slit separation, matching the front-facing
@@ -518,9 +519,10 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       const xAtMax = frontFacingScreenRight - DETECTOR_DX;
       detectorScreenParallelogram.x = xAtMin + fraction * ( xAtMax - xAtMin );
 
-      // Update label above the parallelogram
+      // Update label above the parallelogram, at the same vertical position as the other
+      // top-row labels per the design mockup where all labels share a consistent height.
       detectorScreenLabel.centerX = detectorScreenParallelogram.centerX;
-      detectorScreenLabel.bottom = detectorScreenParallelogram.top - 4;
+      detectorScreenLabel.top = LABEL_Y;
 
       // Update distance span between double slit and detector screen
       const spanY = Math.max( doubleSlitNode.bottom, detectorScreenParallelogram.bottom ) + 12;
