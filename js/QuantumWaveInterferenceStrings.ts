@@ -31,6 +31,9 @@ type StringsType = {
   'intensityStringProperty': LocalizedStringProperty;
   'velocityStringProperty': LocalizedStringProperty;
   'velocityPatternStringProperty': LocalizedStringProperty;
+  'particleSpeedStringProperty': LocalizedStringProperty;
+  'emissionRateStringProperty': LocalizedStringProperty;
+  'particleSpeedKmPerSecondPatternStringProperty': LocalizedStringProperty;
   'minStringProperty': LocalizedStringProperty;
   'maxStringProperty': LocalizedStringProperty;
   'slitSeparationStringProperty': LocalizedStringProperty;

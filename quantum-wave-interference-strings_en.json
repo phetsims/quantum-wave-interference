@@ -44,6 +44,15 @@
   "velocityPattern": {
     "value": "{0} m/s"
   },
+  "particleSpeed": {
+    "value": "Particle Speed"
+  },
+  "emissionRate": {
+    "value": "Emission Rate"
+  },
+  "particleSpeedKmPerSecondPattern": {
+    "value": "{{value}} km/s"
+  },
   "min": {
     "value": "Min"
   },

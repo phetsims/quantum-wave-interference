@@ -13,8 +13,8 @@
 
 import Property from '../../../../axon/js/Property.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Range from '../../../../dot/js/Range.js';
+import Utils from '../../../../dot/js/Utils.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
@@ -95,9 +95,13 @@ export default class SourceControlPanel extends Panel {
       maxWidth: 40
     } ) );
 
-    const intensityLabel = new Text( QuantumWaveInterferenceFluent.intensityStringProperty, {
+    // For particles, the design shows "Emission Rate" instead of "Intensity"
+    const intensityLabelStringProperty = scene.sourceType === SourceType.PHOTONS
+                                          ? QuantumWaveInterferenceFluent.intensityStringProperty
+                                          : QuantumWaveInterferenceFluent.emissionRateStringProperty;
+    const intensityLabel = new Text( intensityLabelStringProperty, {
       font: TITLE_FONT,
-      maxWidth: 100
+      maxWidth: 120
     } );
 
     const intensityControl = new VBox( {
@@ -139,43 +143,51 @@ export default class SourceControlPanel extends Panel {
       } );
     }
     else {
-      // Velocity NumberControl for particle scenes
+      // Particle Speed NumberControl for particle scenes.
+      // The design mockup shows "Particle Speed" as the label, with speed displayed in km/s
+      // for electrons (whose velocities are large: 1e5–1e7 m/s) and m/s for slower particles.
       const velocityRange = scene.velocityRange;
 
-      // Use scientific notation for large velocities (electrons: 1e5–1e7 m/s),
-      // normal formatting for smaller velocities (neutrons, helium atoms).
-      const useScientificNotation = velocityRange.max >= 10000;
+      // Use km/s for electrons (large velocities), m/s for neutrons and helium atoms
+      const useKmPerSecond = velocityRange.max >= 10000;
+
+      // Format the number display value and tick labels appropriately for the speed range
+      const formatSpeed = ( value: number ): string => {
+        if ( useKmPerSecond ) {
+          const kmPerS = value / 1000;
+          return QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value
+            .replace( '{{value}}', `${Utils.roundSymmetric( kmPerS )}` );
+        }
+        else {
+          return `${Utils.roundSymmetric( value )} m/s`;
+        }
+      };
+
+      const formatTickLabel = ( value: number ): string => {
+        if ( useKmPerSecond ) {
+          return `${Utils.roundSymmetric( value / 1000 )}`;
+        }
+        else {
+          return `${Utils.roundSymmetric( value )}`;
+        }
+      };
 
       topControl = new NumberControl(
-        QuantumWaveInterferenceFluent.velocityStringProperty,
+        QuantumWaveInterferenceFluent.particleSpeedStringProperty,
         scene.velocityProperty,
         velocityRange,
         {
           delta: ( velocityRange.max - velocityRange.min ) / 100,
           titleNodeOptions: {
             font: TITLE_FONT,
-            maxWidth: 80
-          },
-          numberDisplayOptions: useScientificNotation ? {
-            numberFormatter: ( value: number ) => {
-              if ( value === 0 ) {
-                return '0 m/s';
-              }
-              const exponent = Math.floor( Math.log10( Math.abs( value ) ) );
-              const mantissa = value / Math.pow( 10, exponent );
-              return `${toFixed( mantissa, 2 )} \u00D7 10<sup>${exponent}</sup> m/s`;
-            },
-            useRichText: true,
-            textOptions: {
-              font: new PhetFont( 13 )
-            },
-            maxWidth: 150
-          } : {
-            valuePattern: QuantumWaveInterferenceFluent.velocityPatternStringProperty,
-            textOptions: {
-              font: new PhetFont( 13 )
-            },
             maxWidth: 100
+          },
+          numberDisplayOptions: {
+            numberFormatter: formatSpeed,
+            textOptions: {
+              font: new PhetFont( 13 )
+            },
+            maxWidth: 120
           },
           sliderOptions: {
             trackSize: SLIDER_TRACK_SIZE,
@@ -183,15 +195,15 @@ export default class SourceControlPanel extends Panel {
             majorTickLength: 12,
             majorTicks: [ {
               value: velocityRange.min,
-              label: new Text( QuantumWaveInterferenceFluent.minStringProperty, {
+              label: new Text( formatTickLabel( velocityRange.min ), {
                 font: TICK_LABEL_FONT,
-                maxWidth: 30
+                maxWidth: 40
               } )
             }, {
               value: velocityRange.max,
-              label: new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
+              label: new Text( formatTickLabel( velocityRange.max ), {
                 font: TICK_LABEL_FONT,
-                maxWidth: 30
+                maxWidth: 40
               } )
             } ]
           },

@@ -13,6 +13,9 @@ detectorScreen: Detector screen
 intensity:      Intensity
 velocity:       Velocity
 velocityPattern: '{0} m/s'
+particleSpeed:  Particle Speed
+emissionRate:   Emission Rate
+particleSpeedKmPerSecondPattern: '{{value}} km/s'
 min:            Min
 max:            Max
 slitSeparation: Slit separation
