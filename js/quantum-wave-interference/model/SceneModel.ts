@@ -266,10 +266,14 @@ export default class SceneModel extends PhetioObject {
 
     this.nextSnapshotNumber = 1;
 
-    // Clear accumulated data when slit settings change
+    // Clear accumulated data when any parameter that affects the interference pattern changes.
+    // Accumulated hits are based on the probability distribution at the time of generation, so
+    // they become inconsistent (and pedagogically misleading) if the pattern changes beneath them.
     this.slitSeparationProperty.lazyLink( () => this.clearScreen() );
     this.screenDistanceProperty.lazyLink( () => this.clearScreen() );
     this.slitSettingProperty.lazyLink( () => this.clearScreen() );
+    this.wavelengthProperty.lazyLink( () => this.clearScreen() );
+    this.velocityProperty.lazyLink( () => this.clearScreen() );
   }
 
   /**
