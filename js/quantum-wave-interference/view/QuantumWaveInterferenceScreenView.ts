@@ -26,6 +26,7 @@ import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
 import SourceType from '../model/SourceType.js';
+import DetectorScreenNode from './DetectorScreenNode.js';
 import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
 import SlitControlPanel from './SlitControlPanel.js';
 import SourceControlPanel from './SourceControlPanel.js';
@@ -205,6 +206,27 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     // ==============================
     // Middle Row: Source controls, front-facing slits, front-facing screen, graph
     // ==============================
+
+    // Front-facing detector screen - one per scene, with visibility toggling
+    const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
+    const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
+      const detectorScreen = new DetectorScreenNode( scene, {
+        tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
+      } );
+      // Position the front-facing screen in the right column of the middle row,
+      // aligned horizontally with the overhead detector screen parallelogram
+      detectorScreen.right = detectorScreenNode.right + 10;
+      detectorScreen.top = 120;
+      this.addChild( detectorScreen );
+      return detectorScreen;
+    } );
+
+    // Toggle visibility of detector screens based on the selected scene
+    model.sceneProperty.link( selectedScene => {
+      model.scenes.forEach( ( scene, index ) => {
+        detectorScreenNodes[ index ].visible = ( scene === selectedScene );
+      } );
+    } );
 
     // Source controls panel (beneath the emitter)
     const sourceControlPanel = new SourceControlPanel(
