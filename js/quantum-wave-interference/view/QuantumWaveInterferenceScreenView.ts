@@ -56,6 +56,11 @@ import SourceControlPanel from './SourceControlPanel.js';
 const LABEL_FONT = new PhetFont( 16 );
 const LABEL_Y = 30; // y position for top-row labels
 
+// Y position where the front-facing view backgrounds start. This must be far enough below the
+// overhead row (parallelograms, beams, distance span) to avoid overlapping the distance readout
+// text with the scale indicator labels above the front-facing detector screen.
+const FRONT_FACING_ROW_TOP = 165;
+
 type SelfOptions = EmptySelfOptions;
 
 type QuantumWaveInterferenceScreenViewOptions = SelfOptions & ScreenViewOptions;
@@ -612,9 +617,10 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
         tandem: frontFacingSlitTandem.createTandem( `frontFacingSlitNode${index}` )
       } );
       // Position in the middle column, centered under the overhead double slit parallelogram.
-      // Use y instead of top because the slit width span extends above y=0 in the node's coordinate frame.
+      // Use y (not top) because the slit width span extends above y=0 in the node's coordinate frame.
+      // y sets the background rect top; the slit width span extends above this.
       slitNode.centerX = doubleSlitNode.centerX;
-      slitNode.y = 105;
+      slitNode.y = FRONT_FACING_ROW_TOP;
       this.addChild( slitNode );
       return slitNode;
     } );
@@ -628,7 +634,10 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
         tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
       } );
       detectorScreen.right = FRONT_FACING_SCREEN_RIGHT;
-      detectorScreen.top = 120;
+      // Use y (not top) to position the background rect at FRONT_FACING_ROW_TOP.
+      // The scale indicators extend above y=0 in the node's local frame but are now
+      // positioned below the overhead distance span text.
+      detectorScreen.y = FRONT_FACING_ROW_TOP;
       this.addChild( detectorScreen );
       return detectorScreen;
     } );
