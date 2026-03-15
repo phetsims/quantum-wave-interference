@@ -13,15 +13,19 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
+import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import RulerNode from '../../../../scenery-phet/js/RulerNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
+import Checkbox from '../../../../sun/js/Checkbox.js';
+import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -438,6 +442,68 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     timeControlNode.left = screenSettingsPanel.right + 20;
     timeControlNode.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     this.addChild( timeControlNode );
+
+    // Ruler checkbox - positioned above the time controls, per the design mockup
+    const rulerCheckboxLabel = new Text( QuantumWaveInterferenceFluent.rulerStringProperty, {
+      font: new PhetFont( 15 ),
+      maxWidth: 80
+    } );
+    const rulerCheckbox = new Checkbox( model.isRulerVisibleProperty, rulerCheckboxLabel, {
+      boxWidth: 16,
+      spacing: 6,
+      tandem: options.tandem.createTandem( 'rulerCheckbox' )
+    } );
+    rulerCheckbox.left = timeControlNode.left;
+    rulerCheckbox.bottom = timeControlNode.top - 10;
+    this.addChild( rulerCheckbox );
+
+    // Draggable ruler - 10 cm with major ticks each cm, displayed in front of all other content
+    const RULER_CM_COUNT = 10;
+    const VIEW_UNITS_PER_CM = 30; // view units per centimeter on the ruler
+    const rulerWidth = RULER_CM_COUNT * VIEW_UNITS_PER_CM;
+    const rulerHeight = 40;
+    const majorTickLabels = rangeInclusive( 0, RULER_CM_COUNT ).map( n => `${n}` );
+
+    const rulerNode = new RulerNode( rulerWidth, rulerHeight, VIEW_UNITS_PER_CM, majorTickLabels,
+      QuantumWaveInterferenceFluent.centimetersStringProperty, {
+        minorTicksPerMajorTick: 4,
+        majorTickFont: new PhetFont( 12 ),
+        unitsFont: new PhetFont( 11 ),
+        cursor: 'pointer',
+        opacity: 0.8,
+        visibleProperty: model.isRulerVisibleProperty,
+        tandem: options.tandem.createTandem( 'rulerNode' )
+      } );
+
+    // Sync ruler position from model
+    model.rulerPositionProperty.link( position => {
+      rulerNode.translation = position;
+    } );
+
+    // Drag bounds: keep at least 30px of the ruler visible within the layout bounds
+    const RULER_MIN_VISIBLE_PX = 30;
+    const rulerDragBoundsProperty = new DerivedProperty( [ this.visibleBoundsProperty ], visibleBounds => {
+      return visibleBounds.withOffsets(
+        rulerNode.width - RULER_MIN_VISIBLE_PX,
+        0,
+        -RULER_MIN_VISIBLE_PX,
+        -rulerNode.height
+      );
+    } );
+
+    // Clamp ruler position when drag bounds change
+    rulerDragBoundsProperty.link( dragBounds => {
+      model.rulerPositionProperty.value = dragBounds.closestPointTo( model.rulerPositionProperty.value );
+    } );
+
+    // Pointer drag listener
+    rulerNode.addInputListener( new SoundDragListener( {
+      positionProperty: model.rulerPositionProperty,
+      dragBoundsProperty: rulerDragBoundsProperty,
+      tandem: options.tandem.createTandem( 'rulerNode' ).createTandem( 'dragListener' )
+    } ) );
+
+    this.addChild( rulerNode );
 
     const resetAllButton = new ResetAllButton( {
       listener: () => {

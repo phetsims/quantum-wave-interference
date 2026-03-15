@@ -10,6 +10,8 @@
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import Vector2 from '../../../../dot/js/Vector2.js';
+import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import TModel from '../../../../joist/js/TModel.js';
 import { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
@@ -41,8 +43,9 @@ export default class QuantumWaveInterferenceModel implements TModel {
   public readonly isPlayingProperty: BooleanProperty;
   public readonly timeSpeedProperty: EnumerationProperty<TimeSpeed>;
 
-  // Shared state: ruler visibility
+  // Shared state: ruler visibility and position
   public readonly isRulerVisibleProperty: BooleanProperty;
+  public readonly rulerPositionProperty: Vector2Property;
 
   public constructor( providedOptions: QuantumWaveInterferenceModelOptions ) {
 
@@ -94,6 +97,11 @@ export default class QuantumWaveInterferenceModel implements TModel {
     this.isRulerVisibleProperty = new BooleanProperty( false, {
       tandem: tandem.createTandem( 'isRulerVisibleProperty' )
     } );
+
+    // Initial ruler position: centered in the layout bounds, below the middle row
+    this.rulerPositionProperty = new Vector2Property( new Vector2( 300, 350 ), {
+      tandem: tandem.createTandem( 'rulerPositionProperty' )
+    } );
   }
 
   /**
@@ -108,6 +116,7 @@ export default class QuantumWaveInterferenceModel implements TModel {
     this.isPlayingProperty.reset();
     this.timeSpeedProperty.reset();
     this.isRulerVisibleProperty.reset();
+    this.rulerPositionProperty.reset();
 
     // Reset selected scene last so listeners see reset scenes
     this.sceneProperty.reset();

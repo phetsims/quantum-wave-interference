@@ -31,3 +31,5 @@ screenBrightness: Screen brightness
 graph:            Graph
 count:            Count
 snapshotNumberPattern: 'Snapshot {{number}}'
+ruler:              Ruler
+centimeters:        cm

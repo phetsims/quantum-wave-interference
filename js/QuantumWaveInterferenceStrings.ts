@@ -49,6 +49,8 @@ type StringsType = {
   'graphStringProperty': LocalizedStringProperty;
   'countStringProperty': LocalizedStringProperty;
   'snapshotNumberPatternStringProperty': LocalizedStringProperty;
+  'rulerStringProperty': LocalizedStringProperty;
+  'centimetersStringProperty': LocalizedStringProperty;
 };
 
 const QuantumWaveInterferenceStrings = getStringModule( 'QUANTUM_WAVE_INTERFERENCE' ) as StringsType;

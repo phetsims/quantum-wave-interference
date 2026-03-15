@@ -97,5 +97,11 @@
   },
   "snapshotNumberPattern": {
     "value": "Snapshot {{number}}"
+  },
+  "ruler": {
+    "value": "Ruler"
+  },
+  "centimeters": {
+    "value": "cm"
   }
 }

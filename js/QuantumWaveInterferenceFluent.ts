@@ -52,6 +52,8 @@ addToMapIfDefined( 'hits', 'hitsStringProperty' );
 addToMapIfDefined( 'screenBrightness', 'screenBrightnessStringProperty' );
 addToMapIfDefined( 'graph', 'graphStringProperty' );
 addToMapIfDefined( 'count', 'countStringProperty' );
+addToMapIfDefined( 'ruler', 'rulerStringProperty' );
+addToMapIfDefined( 'centimeters', 'centimetersStringProperty' );
 
 // A function that creates contents for a new Fluent file, which will be needed if any string changes.
 const createFluentFile = (): string => {
@@ -101,7 +103,9 @@ const QuantumWaveInterferenceFluent = {
   screenBrightnessStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenBrightnessStringProperty' ),
   graphStringProperty: _.get( QuantumWaveInterferenceStrings, 'graphStringProperty' ),
   countStringProperty: _.get( QuantumWaveInterferenceStrings, 'countStringProperty' ),
-  snapshotNumberPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotNumberPatternStringProperty' )
+  snapshotNumberPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotNumberPatternStringProperty' ),
+  rulerStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerStringProperty' ),
+  centimetersStringProperty: _.get( QuantumWaveInterferenceStrings, 'centimetersStringProperty' )
 };
 
 export default QuantumWaveInterferenceFluent;
