@@ -14,12 +14,14 @@ import Utils from '../../../../dot/js/Utils.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
+import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -72,52 +74,69 @@ export default class DetectorScreenNode extends Node {
     this.screenCanvasNode.clipArea = backgroundRect.shape!;
     this.addChild( this.screenCanvasNode );
 
-    // Hit count text - only visible in Hits mode
+    // Hit count text - only visible in Hits mode, positioned inside the screen at top-right
     const hitCountText = new Text( '', {
       font: new PhetFont( 13 ),
       fill: 'white',
       maxWidth: 100
     } );
-    hitCountText.right = SCREEN_WIDTH - 6;
-    hitCountText.top = -hitCountText.height - 4;
+    hitCountText.right = SCREEN_WIDTH - 8;
+    hitCountText.top = 6;
     this.addChild( hitCountText );
 
-    // Scale label showing the physical size of the screen
+    // Scale indicator: a double-headed span arrow spanning the full width of the detector screen,
+    // with tick marks at the endpoints and a centered label showing the physical width.
+    // This matches the span indicators used in FrontFacingSlitNode for slit width/separation.
+    const SPAN_TICK_LENGTH = 8;
+    const SPAN_ARROW_Y = -10; // y position of the span arrow above the screen
+
+    const scaleArrow = new ArrowNode( 0, SPAN_ARROW_Y, SCREEN_WIDTH, SPAN_ARROW_Y, {
+      headHeight: 5,
+      headWidth: 5,
+      tailWidth: 1,
+      doubleHead: true,
+      fill: 'black',
+      stroke: null
+    } );
+    this.addChild( scaleArrow );
+
+    const scaleLeftTick = new Line( 0, SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2,
+      0, SPAN_ARROW_Y + SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
+    this.addChild( scaleLeftTick );
+
+    const scaleRightTick = new Line( SCREEN_WIDTH, SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2,
+      SCREEN_WIDTH, SPAN_ARROW_Y + SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
+    this.addChild( scaleRightTick );
+
     const scaleLabelText = new Text( '', {
       font: new PhetFont( 11 ),
       fill: 'black',
-      maxWidth: 80
+      maxWidth: 100
     } );
-    scaleLabelText.left = 0;
-    scaleLabelText.top = -scaleLabelText.height - 4;
     this.addChild( scaleLabelText );
 
-    // Update scale label based on the screen half-width
-    const updateScaleLabel = () => {
-      const halfWidth = sceneModel.screenHalfWidth;
-      const fullWidth = halfWidth * 2;
+    // Compute the scale label based on the screen half-width (constant per source type)
+    const halfWidth = sceneModel.screenHalfWidth;
+    const fullWidth = halfWidth * 2;
 
-      // Format the width with appropriate units
-      if ( fullWidth >= 0.01 ) {
-        scaleLabelText.string = `${toFixed( fullWidth * 100, 1 )} cm`;
-      }
-      else if ( fullWidth >= 1e-4 ) {
-        scaleLabelText.string = `${toFixed( fullWidth * 1e3, 2 )} mm`;
-      }
-      else {
-        scaleLabelText.string = `${toFixed( fullWidth * 1e6, 1 )} μm`;
-      }
-      scaleLabelText.left = 0;
-      scaleLabelText.bottom = -4;
-    };
-    updateScaleLabel();
+    if ( fullWidth >= 0.01 ) {
+      scaleLabelText.string = `${toFixed( fullWidth * 100, 1 )} cm`;
+    }
+    else if ( fullWidth >= 1e-4 ) {
+      scaleLabelText.string = `${toFixed( fullWidth * 1e3, 2 )} mm`;
+    }
+    else {
+      scaleLabelText.string = `${toFixed( fullWidth * 1e6, 1 )} μm`;
+    }
+    scaleLabelText.centerX = SCREEN_WIDTH / 2;
+    scaleLabelText.bottom = SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2 - 2;
 
     // Update the hit count text and canvas when hits change
     const updateDisplay = () => {
       if ( sceneModel.detectionModeProperty.value === DetectionMode.HITS ) {
         hitCountText.string = `${sceneModel.totalHitsProperty.value} hits`;
-        hitCountText.right = SCREEN_WIDTH - 6;
-        hitCountText.bottom = -4;
+        hitCountText.right = SCREEN_WIDTH - 8;
+        hitCountText.top = 6;
         hitCountText.visible = true;
       }
       else {
