@@ -27,6 +27,7 @@ import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
@@ -158,8 +159,9 @@ export default class SourceControlPanel extends Panel {
       const formatSpeed = ( value: number ): string => {
         if ( useKmPerSecond ) {
           const kmPerS = value / 1000;
-          return QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value
-            .replace( '{{value}}', `${Utils.roundSymmetric( kmPerS )}` );
+          return StringUtils.fillIn( QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value, {
+            value: Utils.roundSymmetric( kmPerS )
+          } );
         }
         else {
           return `${Utils.roundSymmetric( value )} m/s`;

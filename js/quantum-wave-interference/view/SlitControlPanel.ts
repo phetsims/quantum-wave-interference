@@ -24,6 +24,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
@@ -102,8 +103,9 @@ export default class SlitControlPanel extends Panel {
       slitSeparationNumberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
           const valueUM = valueMM * 1000;
-          return QuantumWaveInterferenceFluent.slitSeparationMicrometerPatternStringProperty.value
-            .replace( '{{value}}', Utils.toFixed( valueUM, mmToMicrometerDecimalPlaces ) );
+          return StringUtils.fillIn( QuantumWaveInterferenceFluent.slitSeparationMicrometerPatternStringProperty.value, {
+            value: Utils.toFixed( valueUM, mmToMicrometerDecimalPlaces )
+          } );
         },
         textOptions: {
           font: new PhetFont( 13 )

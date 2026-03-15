@@ -30,6 +30,7 @@ import cameraSolidShape from '../../../../sherpa/js/fontawesome-5/cameraSolidSha
 import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import DetectionMode from '../model/DetectionMode.js';
@@ -151,8 +152,9 @@ export default class DetectorScreenNode extends Node {
     // Update the hit count text and canvas when hits change
     const updateDisplay = () => {
       if ( sceneModel.detectionModeProperty.value === DetectionMode.HITS ) {
-        hitCountText.string = QuantumWaveInterferenceFluent.hitsCountPatternStringProperty.value
-          .replace( '{{count}}', `${sceneModel.totalHitsProperty.value}` );
+        hitCountText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.hitsCountPatternStringProperty.value, {
+          count: sceneModel.totalHitsProperty.value
+        } );
         hitCountText.right = SCREEN_WIDTH;
         hitCountText.bottom = SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2 - 2;
         hitCountText.visible = true;

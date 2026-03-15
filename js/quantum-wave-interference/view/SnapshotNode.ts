@@ -26,6 +26,7 @@ import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import DetectionMode from '../model/DetectionMode.js';
@@ -95,34 +96,40 @@ export default class SnapshotNode extends Node {
     // Update all text content when the snapshot changes
     snapshotProperty.link( snapshot => {
       if ( snapshot ) {
-        titleText.string = QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty.value
-          .replace( '{{number}}', `${snapshot.snapshotNumber}` );
+        titleText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty.value, {
+          number: snapshot.snapshotNumber
+        } );
 
         // Slit separation: use μm for small values (< 0.1 mm) for readability
         if ( snapshot.slitSeparation < 0.1 ) {
           const valueUM = snapshot.slitSeparation * 1000;
-          slitSepText.string = QuantumWaveInterferenceFluent.slitSeparationMicrometerValuePatternStringProperty.value
-            .replace( '{{value}}', toFixed( valueUM, 1 ) );
+          slitSepText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.slitSeparationMicrometerValuePatternStringProperty.value, {
+            value: toFixed( valueUM, 1 )
+          } );
         }
         else {
-          slitSepText.string = QuantumWaveInterferenceFluent.slitSeparationValuePatternStringProperty.value
-            .replace( '{{value}}', toFixed( snapshot.slitSeparation, 2 ) );
+          slitSepText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.slitSeparationValuePatternStringProperty.value, {
+            value: toFixed( snapshot.slitSeparation, 2 )
+          } );
         }
 
         // Screen distance: D = X.X m
-        screenDistText.string = QuantumWaveInterferenceFluent.screenDistanceValuePatternStringProperty.value
-          .replace( '{{value}}', toFixed( snapshot.screenDistance, 1 ) );
+        screenDistText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.screenDistanceValuePatternStringProperty.value, {
+          value: toFixed( snapshot.screenDistance, 1 )
+        } );
 
         // Wavelength: show the photon wavelength directly, or the de Broglie wavelength for particles
         if ( snapshot.sourceType === SourceType.PHOTONS ) {
-          wavelengthText.string = QuantumWaveInterferenceFluent.wavelengthPatternStringProperty.value
-            .replace( '{{value}}', `${Utils.roundSymmetric( snapshot.wavelength )}` );
+          wavelengthText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.wavelengthPatternStringProperty.value, {
+            value: Utils.roundSymmetric( snapshot.wavelength )
+          } );
         }
         else {
           // Convert effective wavelength from meters to nanometers for display
           const lambdaNm = snapshot.effectiveWavelength * 1e9;
-          wavelengthText.string = QuantumWaveInterferenceFluent.deBroglieWavelengthPatternStringProperty.value
-            .replace( '{{value}}', toFixed( lambdaNm, 3 ) );
+          wavelengthText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.deBroglieWavelengthPatternStringProperty.value, {
+            value: toFixed( lambdaNm, 3 )
+          } );
         }
 
         // Slit setting (only show if not the default "Both open")
