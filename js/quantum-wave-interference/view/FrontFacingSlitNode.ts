@@ -204,8 +204,11 @@ export default class FrontFacingSlitNode extends Node {
       slitWidthLeftTick.x = slitLeft;
       slitWidthRightTick.x = slitRight;
 
-      // Position label to the right of the right tick mark (matching the design SVG)
+      // Position label to the right of the right tick mark, but don't overflow past the view width
       slitWidthText.left = slitRight + 5;
+      if ( slitWidthText.right > VIEW_WIDTH ) {
+        slitWidthText.right = VIEW_WIDTH;
+      }
       slitWidthText.centerY = 0;
       slitWidthSpanNode.bottom = slitY - 4;
 
@@ -226,8 +229,11 @@ export default class FrontFacingSlitNode extends Node {
         separationText.string = `${toFixed( separationMM * 1000, 0 )} μm`;
       }
 
-      // Position label to the right of the right tick mark (matching the design SVG)
+      // Position label to the right of the right tick mark, but don't overflow past the view width
       separationText.left = sepRight + 5;
+      if ( separationText.right > VIEW_WIDTH ) {
+        separationText.right = VIEW_WIDTH;
+      }
       separationText.centerY = 0;
       separationSpanNode.top = VIEW_HEIGHT + 4;
     };
