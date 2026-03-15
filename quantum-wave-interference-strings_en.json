@@ -94,5 +94,8 @@
   },
   "count": {
     "value": "Count"
+  },
+  "snapshotNumberPattern": {
+    "value": "Snapshot {{number}}"
   }
 }

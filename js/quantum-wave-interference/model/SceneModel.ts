@@ -18,9 +18,13 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import Property from '../../../../axon/js/Property.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import DetectionMode from './DetectionMode.js';
 import SlitSetting from './SlitSetting.js';
+import Snapshot from './Snapshot.js';
 import SourceType from './SourceType.js';
 
 // Physical constants
@@ -100,6 +104,15 @@ export default class SceneModel extends PhetioObject {
 
   // Emitter that fires when the hits array changes (new hits added or cleared)
   public readonly hitsChangedEmitter: TEmitter;
+
+  // Snapshots captured from this scene's detector screen
+  public readonly snapshotsProperty: Property<Snapshot[]>;
+
+  // Number of snapshots currently stored
+  public readonly numberOfSnapshotsProperty: TReadOnlyProperty<number>;
+
+  // Counter for generating unique snapshot numbers
+  private nextSnapshotNumber: number;
 
   // Fractional hit accumulator for sub-frame hit tracking
   private hitAccumulator: number;
@@ -214,6 +227,15 @@ export default class SceneModel extends PhetioObject {
       phetioReadOnly: true
     } );
 
+    this.snapshotsProperty = new Property<Snapshot[]>( [] );
+
+    this.numberOfSnapshotsProperty = new DerivedProperty(
+      [ this.snapshotsProperty ],
+      snapshots => snapshots.length
+    );
+
+    this.nextSnapshotNumber = 1;
+
     // Clear accumulated data when slit settings change
     this.slitSeparationProperty.lazyLink( () => this.clearScreen() );
     this.screenDistanceProperty.lazyLink( () => this.clearScreen() );
@@ -293,6 +315,41 @@ export default class SceneModel extends PhetioObject {
     this.hitsChangedEmitter.emit();
   }
 
+  /**
+   * Takes a snapshot of the current detector screen state. Maximum of 4 snapshots per scene.
+   */
+  public takeSnapshot(): void {
+    if ( this.snapshotsProperty.value.length >= SceneModel.MAX_SNAPSHOTS ) {
+      return;
+    }
+
+    const snapshot = new Snapshot( this.nextSnapshotNumber++, {
+      hits: this.hits,
+      detectionMode: this.detectionModeProperty.value,
+      sourceType: this.sourceType,
+      wavelength: this.wavelengthProperty.value,
+      screenHalfWidth: this.screenHalfWidth,
+      slitSeparation: this.slitSeparationProperty.value,
+      slitWidth: this.slitWidth,
+      screenDistance: this.screenDistanceProperty.value,
+      effectiveWavelength: this.getEffectiveWavelength(),
+      slitSetting: this.slitSettingProperty.value.name,
+      brightness: this.screenBrightnessProperty.value
+    } );
+
+    this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];
+  }
+
+  /**
+   * Deletes a specific snapshot.
+   */
+  public deleteSnapshot( snapshot: Snapshot ): void {
+    this.snapshotsProperty.value = this.snapshotsProperty.value.filter( s => s !== snapshot );
+  }
+
+  // Maximum number of snapshots that can be stored per scene
+  public static readonly MAX_SNAPSHOTS = 4;
+
   public reset(): void {
     this.isEmittingProperty.reset();
     this.wavelengthProperty.reset();
@@ -306,6 +363,8 @@ export default class SceneModel extends PhetioObject {
     this.hits.length = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.reset();
+    this.snapshotsProperty.value = [];
+    this.nextSnapshotNumber = 1;
     this.hitsChangedEmitter.emit();
   }
 

@@ -30,3 +30,4 @@ hits:           Hits
 screenBrightness: Screen brightness
 graph:            Graph
 count:            Count
+snapshotNumberPattern: 'Snapshot {{number}}'

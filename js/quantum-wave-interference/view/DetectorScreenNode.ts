@@ -8,6 +8,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Utils from '../../../../dot/js/Utils.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
@@ -15,13 +16,22 @@ import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
+import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
+import Circle from '../../../../scenery/js/nodes/Circle.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
+import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import cameraSolidShape from '../../../../sherpa/js/fontawesome-5/cameraSolidShape.js';
+import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js';
+import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
+import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import DetectionMode from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
+import SnapshotsDialog from './SnapshotsDialog.js';
 import SourceType from '../model/SourceType.js';
 
 // Dimensions of the front-facing detector screen display
@@ -124,13 +134,90 @@ export default class DetectorScreenNode extends Node {
     const eraserButton = new EraserButton( {
       iconWidth: 18,
       listener: () => sceneModel.clearScreen(),
-      right: SCREEN_WIDTH + 30,
-      top: 0,
       touchAreaXDilation: 5,
       touchAreaYDilation: 5,
       tandem: providedOptions.tandem.createTandem( 'eraserButton' )
     } );
+
+    // Snapshot dialog (one per scene)
+    const snapshotsDialog = new SnapshotsDialog(
+      sceneModel,
+      providedOptions.tandem.createTandem( 'snapshotsDialog' )
+    );
+
+    // Camera button to take a snapshot
+    const snapshotButton = new RectangularPushButton( {
+      listener: () => sceneModel.takeSnapshot(),
+      baseColor: '#E8E8E8',
+      content: new Path( cameraSolidShape, {
+        fill: 'black',
+        scale: 0.04
+      } ),
+      enabledProperty: new DerivedProperty( [ sceneModel.numberOfSnapshotsProperty ],
+        numberOfSnapshots => numberOfSnapshots < SceneModel.MAX_SNAPSHOTS, {
+          tandem: providedOptions.tandem.createTandem( 'snapshotButtonEnabledProperty' ),
+          phetioValueType: BooleanIO
+        } ),
+      tandem: providedOptions.tandem.createTandem( 'snapshotButton' )
+    } );
+
+    // Eye button to view snapshots
+    const viewSnapshotsButton = new RectangularPushButton( {
+      listener: () => snapshotsDialog.show(),
+      baseColor: '#E8E8E8',
+      content: new Path( eyeSolidShape, {
+        fill: 'black',
+        scale: 0.04
+      } ),
+      enabledProperty: new DerivedProperty( [ sceneModel.numberOfSnapshotsProperty ],
+        numberOfSnapshots => numberOfSnapshots > 0, {
+          tandem: providedOptions.tandem.createTandem( 'viewSnapshotsButtonEnabledProperty' ),
+          phetioValueType: BooleanIO
+        } ),
+      tandem: providedOptions.tandem.createTandem( 'viewSnapshotsButton' )
+    } );
+
+    // Snapshot indicator circles (4 small circles that fill as snapshots are taken)
+    const DOT_RADIUS = 3;
+    const indicatorDots: Circle[] = [];
+    for ( let i = 0; i < SceneModel.MAX_SNAPSHOTS; i++ ) {
+      indicatorDots.push( new Circle( DOT_RADIUS, {
+        stroke: '#888',
+        lineWidth: 0.5,
+        fill: 'white'
+      } ) );
+    }
+
+    const indicatorDotsBox = new HBox( {
+      spacing: 3,
+      children: indicatorDots
+    } );
+
+    // Update indicator dot fills when snapshots change
+    sceneModel.numberOfSnapshotsProperty.link( count => {
+      for ( let i = 0; i < SceneModel.MAX_SNAPSHOTS; i++ ) {
+        indicatorDots[ i ].fill = i < count ? '#555' : 'white';
+      }
+    } );
+
+    // Position eraser button top-aligned to the right of the screen
+    eraserButton.left = SCREEN_WIDTH + 6;
+    eraserButton.top = 0;
     this.addChild( eraserButton );
+
+    // Snapshot buttons and indicator dots, bottom-aligned to the right of the screen
+    const buttonGroup = new VBox( {
+      spacing: 4,
+      align: 'center',
+      children: [
+        indicatorDotsBox,
+        snapshotButton,
+        viewSnapshotsButton
+      ],
+      left: SCREEN_WIDTH + 6,
+      bottom: SCREEN_HEIGHT
+    } );
+    this.addChild( buttonGroup );
   }
 }
 

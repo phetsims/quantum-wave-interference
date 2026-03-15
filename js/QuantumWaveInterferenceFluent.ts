@@ -100,7 +100,8 @@ const QuantumWaveInterferenceFluent = {
   hitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsStringProperty' ),
   screenBrightnessStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenBrightnessStringProperty' ),
   graphStringProperty: _.get( QuantumWaveInterferenceStrings, 'graphStringProperty' ),
-  countStringProperty: _.get( QuantumWaveInterferenceStrings, 'countStringProperty' )
+  countStringProperty: _.get( QuantumWaveInterferenceStrings, 'countStringProperty' ),
+  snapshotNumberPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotNumberPatternStringProperty' )
 };
 
 export default QuantumWaveInterferenceFluent;
