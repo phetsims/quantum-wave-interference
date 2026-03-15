@@ -61,9 +61,12 @@ export default class SlitControlPanel extends Panel {
       sceneNodes.push( sceneContent );
     }
 
-    // Container node holds all scene content; only the active one is visible
+    // Container node holds all scene content; only the active one is visible.
+    // excludeInvisibleChildrenFromBounds: false ensures the panel sizes to the widest
+    // content across all scenes, preventing layout shifts when switching scenes.
     const contentNode = new Node( {
-      children: sceneNodes
+      children: sceneNodes,
+      excludeInvisibleChildrenFromBounds: false
     } );
 
     super( contentNode, options );
