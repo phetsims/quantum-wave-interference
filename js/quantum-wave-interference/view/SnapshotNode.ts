@@ -217,8 +217,8 @@ class SnapshotCanvasNode extends CanvasNode {
 
     // Hit color based on source type
     if ( snapshot.sourceType === SourceType.PHOTONS ) {
-      const rgb = VisibleColor.wavelengthToColor( snapshot.wavelength );
-      context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${snapshot.brightness})`;
+      const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
+      context.fillStyle = `rgba(${color.red},${color.green},${color.blue},${snapshot.brightness})`;
     }
     else {
       context.fillStyle = `rgba(255,255,255,${snapshot.brightness})`;
@@ -247,8 +247,8 @@ class SnapshotCanvasNode extends CanvasNode {
 
       if ( alpha > 0.01 ) {
         if ( snapshot.sourceType === SourceType.PHOTONS ) {
-          const rgb = VisibleColor.wavelengthToColor( snapshot.wavelength );
-          context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;
+          const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
+          context.fillStyle = `rgba(${color.red},${color.green},${color.blue},${alpha})`;
         }
         else {
           context.fillStyle = `rgba(255,255,255,${Utils.clamp( alpha, 0, 1 )})`;
