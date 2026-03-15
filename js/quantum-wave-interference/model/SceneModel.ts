@@ -41,6 +41,9 @@ const MAX_EMISSION_RATE = 200;
 // Maximum iterations for rejection sampling to prevent infinite loops
 const MAX_REJECTION_ITERATIONS = 1000;
 
+// Number of bins for the intensity accumulator (used for Average Intensity display)
+const INTENSITY_BIN_COUNT = 200;
+
 type SelfOptions = {
   sourceType: SourceType;
 };
@@ -106,6 +109,15 @@ export default class SceneModel extends PhetioObject {
   // determined by interference pattern probability) and y in [-1,1] (vertical, uniformly random).
   public readonly hits: Vector2[];
 
+  // Intensity accumulator bins for the Average Intensity display. Each bin tracks the count of
+  // hits that landed in that horizontal region. The bins span the full screen width [-1, 1].
+  // This enables Average Intensity mode to build up over time rather than showing the theoretical
+  // pattern instantly, matching the design requirement that time controls affect aggregation rate.
+  public readonly intensityBins: number[];
+
+  // The maximum value in intensityBins, tracked incrementally for efficient normalization
+  public intensityBinsMax: number;
+
   // Emitter that fires when the hits array changes (new hits added or cleared)
   public readonly hitsChangedEmitter: TEmitter;
 
@@ -168,6 +180,8 @@ export default class SceneModel extends PhetioObject {
     }
 
     this.hits = [];
+    this.intensityBins = new Array<number>( INTENSITY_BIN_COUNT ).fill( 0 );
+    this.intensityBinsMax = 0;
     this.hitsChangedEmitter = new Emitter();
     this.hitAccumulator = 0;
 
@@ -319,6 +333,8 @@ export default class SceneModel extends PhetioObject {
    */
   public clearScreen(): void {
     this.hits.length = 0;
+    this.intensityBins.fill( 0 );
+    this.intensityBinsMax = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.value = 0;
     this.detectorHitsProperty.value = 0;
@@ -360,6 +376,9 @@ export default class SceneModel extends PhetioObject {
   // Maximum number of snapshots that can be stored per scene
   public static readonly MAX_SNAPSHOTS = 4;
 
+  // Number of bins used for the intensity accumulator
+  public static readonly INTENSITY_BIN_COUNT = INTENSITY_BIN_COUNT;
+
   public reset(): void {
     this.isEmittingProperty.reset();
     this.wavelengthProperty.reset();
@@ -371,6 +390,8 @@ export default class SceneModel extends PhetioObject {
     this.detectionModeProperty.reset();
     this.screenBrightnessProperty.reset();
     this.hits.length = 0;
+    this.intensityBins.fill( 0 );
+    this.intensityBinsMax = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.reset();
     this.detectorHitsProperty.reset();
@@ -434,6 +455,14 @@ export default class SceneModel extends PhetioObject {
       const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * 0.95; // [-0.95, 0.95] to leave padding
 
       this.hits.push( new Vector2( x, y ) );
+
+      // Accumulate into intensity bins for the Average Intensity display
+      const binIndex = Math.min( INTENSITY_BIN_COUNT - 1,
+        Math.max( 0, Math.floor( ( x + 1 ) / 2 * INTENSITY_BIN_COUNT ) ) );
+      this.intensityBins[ binIndex ]++;
+      if ( this.intensityBins[ binIndex ] > this.intensityBinsMax ) {
+        this.intensityBinsMax = this.intensityBins[ binIndex ];
+      }
 
       // When a which-path detector is active, each particle has ~50% probability of going
       // through the monitored slit (the one with the detector on it).

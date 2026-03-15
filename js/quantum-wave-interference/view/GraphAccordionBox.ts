@@ -36,9 +36,6 @@ const CHART_HEIGHT = 80;
 // Number of bins for the histogram in Hits mode
 const HISTOGRAM_BINS = 40;
 
-// Number of sample points for the intensity curve
-const INTENSITY_SAMPLES = 200;
-
 // Grid line styling
 const GRID_LINE_COLOR = 'rgb(200,200,200)';
 
@@ -204,20 +201,27 @@ export default class GraphAccordionBox extends Node {
 
   /**
    * Paints the intensity curve (smooth line) on the data path for Average Intensity mode.
+   * Uses the accumulated intensity bins from the model, so the curve builds up over time
+   * as hits are registered, matching the design requirement for running-average behavior.
    */
   private paintIntensityCurve( dataPath: Path, sceneModel: SceneModel ): void {
+    const maxBin = sceneModel.intensityBinsMax;
+
+    if ( maxBin === 0 ) {
+      dataPath.shape = null;
+      return;
+    }
+
     const zoomScale = Utils.linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
+    const bins = sceneModel.intensityBins;
+    const numBins = bins.length;
     const shape = new Shape();
 
-    for ( let i = 0; i < INTENSITY_SAMPLES; i++ ) {
-      const fraction = i / ( INTENSITY_SAMPLES - 1 ); // 0 to 1
-      const normalizedX = fraction * 2 - 1; // -1 to 1
-      const physicalX = normalizedX * sceneModel.screenHalfWidth;
-
-      const intensity = sceneModel.getIntensityAtPosition( physicalX );
+    for ( let i = 0; i < numBins; i++ ) {
+      const fraction = ( i + 0.5 ) / numBins; // Center of each bin
+      const intensity = bins[ i ] / maxBin; // Normalize to [0, 1]
 
       const viewX = fraction * CHART_WIDTH;
-      // Intensity goes from 0 (bottom) to max (top)
       const viewY = CHART_HEIGHT - ( intensity * CHART_HEIGHT * zoomScale );
 
       if ( i === 0 ) {

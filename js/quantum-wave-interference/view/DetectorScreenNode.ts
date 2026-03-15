@@ -44,9 +44,6 @@ const SCREEN_CORNER_RADIUS = 10;
 // Hit dot radius in view coordinates
 const HIT_DOT_RADIUS = 1.5;
 
-// Number of horizontal bins for the intensity display
-const INTENSITY_BINS = 200;
-
 type SelfOptions = EmptySelfOptions;
 
 type DetectorScreenNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
@@ -152,12 +149,9 @@ export default class DetectorScreenNode extends Node {
     sceneModel.detectionModeProperty.link( () => updateDisplay() );
     sceneModel.screenBrightnessProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
-    // In Average Intensity mode, the pattern is computed from the theoretical interference formula
-    // and must update whenever properties that affect the formula change. These properties don't
-    // fire hitsChangedEmitter, so we need explicit listeners.
-    sceneModel.isEmittingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    // The intensity pattern is derived from accumulated hits (which trigger hitsChangedEmitter),
+    // but wavelength changes affect hit dot color for photons.
     sceneModel.wavelengthProperty.link( () => this.screenCanvasNode.invalidatePaint() );
-    sceneModel.velocityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
     // Eraser button to clear the screen - positioned to the right of the screen, top-aligned
     const eraserButton = new EraserButton( {
@@ -310,34 +304,37 @@ class DetectorScreenCanvasNode extends CanvasNode {
   }
 
   /**
-   * Renders the average intensity pattern as vertical glowing bands.
+   * Renders the average intensity pattern as vertical glowing bands using accumulated hit data.
+   * The pattern builds up over time as more hits are accumulated, matching the design requirement
+   * that time controls affect the rate at which the average intensity aggregates.
    */
   private paintIntensity( context: CanvasRenderingContext2D, brightness: number ): void {
-    if ( !this.sceneModel.isEmittingProperty.value && this.sceneModel.hits.length === 0 ) {
+    const sceneModel = this.sceneModel;
+    const maxBin = sceneModel.intensityBinsMax;
+
+    if ( maxBin === 0 ) {
       return;
     }
 
     const width = SCREEN_WIDTH;
     const height = SCREEN_HEIGHT;
-    const binWidth = width / INTENSITY_BINS;
+    const bins = sceneModel.intensityBins;
+    const numBins = bins.length;
+    const binWidth = width / numBins;
 
-    for ( let i = 0; i < INTENSITY_BINS; i++ ) {
-      // Map bin center to normalized x position [-1, 1]
-      const normalizedX = ( ( i + 0.5 ) / INTENSITY_BINS ) * 2 - 1;
+    for ( let i = 0; i < numBins; i++ ) {
+      if ( bins[ i ] > 0 ) {
+        // Normalize by the max bin value to get a 0-1 intensity
+        const intensity = bins[ i ] / maxBin;
 
-      // Convert to physical position on screen
-      const physicalX = normalizedX * this.sceneModel.screenHalfWidth;
+        // Apply brightness control
+        const alpha = intensity * brightness;
 
-      // Get the theoretical intensity at this position
-      const intensity = this.sceneModel.getIntensityAtPosition( physicalX );
-
-      // Apply brightness control
-      const alpha = intensity * brightness;
-
-      if ( alpha > 0.01 ) {
-        const color = this.getIntensityColor( alpha );
-        context.fillStyle = color;
-        context.fillRect( i * binWidth, 0, binWidth + 0.5, height );
+        if ( alpha > 0.01 ) {
+          const color = this.getIntensityColor( alpha );
+          context.fillStyle = color;
+          context.fillRect( i * binWidth, 0, binWidth + 0.5, height );
+        }
       }
     }
   }

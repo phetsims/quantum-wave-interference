@@ -893,14 +893,31 @@ class OverheadDetectorPatternNode extends CanvasNode {
       this.beamColor = new Color( 255, 255, 255 );
     }
 
-    // Compute intensity values for Average Intensity mode
+    // Compute intensity values for Average Intensity mode from accumulated bins
+    const bins = sceneModel.intensityBins;
+    const maxBin = sceneModel.intensityBinsMax;
+    const numBins = bins.length;
     const NUM_BANDS = 50;
     this.intensityValues = [];
-    for ( let i = 0; i < NUM_BANDS; i++ ) {
-      const fraction = ( i + 0.5 ) / NUM_BANDS; // 0 to 1
-      const normalizedX = fraction * 2 - 1; // -1 to 1
-      const physicalX = normalizedX * sceneModel.screenHalfWidth;
-      this.intensityValues.push( sceneModel.getIntensityAtPosition( physicalX ) );
+
+    if ( maxBin > 0 ) {
+      // Downsample the model's intensity bins to NUM_BANDS for overhead rendering
+      const binsPerBand = numBins / NUM_BANDS;
+      for ( let i = 0; i < NUM_BANDS; i++ ) {
+        const startBin = Math.floor( i * binsPerBand );
+        const endBin = Math.floor( ( i + 1 ) * binsPerBand );
+        let sum = 0;
+        for ( let j = startBin; j < endBin; j++ ) {
+          sum += bins[ j ];
+        }
+        // Average over the bins in this band, normalized by the max
+        this.intensityValues.push( ( sum / ( endBin - startBin ) ) / maxBin );
+      }
+    }
+    else {
+      for ( let i = 0; i < NUM_BANDS; i++ ) {
+        this.intensityValues.push( 0 );
+      }
     }
 
     // Cache hit x positions for Hits mode rendering
