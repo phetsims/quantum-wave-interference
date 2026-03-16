@@ -366,37 +366,47 @@ class DetectorScreenCanvasNode extends CanvasNode {
   }
 
   /**
-   * Renders the average intensity pattern as vertical glowing bands using accumulated hit data.
-   * The pattern builds up over time as more hits are accumulated, matching the design requirement
-   * that time controls affect the rate at which the average intensity aggregates.
+   * Renders the average intensity pattern as vertical glowing bands using the theoretical intensity
+   * curve. Uses getIntensityAtPosition() for a clean, smooth pattern that responds immediately to
+   * parameter changes, consistent with the overhead detector pattern and graph views.
+   * Opacity scales logarithmically with total accumulated hits so the pattern builds up over time,
+   * matching the design requirement that time controls affect the aggregation rate.
    */
   private paintIntensity( context: CanvasRenderingContext2D, brightness: number ): void {
     const sceneModel = this.sceneModel;
-    const maxBin = sceneModel.intensityBinsMax;
+    const totalHits = sceneModel.totalHitsProperty.value;
 
-    if ( maxBin === 0 ) {
+    if ( totalHits === 0 ) {
+      return;
+    }
+
+    // Opacity scales with total accumulated hits using a logarithmic ramp, matching the
+    // overhead detector pattern (OverheadDetectorPatternNode) and graph (GraphAccordionBox).
+    // The pattern appears faintly at first and saturates as data accumulates.
+    const opacityScale = Math.min( 1, Math.log10( totalHits + 1 ) / 2 );
+
+    if ( opacityScale < 0.01 ) {
       return;
     }
 
     const width = SCREEN_WIDTH;
     const height = SCREEN_HEIGHT;
-    const bins = sceneModel.intensityBins;
-    const numBins = bins.length;
-    const binWidth = width / numBins;
+    const screenHalfWidth = sceneModel.screenHalfWidth;
 
-    for ( let i = 0; i < numBins; i++ ) {
-      if ( bins[ i ] > 0 ) {
-        // Normalize by the max bin value to get a 0-1 intensity
-        const intensity = bins[ i ] / maxBin;
+    // Sample the theoretical intensity curve at evenly-spaced positions across the screen.
+    // 200 samples provides a smooth curve that matches the model's INTENSITY_BIN_COUNT.
+    const NUM_SAMPLES = 200;
+    const bandWidth = width / NUM_SAMPLES;
 
-        // Apply brightness control
-        const alpha = intensity * brightness;
+    for ( let i = 0; i < NUM_SAMPLES; i++ ) {
+      const fraction = ( i + 0.5 ) / NUM_SAMPLES;
+      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
+      const intensity = sceneModel.getIntensityAtPosition( physicalX );
+      const alpha = intensity * brightness * opacityScale;
 
-        if ( alpha > 0.01 ) {
-          const color = this.getIntensityColor( alpha );
-          context.fillStyle = color;
-          context.fillRect( i * binWidth, 0, binWidth + 0.5, height );
-        }
+      if ( alpha > 0.01 ) {
+        context.fillStyle = this.getIntensityColor( alpha );
+        context.fillRect( i * bandWidth, 0, bandWidth + 0.5, height );
       }
     }
   }
