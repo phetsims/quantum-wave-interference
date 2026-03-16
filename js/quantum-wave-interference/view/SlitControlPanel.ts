@@ -47,8 +47,8 @@ export default class SlitControlPanel extends Panel {
     const options = optionize<SlitControlPanelOptions, SelfOptions, PanelOptions>()( {
       xMargin: 10,
       yMargin: 10,
-      fill: 'rgb( 230, 230, 230 )',
-      stroke: 'gray',
+      fill: '#f4f4f4',
+      stroke: '#c1c1c1',
       minWidth: 200
     }, providedOptions );
 
@@ -148,7 +148,7 @@ export default class SlitControlPanel extends Panel {
           majorTickLength: 12,
           majorTicks: slitSeparationTicks
         },
-        layoutFunction: NumberControl.createLayoutFunction3( { ySpacing: 3 } ),
+        layoutFunction: NumberControl.createLayoutFunction1( { ySpacing: 3 } ),
         tandem: tandem.createTandem( `${sceneTandemName}SlitSeparationControl` )
       }
     );
@@ -182,7 +182,7 @@ export default class SlitControlPanel extends Panel {
           majorTickLength: 12,
           majorTicks: SlitControlPanel.createNumericTicks( screenDistanceRange )
         },
-        layoutFunction: NumberControl.createLayoutFunction3( { ySpacing: 3 } ),
+        layoutFunction: NumberControl.createLayoutFunction1( { ySpacing: 3 } ),
         tandem: tandem.createTandem( `${sceneTandemName}ScreenDistanceControl` )
       }
     );
@@ -228,7 +228,7 @@ export default class SlitControlPanel extends Panel {
     } );
 
     return new VBox( {
-      spacing: 12,
+      spacing: 8,
       align: 'center',
       children: [
         slitSeparationControl,

@@ -43,8 +43,8 @@ export default class ScreenSettingsPanel extends Panel {
     const options = optionize<ScreenSettingsPanelOptions, SelfOptions, PanelOptions>()( {
       xMargin: 10,
       yMargin: 10,
-      fill: 'rgb( 230, 230, 230 )',
-      stroke: 'gray'
+      fill: '#f4f4f4',
+      stroke: '#c1c1c1'
     }, providedOptions );
 
     // DynamicProperty that follows the active scene's detectionModeProperty

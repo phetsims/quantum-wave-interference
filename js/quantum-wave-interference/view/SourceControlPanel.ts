@@ -49,8 +49,8 @@ export default class SourceControlPanel extends Panel {
     const options = optionize<SourceControlPanelOptions, SelfOptions, PanelOptions>()( {
       xMargin: 10,
       yMargin: 10,
-      fill: 'rgb( 230, 230, 230 )',
-      stroke: 'gray',
+      fill: '#f4f4f4',
+      stroke: '#c1c1c1',
       minWidth: 160
     }, providedOptions );
 
@@ -126,12 +126,12 @@ export default class SourceControlPanel extends Panel {
       topControl = new WavelengthNumberControl( scene.wavelengthProperty, {
         range: new Range( 380, 780 ),
         spectrumSliderTrackOptions: {
-          size: SLIDER_TRACK_SIZE
+          size: new Dimension2( 130, 15 )
         },
         spectrumSliderThumbOptions: {
           width: 18,
           height: 18,
-          cursorHeight: SLIDER_TRACK_SIZE.height
+          cursorHeight: 15
         },
         titleNodeOptions: {
           font: TITLE_FONT,
@@ -143,9 +143,10 @@ export default class SourceControlPanel extends Panel {
           },
           maxWidth: 80
         },
-        layoutFunction: NumberControl.createLayoutFunction3( {
+        layoutFunction: NumberControl.createLayoutFunction4( {
           ySpacing: 3
         } ),
+        includeArrowButtons: false,
         tandem: tandem.createTandem( 'wavelengthControl' )
       } );
     }
@@ -217,7 +218,7 @@ export default class SourceControlPanel extends Panel {
               } )
             } ]
           },
-          layoutFunction: NumberControl.createLayoutFunction3( {
+          layoutFunction: NumberControl.createLayoutFunction1( {
             ySpacing: 3
           } ),
           tandem: tandem.createTandem( `${scene.sourceType.tandemName}VelocityControl` )

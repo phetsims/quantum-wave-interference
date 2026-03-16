@@ -13,37 +13,37 @@ import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
+import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
+import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import RulerNode from '../../../../scenery-phet/js/RulerNode.js';
+import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
-import Checkbox from '../../../../sun/js/Checkbox.js';
-import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
-import Color from '../../../../scenery/js/util/Color.js';
-import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import Color from '../../../../scenery/js/util/Color.js';
+import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
+import Checkbox from '../../../../sun/js/Checkbox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import DetectionMode from '../model/DetectionMode.js';
 import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
 import SceneModel from '../model/SceneModel.js';
-import DetectionMode from '../model/DetectionMode.js';
 import SlitSetting from '../model/SlitSetting.js';
 import SourceType from '../model/SourceType.js';
 import DetectorScreenNode, { DETECTOR_SCREEN_RECT_WIDTH } from './DetectorScreenNode.js';
@@ -256,7 +256,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     // These update dynamically based on the scene's slit separation, matching the front-facing
     // slit view behavior per the design requirement.
     const slitLineLength = 25;
-    const slitXFraction = 0.55; // fraction across the parallelogram width
+    const slitXFraction = 0.5; // fraction across the parallelogram width (centered)
     const slitYCenter = 25; // center of the left edge height
 
     // The x-offset within the parallelogram accounts for the skew
@@ -265,8 +265,8 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
     // Visual spacing range for the slit lines on the parallelogram (in local coordinates).
     // At minimum slit separation, lines are close together; at maximum, far apart.
-    const MIN_VISUAL_SLIT_SPACING = 2;
-    const MAX_VISUAL_SLIT_SPACING = 12;
+    const MIN_VISUAL_SLIT_SPACING = 1;
+    const MAX_VISUAL_SLIT_SPACING = 4;
 
     const leftSlitLine = new Path( null, {
       stroke: 'white',
@@ -322,22 +322,28 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       const leftX = slitBaseX - visualSpacing / 2;
       const rightX = slitBaseX + visualSpacing / 2;
 
+      // Offset each slit's Y position along the parallelogram's slope (dy/dx = 21/51)
+      // so the left slit is higher and the right slit is lower, matching the perspective.
+      const slopeRatio = 21 / 51;
+      const leftY = slitBaseY - ( visualSpacing / 2 ) * slopeRatio;
+      const rightY = slitBaseY + ( visualSpacing / 2 ) * slopeRatio;
+
       // Update slit line shapes
-      leftSlitLine.shape = Shape.lineSegment( leftX, slitBaseY - slitLineLength / 2,
-        leftX, slitBaseY + slitLineLength / 2 );
-      rightSlitLine.shape = Shape.lineSegment( rightX, slitBaseY - slitLineLength / 2,
-        rightX, slitBaseY + slitLineLength / 2 );
+      leftSlitLine.shape = Shape.lineSegment( leftX, leftY - slitLineLength / 2,
+        leftX, leftY + slitLineLength / 2 );
+      rightSlitLine.shape = Shape.lineSegment( rightX, rightY - slitLineLength / 2,
+        rightX, rightY + slitLineLength / 2 );
 
       // Reposition cover and detector overlays to track the slit positions
       leftSlitCover.x = leftX - slitOverlayWidth / 2;
-      leftSlitCover.y = slitBaseY - slitOverlayHeight / 2;
+      leftSlitCover.y = leftY - slitOverlayHeight / 2;
       rightSlitCover.x = rightX - slitOverlayWidth / 2;
-      rightSlitCover.y = slitBaseY - slitOverlayHeight / 2;
+      rightSlitCover.y = rightY - slitOverlayHeight / 2;
 
       leftSlitDetectorOverlay.x = leftX - slitOverlayWidth / 2;
-      leftSlitDetectorOverlay.y = slitBaseY - slitOverlayHeight / 2;
+      leftSlitDetectorOverlay.y = leftY - slitOverlayHeight / 2;
       rightSlitDetectorOverlay.x = rightX - slitOverlayWidth / 2;
-      rightSlitDetectorOverlay.y = slitBaseY - slitOverlayHeight / 2;
+      rightSlitDetectorOverlay.y = rightY - slitOverlayHeight / 2;
 
       // Update cover/detector visibility based on slit setting
       const slitSetting = scene.slitSettingProperty.value;
@@ -578,8 +584,8 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
       // Determine beam color
       const beamColor = scene.sourceType === SourceType.PHOTONS
-                         ? VisibleColor.wavelengthToColor( scene.wavelengthProperty.value )
-                         : PARTICLE_BEAM_COLOR;
+                        ? VisibleColor.wavelengthToColor( scene.wavelengthProperty.value )
+                        : PARTICLE_BEAM_COLOR;
 
       // Emitter beam: rectangle from emitter nozzle tip to the left edge of the double slit parallelogram.
       // The nozzle height is 32 (nozzleSize height from LaserPointerNode options).
@@ -763,14 +769,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     // appears below the emitter per the ElectronEmitter.svg design, so the panel goes below it.
     // For photons (no mass label), the panel goes directly below the emitter.
     const updateSourceControlPanelPosition = () => {
-      const isPhoton = model.sceneProperty.value.sourceType === SourceType.PHOTONS;
-      if ( isPhoton ) {
-        const activeEmitter = laserPointerNode;
-        sourceControlPanel.top = activeEmitter.bottom + 14;
-      }
-      else {
-        sourceControlPanel.top = particleMassLabel.bottom + 10;
-      }
+      sourceControlPanel.top = 163;
     };
     model.sceneProperty.link( updateSourceControlPanelPosition );
 

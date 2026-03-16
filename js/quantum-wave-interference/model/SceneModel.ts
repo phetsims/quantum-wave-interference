@@ -163,7 +163,7 @@ export default class SceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.2, 1.0 ); // mm
       this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
       this.screenHalfWidth = 0.005; // 5 mm
-      defaultScreenDistance = 0.5; // Per InitialView.svg design mockup: "0.5 m" is the initial value
+      defaultScreenDistance = 0.8;// start at the max
       defaultVelocity = 0;
     }
     else if ( options.sourceType === SourceType.ELECTRONS ) {
