@@ -2,8 +2,8 @@
   "quantum-wave-interference.title": {
     "value": "Quantum Wave Interference"
   },
-  "screen.name": {
-    "value": "Quantum Wave Interference"
+  "screen.experiment.name": {
+    "value": "Experiment"
   },
   "photons": {
     "value": "Photons"

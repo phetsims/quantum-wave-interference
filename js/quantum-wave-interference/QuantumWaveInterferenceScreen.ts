@@ -21,7 +21,7 @@ export default class QuantumWaveInterferenceScreen extends Screen<QuantumWaveInt
   public constructor( providedOptions: QuantumWaveInterferenceScreenOptions ) {
 
     const options = optionize<QuantumWaveInterferenceScreenOptions, SelfOptions, ScreenOptions>()( {
-      name: QuantumWaveInterferenceFluent.screen.nameStringProperty,
+      name: QuantumWaveInterferenceFluent.screen.experiment.nameStringProperty,
       backgroundColorProperty: QuantumWaveInterferenceColors.screenBackgroundColorProperty
     }, providedOptions );
 

@@ -16,7 +16,9 @@ type StringsType = {
     'titleStringProperty': LocalizedStringProperty;
   };
   'screen': {
-    'nameStringProperty': LocalizedStringProperty;
+    'experiment': {
+      'nameStringProperty': LocalizedStringProperty;
+    }
   };
   'photonsStringProperty': LocalizedStringProperty;
   'electronsStringProperty': LocalizedStringProperty;
