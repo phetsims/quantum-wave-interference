@@ -243,6 +243,15 @@ export default class DetectorScreenNode extends Node {
       }
     } );
 
+    // Close the snapshots dialog when this DetectorScreenNode becomes invisible (i.e., when the
+    // user switches to a different scene). Without this, the dialog would remain open showing
+    // stale snapshot data from the previous scene, which is confusing.
+    this.visibleProperty.lazyLink( visible => {
+      if ( !visible && snapshotsDialog.isShowingProperty.value ) {
+        snapshotsDialog.hide();
+      }
+    } );
+
     // Position eraser button top-aligned to the right of the screen
     eraserButton.left = SCREEN_WIDTH + 6;
     eraserButton.top = 0;
