@@ -196,7 +196,9 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     } );
     this.addChild( particleEmitterNode );
 
-    // Position the mass label below the source label, and the emitter below the mass label (or source label for photons).
+    // Position the emitter directly below the source label, and the mass label below the emitter.
+    // Per the ElectronEmitter.svg design mockup, the mass label appears between the emitter and
+    // the source control panel, not between the source label and the emitter.
     // Toggle visibility of the two emitter nodes based on whether the scene is photons or particles.
     const updateEmitterLayout = () => {
       const isPhoton = model.sceneProperty.value.sourceType === SourceType.PHOTONS;
@@ -206,13 +208,11 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       // The active emitter node for positioning
       const activeEmitter = isPhoton ? laserPointerNode : particleEmitterNode;
 
-      particleMassLabel.top = sourceLabel.bottom + 2;
-      if ( particleMassLabel.visible ) {
-        activeEmitter.top = particleMassLabel.bottom + 4;
-      }
-      else {
-        activeEmitter.top = sourceLabel.bottom + 6;
-      }
+      // Emitter is always directly below the source label, same position for all scenes
+      activeEmitter.top = sourceLabel.bottom + 6;
+
+      // Mass label appears below the emitter (only visible for particle scenes)
+      particleMassLabel.top = activeEmitter.bottom + 4;
     };
 
     model.sceneProperty.link( updateEmitterLayout );
@@ -759,12 +759,18 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     sourceControlPanel.left = laserPointerNode.left;
     this.addChild( sourceControlPanel );
 
-    // Update the source control panel position dynamically. When the scene changes, the active emitter
-    // may move (e.g., the particle mass label pushes the emitter down), so the panel must follow.
+    // Update the source control panel position dynamically. For particle scenes, the mass label
+    // appears below the emitter per the ElectronEmitter.svg design, so the panel goes below it.
+    // For photons (no mass label), the panel goes directly below the emitter.
     const updateSourceControlPanelPosition = () => {
       const isPhoton = model.sceneProperty.value.sourceType === SourceType.PHOTONS;
-      const activeEmitter = isPhoton ? laserPointerNode : particleEmitterNode;
-      sourceControlPanel.top = activeEmitter.bottom + 14;
+      if ( isPhoton ) {
+        const activeEmitter = laserPointerNode;
+        sourceControlPanel.top = activeEmitter.bottom + 14;
+      }
+      else {
+        sourceControlPanel.top = particleMassLabel.bottom + 10;
+      }
     };
     model.sceneProperty.link( updateSourceControlPanelPosition );
 
