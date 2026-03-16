@@ -31,6 +31,10 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
   private brightness = 0.5;
   private isHitsMode = false;
 
+  // Opacity scale for Average Intensity mode: ramps up as data accumulates,
+  // so the theoretical pattern builds up over time.
+  private opacityScale = 0;
+
   // Pre-computed density bins for Hits mode, downsampled from the model's intensityBins.
   // This avoids the O(n) cost of iterating all hits each frame.
   private hitDensityBins: number[] = [];
@@ -70,31 +74,25 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
       this.beamColor = new Color( 255, 255, 255 );
     }
 
-    // Compute intensity values for Average Intensity mode from accumulated bins
-    const bins = sceneModel.intensityBins;
+    // Compute intensity values for Average Intensity mode using the theoretical curve.
+    // Like the graph (GraphAccordionBox), we use getIntensityAtPosition() for a smooth,
+    // clean pattern that responds immediately to parameter changes (wavelength, slit
+    // separation, etc.). The opacity scales with accumulated data so the pattern builds
+    // up over time, matching the design requirement that time controls affect aggregation.
     const maxBin = sceneModel.intensityBinsMax;
-    const numBins = bins.length;
     const NUM_BANDS = 50;
     this.intensityValues = [];
+    const screenHalfWidth = sceneModel.screenHalfWidth;
 
-    if ( maxBin > 0 ) {
-      // Downsample the model's intensity bins to NUM_BANDS for overhead rendering
-      const binsPerBand = numBins / NUM_BANDS;
-      for ( let i = 0; i < NUM_BANDS; i++ ) {
-        const startBin = Math.floor( i * binsPerBand );
-        const endBin = Math.floor( ( i + 1 ) * binsPerBand );
-        let sum = 0;
-        for ( let j = startBin; j < endBin; j++ ) {
-          sum += bins[ j ];
-        }
-        // Average over the bins in this band, normalized by the max
-        this.intensityValues.push( ( sum / ( endBin - startBin ) ) / maxBin );
-      }
-    }
-    else {
-      for ( let i = 0; i < NUM_BANDS; i++ ) {
-        this.intensityValues.push( 0 );
-      }
+    // Opacity scales with total accumulated hits using a logarithmic ramp, so the
+    // pattern appears faintly at first and saturates as data accumulates.
+    const totalHits = sceneModel.totalHitsProperty.value;
+    this.opacityScale = Math.min( 1, Math.log10( totalHits + 1 ) / 2 );
+
+    for ( let i = 0; i < NUM_BANDS; i++ ) {
+      const fraction = ( i + 0.5 ) / NUM_BANDS;
+      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
+      this.intensityValues.push( sceneModel.getIntensityAtPosition( physicalX ) );
     }
 
     // Downsample model intensity bins to density bins for Hits mode rendering.
@@ -131,7 +129,7 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
    * Renders the interference pattern bands on the canvas.
    */
   public paintCanvas( context: CanvasRenderingContext2D ): void {
-    if ( !this.isEmitting && this.hitDensityBins.length === 0 && this.intensityValues.length === 0 ) {
+    if ( !this.isEmitting && this.opacityScale < 0.01 && this.hitDensityMax === 0 ) {
       return;
     }
 
@@ -163,14 +161,19 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
       }
     }
     else {
-      // Average Intensity mode: draw smooth intensity bands from accumulated data.
-      // Data persists even when the emitter is turned off.
+      // Average Intensity mode: draw smooth theoretical intensity bands whose opacity
+      // scales with accumulated data. The theoretical curve provides clean, immediate
+      // feedback while the opacity build-up matches the time-dependent aggregation.
       const NUM_BANDS = this.intensityValues.length;
       const bandWidth = dx / NUM_BANDS;
 
+      if ( this.opacityScale < 0.01 ) {
+        return;
+      }
+
       for ( let i = 0; i < NUM_BANDS; i++ ) {
         const intensity = this.intensityValues[ i ];
-        const alpha = intensity * this.brightness;
+        const alpha = intensity * this.brightness * this.opacityScale;
 
         if ( alpha > 0.01 ) {
           context.fillStyle = `rgba(${r},${g},${b},${alpha})`;
