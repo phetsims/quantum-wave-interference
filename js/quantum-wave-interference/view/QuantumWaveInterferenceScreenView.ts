@@ -847,7 +847,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       playPauseStepButtonOptions: {
         stepForwardButtonOptions: {
           listener: () => {
-            model.sceneProperty.value.step( 1 / 60 ); // Step one frame
+            model.stepForwardInTime( 1 / 60 ); // Step one frame
           }
         },
         playPauseButtonOptions: {
@@ -958,13 +958,6 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     this.graphAccordionBoxes.forEach( box => box.reset() );
   }
 
-  /**
-   * Steps the view.
-   * @param dt - time step, in seconds
-   */
-  public override step( dt: number ): void {
-    // no-op
-  }
 }
 
 quantumWaveInterference.register( 'QuantumWaveInterferenceScreenView', QuantumWaveInterferenceScreenView );

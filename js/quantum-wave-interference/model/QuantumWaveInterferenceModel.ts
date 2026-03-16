@@ -224,7 +224,19 @@ export default class QuantumWaveInterferenceModel implements TModel {
   }
 
   /**
-   * Steps the model forward in time.
+   * Advances the simulation by a fixed time step, stepping the active scene and the stopwatch.
+   * Called directly by the step-forward button (bypassing the isPlaying check and time speed
+   * multiplier), following the pattern in quantum-measurement's stepForwardInTime.
+   * @param dt - time step, in seconds
+   */
+  public stepForwardInTime( dt: number ): void {
+    this.sceneProperty.value.step( dt );
+    this.stopwatch.step( dt );
+  }
+
+  /**
+   * Steps the model forward in time during continuous play. Applies the time speed multiplier
+   * and only runs when the simulation is playing.
    * @param dt - time step, in seconds
    */
   public step( dt: number ): void {
@@ -242,11 +254,7 @@ export default class QuantumWaveInterferenceModel implements TModel {
         effectiveDt = dt;
       }
 
-      // Only step the active scene
-      this.sceneProperty.value.step( effectiveDt );
-
-      // Step the stopwatch with the effective dt so it tracks simulation time, not wall time
-      this.stopwatch.step( effectiveDt );
+      this.stepForwardInTime( effectiveDt );
     }
   }
 }
