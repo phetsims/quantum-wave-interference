@@ -223,10 +223,14 @@ export default class GraphAccordionBox extends Node {
 
   /**
    * Paints the intensity curve as a filled area chart for Average Intensity mode.
-   * The shape traces the intensity values along the top and closes back along the baseline,
-   * creating a filled region that makes the interference pattern visually prominent.
-   * Uses the accumulated intensity bins from the model, so the curve builds up over time
-   * as hits are registered, matching the design requirement for running-average behavior.
+   * Uses the theoretical interference pattern (via sceneModel.getIntensityAtPosition) to produce
+   * the smooth, clean curve shown in the design mockup (IntensityGraph.svg). The theoretical curve
+   * provides immediate, accurate feedback when students change wavelength, slit geometry, or other
+   * parameters, directly supporting the learning goal: "Predict qualitatively and quantitatively
+   * how changing wavelength, particle properties, or slit geometry affects the observed pattern."
+   *
+   * The curve opacity scales with accumulated data so that the graph builds up over time,
+   * matching the design requirement that time controls affect the intensity aggregation rate.
    */
   private paintIntensityCurve( dataPath: Path, sceneModel: SceneModel ): void {
     const maxBin = sceneModel.intensityBinsMax;
@@ -237,18 +241,21 @@ export default class GraphAccordionBox extends Node {
     }
 
     const zoomScale = Utils.linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
-    const bins = sceneModel.intensityBins;
-    const numBins = bins.length;
+    const screenHalfWidth = sceneModel.screenHalfWidth;
+
+    // Number of sample points across the chart for a smooth theoretical curve
+    const NUM_SAMPLES = 200;
     const shape = new Shape();
 
     // Start at the bottom-left corner of the chart
-    const firstX = ( 0.5 / numBins ) * CHART_WIDTH;
+    const firstX = ( 0.5 / NUM_SAMPLES ) * CHART_WIDTH;
     shape.moveTo( firstX, CHART_HEIGHT );
 
-    // Trace the intensity curve along the top
-    for ( let i = 0; i < numBins; i++ ) {
-      const fraction = ( i + 0.5 ) / numBins; // Center of each bin
-      const intensity = bins[ i ] / maxBin; // Normalize to [0, 1]
+    // Trace the theoretical intensity curve across the chart
+    for ( let i = 0; i < NUM_SAMPLES; i++ ) {
+      const fraction = ( i + 0.5 ) / NUM_SAMPLES; // Center of each sample
+      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth; // Map to physical position
+      const intensity = sceneModel.getIntensityAtPosition( physicalX );
 
       const viewX = fraction * CHART_WIDTH;
       const viewY = CHART_HEIGHT - ( intensity * CHART_HEIGHT * zoomScale );
@@ -257,24 +264,30 @@ export default class GraphAccordionBox extends Node {
     }
 
     // Close back to the baseline to form a filled area
-    const lastX = ( ( numBins - 0.5 ) / numBins ) * CHART_WIDTH;
+    const lastX = ( ( NUM_SAMPLES - 0.5 ) / NUM_SAMPLES ) * CHART_WIDTH;
     shape.lineTo( lastX, CHART_HEIGHT );
     shape.close();
 
     dataPath.shape = shape;
     dataPath.lineWidth = 1.5;
 
+    // Opacity scales with total accumulated hits, so the curve builds up over time.
+    // Uses a logarithmic scale so the curve becomes visible quickly but continues
+    // to saturate smoothly as more data accumulates.
+    const totalHits = sceneModel.totalHitsProperty.value;
+    const opacityScale = Math.min( 1, Math.log10( totalHits + 1 ) / 2 );
+
     // Fill and stroke with colors matching the source type. For photons, use the
     // wavelength-derived color so the graph visually matches the detector screen display
     // and the histogram bars (which already use wavelength-dependent colors).
     if ( sceneModel.sourceType === SourceType.PHOTONS ) {
       const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
-      dataPath.fill = color.withAlpha( 0.3 );
-      dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
+      dataPath.fill = color.withAlpha( 0.3 * opacityScale );
+      dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 * opacityScale );
     }
     else {
-      dataPath.fill = 'rgba(100,100,180,0.3)';
-      dataPath.stroke = 'rgba(50,50,130,0.8)';
+      dataPath.fill = `rgba(100,100,180,${0.3 * opacityScale})`;
+      dataPath.stroke = `rgba(50,50,130,${0.8 * opacityScale})`;
     }
   }
 
