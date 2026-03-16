@@ -497,8 +497,11 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
     // The detector screen parallelogram slides horizontally based on screen distance.
     // At max distance, the right edge of the parallelogram aligns with the right edge
-    // of the front-facing detector screen. At min distance, the left edge of the
-    // parallelogram aligns with the left edge of the front-facing detector screen.
+    // of the front-facing detector screen. At min distance, the parallelogram center
+    // aligns with the center of the front-facing detector screen. This right-biased range
+    // keeps the overhead parallelogram above the right portion of the front-facing screen,
+    // matching the design mockup (InitialView.svg) where the overhead detector screen is
+    // positioned near the right edge even at intermediate distances.
     // These reference positions are set after front-facing screens are created (below).
     // For now, define the range bounds — they will be set once front-facing screens are positioned.
     let frontFacingScreenLeft = 0;
@@ -513,10 +516,14 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
       // Interpolate: fraction 0 at min distance, 1 at max distance
       const fraction = ( distance - range.min ) / ( range.max - range.min );
 
-      // At fraction 0 (min distance): parallelogram left edge = front-facing screen left
-      // At fraction 1 (max distance): parallelogram right edge = front-facing screen right
-      const xAtMin = frontFacingScreenLeft;
+      // At fraction 1 (max distance): parallelogram right edge = front-facing screen right edge
       const xAtMax = frontFacingScreenRight - DETECTOR_DX;
+
+      // At fraction 0 (min distance): parallelogram center = front-facing screen center.
+      // This constrains the parallelogram to the right half of the front-facing screen,
+      // matching the design SVG where the overhead parallelogram stays near the right side.
+      const frontFacingScreenCenter = ( frontFacingScreenLeft + frontFacingScreenRight ) / 2;
+      const xAtMin = frontFacingScreenCenter - DETECTOR_DX / 2;
       detectorScreenParallelogram.x = xAtMin + fraction * ( xAtMax - xAtMin );
 
       // Update label above the parallelogram, at the same vertical position as the other
