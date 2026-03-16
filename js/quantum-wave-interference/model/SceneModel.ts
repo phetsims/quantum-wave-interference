@@ -38,6 +38,13 @@ const HELIUM_ATOM_MASS = 6.646e-27;
 // Maximum emission rate in hits per second at full intensity
 const MAX_EMISSION_RATE = 200;
 
+// Maximum number of hit positions to retain in the hits array. When the array exceeds this
+// size by HITS_TRIM_MARGIN, it is trimmed back to MAX_HITS_RETAINED from the front. This
+// prevents unbounded memory growth while the intensityBins continue accumulating correctly.
+// The trim margin amortizes the cost of array splicing across many frames.
+const MAX_HITS_RETAINED = 20000;
+const HITS_TRIM_MARGIN = 2000;
+
 // Maximum iterations for rejection sampling to prevent infinite loops
 const MAX_REJECTION_ITERATIONS = 1000;
 
@@ -480,10 +487,20 @@ export default class SceneModel extends PhetioObject {
       }
     }
 
-    this.totalHitsProperty.value = this.hits.length;
+    this.totalHitsProperty.value += numHits;
     if ( isDetectorActive ) {
       this.detectorHitsProperty.value += detectorHitsThisFrame;
     }
+
+    // Cap the hits array to prevent unbounded memory growth. The intensityBins accumulator
+    // is unaffected since it tracks bin counts independently of the hits array. The render
+    // cap in DetectorScreenCanvasNode (MAX_RENDERED_HITS = 20000) ensures visual correctness
+    // even when old hits are removed. We trim when the array exceeds the cap by a margin to
+    // amortize the O(n) splice cost across many frames.
+    if ( this.hits.length > MAX_HITS_RETAINED + HITS_TRIM_MARGIN ) {
+      this.hits.splice( 0, this.hits.length - MAX_HITS_RETAINED );
+    }
+
     this.hitsChangedEmitter.emit();
   }
 }
