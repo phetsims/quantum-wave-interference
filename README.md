@@ -21,4 +21,3 @@ Join us at the <a href="https://scenerystack.org/community/join/" target="_blank
 ### License
 
 See the <a href="https://github.com/phetsims/quantum-wave-interference/blob/main/LICENSE" target="_blank">LICENSE</a>
-<!-- build harness test -->

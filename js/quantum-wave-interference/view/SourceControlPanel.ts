@@ -144,7 +144,6 @@ export default class SourceControlPanel extends Panel {
           maxWidth: 80
         },
         layoutFunction: NumberControl.createLayoutFunction4( {
-          ySpacing: 3
         } ),
         includeArrowButtons: false,
         tandem: tandem.createTandem( 'wavelengthControl' )
