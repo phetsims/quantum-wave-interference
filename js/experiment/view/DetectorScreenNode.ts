@@ -105,7 +105,63 @@ export default class DetectorScreenNode extends Node {
     const SPAN_TICK_LENGTH = 8;
     const SPAN_ARROW_Y = -10; // y position of the span arrow above the screen
 
-    const scaleArrow = new ArrowNode( 0, SPAN_ARROW_Y, SCREEN_WIDTH, SPAN_ARROW_Y, {
+    // Scale indicator: a span arrow representing a nice round physical width, with the label
+    // to the right. The pixel width is computed from the physical-to-pixel ratio so it is
+    // physically accurate. Choose a round scale value per source type.
+    const halfWidth = sceneModel.screenHalfWidth;
+    const fullPhysicalWidth = halfWidth * 2; // full physical width in meters
+    const metersPerPixel = fullPhysicalWidth / SCREEN_WIDTH;
+
+    // Choose a nice round physical scale value that spans roughly 1/4 of the screen width.
+    // Find the largest power-of-10 in mm (or μm) that fits within about half the screen.
+    const targetPhysicalWidth = fullPhysicalWidth * 0.25; // aim for ~1/4 of screen
+    const targetMM = targetPhysicalWidth * 1e3;
+
+    let scalePhysicalWidth: number; // in meters
+    let scaleLabelString: string;
+
+    if ( targetMM >= 1 ) {
+      // Round down to nearest power of 10 in mm, then pick 1, 2, 5, 10, 20, 50...
+      const orderMM = Math.pow( 10, Math.floor( Math.log10( targetMM ) ) );
+      const niceValues = [ 1, 2, 5, 10 ];
+      let bestMM = orderMM;
+      for ( const n of niceValues ) {
+        if ( orderMM * n <= targetMM * 1.5 ) {
+          bestMM = orderMM * n;
+        }
+      }
+      scalePhysicalWidth = bestMM * 1e-3;
+      scaleLabelString = `${toFixed( bestMM, bestMM % 1 === 0 ? 0 : 1 )} mm`;
+    }
+    else if ( targetMM >= 0.001 ) {
+      // Work in μm
+      const targetUM = targetPhysicalWidth * 1e6;
+      const orderUM = Math.pow( 10, Math.floor( Math.log10( targetUM ) ) );
+      const niceValues = [ 1, 2, 5, 10 ];
+      let bestUM = orderUM;
+      for ( const n of niceValues ) {
+        if ( orderUM * n <= targetUM * 1.5 ) {
+          bestUM = orderUM * n;
+        }
+      }
+      // If the result is >= 1000 μm, express in mm instead
+      if ( bestUM >= 1000 ) {
+        scalePhysicalWidth = bestUM * 1e-6;
+        scaleLabelString = `${toFixed( bestUM / 1000, bestUM % 1000 === 0 ? 0 : 1 )} mm`;
+      }
+      else {
+        scalePhysicalWidth = bestUM * 1e-6;
+        scaleLabelString = `${toFixed( bestUM, bestUM % 1 === 0 ? 0 : 1 )} μm`;
+      }
+    }
+    else {
+      scalePhysicalWidth = targetPhysicalWidth;
+      scaleLabelString = `${toFixed( targetPhysicalWidth * 1e9, 0 )} nm`;
+    }
+
+    const scaleArrowWidth = scalePhysicalWidth / metersPerPixel;
+
+    const scaleArrow = new ArrowNode( 0, SPAN_ARROW_Y, scaleArrowWidth, SPAN_ARROW_Y, {
       headHeight: 5,
       headWidth: 5,
       tailWidth: 1,
@@ -119,35 +175,18 @@ export default class DetectorScreenNode extends Node {
       0, SPAN_ARROW_Y + SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
     this.addChild( scaleLeftTick );
 
-    const scaleRightTick = new Line( SCREEN_WIDTH, SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2,
-      SCREEN_WIDTH, SPAN_ARROW_Y + SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
+    const scaleRightTick = new Line( scaleArrowWidth, SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2,
+      scaleArrowWidth, SPAN_ARROW_Y + SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
     this.addChild( scaleRightTick );
 
-    const scaleLabelText = new Text( '', {
+    const scaleLabelText = new Text( scaleLabelString, {
       font: new PhetFont( 11 ),
       fill: 'black',
-      maxWidth: 100
+      maxWidth: 100,
+      left: scaleArrowWidth + 4,
+      centerY: SPAN_ARROW_Y
     } );
     this.addChild( scaleLabelText );
-
-    // Compute the scale label based on the screen half-width (constant per source type)
-    const halfWidth = sceneModel.screenHalfWidth;
-    const fullWidth = halfWidth * 2;
-
-    // Use mm for values >= 0.1 mm (consistent with slit measurements), μm for smaller values.
-    // The design mockup shows "10 mm" for the photon screen, not "1.0 cm".
-    const fullWidthMM = fullWidth * 1e3;
-    if ( fullWidthMM >= 0.1 ) {
-      // Show integer mm when the value is a whole number, otherwise one decimal place
-      const decimalPlaces = ( fullWidthMM % 1 === 0 ) ? 0 : 1;
-      scaleLabelText.string = `${toFixed( fullWidthMM, decimalPlaces )} mm`;
-    }
-    else {
-      scaleLabelText.string = `${toFixed( fullWidth * 1e6, 1 )} μm`;
-    }
-    // Position scale label on the left side above the screen (per design: scale on left, hit count on right)
-    scaleLabelText.left = 0;
-    scaleLabelText.bottom = SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2 - 2;
 
     // Update the hit count text and canvas when hits change
     const updateDisplay = () => {
