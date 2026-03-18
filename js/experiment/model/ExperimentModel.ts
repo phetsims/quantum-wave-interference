@@ -29,9 +29,9 @@ import SourceType from './SourceType.js';
 
 type SelfOptions = EmptySelfOptions;
 
-type QuantumWaveInterferenceModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
+type ExperimentModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
 
-export default class QuantumWaveInterferenceModel implements TModel {
+export default class ExperimentModel implements TModel {
 
   // The four scene models, one per source type
   public readonly photonsScene: SceneModel;
@@ -54,7 +54,7 @@ export default class QuantumWaveInterferenceModel implements TModel {
   // Shared state: stopwatch for timing experiments
   public readonly stopwatch: Stopwatch;
 
-  public constructor( providedOptions: QuantumWaveInterferenceModelOptions ) {
+  public constructor( providedOptions: ExperimentModelOptions ) {
 
     const tandem = providedOptions.tandem;
     const scenesTandem = tandem.createTandem( 'scenes' );
@@ -259,4 +259,4 @@ export default class QuantumWaveInterferenceModel implements TModel {
   }
 }
 
-quantumWaveInterference.register( 'QuantumWaveInterferenceModel', QuantumWaveInterferenceModel );
+quantumWaveInterference.register( 'ExperimentModel', ExperimentModel );

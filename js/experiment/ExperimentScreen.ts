@@ -9,28 +9,28 @@ import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js'
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
 import quantumWaveInterference from '../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
-import QuantumWaveInterferenceModel from './model/QuantumWaveInterferenceModel.js';
-import QuantumWaveInterferenceScreenView from './view/QuantumWaveInterferenceScreenView.js';
+import ExperimentModel from './model/ExperimentModel.js';
+import ExperimentScreenView from './view/ExperimentScreenView.js';
 
 type SelfOptions = EmptySelfOptions;
 
-type QuantumWaveInterferenceScreenOptions = SelfOptions & ScreenOptions;
+type ExperimentScreenOptions = SelfOptions & ScreenOptions;
 
-export default class QuantumWaveInterferenceScreen extends Screen<QuantumWaveInterferenceModel, QuantumWaveInterferenceScreenView> {
+export default class ExperimentScreen extends Screen<ExperimentModel, ExperimentScreenView> {
 
-  public constructor( providedOptions: QuantumWaveInterferenceScreenOptions ) {
+  public constructor( providedOptions: ExperimentScreenOptions ) {
 
-    const options = optionize<QuantumWaveInterferenceScreenOptions, SelfOptions, ScreenOptions>()( {
+    const options = optionize<ExperimentScreenOptions, SelfOptions, ScreenOptions>()( {
       name: QuantumWaveInterferenceFluent.screen.experiment.nameStringProperty,
       backgroundColorProperty: QuantumWaveInterferenceColors.screenBackgroundColorProperty
     }, providedOptions );
 
     super(
-      () => new QuantumWaveInterferenceModel( { tandem: options.tandem.createTandem( 'model' ) } ),
-      model => new QuantumWaveInterferenceScreenView( model, { tandem: options.tandem.createTandem( 'view' ) } ),
+      () => new ExperimentModel( { tandem: options.tandem.createTandem( 'model' ) } ),
+      model => new ExperimentScreenView( model, { tandem: options.tandem.createTandem( 'view' ) } ),
       options
     );
   }
 }
 
-quantumWaveInterference.register( 'QuantumWaveInterferenceScreen', QuantumWaveInterferenceScreen );
+quantumWaveInterference.register( 'ExperimentScreen', ExperimentScreen );

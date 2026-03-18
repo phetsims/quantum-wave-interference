@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * QuantumWaveInterferenceScreenView is the top-level view for the Quantum Wave Interference simulation.
+ * ExperimentScreenView is the top-level view for the Quantum Wave Interference simulation.
  * It contains three visual "rows": the top row with the emitter, double slit, and detector screen
  * in overhead perspective; the middle row with controls and front-facing views; and the bottom row
  * with scene selectors, slit controls, and screen settings.
@@ -42,7 +42,7 @@ import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInte
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import DetectionMode from '../model/DetectionMode.js';
-import QuantumWaveInterferenceModel from '../model/QuantumWaveInterferenceModel.js';
+import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
 import SlitSetting from '../model/SlitSetting.js';
 import SourceType from '../model/SourceType.js';
@@ -66,9 +66,9 @@ const FRONT_FACING_ROW_TOP = 165;
 
 type SelfOptions = EmptySelfOptions;
 
-type QuantumWaveInterferenceScreenViewOptions = SelfOptions & ScreenViewOptions;
+type ExperimentScreenViewOptions = SelfOptions & ScreenViewOptions;
 
-export default class QuantumWaveInterferenceScreenView extends ScreenView {
+export default class ExperimentScreenView extends ScreenView {
 
   private readonly graphAccordionBoxes: GraphAccordionBox[];
 
@@ -76,9 +76,9 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
   // scenes preserves the open/closed state per the design requirement.
   private readonly graphExpandedProperty: BooleanProperty;
 
-  public constructor( model: QuantumWaveInterferenceModel, providedOptions: QuantumWaveInterferenceScreenViewOptions ) {
+  public constructor( model: ExperimentModel, providedOptions: ExperimentScreenViewOptions ) {
 
-    const options = optionize<QuantumWaveInterferenceScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
+    const options = optionize<ExperimentScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
 
     super( options );
 
@@ -242,7 +242,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
     // Double slit parallelogram (overhead perspective view)
     // Based on SVG: left edge height 50, right edge offset (51, 21)
-    const doubleSlitNode = QuantumWaveInterferenceScreenView.createParallelogramNode( 51, 21, 50, 'black' );
+    const doubleSlitNode = ExperimentScreenView.createParallelogramNode( 51, 21, 50, 'black' );
     doubleSlitNode.x = 365;
     doubleSlitNode.y = 45;
     this.addChild( doubleSlitNode );
@@ -459,7 +459,7 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
     const DETECTOR_DX = 60;
     const DETECTOR_DY = 24;
     const DETECTOR_LEFT_HEIGHT = 48;
-    const detectorScreenParallelogram = QuantumWaveInterferenceScreenView.createParallelogramNode(
+    const detectorScreenParallelogram = ExperimentScreenView.createParallelogramNode(
       DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT, 'black' );
     detectorScreenParallelogram.y = 48;
     this.addChild( detectorScreenParallelogram );
@@ -965,4 +965,4 @@ export default class QuantumWaveInterferenceScreenView extends ScreenView {
 
 }
 
-quantumWaveInterference.register( 'QuantumWaveInterferenceScreenView', QuantumWaveInterferenceScreenView );
+quantumWaveInterference.register( 'ExperimentScreenView', ExperimentScreenView );

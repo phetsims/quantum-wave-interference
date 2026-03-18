@@ -9,7 +9,7 @@
 import Sim, { SimOptions } from '../../joist/js/Sim.js';
 import simLauncher from '../../joist/js/simLauncher.js';
 import Tandem from '../../tandem/js/Tandem.js';
-import QuantumWaveInterferenceScreen from './quantum-wave-interference/QuantumWaveInterferenceScreen.js';
+import ExperimentScreen from './experiment/ExperimentScreen.js';
 import QuantumWaveInterferenceFluent from './QuantumWaveInterferenceFluent.js';
 import './common/QuantumWaveInterferenceQueryParameters.js';
 
@@ -20,7 +20,7 @@ simLauncher.launch( () => {
   const titleStringProperty = QuantumWaveInterferenceFluent[ 'quantum-wave-interference' ].titleStringProperty;
 
   const screens = [
-    new QuantumWaveInterferenceScreen( { tandem: Tandem.ROOT.createTandem( 'quantumWaveInterferenceScreen' ) } )
+    new ExperimentScreen( { tandem: Tandem.ROOT.createTandem( 'experimentScreen' ) } )
   ];
 
   const options: SimOptions = {
