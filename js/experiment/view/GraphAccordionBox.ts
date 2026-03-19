@@ -250,7 +250,7 @@ export default class GraphAccordionBox extends Node {
     const screenHalfWidth = sceneModel.screenHalfWidth;
 
     // Number of sample points across the chart for a smooth theoretical curve
-    const NUM_SAMPLES = 200;
+    const NUM_SAMPLES = 1000;
     const shape = new Shape();
 
     // Start at the bottom-left corner of the chart
