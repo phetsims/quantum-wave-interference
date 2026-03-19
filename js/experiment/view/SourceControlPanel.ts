@@ -163,7 +163,7 @@ export default class SourceControlPanel extends Panel {
     if ( scene.sourceType === 'photons' ) {
       // Wavelength control with spectrum slider
       topControl = new WavelengthNumberControl( scene.wavelengthProperty, {
-        range: new Range( 380, 780 ),
+        range: new Range( 400, 700 ),
         spectrumSliderTrackOptions: {
           size: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, 15 )
         },
