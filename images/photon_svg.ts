@@ -1,0 +1,10 @@
+/* eslint-disable */
+/* @formatter:off */
+
+import asyncLoader from '../../phet-core/js/asyncLoader.js';
+
+const image = new Image();
+const unlock = asyncLoader.createLock( image );
+image.onload = unlock;
+image.src = `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="25.93" height="25.93" data-name="Layer 2" viewBox="0 0 25.93 25.93"><defs><radialGradient id="a" cx="12.97" cy="12.97" r="12.97" fx="12.97" fy="12.97" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3cf"/><stop offset=".2" stop-color="#3cf" stop-opacity=".99"/><stop offset=".33" stop-color="#3cf" stop-opacity=".95"/><stop offset=".45" stop-color="#33cdff" stop-opacity=".89"/><stop offset=".55" stop-color="#33cdff" stop-opacity=".81"/><stop offset=".65" stop-color="#33cfff" stop-opacity=".7"/><stop offset=".74" stop-color="#33d0ff" stop-opacity=".56"/><stop offset=".83" stop-color="#33d1ff" stop-opacity=".4"/><stop offset=".92" stop-color="#33d3ff" stop-opacity=".22"/><stop offset="1" stop-color="#33d5ff" stop-opacity=".01"/><stop offset="1" stop-color="#33d6ff" stop-opacity="0"/></radialGradient><radialGradient id="b" cx="12.97" cy="12.97" r="7.36" fx="12.97" fy="12.97" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4cceff"/><stop offset=".32" stop-color="#48cdff"/><stop offset=".57" stop-color="#3eccff"/><stop offset=".81" stop-color="#2dcaff"/><stop offset="1" stop-color="#1ac9ff"/></radialGradient></defs><g data-name="Layer 1"><circle cx="12.97" cy="12.97" r="12.97" style="fill:url(#a)"/><circle cx="12.97" cy="12.97" r="7.36" style="fill:url(#b);opacity:.8"/><path d="m14.89 14 7.25-1.03-7.25-1.04 2.66-3.55L14 11.05 12.97 3.8l-1.04 7.25-3.55-2.67 2.67 3.55-7.25 1.04L11.05 14l-2.67 3.55 3.55-2.66 1.04 7.25L14 14.89l3.55 2.66z" style="opacity:.5;fill:#fff"/><path d="m12.97 10.99.37 1.08 1.03-.5-.51 1.03 1.09.37-1.09.37.51 1.03-1.03-.51-.37 1.09-.37-1.09-1.03.51.5-1.03-1.08-.37 1.08-.37-.5-1.03 1.03.5z" style="fill:#fff;opacity:.6"/></g></svg>')}`;
+export default image;

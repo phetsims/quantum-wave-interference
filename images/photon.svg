@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="25.93" height="25.93" viewBox="0 0 25.93 25.93">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#radial-gradient-2);
+        opacity: .8;
+      }
+
+      .cls-2 {
+        fill: url(#radial-gradient);
+      }
+
+      .cls-3 {
+        opacity: .5;
+      }
+
+      .cls-3, .cls-4 {
+        fill: #fff;
+      }
+
+      .cls-4 {
+        opacity: .6;
+      }
+    </style>
+    <radialGradient id="radial-gradient" cx="12.97" cy="12.97" fx="12.97" fy="12.97" r="12.97" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3cf"/>
+      <stop offset=".2" stop-color="#3cf" stop-opacity=".99"/>
+      <stop offset=".33" stop-color="#3cf" stop-opacity=".95"/>
+      <stop offset=".45" stop-color="#33cdff" stop-opacity=".89"/>
+      <stop offset=".55" stop-color="#33cdff" stop-opacity=".81"/>
+      <stop offset=".65" stop-color="#33cfff" stop-opacity=".7"/>
+      <stop offset=".74" stop-color="#33d0ff" stop-opacity=".56"/>
+      <stop offset=".83" stop-color="#33d1ff" stop-opacity=".4"/>
+      <stop offset=".92" stop-color="#33d3ff" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#33d5ff" stop-opacity=".01"/>
+      <stop offset="1" stop-color="#33d6ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="radial-gradient-2" cx="12.97" cy="12.97" fx="12.97" fy="12.97" r="7.36" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4cceff"/>
+      <stop offset=".32" stop-color="#48cdff"/>
+      <stop offset=".57" stop-color="#3eccff"/>
+      <stop offset=".81" stop-color="#2dcaff"/>
+      <stop offset="1" stop-color="#1ac9ff"/>
+    </radialGradient>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <circle class="cls-2" cx="12.97" cy="12.97" r="12.97"/>
+      <circle class="cls-1" cx="12.97" cy="12.97" r="7.36"/>
+      <polygon class="cls-3" points="14.89 14 22.14 12.97 14.89 11.93 17.55 8.38 14 11.05 12.97 3.8 11.93 11.05 8.38 8.38 11.05 11.93 3.8 12.97 11.05 14 8.38 17.55 11.93 14.89 12.97 22.14 14 14.89 17.55 17.55 14.89 14"/>
+      <polygon class="cls-4" points="12.97 10.99 13.34 12.07 14.37 11.57 13.86 12.6 14.95 12.97 13.86 13.34 14.37 14.37 13.34 13.86 12.97 14.95 12.6 13.86 11.57 14.37 12.07 13.34 10.99 12.97 12.07 12.6 11.57 11.57 12.6 12.07 12.97 10.99"/>
+    </g>
+  </g>
+</svg>
