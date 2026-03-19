@@ -11,8 +11,8 @@
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Shape from '../../../../kite/js/Shape.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import Color from '../../../../scenery/js/util/Color.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
+import Color from '../../../../scenery/js/util/Color.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import SceneModel from '../model/SceneModel.js';
 

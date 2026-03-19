@@ -12,11 +12,12 @@
  */
 
 import Property from '../../../../axon/js/Property.js';
+import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import Utils from '../../../../dot/js/Utils.js';
-import Dimension2 from '../../../../dot/js/Dimension2.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
@@ -24,9 +25,8 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import { type SlitSetting } from '../model/SlitSetting.js';

@@ -25,8 +25,8 @@ export default class QuantumWaveInterferenceColors {
 
   public static readonly screenBackgroundColorProperty = new ProfileColorProperty(
     quantumWaveInterference, 'screenBackgroundColor', {
-    default: 'white'
-  } );
+      default: 'white'
+    } );
 }
 
 quantumWaveInterference.register( 'QuantumWaveInterferenceColors', QuantumWaveInterferenceColors );

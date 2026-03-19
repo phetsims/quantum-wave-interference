@@ -17,11 +17,11 @@ import { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
-import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
+import quantumWaveInterference from '../../quantumWaveInterference.js';
 import SceneModel from './SceneModel.js';
 import { type SlitSetting, SlitSettingValues } from './SlitSetting.js';
 

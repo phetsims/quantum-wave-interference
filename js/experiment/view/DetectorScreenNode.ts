@@ -10,10 +10,11 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import Utils from '../../../../dot/js/Utils.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
+import Utils from '../../../../dot/js/Utils.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -31,9 +32,8 @@ import cameraSolidShape from '../../../../sherpa/js/fontawesome-5/cameraSolidSha
 import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import SnapshotsDialog from './SnapshotsDialog.js';

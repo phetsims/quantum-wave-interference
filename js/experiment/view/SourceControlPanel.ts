@@ -14,10 +14,11 @@
 import Property from '../../../../axon/js/Property.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
-import Utils from '../../../../dot/js/Utils.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
+import Utils from '../../../../dot/js/Utils.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import WavelengthNumberControl from '../../../../scenery-phet/js/WavelengthNumberControl.js';
@@ -27,7 +28,6 @@ import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
@@ -103,8 +103,8 @@ export default class SourceControlPanel extends Panel {
     // Photon scenes use "Intensity" while particle scenes use "Emission Rate" per the
     // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
     const intensityLabelStringProperty = scene.sourceType === 'photons'
-                                          ? QuantumWaveInterferenceFluent.intensityStringProperty
-                                          : QuantumWaveInterferenceFluent.emissionRateStringProperty;
+                                         ? QuantumWaveInterferenceFluent.intensityStringProperty
+                                         : QuantumWaveInterferenceFluent.emissionRateStringProperty;
     const intensityLabel = new Text( intensityLabelStringProperty, {
       font: TITLE_FONT,
       maxWidth: 120
@@ -142,8 +142,7 @@ export default class SourceControlPanel extends Panel {
           },
           maxWidth: 80
         },
-        layoutFunction: NumberControl.createLayoutFunction4( {
-        } ),
+        layoutFunction: NumberControl.createLayoutFunction4( {} ),
         includeArrowButtons: false,
         tandem: tandem.createTandem( 'wavelengthControl' )
       } );

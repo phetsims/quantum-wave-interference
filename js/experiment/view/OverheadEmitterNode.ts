@@ -10,8 +10,8 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
-import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import Dimension2 from '../../../../dot/js/Dimension2.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';

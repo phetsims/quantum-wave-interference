@@ -8,13 +8,13 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import Shape from '../../../../kite/js/Shape.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Color from '../../../../scenery/js/util/Color.js';
-import Shape from '../../../../kite/js/Shape.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';

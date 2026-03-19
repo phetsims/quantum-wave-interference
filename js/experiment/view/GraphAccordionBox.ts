@@ -10,23 +10,23 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
+import Property from '../../../../axon/js/Property.js';
 import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
 import Utils from '../../../../dot/js/Utils.js';
 import Shape from '../../../../kite/js/Shape.js';
-import Property from '../../../../axon/js/Property.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import MagnifyingGlassZoomButtonGroup from '../../../../scenery-phet/js/MagnifyingGlassZoomButtonGroup.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
+import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import Line from '../../../../scenery/js/nodes/Line.js';
-import MagnifyingGlassZoomButtonGroup from '../../../../scenery-phet/js/MagnifyingGlassZoomButtonGroup.js';
 import AccordionBox from '../../../../sun/js/AccordionBox.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 

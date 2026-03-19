@@ -8,19 +8,19 @@
  */
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Emitter from '../../../../axon/js/Emitter.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
+import Property from '../../../../axon/js/Property.js';
 import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import TEmitter from '../../../../axon/js/TEmitter.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import Property from '../../../../axon/js/Property.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { type SlitSetting, SlitSettingValues } from './SlitSetting.js';

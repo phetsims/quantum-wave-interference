@@ -16,13 +16,13 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import Color from '../../../../scenery/js/util/Color.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
+import Color from '../../../../scenery/js/util/Color.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import quantumWaveInterference from '../../quantumWaveInterference.js';
 import SceneModel from '../model/SceneModel.js';
 
 const VIEW_WIDTH = QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH;
@@ -117,8 +117,8 @@ export default class FrontFacingSlitNode extends Node {
 
       beamOverlay.visible = true;
       const beamColor = sceneModel.sourceType === 'photons'
-                         ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
-                         : PARTICLE_BEAM_COLOR;
+                        ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
+                        : PARTICLE_BEAM_COLOR;
       beamOverlay.fill = beamColor.withAlpha( 0.15 + 0.35 * intensity );
 
       // Slit openings glow with a brighter version of the beam color

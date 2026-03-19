@@ -15,18 +15,18 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import Utils from '../../../../dot/js/Utils.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
+import Utils from '../../../../dot/js/Utils.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import TrashButton from '../../../../scenery-phet/js/buttons/TrashButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
+import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
@@ -142,8 +142,8 @@ export default class SnapshotNode extends Node {
 
         // Detection mode
         detectionModeText.string = snapshot.detectionMode === 'hits'
-                                    ? QuantumWaveInterferenceFluent.hitsStringProperty.value
-                                    : QuantumWaveInterferenceFluent.averageIntensityStringProperty.value;
+                                   ? QuantumWaveInterferenceFluent.hitsStringProperty.value
+                                   : QuantumWaveInterferenceFluent.averageIntensityStringProperty.value;
       }
 
       titleText.left = 6;
