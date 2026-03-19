@@ -56,12 +56,8 @@ export default class GraphAccordionBox extends Node {
   private readonly accordionBox: AccordionBox;
   private readonly zoomLevelProperty: NumberProperty;
 
-  // Exposed so ExperimentScreenView can use ManualConstraint to align the chart area
-  // horizontally with the front-facing detector screen (which is in a different coordinate frame).
-  public readonly chartBackground: Rectangle;
-
-  // Exposed so ExperimentScreenView can align the zoom buttons' right edge with the layout bounds.
-  public readonly zoomButtonGroup: MagnifyingGlassZoomButtonGroup;
+  private readonly chartBackground: Rectangle;
+  private readonly zoomButtonGroup: MagnifyingGlassZoomButtonGroup;
 
   public constructor( sceneModel: SceneModel, providedOptions: GraphAccordionBoxOptions ) {
 

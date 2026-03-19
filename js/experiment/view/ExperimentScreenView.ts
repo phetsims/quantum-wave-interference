@@ -17,7 +17,6 @@ import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import Shape from '../../../../kite/js/Shape.js';
-import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
@@ -691,17 +690,21 @@ export default class ExperimentScreenView extends ScreenView {
     const controlsRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
-      const detectorScreen = new DetectorScreenNode( scene, {
+      return new DetectorScreenNode( scene, {
         tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
       } );
-      // Position so the rightmost button's right edge = controlsRight.
-      // The screen rect right = controlsRight - buttonsWidth - INTERNAL_PADDING.
-      detectorScreen.x = controlsRight - detectorScreen.localBounds.maxX;
-      // Use y (not top) to position the background rect at FRONT_FACING_ROW_TOP.
+    } );
+
+    // All detector screens must share the same x position so the layout doesn't shift when
+    // switching scenes. Use the max localBounds.maxX across all scenes (which varies due to
+    // different scale indicator widths) to determine the shared position.
+    const maxLocalRight = Math.max( ...detectorScreenNodes.map( ds => ds.localBounds.maxX ) );
+    const detectorScreenX = controlsRight - maxLocalRight;
+    for ( const detectorScreen of detectorScreenNodes ) {
+      detectorScreen.x = detectorScreenX;
       detectorScreen.y = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_TOP;
       this.addChild( detectorScreen );
-      return detectorScreen;
-    } );
+    }
 
     // Set the reference bounds for the overhead parallelogram's horizontal range.
     // Use the screen rect bounds (not the full node bounds which include buttons).
@@ -721,44 +724,21 @@ export default class ExperimentScreenView extends ScreenView {
       } );
 
     // Graph accordion box - one per scene, positioned below the front-facing detector screen.
-    // A ManualConstraint aligns each graph's chart area left edge with the detector screen's
-    // left edge, accounting for the AccordionBox's internal padding and y-axis label.
+    // Positioned statically so the zoom buttons' right edge aligns with controlsRight.
+    // All graphBoxes have the same localBounds (same accordion width, same zoom button size),
+    // so they all get the same x position — no per-scene variation, no ManualConstraint needed.
     const graphTandem = options.tandem.createTandem( 'graphAccordionBoxes' );
     this.graphAccordionBoxes = model.scenes.map( ( scene, index ) => {
       const graphBox = new GraphAccordionBox( scene, {
         expandedProperty: this.graphExpandedProperty,
         tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
       } );
+      graphBox.x = controlsRight - graphBox.localBounds.maxX;
       graphBox.top = detectorScreenNodes[ 0 ].bottom + 8;
       this.addChild( graphBox );
 
-      const detectorScreen = detectorScreenNodes[ index ];
-      ManualConstraint.create( this, [ graphBox, detectorScreen ], ( graphBoxProxy, detectorScreenProxy ) => {
-
-        // Align the chart background's left edge (in the ScreenView coordinate frame) with
-        // the detector screen's left edge. The chart background is nested inside the
-        // AccordionBox, so we convert its local origin to global coordinates to find the offset.
-        const chartGlobalLeft = graphBox.chartBackground.parentToGlobalPoint(
-          graphBox.chartBackground.leftTop ).x;
-        const graphBoxGlobalLeft = graphBoxProxy.left;
-        const chartOffset = chartGlobalLeft - graphBoxGlobalLeft;
-
-        graphBoxProxy.left = detectorScreenProxy.left - chartOffset;
-      } );
-
       return graphBox;
     } );
-
-    // Align the zoom buttons' right edge with the layout bounds right margin.
-    for ( let i = 0; i < model.scenes.length; i++ ) {
-      const graphBox = this.graphAccordionBoxes[ i ];
-
-      ManualConstraint.create( this, [ graphBox ], () => {
-        const zoomGlobalRight = graphBox.zoomButtonGroup.parentToGlobalPoint(
-          graphBox.zoomButtonGroup.rightTop ).x;
-        graphBox.zoomButtonGroup.right = graphBox.zoomButtonGroup.right + ( controlsRight - zoomGlobalRight );
-      } );
-    }
 
     // Toggle visibility of front-facing slits, detector screens, and graphs based on the selected scene
     model.sceneProperty.link( selectedScene => {
