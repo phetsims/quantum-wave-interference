@@ -55,7 +55,6 @@ addToMapIfDefined( 'intensityGraph', 'intensityGraphStringProperty' );
 addToMapIfDefined( 'hitsGraph', 'hitsGraphStringProperty' );
 addToMapIfDefined( 'count', 'countStringProperty' );
 addToMapIfDefined( 'ruler', 'rulerStringProperty' );
-addToMapIfDefined( 'stopwatch', 'stopwatchStringProperty' );
 addToMapIfDefined( 'centimeters', 'centimetersStringProperty' );
 addToMapIfDefined( 'detector', 'detectorStringProperty' );
 
@@ -115,7 +114,6 @@ const QuantumWaveInterferenceFluent = {
   countStringProperty: _.get( QuantumWaveInterferenceStrings, 'countStringProperty' ),
   snapshotNumberPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotNumberPatternStringProperty' ),
   rulerStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerStringProperty' ),
-  stopwatchStringProperty: _.get( QuantumWaveInterferenceStrings, 'stopwatchStringProperty' ),
   centimetersStringProperty: _.get( QuantumWaveInterferenceStrings, 'centimetersStringProperty' ),
   detectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorStringProperty' ),
   wavelengthPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'wavelengthPatternStringProperty' ),

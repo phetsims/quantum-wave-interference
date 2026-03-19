@@ -56,7 +56,6 @@ type StringsType = {
   'countStringProperty': LocalizedStringProperty;
   'snapshotNumberPatternStringProperty': LocalizedStringProperty;
   'rulerStringProperty': LocalizedStringProperty;
-  'stopwatchStringProperty': LocalizedStringProperty;
   'centimetersStringProperty': LocalizedStringProperty;
   'detectorStringProperty': LocalizedStringProperty;
   'wavelengthPatternStringProperty': LocalizedStringProperty;
