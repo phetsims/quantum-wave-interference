@@ -17,6 +17,7 @@ import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import Shape from '../../../../kite/js/Shape.js';
+import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
@@ -717,17 +718,32 @@ export default class ExperimentScreenView extends ScreenView {
         tandem: options.tandem.createTandem( 'graphExpandedProperty' )
       } );
 
-    // Graph accordion box - one per scene, positioned below the front-facing detector screen
+    // Graph accordion box - one per scene, positioned below the front-facing detector screen.
+    // A ManualConstraint aligns each graph's chart area left edge with the detector screen's
+    // left edge, accounting for the AccordionBox's internal padding and y-axis label.
     const graphTandem = options.tandem.createTandem( 'graphAccordionBoxes' );
     this.graphAccordionBoxes = model.scenes.map( ( scene, index ) => {
       const graphBox = new GraphAccordionBox( scene, {
         expandedProperty: this.graphExpandedProperty,
         tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
       } );
-      // Position below the front-facing detector screen, left-aligned
-      graphBox.left = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_RIGHT - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
       graphBox.top = detectorScreenNodes[ 0 ].bottom + 8;
       this.addChild( graphBox );
+
+      const detectorScreen = detectorScreenNodes[ index ];
+      ManualConstraint.create( this, [ graphBox, detectorScreen ], ( graphBoxProxy, detectorScreenProxy ) => {
+
+        // Align the chart background's left edge (in the ScreenView coordinate frame) with
+        // the detector screen's left edge. The chart background is nested inside the
+        // AccordionBox, so we convert its local origin to global coordinates to find the offset.
+        const chartGlobalLeft = graphBox.chartBackground.parentToGlobalPoint(
+          graphBox.chartBackground.leftTop ).x;
+        const graphBoxGlobalLeft = graphBoxProxy.left;
+        const chartOffset = chartGlobalLeft - graphBoxGlobalLeft;
+
+        graphBoxProxy.left = detectorScreenProxy.left - chartOffset;
+      } );
+
       return graphBox;
     } );
 

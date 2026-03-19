@@ -56,6 +56,10 @@ export default class GraphAccordionBox extends Node {
   private readonly accordionBox: AccordionBox;
   private readonly zoomLevelProperty: NumberProperty;
 
+  // Exposed so ExperimentScreenView can use ManualConstraint to align the chart area
+  // horizontally with the front-facing detector screen (which is in a different coordinate frame).
+  public readonly chartBackground: Rectangle;
+
   public constructor( sceneModel: SceneModel, providedOptions: GraphAccordionBoxOptions ) {
 
     const options = optionize<GraphAccordionBoxOptions, SelfOptions, NodeOptions>()( {}, providedOptions );
@@ -71,11 +75,12 @@ export default class GraphAccordionBox extends Node {
     } );
 
     // White chart background with border
-    const chartBackground = new Rectangle( 0, 0, CHART_WIDTH, CHART_HEIGHT, {
+    this.chartBackground = new Rectangle( 0, 0, CHART_WIDTH, CHART_HEIGHT, {
       fill: 'white',
       stroke: 'black',
       lineWidth: 1
     } );
+    const chartBackground = this.chartBackground;
 
     // Grid lines matching the design mockup: evenly-spaced horizontal and vertical lines
     // create a grid that helps correlate graph peaks with detector screen positions.
