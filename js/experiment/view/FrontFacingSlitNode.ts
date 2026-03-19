@@ -22,15 +22,13 @@ import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import SlitSetting from '../model/SlitSetting.js';
 import SourceType from '../model/SourceType.js';
 
-// Dimensions of the front-facing slit view. Width is narrower than the detector screen,
-// matching the design mockup proportions where the slit view and detector screen are
-// clearly separate elements with a visible gap between them.
-const VIEW_WIDTH = 170;
-const VIEW_HEIGHT = 155;
+const VIEW_WIDTH = QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH;
+const VIEW_HEIGHT = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_HEIGHT;
 const VIEW_CORNER_RADIUS = 10;
 
 // Slit visual dimensions

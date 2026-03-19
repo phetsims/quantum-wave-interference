@@ -32,19 +32,16 @@ import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushBut
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import DetectionMode from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 import SourceType from '../model/SourceType.js';
 
-// Dimensions of the front-facing detector screen display.
-// Width matches the design mockup SVG (approximately 398px in the mockup; we use 370 to leave
-// comfortable margins for the eraser/snapshot buttons to the right). Height matches the
-// front-facing slit view (155px) per the design mockup.
-export const DETECTOR_SCREEN_RECT_WIDTH = 370;
-const SCREEN_WIDTH = DETECTOR_SCREEN_RECT_WIDTH;
-const SCREEN_HEIGHT = 155;
+// Dimensions of the front-facing detector screen display, sourced from shared layout constants.
+const SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
+const SCREEN_HEIGHT = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 10;
 
 // Hit dot rendering: a bright core with a soft halo to match the design mockup's

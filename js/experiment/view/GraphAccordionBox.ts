@@ -26,13 +26,14 @@ import Line from '../../../../scenery/js/nodes/Line.js';
 import MagnifyingGlassZoomButtonGroup from '../../../../scenery-phet/js/MagnifyingGlassZoomButtonGroup.js';
 import AccordionBox from '../../../../sun/js/AccordionBox.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import DetectionMode from '../model/DetectionMode.js';
 import SourceType from '../model/SourceType.js';
 
-// Chart dimensions
-const CHART_WIDTH = 370; // Same width as the front-facing detector screen
+// Chart dimensions — width matches the front-facing detector screen.
+const CHART_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
 const CHART_HEIGHT = 80;
 
 // Number of bins for the histogram in Hits mode

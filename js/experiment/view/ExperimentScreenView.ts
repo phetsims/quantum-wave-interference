@@ -46,7 +46,7 @@ import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
 import SlitSetting from '../model/SlitSetting.js';
 import SourceType from '../model/SourceType.js';
-import DetectorScreenNode, { DETECTOR_SCREEN_RECT_WIDTH } from './DetectorScreenNode.js';
+import DetectorScreenNode from './DetectorScreenNode.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
 import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
@@ -58,11 +58,6 @@ import SourceControlPanel from './SourceControlPanel.js';
 // Layout constants derived from the design mockup (1024x618 layout bounds)
 const LABEL_FONT = new PhetFont( 16 );
 const LABEL_Y = 30; // y position for top-row labels
-
-// Y position where the front-facing view backgrounds start. This must be far enough below the
-// overhead row (parallelograms, beams, distance span) to avoid overlapping the distance readout
-// text with the scale indicator labels above the front-facing detector screen.
-const FRONT_FACING_ROW_TOP = 165;
 
 type SelfOptions = EmptySelfOptions;
 
@@ -680,34 +675,26 @@ export default class ExperimentScreenView extends ScreenView {
       const slitNode = new FrontFacingSlitNode( scene, {
         tandem: frontFacingSlitTandem.createTandem( `frontFacingSlitNode${index}` )
       } );
-      // Position in the middle column, centered under the overhead double slit parallelogram.
       // Use y (not top) because the slit width span extends above y=0 in the node's coordinate frame.
       // y sets the background rect top; the slit width span extends above this.
-      slitNode.centerX = doubleSlitNode.centerX;
-      slitNode.y = FRONT_FACING_ROW_TOP;
+      slitNode.left = QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_LEFT;
+      slitNode.y = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_TOP;
       this.addChild( slitNode );
       return slitNode;
     } );
 
     // Front-facing detector screen - one per scene, with visibility toggling.
     // The front-facing screen has a fixed position; the overhead parallelogram slides above it.
-    // Position is based on the screen rect's right edge (not the full node bounds, which include
-    // buttons extending past the screen rect). This creates proper spacing between the slit view
-    // and the detector screen, matching the design mockup where the detector screen extends
-    // to approximately x=950 in the 1024-wide layout.
-    const FRONT_FACING_SCREEN_RECT_RIGHT = 920; // Right edge of the screen rect (not buttons)
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
       const detectorScreen = new DetectorScreenNode( scene, {
         tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
       } );
-      // Position so the screen rect's right edge is at FRONT_FACING_SCREEN_RECT_RIGHT.
+      // Position so the screen rect's right edge is at DETECTOR_SCREEN_RIGHT.
       // The screen rect starts at local x=0, so .x = desired right edge - screen rect width.
-      detectorScreen.x = FRONT_FACING_SCREEN_RECT_RIGHT - DETECTOR_SCREEN_RECT_WIDTH;
+      detectorScreen.x = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_RIGHT - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
       // Use y (not top) to position the background rect at FRONT_FACING_ROW_TOP.
-      // The scale indicators extend above y=0 in the node's local frame but are now
-      // positioned below the overhead distance span text.
-      detectorScreen.y = FRONT_FACING_ROW_TOP;
+      detectorScreen.y = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_TOP;
       this.addChild( detectorScreen );
       return detectorScreen;
     } );
@@ -716,7 +703,7 @@ export default class ExperimentScreenView extends ScreenView {
     // overhead parallelogram's horizontal range. Use the screen rect bounds (not the full
     // node bounds which include buttons) for accurate alignment with the overhead view.
     frontFacingScreenLeft = detectorScreenNodes[ 0 ].x;
-    frontFacingScreenRight = detectorScreenNodes[ 0 ].x + DETECTOR_SCREEN_RECT_WIDTH;
+    frontFacingScreenRight = detectorScreenNodes[ 0 ].x + QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
 
     // Trigger initial position update now that bounds are set, then re-run beam update
     // so the fan beam uses the corrected detector screen parallelogram position.
@@ -738,7 +725,7 @@ export default class ExperimentScreenView extends ScreenView {
         tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
       } );
       // Position below the front-facing detector screen, left-aligned
-      graphBox.left = detectorScreenNodes[ 0 ].left;
+      graphBox.left = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_RIGHT - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
       graphBox.top = detectorScreenNodes[ 0 ].bottom + 8;
       this.addChild( graphBox );
       return graphBox;
@@ -796,7 +783,7 @@ export default class ExperimentScreenView extends ScreenView {
         tandem: options.tandem.createTandem( 'slitControlPanel' )
       }
     );
-    slitControlPanel.left = sceneRadioButtonGroup.right + 20;
+    slitControlPanel.left = QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_LEFT;
     slitControlPanel.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     this.addChild( slitControlPanel );
 

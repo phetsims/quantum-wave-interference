@@ -26,6 +26,7 @@ import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import SlitSetting from '../model/SlitSetting.js';
@@ -49,7 +50,8 @@ export default class SlitControlPanel extends Panel {
       yMargin: 10,
       fill: '#f4f4f4',
       stroke: '#c1c1c1',
-      minWidth: 200
+      minWidth: QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH,
+      maxWidth: QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH
     }, providedOptions );
 
     // Create the content for each scene (different NumberControl ranges per scene), swap visibility.

@@ -16,6 +16,24 @@ export default class QuantumWaveInterferenceConstants {
 
   public static readonly SCREEN_VIEW_X_MARGIN = 15;
   public static readonly SCREEN_VIEW_Y_MARGIN = 15;
+
+  // Width of the front-facing slit view background rectangle.
+  public static readonly FRONT_FACING_SLIT_VIEW_WIDTH = 204;
+
+  // Shared height for both the front-facing slit view and the front-facing detector screen.
+  public static readonly FRONT_FACING_ROW_HEIGHT = 155;
+
+  // Y position where the front-facing view backgrounds start.
+  public static readonly FRONT_FACING_ROW_TOP = 165;
+
+  // X position of the front-facing slit view left edge.
+  public static readonly FRONT_FACING_SLIT_LEFT = 305;
+
+  // Right edge of the front-facing detector screen rect.
+  public static readonly DETECTOR_SCREEN_RIGHT = 920;
+
+  // Width of the front-facing detector screen rect.
+  public static readonly DETECTOR_SCREEN_WIDTH = 370;
 }
 
 quantumWaveInterference.register( 'QuantumWaveInterferenceConstants', QuantumWaveInterferenceConstants );
