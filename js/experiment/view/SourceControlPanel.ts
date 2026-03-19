@@ -31,7 +31,6 @@ import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
-import SourceType from '../model/SourceType.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
@@ -91,7 +90,7 @@ export default class SourceControlPanel extends Panel {
       trackSize: SLIDER_TRACK_SIZE,
       thumbSize: new Dimension2( 13, 22 ),
       majorTickLength: 12,
-      tandem: tandem.createTandem( `${scene.sourceType.tandemName}IntensitySlider` )
+      tandem: tandem.createTandem( `${scene.sourceType}IntensitySlider` )
     } );
 
     // Add min ("0") and max ("Max") tick marks
@@ -103,7 +102,7 @@ export default class SourceControlPanel extends Panel {
 
     // Photon scenes use "Intensity" while particle scenes use "Emission Rate" per the
     // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
-    const intensityLabelStringProperty = scene.sourceType === SourceType.PHOTONS
+    const intensityLabelStringProperty = scene.sourceType === 'photons'
                                           ? QuantumWaveInterferenceFluent.intensityStringProperty
                                           : QuantumWaveInterferenceFluent.emissionRateStringProperty;
     const intensityLabel = new Text( intensityLabelStringProperty, {
@@ -121,7 +120,7 @@ export default class SourceControlPanel extends Panel {
 
     let topControl: Node;
 
-    if ( scene.sourceType === SourceType.PHOTONS ) {
+    if ( scene.sourceType === 'photons' ) {
       // Wavelength control with spectrum slider
       topControl = new WavelengthNumberControl( scene.wavelengthProperty, {
         range: new Range( 380, 780 ),
@@ -220,7 +219,7 @@ export default class SourceControlPanel extends Panel {
           layoutFunction: NumberControl.createLayoutFunction1( {
             ySpacing: 3
           } ),
-          tandem: tandem.createTandem( `${scene.sourceType.tandemName}VelocityControl` )
+          tandem: tandem.createTandem( `${scene.sourceType}VelocityControl` )
         }
       );
     }
@@ -230,7 +229,7 @@ export default class SourceControlPanel extends Panel {
     // momentum to wavelength using the de Broglie relationship."
     const children: Node[] = [ topControl ];
 
-    if ( scene.sourceType !== SourceType.PHOTONS ) {
+    if ( scene.sourceType !== 'photons' ) {
       const deBroglieText = new RichText( '', {
         font: new PhetFont( 12 ),
         maxWidth: 150,

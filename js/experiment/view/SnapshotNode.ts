@@ -29,10 +29,8 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import DetectionMode from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
 import Snapshot from '../model/Snapshot.js';
-import SourceType from '../model/SourceType.js';
 
 // Snapshot display dimensions (scaled down from the full detector screen)
 const SNAPSHOT_WIDTH = 180;
@@ -119,7 +117,7 @@ export default class SnapshotNode extends Node {
         } );
 
         // Wavelength: show the photon wavelength directly, or the de Broglie wavelength for particles
-        if ( snapshot.sourceType === SourceType.PHOTONS ) {
+        if ( snapshot.sourceType === 'photons' ) {
           wavelengthText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.wavelengthPatternStringProperty.value, {
             value: Utils.roundSymmetric( snapshot.wavelength )
           } );
@@ -143,7 +141,7 @@ export default class SnapshotNode extends Node {
         }
 
         // Detection mode
-        detectionModeText.string = snapshot.detectionMode === DetectionMode.HITS
+        detectionModeText.string = snapshot.detectionMode === 'hits'
                                     ? QuantumWaveInterferenceFluent.hitsStringProperty.value
                                     : QuantumWaveInterferenceFluent.averageIntensityStringProperty.value;
       }
@@ -205,7 +203,7 @@ class SnapshotCanvasNode extends CanvasNode {
       return;
     }
 
-    if ( snapshot.detectionMode === DetectionMode.HITS ) {
+    if ( snapshot.detectionMode === 'hits' ) {
       this.paintHits( context, snapshot );
     }
     else {
@@ -223,7 +221,7 @@ class SnapshotCanvasNode extends CanvasNode {
     const height = SNAPSHOT_HEIGHT;
 
     // Hit color based on source type
-    if ( snapshot.sourceType === SourceType.PHOTONS ) {
+    if ( snapshot.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
       context.fillStyle = `rgba(${color.red},${color.green},${color.blue},${snapshot.brightness})`;
     }
@@ -278,7 +276,7 @@ class SnapshotCanvasNode extends CanvasNode {
         const alpha = intensity * snapshot.brightness;
 
         if ( alpha > 0.01 ) {
-          if ( snapshot.sourceType === SourceType.PHOTONS ) {
+          if ( snapshot.sourceType === 'photons' ) {
             const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
             context.fillStyle = `rgba(${color.red},${color.green},${color.blue},${alpha})`;
           }

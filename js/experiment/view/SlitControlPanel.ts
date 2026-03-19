@@ -29,7 +29,7 @@ import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
-import SlitSetting from '../model/SlitSetting.js';
+import { type SlitSetting } from '../model/SlitSetting.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
@@ -87,7 +87,7 @@ export default class SlitControlPanel extends Panel {
   private static createSceneContent( scene: SceneModel, comboBoxParent: Node,
                                      tandem: SlitControlPanelOptions['tandem'] ): Node {
 
-    const sceneTandemName = scene.sourceType.tandemName;
+    const sceneTandemName = scene.sourceType;
 
     // Slit separation NumberControl.
     // For scenes with very small slit separations (max < 0.1 mm), display in μm instead of mm
@@ -197,27 +197,27 @@ export default class SlitControlPanel extends Panel {
 
     const comboBoxItems: ComboBoxItem<SlitSetting>[] = [
       {
-        value: SlitSetting.BOTH_OPEN,
+        value: 'bothOpen',
         createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ),
         tandemName: 'bothOpenItem'
       },
       {
-        value: SlitSetting.LEFT_COVERED,
+        value: 'leftCovered',
         createNode: () => new Text( QuantumWaveInterferenceFluent.leftCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ),
         tandemName: 'leftCoveredItem'
       },
       {
-        value: SlitSetting.RIGHT_COVERED,
+        value: 'rightCovered',
         createNode: () => new Text( QuantumWaveInterferenceFluent.rightCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ),
         tandemName: 'rightCoveredItem'
       },
       {
-        value: SlitSetting.LEFT_DETECTOR,
+        value: 'leftDetector',
         createNode: () => new Text( QuantumWaveInterferenceFluent.leftDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ),
         tandemName: 'leftDetectorItem'
       },
       {
-        value: SlitSetting.RIGHT_DETECTOR,
+        value: 'rightDetector',
         createNode: () => new Text( QuantumWaveInterferenceFluent.rightDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ),
         tandemName: 'rightDetectorItem'
       }

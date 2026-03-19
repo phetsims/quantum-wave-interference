@@ -22,10 +22,8 @@ import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
-import DetectionMode from './DetectionMode.js';
 import SceneModel from './SceneModel.js';
-import SlitSetting from './SlitSetting.js';
-import SourceType from './SourceType.js';
+import { type SlitSetting, SlitSettingValues } from './SlitSetting.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -57,22 +55,22 @@ export default class ExperimentModel implements TModel {
     const scenesTandem = tandem.createTandem( 'scenes' );
 
     this.photonsScene = new SceneModel( {
-      sourceType: SourceType.PHOTONS,
+      sourceType: 'photons',
       tandem: scenesTandem.createTandem( 'photonsScene' )
     } );
 
     this.electronsScene = new SceneModel( {
-      sourceType: SourceType.ELECTRONS,
+      sourceType: 'electrons',
       tandem: scenesTandem.createTandem( 'electronsScene' )
     } );
 
     this.neutronsScene = new SceneModel( {
-      sourceType: SourceType.NEUTRONS,
+      sourceType: 'neutrons',
       tandem: scenesTandem.createTandem( 'neutronsScene' )
     } );
 
     this.heliumAtomsScene = new SceneModel( {
-      sourceType: SourceType.HELIUM_ATOMS,
+      sourceType: 'heliumAtoms',
       tandem: scenesTandem.createTandem( 'heliumAtomsScene' )
     } );
 
@@ -127,7 +125,7 @@ export default class ExperimentModel implements TModel {
     }
 
     if ( QuantumWaveInterferenceQueryParameters.hitsMode ) {
-      this.sceneProperty.value.detectionModeProperty.value = DetectionMode.HITS;
+      this.sceneProperty.value.detectionModeProperty.value = 'hits';
     }
 
     const speedParam = QuantumWaveInterferenceQueryParameters.timeSpeed;
@@ -147,7 +145,7 @@ export default class ExperimentModel implements TModel {
     const activeScene = this.sceneProperty.value;
 
     const wavelengthParam = QuantumWaveInterferenceQueryParameters.wavelength;
-    if ( wavelengthParam !== null && activeScene.sourceType === SourceType.PHOTONS ) {
+    if ( wavelengthParam !== null && activeScene.sourceType === 'photons' ) {
       const value = parseFloat( wavelengthParam );
       if ( !isNaN( value ) ) {
         activeScene.wavelengthProperty.value = activeScene.wavelengthProperty.range.constrainValue( value );
@@ -179,17 +177,8 @@ export default class ExperimentModel implements TModel {
     }
 
     const slitSettingParam = QuantumWaveInterferenceQueryParameters.slitSetting;
-    if ( slitSettingParam !== null ) {
-      const settingMap: Record<string, SlitSetting> = {
-        bothOpen: SlitSetting.BOTH_OPEN,
-        leftCovered: SlitSetting.LEFT_COVERED,
-        rightCovered: SlitSetting.RIGHT_COVERED,
-        leftDetector: SlitSetting.LEFT_DETECTOR,
-        rightDetector: SlitSetting.RIGHT_DETECTOR
-      };
-      if ( settingMap[ slitSettingParam ] ) {
-        activeScene.slitSettingProperty.value = settingMap[ slitSettingParam ];
-      }
+    if ( slitSettingParam !== null && ( SlitSettingValues as readonly string[] ).includes( slitSettingParam ) ) {
+      activeScene.slitSettingProperty.value = slitSettingParam as SlitSetting;
     }
   }
 

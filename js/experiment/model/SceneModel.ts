@@ -9,8 +9,8 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import Emitter from '../../../../axon/js/Emitter.js';
-import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
+import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import TEmitter from '../../../../axon/js/TEmitter.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
@@ -22,10 +22,10 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
-import DetectionMode from './DetectionMode.js';
-import SlitSetting from './SlitSetting.js';
+import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
+import { type SlitSetting, SlitSettingValues } from './SlitSetting.js';
 import Snapshot from './Snapshot.js';
-import SourceType from './SourceType.js';
+import { type SourceType } from './SourceType.js';
 
 // Physical constants
 const PLANCK_CONSTANT = 6.626e-34; // J·s
@@ -80,10 +80,10 @@ export default class SceneModel extends PhetioObject {
   public readonly screenDistanceProperty: NumberProperty;
 
   // Slit configuration
-  public readonly slitSettingProperty: EnumerationProperty<SlitSetting>;
+  public readonly slitSettingProperty: StringUnionProperty<SlitSetting>;
 
   // Detection mode (Average Intensity vs Hits)
-  public readonly detectionModeProperty: EnumerationProperty<DetectionMode>;
+  public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
 
   // Screen brightness: 0 to 1
   public readonly screenBrightnessProperty: NumberProperty;
@@ -156,7 +156,7 @@ export default class SceneModel extends PhetioObject {
     let defaultScreenDistance: number;
     let defaultVelocity: number;
 
-    if ( options.sourceType === SourceType.PHOTONS ) {
+    if ( options.sourceType === 'photons' ) {
       this.particleMass = 0;
       this.slitWidth = 0.1; // mm
       this.velocityRange = new Range( 0, 0 ); // Not used for photons
@@ -166,7 +166,7 @@ export default class SceneModel extends PhetioObject {
       defaultScreenDistance = 0.8;// start at the max
       defaultVelocity = 0;
     }
-    else if ( options.sourceType === SourceType.ELECTRONS ) {
+    else if ( options.sourceType === 'electrons' ) {
       this.particleMass = ELECTRON_MASS;
       this.slitWidth = 0.0002; // mm (0.2 μm, per design mockup)
       this.velocityRange = new Range( 7e5, 1.5e6 ); // m/s (700–1500 km/s per design mockup)
@@ -176,7 +176,7 @@ export default class SceneModel extends PhetioObject {
       defaultScreenDistance = 0.5; // Moderate default for clear interference fringes
       defaultVelocity = 1e6; // 1000 km/s per design mockup
     }
-    else if ( options.sourceType === SourceType.NEUTRONS ) {
+    else if ( options.sourceType === 'neutrons' ) {
       this.particleMass = NEUTRON_MASS;
       this.slitWidth = 0.01; // mm
       this.velocityRange = new Range( 200, 2000 ); // m/s (thermal to cold neutrons)
@@ -212,8 +212,8 @@ export default class SceneModel extends PhetioObject {
 
     // Wavelength in nm. For photons, this is directly controlled via a slider. For particles, this property is
     // not used directly — the effective wavelength is computed from velocity via de Broglie relation.
-    this.wavelengthProperty = new NumberProperty( options.sourceType === SourceType.PHOTONS ? 650 : 0, {
-      range: options.sourceType === SourceType.PHOTONS ? new Range( 380, 780 ) : new Range( 0, 0 ),
+    this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? 650 : 0, {
+      range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),
       units: 'nm',
       tandem: tandem.createTandem( 'wavelengthProperty' )
     } );
@@ -241,11 +241,13 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'screenDistanceProperty' )
     } );
 
-    this.slitSettingProperty = new EnumerationProperty( SlitSetting.BOTH_OPEN, {
+    this.slitSettingProperty = new StringUnionProperty<SlitSetting>( 'bothOpen', {
+      validValues: SlitSettingValues,
       tandem: tandem.createTandem( 'slitSettingProperty' )
     } );
 
-    this.detectionModeProperty = new EnumerationProperty( DetectionMode.AVERAGE_INTENSITY, {
+    this.detectionModeProperty = new StringUnionProperty<DetectionMode>( 'averageIntensity', {
+      validValues: DetectionModeValues,
       tandem: tandem.createTandem( 'detectionModeProperty' )
     } );
 
@@ -289,7 +291,7 @@ export default class SceneModel extends PhetioObject {
    * For particles, this is the de Broglie wavelength: lambda = h / (m * v).
    */
   public getEffectiveWavelength(): number {
-    if ( this.sourceType === SourceType.PHOTONS ) {
+    if ( this.sourceType === 'photons' ) {
       return this.wavelengthProperty.value * 1e-9; // nm to m
     }
     else {
@@ -327,12 +329,12 @@ export default class SceneModel extends PhetioObject {
 
     const slitSetting = this.slitSettingProperty.value;
 
-    if ( slitSetting === SlitSetting.LEFT_COVERED || slitSetting === SlitSetting.RIGHT_COVERED ) {
+    if ( slitSetting === 'leftCovered' || slitSetting === 'rightCovered' ) {
       // Single slit: only diffraction envelope, no interference
       return singleSlitFactor;
     }
 
-    if ( slitSetting === SlitSetting.LEFT_DETECTOR || slitSetting === SlitSetting.RIGHT_DETECTOR ) {
+    if ( slitSetting === 'leftDetector' || slitSetting === 'rightDetector' ) {
       // Which-path detection destroys interference: sum of two single-slit patterns
       // (no cross-term), result is essentially a broad single-slit-like pattern
       return singleSlitFactor;
@@ -375,7 +377,7 @@ export default class SceneModel extends PhetioObject {
       slitSeparation: this.slitSeparationProperty.value,
       screenDistance: this.screenDistanceProperty.value,
       effectiveWavelength: this.getEffectiveWavelength(),
-      slitSetting: this.slitSettingProperty.value.name,
+      slitSetting: this.slitSettingProperty.value,
       brightness: this.screenBrightnessProperty.value
     } );
 
@@ -459,7 +461,7 @@ export default class SceneModel extends PhetioObject {
     }
 
     const slitSetting = this.slitSettingProperty.value;
-    const isDetectorActive = slitSetting === SlitSetting.LEFT_DETECTOR || slitSetting === SlitSetting.RIGHT_DETECTOR;
+    const isDetectorActive = slitSetting === 'leftDetector' || slitSetting === 'rightDetector';
     let detectorHitsThisFrame = 0;
 
     for ( let i = 0; i < numHits; i++ ) {

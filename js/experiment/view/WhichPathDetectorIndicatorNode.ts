@@ -16,10 +16,10 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import DetectionMode from '../model/DetectionMode.js';
+import { type DetectionMode } from '../model/DetectionMode.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import SlitSetting from '../model/SlitSetting.js';
+import { type SlitSetting } from '../model/SlitSetting.js';
 
 const DETECTOR_BOX_WIDTH = 58;
 const DETECTOR_BOX_HEIGHT = 38;
@@ -78,11 +78,11 @@ export default class WhichPathDetectorIndicatorNode extends Node {
 
     const updateDetectorIndicator = () => {
       const slitSetting = slitSettingProperty.value;
-      const isDetectorActive = slitSetting === SlitSetting.LEFT_DETECTOR || slitSetting === SlitSetting.RIGHT_DETECTOR;
+      const isDetectorActive = slitSetting === 'leftDetector' || slitSetting === 'rightDetector';
       this.visible = isDetectorActive;
 
       if ( isDetectorActive ) {
-        const isHitsMode = detectionModeProperty.value === DetectionMode.HITS;
+        const isHitsMode = detectionModeProperty.value === 'hits';
         detectorHitCountText.visible = isHitsMode;
         if ( isHitsMode ) {
           detectorHitCountText.string = `${detectorHitsProperty.value}`;

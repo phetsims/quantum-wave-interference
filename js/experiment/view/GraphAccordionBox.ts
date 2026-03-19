@@ -29,8 +29,6 @@ import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
-import DetectionMode from '../model/DetectionMode.js';
-import SourceType from '../model/SourceType.js';
 
 // Chart dimensions — width matches the front-facing detector screen.
 const CHART_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
@@ -121,7 +119,7 @@ export default class GraphAccordionBox extends Node {
         QuantumWaveInterferenceFluent.countStringProperty,
         QuantumWaveInterferenceFluent.intensityStringProperty ],
       ( detectionMode, countString, intensityString ) =>
-        detectionMode === DetectionMode.HITS ? countString : intensityString
+        detectionMode === 'hits' ? countString : intensityString
     );
     const yAxisLabel = new Text( yAxisLabelStringProperty, {
       font: new PhetFont( 11 ),
@@ -140,7 +138,7 @@ export default class GraphAccordionBox extends Node {
         QuantumWaveInterferenceFluent.hitsGraphStringProperty,
         QuantumWaveInterferenceFluent.intensityGraphStringProperty ],
       ( detectionMode, hitsGraphString, intensityGraphString ) =>
-        detectionMode === DetectionMode.HITS ? hitsGraphString : intensityGraphString
+        detectionMode === 'hits' ? hitsGraphString : intensityGraphString
     );
     const titleText = new Text( titleStringProperty, {
       font: new PhetFont( 14 ),
@@ -197,7 +195,7 @@ export default class GraphAccordionBox extends Node {
 
     // Update the graph when data changes
     const updateGraph = () => {
-      const isHitsMode = sceneModel.detectionModeProperty.value === DetectionMode.HITS;
+      const isHitsMode = sceneModel.detectionModeProperty.value === 'hits';
 
       if ( isHitsMode ) {
         this.paintHistogram( dataPath, sceneModel );
@@ -219,7 +217,7 @@ export default class GraphAccordionBox extends Node {
     sceneModel.slitSettingProperty.link( () => updateGraph() );
 
     // For photons, wavelength changes affect the intensity curve
-    if ( sceneModel.sourceType === SourceType.PHOTONS ) {
+    if ( sceneModel.sourceType === 'photons' ) {
       sceneModel.wavelengthProperty.link( () => updateGraph() );
     }
     else {
@@ -286,7 +284,7 @@ export default class GraphAccordionBox extends Node {
     // Fill and stroke with colors matching the source type. For photons, use the
     // wavelength-derived color so the graph visually matches the detector screen display
     // and the histogram bars (which already use wavelength-dependent colors).
-    if ( sceneModel.sourceType === SourceType.PHOTONS ) {
+    if ( sceneModel.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
       dataPath.fill = color.withAlpha( 0.3 * opacityScale );
       dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 * opacityScale );
@@ -362,7 +360,7 @@ export default class GraphAccordionBox extends Node {
     // Histogram bar color matches the source type. For photons, use the wavelength-derived
     // color so the graph visually matches the detector screen display and reinforces the
     // wavelength-color connection that supports the learning goals.
-    if ( sceneModel.sourceType === SourceType.PHOTONS ) {
+    if ( sceneModel.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
       dataPath.fill = color.withAlpha( 0.7 );
       dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );

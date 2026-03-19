@@ -18,7 +18,6 @@ import Shape from '../../../../kite/js/Shape.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import SlitSetting from '../model/SlitSetting.js';
 import createParallelogramNode from './createParallelogramNode.js';
 
 const LABEL_FONT = new PhetFont( 16 );
@@ -118,10 +117,10 @@ export default class OverheadDoubleSlitNode extends Node {
       rightSlitDetectorOverlay.y = rightY - slitOverlayHeight / 2;
 
       const slitSetting = scene.slitSettingProperty.value;
-      leftSlitCover.visible = ( slitSetting === SlitSetting.LEFT_COVERED );
-      rightSlitCover.visible = ( slitSetting === SlitSetting.RIGHT_COVERED );
-      leftSlitDetectorOverlay.visible = ( slitSetting === SlitSetting.LEFT_DETECTOR );
-      rightSlitDetectorOverlay.visible = ( slitSetting === SlitSetting.RIGHT_DETECTOR );
+      leftSlitCover.visible = ( slitSetting === 'leftCovered' );
+      rightSlitCover.visible = ( slitSetting === 'rightCovered' );
+      leftSlitDetectorOverlay.visible = ( slitSetting === 'leftDetector' );
+      rightSlitDetectorOverlay.visible = ( slitSetting === 'rightDetector' );
     };
 
     model.sceneProperty.link( ( newScene, oldScene ) => {

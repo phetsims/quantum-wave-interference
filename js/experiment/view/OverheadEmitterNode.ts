@@ -23,7 +23,6 @@ import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import SourceType from '../model/SourceType.js';
 
 const LABEL_FONT = new PhetFont( 16 );
 const LABEL_Y = 30;
@@ -46,13 +45,13 @@ export default class OverheadEmitterNode extends Node {
         QuantumWaveInterferenceFluent.heliumAtomSourceStringProperty
       ],
       ( scene, photonSource, electronSource, neutronSource, heliumAtomSource ) => {
-        if ( scene.sourceType === SourceType.PHOTONS ) {
+        if ( scene.sourceType === 'photons' ) {
           return photonSource;
         }
-        else if ( scene.sourceType === SourceType.ELECTRONS ) {
+        else if ( scene.sourceType === 'electrons' ) {
           return electronSource;
         }
-        else if ( scene.sourceType === SourceType.NEUTRONS ) {
+        else if ( scene.sourceType === 'neutrons' ) {
           return neutronSource;
         }
         else {
@@ -71,10 +70,11 @@ export default class OverheadEmitterNode extends Node {
 
     // Particle mass label (hidden for photons)
     const MASS_LABEL_FONT = new PhetFont( 15 );
-    const massLabelMap = new Map<SourceType, string>();
-    massLabelMap.set( SourceType.ELECTRONS, 'm<sub>e</sub> = 9.1\u00D710<sup>\u221231</sup> kg' );
-    massLabelMap.set( SourceType.NEUTRONS, 'm<sub>n</sub> = 1.7\u00D710<sup>\u221227</sup> kg' );
-    massLabelMap.set( SourceType.HELIUM_ATOMS, 'm<sub>He</sub> = 6.6\u00D710<sup>\u221227</sup> kg' );
+    const massLabelMap: Record<string, string> = {
+      electrons: 'm<sub>e</sub> = 9.1\u00D710<sup>\u221231</sup> kg',
+      neutrons: 'm<sub>n</sub> = 1.7\u00D710<sup>\u221227</sup> kg',
+      heliumAtoms: 'm<sub>He</sub> = 6.6\u00D710<sup>\u221227</sup> kg'
+    };
 
     const particleMassLabel = new RichText( '', {
       font: MASS_LABEL_FONT,
@@ -84,10 +84,10 @@ export default class OverheadEmitterNode extends Node {
     this.addChild( particleMassLabel );
 
     model.sceneProperty.link( scene => {
-      const isParticle = scene.sourceType !== SourceType.PHOTONS;
+      const isParticle = scene.sourceType !== 'photons';
       particleMassLabel.visible = isParticle;
       if ( isParticle ) {
-        particleMassLabel.string = massLabelMap.get( scene.sourceType )!;
+        particleMassLabel.string = massLabelMap[ scene.sourceType ];
       }
     } );
 
@@ -137,7 +137,7 @@ export default class OverheadEmitterNode extends Node {
 
     // Toggle visibility and position based on scene
     const updateEmitterLayout = () => {
-      const isPhoton = model.sceneProperty.value.sourceType === SourceType.PHOTONS;
+      const isPhoton = model.sceneProperty.value.sourceType === 'photons';
       this.laserPointerNode.visible = isPhoton;
       this.particleEmitterNode.visible = !isPhoton;
 

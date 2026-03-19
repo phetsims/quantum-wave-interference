@@ -35,10 +35,8 @@ import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import DetectionMode from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
-import SourceType from '../model/SourceType.js';
 
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.
 const SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
@@ -191,7 +189,7 @@ export default class DetectorScreenNode extends Node {
 
     // Update the hit count text and canvas when hits change
     const updateDisplay = () => {
-      if ( sceneModel.detectionModeProperty.value === DetectionMode.HITS ) {
+      if ( sceneModel.detectionModeProperty.value === 'hits' ) {
         hitCountText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.hitsCountPatternStringProperty.value, {
           count: sceneModel.totalHitsProperty.value
         } );
@@ -339,7 +337,7 @@ class DetectorScreenCanvasNode extends CanvasNode {
     const sceneModel = this.sceneModel;
     const brightness = sceneModel.screenBrightnessProperty.value;
 
-    if ( sceneModel.detectionModeProperty.value === DetectionMode.HITS ) {
+    if ( sceneModel.detectionModeProperty.value === 'hits' ) {
       this.paintHits( context, brightness );
     }
     else {
@@ -467,7 +465,7 @@ class DetectorScreenCanvasNode extends CanvasNode {
    * For particles, returns white.
    */
   private getHitRGB(): { r: number; g: number; b: number } {
-    if ( this.sceneModel.sourceType === SourceType.PHOTONS ) {
+    if ( this.sceneModel.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( this.sceneModel.wavelengthProperty.value );
       return { r: color.red, g: color.green, b: color.blue };
     }
@@ -480,7 +478,7 @@ class DetectorScreenCanvasNode extends CanvasNode {
    * Returns the RGB components for intensity bands based on the source type.
    */
   private getIntensityRGB(): { r: number; g: number; b: number } {
-    if ( this.sceneModel.sourceType === SourceType.PHOTONS ) {
+    if ( this.sceneModel.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( this.sceneModel.wavelengthProperty.value );
       return { r: color.red, g: color.green, b: color.blue };
     }

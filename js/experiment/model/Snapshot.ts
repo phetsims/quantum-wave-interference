@@ -9,8 +9,8 @@
 
 import Vector2 from '../../../../dot/js/Vector2.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
-import DetectionMode from './DetectionMode.js';
-import SourceType from './SourceType.js';
+import { type DetectionMode } from './DetectionMode.js';
+import { type SourceType } from './SourceType.js';
 
 // Maximum number of hits to store in a snapshot. Beyond this count, the interference pattern
 // is fully established and storing more hits wastes memory without visual benefit.

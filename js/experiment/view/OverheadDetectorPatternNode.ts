@@ -14,9 +14,7 @@ import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
-import DetectionMode from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
-import SourceType from '../model/SourceType.js';
 
 export default class OverheadDetectorPatternNode extends CanvasNode {
 
@@ -64,10 +62,10 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
   public updatePattern( sceneModel: SceneModel ): void {
     this.isEmitting = sceneModel.isEmittingProperty.value;
     this.brightness = sceneModel.screenBrightnessProperty.value;
-    this.isHitsMode = sceneModel.detectionModeProperty.value === DetectionMode.HITS;
+    this.isHitsMode = sceneModel.detectionModeProperty.value === 'hits';
 
     // Determine beam color
-    if ( sceneModel.sourceType === SourceType.PHOTONS ) {
+    if ( sceneModel.sourceType === 'photons' ) {
       this.beamColor = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
     }
     else {

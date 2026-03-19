@@ -24,8 +24,6 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import SlitSetting from '../model/SlitSetting.js';
-import SourceType from '../model/SourceType.js';
 
 const VIEW_WIDTH = QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH;
 const VIEW_HEIGHT = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_HEIGHT;
@@ -118,7 +116,7 @@ export default class FrontFacingSlitNode extends Node {
       }
 
       beamOverlay.visible = true;
-      const beamColor = sceneModel.sourceType === SourceType.PHOTONS
+      const beamColor = sceneModel.sourceType === 'photons'
                          ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
                          : PARTICLE_BEAM_COLOR;
       beamOverlay.fill = beamColor.withAlpha( 0.15 + 0.35 * intensity );
@@ -281,10 +279,10 @@ export default class FrontFacingSlitNode extends Node {
 
     // Update cover and detector visibility based on slit setting
     Multilink.multilink( [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty ], slitSetting => {
-      leftCover.visible = ( slitSetting === SlitSetting.LEFT_COVERED );
-      rightCover.visible = ( slitSetting === SlitSetting.RIGHT_COVERED );
-      leftDetector.visible = ( slitSetting === SlitSetting.LEFT_DETECTOR );
-      rightDetector.visible = ( slitSetting === SlitSetting.RIGHT_DETECTOR );
+      leftCover.visible = ( slitSetting === 'leftCovered' );
+      rightCover.visible = ( slitSetting === 'rightCovered' );
+      leftDetector.visible = ( slitSetting === 'leftDetector' );
+      rightDetector.visible = ( slitSetting === 'rightDetector' );
 
       // Position detectors to match slit positions
       leftDetector.x = leftSlit.x;

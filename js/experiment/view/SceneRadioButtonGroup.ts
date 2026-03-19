@@ -23,7 +23,7 @@ import Tandem from '../../../../tandem/js/Tandem.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
-import SourceType from '../model/SourceType.js';
+import { type SourceType } from '../model/SourceType.js';
 
 // Icon dimensions
 const SPHERE_DIAMETER = 18;
@@ -43,7 +43,7 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
 
     const items: RectangularRadioButtonGroupItem<SceneModel>[] = scenes.map( scene => {
       const sourceType = scene.sourceType;
-      const stringProperty = SOURCE_TYPE_STRING_PROPERTIES[ sourceType.tandemName as keyof typeof SOURCE_TYPE_STRING_PROPERTIES ];
+      const stringProperty = SOURCE_TYPE_STRING_PROPERTIES[ sourceType ];
       const icon = SceneRadioButtonGroup.createIcon( sourceType );
 
       return {
@@ -55,7 +55,7 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
             new Text( stringProperty, { font: LABEL_FONT, maxWidth: 80 } )
           ]
         } ),
-        tandemName: `${sourceType.tandemName}RadioButton`
+        tandemName: `${sourceType}RadioButton`
       };
     } );
 
@@ -84,16 +84,16 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
    * Particles get a 3D-looking shaded sphere.
    */
   private static createIcon( sourceType: SourceType ): Node {
-    if ( sourceType === SourceType.PHOTONS ) {
+    if ( sourceType === 'photons' ) {
       return SceneRadioButtonGroup.createPhotonWaveIcon();
     }
-    else if ( sourceType === SourceType.ELECTRONS ) {
+    else if ( sourceType === 'electrons' ) {
       return new ShadedSphereNode( SPHERE_DIAMETER, {
         mainColor: '#3366cc',
         highlightColor: '#aaccff'
       } );
     }
-    else if ( sourceType === SourceType.NEUTRONS ) {
+    else if ( sourceType === 'neutrons' ) {
       return new ShadedSphereNode( SPHERE_DIAMETER, {
         mainColor: '#888888',
         highlightColor: '#dddddd'

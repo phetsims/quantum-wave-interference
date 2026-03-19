@@ -24,7 +24,7 @@ import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import DetectionMode from '../model/DetectionMode.js';
+import { type DetectionMode } from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
 
 const TITLE_FONT = new PhetFont( 14 );
@@ -62,7 +62,7 @@ export default class ScreenSettingsPanel extends Panel {
     // Radio buttons for Average Intensity vs Hits
     const radioButtonItems: AquaRadioButtonGroupItem<DetectionMode>[] = [
       {
-        value: DetectionMode.AVERAGE_INTENSITY,
+        value: 'averageIntensity',
         createNode: () => new Text( QuantumWaveInterferenceFluent.averageIntensityStringProperty, {
           font: LABEL_FONT,
           maxWidth: 130
@@ -70,7 +70,7 @@ export default class ScreenSettingsPanel extends Panel {
         tandemName: 'averageIntensityRadioButton'
       },
       {
-        value: DetectionMode.HITS,
+        value: 'hits',
         createNode: () => new Text( QuantumWaveInterferenceFluent.hitsStringProperty, {
           font: LABEL_FONT,
           maxWidth: 130

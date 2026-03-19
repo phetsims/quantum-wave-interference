@@ -17,7 +17,6 @@ import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import SourceType from '../model/SourceType.js';
 import OverheadDetectorScreenNode, { DETECTOR_DY, DETECTOR_LEFT_HEIGHT } from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
@@ -57,11 +56,11 @@ export default class OverheadBeamNode extends Node {
         return;
       }
 
-      const beamColor = scene.sourceType === SourceType.PHOTONS
+      const beamColor = scene.sourceType === 'photons'
                         ? VisibleColor.wavelengthToColor( scene.wavelengthProperty.value )
                         : PARTICLE_BEAM_COLOR;
 
-      const activeEmitter = scene.sourceType === SourceType.PHOTONS
+      const activeEmitter = scene.sourceType === 'photons'
                             ? emitterNode.laserPointerNode
                             : emitterNode.particleEmitterNode;
       const nozzleTipX = activeEmitter.right;
