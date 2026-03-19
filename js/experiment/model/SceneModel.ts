@@ -256,7 +256,7 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'detectionModeProperty' )
     } );
 
-    this.screenBrightnessProperty = new NumberProperty( 0.5, {
+    this.screenBrightnessProperty = new NumberProperty( 1, {
       range: new Range( 0, 1 ),
       tandem: tandem.createTandem( 'screenBrightnessProperty' )
     } );

@@ -27,6 +27,7 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
   private beamColor: Color = new Color( 255, 0, 0 );
   private intensityValues: number[] = [];
   private brightness = 0.5;
+  private sourceIntensity = 0.5;
   private isHitsMode = false;
 
   // Opacity scale for Average Intensity mode: ramps up as data accumulates,
@@ -62,6 +63,7 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
   public updatePattern( sceneModel: SceneModel ): void {
     this.isEmitting = sceneModel.isEmittingProperty.value;
     this.brightness = sceneModel.screenBrightnessProperty.value;
+    this.sourceIntensity = sceneModel.intensityProperty.value;
     this.isHitsMode = sceneModel.detectionModeProperty.value === 'hits';
 
     // Determine beam color
@@ -171,7 +173,7 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
 
       for ( let i = 0; i < NUM_BANDS; i++ ) {
         const intensity = this.intensityValues[ i ];
-        const alpha = intensity * this.brightness * this.opacityScale;
+        const alpha = intensity * this.brightness * this.sourceIntensity * this.opacityScale;
 
         if ( alpha > 0.01 ) {
           context.fillStyle = `rgba(${r},${g},${b},${alpha})`;

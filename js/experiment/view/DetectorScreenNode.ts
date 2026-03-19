@@ -206,6 +206,7 @@ export default class DetectorScreenNode extends Node {
     sceneModel.hitsChangedEmitter.addListener( updateDisplay );
     sceneModel.detectionModeProperty.link( () => updateDisplay() );
     sceneModel.screenBrightnessProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.intensityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
     // The intensity pattern is derived from accumulated hits (which trigger hitsChangedEmitter),
     // but wavelength changes affect hit dot color for photons.
@@ -435,7 +436,7 @@ class DetectorScreenCanvasNode extends CanvasNode {
     const height = SCREEN_HEIGHT;
     const screenHalfWidth = sceneModel.screenHalfWidth;
     const rgb = this.getIntensityRGB();
-    const baseAlpha = brightness * opacityScale;
+    const baseAlpha = brightness * opacityScale * sceneModel.intensityProperty.value;
 
     // Draw one 1px-wide opaque rectangle per pixel column. Since the background is black,
     // alpha blending is equivalent to scaling the RGB values directly (color * alpha on black

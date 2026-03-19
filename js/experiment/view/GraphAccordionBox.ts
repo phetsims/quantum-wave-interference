@@ -216,6 +216,7 @@ export default class GraphAccordionBox extends Node {
     sceneModel.slitSeparationProperty.link( () => updateGraph() );
     sceneModel.screenDistanceProperty.link( () => updateGraph() );
     sceneModel.slitSettingProperty.link( () => updateGraph() );
+    sceneModel.intensityProperty.link( () => updateGraph() );
 
     // For photons, wavelength changes affect the intensity curve
     if ( sceneModel.sourceType === 'photons' ) {
@@ -246,6 +247,7 @@ export default class GraphAccordionBox extends Node {
     }
 
     const zoomScale = Utils.linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
+    const sourceIntensity = sceneModel.intensityProperty.value;
     const screenHalfWidth = sceneModel.screenHalfWidth;
 
     // Number of sample points across the chart for a smooth theoretical curve
@@ -263,7 +265,7 @@ export default class GraphAccordionBox extends Node {
       const intensity = sceneModel.getIntensityAtPosition( physicalX );
 
       const viewX = fraction * CHART_WIDTH;
-      const viewY = CHART_HEIGHT - ( intensity * CHART_HEIGHT * zoomScale );
+      const viewY = CHART_HEIGHT - ( intensity * sourceIntensity * CHART_HEIGHT * zoomScale );
 
       shape.lineTo( viewX, viewY );
     }

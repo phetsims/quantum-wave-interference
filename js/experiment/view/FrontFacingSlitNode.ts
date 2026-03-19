@@ -30,7 +30,10 @@ const VIEW_HEIGHT = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_HEIGHT;
 const VIEW_CORNER_RADIUS = 10;
 
 // Slit visual dimensions
-const SLIT_HEIGHT = 130; // Height of the white slit rectangles
+const BASE_SLIT_HEIGHT = 130; // Previous slit height, used to derive padding behavior
+const BASE_SLIT_VERTICAL_PADDING = ( VIEW_HEIGHT - BASE_SLIT_HEIGHT ) / 2;
+const SLIT_VERTICAL_PADDING = BASE_SLIT_VERTICAL_PADDING / 2;
+const SLIT_HEIGHT = VIEW_HEIGHT - 2 * SLIT_VERTICAL_PADDING; // Height of the white slit rectangles
 const HORIZONTAL_PADDING = 10; // Left/right padding for mapping physical x positions into the view
 
 // Span arrow constants for slit separation (full-size span below the view)
@@ -55,6 +58,23 @@ const SLIT_WIDTH_ARROW_OPTIONS = {
 
 const SPAN_TICK_LENGTH = 8;
 const SPAN_FONT = new PhetFont( 12 );
+
+// Match slit-separation readout precision to SlitControlPanel.
+const getDecimalPlacesForValue = ( value: number ): number => {
+  if ( value === Math.floor( value ) ) {
+    return 0;
+  }
+  const str = value.toString();
+  const decimalIndex = str.indexOf( '.' );
+  return decimalIndex === -1 ? 0 : str.length - decimalIndex - 1;
+};
+
+const getRangeDecimalPlaces = ( min: number, max: number ): number => {
+  return Math.max(
+    getDecimalPlacesForValue( min ),
+    getDecimalPlacesForValue( max )
+  );
+};
 
 type SelfOptions = EmptySelfOptions;
 
@@ -110,8 +130,6 @@ export default class FrontFacingSlitNode extends Node {
 
       if ( !isEmitting ) {
         beamOverlay.visible = false;
-        leftSlit.fill = 'white';
-        rightSlit.fill = 'white';
         return;
       }
 
@@ -120,10 +138,6 @@ export default class FrontFacingSlitNode extends Node {
                         ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
                         : PARTICLE_BEAM_COLOR;
       beamOverlay.fill = beamColor.withAlpha( 0.15 + 0.35 * intensity );
-
-      // Slit openings glow with a brighter version of the beam color
-      leftSlit.fill = beamColor.withAlpha( 0.5 + 0.5 * intensity );
-      rightSlit.fill = beamColor.withAlpha( 0.5 + 0.5 * intensity );
     };
 
     sceneModel.isEmittingProperty.link( updateBeamOverlay );
@@ -245,14 +259,18 @@ export default class FrontFacingSlitNode extends Node {
       separationLeftTick.x = sepLeft;
       separationRightTick.x = sepRight;
 
-      // Format separation value: use μm for values ≤ 0.1 mm for readability.
-      // Always use 1 decimal place for consistency with the design mockup (e.g., "1.0 μm" not "1 μm").
-      if ( separationMM > 0.1 ) {
-        separationText.string = `${toFixed( separationMM, 1 )} mm`;
+      // Match the slit-separation control readout formatting:
+      // unit and decimal precision are determined by the slider range for this scene.
+      const slitSeparationRange = sceneModel.slitSeparationRange;
+      const usesMicrometers = slitSeparationRange.max <= 0.1;
+      if ( usesMicrometers ) {
+        const valueUM = separationMM * 1000;
+        const decimalPlaces = getRangeDecimalPlaces( slitSeparationRange.min * 1000, slitSeparationRange.max * 1000 );
+        separationText.string = `${toFixed( valueUM, decimalPlaces )} μm`;
       }
       else {
-        const valueUM = separationMM * 1000;
-        separationText.string = `${toFixed( valueUM, 1 )} μm`;
+        const decimalPlaces = getRangeDecimalPlaces( slitSeparationRange.min, slitSeparationRange.max );
+        separationText.string = `${toFixed( separationMM, decimalPlaces )} mm`;
       }
 
       // Position the label to the right of the right tick mark, matching the
