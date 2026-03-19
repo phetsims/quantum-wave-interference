@@ -226,6 +226,7 @@ export default class SlitControlPanel extends Panel {
     const slitSettingsComboBox = new ComboBox( scene.slitSettingProperty, comboBoxItems, comboBoxParent, {
       xMargin: 10,
       yMargin: 5,
+      listPosition: 'above',
       tandem: tandem.createTandem( `${sceneTandemName}SlitSettingsComboBox` )
     } );
 
