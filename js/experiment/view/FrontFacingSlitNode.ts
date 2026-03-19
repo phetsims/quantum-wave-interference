@@ -31,7 +31,7 @@ const VIEW_CORNER_RADIUS = 10;
 
 // Slit visual dimensions
 const SLIT_HEIGHT = 130; // Height of the white slit rectangles
-const SLIT_VISUAL_WIDTH = 8; // Width of each slit rectangle in view coordinates
+const HORIZONTAL_PADDING = 10; // Left/right padding for mapping physical x positions into the view
 
 // Span arrow constants for slit separation (full-size span below the view)
 const SPAN_ARROW_OPTIONS = {
@@ -93,12 +93,12 @@ export default class FrontFacingSlitNode extends Node {
     // light/particles passing through the openings.
     const slitY = ( VIEW_HEIGHT - SLIT_HEIGHT ) / 2;
 
-    const leftSlit = new Rectangle( 0, slitY, SLIT_VISUAL_WIDTH, SLIT_HEIGHT, {
+    const leftSlit = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: 'white'
     } );
     this.addChild( leftSlit );
 
-    const rightSlit = new Rectangle( 0, slitY, SLIT_VISUAL_WIDTH, SLIT_HEIGHT, {
+    const rightSlit = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: 'white'
     } );
     this.addChild( rightSlit );
@@ -131,13 +131,13 @@ export default class FrontFacingSlitNode extends Node {
     sceneModel.wavelengthProperty.link( updateBeamOverlay );
 
     // Cover rectangles for when a slit is covered
-    const leftCover = new Rectangle( 0, slitY, SLIT_VISUAL_WIDTH, SLIT_HEIGHT, {
+    const leftCover = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: '#555',
       visible: false
     } );
     this.addChild( leftCover );
 
-    const rightCover = new Rectangle( 0, slitY, SLIT_VISUAL_WIDTH, SLIT_HEIGHT, {
+    const rightCover = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: '#555',
       visible: false
     } );
@@ -185,26 +185,31 @@ export default class FrontFacingSlitNode extends Node {
     } );
     this.addChild( separationSpanNode );
 
+    // Use one horizontal physical-to-view scale for slit positions and slit widths so the
+    // front-facing slit rectangles are spatially consistent with the separation readout.
+    // For photons, at maximum slider value, center-to-center slit separation spans the full
+    // drawable width (minus horizontal padding), per design request.
+    const maxSeparationPadding = sceneModel.sourceType === 'photons' ? 2 * HORIZONTAL_PADDING : HORIZONTAL_PADDING;
+    const scaleDenominatorMM = sceneModel.sourceType === 'photons'
+                               ? sceneModel.slitSeparationRange.max
+                               : sceneModel.slitSeparationRange.max + sceneModel.slitWidth;
+    const mmToViewX = ( VIEW_WIDTH - 2 * maxSeparationPadding ) / scaleDenominatorMM;
+    const slitVisualWidth = sceneModel.slitWidth * mmToViewX;
+
     // Update slit positions and span indicators when slit separation changes
     const updateSlits = () => {
       const separationMM = sceneModel.slitSeparationProperty.value;
-      const range = sceneModel.slitSeparationRange;
 
-      // Map slit separation to view spacing: fraction of available width
-      // Reserve space for the slits themselves and some padding
-      const maxVisualSpacing = VIEW_WIDTH - SLIT_VISUAL_WIDTH * 2 - 20; // max gap between slit centers
-      const minVisualSpacing = SLIT_VISUAL_WIDTH + 8; // min gap so slits don't overlap
-      const fraction = ( separationMM - range.min ) / ( range.max - range.min );
-      const visualSpacing = minVisualSpacing + fraction * ( maxVisualSpacing - minVisualSpacing );
-
-      // Position slits symmetrically about center
+      // Position slits symmetrically about center using physical center-to-center separation.
       const centerX = VIEW_WIDTH / 2;
-      leftSlit.centerX = centerX - visualSpacing / 2;
-      rightSlit.centerX = centerX + visualSpacing / 2;
+      const halfSeparationView = separationMM * mmToViewX / 2;
+      const halfSlitWidthView = slitVisualWidth / 2;
+      leftSlit.setRect( centerX - halfSeparationView - halfSlitWidthView, slitY, slitVisualWidth, SLIT_HEIGHT );
+      rightSlit.setRect( centerX + halfSeparationView - halfSlitWidthView, slitY, slitVisualWidth, SLIT_HEIGHT );
 
       // Position covers to match slits
-      leftCover.x = leftSlit.x;
-      rightCover.x = rightSlit.x;
+      leftCover.setRect( leftSlit.x, slitY, leftSlit.width, SLIT_HEIGHT );
+      rightCover.setRect( rightSlit.x, slitY, rightSlit.width, SLIT_HEIGHT );
 
       // Update slit width span (above the left slit).
       // Per the design mockup, tick marks flank the slit edges and the label is to the right.
@@ -261,7 +266,7 @@ export default class FrontFacingSlitNode extends Node {
 
     // Detector indicator rectangles (yellow/orange translucent overlays, distinct from gray covers)
     const DETECTOR_COLOR = new Color( 255, 200, 50, 0.6 );
-    const leftDetector = new Rectangle( 0, slitY, SLIT_VISUAL_WIDTH, SLIT_HEIGHT, {
+    const leftDetector = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: DETECTOR_COLOR,
       stroke: new Color( 200, 150, 0 ),
       lineWidth: 1,
@@ -269,7 +274,7 @@ export default class FrontFacingSlitNode extends Node {
     } );
     this.addChild( leftDetector );
 
-    const rightDetector = new Rectangle( 0, slitY, SLIT_VISUAL_WIDTH, SLIT_HEIGHT, {
+    const rightDetector = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: DETECTOR_COLOR,
       stroke: new Color( 200, 150, 0 ),
       lineWidth: 1,
@@ -285,8 +290,8 @@ export default class FrontFacingSlitNode extends Node {
       rightDetector.visible = ( slitSetting === 'rightDetector' );
 
       // Position detectors to match slit positions
-      leftDetector.x = leftSlit.x;
-      rightDetector.x = rightSlit.x;
+      leftDetector.setRect( leftSlit.x, slitY, leftSlit.width, SLIT_HEIGHT );
+      rightDetector.setRect( rightSlit.x, slitY, rightSlit.width, SLIT_HEIGHT );
     } );
   }
 }

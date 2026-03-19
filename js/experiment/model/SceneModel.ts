@@ -36,7 +36,7 @@ const NEUTRON_MASS = 1.675e-27;
 const HELIUM_ATOM_MASS = 6.646e-27;
 
 // Maximum emission rate in hits per second at full intensity
-const MAX_EMISSION_RATE = 200;
+const MAX_EMISSION_RATE = 100;
 
 // Maximum number of hit positions to retain in the hits array. When the array exceeds this
 // size by HITS_TRIM_MARGIN, it is trimmed back to MAX_HITS_RETAINED from the front. This
@@ -155,16 +155,18 @@ export default class SceneModel extends PhetioObject {
     // defaultScreenDistance and defaultVelocity are set per source type to match the design mockup.
     let defaultScreenDistance: number;
     let defaultVelocity: number;
+    let defaultSlitSeparation: number;
 
     if ( options.sourceType === 'photons' ) {
       this.particleMass = 0;
-      this.slitWidth = 0.1; // mm
+      this.slitWidth = 0.02; // mm (20 μm)
       this.velocityRange = new Range( 0, 0 ); // Not used for photons
-      this.slitSeparationRange = new Range( 0.2, 1.0 ); // mm
+      this.slitSeparationRange = new Range( 0.05, 0.5 ); // mm
       this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
       this.screenHalfWidth = 0.02; // 20 mm (40 mm total width; 10 mm scale bar spans ~1/4 of screen)
       defaultScreenDistance = 0.8;// start at the max
       defaultVelocity = 0;
+      defaultSlitSeparation = 0.25;
     }
     else if ( options.sourceType === 'electrons' ) {
       this.particleMass = ELECTRON_MASS;
@@ -175,6 +177,7 @@ export default class SceneModel extends PhetioObject {
       this.screenHalfWidth = 0.02; // 20 mm (40 mm total width; 10 mm scale bar spans ~1/4 of screen)
       defaultScreenDistance = 0.5; // Moderate default for clear interference fringes
       defaultVelocity = 1e6; // 1000 km/s per design mockup
+      defaultSlitSeparation = this.slitSeparationRange.max;
     }
     else if ( options.sourceType === 'neutrons' ) {
       this.particleMass = NEUTRON_MASS;
@@ -185,6 +188,7 @@ export default class SceneModel extends PhetioObject {
       this.screenHalfWidth = 4e-4; // 0.4 mm (0.8 mm total width; scale bar spans ~1/4 of screen)
       defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
       defaultVelocity = ( this.velocityRange.min + this.velocityRange.max ) / 2;
+      defaultSlitSeparation = this.slitSeparationRange.max;
     }
     else {
       // Helium atoms
@@ -196,6 +200,7 @@ export default class SceneModel extends PhetioObject {
       this.screenHalfWidth = 4e-4; // 0.4 mm (0.8 mm total width; scale bar spans ~1/4 of screen)
       defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
       defaultVelocity = ( this.velocityRange.min + this.velocityRange.max ) / 2;
+      defaultSlitSeparation = this.slitSeparationRange.max;
     }
 
     this.hits = [];
@@ -229,7 +234,7 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'intensityProperty' )
     } );
 
-    this.slitSeparationProperty = new NumberProperty( this.slitSeparationRange.max, {
+    this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
       range: this.slitSeparationRange,
       units: 'mm',
       tandem: tandem.createTandem( 'slitSeparationProperty' )
@@ -283,6 +288,9 @@ export default class SceneModel extends PhetioObject {
     this.slitSettingProperty.lazyLink( () => this.clearScreen() );
     this.wavelengthProperty.lazyLink( () => this.clearScreen() );
     this.velocityProperty.lazyLink( () => this.clearScreen() );
+
+    // Switching between Average Intensity and Hits should start a fresh accumulation.
+    this.detectionModeProperty.lazyLink( () => this.clearScreen() );
   }
 
   /**

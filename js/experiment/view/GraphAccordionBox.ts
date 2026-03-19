@@ -3,7 +3,7 @@
 /**
  * GraphAccordionBox shows a graph below the front-facing detector screen. In Average Intensity mode, it displays
  * a smooth intensity curve vs horizontal position. In Hits mode, it displays a histogram of hit counts binned
- * into 40 bins. A MagnifyingGlassZoomButtonGroup to the right controls the y-axis zoom level.
+ * into 100 bins. A MagnifyingGlassZoomButtonGroup to the right controls the y-axis zoom level.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -35,7 +35,7 @@ const CHART_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
 const CHART_HEIGHT = 80;
 
 // Number of bins for the histogram in Hits mode
-const HISTOGRAM_BINS = 40;
+const HISTOGRAM_BINS = 100;
 
 // Grid line styling
 const GRID_LINE_COLOR = 'rgb(200,200,200)';
@@ -64,7 +64,8 @@ export default class GraphAccordionBox extends Node {
     super( options );
 
     // Zoom level for the y-axis
-    const zoomRange = new RangeWithValue( 1, 6, 3 );
+    // Start fully zoomed in so Hits mode opens at maximum vertical magnification.
+    const zoomRange = new RangeWithValue( 1, 6, 6 );
     this.zoomLevelProperty = new NumberProperty( zoomRange.defaultValue, {
       range: zoomRange,
       tandem: providedOptions.tandem.createTandem( 'zoomLevelProperty' ),
@@ -297,7 +298,7 @@ export default class GraphAccordionBox extends Node {
 
   /**
    * Paints the histogram (bar chart) on the data path for Hits mode.
-   * Downsamples from the model's pre-accumulated intensityBins (200 bins) to HISTOGRAM_BINS (40),
+   * Downsamples from the model's pre-accumulated intensityBins (200 bins) to HISTOGRAM_BINS (100),
    * avoiding the O(n) cost of re-binning all hits from scratch each frame.
    */
   private paintHistogram( dataPath: Path, sceneModel: SceneModel ): void {
@@ -309,8 +310,8 @@ export default class GraphAccordionBox extends Node {
       return;
     }
 
-    // Downsample from model bins (200) to histogram bins (40): each histogram bin
-    // sums 5 model bins, giving the same distribution without iterating all hits.
+    // Downsample from model bins (200) to histogram bins (100): each histogram bin
+    // sums 2 model bins, giving the same distribution without iterating all hits.
     const binsPerHistogramBin = modelBinCount / HISTOGRAM_BINS;
     const bins = new Array<number>( HISTOGRAM_BINS ).fill( 0 );
     for ( let i = 0; i < HISTOGRAM_BINS; i++ ) {
@@ -321,28 +322,20 @@ export default class GraphAccordionBox extends Node {
       }
     }
 
-    // Find the max bin count for scaling
-    let maxCount = 0;
-    for ( let i = 0; i < bins.length; i++ ) {
-      if ( bins[ i ] > maxCount ) {
-        maxCount = bins[ i ];
-      }
-    }
-
-    if ( maxCount === 0 ) {
-      dataPath.shape = null;
-      return;
-    }
-
-    // Zoom scaling determines how many counts fill the chart height
-    const zoomScale = Utils.linear( 1, 6, 0.15, 1.5, this.zoomLevelProperty.value );
+    // Zoom scaling determines vertical pixels per count. Keep the same number of zoom
+    // levels, and make each adjacent level differ by exactly a factor of 2.
+    // At max zoom, each additional count increases bar height by exactly one bar width in pixels.
+    const maxZoomLevel = this.zoomLevelProperty.range.max;
+    const zoomStepsFromMax = maxZoomLevel - this.zoomLevelProperty.value;
+    const zoomScale = Math.pow( 2, -zoomStepsFromMax );
     const binWidth = CHART_WIDTH / HISTOGRAM_BINS;
 
     const shape = new Shape();
 
     for ( let i = 0; i < HISTOGRAM_BINS; i++ ) {
       if ( bins[ i ] > 0 ) {
-        const barHeight = Math.min( CHART_HEIGHT, ( bins[ i ] / maxCount ) * CHART_HEIGHT * zoomScale );
+        // Fixed count-to-height mapping (no auto-scaling by current peak bin).
+        const barHeight = Math.min( CHART_HEIGHT, bins[ i ] * binWidth * zoomScale );
         const x = i * binWidth;
         const y = CHART_HEIGHT - barHeight;
 
