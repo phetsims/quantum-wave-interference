@@ -10,8 +10,9 @@
 
 import Property from '../../../../axon/js/Property.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
+import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import Image from '../../../../scenery/js/nodes/Image.js';
+import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import RectangularRadioButtonGroup, { type RectangularRadioButtonGroupItem } from '../../../../sun/js/buttons/RectangularRadioButtonGroup.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
@@ -26,6 +27,16 @@ import { type SourceType } from '../model/SourceType.js';
 
 const LABEL_FONT = new PhetFont( 12 );
 const ICON_MAX_WIDTH = 24;
+const ICON_SLOT_WIDTH = 30;
+const ICON_SLOT_HEIGHT = 30;
+const BUTTON_SIDE_LENGTH = 50;
+const LABEL_WIDTH = 80;
+const LABEL_HEIGHT = 16;
+const GRID_COLUMNS = 2;
+const GRID_HORIZONTAL_SPACING = 12;
+const GRID_VERTICAL_SPACING = 12;
+const GRID_PREFERRED_WIDTH = GRID_COLUMNS * LABEL_WIDTH + ( GRID_COLUMNS - 1 ) * GRID_HORIZONTAL_SPACING + 1;
+const SELECTED_BUTTON_FILL = '#e6f4ff';
 
 // Per-icon scaling keeps the imported SVG artwork visually balanced in the 2x2 scene button grid.
 const ICON_SCALE = {
@@ -60,15 +71,29 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
 
       return {
         value: scene,
-        createNode: () => new VBox( {
-          spacing: 4,
-          children: [
-            new Image( SOURCE_TYPE_IMAGE_MAP[ sourceType ], {
-              maxWidth: ICON_MAX_WIDTH,
-              scale: ICON_SCALE[ sourceType ]
-            } ),
-            new Text( stringProperty, { font: LABEL_FONT, maxWidth: 80 } )
-          ]
+        createNode: () => {
+          const iconNode = new Image( SOURCE_TYPE_IMAGE_MAP[ sourceType ], {
+            maxWidth: ICON_MAX_WIDTH,
+            scale: ICON_SCALE[ sourceType ]
+          } );
+
+          const iconSlotNode = new Rectangle( 0, 0, ICON_SLOT_WIDTH, ICON_SLOT_HEIGHT, {
+            fill: null,
+            stroke: null,
+            children: [ iconNode ]
+          } );
+          iconNode.center = iconSlotNode.center;
+
+          return iconSlotNode;
+        },
+        label: new AlignBox( new Text( stringProperty, {
+          font: LABEL_FONT,
+          maxWidth: LABEL_WIDTH
+        } ), {
+          xAlign: 'center',
+          yAlign: 'center',
+          preferredWidth: LABEL_WIDTH,
+          preferredHeight: LABEL_HEIGHT
         } ),
         tandemName: `${sourceType}RadioButton`
       };
@@ -77,14 +102,19 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
     super( sceneProperty, items, {
       orientation: 'horizontal',
       wrap: true,
-      preferredWidth: 250,
-      spacing: 10,
-      lineSpacing: 8,
+      labelAlign: 'bottom',
+      labelSpacing: 4,
+      preferredWidth: GRID_PREFERRED_WIDTH,
+      spacing: GRID_HORIZONTAL_SPACING,
+      lineSpacing: GRID_VERTICAL_SPACING,
       radioButtonOptions: {
-        baseColor: 'white',
+        baseColor: SELECTED_BUTTON_FILL,
         xMargin: 10,
-        yMargin: 8,
+        yMargin: 10,
+        minWidth: BUTTON_SIDE_LENGTH,
+        minHeight: BUTTON_SIDE_LENGTH,
         buttonAppearanceStrategyOptions: {
+          deselectedFill: 'white',
           selectedStroke: '#73bce1',
           selectedLineWidth: 2
         }

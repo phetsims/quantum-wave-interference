@@ -169,14 +169,16 @@ export default class ExperimentScreenView extends ScreenView {
     // Bottom Row
     // ==============================
 
-    // Scene radio buttons - 2x2 grid at the bottom-left
+    // Scene radio buttons - 2x2 grid centered under the source control panel (left UI column)
     const sceneRadioButtonGroup = new SceneRadioButtonGroup(
       model.sceneProperty,
       model.scenes,
       options.tandem.createTandem( 'sceneRadioButtonGroup' )
     );
-    sceneRadioButtonGroup.left = this.layoutBounds.minX + QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
-    sceneRadioButtonGroup.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+    const sceneButtonAreaTop = sourceControlPanel.bottom;
+    const sceneButtonAreaBottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+    sceneRadioButtonGroup.centerX = sourceControlPanel.centerX;
+    sceneRadioButtonGroup.centerY = ( sceneButtonAreaTop + sceneButtonAreaBottom ) / 2;
     this.addChild( sceneRadioButtonGroup );
 
     // Slit controls panel (center of bottom row)
