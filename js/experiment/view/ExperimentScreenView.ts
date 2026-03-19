@@ -824,17 +824,13 @@ export default class ExperimentScreenView extends ScreenView {
     rulerCheckbox.top = screenSettingsPanel.top;
     this.addChild( rulerCheckbox );
 
-    // Time controls: play/pause button with step-forward and speed radio buttons.
+    // Time controls: play/pause button with speed radio buttons (no step button).
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
       timeSpeeds: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
       flowBoxSpacing: 15,
       playPauseStepButtonOptions: {
-        stepForwardButtonOptions: {
-          listener: () => {
-            model.stepForwardInTime( 1 / 60 ); // Step one frame
-          }
-        },
+        includeStepForwardButton: false,
         playPauseButtonOptions: {
           radius: 22
         }
@@ -842,7 +838,7 @@ export default class ExperimentScreenView extends ScreenView {
       tandem: options.tandem.createTandem( 'timeControlNode' )
     } );
     timeControlNode.left = rulerCheckbox.left;
-    timeControlNode.top = rulerCheckbox.bottom + 8;
+    timeControlNode.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     this.addChild( timeControlNode );
 
     // Draggable ruler - 10 cm with major ticks each cm, displayed in front of all other content
