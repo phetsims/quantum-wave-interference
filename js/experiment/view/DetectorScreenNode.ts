@@ -67,10 +67,8 @@ export default class DetectorScreenNode extends Node {
 
   private readonly screenCanvasNode: DetectorScreenCanvasNode;
 
-  // Exposed so ExperimentScreenView can use ManualConstraint to align the right edges of
-  // these controls with the layout bounds.
-  public readonly eraserButton: EraserButton;
-  public readonly snapshotButtonGroup: VBox;
+  private readonly eraserButton: EraserButton;
+  private readonly snapshotButtonGroup: VBox;
 
   public constructor( sceneModel: SceneModel, providedOptions: DetectorScreenNodeOptions ) {
 
@@ -293,11 +291,6 @@ export default class DetectorScreenNode extends Node {
       }
     } );
 
-    // Position eraser button top-aligned to the right of the screen
-    this.eraserButton.left = SCREEN_WIDTH + 6;
-    this.eraserButton.top = 0;
-    this.addChild( this.eraserButton );
-
     // Snapshot buttons and indicator dots, bottom-aligned to the right of the screen
     this.snapshotButtonGroup = new VBox( {
       spacing: 4,
@@ -306,10 +299,19 @@ export default class DetectorScreenNode extends Node {
         indicatorDotsBox,
         snapshotButton,
         viewSnapshotsButton
-      ],
-      left: SCREEN_WIDTH + 6,
-      bottom: SCREEN_HEIGHT
+      ]
     } );
+
+    // Right-align both button groups so they share a right edge, with INTERNAL_PADDING
+    // between the screen rect's right edge and the nearest button's left edge.
+    const buttonsRight = SCREEN_WIDTH + QuantumWaveInterferenceConstants.INTERNAL_PADDING +
+                         Math.max( this.eraserButton.width, this.snapshotButtonGroup.width );
+    this.eraserButton.right = buttonsRight;
+    this.eraserButton.top = 0;
+    this.addChild( this.eraserButton );
+
+    this.snapshotButtonGroup.right = buttonsRight;
+    this.snapshotButtonGroup.bottom = SCREEN_HEIGHT;
     this.addChild( this.snapshotButtonGroup );
   }
 }

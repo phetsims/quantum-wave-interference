@@ -29,11 +29,12 @@ export default class QuantumWaveInterferenceConstants {
   // X position of the front-facing slit view left edge.
   public static readonly FRONT_FACING_SLIT_LEFT = 305;
 
-  // Right edge of the front-facing detector screen rect.
-  public static readonly DETECTOR_SCREEN_RIGHT = 920;
-
   // Width of the front-facing detector screen rect.
   public static readonly DETECTOR_SCREEN_WIDTH = 370;
+
+  // Padding between the front-facing display areas (screen rect, accordion box) and their
+  // adjacent side buttons (eraser, snapshot, zoom).
+  public static readonly INTERNAL_PADDING = 10;
 }
 
 quantumWaveInterference.register( 'QuantumWaveInterferenceConstants', QuantumWaveInterferenceConstants );

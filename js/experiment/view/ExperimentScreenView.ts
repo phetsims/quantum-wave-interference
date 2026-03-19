@@ -686,23 +686,25 @@ export default class ExperimentScreenView extends ScreenView {
 
     // Front-facing detector screen - one per scene, with visibility toggling.
     // The front-facing screen has a fixed position; the overhead parallelogram slides above it.
+    // Positioned so that the buttons' right edge aligns with the layout bounds right margin,
+    // with INTERNAL_PADDING between the screen rect and the buttons.
+    const controlsRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
       const detectorScreen = new DetectorScreenNode( scene, {
         tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
       } );
-      // Position so the screen rect's right edge is at DETECTOR_SCREEN_RIGHT.
-      // The screen rect starts at local x=0, so .x = desired right edge - screen rect width.
-      detectorScreen.x = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_RIGHT - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
+      // Position so the rightmost button's right edge = controlsRight.
+      // The screen rect right = controlsRight - buttonsWidth - INTERNAL_PADDING.
+      detectorScreen.x = controlsRight - detectorScreen.localBounds.maxX;
       // Use y (not top) to position the background rect at FRONT_FACING_ROW_TOP.
       detectorScreen.y = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_TOP;
       this.addChild( detectorScreen );
       return detectorScreen;
     } );
 
-    // Now that front-facing screens are positioned, set the reference bounds for the
-    // overhead parallelogram's horizontal range. Use the screen rect bounds (not the full
-    // node bounds which include buttons) for accurate alignment with the overhead view.
+    // Set the reference bounds for the overhead parallelogram's horizontal range.
+    // Use the screen rect bounds (not the full node bounds which include buttons).
     frontFacingScreenLeft = detectorScreenNodes[ 0 ].x;
     frontFacingScreenRight = detectorScreenNodes[ 0 ].x + QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
 
@@ -747,28 +749,10 @@ export default class ExperimentScreenView extends ScreenView {
       return graphBox;
     } );
 
-    // Align the right edges of the detector screen buttons (eraser, camera, eye) and the
-    // graph zoom buttons to the layout bounds right edge with standard margin padding.
-    const controlsRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
+    // Align the zoom buttons' right edge with the layout bounds right margin.
     for ( let i = 0; i < model.scenes.length; i++ ) {
-      const detectorScreen = detectorScreenNodes[ i ];
       const graphBox = this.graphAccordionBoxes[ i ];
 
-      // Eraser button right edge
-      ManualConstraint.create( this, [ detectorScreen ], () => {
-        const eraserGlobalRight = detectorScreen.eraserButton.parentToGlobalPoint(
-          detectorScreen.eraserButton.rightTop ).x;
-        detectorScreen.eraserButton.right = detectorScreen.eraserButton.right + ( controlsRight - eraserGlobalRight );
-      } );
-
-      // Snapshot button group right edge
-      ManualConstraint.create( this, [ detectorScreen ], () => {
-        const groupGlobalRight = detectorScreen.snapshotButtonGroup.parentToGlobalPoint(
-          detectorScreen.snapshotButtonGroup.rightTop ).x;
-        detectorScreen.snapshotButtonGroup.right = detectorScreen.snapshotButtonGroup.right + ( controlsRight - groupGlobalRight );
-      } );
-
-      // Zoom button group right edge
       ManualConstraint.create( this, [ graphBox ], () => {
         const zoomGlobalRight = graphBox.zoomButtonGroup.parentToGlobalPoint(
           graphBox.zoomButtonGroup.rightTop ).x;

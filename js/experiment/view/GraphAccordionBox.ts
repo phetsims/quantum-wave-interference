@@ -181,7 +181,7 @@ export default class GraphAccordionBox extends Node {
     this.zoomButtonGroup = new MagnifyingGlassZoomButtonGroup( this.zoomLevelProperty, {
       orientation: 'vertical',
       spacing: 8,
-      left: this.accordionBox.right + 6,
+      left: this.accordionBox.right + QuantumWaveInterferenceConstants.INTERNAL_PADDING,
       top: this.accordionBox.top,
       buttonOptions: {
         baseColor: 'rgb(200,215,240)'
