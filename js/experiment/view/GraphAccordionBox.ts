@@ -189,9 +189,10 @@ export default class GraphAccordionBox extends Node {
     } );
     this.addChild( this.zoomButtonGroup );
 
-    // Hide zoom buttons when the accordion box is collapsed (per design spec)
+    // Hide zoom buttons when collapsed, and keep bottom-aligned when expanded
     this.accordionBox.expandedProperty.link( expanded => {
       this.zoomButtonGroup.visible = expanded;
+      this.zoomButtonGroup.bottom = this.accordionBox.bottom;
     } );
 
     // Update the graph when data changes
