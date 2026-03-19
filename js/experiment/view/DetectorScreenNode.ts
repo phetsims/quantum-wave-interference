@@ -10,6 +10,7 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import Utils from '../../../../dot/js/Utils.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
@@ -435,22 +436,28 @@ class DetectorScreenCanvasNode extends CanvasNode {
     const width = SCREEN_WIDTH;
     const height = SCREEN_HEIGHT;
     const screenHalfWidth = sceneModel.screenHalfWidth;
+    const rgb = this.getIntensityRGB();
+    const baseAlpha = brightness * opacityScale;
 
-    // Sample the theoretical intensity curve at evenly-spaced positions across the screen.
-    // 200 samples provides a smooth curve that matches the model's INTENSITY_BIN_COUNT.
-    const NUM_SAMPLES = 200;
-    const bandWidth = width / NUM_SAMPLES;
-
-    for ( let i = 0; i < NUM_SAMPLES; i++ ) {
-      const fraction = ( i + 0.5 ) / NUM_SAMPLES;
+    // Draw one 1px-wide opaque rectangle per pixel column. Since the background is black,
+    // alpha blending is equivalent to scaling the RGB values directly (color * alpha on black
+    // = color * alpha). This avoids all compositing artifacts from overlapping semi-transparent
+    // bands — each pixel column is written exactly once with a fully opaque color.
+    for ( let x = 0; x < width; x++ ) {
+      const fraction = ( x + 0.5 ) / width;
       const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
       const intensity = sceneModel.getIntensityAtPosition( physicalX );
-      const alpha = intensity * brightness * opacityScale;
+      const scale = intensity * baseAlpha;
 
-      if ( alpha > 0.01 ) {
-        context.fillStyle = this.getIntensityColor( alpha );
-        context.fillRect( i * bandWidth, 0, bandWidth + 0.5, height );
+      if ( scale < 0.004 ) { // ~1/255, below visible threshold
+        continue;
       }
+
+      const r = Utils.roundSymmetric( rgb.r * scale );
+      const g = Utils.roundSymmetric( rgb.g * scale );
+      const b = Utils.roundSymmetric( rgb.b * scale );
+      context.fillStyle = `rgb(${r},${g},${b})`;
+      context.fillRect( x, 0, 1, height );
     }
   }
 
@@ -470,16 +477,15 @@ class DetectorScreenCanvasNode extends CanvasNode {
   }
 
   /**
-   * Returns the CSS color string for an intensity band based on the source type and alpha.
-   * For photons, uses VisibleColor to ensure consistent wavelength-dependent colors across all views.
+   * Returns the RGB components for intensity bands based on the source type.
    */
-  private getIntensityColor( alpha: number ): string {
+  private getIntensityRGB(): { r: number; g: number; b: number } {
     if ( this.sceneModel.sourceType === SourceType.PHOTONS ) {
       const color = VisibleColor.wavelengthToColor( this.sceneModel.wavelengthProperty.value );
-      return `rgba(${color.red},${color.green},${color.blue},${alpha})`;
+      return { r: color.red, g: color.green, b: color.blue };
     }
     else {
-      return `rgba(255,255,255,${alpha})`;
+      return { r: 255, g: 255, b: 255 };
     }
   }
 }
