@@ -67,6 +67,11 @@ export default class DetectorScreenNode extends Node {
 
   private readonly screenCanvasNode: DetectorScreenCanvasNode;
 
+  // Exposed so ExperimentScreenView can use ManualConstraint to align the right edges of
+  // these controls with the layout bounds.
+  public readonly eraserButton: EraserButton;
+  public readonly snapshotButtonGroup: VBox;
+
   public constructor( sceneModel: SceneModel, providedOptions: DetectorScreenNodeOptions ) {
 
     const options = optionize<DetectorScreenNodeOptions, SelfOptions, NodeOptions>()( {}, providedOptions );
@@ -209,8 +214,8 @@ export default class DetectorScreenNode extends Node {
     // but wavelength changes affect hit dot color for photons.
     sceneModel.wavelengthProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
-    // Eraser button to clear the screen - positioned to the right of the screen, top-aligned
-    const eraserButton = new EraserButton( {
+    // Eraser button to clear the screen
+    this.eraserButton = new EraserButton( {
       iconWidth: 18,
       listener: () => sceneModel.clearScreen(),
       touchAreaXDilation: 5,
@@ -289,12 +294,12 @@ export default class DetectorScreenNode extends Node {
     } );
 
     // Position eraser button top-aligned to the right of the screen
-    eraserButton.left = SCREEN_WIDTH + 6;
-    eraserButton.top = 0;
-    this.addChild( eraserButton );
+    this.eraserButton.left = SCREEN_WIDTH + 6;
+    this.eraserButton.top = 0;
+    this.addChild( this.eraserButton );
 
     // Snapshot buttons and indicator dots, bottom-aligned to the right of the screen
-    const buttonGroup = new VBox( {
+    this.snapshotButtonGroup = new VBox( {
       spacing: 4,
       align: 'center',
       children: [
@@ -305,7 +310,7 @@ export default class DetectorScreenNode extends Node {
       left: SCREEN_WIDTH + 6,
       bottom: SCREEN_HEIGHT
     } );
-    this.addChild( buttonGroup );
+    this.addChild( this.snapshotButtonGroup );
   }
 }
 

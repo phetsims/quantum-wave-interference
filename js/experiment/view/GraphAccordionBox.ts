@@ -60,6 +60,9 @@ export default class GraphAccordionBox extends Node {
   // horizontally with the front-facing detector screen (which is in a different coordinate frame).
   public readonly chartBackground: Rectangle;
 
+  // Exposed so ExperimentScreenView can align the zoom buttons' right edge with the layout bounds.
+  public readonly zoomButtonGroup: MagnifyingGlassZoomButtonGroup;
+
   public constructor( sceneModel: SceneModel, providedOptions: GraphAccordionBoxOptions ) {
 
     const options = optionize<GraphAccordionBoxOptions, SelfOptions, NodeOptions>()( {}, providedOptions );
@@ -175,7 +178,7 @@ export default class GraphAccordionBox extends Node {
     this.addChild( this.accordionBox );
 
     // Zoom buttons to the right of the accordion box, top-aligned per the design spec.
-    const zoomButtonGroup = new MagnifyingGlassZoomButtonGroup( this.zoomLevelProperty, {
+    this.zoomButtonGroup = new MagnifyingGlassZoomButtonGroup( this.zoomLevelProperty, {
       orientation: 'vertical',
       spacing: 8,
       left: this.accordionBox.right + 6,
@@ -188,11 +191,11 @@ export default class GraphAccordionBox extends Node {
       },
       tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' )
     } );
-    this.addChild( zoomButtonGroup );
+    this.addChild( this.zoomButtonGroup );
 
     // Hide zoom buttons when the accordion box is collapsed (per design spec)
     this.accordionBox.expandedProperty.link( expanded => {
-      zoomButtonGroup.visible = expanded;
+      this.zoomButtonGroup.visible = expanded;
     } );
 
     // Update the graph when data changes

@@ -747,6 +747,35 @@ export default class ExperimentScreenView extends ScreenView {
       return graphBox;
     } );
 
+    // Align the right edges of the detector screen buttons (eraser, camera, eye) and the
+    // graph zoom buttons to the layout bounds right edge with standard margin padding.
+    const controlsRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
+    for ( let i = 0; i < model.scenes.length; i++ ) {
+      const detectorScreen = detectorScreenNodes[ i ];
+      const graphBox = this.graphAccordionBoxes[ i ];
+
+      // Eraser button right edge
+      ManualConstraint.create( this, [ detectorScreen ], () => {
+        const eraserGlobalRight = detectorScreen.eraserButton.parentToGlobalPoint(
+          detectorScreen.eraserButton.rightTop ).x;
+        detectorScreen.eraserButton.right = detectorScreen.eraserButton.right + ( controlsRight - eraserGlobalRight );
+      } );
+
+      // Snapshot button group right edge
+      ManualConstraint.create( this, [ detectorScreen ], () => {
+        const groupGlobalRight = detectorScreen.snapshotButtonGroup.parentToGlobalPoint(
+          detectorScreen.snapshotButtonGroup.rightTop ).x;
+        detectorScreen.snapshotButtonGroup.right = detectorScreen.snapshotButtonGroup.right + ( controlsRight - groupGlobalRight );
+      } );
+
+      // Zoom button group right edge
+      ManualConstraint.create( this, [ graphBox ], () => {
+        const zoomGlobalRight = graphBox.zoomButtonGroup.parentToGlobalPoint(
+          graphBox.zoomButtonGroup.rightTop ).x;
+        graphBox.zoomButtonGroup.right = graphBox.zoomButtonGroup.right + ( controlsRight - zoomGlobalRight );
+      } );
+    }
+
     // Toggle visibility of front-facing slits, detector screens, and graphs based on the selected scene
     model.sceneProperty.link( selectedScene => {
       model.scenes.forEach( ( scene, index ) => {
