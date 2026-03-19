@@ -15,7 +15,7 @@ import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import TModel from '../../../../joist/js/TModel.js';
 import { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
-import Stopwatch from '../../../../scenery-phet/js/Stopwatch.js';
+
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
@@ -50,9 +50,6 @@ export default class ExperimentModel implements TModel {
   // Shared state: ruler visibility and position
   public readonly isRulerVisibleProperty: BooleanProperty;
   public readonly rulerPositionProperty: Vector2Property;
-
-  // Shared state: stopwatch for timing experiments
-  public readonly stopwatch: Stopwatch;
 
   public constructor( providedOptions: ExperimentModelOptions ) {
 
@@ -108,14 +105,6 @@ export default class ExperimentModel implements TModel {
     // Initial ruler position: centered in the layout bounds, below the middle row
     this.rulerPositionProperty = new Vector2Property( new Vector2( 300, 350 ), {
       tandem: tandem.createTandem( 'rulerPositionProperty' )
-    } );
-
-    this.stopwatch = new Stopwatch( {
-      position: new Vector2( 60, 420 ),
-      tandem: tandem.createTandem( 'stopwatch' ),
-      timePropertyOptions: {
-        range: Stopwatch.ZERO_TO_ALMOST_SIXTY
-      }
     } );
 
     // Apply query parameters for initial state configuration.
@@ -217,21 +206,19 @@ export default class ExperimentModel implements TModel {
     this.timeSpeedProperty.reset();
     this.isRulerVisibleProperty.reset();
     this.rulerPositionProperty.reset();
-    this.stopwatch.reset();
 
     // Reset selected scene last so listeners see reset scenes
     this.sceneProperty.reset();
   }
 
   /**
-   * Advances the simulation by a fixed time step, stepping the active scene and the stopwatch.
+   * Advances the simulation by a fixed time step, stepping the active scene.
    * Called directly by the step-forward button (bypassing the isPlaying check and time speed
    * multiplier), following the pattern in quantum-measurement's stepForwardInTime.
    * @param dt - time step, in seconds
    */
   public stepForwardInTime( dt: number ): void {
     this.sceneProperty.value.step( dt );
-    this.stopwatch.step( dt );
   }
 
   /**

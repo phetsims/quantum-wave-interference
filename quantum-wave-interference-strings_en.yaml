@@ -36,7 +36,6 @@ hitsGraph:        Hits Graph
 count:            Count
 snapshotNumberPattern: 'Snapshot {{number}}'
 ruler:              Ruler
-stopwatch:          Stopwatch
 centimeters:        cm
 detector:           Detector
 wavelengthPattern:  'λ = {{value}} nm'
