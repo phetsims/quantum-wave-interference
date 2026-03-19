@@ -182,7 +182,7 @@ export default class GraphAccordionBox extends Node {
       orientation: 'vertical',
       spacing: 8,
       left: this.accordionBox.right + QuantumWaveInterferenceConstants.INTERNAL_PADDING,
-      top: this.accordionBox.top,
+      bottom: this.accordionBox.bottom,
       buttonOptions: {
         baseColor: 'rgb(200,215,240)'
       },
