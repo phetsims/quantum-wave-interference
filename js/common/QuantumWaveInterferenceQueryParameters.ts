@@ -81,6 +81,6 @@ quantumWaveInterference.register( 'QuantumWaveInterferenceQueryParameters', Quan
 // Log query parameters
 logGlobal( 'phet.chipper.queryParameters' );
 logGlobal( 'phet.preloads.phetio.queryParameters' );
-logGlobal( 'phet.quantumWaveInterference.QuantumWaveInterferenceQueryParameters' );
+phet.log && phet.log( `QuantumWaveInterferenceQueryParameters: ${JSON.stringify( QuantumWaveInterferenceQueryParameters, null, 2 )}` );
 
 export default QuantumWaveInterferenceQueryParameters;
