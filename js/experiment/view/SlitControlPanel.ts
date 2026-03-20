@@ -26,7 +26,6 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import { type SlitSetting } from '../model/SlitSetting.js';
@@ -344,5 +343,3 @@ export default class SlitControlPanel extends Panel {
     return Math.pow( 10, -decimalPlaces );
   }
 }
-
-quantumWaveInterference.register( 'SlitControlPanel', SlitControlPanel );

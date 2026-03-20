@@ -15,7 +15,6 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import OverheadDetectorScreenNode, { DETECTOR_DY, DETECTOR_LEFT_HEIGHT } from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
@@ -140,5 +139,3 @@ export default class OverheadBeamNode extends Node {
     this._updateBeam();
   }
 }
-
-quantumWaveInterference.register( 'OverheadBeamNode', OverheadBeamNode );

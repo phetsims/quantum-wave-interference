@@ -11,7 +11,6 @@
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Shape from '../../../../kite/js/Shape.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import SceneModel from '../model/SceneModel.js';
 import getDetectorScreenTexture from './getDetectorScreenTexture.js';
 
@@ -78,5 +77,3 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
     context.restore();
   }
 }
-
-quantumWaveInterference.register( 'OverheadDetectorPatternNode', OverheadDetectorPatternNode );

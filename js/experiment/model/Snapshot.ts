@@ -8,7 +8,6 @@
  */
 
 import Vector2 from '../../../../dot/js/Vector2.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import { type DetectionMode } from './DetectionMode.js';
 import { type SourceType } from './SourceType.js';
 
@@ -71,5 +70,3 @@ export default class Snapshot {
   }
 
 }
-
-quantumWaveInterference.register( 'Snapshot', Snapshot );

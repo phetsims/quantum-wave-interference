@@ -15,7 +15,6 @@ import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import createParallelogramNode from './createParallelogramNode.js';
@@ -152,5 +151,3 @@ export default class OverheadDetectorScreenNode extends Node {
     return this.frontFacingScreenRight - DETECTOR_DX;
   }
 }
-
-quantumWaveInterference.register( 'OverheadDetectorScreenNode', OverheadDetectorScreenNode );

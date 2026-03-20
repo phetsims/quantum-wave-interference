@@ -10,7 +10,6 @@
 
 import Shape from '../../../../kite/js/Shape.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 
 /**
  * @param dx - horizontal distance from left edge to right edge
@@ -68,5 +67,4 @@ function createParallelogramNode( dx: number, dy: number, leftHeight: number, fi
   } );
 }
 
-quantumWaveInterference.register( 'createParallelogramNode', createParallelogramNode );
 export default createParallelogramNode;

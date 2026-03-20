@@ -6,8 +6,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import quantumWaveInterference from '../quantumWaveInterference.js';
-
 export default class QuantumWaveInterferenceConstants {
 
   private constructor() {
@@ -36,5 +34,3 @@ export default class QuantumWaveInterferenceConstants {
   // adjacent side buttons (eraser, snapshot, zoom).
   public static readonly INTERNAL_PADDING = 10;
 }
-
-quantumWaveInterference.register( 'QuantumWaveInterferenceConstants', QuantumWaveInterferenceConstants );

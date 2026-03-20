@@ -22,7 +22,6 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import SceneModel from '../model/SceneModel.js';
 
 const VIEW_WIDTH = QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH;
@@ -313,5 +312,3 @@ export default class FrontFacingSlitNode extends Node {
     } );
   }
 }
-
-quantumWaveInterference.register( 'FrontFacingSlitNode', FrontFacingSlitNode );

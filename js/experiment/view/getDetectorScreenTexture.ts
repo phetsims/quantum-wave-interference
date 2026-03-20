@@ -10,7 +10,6 @@
 
 import Utils from '../../../../dot/js/Utils.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import SceneModel from '../model/SceneModel.js';
 
@@ -191,5 +190,4 @@ function getDetectorScreenTexture( sceneModel: SceneModel ): HTMLCanvasElement {
   return cache.canvas;
 }
 
-quantumWaveInterference.register( 'getDetectorScreenTexture', getDetectorScreenTexture );
 export default getDetectorScreenTexture;

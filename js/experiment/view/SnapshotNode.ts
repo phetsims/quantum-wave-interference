@@ -27,7 +27,6 @@ import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import Snapshot from '../model/Snapshot.js';
@@ -289,5 +288,3 @@ class SnapshotCanvasNode extends CanvasNode {
     }
   }
 }
-
-quantumWaveInterference.register( 'SnapshotNode', SnapshotNode );

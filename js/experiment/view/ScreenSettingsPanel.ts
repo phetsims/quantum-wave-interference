@@ -22,7 +22,6 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
@@ -128,5 +127,3 @@ export default class ScreenSettingsPanel extends Panel {
     super( content, options );
   }
 }
-
-quantumWaveInterference.register( 'ScreenSettingsPanel', ScreenSettingsPanel );

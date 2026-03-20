@@ -126,5 +126,3 @@ const QuantumWaveInterferenceFluent = {
 };
 
 export default QuantumWaveInterferenceFluent;
-
-quantumWaveInterference.register('QuantumWaveInterferenceFluent', QuantumWaveInterferenceFluent);

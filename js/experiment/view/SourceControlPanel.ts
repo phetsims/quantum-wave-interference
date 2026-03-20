@@ -27,7 +27,6 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 
@@ -315,5 +314,3 @@ export default class SourceControlPanel extends Panel {
     } );
   }
 }
-
-quantumWaveInterference.register( 'SourceControlPanel', SourceControlPanel );

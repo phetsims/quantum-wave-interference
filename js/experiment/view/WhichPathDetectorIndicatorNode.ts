@@ -14,7 +14,6 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Color from '../../../../scenery/js/util/Color.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import ExperimentModel from '../model/ExperimentModel.js';
@@ -96,5 +95,3 @@ export default class WhichPathDetectorIndicatorNode extends Node {
     detectorHitsProperty.link( updateDetectorIndicator );
   }
 }
-
-quantumWaveInterference.register( 'WhichPathDetectorIndicatorNode', WhichPathDetectorIndicatorNode );

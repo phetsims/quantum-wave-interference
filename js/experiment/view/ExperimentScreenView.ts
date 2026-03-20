@@ -25,7 +25,6 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
@@ -326,5 +325,3 @@ export default class ExperimentScreenView extends ScreenView {
     this.graphAccordionBoxes.forEach( box => box.reset() );
   }
 }
-
-quantumWaveInterference.register( 'ExperimentScreenView', ExperimentScreenView );

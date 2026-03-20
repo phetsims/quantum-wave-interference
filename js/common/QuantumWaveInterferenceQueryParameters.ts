@@ -9,7 +9,6 @@
 
 import logGlobal from '../../../phet-core/js/logGlobal.js';
 import { QueryStringMachine } from '../../../query-string-machine/js/QueryStringMachineModule.js';
-import quantumWaveInterference from '../quantumWaveInterference.js';
 
 const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
 
@@ -75,8 +74,6 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
     validValues: [ null, 'bothOpen', 'leftCovered', 'rightCovered', 'leftDetector', 'rightDetector' ]
   }
 } );
-
-quantumWaveInterference.register( 'QuantumWaveInterferenceQueryParameters', QuantumWaveInterferenceQueryParameters );
 
 // Log query parameters
 logGlobal( 'phet.chipper.queryParameters' );

@@ -26,7 +26,6 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AccordionBox from '../../../../sun/js/AccordionBox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 
@@ -370,5 +369,3 @@ export default class GraphAccordionBox extends Node {
     this.zoomLevelProperty.reset();
   }
 }
-
-quantumWaveInterference.register( 'GraphAccordionBox', GraphAccordionBox );

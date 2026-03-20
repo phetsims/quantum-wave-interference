@@ -28,5 +28,3 @@ export default class QuantumWaveInterferenceColors {
       default: 'white'
     } );
 }
-
-quantumWaveInterference.register( 'QuantumWaveInterferenceColors', QuantumWaveInterferenceColors );

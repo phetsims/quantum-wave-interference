@@ -11,7 +11,6 @@
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Dialog from '../../../../sun/js/Dialog.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import SceneModel from '../model/SceneModel.js';
 import SnapshotNode from './SnapshotNode.js';
 
@@ -46,5 +45,3 @@ export default class SnapshotsDialog extends Dialog {
     } );
   }
 }
-
-quantumWaveInterference.register( 'SnapshotsDialog', SnapshotsDialog );

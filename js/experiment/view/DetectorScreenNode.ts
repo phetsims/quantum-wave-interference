@@ -31,7 +31,6 @@ import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js'
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import getDetectorScreenTexture from './getDetectorScreenTexture.js';
@@ -327,5 +326,3 @@ class DetectorScreenCanvasNode extends CanvasNode {
     context.drawImage( texture, 0, 0, this.textureWidth, this.textureHeight );
   }
 }
-
-quantumWaveInterference.register( 'DetectorScreenNode', DetectorScreenNode );

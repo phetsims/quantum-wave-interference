@@ -21,7 +21,6 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { type SlitSetting, SlitSettingValues } from './SlitSetting.js';
 import Snapshot from './Snapshot.js';
@@ -514,5 +513,3 @@ export default class SceneModel extends PhetioObject {
     this.hitsChangedEmitter.emit();
   }
 }
-
-quantumWaveInterference.register( 'SceneModel', SceneModel );

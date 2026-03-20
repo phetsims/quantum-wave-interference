@@ -19,7 +19,6 @@ import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
@@ -149,5 +148,3 @@ export default class OverheadEmitterNode extends Node {
     model.sceneProperty.link( updateEmitterLayout );
   }
 }
-
-quantumWaveInterference.register( 'OverheadEmitterNode', OverheadEmitterNode );

@@ -15,7 +15,6 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Color from '../../../../scenery/js/util/Color.js';
-import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import createParallelogramNode from './createParallelogramNode.js';
@@ -133,5 +132,3 @@ export default class OverheadDoubleSlitNode extends Node {
     } );
   }
 }
-
-quantumWaveInterference.register( 'OverheadDoubleSlitNode', OverheadDoubleSlitNode );

@@ -7,7 +7,6 @@
 import Screen, { ScreenOptions } from '../../../joist/js/Screen.js';
 import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js';
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
-import quantumWaveInterference from '../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from './model/ExperimentModel.js';
 import ExperimentScreenView from './view/ExperimentScreenView.js';
@@ -32,5 +31,3 @@ export default class ExperimentScreen extends Screen<ExperimentModel, Experiment
     );
   }
 }
-
-quantumWaveInterference.register( 'ExperimentScreen', ExperimentScreen );
