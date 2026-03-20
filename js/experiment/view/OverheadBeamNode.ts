@@ -73,7 +73,7 @@ export default class OverheadBeamNode extends Node {
       emitterBeamNode.fill = beamColor.withAlpha( 0.8 * intensity );
 
       const fanLeft = doubleSlitParallelogram.right;
-      const fanRight = detectorScreenParallelogram.left;
+      const fanRight = detectorScreenNode.getMaxDistanceParallelogramLeft();
       const narrowHalfHeight = beamHeight / 2;
 
       const slitCenterY = doubleSlitParallelogram.y + ( 50 + 21 ) / 2;

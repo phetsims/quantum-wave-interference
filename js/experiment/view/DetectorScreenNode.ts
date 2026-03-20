@@ -11,14 +11,12 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
-import Utils from '../../../../dot/js/Utils.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
@@ -36,27 +34,13 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import quantumWaveInterference from '../../quantumWaveInterference.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
+import getDetectorScreenTexture from './getDetectorScreenTexture.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.
 const SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 10;
-
-// Hit dot rendering: a bright core with a soft halo to match the design mockup's
-// phosphorescent screen look, where each detection event is clearly visible.
-const HIT_CORE_RADIUS = 2.5;
-const HIT_GLOW_RADIUS = 5;
-
-// Performance: When hit count exceeds this threshold, skip the expensive glow halo pass and
-// use fillRect instead of arc for cores. At high counts, overlapping dots already create a
-// natural glow effect, so per-dot halos add visual clutter with no pedagogical benefit.
-const GLOW_THRESHOLD = 2000;
-
-// Maximum number of dots to render individually. Beyond this, the interference pattern is
-// clearly established and additional dots don't aid learning. The model continues accumulating
-// hits in intensityBins for correct histogram/overhead rendering.
-const MAX_RENDERED_HITS = 20000;
 
 type SelfOptions = EmptySelfOptions;
 
@@ -322,6 +306,8 @@ export default class DetectorScreenNode extends Node {
 class DetectorScreenCanvasNode extends CanvasNode {
 
   private readonly sceneModel: SceneModel;
+  private readonly textureWidth: number;
+  private readonly textureHeight: number;
 
   public constructor( sceneModel: SceneModel, width: number, height: number ) {
     super( {
@@ -329,163 +315,16 @@ class DetectorScreenCanvasNode extends CanvasNode {
     } );
 
     this.sceneModel = sceneModel;
+    this.textureWidth = width;
+    this.textureHeight = height;
   }
 
   /**
-   * Renders either hit dots or intensity bands depending on the detection mode.
+   * Renders the shared detector-screen texture.
    */
   public paintCanvas( context: CanvasRenderingContext2D ): void {
-    const sceneModel = this.sceneModel;
-    const brightness = sceneModel.screenBrightnessProperty.value;
-
-    if ( sceneModel.detectionModeProperty.value === 'hits' ) {
-      this.paintHits( context, brightness );
-    }
-    else {
-      this.paintIntensity( context, brightness );
-    }
-  }
-
-  /**
-   * Renders individual hit dots on the canvas. For low hit counts, uses a two-pass approach
-   * (glow halo + bright core via arc) for the design mockup's phosphorescent screen look.
-   * For high hit counts, switches to fillRect cores only for performance — overlapping dots
-   * create a natural glow, and arc calls become the dominant render cost.
-   */
-  private paintHits( context: CanvasRenderingContext2D, brightness: number ): void {
-    const hits = this.sceneModel.hits;
-    if ( hits.length === 0 ) {
-      return;
-    }
-
-    const width = SCREEN_WIDTH;
-    const height = SCREEN_HEIGHT;
-    const rgb = this.getHitRGB();
-    const hitCount = hits.length;
-
-    // Cap the number of rendered hits to prevent frame drops. Start rendering from the end
-    // of the array so that the most recent hits are always shown.
-    const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
-    const startIndex = hitCount - renderCount;
-
-    if ( hitCount <= GLOW_THRESHOLD ) {
-
-      // Low hit count: full quality rendering with glow halos and circular cores
-      // Pass 1: Draw glow halos (semi-transparent, larger radius)
-      context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness * 0.15})`;
-      for ( let i = startIndex; i < hitCount; i++ ) {
-        const hit = hits[ i ];
-        const viewX = ( hit.x + 1 ) / 2 * width;
-        const viewY = ( hit.y + 1 ) / 2 * height;
-        context.beginPath();
-        context.arc( viewX, viewY, HIT_GLOW_RADIUS, 0, Math.PI * 2 );
-        context.fill();
-      }
-
-      // Pass 2: Draw solid cores (bright, smaller radius)
-      context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness})`;
-      for ( let i = startIndex; i < hitCount; i++ ) {
-        const hit = hits[ i ];
-        const viewX = ( hit.x + 1 ) / 2 * width;
-        const viewY = ( hit.y + 1 ) / 2 * height;
-        context.beginPath();
-        context.arc( viewX, viewY, HIT_CORE_RADIUS, 0, Math.PI * 2 );
-        context.fill();
-      }
-    }
-    else {
-
-      // High hit count: performance-optimized rendering using fillRect (no path computation)
-      // and skipping the glow pass (overlapping dots at this density create natural glow).
-      const coreDiameter = HIT_CORE_RADIUS * 2;
-      context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness})`;
-      for ( let i = startIndex; i < hitCount; i++ ) {
-        const hit = hits[ i ];
-        const viewX = ( hit.x + 1 ) / 2 * width;
-        const viewY = ( hit.y + 1 ) / 2 * height;
-        context.fillRect( viewX - HIT_CORE_RADIUS, viewY - HIT_CORE_RADIUS, coreDiameter, coreDiameter );
-      }
-    }
-  }
-
-  /**
-   * Renders the average intensity pattern as vertical glowing bands using the theoretical intensity
-   * curve. Uses getIntensityAtPosition() for a clean, smooth pattern that responds immediately to
-   * parameter changes, consistent with the overhead detector pattern and graph views.
-   * Opacity scales logarithmically with total accumulated hits so the pattern builds up over time,
-   * matching the design requirement that time controls affect the aggregation rate.
-   */
-  private paintIntensity( context: CanvasRenderingContext2D, brightness: number ): void {
-    const sceneModel = this.sceneModel;
-    const totalHits = sceneModel.totalHitsProperty.value;
-
-    if ( totalHits === 0 ) {
-      return;
-    }
-
-    // Opacity scales with total accumulated hits using a logarithmic ramp, matching the
-    // overhead detector pattern (OverheadDetectorPatternNode) and graph (GraphAccordionBox).
-    // The pattern appears faintly at first and saturates as data accumulates.
-    const opacityScale = Math.min( 1, Math.log10( totalHits + 1 ) / 2 );
-
-    if ( opacityScale < 0.01 ) {
-      return;
-    }
-
-    const width = SCREEN_WIDTH;
-    const height = SCREEN_HEIGHT;
-    const screenHalfWidth = sceneModel.screenHalfWidth;
-    const rgb = this.getIntensityRGB();
-    const baseAlpha = brightness * opacityScale * sceneModel.intensityProperty.value;
-
-    // Draw one 1px-wide opaque rectangle per pixel column. Since the background is black,
-    // alpha blending is equivalent to scaling the RGB values directly (color * alpha on black
-    // = color * alpha). This avoids all compositing artifacts from overlapping semi-transparent
-    // bands — each pixel column is written exactly once with a fully opaque color.
-    for ( let x = 0; x < width; x++ ) {
-      const fraction = ( x + 0.5 ) / width;
-      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
-      const intensity = sceneModel.getIntensityAtPosition( physicalX );
-      const scale = intensity * baseAlpha;
-
-      if ( scale < 0.004 ) { // ~1/255, below visible threshold
-        continue;
-      }
-
-      const r = Utils.roundSymmetric( rgb.r * scale );
-      const g = Utils.roundSymmetric( rgb.g * scale );
-      const b = Utils.roundSymmetric( rgb.b * scale );
-      context.fillStyle = `rgb(${r},${g},${b})`;
-      context.fillRect( x, 0, 1, height );
-    }
-  }
-
-  /**
-   * Returns the RGB components for hit dots based on the source type.
-   * For photons, uses VisibleColor to get the wavelength-dependent color.
-   * For particles, returns white.
-   */
-  private getHitRGB(): { r: number; g: number; b: number } {
-    if ( this.sceneModel.sourceType === 'photons' ) {
-      const color = VisibleColor.wavelengthToColor( this.sceneModel.wavelengthProperty.value );
-      return { r: color.red, g: color.green, b: color.blue };
-    }
-    else {
-      return { r: 255, g: 255, b: 255 };
-    }
-  }
-
-  /**
-   * Returns the RGB components for intensity bands based on the source type.
-   */
-  private getIntensityRGB(): { r: number; g: number; b: number } {
-    if ( this.sceneModel.sourceType === 'photons' ) {
-      const color = VisibleColor.wavelengthToColor( this.sceneModel.wavelengthProperty.value );
-      return { r: color.red, g: color.green, b: color.blue };
-    }
-    else {
-      return { r: 255, g: 255, b: 255 };
-    }
+    const texture = getDetectorScreenTexture( this.sceneModel );
+    context.drawImage( texture, 0, 0, this.textureWidth, this.textureHeight );
   }
 }
 

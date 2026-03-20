@@ -93,12 +93,16 @@ export default class OverheadDetectorScreenNode extends Node {
       const scene = model.sceneProperty.value;
       const distance = scene.screenDistanceProperty.value;
       const range = scene.screenDistanceRange;
-      const fraction = ( distance - range.min ) / ( range.max - range.min );
 
-      const xAtMax = this.frontFacingScreenRight - DETECTOR_DX;
-      const frontFacingScreenCenter = ( this.frontFacingScreenLeft + this.frontFacingScreenRight ) / 2;
-      const xAtMin = frontFacingScreenCenter - DETECTOR_DX / 2;
-      this.parallelogramNode.x = xAtMin + fraction * ( xAtMax - xAtMin );
+      // Scene-dependent proportional mapping:
+      // center-to-center distance in view space is proportional to the model's screen distance.
+      // For each scene, its max screenDistance maps to the current far-right max position.
+      const slitCenterX = this.doubleSlitParallelogramNode.centerX;
+      const maxScreenCenterX = this.frontFacingScreenRight - DETECTOR_DX / 2;
+      const maxCenterDistanceX = maxScreenCenterX - slitCenterX;
+      const pixelsPerMeter = maxCenterDistanceX / range.max;
+      const screenCenterX = slitCenterX + distance * pixelsPerMeter;
+      this.parallelogramNode.centerX = screenCenterX;
 
       detectorScreenLabel.centerX = this.parallelogramNode.centerX;
       detectorScreenLabel.top = LABEL_Y;
@@ -134,6 +138,18 @@ export default class OverheadDetectorScreenNode extends Node {
     this.frontFacingScreenLeft = left;
     this.frontFacingScreenRight = right;
     this.updateDetectorScreenPosition();
+  }
+
+  /**
+   * Returns the detector screen parallelogram left x-position corresponding to the
+   * maximum screen distance for the active scene. Used for keeping the overhead fan-beam
+   * graphic static in width while the detector screen itself moves.
+   */
+  public getMaxDistanceParallelogramLeft(): number {
+    if ( this.frontFacingScreenRight <= this.frontFacingScreenLeft ) {
+      return this.parallelogramNode.left;
+    }
+    return this.frontFacingScreenRight - DETECTOR_DX;
   }
 }
 
