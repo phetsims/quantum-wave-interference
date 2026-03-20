@@ -100,42 +100,22 @@ const paintHits = (
   const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
   const startIndex = hitCount - renderCount;
 
-  if ( hitCount <= GLOW_THRESHOLD ) {
-    context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${glowAlpha})`;
+  const drawHits = ( alpha: number, radius: number ): void => {
+    context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${alpha})`;
     for ( let i = startIndex; i < hitCount; i++ ) {
       const hit = hits[ i ];
       const viewX = ( ( hit.x + 1 ) / 2 ) * SCREEN_WIDTH;
       const viewY = ( ( hit.y + 1 ) / 2 ) * SCREEN_HEIGHT;
       context.beginPath();
-      context.arc( viewX, viewY, glowRadius, 0, Math.PI * 2 );
+      context.arc( viewX, viewY, radius, 0, Math.PI * 2 );
       context.fill();
     }
+  };
 
-    context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${coreAlpha})`;
-    for ( let i = startIndex; i < hitCount; i++ ) {
-      const hit = hits[ i ];
-      const viewX = ( ( hit.x + 1 ) / 2 ) * SCREEN_WIDTH;
-      const viewY = ( ( hit.y + 1 ) / 2 ) * SCREEN_HEIGHT;
-      context.beginPath();
-      context.arc( viewX, viewY, HIT_CORE_RADIUS, 0, Math.PI * 2 );
-      context.fill();
-    }
+  if ( hitCount <= GLOW_THRESHOLD ) {
+    drawHits( glowAlpha, glowRadius );
   }
- else {
-    const coreDiameter = HIT_CORE_RADIUS * 2;
-    context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${coreAlpha})`;
-    for ( let i = startIndex; i < hitCount; i++ ) {
-      const hit = hits[ i ];
-      const viewX = ( ( hit.x + 1 ) / 2 ) * SCREEN_WIDTH;
-      const viewY = ( ( hit.y + 1 ) / 2 ) * SCREEN_HEIGHT;
-      context.fillRect(
-        viewX - HIT_CORE_RADIUS,
-        viewY - HIT_CORE_RADIUS,
-        coreDiameter,
-        coreDiameter
-      );
-    }
-  }
+  drawHits( coreAlpha, HIT_CORE_RADIUS );
 };
 
 const paintIntensity = (
