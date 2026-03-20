@@ -113,6 +113,9 @@
   "ruler": {
     "value": "Ruler"
   },
+  "stopwatch": {
+    "value": "Stopwatch"
+  },
   "centimeters": {
     "value": "cm"
   },
