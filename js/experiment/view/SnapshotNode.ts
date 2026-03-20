@@ -37,6 +37,11 @@ const SNAPSHOT_HEIGHT = 120;
 const CORNER_RADIUS = 6;
 const HIT_DOT_RADIUS = 1;
 const INTENSITY_BINS = 150;
+const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
+const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
+const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
+const HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 0.1;
+const HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 1.8; // previous default hits gain
 
 const PARAM_FONT = new PhetFont( 11 );
 const TITLE_FONT = new PhetFont( { size: 12, weight: 'bold' } );
@@ -50,21 +55,57 @@ const SLIT_SETTING_DISPLAY_MAP: Record<string, TReadOnlyProperty<string>> = {
   RIGHT_DETECTOR: QuantumWaveInterferenceFluent.rightDetectorStringProperty
 };
 
+const getIntensityScreenBrightnessMultiplier = ( sliderBrightness: number ): number => {
+  const clampedBrightness = Utils.clamp( sliderBrightness, 0, 1 );
+  return Utils.linear(
+    0,
+    1,
+    INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER,
+    INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
+    clampedBrightness
+  );
+};
+
+const getHitsDisplayGain = ( brightness: number ): number => {
+  const clampedBrightness = Utils.clamp( brightness, 0, SceneModel.SCREEN_BRIGHTNESS_MAX );
+  return Utils.linear(
+    0,
+    SceneModel.SCREEN_BRIGHTNESS_MAX,
+    HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER,
+    HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
+    clampedBrightness
+  );
+};
+
+const getIntensityDisplayGain = ( brightness: number, intensity: number ): number => {
+  return (
+    getIntensityScreenBrightnessMultiplier( brightness ) *
+    Utils.clamp( intensity, 0, 1 ) *
+    INTENSITY_BRIGHTNESS_MAX_MULTIPLIER
+  );
+};
+
 export default class SnapshotNode extends Node {
-
   public constructor( sceneModel: SceneModel, index: number ) {
-
     const snapshotProperty: TReadOnlyProperty<Snapshot | null> = new DerivedProperty(
       [ sceneModel.snapshotsProperty ],
-      snapshots => ( index < snapshots.length ) ? snapshots[ index ] : null
+      snapshots => ( index < snapshots.length ? snapshots[ index ] : null )
     );
 
     // Background rectangle for the snapshot image
-    const background = new Rectangle( 0, 0, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT, CORNER_RADIUS, CORNER_RADIUS, {
-      fill: 'black',
-      stroke: '#555',
-      lineWidth: 1
-    } );
+    const background = new Rectangle(
+      0,
+      0,
+      SNAPSHOT_WIDTH,
+      SNAPSHOT_HEIGHT,
+      CORNER_RADIUS,
+      CORNER_RADIUS,
+      {
+        fill: 'black',
+        stroke: '#555',
+        lineWidth: 1
+      }
+    );
 
     // Canvas node for rendering the snapshot content (hits or intensity bands)
     const canvasNode = new SnapshotCanvasNode( snapshotProperty, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT );
@@ -93,40 +134,58 @@ export default class SnapshotNode extends Node {
     // Update all text content when the snapshot changes
     snapshotProperty.link( snapshot => {
       if ( snapshot ) {
-        titleText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty.value, {
-          number: snapshot.snapshotNumber
-        } );
+        titleText.string = StringUtils.fillIn(
+          QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty.value,
+          {
+            number: snapshot.snapshotNumber
+          }
+        );
 
         // Slit separation: use μm for small values (< 0.1 mm) for readability
         if ( snapshot.slitSeparation < 0.1 ) {
           const valueUM = snapshot.slitSeparation * 1000;
-          slitSepText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.slitSeparationMicrometerValuePatternStringProperty.value, {
-            value: toFixed( valueUM, 1 )
-          } );
+          slitSepText.string = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.slitSeparationMicrometerValuePatternStringProperty.value,
+            {
+              value: toFixed( valueUM, 1 )
+            }
+          );
         }
-        else {
-          slitSepText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.slitSeparationValuePatternStringProperty.value, {
-            value: toFixed( snapshot.slitSeparation, 2 )
-          } );
+ else {
+          slitSepText.string = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.slitSeparationValuePatternStringProperty.value,
+            {
+              value: toFixed( snapshot.slitSeparation, 2 )
+            }
+          );
         }
 
         // Screen distance: D = X.X m
-        screenDistText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.screenDistanceValuePatternStringProperty.value, {
-          value: toFixed( snapshot.screenDistance, 1 )
-        } );
+        screenDistText.string = StringUtils.fillIn(
+          QuantumWaveInterferenceFluent.screenDistanceValuePatternStringProperty.value,
+          {
+            value: toFixed( snapshot.screenDistance, 1 )
+          }
+        );
 
         // Wavelength: show the photon wavelength directly, or the de Broglie wavelength for particles
         if ( snapshot.sourceType === 'photons' ) {
-          wavelengthText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.wavelengthPatternStringProperty.value, {
-            value: Utils.roundSymmetric( snapshot.wavelength )
-          } );
+          wavelengthText.string = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.wavelengthPatternStringProperty.value,
+            {
+              value: Utils.roundSymmetric( snapshot.wavelength )
+            }
+          );
         }
-        else {
+ else {
           // Convert effective wavelength from meters to nanometers for display
           const lambdaNm = snapshot.effectiveWavelength * 1e9;
-          wavelengthText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.deBroglieWavelengthPatternStringProperty.value, {
-            value: toFixed( lambdaNm, 3 )
-          } );
+          wavelengthText.string = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.deBroglieWavelengthPatternStringProperty.value,
+            {
+              value: toFixed( lambdaNm, 3 )
+            }
+          );
         }
 
         // Slit setting (only show if not the default "Both open")
@@ -135,14 +194,15 @@ export default class SnapshotNode extends Node {
           slitSettingText.string = displayProperty ? displayProperty.value : snapshot.slitSetting;
           slitSettingText.visible = true;
         }
-        else {
+ else {
           slitSettingText.visible = false;
         }
 
         // Detection mode
-        detectionModeText.string = snapshot.detectionMode === 'hits'
-                                   ? QuantumWaveInterferenceFluent.hitsStringProperty.value
-                                   : QuantumWaveInterferenceFluent.averageIntensityStringProperty.value;
+        detectionModeText.string =
+          snapshot.detectionMode === 'hits'
+            ? QuantumWaveInterferenceFluent.hitsStringProperty.value
+            : QuantumWaveInterferenceFluent.averageIntensityStringProperty.value;
       }
 
       titleText.left = 6;
@@ -186,10 +246,13 @@ export default class SnapshotNode extends Node {
  * Canvas node that renders the snapshot content (hits or intensity).
  */
 class SnapshotCanvasNode extends CanvasNode {
-
   private readonly snapshotProperty: TReadOnlyProperty<Snapshot | null>;
 
-  public constructor( snapshotProperty: TReadOnlyProperty<Snapshot | null>, width: number, height: number ) {
+  public constructor(
+    snapshotProperty: TReadOnlyProperty<Snapshot | null>,
+    width: number,
+    height: number
+  ) {
     super( {
       canvasBounds: new Bounds2( 0, 0, width, height )
     } );
@@ -205,7 +268,7 @@ class SnapshotCanvasNode extends CanvasNode {
     if ( snapshot.detectionMode === 'hits' ) {
       this.paintHits( context, snapshot );
     }
-    else {
+ else {
       this.paintIntensity( context, snapshot );
     }
   }
@@ -218,14 +281,20 @@ class SnapshotCanvasNode extends CanvasNode {
 
     const width = SNAPSHOT_WIDTH;
     const height = SNAPSHOT_HEIGHT;
+    const displayGain = getHitsDisplayGain( snapshot.brightness );
+    const colorScale = Math.max( 1, displayGain );
+    const coreAlpha = Utils.clamp( displayGain, 0, 1 );
 
     // Hit color based on source type
     if ( snapshot.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
-      context.fillStyle = `rgba(${color.red},${color.green},${color.blue},${snapshot.brightness})`;
+      const scaledR = Utils.clamp( Utils.roundSymmetric( color.red * colorScale ), 0, 255 );
+      const scaledG = Utils.clamp( Utils.roundSymmetric( color.green * colorScale ), 0, 255 );
+      const scaledB = Utils.clamp( Utils.roundSymmetric( color.blue * colorScale ), 0, 255 );
+      context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${coreAlpha})`;
     }
-    else {
-      context.fillStyle = `rgba(255,255,255,${snapshot.brightness})`;
+ else {
+      context.fillStyle = `rgba(255,255,255,${coreAlpha})`;
     }
 
     // Use fillRect for performance — at the snapshot's small scale (1px dots), squares and
@@ -233,8 +302,8 @@ class SnapshotCanvasNode extends CanvasNode {
     const dotDiameter = HIT_DOT_RADIUS * 2;
     for ( let i = 0; i < hits.length; i++ ) {
       const hit = hits[ i ];
-      const viewX = ( hit.x + 1 ) / 2 * width;
-      const viewY = ( hit.y + 1 ) / 2 * height;
+      const viewX = ( ( hit.x + 1 ) / 2 ) * width;
+      const viewY = ( ( hit.y + 1 ) / 2 ) * height;
       context.fillRect( viewX - HIT_DOT_RADIUS, viewY - HIT_DOT_RADIUS, dotDiameter, dotDiameter );
     }
   }
@@ -248,6 +317,7 @@ class SnapshotCanvasNode extends CanvasNode {
     const width = SNAPSHOT_WIDTH;
     const height = SNAPSHOT_HEIGHT;
     const binWidth = width / INTENSITY_BINS;
+    const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
 
     // Bin the captured hits to reproduce the actual accumulated pattern that was displayed
     // on screen at capture time, rather than the theoretical intensity formula. This makes
@@ -257,8 +327,10 @@ class SnapshotCanvasNode extends CanvasNode {
     const bins = new Array<number>( INTENSITY_BINS ).fill( 0 );
     let maxBin = 0;
     for ( let i = 0; i < hits.length; i++ ) {
-      const binIndex = Math.min( INTENSITY_BINS - 1,
-        Math.max( 0, Math.floor( ( hits[ i ].x + 1 ) / 2 * INTENSITY_BINS ) ) );
+      const binIndex = Math.min(
+        INTENSITY_BINS - 1,
+        Math.max( 0, Math.floor( ( ( hits[ i ].x + 1 ) / 2 ) * INTENSITY_BINS ) )
+      );
       bins[ binIndex ]++;
       if ( bins[ binIndex ] > maxBin ) {
         maxBin = bins[ binIndex ];
@@ -272,15 +344,18 @@ class SnapshotCanvasNode extends CanvasNode {
     for ( let i = 0; i < INTENSITY_BINS; i++ ) {
       if ( bins[ i ] > 0 ) {
         const intensity = bins[ i ] / maxBin;
-        const alpha = intensity * snapshot.brightness;
+        const intensityScale = intensity * displayGain;
 
-        if ( alpha > 0.01 ) {
+        if ( intensityScale > 0.01 ) {
           if ( snapshot.sourceType === 'photons' ) {
             const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
-            context.fillStyle = `rgba(${color.red},${color.green},${color.blue},${alpha})`;
+            const r = Utils.clamp( Utils.roundSymmetric( color.red * intensityScale ), 0, 255 );
+            const g = Utils.clamp( Utils.roundSymmetric( color.green * intensityScale ), 0, 255 );
+            const b = Utils.clamp( Utils.roundSymmetric( color.blue * intensityScale ), 0, 255 );
+            context.fillStyle = `rgb(${r},${g},${b})`;
           }
-          else {
-            context.fillStyle = `rgba(255,255,255,${Utils.clamp( alpha, 0, 1 )})`;
+ else {
+            context.fillStyle = `rgba(255,255,255,${Utils.clamp( intensityScale, 0, 1 )})`;
           }
           context.fillRect( i * binWidth, 0, binWidth + 0.5, height );
         }

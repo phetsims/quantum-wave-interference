@@ -20,7 +20,7 @@ import ExperimentModel from '../model/ExperimentModel.js';
 import createParallelogramNode from './createParallelogramNode.js';
 
 const LABEL_FONT = new PhetFont( 16 );
-const LABEL_Y = 30;
+const LABEL_Y = 18;
 
 export default class OverheadDoubleSlitNode extends Node {
 

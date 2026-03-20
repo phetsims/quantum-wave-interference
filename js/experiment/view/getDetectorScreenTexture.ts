@@ -21,6 +21,11 @@ const HIT_CORE_RADIUS = 2.5;
 const HIT_GLOW_RADIUS = 5;
 const GLOW_THRESHOLD = 2000;
 const MAX_RENDERED_HITS = 20000;
+const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
+const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
+const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
+const HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 0.1;
+const HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 1.8; // previous default hits gain
 
 type SceneTextureCache = {
   canvas: HTMLCanvasElement;
@@ -35,7 +40,7 @@ const getHitRGB = ( sceneModel: SceneModel ): { r: number; g: number; b: number 
     const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
     return { r: color.red, g: color.green, b: color.blue };
   }
-  else {
+ else {
     return { r: 255, g: 255, b: 255 };
   }
 };
@@ -45,58 +50,99 @@ const getIntensityRGB = ( sceneModel: SceneModel ): { r: number; g: number; b: n
     const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
     return { r: color.red, g: color.green, b: color.blue };
   }
-  else {
+ else {
     return { r: 255, g: 255, b: 255 };
   }
 };
 
-const paintHits = ( context: CanvasRenderingContext2D, sceneModel: SceneModel, brightness: number ): void => {
+const getIntensityScreenBrightnessMultiplier = ( sliderBrightness: number ): number => {
+  const clampedBrightness = Utils.clamp( sliderBrightness, 0, 1 );
+  return Utils.linear(
+    0,
+    1,
+    INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER,
+    INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
+    clampedBrightness
+  );
+};
+
+const getHitsScreenBrightnessMultiplier = ( sliderBrightness: number, sliderMax: number ): number => {
+  const clampedBrightness = Utils.clamp( sliderBrightness, 0, sliderMax );
+  return Utils.linear(
+    0,
+    sliderMax,
+    HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER,
+    HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
+    clampedBrightness
+  );
+};
+
+const paintHits = (
+  context: CanvasRenderingContext2D,
+  sceneModel: SceneModel,
+  displayGain: number
+): void => {
   const hits = sceneModel.hits;
   if ( hits.length === 0 ) {
     return;
   }
 
   const rgb = getHitRGB( sceneModel );
+  const colorScale = Math.max( 1, displayGain );
+  const scaledR = Utils.clamp( Utils.roundSymmetric( rgb.r * colorScale ), 0, 255 );
+  const scaledG = Utils.clamp( Utils.roundSymmetric( rgb.g * colorScale ), 0, 255 );
+  const scaledB = Utils.clamp( Utils.roundSymmetric( rgb.b * colorScale ), 0, 255 );
+  const coreAlpha = Utils.clamp( displayGain, 0, 1 );
+  const glowAlpha = Utils.clamp( displayGain * 0.2, 0, 1 );
+  const glowRadius = HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
+
   const hitCount = hits.length;
   const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
   const startIndex = hitCount - renderCount;
 
   if ( hitCount <= GLOW_THRESHOLD ) {
-
-    context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness * 0.15})`;
+    context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${glowAlpha})`;
     for ( let i = startIndex; i < hitCount; i++ ) {
       const hit = hits[ i ];
-      const viewX = ( hit.x + 1 ) / 2 * SCREEN_WIDTH;
-      const viewY = ( hit.y + 1 ) / 2 * SCREEN_HEIGHT;
+      const viewX = ( ( hit.x + 1 ) / 2 ) * SCREEN_WIDTH;
+      const viewY = ( ( hit.y + 1 ) / 2 ) * SCREEN_HEIGHT;
       context.beginPath();
-      context.arc( viewX, viewY, HIT_GLOW_RADIUS, 0, Math.PI * 2 );
+      context.arc( viewX, viewY, glowRadius, 0, Math.PI * 2 );
       context.fill();
     }
 
-    context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness})`;
+    context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${coreAlpha})`;
     for ( let i = startIndex; i < hitCount; i++ ) {
       const hit = hits[ i ];
-      const viewX = ( hit.x + 1 ) / 2 * SCREEN_WIDTH;
-      const viewY = ( hit.y + 1 ) / 2 * SCREEN_HEIGHT;
+      const viewX = ( ( hit.x + 1 ) / 2 ) * SCREEN_WIDTH;
+      const viewY = ( ( hit.y + 1 ) / 2 ) * SCREEN_HEIGHT;
       context.beginPath();
       context.arc( viewX, viewY, HIT_CORE_RADIUS, 0, Math.PI * 2 );
       context.fill();
     }
   }
-  else {
-
+ else {
     const coreDiameter = HIT_CORE_RADIUS * 2;
-    context.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${brightness})`;
+    context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${coreAlpha})`;
     for ( let i = startIndex; i < hitCount; i++ ) {
       const hit = hits[ i ];
-      const viewX = ( hit.x + 1 ) / 2 * SCREEN_WIDTH;
-      const viewY = ( hit.y + 1 ) / 2 * SCREEN_HEIGHT;
-      context.fillRect( viewX - HIT_CORE_RADIUS, viewY - HIT_CORE_RADIUS, coreDiameter, coreDiameter );
+      const viewX = ( ( hit.x + 1 ) / 2 ) * SCREEN_WIDTH;
+      const viewY = ( ( hit.y + 1 ) / 2 ) * SCREEN_HEIGHT;
+      context.fillRect(
+        viewX - HIT_CORE_RADIUS,
+        viewY - HIT_CORE_RADIUS,
+        coreDiameter,
+        coreDiameter
+      );
     }
   }
 };
 
-const paintIntensity = ( context: CanvasRenderingContext2D, sceneModel: SceneModel, brightness: number ): void => {
+const paintIntensity = (
+  context: CanvasRenderingContext2D,
+  sceneModel: SceneModel,
+  displayGain: number
+): void => {
   const totalHits = sceneModel.totalHitsProperty.value;
   if ( totalHits === 0 ) {
     return;
@@ -109,21 +155,21 @@ const paintIntensity = ( context: CanvasRenderingContext2D, sceneModel: SceneMod
 
   const screenHalfWidth = sceneModel.screenHalfWidth;
   const rgb = getIntensityRGB( sceneModel );
-  const baseAlpha = brightness * opacityScale * sceneModel.intensityProperty.value;
+  const baseGain = opacityScale * displayGain;
 
   for ( let x = 0; x < SCREEN_WIDTH; x++ ) {
     const fraction = ( x + 0.5 ) / SCREEN_WIDTH;
     const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
     const intensity = sceneModel.getIntensityAtPosition( physicalX );
-    const scale = intensity * baseAlpha;
+    const scale = intensity * baseGain;
 
     if ( scale < 0.004 ) {
       continue;
     }
 
-    const r = Utils.roundSymmetric( rgb.r * scale );
-    const g = Utils.roundSymmetric( rgb.g * scale );
-    const b = Utils.roundSymmetric( rgb.b * scale );
+    const r = Utils.clamp( Utils.roundSymmetric( rgb.r * scale ), 0, 255 );
+    const g = Utils.clamp( Utils.roundSymmetric( rgb.g * scale ), 0, 255 );
+    const b = Utils.clamp( Utils.roundSymmetric( rgb.b * scale ), 0, 255 );
     context.fillStyle = `rgb(${r},${g},${b})`;
     context.fillRect( x, 0, 1, SCREEN_HEIGHT );
   }
@@ -133,12 +179,23 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
   const context = cache.context;
   context.clearRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
 
-  const brightness = sceneModel.screenBrightnessProperty.value;
+  const intensityBrightnessMultiplier = getIntensityScreenBrightnessMultiplier(
+    sceneModel.screenBrightnessProperty.value
+  );
+  const hitsBrightnessMultiplier = getHitsScreenBrightnessMultiplier(
+    sceneModel.screenBrightnessProperty.value,
+    sceneModel.screenBrightnessProperty.range.max
+  );
+  const intensityMultiplier =
+    Utils.clamp( sceneModel.intensityProperty.value, 0, 1 ) * INTENSITY_BRIGHTNESS_MAX_MULTIPLIER;
+  const hitsDisplayGain = hitsBrightnessMultiplier;
+  const intensityDisplayGain = intensityBrightnessMultiplier * intensityMultiplier;
+
   if ( sceneModel.detectionModeProperty.value === 'hits' ) {
-    paintHits( context, sceneModel, brightness );
+    paintHits( context, sceneModel, hitsDisplayGain );
   }
-  else {
-    paintIntensity( context, sceneModel, brightness );
+ else {
+    paintIntensity( context, sceneModel, intensityDisplayGain );
   }
 
   cache.dirty = false;

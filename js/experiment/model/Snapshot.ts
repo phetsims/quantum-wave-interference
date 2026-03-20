@@ -38,6 +38,7 @@ export default class Snapshot {
   public readonly effectiveWavelength: number; // m
   public readonly slitSetting: string;
   public readonly brightness: number;
+  public readonly intensity: number;
 
   public constructor( snapshotNumber: number, sceneData: {
     hits: Vector2[];
@@ -49,6 +50,7 @@ export default class Snapshot {
     effectiveWavelength: number;
     slitSetting: string;
     brightness: number;
+    intensity: number;
   } ) {
     this.snapshotNumber = snapshotNumber;
     // Deep copy the most recent hits, capped for memory efficiency. The pattern is fully
@@ -67,6 +69,7 @@ export default class Snapshot {
     this.effectiveWavelength = sceneData.effectiveWavelength;
     this.slitSetting = sceneData.slitSetting;
     this.brightness = sceneData.brightness;
+    this.intensity = sceneData.intensity;
   }
 
 }

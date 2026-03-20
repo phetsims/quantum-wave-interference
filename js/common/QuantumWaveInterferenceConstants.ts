@@ -22,7 +22,8 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly FRONT_FACING_ROW_HEIGHT = 155;
 
   // Y position where the front-facing view backgrounds start.
-  public static readonly FRONT_FACING_ROW_TOP = 165;
+  // Increased to add more vertical separation below the overhead row.
+  public static readonly FRONT_FACING_ROW_TOP = 180;
 
   // X position of the front-facing slit view left edge.
   public static readonly FRONT_FACING_SLIT_LEFT = 305;
@@ -34,3 +35,5 @@ export default class QuantumWaveInterferenceConstants {
   // adjacent side buttons (eraser, snapshot, zoom).
   public static readonly INTERNAL_PADDING = 10;
 }
+
+quantumWaveInterference.register( 'QuantumWaveInterferenceConstants', QuantumWaveInterferenceConstants );

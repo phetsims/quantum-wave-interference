@@ -96,7 +96,7 @@ export default class ScreenSettingsPanel extends Panel {
       maxWidth: 140
     } );
 
-    const brightnessRange = new Range( 0, 1 );
+    const brightnessRange = new Range( 0, SceneModel.SCREEN_BRIGHTNESS_MAX );
     const brightnessSlider = new HSlider( screenBrightnessProperty, brightnessRange, {
       trackSize: new Dimension2( 130, 3 ),
       thumbSize: new Dimension2( 13, 22 ),
@@ -108,7 +108,7 @@ export default class ScreenSettingsPanel extends Panel {
       font: TICK_LABEL_FONT,
       maxWidth: 40
     } ) );
-    brightnessSlider.addMajorTick( 1, new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
+    brightnessSlider.addMajorTick( brightnessRange.max, new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
       font: TICK_LABEL_FONT,
       maxWidth: 40
     } ) );

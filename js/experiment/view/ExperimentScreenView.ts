@@ -63,23 +63,36 @@ export default class ExperimentScreenView extends ScreenView {
     // ==============================
 
     const overheadEmitterNode = new OverheadEmitterNode( model, this.layoutBounds, options.tandem );
-    this.addChild( overheadEmitterNode );
-
     const overheadDoubleSlitNode = new OverheadDoubleSlitNode( model );
-    this.addChild( overheadDoubleSlitNode );
 
     const whichPathDetectorNode = new WhichPathDetectorIndicatorNode( model );
     whichPathDetectorNode.left = overheadDoubleSlitNode.parallelogramNode.right + 4;
-    whichPathDetectorNode.centerY = overheadDoubleSlitNode.parallelogramNode.centerY;
-    this.addChild( whichPathDetectorNode );
 
     const overheadDetectorScreenNode = new OverheadDetectorScreenNode( model, overheadDoubleSlitNode.parallelogramNode );
-    this.addChild( overheadDetectorScreenNode );
-
-    // Beam must be behind slit and screen parallelograms - add before them, then move to back
     const overheadBeamNode = new OverheadBeamNode( model, overheadEmitterNode, overheadDoubleSlitNode, overheadDetectorScreenNode );
+
+    // Top-row stacking order:
+    // double slit (back) -> beams -> detector/indicator -> emitter (front).
+    // This ensures the beam is in front of the slit while the emitter remains in front of the beam.
+    this.addChild( overheadDoubleSlitNode );
     this.addChild( overheadBeamNode );
-    overheadBeamNode.moveToBack();
+    this.addChild( overheadDetectorScreenNode );
+    this.addChild( whichPathDetectorNode );
+    this.addChild( overheadEmitterNode );
+
+    const alignOverheadElements = () => {
+      const activeEmitter = model.sceneProperty.value.sourceType === 'photons' ?
+                            overheadEmitterNode.laserPointerNode :
+                            overheadEmitterNode.particleEmitterNode;
+
+      // Keep the slit centered on the active emitter's beam centerline.
+      overheadDoubleSlitNode.parallelogramNode.centerY = activeEmitter.centerY;
+      whichPathDetectorNode.centerY = overheadDoubleSlitNode.parallelogramNode.centerY;
+
+      // Recompute beams after vertical alignment changes.
+      overheadBeamNode.updateBeam();
+    };
+    model.sceneProperty.link( alignOverheadElements );
 
     // ==============================
     // Middle Row: Source controls, front-facing slits, front-facing screen, graph
@@ -161,7 +174,7 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( sourceControlPanel );
 
     const updateSourceControlPanelPosition = () => {
-      sourceControlPanel.top = 163;
+      sourceControlPanel.top = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_TOP - 2;
     };
     model.sceneProperty.link( updateSourceControlPanelPosition );
 

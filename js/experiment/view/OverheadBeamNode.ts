@@ -16,11 +16,13 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import OverheadDetectorScreenNode, { DETECTOR_DY, DETECTOR_LEFT_HEIGHT } from './OverheadDetectorScreenNode.js';
+import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
 
 const PARTICLE_BEAM_COLOR = new Color( 180, 180, 180 );
+const EMITTER_BEAM_HEIGHT = 32 * 0.73;
+const EMITTER_BEAM_LEFT_EXTENSION = 10;
 
 export default class OverheadBeamNode extends Node {
 
@@ -64,8 +66,8 @@ export default class OverheadBeamNode extends Node {
                             : emitterNode.particleEmitterNode;
       const nozzleTipX = activeEmitter.right;
       const laserCenterY = activeEmitter.centerY;
-      const beamHeight = 32;
-      const beamLeft = nozzleTipX;
+      const beamHeight = EMITTER_BEAM_HEIGHT;
+      const beamLeft = nozzleTipX - EMITTER_BEAM_LEFT_EXTENSION;
       const beamRight = doubleSlitParallelogram.left;
 
       emitterBeamNode.setRect( beamLeft, laserCenterY - beamHeight / 2, beamRight - beamLeft, beamHeight );
@@ -75,8 +77,8 @@ export default class OverheadBeamNode extends Node {
       const fanRight = detectorScreenNode.getMaxDistanceParallelogramLeft();
       const narrowHalfHeight = beamHeight / 2;
 
-      const slitCenterY = doubleSlitParallelogram.y + ( 50 + 21 ) / 2;
-      const screenCenterY = detectorScreenParallelogram.y + ( DETECTOR_LEFT_HEIGHT + DETECTOR_DY ) / 2;
+      const slitCenterY = doubleSlitParallelogram.centerY;
+      const screenCenterY = detectorScreenParallelogram.centerY;
       const wideHalfHeight = detectorScreenParallelogram.height / 2;
 
       const fanShape = new Shape()

@@ -21,7 +21,7 @@ import createParallelogramNode from './createParallelogramNode.js';
 import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
 
 const LABEL_FONT = new PhetFont( 16 );
-const LABEL_Y = 30;
+const LABEL_Y = 18;
 
 export const DETECTOR_DX = 60;
 export const DETECTOR_DY = 24;
@@ -92,6 +92,9 @@ export default class OverheadDetectorScreenNode extends Node {
       const scene = model.sceneProperty.value;
       const distance = scene.screenDistanceProperty.value;
       const range = scene.screenDistanceRange;
+
+      // Keep the detector vertically aligned with the slit/beam centerline.
+      this.parallelogramNode.centerY = this.doubleSlitParallelogramNode.centerY;
 
       // Scene-dependent proportional mapping:
       // center-to-center distance in view space is proportional to the model's screen distance.

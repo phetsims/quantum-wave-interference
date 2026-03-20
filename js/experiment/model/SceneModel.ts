@@ -58,6 +58,8 @@ export type SceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 
 
 export default class SceneModel extends PhetioObject {
 
+  public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
+
   public readonly sourceType: SourceType;
 
   // Whether the emitter is on
@@ -84,7 +86,7 @@ export default class SceneModel extends PhetioObject {
   // Detection mode (Average Intensity vs Hits)
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
 
-  // Screen brightness: 0 to 1
+  // Screen brightness: 0 to SCREEN_BRIGHTNESS_MAX
   public readonly screenBrightnessProperty: NumberProperty;
 
   // Slit width in mm (constant per source type, determined by the physics)
@@ -255,8 +257,8 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'detectionModeProperty' )
     } );
 
-    this.screenBrightnessProperty = new NumberProperty( 1, {
-      range: new Range( 0, 1 ),
+    this.screenBrightnessProperty = new NumberProperty( SceneModel.SCREEN_BRIGHTNESS_MAX * 0.5, {
+      range: new Range( 0, SceneModel.SCREEN_BRIGHTNESS_MAX ),
       tandem: tandem.createTandem( 'screenBrightnessProperty' )
     } );
 
@@ -385,7 +387,8 @@ export default class SceneModel extends PhetioObject {
       screenDistance: this.screenDistanceProperty.value,
       effectiveWavelength: this.getEffectiveWavelength(),
       slitSetting: this.slitSettingProperty.value,
-      brightness: this.screenBrightnessProperty.value
+      brightness: this.screenBrightnessProperty.value,
+      intensity: this.intensityProperty.value
     } );
 
     this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];
