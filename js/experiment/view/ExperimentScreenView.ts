@@ -71,13 +71,14 @@ export default class ExperimentScreenView extends ScreenView {
     const overheadDetectorScreenNode = new OverheadDetectorScreenNode( model, overheadDoubleSlitNode.parallelogramNode );
     const overheadBeamNode = new OverheadBeamNode( model, overheadEmitterNode, overheadDoubleSlitNode, overheadDetectorScreenNode );
 
-    // Top-row stacking order:
-    // double slit (back) -> beams -> detector/indicator -> emitter (front).
-    // This ensures the beam is in front of the slit while the emitter remains in front of the beam.
+    // Top-row stacking order (back to front):
+    // double slit -> fan beam -> detector/indicator -> incident beam -> emitter.
+    // The incident beam (emitter to slit) is in front of the double slit but behind the laser.
     this.addChild( overheadDoubleSlitNode );
     this.addChild( overheadBeamNode );
     this.addChild( overheadDetectorScreenNode );
     this.addChild( whichPathDetectorNode );
+    this.addChild( overheadBeamNode.emitterBeamNode );
     this.addChild( overheadEmitterNode );
 
     const alignOverheadElements = () => {

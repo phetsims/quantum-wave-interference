@@ -28,6 +28,9 @@ export default class OverheadBeamNode extends Node {
 
   private readonly _updateBeam: () => void;
 
+  // The incident beam rectangle (emitter to slit), exposed so it can be z-ordered independently.
+  public readonly emitterBeamNode: Rectangle;
+
   public constructor(
     model: ExperimentModel,
     emitterNode: OverheadEmitterNode,
@@ -36,8 +39,8 @@ export default class OverheadBeamNode extends Node {
   ) {
     super();
 
-    const emitterBeamNode = new Rectangle( 0, 0, 1, 1, { visible: false } );
-    this.addChild( emitterBeamNode );
+    this.emitterBeamNode = new Rectangle( 0, 0, 1, 1, { visible: false } );
+    // emitterBeamNode is NOT added as a child here — it is z-ordered separately in ExperimentScreenView.
 
     const fanBeamNode = new Path( null, { visible: false } );
     this.addChild( fanBeamNode );
@@ -50,7 +53,7 @@ export default class OverheadBeamNode extends Node {
       const isEmitting = scene.isEmittingProperty.value;
       const intensity = scene.intensityProperty.value;
 
-      emitterBeamNode.visible = isEmitting;
+      this.emitterBeamNode.visible = isEmitting;
       fanBeamNode.visible = isEmitting;
 
       if ( !isEmitting ) {
@@ -68,10 +71,10 @@ export default class OverheadBeamNode extends Node {
       const laserCenterY = activeEmitter.centerY;
       const beamHeight = EMITTER_BEAM_HEIGHT;
       const beamLeft = nozzleTipX - EMITTER_BEAM_LEFT_EXTENSION;
-      const beamRight = doubleSlitParallelogram.left;
+      const beamRight = ( doubleSlitParallelogram.left + doubleSlitParallelogram.right ) / 2;
 
-      emitterBeamNode.setRect( beamLeft, laserCenterY - beamHeight / 2, beamRight - beamLeft, beamHeight );
-      emitterBeamNode.fill = beamColor.withAlpha( 0.8 * intensity );
+      this.emitterBeamNode.setRect( beamLeft, laserCenterY - beamHeight / 2, beamRight - beamLeft, beamHeight );
+      this.emitterBeamNode.fill = beamColor.withAlpha( 0.8 * intensity );
 
       const fanLeft = doubleSlitParallelogram.right;
       const fanRight = detectorScreenNode.getMaxDistanceParallelogramLeft();
