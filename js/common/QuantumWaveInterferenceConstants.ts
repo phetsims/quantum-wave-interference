@@ -35,5 +35,3 @@ export default class QuantumWaveInterferenceConstants {
   // adjacent side buttons (eraser, snapshot, zoom).
   public static readonly INTERNAL_PADDING = 10;
 }
-
-quantumWaveInterference.register( 'QuantumWaveInterferenceConstants', QuantumWaveInterferenceConstants );
