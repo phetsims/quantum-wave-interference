@@ -12,7 +12,6 @@ import Shape from '../../../../kite/js/Shape.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
-import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import ExperimentModel from '../model/ExperimentModel.js';
@@ -28,8 +27,8 @@ export default class OverheadBeamNode extends Node {
 
   private readonly _updateBeam: () => void;
 
-  // The incident beam rectangle (emitter to slit), exposed so it can be z-ordered independently.
-  public readonly emitterBeamNode: Rectangle;
+  // The incident beam (emitter to slit) with a skewed half-oval cap on the right, exposed so it can be z-ordered independently.
+  public readonly emitterBeamNode: Path;
 
   public constructor(
     model: ExperimentModel,
@@ -39,7 +38,7 @@ export default class OverheadBeamNode extends Node {
   ) {
     super();
 
-    this.emitterBeamNode = new Rectangle( 0, 0, 1, 1, { visible: false } );
+    this.emitterBeamNode = new Path( null, { visible: false } );
     // emitterBeamNode is NOT added as a child here — it is z-ordered separately in ExperimentScreenView.
 
     const fanBeamNode = new Path( null, { visible: false } );
@@ -73,7 +72,39 @@ export default class OverheadBeamNode extends Node {
       const beamLeft = nozzleTipX - EMITTER_BEAM_LEFT_EXTENSION;
       const beamRight = ( doubleSlitParallelogram.left + doubleSlitParallelogram.right ) / 2;
 
-      this.emitterBeamNode.setRect( beamLeft, laserCenterY - beamHeight / 2, beamRight - beamLeft, beamHeight );
+      // Build a beam shape: rectangle body with a skewed half-oval cap on the right side.
+      // The cap is a half-ellipse whose vertical axis matches the beam height and whose
+      // horizontal bulge is capRadius. It is sheared vertically by the parallelogram's
+      // skew slope so it matches the overhead perspective.
+      const beamTop = laserCenterY - beamHeight / 2;
+      const beamBottom = laserCenterY + beamHeight / 2;
+      const capRadius = beamHeight / 3;
+      const slope = doubleSlitNode.skewDy / doubleSlitNode.skewDx;
+
+      // Bezier approximation factor for a quarter-ellipse arc.
+      const k = 0.5522847498;
+
+      const beamShape = new Shape()
+        // Rectangle portion (left edge, top, right edge top)
+        .moveTo( beamLeft, beamTop )
+        .lineTo( beamRight, beamTop )
+        // Upper quarter-arc of the cap (top to rightmost bulge)
+        .cubicCurveTo(
+          beamRight + capRadius * k, beamTop + slope * capRadius * k,
+          beamRight + capRadius, laserCenterY + slope * capRadius - beamHeight / 2 * k,
+          beamRight + capRadius, laserCenterY + slope * capRadius
+        )
+        // Lower quarter-arc of the cap (rightmost bulge to bottom)
+        .cubicCurveTo(
+          beamRight + capRadius, laserCenterY + slope * capRadius + beamHeight / 2 * k,
+          beamRight + capRadius * k, beamBottom + slope * capRadius * k,
+          beamRight, beamBottom
+        )
+        // Close back along the bottom and left
+        .lineTo( beamLeft, beamBottom )
+        .close();
+
+      this.emitterBeamNode.shape = beamShape;
       this.emitterBeamNode.fill = beamColor.withAlpha( 0.8 * intensity );
 
       const fanLeft = doubleSlitParallelogram.right;

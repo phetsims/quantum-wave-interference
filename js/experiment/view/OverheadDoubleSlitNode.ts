@@ -26,6 +26,10 @@ export default class OverheadDoubleSlitNode extends Node {
 
   public readonly parallelogramNode: Path;
 
+  // Skew parameters for the overhead parallelogram, exposed so sibling nodes can match the perspective.
+  public readonly skewDx = 51;
+  public readonly skewDy = 21;
+
   public constructor( model: ExperimentModel ) {
     super();
 
@@ -37,7 +41,7 @@ export default class OverheadDoubleSlitNode extends Node {
     this.addChild( doubleSlitLabel );
 
     // Double slit parallelogram (overhead perspective view)
-    this.parallelogramNode = createParallelogramNode( 51, 21, 50, 'black' );
+    this.parallelogramNode = createParallelogramNode( this.skewDx, this.skewDy, 50, 'black' );
     this.parallelogramNode.x = 365;
     this.parallelogramNode.y = 45;
     this.addChild( this.parallelogramNode );
@@ -50,8 +54,8 @@ export default class OverheadDoubleSlitNode extends Node {
     const slitLineLength = 25;
     const slitXFraction = 0.5;
     const slitYCenter = 25;
-    const slitBaseX = slitXFraction * 51;
-    const slitBaseY = slitYCenter + slitXFraction * 21;
+    const slitBaseX = slitXFraction * this.skewDx;
+    const slitBaseY = slitYCenter + slitXFraction * this.skewDy;
 
     const MIN_VISUAL_SLIT_SPACING = 1;
     const MAX_VISUAL_SLIT_SPACING = 4;
@@ -96,7 +100,7 @@ export default class OverheadDoubleSlitNode extends Node {
       const leftX = slitBaseX - visualSpacing / 2;
       const rightX = slitBaseX + visualSpacing / 2;
 
-      const slopeRatio = 21 / 51;
+      const slopeRatio = this.skewDy / this.skewDx;
       const leftY = slitBaseY - ( visualSpacing / 2 ) * slopeRatio;
       const rightY = slitBaseY + ( visualSpacing / 2 ) * slopeRatio;
 
