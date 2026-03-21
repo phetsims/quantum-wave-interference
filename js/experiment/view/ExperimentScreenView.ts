@@ -330,6 +330,29 @@ export default class ExperimentScreenView extends ScreenView {
       tandem: options.tandem.createTandem( 'resetAllButton' )
     } );
     this.addChild( resetAllButton );
+
+    // Play Area focus order
+    this.pdomPlayAreaNode.pdomOrder = [
+      overheadEmitterNode.laserPointerNode,
+      overheadEmitterNode.particleEmitterNode,
+      sourceControlPanel,
+      sceneRadioButtonGroup,
+      slitControlPanel,
+      ...detectorScreenNodes.flatMap( ds => [ ds.eraserButton, ds.snapshotButton, ds.viewSnapshotsButton ] ),
+      ...this.graphAccordionBoxes,
+      ...this.graphAccordionBoxes.map( g => g.zoomButtonGroup ),
+      screenSettingsPanel
+    ];
+
+    // Control Area focus order
+    this.pdomControlAreaNode.pdomOrder = [
+      rulerCheckbox,
+      rulerNode,
+      stopwatchCheckbox,
+      stopwatchNode,
+      timeControlNode,
+      resetAllButton
+    ];
   }
 
   /**

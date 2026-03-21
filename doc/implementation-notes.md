@@ -99,6 +99,27 @@ Three components use `CanvasNode` for performance:
 - **SnapshotsDialog**: Vertical list of snapshot captures, following the pattern from
   `models-of-the-hydrogen-atom/js/common/view/SpectrometerSnapshotsDialog.ts`.
 
+## Component Nicknames
+
+Several UI components are referred to by casual names in design discussions and issue tracker comments.
+This table maps those nicknames to the actual class or property name in code:
+
+| Nickname | Code Reference | Description |
+|----------|---------------|-------------|
+| Emitter button | `OverheadEmitterNode.laserPointerNode` / `.particleEmitterNode` | The red push-button on the laser pointer (photons) or particle emitter |
+| Emitter controls | `SourceControlPanel` | Wavelength/speed and intensity/emission-rate controls beneath the emitter |
+| Scene selection radio buttons | `SceneRadioButtonGroup` | 2x2 grid of source type icons (photons, electrons, neutrons, helium) |
+| Slit controls | `SlitControlPanel` | Slit separation, screen distance, and slit setting combo box |
+| Clear button | `DetectorScreenNode.eraserButton` | Eraser icon that clears accumulated hits/intensity from the detector screen |
+| Camera | `DetectorScreenNode.snapshotButton` | Camera icon button that takes a snapshot of the current detector screen |
+| Eye | `DetectorScreenNode.viewSnapshotsButton` | Eye icon button that opens the snapshots dialog |
+| Hits graph / Intensity graph | `GraphAccordionBox` | Accordion box below the detector screen showing histogram or intensity curve |
+| Zoom in / Zoom out buttons | `GraphAccordionBox.zoomButtonGroup` | Magnifying glass buttons to the right of the graph accordion box |
+| Intensity/hits/brightness panel | `ScreenSettingsPanel` | Detection mode radio buttons (Average Intensity vs Hits) and brightness slider |
+| Ruler checkbox | `rulerCheckbox` (local in `ExperimentScreenView`) | Toggles ruler visibility |
+| Stopwatch checkbox | `stopwatchCheckbox` (local in `ExperimentScreenView`) | Toggles stopwatch visibility |
+| Time controls | `TimeControlNode` | Play/pause button and speed radio buttons |
+
 ## Disposal
 
 No components in this simulation require disposal. All UI elements persist for the lifetime of the

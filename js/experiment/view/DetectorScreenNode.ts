@@ -49,7 +49,9 @@ export default class DetectorScreenNode extends Node {
 
   private readonly screenCanvasNode: DetectorScreenCanvasNode;
 
-  private readonly eraserButton: EraserButton;
+  public readonly eraserButton: EraserButton;
+  public readonly snapshotButton: RectangularPushButton;
+  public readonly viewSnapshotsButton: RectangularPushButton;
   private readonly snapshotButtonGroup: VBox;
 
   public constructor( sceneModel: SceneModel, providedOptions: DetectorScreenNodeOptions ) {
@@ -211,7 +213,7 @@ export default class DetectorScreenNode extends Node {
     );
 
     // Camera button to take a snapshot
-    const snapshotButton = new RectangularPushButton( {
+    this.snapshotButton = new RectangularPushButton( {
       listener: () => sceneModel.takeSnapshot(),
       baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
       content: new Path( cameraSolidShape, {
@@ -227,7 +229,7 @@ export default class DetectorScreenNode extends Node {
     } );
 
     // Eye button to view snapshots
-    const viewSnapshotsButton = new RectangularPushButton( {
+    this.viewSnapshotsButton = new RectangularPushButton( {
       listener: () => snapshotsDialog.show(),
       baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
       content: new Path( eyeSolidShape, {
@@ -280,8 +282,8 @@ export default class DetectorScreenNode extends Node {
       align: 'center',
       children: [
         indicatorDotsBox,
-        snapshotButton,
-        viewSnapshotsButton
+        this.snapshotButton,
+        this.viewSnapshotsButton
       ]
     } );
 
