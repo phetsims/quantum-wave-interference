@@ -68,4 +68,6 @@ type StringsType = {
 
 const QuantumWaveInterferenceStrings = getStringModule( 'QUANTUM_WAVE_INTERFERENCE' ) as StringsType;
 
+quantumWaveInterference.register( 'QuantumWaveInterferenceStrings', QuantumWaveInterferenceStrings );
+
 export default QuantumWaveInterferenceStrings;

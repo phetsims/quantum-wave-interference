@@ -1,46 +1,46 @@
-quantum-wave-interference.title: 'Quantum Wave Interference'
-screen.experiment.name: Experiment
-photons:        Photons
-electrons:      Electrons
-neutrons:       Neutrons
-heliumAtoms:    Helium atoms
-photonSource:   Photon source
-electronSource: Electron source
-neutronSource:  Neutron source
-heliumAtomSource: Helium atom source
-doubleSlit:     Double slit
-detectorScreen: Detector screen
-intensity:      Intensity
-particleSpeed:  Particle Speed
-emissionRate:   Emission Rate
-particleSpeedKmPerSecondPattern: '{{value}} km/s'
-min:            Min
-max:            Max
-slitSeparation: Slit Separation
-screenDistance:  Screen Distance
-slitSettings:   Slit Settings
-slitSeparationPattern: '{{value}} mm'
-slitSeparationMicrometerPattern: '{{value}} μm'
-screenDistancePattern: '{{value}} m'
-bothOpen:       Both Open
-leftCovered:    Left Covered
-rightCovered:   Right Covered
-leftDetector:   Left Detector
-rightDetector:  Right Detector
-averageIntensity: Average Intensity
-hits:           Hits
-hitsCountPattern: 'Hits: {{count}}'
-screenBrightness: Screen Brightness
-intensityGraph:   Intensity Graph
-hitsGraph:        Hits Graph
-count:            Count
-snapshotNumberPattern: 'Snapshot {{number}}'
-ruler:              Ruler
-stopwatch:          Stopwatch
-centimeters:        cm
-detector:           Detector
-wavelengthPattern:  'λ = {{value}} nm'
-deBroglieWavelengthPattern: 'λ = {{value}} nm'
-slitSeparationValuePattern: 'd = {{value}} mm'
+quantum-wave-interference.title:      'Quantum Wave Interference'
+screen.experiment.name:               Experiment
+photons:                              Photons
+electrons:                            Electrons
+neutrons:                             Neutrons
+heliumAtoms:                          Helium atoms
+photonSource:                         Photon source
+electronSource:                       Electron source
+neutronSource:                        Neutron source
+heliumAtomSource:                     Helium atom source
+doubleSlit:                           Double slit
+detectorScreen:                       Detector screen
+intensity:                            Intensity
+particleSpeed:                        Particle Speed
+emissionRate:                         Emission Rate
+particleSpeedKmPerSecondPattern:      '{{value}} km/s'
+min:                                  Min
+max:                                  Max
+slitSeparation:                       Slit Separation
+screenDistance:                       Screen Distance
+slitSettings:                         Slit Settings
+slitSeparationPattern:                '{{value}} mm'
+slitSeparationMicrometerPattern:      '{{value}} μm'
+screenDistancePattern:                '{{value}} m'
+bothOpen:                             Both Open
+leftCovered:                          Left Covered
+rightCovered:                         Right Covered
+leftDetector:                         Left Detector
+rightDetector:                        Right Detector
+averageIntensity:                     Average Intensity
+hits:                                 Hits
+hitsCountPattern:                     'Hits: {{count}}'
+screenBrightness:                     Screen Brightness
+intensityGraph:                       Intensity Graph
+hitsGraph:                            Hits Graph
+count:                                Count
+snapshotNumberPattern:                'Snapshot {{number}}'
+ruler:                                Ruler
+stopwatch:                            Stopwatch
+centimeters:                          cm
+detector:                             Detector
+wavelengthPattern:                    'λ = {{value}} nm'
+deBroglieWavelengthPattern:           'λ = {{value}} nm'
+slitSeparationValuePattern:           'd = {{value}} mm'
 slitSeparationMicrometerValuePattern: 'd = {{value}} μm'
-screenDistanceValuePattern: 'D = {{value}} m'
+screenDistanceValuePattern:           'D = {{value}} m'
