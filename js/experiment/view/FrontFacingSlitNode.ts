@@ -220,8 +220,8 @@ export default class FrontFacingSlitNode extends Node {
       rightSlit.setRect( centerX + halfSeparationView - halfSlitWidthView, slitY, slitVisualWidth, SLIT_HEIGHT );
 
       // Position covers to match slits
-      leftCover.setRect( leftSlit.x, slitY, leftSlit.width, SLIT_HEIGHT );
-      rightCover.setRect( rightSlit.x, slitY, rightSlit.width, SLIT_HEIGHT );
+      leftCover.setRect( leftSlit.rectX, slitY, leftSlit.rectWidth, SLIT_HEIGHT );
+      rightCover.setRect( rightSlit.rectX, slitY, rightSlit.rectWidth, SLIT_HEIGHT );
 
       // Update slit width span (above the left slit).
       // Per the design mockup, tick marks flank the slit edges and the label is to the right.
@@ -306,8 +306,8 @@ export default class FrontFacingSlitNode extends Node {
       rightDetector.visible = ( slitSetting === 'rightDetector' );
 
       // Position detectors to match slit positions
-      leftDetector.setRect( leftSlit.x, slitY, leftSlit.width, SLIT_HEIGHT );
-      rightDetector.setRect( rightSlit.x, slitY, rightSlit.width, SLIT_HEIGHT );
+      leftDetector.setRect( leftSlit.rectX, slitY, leftSlit.rectWidth, SLIT_HEIGHT );
+      rightDetector.setRect( rightSlit.rectX, slitY, rightSlit.rectWidth, SLIT_HEIGHT );
     } );
   }
 }
