@@ -12,14 +12,14 @@ import Shape from '../../../../kite/js/Shape.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
-import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
 
-const PARTICLE_BEAM_COLOR = new Color( 180, 180, 180 );
+const particleBeamColorProperty = QuantumWaveInterferenceColors.particleBeamColorProperty;
 const EMITTER_BEAM_HEIGHT = 32 * 0.73;
 const EMITTER_BEAM_LEFT_EXTENSION = 10;
 
@@ -61,7 +61,7 @@ export default class OverheadBeamNode extends Node {
 
       const beamColor = scene.sourceType === 'photons'
                         ? VisibleColor.wavelengthToColor( scene.wavelengthProperty.value )
-                        : PARTICLE_BEAM_COLOR;
+                        : particleBeamColorProperty.value;
 
       const activeEmitter = scene.sourceType === 'photons'
                             ? emitterNode.laserPointerNode

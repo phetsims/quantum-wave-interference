@@ -25,6 +25,7 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AccordionBox from '../../../../sun/js/AccordionBox.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
@@ -37,7 +38,7 @@ const CHART_HEIGHT = 80;
 const HISTOGRAM_BINS = 100;
 
 // Grid line styling
-const GRID_LINE_COLOR = 'rgb(200,200,200)';
+const graphGridLineColorProperty = QuantumWaveInterferenceColors.graphGridLineColorProperty;
 
 type SelfOptions = {
 
@@ -87,7 +88,7 @@ export default class GraphAccordionBox extends Node {
     for ( let i = 1; i < NUM_HORIZONTAL_GRID_LINES; i++ ) {
       const y = ( i / NUM_HORIZONTAL_GRID_LINES ) * CHART_HEIGHT;
       chartBackground.addChild( new Line( 0, y, CHART_WIDTH, y, {
-        stroke: GRID_LINE_COLOR,
+        stroke: graphGridLineColorProperty,
         lineWidth: 0.5
       } ) );
     }
@@ -99,7 +100,7 @@ export default class GraphAccordionBox extends Node {
       const x = ( i / NUM_VERTICAL_DIVISIONS ) * CHART_WIDTH;
       const isCenterLine = ( i === NUM_VERTICAL_DIVISIONS / 2 );
       chartBackground.addChild( new Line( x, 0, x, CHART_HEIGHT, {
-        stroke: GRID_LINE_COLOR,
+        stroke: graphGridLineColorProperty,
         lineWidth: isCenterLine ? 0.75 : 0.5,
         lineDash: isCenterLine ? [ 4, 4 ] : []
       } ) );
@@ -152,8 +153,8 @@ export default class GraphAccordionBox extends Node {
       titleNode: titleText,
       titleAlignX: 'left',
       expandedProperty: options.expandedProperty,
-      fill: 'rgb(230,230,230)',
-      stroke: 'rgb(160,160,160)',
+      fill: QuantumWaveInterferenceColors.graphAccordionBoxFillProperty,
+      stroke: QuantumWaveInterferenceColors.graphAccordionBoxStrokeProperty,
       cornerRadius: 5,
       contentXMargin: 8,
       contentYMargin: 6,
@@ -178,7 +179,7 @@ export default class GraphAccordionBox extends Node {
       left: this.accordionBox.right + QuantumWaveInterferenceConstants.INTERNAL_PADDING,
       bottom: this.accordionBox.bottom,
       buttonOptions: {
-        baseColor: 'rgb(200,215,240)'
+        baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty
       },
       magnifyingGlassNodeOptions: {
         glassRadius: 8
@@ -360,8 +361,8 @@ export default class GraphAccordionBox extends Node {
       dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
     }
     else {
-      dataPath.fill = 'rgba(100,100,180,0.7)';
-      dataPath.stroke = 'rgba(50,50,130,0.8)';
+      dataPath.fill = QuantumWaveInterferenceColors.particleHistogramFillProperty;
+      dataPath.stroke = QuantumWaveInterferenceColors.particleHistogramStrokeProperty;
     }
   }
 

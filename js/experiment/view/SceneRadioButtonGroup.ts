@@ -20,6 +20,7 @@ import electron_svg from '../../../images/electron_svg.js';
 import heliumAtom_svg from '../../../images/heliumAtom_svg.js';
 import neutron_svg from '../../../images/neutron_svg.js';
 import photon_svg from '../../../images/photon_svg.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import { type SourceType } from '../model/SourceType.js';
@@ -35,7 +36,7 @@ const GRID_COLUMNS = 2;
 const GRID_HORIZONTAL_SPACING = 12;
 const GRID_VERTICAL_SPACING = 12;
 const GRID_PREFERRED_WIDTH = GRID_COLUMNS * LABEL_WIDTH + ( GRID_COLUMNS - 1 ) * GRID_HORIZONTAL_SPACING + 1;
-const SELECTED_BUTTON_FILL = '#e6f4ff';
+const sceneButtonSelectedFillProperty = QuantumWaveInterferenceColors.sceneButtonSelectedFillProperty;
 
 // Per-icon scaling keeps the imported SVG artwork visually balanced in the 2x2 scene button grid.
 const ICON_SCALE = {
@@ -107,14 +108,14 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
       spacing: GRID_HORIZONTAL_SPACING,
       lineSpacing: GRID_VERTICAL_SPACING,
       radioButtonOptions: {
-        baseColor: SELECTED_BUTTON_FILL,
+        baseColor: sceneButtonSelectedFillProperty,
         xMargin: 10,
         yMargin: 10,
         minWidth: BUTTON_SIDE_LENGTH,
         minHeight: BUTTON_SIDE_LENGTH,
         buttonAppearanceStrategyOptions: {
           deselectedFill: 'white',
-          selectedStroke: '#73bce1',
+          selectedStroke: QuantumWaveInterferenceColors.sceneButtonSelectedStrokeProperty,
           selectedLineWidth: 2
         }
       },

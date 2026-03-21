@@ -13,7 +13,7 @@ import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import Color from '../../../../scenery/js/util/Color.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import ExperimentModel from '../model/ExperimentModel.js';
@@ -29,8 +29,8 @@ export default class WhichPathDetectorIndicatorNode extends Node {
     super( { visible: false } );
 
     const detectorIndicatorBox = new Rectangle( 0, 0, DETECTOR_BOX_WIDTH, DETECTOR_BOX_HEIGHT, 5, 5, {
-      fill: new Color( 255, 200, 50 ),
-      stroke: new Color( 180, 140, 0 ),
+      fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty,
+      stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
       lineWidth: 1
     } );
 

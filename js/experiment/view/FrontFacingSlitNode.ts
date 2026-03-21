@@ -20,7 +20,7 @@ import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import Color from '../../../../scenery/js/util/Color.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import SceneModel from '../model/SceneModel.js';
 
@@ -90,7 +90,7 @@ export default class FrontFacingSlitNode extends Node {
     // Black rounded rectangle background
     const backgroundRect = new Rectangle( 0, 0, VIEW_WIDTH, VIEW_HEIGHT, VIEW_CORNER_RADIUS, VIEW_CORNER_RADIUS, {
       fill: 'black',
-      stroke: '#333',
+      stroke: QuantumWaveInterferenceColors.frontFacingStrokeProperty,
       lineWidth: 1
     } );
     this.addChild( backgroundRect );
@@ -104,8 +104,7 @@ export default class FrontFacingSlitNode extends Node {
     } );
     this.addChild( beamOverlay );
 
-    // Particle beam color (gray for all non-photon particles)
-    const PARTICLE_BEAM_COLOR = new Color( 180, 180, 180 );
+    const particleBeamColorProperty = QuantumWaveInterferenceColors.particleBeamColorProperty;
 
     // Two white slit rectangles, centered vertically in the view.
     // When the source is emitting, the slits glow with the beam color to show
@@ -135,7 +134,7 @@ export default class FrontFacingSlitNode extends Node {
       beamOverlay.visible = true;
       const beamColor = sceneModel.sourceType === 'photons'
                         ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
-                        : PARTICLE_BEAM_COLOR;
+                        : particleBeamColorProperty.value;
       beamOverlay.fill = beamColor.withAlpha( 0.15 + 0.35 * intensity );
     };
 
@@ -145,13 +144,13 @@ export default class FrontFacingSlitNode extends Node {
 
     // Cover rectangles for when a slit is covered
     const leftCover = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
-      fill: '#555',
+      fill: QuantumWaveInterferenceColors.slitCoverFillProperty,
       visible: false
     } );
     this.addChild( leftCover );
 
     const rightCover = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
-      fill: '#555',
+      fill: QuantumWaveInterferenceColors.slitCoverFillProperty,
       visible: false
     } );
     this.addChild( rightCover );
@@ -282,10 +281,10 @@ export default class FrontFacingSlitNode extends Node {
     sceneModel.slitSeparationProperty.link( updateSlits );
 
     // Detector indicator rectangles (yellow/orange translucent overlays, distinct from gray covers)
-    const DETECTOR_COLOR = new Color( 255, 200, 50, 0.6 );
+    const DETECTOR_COLOR = QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.6 );
     const leftDetector = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: DETECTOR_COLOR,
-      stroke: new Color( 200, 150, 0 ),
+      stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
       lineWidth: 1,
       visible: false
     } );
@@ -293,7 +292,7 @@ export default class FrontFacingSlitNode extends Node {
 
     const rightDetector = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: DETECTOR_COLOR,
-      stroke: new Color( 200, 150, 0 ),
+      stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
       lineWidth: 1,
       visible: false
     } );

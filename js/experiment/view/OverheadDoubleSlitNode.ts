@@ -14,7 +14,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import Color from '../../../../scenery/js/util/Color.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import createParallelogramNode from './createParallelogramNode.js';
@@ -70,22 +70,22 @@ export default class OverheadDoubleSlitNode extends Node {
     const slitOverlayWidth = 5;
 
     const leftSlitCover = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
-      fill: '#555', visible: false
+      fill: QuantumWaveInterferenceColors.slitCoverFillProperty, visible: false
     } );
     this.parallelogramNode.addChild( leftSlitCover );
 
     const rightSlitCover = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
-      fill: '#555', visible: false
+      fill: QuantumWaveInterferenceColors.slitCoverFillProperty, visible: false
     } );
     this.parallelogramNode.addChild( rightSlitCover );
 
     const leftSlitDetectorOverlay = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
-      fill: new Color( 255, 200, 50, 0.8 ), visible: false
+      fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.8 ), visible: false
     } );
     this.parallelogramNode.addChild( leftSlitDetectorOverlay );
 
     const rightSlitDetectorOverlay = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
-      fill: new Color( 255, 200, 50, 0.8 ), visible: false
+      fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.8 ), visible: false
     } );
     this.parallelogramNode.addChild( rightSlitDetectorOverlay );
 

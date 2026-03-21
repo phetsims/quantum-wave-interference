@@ -27,6 +27,7 @@ import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import Snapshot from '../model/Snapshot.js';
@@ -102,7 +103,7 @@ export default class SnapshotNode extends Node {
       CORNER_RADIUS,
       {
         fill: 'black',
-        stroke: '#555',
+        stroke: QuantumWaveInterferenceColors.snapshotStrokeProperty,
         lineWidth: 1
       }
     );
@@ -122,8 +123,8 @@ export default class SnapshotNode extends Node {
     const slitSepText = new Text( '', { font: PARAM_FONT, fill: 'black', maxWidth: 130 } );
     const screenDistText = new Text( '', { font: PARAM_FONT, fill: 'black', maxWidth: 130 } );
     const wavelengthText = new Text( '', { font: PARAM_FONT, fill: 'black', maxWidth: 130 } );
-    const slitSettingText = new Text( '', { font: PARAM_FONT, fill: '#666', maxWidth: 130 } );
-    const detectionModeText = new Text( '', { font: PARAM_FONT, fill: '#666', maxWidth: 130 } );
+    const slitSettingText = new Text( '', { font: PARAM_FONT, fill: QuantumWaveInterferenceColors.snapshotSecondaryTextFillProperty, maxWidth: 130 } );
+    const detectionModeText = new Text( '', { font: PARAM_FONT, fill: QuantumWaveInterferenceColors.snapshotSecondaryTextFillProperty, maxWidth: 130 } );
 
     const parameterLabels = new VBox( {
       spacing: 2,

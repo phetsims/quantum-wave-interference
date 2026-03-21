@@ -27,6 +27,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 
@@ -52,8 +53,8 @@ export default class SourceControlPanel extends Panel {
       {
         xMargin: 10,
         yMargin: 10,
-        fill: '#f4f4f4',
-        stroke: '#c1c1c1',
+        fill: QuantumWaveInterferenceColors.panelFillProperty,
+        stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
         minWidth: 160
       },
       providedOptions

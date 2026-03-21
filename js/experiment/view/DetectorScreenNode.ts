@@ -23,6 +23,7 @@ import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -61,7 +62,7 @@ export default class DetectorScreenNode extends Node {
     // Black rounded rectangle background representing the detector screen
     const backgroundRect = new Rectangle( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_CORNER_RADIUS, SCREEN_CORNER_RADIUS, {
       fill: 'black',
-      stroke: '#333',
+      stroke: QuantumWaveInterferenceColors.frontFacingStrokeProperty,
       lineWidth: 1
     } );
     this.addChild( backgroundRect );
@@ -213,7 +214,7 @@ export default class DetectorScreenNode extends Node {
     // Camera button to take a snapshot
     const snapshotButton = new RectangularPushButton( {
       listener: () => sceneModel.takeSnapshot(),
-      baseColor: '#E8E8E8',
+      baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
       content: new Path( cameraSolidShape, {
         fill: 'black',
         scale: 0.04
@@ -229,7 +230,7 @@ export default class DetectorScreenNode extends Node {
     // Eye button to view snapshots
     const viewSnapshotsButton = new RectangularPushButton( {
       listener: () => snapshotsDialog.show(),
-      baseColor: '#E8E8E8',
+      baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
       content: new Path( eyeSolidShape, {
         fill: 'black',
         scale: 0.04
@@ -247,9 +248,9 @@ export default class DetectorScreenNode extends Node {
     const indicatorDots: Circle[] = [];
     for ( let i = 0; i < SceneModel.MAX_SNAPSHOTS; i++ ) {
       indicatorDots.push( new Circle( DOT_RADIUS, {
-        stroke: '#888',
+        stroke: QuantumWaveInterferenceColors.indicatorDotStrokeProperty,
         lineWidth: 0.5,
-        fill: 'white'
+        fill: QuantumWaveInterferenceColors.indicatorDotInactiveFillProperty
       } ) );
     }
 
@@ -261,7 +262,7 @@ export default class DetectorScreenNode extends Node {
     // Update indicator dot fills when snapshots change
     sceneModel.numberOfSnapshotsProperty.link( count => {
       for ( let i = 0; i < SceneModel.MAX_SNAPSHOTS; i++ ) {
-        indicatorDots[ i ].fill = i < count ? '#555' : 'white';
+        indicatorDots[ i ].fill = i < count ? QuantumWaveInterferenceColors.indicatorDotActiveFillProperty : QuantumWaveInterferenceColors.indicatorDotInactiveFillProperty;
       }
     } );
 

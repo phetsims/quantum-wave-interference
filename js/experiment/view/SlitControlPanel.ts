@@ -25,6 +25,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
@@ -47,8 +48,8 @@ export default class SlitControlPanel extends Panel {
     const options = optionize<SlitControlPanelOptions, SelfOptions, PanelOptions>()( {
       xMargin: 10,
       yMargin: 10,
-      fill: '#f4f4f4',
-      stroke: '#c1c1c1',
+      fill: QuantumWaveInterferenceColors.panelFillProperty,
+      stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
       minWidth: QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH,
       maxWidth: QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH
     }, providedOptions );
