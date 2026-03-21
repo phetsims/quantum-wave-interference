@@ -20,8 +20,11 @@ import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
+import GetSetButtonsIO from '../../../../tandem/js/types/GetSetButtonsIO.js';
+import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { type SlitSetting, SlitSettingValues } from './SlitSetting.js';
@@ -146,7 +149,8 @@ export default class SceneModel extends PhetioObject {
   public constructor( providedOptions: SceneModelOptions ) {
 
     const options = optionize<SceneModelOptions, SelfOptions, PhetioObjectOptions>()( {
-      phetioState: false
+      phetioType: SceneModel.SceneModelIO,
+      phetioDocumentation: 'Model for a single source-type scene, including detector screen data.'
     }, providedOptions );
 
     super( options );
@@ -533,4 +537,63 @@ export default class SceneModel extends PhetioObject {
 
     this.hitsChangedEmitter.emit();
   }
+
+  /**
+   * IOType for SceneModel that serializes the live detector screen data (hits, intensity bins,
+   * hit accumulator, and next snapshot number) which are plain arrays/numbers not covered by
+   * the individual instrumented Properties.
+   */
+  public static readonly SceneModelIO = new IOType<SceneModel, SceneModelStateObject>( 'SceneModelIO', {
+    valueType: SceneModel,
+    supertype: GetSetButtonsIO,
+    stateSchema: {
+      hits: IOType.ObjectIO, // Flat number[] [x0, y0, x1, y1, ...]
+      intensityBins: IOType.ObjectIO, // number[]
+      intensityBinsMax: NumberIO,
+      hitAccumulator: NumberIO,
+      nextSnapshotNumber: NumberIO
+    },
+    toStateObject: ( model: SceneModel ): SceneModelStateObject => {
+      // Pack hits into a flat array for efficient serialization
+      const flatHits: number[] = new Array( model.hits.length * 2 );
+      for ( let i = 0; i < model.hits.length; i++ ) {
+        flatHits[ i * 2 ] = model.hits[ i ].x;
+        flatHits[ i * 2 + 1 ] = model.hits[ i ].y;
+      }
+      return {
+        hits: flatHits,
+        intensityBins: [ ...model.intensityBins ],
+        intensityBinsMax: model.intensityBinsMax,
+        hitAccumulator: model.hitAccumulator,
+        nextSnapshotNumber: model.nextSnapshotNumber
+      };
+    },
+    applyState: ( model: SceneModel, state: SceneModelStateObject ) => {
+
+      // Restore hits from flat array
+      model.hits.length = 0;
+      for ( let i = 0; i < state.hits.length; i += 2 ) {
+        model.hits.push( new Vector2( state.hits[ i ], state.hits[ i + 1 ] ) );
+      }
+
+      // Restore intensity bins
+      for ( let i = 0; i < state.intensityBins.length; i++ ) {
+        model.intensityBins[ i ] = state.intensityBins[ i ];
+      }
+      model.intensityBinsMax = state.intensityBinsMax;
+
+      model.hitAccumulator = state.hitAccumulator;
+      model.nextSnapshotNumber = state.nextSnapshotNumber;
+
+      model.hitsChangedEmitter.emit();
+    }
+  } as IntentionalAny );
 }
+
+type SceneModelStateObject = {
+  hits: number[];
+  intensityBins: number[];
+  intensityBinsMax: number;
+  hitAccumulator: number;
+  nextSnapshotNumber: number;
+};
