@@ -21,6 +21,8 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
+import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
+import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { type SlitSetting, SlitSettingValues } from './SlitSetting.js';
 import Snapshot from './Snapshot.js';
@@ -272,14 +274,30 @@ export default class SceneModel extends PhetioObject {
       phetioReadOnly: true
     } );
 
-    this.snapshotsProperty = new Property<Snapshot[]>( [] );
+    this.snapshotsProperty = new Property<Snapshot[]>( [], {
+      tandem: tandem.createTandem( 'snapshotsProperty' ),
+      phetioValueType: ArrayIO( Snapshot.SnapshotIO ),
+      phetioDocumentation: 'The array of detector screen snapshots captured in this scene.'
+    } );
 
     this.numberOfSnapshotsProperty = new DerivedProperty(
       [ this.snapshotsProperty ],
-      snapshots => snapshots.length
+      snapshots => snapshots.length, {
+        tandem: tandem.createTandem( 'numberOfSnapshotsProperty' ),
+        phetioValueType: NumberIO,
+        phetioDocumentation: 'The number of snapshots currently stored in this scene.'
+      }
     );
 
     this.nextSnapshotNumber = 1;
+
+    // Keep nextSnapshotNumber consistent when state is restored via phet-io.
+    this.snapshotsProperty.lazyLink( snapshots => {
+      if ( snapshots.length > 0 ) {
+        const maxNumber = Math.max( ...snapshots.map( s => s.snapshotNumber ) );
+        this.nextSnapshotNumber = Math.max( this.nextSnapshotNumber, maxNumber + 1 );
+      }
+    } );
 
     // Clear accumulated data when any parameter that affects the interference pattern changes.
     // Accumulated hits are based on the probability distribution at the time of generation, so

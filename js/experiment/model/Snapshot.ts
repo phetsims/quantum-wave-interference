@@ -8,12 +8,30 @@
  */
 
 import Vector2 from '../../../../dot/js/Vector2.js';
+import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
+import IOType from '../../../../tandem/js/types/IOType.js';
+import NumberIO from '../../../../tandem/js/types/NumberIO.js';
+import StringIO from '../../../../tandem/js/types/StringIO.js';
 import { type DetectionMode } from './DetectionMode.js';
 import { type SourceType } from './SourceType.js';
 
 // Maximum number of hits to store in a snapshot. Beyond this count, the interference pattern
 // is fully established and storing more hits wastes memory without visual benefit.
 const MAX_SNAPSHOT_HITS = 20000;
+
+type SnapshotStateObject = {
+  snapshotNumber: number;
+  hits: number[]; // Flat array of [x0, y0, x1, y1, ...] for efficiency
+  detectionMode: string;
+  sourceType: string;
+  wavelength: number;
+  slitSeparation: number;
+  screenDistance: number;
+  effectiveWavelength: number;
+  slitSetting: string;
+  brightness: number;
+  intensity: number;
+};
 
 export default class Snapshot {
 
@@ -72,4 +90,61 @@ export default class Snapshot {
     this.intensity = sceneData.intensity;
   }
 
+  public static readonly SnapshotIO = new IOType<Snapshot, SnapshotStateObject>( 'SnapshotIO', {
+    valueType: Snapshot,
+    documentation: 'Serialization for a detector screen snapshot.',
+    stateSchema: {
+      snapshotNumber: NumberIO,
+      hits: IOType.ObjectIO, // Flat number[] for efficiency
+      detectionMode: StringIO,
+      sourceType: StringIO,
+      wavelength: NumberIO,
+      slitSeparation: NumberIO,
+      screenDistance: NumberIO,
+      effectiveWavelength: NumberIO,
+      slitSetting: StringIO,
+      brightness: NumberIO,
+      intensity: NumberIO
+    },
+    toStateObject: ( snapshot: Snapshot ): SnapshotStateObject => {
+      // Pack hits into a flat [x0, y0, x1, y1, ...] array for efficient serialization
+      const flatHits: number[] = new Array( snapshot.hits.length * 2 );
+      for ( let i = 0; i < snapshot.hits.length; i++ ) {
+        flatHits[ i * 2 ] = snapshot.hits[ i ].x;
+        flatHits[ i * 2 + 1 ] = snapshot.hits[ i ].y;
+      }
+      return {
+        snapshotNumber: snapshot.snapshotNumber,
+        hits: flatHits,
+        detectionMode: snapshot.detectionMode,
+        sourceType: snapshot.sourceType,
+        wavelength: snapshot.wavelength,
+        slitSeparation: snapshot.slitSeparation,
+        screenDistance: snapshot.screenDistance,
+        effectiveWavelength: snapshot.effectiveWavelength,
+        slitSetting: snapshot.slitSetting,
+        brightness: snapshot.brightness,
+        intensity: snapshot.intensity
+      };
+    },
+    fromStateObject: ( stateObject: SnapshotStateObject ): Snapshot => {
+      // Unpack flat hits array back into Vector2[]
+      const hits: Vector2[] = [];
+      for ( let i = 0; i < stateObject.hits.length; i += 2 ) {
+        hits.push( new Vector2( stateObject.hits[ i ], stateObject.hits[ i + 1 ] ) );
+      }
+      return new Snapshot( stateObject.snapshotNumber, {
+        hits: hits,
+        detectionMode: stateObject.detectionMode as DetectionMode,
+        sourceType: stateObject.sourceType as SourceType,
+        wavelength: stateObject.wavelength,
+        slitSeparation: stateObject.slitSeparation,
+        screenDistance: stateObject.screenDistance,
+        effectiveWavelength: stateObject.effectiveWavelength,
+        slitSetting: stateObject.slitSetting,
+        brightness: stateObject.brightness,
+        intensity: stateObject.intensity
+      } );
+    }
+  } as IntentionalAny );
 }
