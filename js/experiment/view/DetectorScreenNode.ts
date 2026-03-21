@@ -9,7 +9,7 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import Bounds2 from '../../../../dot/js/Bounds2.js';
+import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
@@ -19,7 +19,6 @@ import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
-import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -35,7 +34,6 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
-import getDetectorScreenTexture from './getDetectorScreenTexture.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.
@@ -298,33 +296,5 @@ export default class DetectorScreenNode extends Node {
     this.snapshotButtonGroup.right = buttonsRight;
     this.snapshotButtonGroup.bottom = SCREEN_HEIGHT;
     this.addChild( this.snapshotButtonGroup );
-  }
-}
-
-/**
- * Inner CanvasNode that renders hit dots or intensity bands on the detector screen.
- */
-class DetectorScreenCanvasNode extends CanvasNode {
-
-  private readonly sceneModel: SceneModel;
-  private readonly textureWidth: number;
-  private readonly textureHeight: number;
-
-  public constructor( sceneModel: SceneModel, width: number, height: number ) {
-    super( {
-      canvasBounds: new Bounds2( 0, 0, width, height )
-    } );
-
-    this.sceneModel = sceneModel;
-    this.textureWidth = width;
-    this.textureHeight = height;
-  }
-
-  /**
-   * Renders the shared detector-screen texture.
-   */
-  public paintCanvas( context: CanvasRenderingContext2D ): void {
-    const texture = getDetectorScreenTexture( this.sceneModel );
-    context.drawImage( texture, 0, 0, this.textureWidth, this.textureHeight );
   }
 }
