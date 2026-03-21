@@ -21,11 +21,11 @@ import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 
-const VIEW_WIDTH = QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH;
-const VIEW_HEIGHT = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_HEIGHT;
+const VIEW_WIDTH = ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH;
+const VIEW_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const VIEW_CORNER_RADIUS = 10;
 
 // Slit visual dimensions

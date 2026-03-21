@@ -32,14 +32,15 @@ import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js'
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import getDetectorScreenTexture from './getDetectorScreenTexture.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.
-const SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
-const SCREEN_HEIGHT = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_HEIGHT;
+const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
+const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 10;
 
 type SelfOptions = EmptySelfOptions;

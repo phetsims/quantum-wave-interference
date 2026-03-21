@@ -10,11 +10,11 @@
 
 import Utils from '../../../../dot/js/Utils.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 
-const SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
-const SCREEN_HEIGHT = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_HEIGHT;
+const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
+const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 
 // Hit dot rendering parameters.
 const HIT_CORE_RADIUS = 2.5;

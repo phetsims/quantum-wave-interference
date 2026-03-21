@@ -24,6 +24,7 @@ import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
@@ -105,8 +106,8 @@ export default class ExperimentScreenView extends ScreenView {
       const slitNode = new FrontFacingSlitNode( scene, {
         tandem: frontFacingSlitTandem.createTandem( `frontFacingSlitNode${index}` )
       } );
-      slitNode.left = QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_LEFT;
-      slitNode.y = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_TOP;
+      slitNode.left = ExperimentConstants.FRONT_FACING_SLIT_LEFT;
+      slitNode.y = ExperimentConstants.FRONT_FACING_ROW_TOP;
       this.addChild( slitNode );
       return slitNode;
     } );
@@ -124,13 +125,13 @@ export default class ExperimentScreenView extends ScreenView {
     const detectorScreenX = controlsRight - maxLocalRight;
     for ( const detectorScreen of detectorScreenNodes ) {
       detectorScreen.x = detectorScreenX;
-      detectorScreen.y = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_TOP;
+      detectorScreen.y = ExperimentConstants.FRONT_FACING_ROW_TOP;
       this.addChild( detectorScreen );
     }
 
     // Set overhead parallelogram positioning bounds and trigger initial updates
     const frontFacingScreenLeft = detectorScreenNodes[ 0 ].x;
-    const frontFacingScreenRight = detectorScreenNodes[ 0 ].x + QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
+    const frontFacingScreenRight = detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH;
     overheadDetectorScreenNode.setFrontFacingScreenBounds( frontFacingScreenLeft, frontFacingScreenRight );
     overheadBeamNode.updateBeam();
 
@@ -175,7 +176,7 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( sourceControlPanel );
 
     const updateSourceControlPanelPosition = () => {
-      sourceControlPanel.top = QuantumWaveInterferenceConstants.FRONT_FACING_ROW_TOP - 2;
+      sourceControlPanel.top = ExperimentConstants.FRONT_FACING_ROW_TOP - 2;
     };
     model.sceneProperty.link( updateSourceControlPanelPosition );
 
@@ -204,7 +205,7 @@ export default class ExperimentScreenView extends ScreenView {
         tandem: options.tandem.createTandem( 'slitControlPanel' )
       }
     );
-    slitControlPanel.left = QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_LEFT;
+    slitControlPanel.left = ExperimentConstants.FRONT_FACING_SLIT_LEFT;
     slitControlPanel.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     this.addChild( slitControlPanel );
 

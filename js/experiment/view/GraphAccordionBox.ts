@@ -27,11 +27,12 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import AccordionBox from '../../../../sun/js/AccordionBox.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 
 // Chart dimensions — width matches the front-facing detector screen.
-const CHART_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
+const CHART_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const CHART_HEIGHT = 80;
 
 // Number of bins for the histogram in Hits mode

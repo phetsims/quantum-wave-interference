@@ -26,7 +26,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
 import { type SlitSetting } from '../model/SlitSetting.js';
@@ -50,8 +50,8 @@ export default class SlitControlPanel extends Panel {
       yMargin: 10,
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-      minWidth: QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH,
-      maxWidth: QuantumWaveInterferenceConstants.FRONT_FACING_SLIT_VIEW_WIDTH
+      minWidth: ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH,
+      maxWidth: ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH
     }, providedOptions );
 
     // Create the content for each scene (different NumberControl ranges per scene), swap visibility.
