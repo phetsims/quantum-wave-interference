@@ -26,7 +26,7 @@ export default class ExperimentConstants {
   public static readonly FRONT_FACING_SLIT_LEFT = 305;
 
   // Width of the front-facing detector screen rect.
-  public static readonly DETECTOR_SCREEN_WIDTH = 370;
+  public static readonly DETECTOR_SCREEN_WIDTH = 376;
 
   // Uniform scale factor for the top-row overhead elements (emitter, slit, detector, beam visuals).
   public static readonly OVERHEAD_ELEMENT_SCALE = 1.2;

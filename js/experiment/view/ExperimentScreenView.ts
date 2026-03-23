@@ -11,6 +11,7 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import Vector2 from '../../../../dot/js/Vector2.js';
 import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -21,6 +22,7 @@ import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js'
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
@@ -213,13 +215,29 @@ export default class ExperimentScreenView extends ScreenView {
     // span below the view is not obscured by the panel's background.
     frontFacingSlitNodes.forEach( n => n.moveToFront() );
 
-    // Screen settings panel (detection mode + brightness).
+    // Screen settings panel (detection mode + brightness), directly below the detector screen.
     const screenSettingsPanel = new ScreenSettingsPanel( model.sceneProperty, {
       tandem: options.tandem.createTandem( 'screenSettingsPanel' )
     } );
-    screenSettingsPanel.left = this.graphAccordionBoxes[ 0 ].left;
-    screenSettingsPanel.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+    screenSettingsPanel.centerX = detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+    screenSettingsPanel.top = detectorScreenNodes[ 0 ].bottom + 8;
     this.addChild( screenSettingsPanel );
+
+    // Keep the graph below the screen settings panel to avoid overlap.
+    this.graphAccordionBoxes.forEach( graphBox => {
+      graphBox.top = screenSettingsPanel.bottom + 8;
+    } );
+
+    const resetAllButton = new ResetAllButton( {
+      listener: () => {
+        model.reset();
+        this.reset();
+      },
+      right: this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN,
+      bottom: this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN,
+      tandem: options.tandem.createTandem( 'resetAllButton' )
+    } );
+    this.addChild( resetAllButton );
 
     // Ruler checkbox
     const rulerCheckboxLabel = new Text( QuantumWaveInterferenceFluent.rulerStringProperty, {
@@ -231,9 +249,6 @@ export default class ExperimentScreenView extends ScreenView {
       spacing: 6,
       tandem: options.tandem.createTandem( 'rulerCheckbox' )
     } );
-    rulerCheckbox.left = screenSettingsPanel.right + 20;
-    rulerCheckbox.top = screenSettingsPanel.top;
-    this.addChild( rulerCheckbox );
 
     // Stopwatch checkbox - positioned below the ruler checkbox
     const stopwatchCheckboxLabel = new Text( QuantumWaveInterferenceFluent.stopwatchStringProperty, {
@@ -245,16 +260,17 @@ export default class ExperimentScreenView extends ScreenView {
       spacing: 6,
       tandem: options.tandem.createTandem( 'stopwatchCheckbox' )
     } );
-    stopwatchCheckbox.left = rulerCheckbox.left;
-    stopwatchCheckbox.top = rulerCheckbox.bottom + 6;
-    this.addChild( stopwatchCheckbox );
+    const checkboxGroup = new VBox( {
+      spacing: 6,
+      align: 'left',
+      children: [ rulerCheckbox, stopwatchCheckbox ]
+    } );
+    this.addChild( checkboxGroup );
 
-    // Time controls: play/pause button with step-forward and speed radio buttons.
-    // Per the design mockup, the time controls are below the stopwatch checkbox, to the right
-    // of the screen settings panel.
+    // Time controls: play/pause button with speed radio buttons.
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
-      timeSpeeds: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
+      timeSpeeds: [ TimeSpeed.NORMAL, TimeSpeed.FAST ],
       flowBoxSpacing: 15,
       playPauseStepButtonOptions: {
         includeStepForwardButton: false,
@@ -264,10 +280,20 @@ export default class ExperimentScreenView extends ScreenView {
       },
       tandem: options.tandem.createTandem( 'timeControlNode' )
     } );
-    timeControlNode.left = rulerCheckbox.left;
-    timeControlNode.bottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
-    timeControlNode.top = stopwatchCheckbox.bottom + 8;
     this.addChild( timeControlNode );
+
+    const bottomRowLeft = this.graphAccordionBoxes[ 0 ].left;
+    const bottomRowRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
+    const totalBottomControlsWidth = checkboxGroup.width + timeControlNode.width + resetAllButton.width;
+    const bottomRowSpaceBetween = Math.max( 0, ( bottomRowRight - bottomRowLeft - totalBottomControlsWidth ) / 2 );
+
+    checkboxGroup.left = bottomRowLeft;
+    timeControlNode.left = checkboxGroup.right + bottomRowSpaceBetween;
+    resetAllButton.left = timeControlNode.right + bottomRowSpaceBetween;
+    resetAllButton.right = bottomRowRight;
+
+    timeControlNode.centerY = resetAllButton.centerY;
+    checkboxGroup.centerY = resetAllButton.centerY;
 
     // Draggable ruler
     const RULER_CM_COUNT = 10;
@@ -320,16 +346,20 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( stopwatchNode );
 
-    const resetAllButton = new ResetAllButton( {
-      listener: () => {
-        model.reset();
-        this.reset();
-      },
-      right: this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN,
-      bottom: this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN,
-      tandem: options.tandem.createTandem( 'resetAllButton' )
+    // When shown via checkbox, place the stopwatch above and to the right of the checkbox,
+    // with stopwatch bottom aligned to the top of the checkbox text label.
+    const positionStopwatchNearCheckbox = () => {
+      const checkboxBounds = this.globalToLocalBounds( stopwatchCheckbox.localToGlobalBounds( stopwatchCheckbox.localBounds ) );
+      const checkboxLabelBounds = this.globalToLocalBounds( stopwatchCheckboxLabel.localToGlobalBounds( stopwatchCheckboxLabel.localBounds ) );
+      const x = checkboxBounds.right + 8;
+      const y = checkboxLabelBounds.top - stopwatchNode.height;
+      model.stopwatch.positionProperty.value = new Vector2( x, y );
+    };
+    model.stopwatch.isVisibleProperty.lazyLink( isVisible => {
+      if ( isVisible ) {
+        positionStopwatchNearCheckbox();
+      }
     } );
-    this.addChild( resetAllButton );
 
     // Play Area focus order
     this.pdomPlayAreaNode.pdomOrder = [

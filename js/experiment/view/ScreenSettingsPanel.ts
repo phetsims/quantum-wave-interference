@@ -17,19 +17,19 @@ import Range from '../../../../dot/js/Range.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
-import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const LABEL_FONT = new PhetFont( 13 );
-const TICK_LABEL_FONT = new PhetFont( 12 );
+const SETTINGS_ROW_SPACING = 28;
 
 type SelfOptions = EmptySelfOptions;
 
@@ -41,10 +41,10 @@ export default class ScreenSettingsPanel extends Panel {
                       providedOptions: ScreenSettingsPanelOptions ) {
 
     const options = optionize<ScreenSettingsPanelOptions, SelfOptions, PanelOptions>()( {
-      xMargin: 10,
-      yMargin: 10,
-      fill: QuantumWaveInterferenceColors.panelFillProperty,
-      stroke: QuantumWaveInterferenceColors.panelStrokeProperty
+      xMargin: 0,
+      yMargin: 6,
+      fill: null,
+      stroke: null
     }, providedOptions );
 
     // DynamicProperty that follows the active scene's detectionModeProperty
@@ -104,24 +104,17 @@ export default class ScreenSettingsPanel extends Panel {
       majorTickLength: 12,
       tandem: options.tandem.createTandem( 'brightnessSlider' )
     } );
-
-    brightnessSlider.addMajorTick( 0, new Text( QuantumWaveInterferenceFluent.minStringProperty, {
-      font: TICK_LABEL_FONT,
-      maxWidth: 40
-    } ) );
-    brightnessSlider.addMajorTick( brightnessRange.max, new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
-      font: TICK_LABEL_FONT,
-      maxWidth: 40
-    } ) );
+    brightnessSlider.addMajorTick( brightnessRange.min );
+    brightnessSlider.addMajorTick( brightnessRange.max );
 
     const brightnessControl = new VBox( {
       spacing: 2,
       children: [ brightnessLabel, brightnessSlider ]
     } );
 
-    const content = new VBox( {
-      spacing: 10,
-      align: 'left',
+    const content = new HBox( {
+      spacing: SETTINGS_ROW_SPACING,
+      align: 'center',
       children: [ detectionModeRadioButtonGroup, brightnessControl ]
     } );
 

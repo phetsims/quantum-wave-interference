@@ -33,7 +33,7 @@ import SceneModel from '../model/SceneModel.js';
 
 // Chart dimensions — width matches the front-facing detector screen.
 const CHART_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
-const CHART_HEIGHT = 80;
+const CHART_HEIGHT = 103;
 
 // Number of bins for the histogram in Hits mode
 const HISTOGRAM_BINS = 100;
@@ -42,7 +42,6 @@ const HISTOGRAM_BINS = 100;
 const graphGridLineColorProperty = QuantumWaveInterferenceColors.graphGridLineColorProperty;
 
 type SelfOptions = {
-
   // Shared expandedProperty so that switching scenes preserves the accordion box open/closed state,
   // per the design requirement that scene changes should not affect the graph accordion box state.
   expandedProperty: Property<boolean>;
@@ -51,7 +50,6 @@ type SelfOptions = {
 type GraphAccordionBoxOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
 
 export default class GraphAccordionBox extends Node {
-
   private readonly accordionBox: AccordionBox;
   private readonly zoomLevelProperty: NumberProperty;
 
@@ -59,8 +57,10 @@ export default class GraphAccordionBox extends Node {
   public readonly zoomButtonGroup: MagnifyingGlassZoomButtonGroup;
 
   public constructor( sceneModel: SceneModel, providedOptions: GraphAccordionBoxOptions ) {
-
-    const options = optionize<GraphAccordionBoxOptions, SelfOptions, NodeOptions>()( {}, providedOptions );
+    const options = optionize<GraphAccordionBoxOptions, SelfOptions, NodeOptions>()(
+      {},
+      providedOptions
+    );
 
     super( options );
 
@@ -88,10 +88,12 @@ export default class GraphAccordionBox extends Node {
     const NUM_HORIZONTAL_GRID_LINES = 4;
     for ( let i = 1; i < NUM_HORIZONTAL_GRID_LINES; i++ ) {
       const y = ( i / NUM_HORIZONTAL_GRID_LINES ) * CHART_HEIGHT;
-      chartBackground.addChild( new Line( 0, y, CHART_WIDTH, y, {
-        stroke: graphGridLineColorProperty,
-        lineWidth: 0.5
-      } ) );
+      chartBackground.addChild(
+        new Line( 0, y, CHART_WIDTH, y, {
+          stroke: graphGridLineColorProperty,
+          lineWidth: 0.5
+        } )
+      );
     }
 
     // Vertical grid lines (10 divisions, matching the design's evenly-spaced vertical gridlines).
@@ -99,12 +101,14 @@ export default class GraphAccordionBox extends Node {
     const NUM_VERTICAL_DIVISIONS = 10;
     for ( let i = 1; i < NUM_VERTICAL_DIVISIONS; i++ ) {
       const x = ( i / NUM_VERTICAL_DIVISIONS ) * CHART_WIDTH;
-      const isCenterLine = ( i === NUM_VERTICAL_DIVISIONS / 2 );
-      chartBackground.addChild( new Line( x, 0, x, CHART_HEIGHT, {
-        stroke: graphGridLineColorProperty,
-        lineWidth: isCenterLine ? 0.75 : 0.5,
-        lineDash: isCenterLine ? [ 4, 4 ] : []
-      } ) );
+      const isCenterLine = i === NUM_VERTICAL_DIVISIONS / 2;
+      chartBackground.addChild(
+        new Line( x, 0, x, CHART_HEIGHT, {
+          stroke: graphGridLineColorProperty,
+          lineWidth: isCenterLine ? 0.75 : 0.5,
+          lineDash: isCenterLine ? [ 4, 4 ] : []
+        } )
+      );
     }
 
     // Curve/histogram path, clipped to the chart area
@@ -117,9 +121,11 @@ export default class GraphAccordionBox extends Node {
     // Y-axis label that changes based on detection mode, positioned to the left of the chart.
     // Depends on both the detection mode and the string properties for proper locale change support.
     const yAxisLabelStringProperty = new DerivedProperty(
-      [ sceneModel.detectionModeProperty,
+      [
+        sceneModel.detectionModeProperty,
         QuantumWaveInterferenceFluent.countStringProperty,
-        QuantumWaveInterferenceFluent.intensityStringProperty ],
+        QuantumWaveInterferenceFluent.intensityStringProperty
+      ],
       ( detectionMode, countString, intensityString ) =>
         detectionMode === 'hits' ? countString : intensityString
     );
@@ -136,9 +142,11 @@ export default class GraphAccordionBox extends Node {
     // Title text changes dynamically based on detection mode: "Intensity Graph" vs "Hits Graph".
     // Must depend on all three properties so the title updates on both mode change and locale change.
     const titleStringProperty = new DerivedProperty(
-      [ sceneModel.detectionModeProperty,
+      [
+        sceneModel.detectionModeProperty,
         QuantumWaveInterferenceFluent.hitsGraphStringProperty,
-        QuantumWaveInterferenceFluent.intensityGraphStringProperty ],
+        QuantumWaveInterferenceFluent.intensityGraphStringProperty
+      ],
       ( detectionMode, hitsGraphString, intensityGraphString ) =>
         detectionMode === 'hits' ? hitsGraphString : intensityGraphString
     );
@@ -154,20 +162,19 @@ export default class GraphAccordionBox extends Node {
       titleNode: titleText,
       titleAlignX: 'left',
       expandedProperty: options.expandedProperty,
-      fill: QuantumWaveInterferenceColors.graphAccordionBoxFillProperty,
+      fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.graphAccordionBoxStrokeProperty,
       cornerRadius: 5,
       contentXMargin: 8,
       contentYMargin: 6,
-      contentYSpacing: 4,
+      contentYSpacing: 0,
       buttonXMargin: 8,
       buttonYMargin: 6,
       minWidth: CHART_WIDTH + 16, // contentXMargin * 2
 
-      // Per the design specification: "each graph should have a heading with a white background
-      // next to the expand/collapse button"
+      // Match the title-bar color to the panel gray used in the rest of the UI.
       titleBarOptions: {
-        fill: 'white'
+        fill: QuantumWaveInterferenceColors.panelFillProperty
       },
       tandem: providedOptions.tandem.createTandem( 'accordionBox' )
     } );
@@ -178,7 +185,6 @@ export default class GraphAccordionBox extends Node {
       orientation: 'vertical',
       spacing: 8,
       left: this.accordionBox.right + QuantumWaveInterferenceConstants.INTERNAL_PADDING,
-      bottom: this.accordionBox.bottom,
       buttonOptions: {
         baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty
       },
@@ -189,10 +195,24 @@ export default class GraphAccordionBox extends Node {
     } );
     this.addChild( this.zoomButtonGroup );
 
-    // Hide zoom buttons when collapsed, and keep bottom-aligned when expanded
+    const updateZoomButtonLayout = () => {
+      const collapsibleSectionTop = this.globalToLocalBounds(
+        chartNode.localToGlobalBounds( chartNode.localBounds )
+      ).top;
+      this.zoomButtonGroup.top = collapsibleSectionTop;
+    };
+
+    // Hide zoom buttons when collapsed, and keep top-aligned with the collapsible section when expanded.
     this.accordionBox.expandedProperty.link( expanded => {
       this.zoomButtonGroup.visible = expanded;
-      this.zoomButtonGroup.bottom = this.accordionBox.bottom;
+      if ( expanded ) {
+        updateZoomButtonLayout();
+      }
+    } );
+    this.accordionBox.localBoundsProperty.link( () => {
+      if ( this.accordionBox.expandedProperty.value ) {
+        updateZoomButtonLayout();
+      }
     } );
 
     // Update the graph when data changes
@@ -202,7 +222,7 @@ export default class GraphAccordionBox extends Node {
       if ( isHitsMode ) {
         this.paintHistogram( dataPath, sceneModel );
       }
-      else {
+ else {
         this.paintIntensityCurve( dataPath, sceneModel );
       }
       // Position y-axis label to the left of the chart, vertically centered
@@ -223,7 +243,7 @@ export default class GraphAccordionBox extends Node {
     if ( sceneModel.sourceType === 'photons' ) {
       sceneModel.wavelengthProperty.link( () => updateGraph() );
     }
-    else {
+ else {
       sceneModel.velocityProperty.link( () => updateGraph() );
     }
   }
@@ -266,7 +286,7 @@ export default class GraphAccordionBox extends Node {
       const intensity = sceneModel.getIntensityAtPosition( physicalX );
 
       const viewX = fraction * CHART_WIDTH;
-      const viewY = CHART_HEIGHT - ( intensity * sourceIntensity * CHART_HEIGHT * zoomScale );
+      const viewY = CHART_HEIGHT - intensity * sourceIntensity * CHART_HEIGHT * zoomScale;
 
       shape.lineTo( viewX, viewY );
     }
@@ -293,7 +313,7 @@ export default class GraphAccordionBox extends Node {
       dataPath.fill = color.withAlpha( 0.3 * opacityScale );
       dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 * opacityScale );
     }
-    else {
+ else {
       dataPath.fill = `rgba(100,100,180,${0.3 * opacityScale})`;
       dataPath.stroke = `rgba(50,50,130,${0.8 * opacityScale})`;
     }
@@ -361,7 +381,7 @@ export default class GraphAccordionBox extends Node {
       dataPath.fill = color.withAlpha( 0.7 );
       dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
     }
-    else {
+ else {
       dataPath.fill = QuantumWaveInterferenceColors.particleHistogramFillProperty;
       dataPath.stroke = QuantumWaveInterferenceColors.particleHistogramStrokeProperty;
     }
