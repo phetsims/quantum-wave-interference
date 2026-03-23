@@ -409,6 +409,7 @@ export default class SceneModel extends PhetioObject {
       screenDistance: this.screenDistanceProperty.value,
       effectiveWavelength: this.getEffectiveWavelength(),
       slitSetting: this.slitSettingProperty.value,
+      isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
       intensity: this.intensityProperty.value
     } );

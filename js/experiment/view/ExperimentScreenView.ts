@@ -146,7 +146,7 @@ export default class ExperimentScreenView extends ScreenView {
       this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
-      return new DetectorScreenNode( scene, {
+      return new DetectorScreenNode( scene, model.isPlayingProperty, {
         tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
       } );
     } );

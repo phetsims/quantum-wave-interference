@@ -9,6 +9,7 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import Property from '../../../../axon/js/Property.js';
 import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
@@ -66,7 +67,11 @@ export default class DetectorScreenNode extends Node {
   public readonly viewSnapshotsButton: RectangularPushButton;
   private readonly snapshotButtonGroup: VBox;
 
-  public constructor( sceneModel: SceneModel, providedOptions: DetectorScreenNodeOptions ) {
+  public constructor(
+    sceneModel: SceneModel,
+    isPlayingProperty: Property<boolean>,
+    providedOptions: DetectorScreenNodeOptions
+  ) {
     const options = optionize<DetectorScreenNodeOptions, SelfOptions, NodeOptions>()(
       {},
       providedOptions
@@ -99,7 +104,7 @@ export default class DetectorScreenNode extends Node {
     // (per design: "Above the screen... on the right, there is a readout displaying the total number
     // of detected hits (only if 'Hits' selected)")
     const hitCountText = new Text( '', {
-      font: new PhetFont( 11 ),
+      font: new PhetFont( 13 ),
       fill: 'black',
       maxWidth: 100
     } );
@@ -191,9 +196,19 @@ export default class DetectorScreenNode extends Node {
     sceneModel.wavelengthProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
     // Eraser button to clear the screen
+    const eraserButtonEnabledProperty = new DerivedProperty(
+      [ sceneModel.detectionModeProperty, sceneModel.totalHitsProperty ],
+      ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits > 0,
+      {
+        tandem: providedOptions.tandem.createTandem( 'eraserButtonEnabledProperty' ),
+        phetioValueType: BooleanIO
+      }
+    );
+
     this.eraserButton = new EraserButton( {
       iconWidth: 18,
       listener: () => sceneModel.clearScreen(),
+      enabledProperty: eraserButtonEnabledProperty,
       touchAreaXDilation: 5,
       touchAreaYDilation: 5,
       tandem: providedOptions.tandem.createTandem( 'eraserButton' )
@@ -204,6 +219,15 @@ export default class DetectorScreenNode extends Node {
       sceneModel,
       providedOptions.tandem.createTandem( 'snapshotsDialog' )
     );
+
+    // If the sim was playing when the snapshots dialog opened, resume when it closes.
+    let shouldResumeOnDialogClose = false;
+    snapshotsDialog.isShowingProperty.link( isShowing => {
+      if ( !isShowing && shouldResumeOnDialogClose ) {
+        isPlayingProperty.value = true;
+        shouldResumeOnDialogClose = false;
+      }
+    } );
 
     // Camera button to take a snapshot
     this.snapshotButton = new RectangularPushButton( {
@@ -226,7 +250,13 @@ export default class DetectorScreenNode extends Node {
 
     // Eye button to view snapshots
     this.viewSnapshotsButton = new RectangularPushButton( {
-      listener: () => snapshotsDialog.show(),
+      listener: () => {
+        if ( !snapshotsDialog.isShowingProperty.value ) {
+          shouldResumeOnDialogClose = isPlayingProperty.value;
+          isPlayingProperty.value = false;
+        }
+        snapshotsDialog.show();
+      },
       baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
       content: new Path( eyeSolidShape, {
         fill: 'black',
@@ -298,7 +328,7 @@ export default class DetectorScreenNode extends Node {
     // Snapshot buttons and indicator dots, bottom-aligned to the right of the screen
     this.snapshotButtonGroup = new VBox( {
       spacing: 4,
-      align: 'left',
+      align: 'center',
       children: [ indicatorDotsBox, this.snapshotButton, this.viewSnapshotsButton ]
     } );
 

@@ -33,16 +33,17 @@ import SceneModel from '../model/SceneModel.js';
 import Snapshot from '../model/Snapshot.js';
 
 // Snapshot display dimensions (scaled down from the full detector screen)
-const SNAPSHOT_WIDTH = 180;
-const SNAPSHOT_HEIGHT = 120;
+const SNAPSHOT_WIDTH = 360;
+const SNAPSHOT_HEIGHT = 132;
 const CORNER_RADIUS = 6;
-const HIT_DOT_RADIUS = 1;
-const INTENSITY_BINS = 150;
+const HIT_CORE_RADIUS = 2.5;
+const HIT_GLOW_RADIUS = 5;
 const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
 const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
 const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
 const HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 0.1;
 const HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 1.8; // previous default hits gain
+const MAX_RENDERED_SNAPSHOT_HITS = 100000;
 
 const PARAM_FONT = new PhetFont( 11 );
 const TITLE_FONT = new PhetFont( { size: 12, weight: 'bold' } );
@@ -53,7 +54,12 @@ const SLIT_SETTING_DISPLAY_MAP: Record<string, TReadOnlyProperty<string>> = {
   LEFT_COVERED: QuantumWaveInterferenceFluent.leftCoveredStringProperty,
   RIGHT_COVERED: QuantumWaveInterferenceFluent.rightCoveredStringProperty,
   LEFT_DETECTOR: QuantumWaveInterferenceFluent.leftDetectorStringProperty,
-  RIGHT_DETECTOR: QuantumWaveInterferenceFluent.rightDetectorStringProperty
+  RIGHT_DETECTOR: QuantumWaveInterferenceFluent.rightDetectorStringProperty,
+  bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
+  leftCovered: QuantumWaveInterferenceFluent.leftCoveredStringProperty,
+  rightCovered: QuantumWaveInterferenceFluent.rightCoveredStringProperty,
+  leftDetector: QuantumWaveInterferenceFluent.leftDetectorStringProperty,
+  rightDetector: QuantumWaveInterferenceFluent.rightDetectorStringProperty
 };
 
 const getIntensityScreenBrightnessMultiplier = ( sliderBrightness: number ): number => {
@@ -109,7 +115,7 @@ export default class SnapshotNode extends Node {
     );
 
     // Canvas node for rendering the snapshot content (hits or intensity bands)
-    const canvasNode = new SnapshotCanvasNode( snapshotProperty, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT );
+    const canvasNode = new SnapshotCanvasNode( snapshotProperty, sceneModel, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT );
     canvasNode.clipArea = background.shape!;
 
     // Title text showing "Snapshot N", overlaid on the snapshot image
@@ -129,7 +135,7 @@ export default class SnapshotNode extends Node {
     const parameterLabels = new VBox( {
       spacing: 2,
       align: 'left',
-      children: [ slitSepText, screenDistText, wavelengthText, slitSettingText, detectionModeText ]
+      children: [ detectionModeText, slitSepText, screenDistText, wavelengthText, slitSettingText ]
     } );
 
     // Update all text content when the snapshot changes
@@ -189,15 +195,10 @@ export default class SnapshotNode extends Node {
           );
         }
 
-        // Slit setting (only show if not the default "Both open")
-        if ( snapshot.slitSetting !== 'BOTH_OPEN' ) {
-          const displayProperty = SLIT_SETTING_DISPLAY_MAP[ snapshot.slitSetting ];
-          slitSettingText.string = displayProperty ? displayProperty.value : snapshot.slitSetting;
-          slitSettingText.visible = true;
-        }
- else {
-          slitSettingText.visible = false;
-        }
+        // Slit setting (always show, including "Both Open")
+        const displayProperty = SLIT_SETTING_DISPLAY_MAP[ snapshot.slitSetting ];
+        slitSettingText.string = displayProperty ? displayProperty.value : snapshot.slitSetting;
+        slitSettingText.visible = true;
 
         // Detection mode
         detectionModeText.string =
@@ -218,6 +219,7 @@ export default class SnapshotNode extends Node {
           sceneModel.deleteSnapshot( snapshot );
         }
       },
+      baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
       iconOptions: {
         scale: 0.6
       },
@@ -225,14 +227,21 @@ export default class SnapshotNode extends Node {
       touchAreaYDilation: 8
     } );
 
-    // Layout: [snapshot image] [parameter labels] [trash button]
+    const metadataColumn = new Node( {
+      children: [ parameterLabels, trashButton ]
+    } );
+    parameterLabels.left = 0;
+    parameterLabels.top = 0;
+    trashButton.left = 0;
+    trashButton.bottom = SNAPSHOT_HEIGHT;
+
+    // Layout: [snapshot image] [parameter labels + trash button]
     const contentBox = new HBox( {
       spacing: 10,
-      align: 'center',
+      align: 'top',
       children: [
         new Node( { children: [ background, canvasNode, titleText ] } ),
-        parameterLabels,
-        trashButton
+        metadataColumn
       ]
     } );
 
@@ -248,9 +257,11 @@ export default class SnapshotNode extends Node {
  */
 class SnapshotCanvasNode extends CanvasNode {
   private readonly snapshotProperty: TReadOnlyProperty<Snapshot | null>;
+  private readonly sceneModel: SceneModel;
 
   public constructor(
     snapshotProperty: TReadOnlyProperty<Snapshot | null>,
+    sceneModel: SceneModel,
     width: number,
     height: number
   ) {
@@ -258,6 +269,7 @@ class SnapshotCanvasNode extends CanvasNode {
       canvasBounds: new Bounds2( 0, 0, width, height )
     } );
     this.snapshotProperty = snapshotProperty;
+    this.sceneModel = sceneModel;
   }
 
   public paintCanvas( context: CanvasRenderingContext2D ): void {
@@ -285,82 +297,98 @@ class SnapshotCanvasNode extends CanvasNode {
     const displayGain = getHitsDisplayGain( snapshot.brightness );
     const colorScale = Math.max( 1, displayGain );
     const coreAlpha = Utils.clamp( displayGain, 0, 1 );
+    const glowAlpha = Utils.clamp( displayGain * 0.2, 0, 1 );
+    const glowRadius = HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
 
-    // Hit color based on source type
-    if ( snapshot.sourceType === 'photons' ) {
-      const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
-      const scaledR = Utils.clamp( Utils.roundSymmetric( color.red * colorScale ), 0, 255 );
-      const scaledG = Utils.clamp( Utils.roundSymmetric( color.green * colorScale ), 0, 255 );
-      const scaledB = Utils.clamp( Utils.roundSymmetric( color.blue * colorScale ), 0, 255 );
-      context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${coreAlpha})`;
-    }
- else {
-      context.fillStyle = `rgba(255,255,255,${coreAlpha})`;
-    }
+    const baseRGB =
+      snapshot.sourceType === 'photons'
+        ? VisibleColor.wavelengthToColor( snapshot.wavelength )
+        : { red: 255, green: 255, blue: 255 };
+    const scaledR = Utils.clamp( Utils.roundSymmetric( baseRGB.red * colorScale ), 0, 255 );
+    const scaledG = Utils.clamp( Utils.roundSymmetric( baseRGB.green * colorScale ), 0, 255 );
+    const scaledB = Utils.clamp( Utils.roundSymmetric( baseRGB.blue * colorScale ), 0, 255 );
 
-    // Use fillRect for performance — at the snapshot's small scale (1px dots), squares and
-    // circles are visually indistinguishable.
-    const dotDiameter = HIT_DOT_RADIUS * 2;
-    for ( let i = 0; i < hits.length; i++ ) {
-      const hit = hits[ i ];
-      const viewX = ( ( hit.x + 1 ) / 2 ) * width;
-      const viewY = ( ( hit.y + 1 ) / 2 ) * height;
-      context.fillRect( viewX - HIT_DOT_RADIUS, viewY - HIT_DOT_RADIUS, dotDiameter, dotDiameter );
-    }
+    const hitCount = hits.length;
+    const renderCount = Math.min( hitCount, MAX_RENDERED_SNAPSHOT_HITS );
+    const startIndex = hitCount - renderCount;
+
+    const drawHits = ( alpha: number, radius: number ): void => {
+      if ( alpha === 0 ) {
+        return;
+      }
+      context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${alpha})`;
+      for ( let i = startIndex; i < hitCount; i++ ) {
+        const hit = hits[ i ];
+        const viewX = ( ( hit.x + 1 ) / 2 ) * width;
+        const viewY = ( ( hit.y + 1 ) / 2 ) * height;
+        context.beginPath();
+        context.arc( viewX, viewY, radius, 0, Math.PI * 2 );
+        context.fill();
+      }
+    };
+
+    // Match the front-facing detector rendering order: glow pass, then core pass.
+    drawHits( glowAlpha, glowRadius );
+    drawHits( coreAlpha, HIT_CORE_RADIUS );
   }
 
   private paintIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
-    const hits = snapshot.hits;
-    if ( hits.length === 0 ) {
+    if ( !snapshot.isEmitting ) {
+      return;
+    }
+
+    const lambda = snapshot.effectiveWavelength;
+    if ( lambda === 0 ) {
       return;
     }
 
     const width = SNAPSHOT_WIDTH;
     const height = SNAPSHOT_HEIGHT;
-    const binWidth = width / INTENSITY_BINS;
     const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
+    const screenHalfWidth = this.sceneModel.screenHalfWidth;
+    const slitWidthMeters = this.sceneModel.slitWidth * 1e-3;
+    const d = snapshot.slitSeparation * 1e-3;
+    const L = snapshot.screenDistance;
+    const slitSetting = snapshot.slitSetting;
+    const isSingleSlit =
+      slitSetting === 'leftCovered' ||
+      slitSetting === 'rightCovered' ||
+      slitSetting === 'leftDetector' ||
+      slitSetting === 'rightDetector';
 
-    // Bin the captured hits to reproduce the actual accumulated pattern that was displayed
-    // on screen at capture time, rather than the theoretical intensity formula. This makes
-    // snapshots faithfully capture the state of the screen including statistical noise from
-    // limited sampling, which is pedagogically meaningful: early snapshots show granular
-    // patterns while later snapshots show smoother convergence to the theoretical curve.
-    const bins = new Array<number>( INTENSITY_BINS ).fill( 0 );
-    let maxBin = 0;
-    for ( let i = 0; i < hits.length; i++ ) {
-      const binIndex = Math.min(
-        INTENSITY_BINS - 1,
-        Math.max( 0, Math.floor( ( ( hits[ i ].x + 1 ) / 2 ) * INTENSITY_BINS ) )
-      );
-      bins[ binIndex ]++;
-      if ( bins[ binIndex ] > maxBin ) {
-        maxBin = bins[ binIndex ];
+    const photonColor = snapshot.sourceType === 'photons'
+      ? VisibleColor.wavelengthToColor( snapshot.wavelength )
+      : null;
+
+    for ( let x = 0; x < width; x++ ) {
+      const fraction = ( x + 0.5 ) / width;
+      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
+      const sinTheta = physicalX / Math.sqrt( physicalX * physicalX + L * L );
+
+      const singleSlitArg = Math.PI * slitWidthMeters * sinTheta / lambda;
+      const singleSlitFactor = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
+
+      const intensity =
+        isSingleSlit
+          ? singleSlitFactor
+          : Math.pow( Math.cos( Math.PI * d * sinTheta / lambda ), 2 ) * singleSlitFactor;
+
+      const intensityScale = intensity * displayGain;
+      if ( intensityScale < 0.004 ) {
+        continue;
       }
-    }
 
-    if ( maxBin === 0 ) {
-      return;
-    }
-
-    for ( let i = 0; i < INTENSITY_BINS; i++ ) {
-      if ( bins[ i ] > 0 ) {
-        const intensity = bins[ i ] / maxBin;
-        const intensityScale = intensity * displayGain;
-
-        if ( intensityScale > 0.01 ) {
-          if ( snapshot.sourceType === 'photons' ) {
-            const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
-            const r = Utils.clamp( Utils.roundSymmetric( color.red * intensityScale ), 0, 255 );
-            const g = Utils.clamp( Utils.roundSymmetric( color.green * intensityScale ), 0, 255 );
-            const b = Utils.clamp( Utils.roundSymmetric( color.blue * intensityScale ), 0, 255 );
-            context.fillStyle = `rgb(${r},${g},${b})`;
-          }
+      if ( photonColor ) {
+        const r = Utils.clamp( Utils.roundSymmetric( photonColor.red * intensityScale ), 0, 255 );
+        const g = Utils.clamp( Utils.roundSymmetric( photonColor.green * intensityScale ), 0, 255 );
+        const b = Utils.clamp( Utils.roundSymmetric( photonColor.blue * intensityScale ), 0, 255 );
+        context.fillStyle = `rgb(${r},${g},${b})`;
+      }
  else {
-            context.fillStyle = `rgba(255,255,255,${Utils.clamp( intensityScale, 0, 1 )})`;
-          }
-          context.fillRect( i * binWidth, 0, binWidth + 0.5, height );
-        }
+        const value = Utils.clamp( Utils.roundSymmetric( 255 * intensityScale ), 0, 255 );
+        context.fillStyle = `rgb(${value},${value},${value})`;
       }
+      context.fillRect( x, 0, 1, height );
     }
   }
 }

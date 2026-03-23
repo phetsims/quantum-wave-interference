@@ -9,6 +9,7 @@
 
 import Vector2 from '../../../../dot/js/Vector2.js';
 import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
+import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import StringIO from '../../../../tandem/js/types/StringIO.js';
@@ -29,6 +30,7 @@ type SnapshotStateObject = {
   screenDistance: number;
   effectiveWavelength: number;
   slitSetting: string;
+  isEmitting: boolean;
   brightness: number;
   intensity: number;
 };
@@ -55,6 +57,7 @@ export default class Snapshot {
   public readonly screenDistance: number; // m
   public readonly effectiveWavelength: number; // m
   public readonly slitSetting: string;
+  public readonly isEmitting: boolean;
   public readonly brightness: number;
   public readonly intensity: number;
 
@@ -67,6 +70,7 @@ export default class Snapshot {
     screenDistance: number;
     effectiveWavelength: number;
     slitSetting: string;
+    isEmitting: boolean;
     brightness: number;
     intensity: number;
   } ) {
@@ -86,6 +90,7 @@ export default class Snapshot {
     this.screenDistance = sceneData.screenDistance;
     this.effectiveWavelength = sceneData.effectiveWavelength;
     this.slitSetting = sceneData.slitSetting;
+    this.isEmitting = sceneData.isEmitting;
     this.brightness = sceneData.brightness;
     this.intensity = sceneData.intensity;
   }
@@ -103,6 +108,7 @@ export default class Snapshot {
       screenDistance: NumberIO,
       effectiveWavelength: NumberIO,
       slitSetting: StringIO,
+      isEmitting: BooleanIO,
       brightness: NumberIO,
       intensity: NumberIO
     },
@@ -123,6 +129,7 @@ export default class Snapshot {
         screenDistance: snapshot.screenDistance,
         effectiveWavelength: snapshot.effectiveWavelength,
         slitSetting: snapshot.slitSetting,
+        isEmitting: snapshot.isEmitting,
         brightness: snapshot.brightness,
         intensity: snapshot.intensity
       };
@@ -142,6 +149,7 @@ export default class Snapshot {
         screenDistance: stateObject.screenDistance,
         effectiveWavelength: stateObject.effectiveWavelength,
         slitSetting: stateObject.slitSetting,
+        isEmitting: stateObject.isEmitting,
         brightness: stateObject.brightness,
         intensity: stateObject.intensity
       } );
