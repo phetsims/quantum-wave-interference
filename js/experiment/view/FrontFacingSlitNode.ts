@@ -57,6 +57,10 @@ const SLIT_WIDTH_ARROW_OPTIONS = {
 
 const SPAN_TICK_LENGTH = 8;
 const SPAN_FONT = new PhetFont( 12 );
+const DEFAULT_SOURCE_INTENSITY = 0.5;
+const MIN_BEAM_OVERLAY_ALPHA = 0.15;
+const DEFAULT_BEAM_OVERLAY_ALPHA = 0.15 + 0.35 * DEFAULT_SOURCE_INTENSITY;
+const MAX_BEAM_OVERLAY_ALPHA = 0.8;
 
 // Match slit-separation readout precision to SlitControlPanel.
 const getDecimalPlacesForValue = ( value: number ): number => {
@@ -69,10 +73,7 @@ const getDecimalPlacesForValue = ( value: number ): number => {
 };
 
 const getRangeDecimalPlaces = ( min: number, max: number ): number => {
-  return Math.max(
-    getDecimalPlacesForValue( min ),
-    getDecimalPlacesForValue( max )
-  );
+  return Math.max( getDecimalPlacesForValue( min ), getDecimalPlacesForValue( max ) );
 };
 
 type SelfOptions = EmptySelfOptions;
@@ -80,28 +81,44 @@ type SelfOptions = EmptySelfOptions;
 type FrontFacingSlitNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
 
 export default class FrontFacingSlitNode extends Node {
-
   public constructor( sceneModel: SceneModel, providedOptions: FrontFacingSlitNodeOptions ) {
-
-    const options = optionize<FrontFacingSlitNodeOptions, SelfOptions, NodeOptions>()( {}, providedOptions );
+    const options = optionize<FrontFacingSlitNodeOptions, SelfOptions, NodeOptions>()(
+      {},
+      providedOptions
+    );
 
     super( options );
 
     // Black rounded rectangle background
-    const backgroundRect = new Rectangle( 0, 0, VIEW_WIDTH, VIEW_HEIGHT, VIEW_CORNER_RADIUS, VIEW_CORNER_RADIUS, {
-      fill: 'black',
-      stroke: QuantumWaveInterferenceColors.frontFacingStrokeProperty,
-      lineWidth: 1
-    } );
+    const backgroundRect = new Rectangle(
+      0,
+      0,
+      VIEW_WIDTH,
+      VIEW_HEIGHT,
+      VIEW_CORNER_RADIUS,
+      VIEW_CORNER_RADIUS,
+      {
+        fill: 'black',
+        stroke: null
+      }
+    );
     this.addChild( backgroundRect );
 
     // Beam color overlay: shown when the source is emitting, tinting the black barrier
     // with the beam color to indicate light/particles hitting the slit barrier.
     // Clipped to the background rectangle shape.
-    const beamOverlay = new Rectangle( 0, 0, VIEW_WIDTH, VIEW_HEIGHT, VIEW_CORNER_RADIUS, VIEW_CORNER_RADIUS, {
-      fill: 'red',
-      visible: false
-    } );
+    const beamOverlay = new Rectangle(
+      0,
+      0,
+      VIEW_WIDTH,
+      VIEW_HEIGHT,
+      VIEW_CORNER_RADIUS,
+      VIEW_CORNER_RADIUS,
+      {
+        fill: 'red',
+        visible: false
+      }
+    );
     this.addChild( beamOverlay );
 
     const particleBeamColorProperty = QuantumWaveInterferenceColors.particleBeamColorProperty;
@@ -132,10 +149,23 @@ export default class FrontFacingSlitNode extends Node {
       }
 
       beamOverlay.visible = true;
-      const beamColor = sceneModel.sourceType === 'photons'
-                        ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
-                        : particleBeamColorProperty.value;
-      beamOverlay.fill = beamColor.withAlpha( 0.15 + 0.35 * intensity );
+      const beamColor =
+        sceneModel.sourceType === 'photons'
+          ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
+          : particleBeamColorProperty.value;
+
+      // Keep the exact same appearance at the default intensity (0.5). Above default,
+      // increase alpha more aggressively so the displayed color is less dark and closer
+      // to the true source hue instead of channel-clipped brightening.
+      const alpha =
+        intensity <= DEFAULT_SOURCE_INTENSITY
+          ? MIN_BEAM_OVERLAY_ALPHA +
+            ( DEFAULT_BEAM_OVERLAY_ALPHA - MIN_BEAM_OVERLAY_ALPHA ) *
+              ( intensity / DEFAULT_SOURCE_INTENSITY )
+          : DEFAULT_BEAM_OVERLAY_ALPHA +
+            ( MAX_BEAM_OVERLAY_ALPHA - DEFAULT_BEAM_OVERLAY_ALPHA ) *
+              ( ( intensity - DEFAULT_SOURCE_INTENSITY ) / ( 1 - DEFAULT_SOURCE_INTENSITY ) );
+      beamOverlay.fill = beamColor.withAlpha( alpha );
     };
 
     sceneModel.isEmittingProperty.link( updateBeamOverlay );
@@ -157,8 +187,14 @@ export default class FrontFacingSlitNode extends Node {
 
     // --- Slit width span (above the left slit) ---
     const slitWidthArrow = new ArrowNode( 0, 0, 1, 0, SLIT_WIDTH_ARROW_OPTIONS );
-    const slitWidthLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
-    const slitWidthRightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
+    const slitWidthLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
+      stroke: 'black',
+      lineWidth: 1
+    } );
+    const slitWidthRightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
+      stroke: 'black',
+      lineWidth: 1
+    } );
 
     // Format slit width label: use μm for values < 0.01 mm, mm otherwise.
     // Determine decimal places for μm display based on the actual value.
@@ -167,9 +203,9 @@ export default class FrontFacingSlitNode extends Node {
     if ( slitWidthMM >= 0.01 ) {
       slitWidthLabel = `${toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )} mm`;
     }
-    else {
+ else {
       const slitWidthUM = slitWidthMM * 1000;
-      const umDecimalPlaces = slitWidthUM >= 1 ? 0 : ( slitWidthUM >= 0.1 ? 1 : 2 );
+      const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2;
       slitWidthLabel = `${toFixed( slitWidthUM, umDecimalPlaces )} μm`;
     }
     const slitWidthText = new Text( slitWidthLabel, {
@@ -184,8 +220,14 @@ export default class FrontFacingSlitNode extends Node {
 
     // --- Slit separation span (below the view) ---
     const separationArrow = new ArrowNode( 0, 0, 1, 0, SPAN_ARROW_OPTIONS );
-    const separationLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
-    const separationRightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, { stroke: 'black', lineWidth: 1 } );
+    const separationLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
+      stroke: 'black',
+      lineWidth: 1
+    } );
+    const separationRightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
+      stroke: 'black',
+      lineWidth: 1
+    } );
 
     const separationText = new Text( '', {
       font: SPAN_FONT,
@@ -201,10 +243,12 @@ export default class FrontFacingSlitNode extends Node {
     // front-facing slit rectangles are spatially consistent with the separation readout.
     // For photons, at maximum slider value, center-to-center slit separation spans the full
     // drawable width (minus horizontal padding), per design request.
-    const maxSeparationPadding = sceneModel.sourceType === 'photons' ? 2 * HORIZONTAL_PADDING : HORIZONTAL_PADDING;
-    const scaleDenominatorMM = sceneModel.sourceType === 'photons'
-                               ? sceneModel.slitSeparationRange.max
-                               : sceneModel.slitSeparationRange.max + sceneModel.slitWidth;
+    const maxSeparationPadding =
+      sceneModel.sourceType === 'photons' ? 2 * HORIZONTAL_PADDING : HORIZONTAL_PADDING;
+    const scaleDenominatorMM =
+      sceneModel.sourceType === 'photons'
+        ? sceneModel.slitSeparationRange.max
+        : sceneModel.slitSeparationRange.max + sceneModel.slitWidth;
     const mmToViewX = ( VIEW_WIDTH - 2 * maxSeparationPadding ) / scaleDenominatorMM;
     const slitVisualWidth = sceneModel.slitWidth * mmToViewX;
 
@@ -214,10 +258,20 @@ export default class FrontFacingSlitNode extends Node {
 
       // Position slits symmetrically about center using physical center-to-center separation.
       const centerX = VIEW_WIDTH / 2;
-      const halfSeparationView = separationMM * mmToViewX / 2;
+      const halfSeparationView = ( separationMM * mmToViewX ) / 2;
       const halfSlitWidthView = slitVisualWidth / 2;
-      leftSlit.setRect( centerX - halfSeparationView - halfSlitWidthView, slitY, slitVisualWidth, SLIT_HEIGHT );
-      rightSlit.setRect( centerX + halfSeparationView - halfSlitWidthView, slitY, slitVisualWidth, SLIT_HEIGHT );
+      leftSlit.setRect(
+        centerX - halfSeparationView - halfSlitWidthView,
+        slitY,
+        slitVisualWidth,
+        SLIT_HEIGHT
+      );
+      rightSlit.setRect(
+        centerX + halfSeparationView - halfSlitWidthView,
+        slitY,
+        slitVisualWidth,
+        SLIT_HEIGHT
+      );
 
       // Position covers to match slits
       leftCover.setRect( leftSlit.rectX, slitY, leftSlit.rectWidth, SLIT_HEIGHT );
@@ -233,7 +287,7 @@ export default class FrontFacingSlitNode extends Node {
         slitWidthArrow.setTailAndTip( slitLeft, 0, slitRight, 0 );
         slitWidthArrow.visible = true;
       }
-      else {
+ else {
         // Arrow too small to render nicely, hide it but keep ticks and label
         slitWidthArrow.visible = false;
       }
@@ -263,11 +317,17 @@ export default class FrontFacingSlitNode extends Node {
       const usesMicrometers = slitSeparationRange.max <= 0.1;
       if ( usesMicrometers ) {
         const valueUM = separationMM * 1000;
-        const decimalPlaces = getRangeDecimalPlaces( slitSeparationRange.min * 1000, slitSeparationRange.max * 1000 );
+        const decimalPlaces = getRangeDecimalPlaces(
+          slitSeparationRange.min * 1000,
+          slitSeparationRange.max * 1000
+        );
         separationText.string = `${toFixed( valueUM, decimalPlaces )} μm`;
       }
-      else {
-        const decimalPlaces = getRangeDecimalPlaces( slitSeparationRange.min, slitSeparationRange.max );
+ else {
+        const decimalPlaces = getRangeDecimalPlaces(
+          slitSeparationRange.min,
+          slitSeparationRange.max
+        );
         separationText.string = `${toFixed( separationMM, decimalPlaces )} mm`;
       }
 
@@ -281,7 +341,8 @@ export default class FrontFacingSlitNode extends Node {
     sceneModel.slitSeparationProperty.link( updateSlits );
 
     // Detector indicator rectangles (yellow/orange translucent overlays, distinct from gray covers)
-    const DETECTOR_COLOR = QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.6 );
+    const DETECTOR_COLOR =
+      QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.6 );
     const leftDetector = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: DETECTOR_COLOR,
       stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
@@ -299,15 +360,18 @@ export default class FrontFacingSlitNode extends Node {
     this.addChild( rightDetector );
 
     // Update cover and detector visibility based on slit setting
-    Multilink.multilink( [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty ], slitSetting => {
-      leftCover.visible = ( slitSetting === 'leftCovered' );
-      rightCover.visible = ( slitSetting === 'rightCovered' );
-      leftDetector.visible = ( slitSetting === 'leftDetector' );
-      rightDetector.visible = ( slitSetting === 'rightDetector' );
+    Multilink.multilink(
+      [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty ],
+      slitSetting => {
+        leftCover.visible = slitSetting === 'leftCovered';
+        rightCover.visible = slitSetting === 'rightCovered';
+        leftDetector.visible = slitSetting === 'leftDetector';
+        rightDetector.visible = slitSetting === 'rightDetector';
 
-      // Position detectors to match slit positions
-      leftDetector.setRect( leftSlit.rectX, slitY, leftSlit.rectWidth, SLIT_HEIGHT );
-      rightDetector.setRect( rightSlit.rectX, slitY, rightSlit.rectWidth, SLIT_HEIGHT );
-    } );
+        // Position detectors to match slit positions
+        leftDetector.setRect( leftSlit.rectX, slitY, leftSlit.rectWidth, SLIT_HEIGHT );
+        rightDetector.setRect( rightSlit.rectX, slitY, rightSlit.rectWidth, SLIT_HEIGHT );
+      }
+    );
   }
 }

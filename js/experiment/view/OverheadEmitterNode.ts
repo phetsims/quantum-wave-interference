@@ -20,11 +20,21 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
 
-const LABEL_FONT = new PhetFont( 16 );
+const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
+const LABEL_FONT = new PhetFont( 14 * OVERHEAD_SCALE );
 const LABEL_Y = 30;
+const MASS_LABEL_FONT = new PhetFont( 15 * OVERHEAD_SCALE );
+
+const BASE_BODY_WIDTH = 88;
+const BASE_BODY_HEIGHT = 40;
+const BASE_NOZZLE_WIDTH = 16;
+const BASE_NOZZLE_HEIGHT = 32;
+const BASE_BUTTON_RADIUS = 14;
+const BASE_EMITTER_LEFT = 20;
 
 export default class OverheadEmitterNode extends Node {
 
@@ -59,16 +69,20 @@ export default class OverheadEmitterNode extends Node {
       }
     );
 
+    const emitterLeftBase = layoutBounds.minX + QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN + BASE_EMITTER_LEFT;
+    const baseEmitterWidth = BASE_BODY_WIDTH + BASE_NOZZLE_WIDTH;
+    const scaledEmitterWidth = OVERHEAD_SCALE * ( BASE_BODY_WIDTH + BASE_NOZZLE_WIDTH );
+    const emitterLeft = emitterLeftBase - ( scaledEmitterWidth - baseEmitterWidth ) / 2;
+
     const sourceLabel = new Text( sourceLabelStringProperty, {
       font: LABEL_FONT,
       maxWidth: 150,
-      left: layoutBounds.minX + QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN + 20,
+      left: emitterLeft,
       top: LABEL_Y
     } );
     this.addChild( sourceLabel );
 
     // Particle mass label (hidden for photons)
-    const MASS_LABEL_FONT = new PhetFont( 15 );
     const massLabelMap: Record<string, string> = {
       electrons: 'm<sub>e</sub> = 9.1\u00D710<sup>\u221231</sup> kg',
       neutrons: 'm<sub>n</sub> = 1.7\u00D710<sup>\u221227</sup> kg',
@@ -96,14 +110,12 @@ export default class OverheadEmitterNode extends Node {
       bidirectional: true
     } );
 
-    const emitterLeft = layoutBounds.minX + QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN + 20;
-
     this.laserPointerNode = new LaserPointerNode( isEmittingProperty, {
-      bodySize: new Dimension2( 88, 40 ),
-      nozzleSize: new Dimension2( 16, 32 ),
+      bodySize: new Dimension2( BASE_BODY_WIDTH * OVERHEAD_SCALE, BASE_BODY_HEIGHT * OVERHEAD_SCALE ),
+      nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * OVERHEAD_SCALE, BASE_NOZZLE_HEIGHT * OVERHEAD_SCALE ),
       buttonOptions: {
         baseColor: 'red',
-        radius: 14
+        radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE
       },
       left: emitterLeft,
       tandem: tandem.createTandem( 'laserPointerNode' )
@@ -111,14 +123,14 @@ export default class OverheadEmitterNode extends Node {
     this.addChild( this.laserPointerNode );
 
     this.particleEmitterNode = new LaserPointerNode( isEmittingProperty, {
-      bodySize: new Dimension2( 88, 40 ),
-      nozzleSize: new Dimension2( 16, 32 ),
+      bodySize: new Dimension2( BASE_BODY_WIDTH * OVERHEAD_SCALE, BASE_BODY_HEIGHT * OVERHEAD_SCALE ),
+      nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * OVERHEAD_SCALE, BASE_NOZZLE_HEIGHT * OVERHEAD_SCALE ),
       topColor: 'rgb(100, 120, 180)',
       bottomColor: 'rgb(30, 40, 80)',
       highlightColor: 'rgb(160, 180, 230)',
       buttonOptions: {
         baseColor: 'red',
-        radius: 14
+        radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE
       },
       hasGlass: true,
       glassOptions: {
@@ -141,8 +153,8 @@ export default class OverheadEmitterNode extends Node {
       this.particleEmitterNode.visible = !isPhoton;
 
       const activeEmitter = isPhoton ? this.laserPointerNode : this.particleEmitterNode;
-      activeEmitter.top = sourceLabel.bottom + 6;
-      particleMassLabel.top = activeEmitter.bottom + 4;
+      activeEmitter.top = sourceLabel.bottom + 6 * OVERHEAD_SCALE;
+      particleMassLabel.top = activeEmitter.bottom + 4 * OVERHEAD_SCALE;
     };
 
     model.sceneProperty.link( updateEmitterLayout );

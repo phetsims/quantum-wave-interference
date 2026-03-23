@@ -15,13 +15,15 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
 import { type SlitSetting } from '../model/SlitSetting.js';
 
-const DETECTOR_BOX_WIDTH = 58;
-const DETECTOR_BOX_HEIGHT = 38;
+const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
+const DETECTOR_BOX_WIDTH = 58 * OVERHEAD_SCALE;
+const DETECTOR_BOX_HEIGHT = 38 * OVERHEAD_SCALE;
 
 export default class WhichPathDetectorIndicatorNode extends Node {
 
@@ -35,13 +37,13 @@ export default class WhichPathDetectorIndicatorNode extends Node {
     } );
 
     const detectorIndicatorLabel = new Text( QuantumWaveInterferenceFluent.detectorStringProperty, {
-      font: new PhetFont( 11 ),
-      maxWidth: DETECTOR_BOX_WIDTH - 6
+      font: new PhetFont( 11 * OVERHEAD_SCALE ),
+      maxWidth: DETECTOR_BOX_WIDTH - 6 * OVERHEAD_SCALE
     } );
 
     const detectorHitCountText = new Text( '', {
-      font: new PhetFont( 10 ),
-      maxWidth: DETECTOR_BOX_WIDTH - 6,
+      font: new PhetFont( 10 * OVERHEAD_SCALE ),
+      maxWidth: DETECTOR_BOX_WIDTH - 6 * OVERHEAD_SCALE,
       visible: false
     } );
 
@@ -54,9 +56,9 @@ export default class WhichPathDetectorIndicatorNode extends Node {
     const updateDetectorLabelLayout = () => {
       detectorIndicatorLabel.centerX = DETECTOR_BOX_WIDTH / 2;
       if ( detectorHitCountText.visible ) {
-        detectorIndicatorLabel.centerY = DETECTOR_BOX_HEIGHT / 2 - 7;
+        detectorIndicatorLabel.centerY = DETECTOR_BOX_HEIGHT / 2 - 7 * OVERHEAD_SCALE;
         detectorHitCountText.centerX = DETECTOR_BOX_WIDTH / 2;
-        detectorHitCountText.centerY = DETECTOR_BOX_HEIGHT / 2 + 7;
+        detectorHitCountText.centerY = DETECTOR_BOX_HEIGHT / 2 + 7 * OVERHEAD_SCALE;
       }
       else {
         detectorIndicatorLabel.centerY = DETECTOR_BOX_HEIGHT / 2;

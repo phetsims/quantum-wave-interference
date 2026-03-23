@@ -16,16 +16,21 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import createParallelogramNode from './createParallelogramNode.js';
 import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
 
-const LABEL_FONT = new PhetFont( 16 );
+const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
+const OVERHEAD_SKEW_SCALE = ExperimentConstants.OVERHEAD_SKEW_SCALE;
+const LABEL_FONT = new PhetFont( 14 * OVERHEAD_SCALE );
 const LABEL_Y = 18;
+const BASE_DETECTOR_DX = 60;
+const DISTANCE_LABEL_FONT = new PhetFont( 11 * OVERHEAD_SCALE );
 
-export const DETECTOR_DX = 60;
-export const DETECTOR_DY = 24;
-export const DETECTOR_LEFT_HEIGHT = 48;
+export const DETECTOR_DX = BASE_DETECTOR_DX * OVERHEAD_SCALE;
+export const DETECTOR_DY = 24 * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;
+export const DETECTOR_LEFT_HEIGHT = 48 * OVERHEAD_SCALE;
 
 export default class OverheadDetectorScreenNode extends Node {
 
@@ -52,7 +57,7 @@ export default class OverheadDetectorScreenNode extends Node {
     this.addChild( detectorScreenLabel );
 
     // Detector screen parallelogram
-    this.parallelogramNode = createParallelogramNode( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT, 'black' );
+    this.parallelogramNode = createParallelogramNode( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT, 'black', 0 );
     this.parallelogramNode.y = 48;
     this.addChild( this.parallelogramNode );
 
@@ -61,11 +66,11 @@ export default class OverheadDetectorScreenNode extends Node {
     this.parallelogramNode.addChild( this.overheadPatternNode );
 
     // Distance span between double slit and detector screen
-    const SPAN_TICK_LENGTH = 8;
+    const SPAN_TICK_LENGTH = 8 * OVERHEAD_SCALE;
     const distanceSpanArrow = new ArrowNode( 0, 0, 1, 0, {
-      headHeight: 5,
-      headWidth: 5,
-      tailWidth: 1,
+      headHeight: 5 * OVERHEAD_SCALE,
+      headWidth: 5 * OVERHEAD_SCALE,
+      tailWidth: 1 * OVERHEAD_SCALE,
       doubleHead: true,
       fill: 'black',
       stroke: null
@@ -83,7 +88,7 @@ export default class OverheadDetectorScreenNode extends Node {
     this.addChild( distanceSpanRightTick );
 
     const distanceText = new Text( '', {
-      font: new PhetFont( 13 )
+      font: DISTANCE_LABEL_FONT
     } );
     this.addChild( distanceText );
 
@@ -100,7 +105,7 @@ export default class OverheadDetectorScreenNode extends Node {
       // center-to-center distance in view space is proportional to the model's screen distance.
       // For each scene, its max screenDistance maps to the current far-right max position.
       const slitCenterX = this.doubleSlitParallelogramNode.centerX;
-      const maxScreenCenterX = this.frontFacingScreenRight - DETECTOR_DX / 2;
+      const maxScreenCenterX = this.frontFacingScreenRight - BASE_DETECTOR_DX / 2;
       const maxCenterDistanceX = maxScreenCenterX - slitCenterX;
       const pixelsPerMeter = maxCenterDistanceX / range.max;
       const screenCenterX = slitCenterX + distance * pixelsPerMeter;
@@ -121,7 +126,7 @@ export default class OverheadDetectorScreenNode extends Node {
 
       distanceText.string = `${toFixed( distance, 1 )} m`;
       distanceText.centerX = ( leftX + rightX ) / 2;
-      distanceText.bottom = spanY - SPAN_TICK_LENGTH / 2 - 2;
+      distanceText.bottom = spanY - SPAN_TICK_LENGTH / 2;
     };
 
     model.sceneProperty.link( ( newScene, oldScene ) => {
@@ -151,6 +156,7 @@ export default class OverheadDetectorScreenNode extends Node {
     if ( this.frontFacingScreenRight <= this.frontFacingScreenLeft ) {
       return this.parallelogramNode.left;
     }
-    return this.frontFacingScreenRight - DETECTOR_DX;
+    const maxScreenCenterX = this.frontFacingScreenRight - BASE_DETECTOR_DX / 2;
+    return maxScreenCenterX - DETECTOR_DX / 2;
   }
 }

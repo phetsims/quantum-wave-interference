@@ -16,11 +16,12 @@ import Path from '../../../../scenery/js/nodes/Path.js';
  * @param dy - vertical offset of the right edge (positive = right edge is lower)
  * @param leftHeight - height of the left edge
  * @param fill - fill color
+ * @param cornerRadius - optional corner radius; defaults to the rounded style used by overhead elements
  */
-function createParallelogramNode( dx: number, dy: number, leftHeight: number, fill: string ): Path {
+function createParallelogramNode( dx: number, dy: number, leftHeight: number, fill: string, cornerRadius?: number ): Path {
 
-  // Round the corners to match the front-facing views (~6.5% of height).
-  const cornerRadius = leftHeight * 0.065;
+  // Round the corners by default (~6.5% of height), unless overridden.
+  const effectiveCornerRadius = cornerRadius !== undefined ? cornerRadius : leftHeight * 0.065;
 
   // Parallelogram vertices: top-left, bottom-left, bottom-right, top-right
   const corners = [
@@ -45,11 +46,11 @@ function createParallelogramNode( dx: number, dy: number, leftHeight: number, fi
     const outDy = next.y - curr.y;
     const outLen = Math.sqrt( outDx * outDx + outDy * outDy );
 
-    // Points offset from the corner along each edge by cornerRadius
-    const startX = curr.x - ( inDx / inLen ) * cornerRadius;
-    const startY = curr.y - ( inDy / inLen ) * cornerRadius;
-    const endX = curr.x + ( outDx / outLen ) * cornerRadius;
-    const endY = curr.y + ( outDy / outLen ) * cornerRadius;
+    // Points offset from the corner along each edge by the corner radius.
+    const startX = curr.x - ( inDx / inLen ) * effectiveCornerRadius;
+    const startY = curr.y - ( inDy / inLen ) * effectiveCornerRadius;
+    const endX = curr.x + ( outDx / outLen ) * effectiveCornerRadius;
+    const endY = curr.y + ( outDy / outLen ) * effectiveCornerRadius;
 
     if ( i === 0 ) {
       shape.moveTo( startX, startY );

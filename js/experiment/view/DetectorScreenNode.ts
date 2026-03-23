@@ -39,7 +39,7 @@ import SnapshotsDialog from './SnapshotsDialog.js';
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
-const SCREEN_CORNER_RADIUS = 10;
+const SCREEN_CORNER_RADIUS = 0;
 
 type SelfOptions = EmptySelfOptions;
 

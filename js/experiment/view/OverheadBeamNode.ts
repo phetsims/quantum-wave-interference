@@ -14,14 +14,16 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
 
+const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const particleBeamColorProperty = QuantumWaveInterferenceColors.particleBeamColorProperty;
-const EMITTER_BEAM_HEIGHT = 32 * 0.73;
-const EMITTER_BEAM_LEFT_EXTENSION = 10;
+const EMITTER_BEAM_HEIGHT = 32 * 0.73 * OVERHEAD_SCALE;
+const EMITTER_BEAM_LEFT_EXTENSION = 10 * OVERHEAD_SCALE;
 
 export default class OverheadBeamNode extends Node {
 
@@ -107,7 +109,7 @@ export default class OverheadBeamNode extends Node {
       this.emitterBeamNode.shape = beamShape;
       this.emitterBeamNode.fill = beamColor.withAlpha( 0.8 * intensity );
 
-      const fanLeft = doubleSlitParallelogram.right;
+      const fanLeft = doubleSlitNode.getVisibleBackgroundRightX();
       const fanRight = detectorScreenNode.getMaxDistanceParallelogramLeft();
       const narrowHalfHeight = beamHeight / 2;
 

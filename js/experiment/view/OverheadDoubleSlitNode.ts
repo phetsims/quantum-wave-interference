@@ -16,19 +16,28 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import createParallelogramNode from './createParallelogramNode.js';
 
-const LABEL_FONT = new PhetFont( 16 );
-const LABEL_Y = 18;
+const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
+const OVERHEAD_SKEW_SCALE = ExperimentConstants.OVERHEAD_SKEW_SCALE;
+const LABEL_FONT = new PhetFont( 14 * OVERHEAD_SCALE );
+const LABEL_Y = 24;
+const BASE_PARALLELOGRAM_X = 365;
+const BASE_PARALLELOGRAM_DX = 51;
+const BASE_PARALLELOGRAM_CENTER_X = BASE_PARALLELOGRAM_X + BASE_PARALLELOGRAM_DX / 2;
+const PARALLELOGRAM_LEFT_HEIGHT = 50 * OVERHEAD_SCALE;
+const SLIT_BACKGROUND_SCALE = 0.75;
 
 export default class OverheadDoubleSlitNode extends Node {
 
   public readonly parallelogramNode: Path;
+  private readonly reducedBackgroundNode: Path;
 
   // Skew parameters for the overhead parallelogram, exposed so sibling nodes can match the perspective.
-  public readonly skewDx = 51;
-  public readonly skewDy = 21;
+  public readonly skewDx = 51 * OVERHEAD_SCALE;
+  public readonly skewDy = 21 * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;
 
   public constructor( model: ExperimentModel ) {
     super();
@@ -40,25 +49,39 @@ export default class OverheadDoubleSlitNode extends Node {
     } );
     this.addChild( doubleSlitLabel );
 
-    // Double slit parallelogram (overhead perspective view)
-    this.parallelogramNode = createParallelogramNode( this.skewDx, this.skewDy, 50, 'black' );
-    this.parallelogramNode.x = 365;
+    // Double slit parallelogram container (overhead perspective view). The container keeps the
+    // original bounds for layout/beam geometry, while the visible background is a smaller child.
+    this.parallelogramNode = createParallelogramNode( this.skewDx, this.skewDy, PARALLELOGRAM_LEFT_HEIGHT, 'rgba(0,0,0,0)' );
+    this.parallelogramNode.x = BASE_PARALLELOGRAM_CENTER_X - this.skewDx / 2;
     this.parallelogramNode.y = 45;
     this.addChild( this.parallelogramNode );
+
+    // Reduce the visible rounded-rectangle/parallelogram background by 25% in both width and height
+    // while preserving the existing slit-line coordinates and overall node positioning.
+    this.reducedBackgroundNode = createParallelogramNode(
+      this.skewDx * SLIT_BACKGROUND_SCALE,
+      this.skewDy * SLIT_BACKGROUND_SCALE,
+      PARALLELOGRAM_LEFT_HEIGHT * SLIT_BACKGROUND_SCALE,
+      'black'
+    );
+    this.reducedBackgroundNode.x = this.skewDx * ( 1 - SLIT_BACKGROUND_SCALE ) / 2;
+    this.reducedBackgroundNode.y = ( PARALLELOGRAM_LEFT_HEIGHT + this.skewDy ) * ( 1 - SLIT_BACKGROUND_SCALE ) / 2;
+    this.parallelogramNode.addChild( this.reducedBackgroundNode );
 
     // Position label centered above the parallelogram
     doubleSlitLabel.centerX = this.parallelogramNode.centerX;
     doubleSlitLabel.top = LABEL_Y;
 
     // Slit lines on the parallelogram
-    const slitLineLength = 25;
+    const slitLineLength = 25 * OVERHEAD_SCALE;
     const slitXFraction = 0.5;
-    const slitYCenter = 25;
+    // Keep slit lines vertically centered in the slit element.
+    const slitYCenter = PARALLELOGRAM_LEFT_HEIGHT / 2;
     const slitBaseX = slitXFraction * this.skewDx;
     const slitBaseY = slitYCenter + slitXFraction * this.skewDy;
 
-    const MIN_VISUAL_SLIT_SPACING = 1;
-    const MAX_VISUAL_SLIT_SPACING = 4;
+    const MIN_VISUAL_SLIT_SPACING = 1 * OVERHEAD_SCALE;
+    const MAX_VISUAL_SLIT_SPACING = 4 * OVERHEAD_SCALE;
 
     const leftSlitLine = new Path( null, { stroke: 'white', lineWidth: 1 } );
     const rightSlitLine = new Path( null, { stroke: 'white', lineWidth: 1 } );
@@ -66,8 +89,8 @@ export default class OverheadDoubleSlitNode extends Node {
     this.parallelogramNode.addChild( rightSlitLine );
 
     // Cover/detector overlays
-    const slitOverlayHeight = slitLineLength + 4;
-    const slitOverlayWidth = 5;
+    const slitOverlayHeight = slitLineLength + 4 * OVERHEAD_SCALE;
+    const slitOverlayWidth = 5 * OVERHEAD_SCALE;
 
     const leftSlitCover = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
       fill: QuantumWaveInterferenceColors.slitCoverFillProperty, visible: false
@@ -134,5 +157,13 @@ export default class OverheadDoubleSlitNode extends Node {
       newScene.slitSeparationProperty.link( updateOverheadSlits );
       newScene.slitSettingProperty.link( updateOverheadSlits );
     } );
+  }
+
+  /**
+   * Returns the x-position (in parent coordinates) of the right edge of the visible
+   * rounded-rectangle/parallelogram graphic.
+   */
+  public getVisibleBackgroundRightX(): number {
+    return this.parallelogramNode.x + this.reducedBackgroundNode.right;
   }
 }

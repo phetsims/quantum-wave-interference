@@ -27,4 +27,10 @@ export default class ExperimentConstants {
 
   // Width of the front-facing detector screen rect.
   public static readonly DETECTOR_SCREEN_WIDTH = 370;
+
+  // Uniform scale factor for the top-row overhead elements (emitter, slit, detector, beam visuals).
+  public static readonly OVERHEAD_ELEMENT_SCALE = 1.2;
+
+  // Relative skew amount for overhead parallelograms (1 = original skew, 0.5 = 50% less skew).
+  public static readonly OVERHEAD_SKEW_SCALE = 0.5;
 }
