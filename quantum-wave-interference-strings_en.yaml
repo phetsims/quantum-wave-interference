@@ -14,7 +14,6 @@ intensity:                            Intensity
 particleSpeed:                        Particle Speed
 emissionRate:                         Emission Rate
 particleSpeedKmPerSecondPattern:      '{{value}} km/s'
-min:                                  Min
 max:                                  Max
 slitSeparation:                       Slit Separation
 screenDistance:                       Screen Distance

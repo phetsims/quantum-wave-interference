@@ -38,7 +38,6 @@ addToMapIfDefined( 'detectorScreen', 'detectorScreenStringProperty' );
 addToMapIfDefined( 'intensity', 'intensityStringProperty' );
 addToMapIfDefined( 'particleSpeed', 'particleSpeedStringProperty' );
 addToMapIfDefined( 'emissionRate', 'emissionRateStringProperty' );
-addToMapIfDefined( 'min', 'minStringProperty' );
 addToMapIfDefined( 'max', 'maxStringProperty' );
 addToMapIfDefined( 'slitSeparation', 'slitSeparationStringProperty' );
 addToMapIfDefined( 'screenDistance', 'screenDistanceStringProperty' );
@@ -93,7 +92,6 @@ const QuantumWaveInterferenceFluent = {
   particleSpeedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedStringProperty' ),
   emissionRateStringProperty: _.get( QuantumWaveInterferenceStrings, 'emissionRateStringProperty' ),
   particleSpeedKmPerSecondPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedKmPerSecondPatternStringProperty' ),
-  minStringProperty: _.get( QuantumWaveInterferenceStrings, 'minStringProperty' ),
   maxStringProperty: _.get( QuantumWaveInterferenceStrings, 'maxStringProperty' ),
   slitSeparationStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationStringProperty' ),
   screenDistanceStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistanceStringProperty' ),

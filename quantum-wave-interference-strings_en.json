@@ -47,9 +47,6 @@
   "particleSpeedKmPerSecondPattern": {
     "value": "{{value}} km/s"
   },
-  "min": {
-    "value": "Min"
-  },
   "max": {
     "value": "Max"
   },

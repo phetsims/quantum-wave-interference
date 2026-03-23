@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SlitControlPanel is the panel in the bottom row that provides controls for the double-slit geometry:
+ * SlitControlPanel is the panel beneath the front-facing slit view that provides controls for the double-slit geometry:
  * - Slit separation NumberControl
  * - Screen distance NumberControl
  * - Slit settings ComboBox (Both open, Left covered, Right covered, Left detector, Right detector)
@@ -33,8 +33,14 @@ import { type SlitSetting } from '../model/SlitSetting.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
-const SLIDER_TRACK_SIZE = new Dimension2( 130, 3 );
+const SLIDER_TRACK_SIZE = new Dimension2( 150, 3 );
 const COMBO_BOX_FONT = new PhetFont( 13 );
+const NUMBER_CONTROL_Y_SPACING = 8;
+const ARROW_BUTTONS_X_SPACING = 6;
+const PANEL_CONTENT_SPACING = 20;
+const SLIT_SETTINGS_SECTION_SPACING = 4;
+const PANEL_WIDTH = ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH + 20;
+const PANEL_MIN_HEIGHT = 270;
 
 type SelfOptions = EmptySelfOptions;
 
@@ -46,12 +52,13 @@ export default class SlitControlPanel extends Panel {
                       comboBoxParent: Node, providedOptions: SlitControlPanelOptions ) {
 
     const options = optionize<SlitControlPanelOptions, SelfOptions, PanelOptions>()( {
-      xMargin: 10,
-      yMargin: 10,
+      xMargin: 14,
+      yMargin: 8,
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-      minWidth: ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH,
-      maxWidth: ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH
+      minWidth: PANEL_WIDTH,
+      maxWidth: PANEL_WIDTH,
+      minHeight: PANEL_MIN_HEIGHT
     }, providedOptions );
 
     // Create the content for each scene (different NumberControl ranges per scene), swap visibility.
@@ -141,7 +148,7 @@ export default class SlitControlPanel extends Panel {
         delta: slitSeparationDelta,
         titleNodeOptions: {
           font: TITLE_FONT,
-          maxWidth: 120
+          maxWidth: 150
         },
         numberDisplayOptions: slitSeparationNumberDisplayOptions,
         sliderOptions: {
@@ -150,7 +157,10 @@ export default class SlitControlPanel extends Panel {
           majorTickLength: 12,
           majorTicks: slitSeparationTicks
         },
-        layoutFunction: NumberControl.createLayoutFunction1( { ySpacing: 3 } ),
+        layoutFunction: NumberControl.createLayoutFunction1( {
+          ySpacing: NUMBER_CONTROL_Y_SPACING,
+          arrowButtonsXSpacing: ARROW_BUTTONS_X_SPACING
+        } ),
         tandem: tandem.createTandem( `${sceneTandemName}SlitSeparationControl` )
       }
     );
@@ -168,7 +178,7 @@ export default class SlitControlPanel extends Panel {
         delta: screenDistanceDelta,
         titleNodeOptions: {
           font: TITLE_FONT,
-          maxWidth: 120
+          maxWidth: 150
         },
         numberDisplayOptions: {
           decimalPlaces: screenDistanceDecimalPlaces,
@@ -184,7 +194,10 @@ export default class SlitControlPanel extends Panel {
           majorTickLength: 12,
           majorTicks: SlitControlPanel.createNumericTicks( screenDistanceRange )
         },
-        layoutFunction: NumberControl.createLayoutFunction1( { ySpacing: 3 } ),
+        layoutFunction: NumberControl.createLayoutFunction1( {
+          ySpacing: NUMBER_CONTROL_Y_SPACING,
+          arrowButtonsXSpacing: ARROW_BUTTONS_X_SPACING
+        } ),
         tandem: tandem.createTandem( `${sceneTandemName}ScreenDistanceControl` )
       }
     );
@@ -192,52 +205,57 @@ export default class SlitControlPanel extends Panel {
     // Slit settings ComboBox
     const slitSettingsLabel = new Text( QuantumWaveInterferenceFluent.slitSettingsStringProperty, {
       font: TITLE_FONT,
-      maxWidth: 120
+      maxWidth: 150
     } );
 
     const comboBoxItems: ComboBoxItem<SlitSetting>[] = [
       {
         value: 'bothOpen',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ),
+        createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 130 } ),
         tandemName: 'bothOpenItem'
       },
       {
         value: 'leftCovered',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.leftCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ),
+        createNode: () => new Text( QuantumWaveInterferenceFluent.leftCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 130 } ),
         tandemName: 'leftCoveredItem'
       },
       {
         value: 'rightCovered',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.rightCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ),
+        createNode: () => new Text( QuantumWaveInterferenceFluent.rightCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 130 } ),
         tandemName: 'rightCoveredItem'
       },
       {
         value: 'leftDetector',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.leftDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ),
+        createNode: () => new Text( QuantumWaveInterferenceFluent.leftDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 130 } ),
         tandemName: 'leftDetectorItem'
       },
       {
         value: 'rightDetector',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.rightDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ),
+        createNode: () => new Text( QuantumWaveInterferenceFluent.rightDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 130 } ),
         tandemName: 'rightDetectorItem'
       }
     ];
 
     const slitSettingsComboBox = new ComboBox( scene.slitSettingProperty, comboBoxItems, comboBoxParent, {
-      xMargin: 10,
-      yMargin: 5,
+      xMargin: 12,
+      yMargin: 6,
       listPosition: 'above',
       tandem: tandem.createTandem( `${sceneTandemName}SlitSettingsComboBox` )
     } );
 
+    const slitSettingsSection = new VBox( {
+      spacing: SLIT_SETTINGS_SECTION_SPACING,
+      align: 'center',
+      children: [ slitSettingsLabel, slitSettingsComboBox ]
+    } );
+
     return new VBox( {
-      spacing: 8,
+      spacing: PANEL_CONTENT_SPACING,
       align: 'center',
       children: [
         slitSeparationControl,
         screenDistanceControl,
-        slitSettingsLabel,
-        slitSettingsComboBox
+        slitSettingsSection
       ]
     } );
   }

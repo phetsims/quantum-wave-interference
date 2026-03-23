@@ -34,7 +34,6 @@ type StringsType = {
   'particleSpeedStringProperty': LocalizedStringProperty;
   'emissionRateStringProperty': LocalizedStringProperty;
   'particleSpeedKmPerSecondPatternStringProperty': LocalizedStringProperty;
-  'minStringProperty': LocalizedStringProperty;
   'maxStringProperty': LocalizedStringProperty;
   'slitSeparationStringProperty': LocalizedStringProperty;
   'screenDistanceStringProperty': LocalizedStringProperty;
