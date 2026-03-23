@@ -55,7 +55,6 @@ addToMapIfDefined( 'hitsGraph', 'hitsGraphStringProperty' );
 addToMapIfDefined( 'count', 'countStringProperty' );
 addToMapIfDefined( 'ruler', 'rulerStringProperty' );
 addToMapIfDefined( 'stopwatch', 'stopwatchStringProperty' );
-addToMapIfDefined( 'centimeters', 'centimetersStringProperty' );
 addToMapIfDefined( 'detector', 'detectorStringProperty' );
 
 // A function that creates contents for a new Fluent file, which will be needed if any string changes.
@@ -114,7 +113,6 @@ const QuantumWaveInterferenceFluent = {
   snapshotNumberPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotNumberPatternStringProperty' ),
   rulerStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerStringProperty' ),
   stopwatchStringProperty: _.get( QuantumWaveInterferenceStrings, 'stopwatchStringProperty' ),
-  centimetersStringProperty: _.get( QuantumWaveInterferenceStrings, 'centimetersStringProperty' ),
   detectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorStringProperty' ),
   wavelengthPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'wavelengthPatternStringProperty' ),
   deBroglieWavelengthPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'deBroglieWavelengthPatternStringProperty' ),

@@ -11,7 +11,9 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
+import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -47,8 +49,24 @@ type SelfOptions = EmptySelfOptions;
 
 type ExperimentScreenViewOptions = SelfOptions & ScreenViewOptions;
 
+const RULER_INTERVAL_COUNT = 8;
+const RULER_CENTER_TICK_INDEX = RULER_INTERVAL_COUNT / 2;
+const RULER_MINOR_TICKS_PER_MAJOR = 4;
+const RULER_HEIGHT = 40;
+
+const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number ): number => {
+  if ( halfDetectorWidthMM >= 10 ) {
+    return 0;
+  }
+  if ( halfDetectorWidthMM >= 1 ) {
+    return 1;
+  }
+  return 2;
+};
+
 export default class ExperimentScreenView extends ScreenView {
   private readonly graphAccordionBoxes: GraphAccordionBox[];
+  private readonly centerRulerOnDetectorScreen: () => void;
 
   // Shared expanded state for the graph accordion boxes across all scenes, so that switching
   // scenes preserves the open/closed state per the design requirement.
@@ -329,44 +347,87 @@ export default class ExperimentScreenView extends ScreenView {
     // Nudge the slit control panel slightly lower than the checkbox group.
     slitControlPanel.bottom = checkboxGroup.bottom + 2;
 
-    // Draggable ruler
-    const RULER_CM_COUNT = 10;
-    const VIEW_UNITS_PER_CM = 30;
-    const rulerWidth = RULER_CM_COUNT * VIEW_UNITS_PER_CM;
-    const rulerHeight = 40;
-    const majorTickLabels = rangeInclusive( 0, RULER_CM_COUNT ).map( n => `${n}` );
+    // Draggable ruler. The ruler's horizontal scale is calibrated to the active detector
+    // screen: its full width maps to the scene's full detector width in mm.
+    const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
-    const rulerNode = new RulerNode(
-      rulerWidth,
-      rulerHeight,
-      VIEW_UNITS_PER_CM,
-      majorTickLabels,
-      QuantumWaveInterferenceFluent.centimetersStringProperty,
-      {
-        minorTicksPerMajorTick: 4,
-        majorTickFont: new PhetFont( 12 ),
-        unitsFont: new PhetFont( 11 ),
-        cursor: 'pointer',
-        opacity: 0.8,
-        visibleProperty: model.isRulerVisibleProperty,
-        tandem: options.tandem.createTandem( 'rulerNode' )
-      }
-    );
+    const createRulerNode = ( detectorWidthMM: number, index: number ): RulerNode => {
+      const majorTickWidth = ExperimentConstants.DETECTOR_SCREEN_WIDTH / RULER_INTERVAL_COUNT;
+      const halfDetectorWidthMM = detectorWidthMM / 2;
+      const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM );
+      const majorTickLabels = rangeInclusive( 0, RULER_INTERVAL_COUNT ).map( i => {
+        const signedNormalizedOffset = ( i - RULER_CENTER_TICK_INDEX ) / RULER_CENTER_TICK_INDEX;
+        const labelValue = i === RULER_CENTER_TICK_INDEX ? 0 : halfDetectorWidthMM * signedNormalizedOffset;
+        return toFixed( labelValue, labelDecimalPlaces );
+      } );
 
-    model.rulerPositionProperty.link( position => {
-      rulerNode.translation = position;
+      return new RulerNode(
+        ExperimentConstants.DETECTOR_SCREEN_WIDTH,
+        RULER_HEIGHT,
+        majorTickWidth,
+        majorTickLabels,
+        'mm',
+        {
+          minorTicksPerMajorTick: RULER_MINOR_TICKS_PER_MAJOR,
+          unitsMajorTickIndex: RULER_CENTER_TICK_INDEX,
+          majorTickFont: new PhetFont( 12 ),
+          unitsFont: new PhetFont( 11 ),
+          cursor: 'pointer',
+          opacity: 0.8,
+          tandem: rulerNodesTandem.createTandem( `rulerNode${index}` )
+        }
+      );
+    };
+
+    const rulerNodes = model.scenes.map( ( scene, index ) => {
+      const detectorWidthMM = scene.screenHalfWidth * 2 * 1e3;
+      const rulerNode = createRulerNode( detectorWidthMM, index );
+      this.addChild( rulerNode );
+      return rulerNode;
     } );
 
-    const RULER_MIN_VISIBLE_PX = 30;
+    const updateRulerVisibility = () => {
+      const activeScene = model.sceneProperty.value;
+      const isRulerVisible = model.isRulerVisibleProperty.value;
+      model.scenes.forEach( ( scene, index ) => {
+        rulerNodes[ index ].visible = isRulerVisible && scene === activeScene;
+      } );
+    };
+    model.sceneProperty.link( updateRulerVisibility );
+    model.isRulerVisibleProperty.link( updateRulerVisibility );
+
+    model.rulerPositionProperty.link( position => {
+      rulerNodes.forEach( rulerNode => {
+        rulerNode.translation = position;
+      } );
+    } );
+
+    const getActiveSceneIndex = () => model.scenes.indexOf( model.sceneProperty.value );
     const rulerDragBoundsProperty = new DerivedProperty(
-      [ this.visibleBoundsProperty ],
+      [ this.visibleBoundsProperty, model.sceneProperty, this.graphExpandedProperty ],
       visibleBounds => {
-        return visibleBounds.withOffsets(
-          rulerNode.width - RULER_MIN_VISIBLE_PX,
-          0,
-          -RULER_MIN_VISIBLE_PX,
-          -rulerNode.height
+        const activeSceneIndex = getActiveSceneIndex();
+        const activeDetectorScreen = detectorScreenNodes[ activeSceneIndex ];
+        const activeGraphBox = this.graphAccordionBoxes[ activeSceneIndex ];
+        const activeRulerNode = rulerNodes[ activeSceneIndex ];
+
+        const detectorRectCenterX = activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+        const fixedLeft = detectorRectCenterX - activeRulerNode.width / 2;
+
+        const detectorScreenRectBounds = this.globalToLocalBounds( activeDetectorScreen.getScreenRectangleGlobalBounds() );
+        const minTopFromScreen = detectorScreenRectBounds.top;
+        const graphChartBounds = this.globalToLocalBounds( activeGraphBox.getChartAreaGlobalBounds() );
+        const maxTopFromGraph =
+          graphChartBounds.bottom - activeRulerNode.height + activeGraphBox.getChartAreaStrokeLineWidth();
+
+        const minTop = Math.max( minTopFromScreen, visibleBounds.minY );
+        const maxTop = Math.max(
+          minTop,
+          Math.min( maxTopFromGraph, visibleBounds.maxY - activeRulerNode.height )
         );
+
+        // Lock X to detector screen center by setting minX === maxX.
+        return new Bounds2( fixedLeft, minTop, fixedLeft, maxTop );
       }
     );
 
@@ -376,15 +437,30 @@ export default class ExperimentScreenView extends ScreenView {
       );
     } );
 
-    rulerNode.addInputListener(
-      new SoundDragListener( {
-        positionProperty: model.rulerPositionProperty,
-        dragBoundsProperty: rulerDragBoundsProperty,
-        tandem: options.tandem.createTandem( 'rulerNode' ).createTandem( 'dragListener' )
-      } )
-    );
+    this.centerRulerOnDetectorScreen = () => {
+      const activeSceneIndex = getActiveSceneIndex();
+      const activeDetectorScreen = detectorScreenNodes[ activeSceneIndex ];
+      const activeRulerNode = rulerNodes[ activeSceneIndex ];
+      const centeredTop = activeDetectorScreen.centerY - activeRulerNode.height / 2;
+      const detectorRectCenterX = activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+      const centeredLeft = detectorRectCenterX - activeRulerNode.width / 2;
+      model.rulerPositionProperty.value = rulerDragBoundsProperty.value.closestPointTo(
+        new Vector2( centeredLeft, centeredTop )
+      );
+    };
+    this.centerRulerOnDetectorScreen();
 
-    this.addChild( rulerNode );
+    rulerNodes.forEach( ( rulerNode, index ) => {
+      rulerNode.addInputListener(
+        new SoundDragListener( {
+          positionProperty: model.rulerPositionProperty,
+          dragBoundsProperty: rulerDragBoundsProperty,
+          tandem: rulerNodesTandem
+            .createTandem( `rulerNode${index}` )
+            .createTandem( 'dragListener' )
+        } )
+      );
+    } );
 
     // Draggable stopwatch for timing experiments
     const stopwatchNode = new StopwatchNode( model.stopwatch, {
@@ -432,7 +508,7 @@ export default class ExperimentScreenView extends ScreenView {
     // Control Area focus order
     this.pdomControlAreaNode.pdomOrder = [
       rulerCheckbox,
-      rulerNode,
+      ...rulerNodes,
       stopwatchCheckbox,
       stopwatchNode,
       timeControlNode,
@@ -446,5 +522,6 @@ export default class ExperimentScreenView extends ScreenView {
   public reset(): void {
     this.graphExpandedProperty.reset();
     this.graphAccordionBoxes.forEach( box => box.reset() );
+    this.centerRulerOnDetectorScreen();
   }
 }

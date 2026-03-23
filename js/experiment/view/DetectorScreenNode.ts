@@ -10,6 +10,7 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
+import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
@@ -40,6 +41,17 @@ const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 0;
 const BUTTON_COLUMN_GAP = 10.5;
+const TARGET_SCALE_WIDTH_MM = 10;
+
+const getScaleLabelDecimalPlaces = ( valueMM: number ): number => {
+  if ( valueMM >= 1 ) {
+    return Number.isInteger( valueMM ) ? 0 : 1;
+  }
+  if ( valueMM >= 0.1 ) {
+    return 1;
+  }
+  return 2;
+};
 
 type SelfOptions = EmptySelfOptions;
 
@@ -47,6 +59,7 @@ type DetectorScreenNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem
 
 export default class DetectorScreenNode extends Node {
   private readonly screenCanvasNode: DetectorScreenCanvasNode;
+  private readonly screenBackgroundRect: Rectangle;
 
   public readonly eraserButton: EraserButton;
   public readonly snapshotButton: RectangularPushButton;
@@ -62,7 +75,7 @@ export default class DetectorScreenNode extends Node {
     super( options );
 
     // Black rounded rectangle background representing the detector screen
-    const backgroundRect = new Rectangle(
+    this.screenBackgroundRect = new Rectangle(
       0,
       0,
       SCREEN_WIDTH,
@@ -75,11 +88,11 @@ export default class DetectorScreenNode extends Node {
         lineWidth: 1
       }
     );
-    this.addChild( backgroundRect );
+    this.addChild( this.screenBackgroundRect );
 
     // Canvas node for rendering hits and intensity, clipped to the screen area
     this.screenCanvasNode = new DetectorScreenCanvasNode( sceneModel, SCREEN_WIDTH, SCREEN_HEIGHT );
-    this.screenCanvasNode.clipArea = backgroundRect.shape!;
+    this.screenCanvasNode.clipArea = this.screenBackgroundRect.shape!;
     this.addChild( this.screenCanvasNode );
 
     // Hit count text - only visible in Hits mode, positioned above the screen on the right side
@@ -98,61 +111,18 @@ export default class DetectorScreenNode extends Node {
     const SPAN_TICK_LENGTH = 8;
     const SPAN_ARROW_Y = -10; // y position of the span arrow above the screen
 
-    // Scale indicator: a span arrow representing a nice round physical width, with the label
-    // to the right. The pixel width is computed from the physical-to-pixel ratio so it is
-    // physically accurate. Choose a round scale value per source type.
+    // Scale indicator: the span arrow length is computed directly from the scene's physical
+    // detector width, so the visual measurement is consistent with the interference pattern scale.
+    // Use 10 mm when that fits on the detector screen. For scenes with sub-mm detector widths,
+    // use 1/4 of the detector width so the scale bar remains readable.
     const halfWidth = sceneModel.screenHalfWidth;
     const fullPhysicalWidth = halfWidth * 2; // full physical width in meters
     const metersPerPixel = fullPhysicalWidth / SCREEN_WIDTH;
-
-    // Choose a nice round physical scale value that spans roughly 1/4 of the screen width.
-    // Find the largest power-of-10 in mm (or μm) that fits within about half the screen.
-    const targetPhysicalWidth = fullPhysicalWidth * 0.25; // aim for ~1/4 of screen
-    const targetMM = targetPhysicalWidth * 1e3;
-
-    let scalePhysicalWidth: number; // in meters
-    let scaleLabelString: string;
-
-    if ( targetMM >= 1 ) {
-      // Round down to nearest power of 10 in mm, then pick 1, 2, 5, 10, 20, 50...
-      const orderMM = Math.pow( 10, Math.floor( Math.log10( targetMM ) ) );
-      const niceValues = [ 1, 2, 5, 10 ];
-      let bestMM = orderMM;
-      for ( const n of niceValues ) {
-        if ( orderMM * n <= targetMM * 1.5 ) {
-          bestMM = orderMM * n;
-        }
-      }
-      scalePhysicalWidth = bestMM * 1e-3;
-      scaleLabelString = `${toFixed( bestMM, bestMM % 1 === 0 ? 0 : 1 )} mm`;
-    }
- else if ( targetMM >= 0.001 ) {
-      // Work in μm
-      const targetUM = targetPhysicalWidth * 1e6;
-      const orderUM = Math.pow( 10, Math.floor( Math.log10( targetUM ) ) );
-      const niceValues = [ 1, 2, 5, 10 ];
-      let bestUM = orderUM;
-      for ( const n of niceValues ) {
-        if ( orderUM * n <= targetUM * 1.5 ) {
-          bestUM = orderUM * n;
-        }
-      }
-      // If the result is >= 1000 μm, express in mm instead
-      if ( bestUM >= 1000 ) {
-        scalePhysicalWidth = bestUM * 1e-6;
-        scaleLabelString = `${toFixed( bestUM / 1000, bestUM % 1000 === 0 ? 0 : 1 )} mm`;
-      }
- else {
-        scalePhysicalWidth = bestUM * 1e-6;
-        scaleLabelString = `${toFixed( bestUM, bestUM % 1 === 0 ? 0 : 1 )} μm`;
-      }
-    }
- else {
-      scalePhysicalWidth = targetPhysicalWidth;
-      scaleLabelString = `${toFixed( targetPhysicalWidth * 1e9, 0 )} nm`;
-    }
-
-    const scaleArrowWidth = scalePhysicalWidth / metersPerPixel;
+    const fullPhysicalWidthMM = fullPhysicalWidth * 1e3;
+    const scalePhysicalWidthMM =
+      fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
+    const scaleArrowWidth = ( scalePhysicalWidthMM * 1e-3 ) / metersPerPixel;
+    const scaleLabelString = `${toFixed( scalePhysicalWidthMM, getScaleLabelDecimalPlaces( scalePhysicalWidthMM ) )} mm`;
 
     const scaleArrow = new ArrowNode( 0, SPAN_ARROW_Y, scaleArrowWidth, SPAN_ARROW_Y, {
       headHeight: 5,
@@ -342,5 +312,12 @@ export default class DetectorScreenNode extends Node {
     this.snapshotButtonGroup.left = buttonsLeft;
     this.snapshotButtonGroup.bottom = SCREEN_HEIGHT;
     this.addChild( this.snapshotButtonGroup );
+  }
+
+  /**
+   * Gets the global bounds of the black rectangular detector screen area.
+   */
+  public getScreenRectangleGlobalBounds(): Bounds2 {
+    return this.screenBackgroundRect.localToGlobalBounds( this.screenBackgroundRect.localBounds );
   }
 }

@@ -11,6 +11,7 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import Bounds2 from '../../../../dot/js/Bounds2.js';
 import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
 import Utils from '../../../../dot/js/Utils.js';
 import Shape from '../../../../kite/js/Shape.js';
@@ -381,5 +382,19 @@ export default class GraphAccordionBox extends Node {
 
   public reset(): void {
     this.zoomLevelProperty.reset();
+  }
+
+  /**
+   * Gets the global bounds of the rectangular graph plotting area.
+   */
+  public getChartAreaGlobalBounds(): Bounds2 {
+    return this.chartBackground.localToGlobalBounds( this.chartBackground.localBounds );
+  }
+
+  /**
+   * Gets the stroke thickness of the rectangular graph plotting area.
+   */
+  public getChartAreaStrokeLineWidth(): number {
+    return this.chartBackground.lineWidth;
   }
 }
