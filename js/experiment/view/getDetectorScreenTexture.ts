@@ -129,19 +129,14 @@ const paintIntensity = (
   sceneModel: SceneModel,
   displayGain: number
 ): void => {
-  const totalHits = sceneModel.totalHitsProperty.value;
-  if ( totalHits === 0 ) {
-    return;
-  }
-
-  const opacityScale = Math.min( 1, Math.log10( totalHits + 1 ) / 2 );
-  if ( opacityScale < 0.01 ) {
+  // Intensity mode shows the instantaneous theoretical pattern whenever the source is emitting.
+  if ( !sceneModel.isEmittingProperty.value ) {
     return;
   }
 
   const screenHalfWidth = sceneModel.screenHalfWidth;
   const rgb = getIntensityRGB( sceneModel );
-  const baseGain = opacityScale * displayGain;
+  const baseGain = displayGain;
 
   for ( let x = 0; x < SCREEN_WIDTH; x++ ) {
     const fraction = ( x + 0.5 ) / SCREEN_WIDTH;
@@ -208,6 +203,7 @@ const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache =>
   };
 
   sceneModel.hitsChangedEmitter.addListener( markDirty );
+  sceneModel.isEmittingProperty.link( markDirty );
   sceneModel.detectionModeProperty.link( markDirty );
   sceneModel.screenBrightnessProperty.link( markDirty );
   sceneModel.intensityProperty.link( markDirty );

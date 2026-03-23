@@ -36,6 +36,8 @@ const TICK_LABEL_FONT = new PhetFont( 12 );
 const DEFAULT_SLIDER_TRACK_WIDTH = 130;
 const SOURCE_CONTROL_SLIDER_TRACK_WIDTH = DEFAULT_SLIDER_TRACK_WIDTH * 0.96;
 const SLIDER_TRACK_HEIGHT = 3;
+const PHOTON_INTENSITY_LABEL_SPACING = 4;
+const PARTICLE_INTENSITY_LABEL_SPACING = 2;
 const CONTROL_SECTION_SPACING = 16;
 const CONTROL_ROW_VERTICAL_MARGIN = 4;
 
@@ -129,6 +131,7 @@ export default class SourceControlPanel extends Panel {
       trackSize: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SLIDER_TRACK_HEIGHT ),
       thumbSize: new Dimension2( 13, 22 ),
       majorTickLength: 12,
+      tickLabelSpacing: scene.sourceType === 'photons' ? 2 : 6,
       tandem: tandem.createTandem( `${scene.sourceType}IntensitySlider` )
     } );
 
@@ -142,11 +145,11 @@ export default class SourceControlPanel extends Panel {
       } )
     );
 
-    // Photon scenes use "Intensity" while particle scenes use "Emission Rate" per the
+    // Photon scenes use "Source Intensity" while particle scenes use "Emission Rate" per the
     // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
     const intensityLabelStringProperty =
       scene.sourceType === 'photons'
-        ? QuantumWaveInterferenceFluent.intensityStringProperty
+        ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
         : QuantumWaveInterferenceFluent.emissionRateStringProperty;
     const intensityLabel = new Text( intensityLabelStringProperty, {
       font: TITLE_FONT,
@@ -154,7 +157,7 @@ export default class SourceControlPanel extends Panel {
     } );
 
     const intensityControl = new VBox( {
-      spacing: 2,
+      spacing: scene.sourceType === 'photons' ? PHOTON_INTENSITY_LABEL_SPACING : PARTICLE_INTENSITY_LABEL_SPACING,
       children: [ intensityLabel, intensitySlider ]
     } );
 

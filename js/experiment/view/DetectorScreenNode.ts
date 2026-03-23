@@ -212,6 +212,7 @@ export default class DetectorScreenNode extends Node {
 
     sceneModel.hitsChangedEmitter.addListener( updateDisplay );
     sceneModel.detectionModeProperty.link( () => updateDisplay() );
+    sceneModel.isEmittingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.screenBrightnessProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.intensityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 

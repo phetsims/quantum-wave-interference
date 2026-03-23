@@ -36,6 +36,7 @@ addToMapIfDefined( 'heliumAtomSource', 'heliumAtomSourceStringProperty' );
 addToMapIfDefined( 'doubleSlit', 'doubleSlitStringProperty' );
 addToMapIfDefined( 'detectorScreen', 'detectorScreenStringProperty' );
 addToMapIfDefined( 'intensity', 'intensityStringProperty' );
+addToMapIfDefined( 'sourceIntensity', 'sourceIntensityStringProperty' );
 addToMapIfDefined( 'particleSpeed', 'particleSpeedStringProperty' );
 addToMapIfDefined( 'emissionRate', 'emissionRateStringProperty' );
 addToMapIfDefined( 'max', 'maxStringProperty' );
@@ -47,7 +48,6 @@ addToMapIfDefined( 'leftCovered', 'leftCoveredStringProperty' );
 addToMapIfDefined( 'rightCovered', 'rightCoveredStringProperty' );
 addToMapIfDefined( 'leftDetector', 'leftDetectorStringProperty' );
 addToMapIfDefined( 'rightDetector', 'rightDetectorStringProperty' );
-addToMapIfDefined( 'averageIntensity', 'averageIntensityStringProperty' );
 addToMapIfDefined( 'hits', 'hitsStringProperty' );
 addToMapIfDefined( 'screenBrightness', 'screenBrightnessStringProperty' );
 addToMapIfDefined( 'intensityGraph', 'intensityGraphStringProperty' );
@@ -89,6 +89,7 @@ const QuantumWaveInterferenceFluent = {
   doubleSlitStringProperty: _.get( QuantumWaveInterferenceStrings, 'doubleSlitStringProperty' ),
   detectorScreenStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorScreenStringProperty' ),
   intensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'intensityStringProperty' ),
+  sourceIntensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'sourceIntensityStringProperty' ),
   particleSpeedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedStringProperty' ),
   emissionRateStringProperty: _.get( QuantumWaveInterferenceStrings, 'emissionRateStringProperty' ),
   particleSpeedKmPerSecondPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedKmPerSecondPatternStringProperty' ),
@@ -104,7 +105,6 @@ const QuantumWaveInterferenceFluent = {
   rightCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'rightCoveredStringProperty' ),
   leftDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'leftDetectorStringProperty' ),
   rightDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'rightDetectorStringProperty' ),
-  averageIntensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'averageIntensityStringProperty' ),
   hitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsStringProperty' ),
   hitsCountPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsCountPatternStringProperty' ),
   screenBrightnessStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenBrightnessStringProperty' ),

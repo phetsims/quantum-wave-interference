@@ -31,6 +31,7 @@ type StringsType = {
   'doubleSlitStringProperty': LocalizedStringProperty;
   'detectorScreenStringProperty': LocalizedStringProperty;
   'intensityStringProperty': LocalizedStringProperty;
+  'sourceIntensityStringProperty': LocalizedStringProperty;
   'particleSpeedStringProperty': LocalizedStringProperty;
   'emissionRateStringProperty': LocalizedStringProperty;
   'particleSpeedKmPerSecondPatternStringProperty': LocalizedStringProperty;
@@ -46,7 +47,6 @@ type StringsType = {
   'rightCoveredStringProperty': LocalizedStringProperty;
   'leftDetectorStringProperty': LocalizedStringProperty;
   'rightDetectorStringProperty': LocalizedStringProperty;
-  'averageIntensityStringProperty': LocalizedStringProperty;
   'hitsStringProperty': LocalizedStringProperty;
   'hitsCountPatternStringProperty': LocalizedStringProperty;
   'screenBrightnessStringProperty': LocalizedStringProperty;

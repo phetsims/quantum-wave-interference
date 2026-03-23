@@ -11,6 +11,7 @@ heliumAtomSource:                     Helium atom source
 doubleSlit:                           Double slit
 detectorScreen:                       Detector screen
 intensity:                            Intensity
+sourceIntensity:                      Source Intensity
 particleSpeed:                        Particle Speed
 emissionRate:                         Emission Rate
 particleSpeedKmPerSecondPattern:      '{{value}} km/s'
@@ -26,7 +27,6 @@ leftCovered:                          Left Covered
 rightCovered:                         Right Covered
 leftDetector:                         Left Detector
 rightDetector:                        Right Detector
-averageIntensity:                     Average Intensity
 hits:                                 Hits
 hitsCountPattern:                     'Hits: {{count}}'
 screenBrightness:                     Screen Brightness

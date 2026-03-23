@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * ScreenSettingsPanel contains the detection mode radio buttons ('Average intensity' vs 'Hits')
+ * ScreenSettingsPanel contains the detection mode radio buttons ('Intensity' vs 'Hits')
  * and a 'Screen brightness' slider. These controls affect the display on the detector screen.
  *
  * Each scene has its own detectionModeProperty and screenBrightnessProperty, so DynamicProperty
@@ -29,7 +29,7 @@ import SceneModel from '../model/SceneModel.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const LABEL_FONT = new PhetFont( 13 );
-const SETTINGS_ROW_SPACING = 28;
+const SETTINGS_ROW_SPACING = 40;
 
 type SelfOptions = EmptySelfOptions;
 
@@ -59,11 +59,11 @@ export default class ScreenSettingsPanel extends Panel {
       bidirectional: true
     } );
 
-    // Radio buttons for Average Intensity vs Hits
+    // Radio buttons for Intensity vs Hits
     const radioButtonItems: AquaRadioButtonGroupItem<DetectionMode>[] = [
       {
         value: 'averageIntensity',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.averageIntensityStringProperty, {
+        createNode: () => new Text( QuantumWaveInterferenceFluent.intensityStringProperty, {
           font: LABEL_FONT,
           maxWidth: 130
         } ),

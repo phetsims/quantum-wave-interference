@@ -203,7 +203,7 @@ export default class SnapshotNode extends Node {
         detectionModeText.string =
           snapshot.detectionMode === 'hits'
             ? QuantumWaveInterferenceFluent.hitsStringProperty.value
-            : QuantumWaveInterferenceFluent.averageIntensityStringProperty.value;
+            : QuantumWaveInterferenceFluent.intensityStringProperty.value;
       }
 
       titleText.left = 6;

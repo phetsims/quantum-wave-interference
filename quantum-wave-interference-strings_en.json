@@ -38,6 +38,9 @@
   "intensity": {
     "value": "Intensity"
   },
+  "sourceIntensity": {
+    "value": "Source Intensity"
+  },
   "particleSpeed": {
     "value": "Particle Speed"
   },
@@ -82,9 +85,6 @@
   },
   "rightDetector": {
     "value": "Right Detector"
-  },
-  "averageIntensity": {
-    "value": "Average Intensity"
   },
   "hits": {
     "value": "Hits"

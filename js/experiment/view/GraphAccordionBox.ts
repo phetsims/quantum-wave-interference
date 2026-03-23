@@ -232,6 +232,7 @@ export default class GraphAccordionBox extends Node {
 
     // Wire up updates
     sceneModel.hitsChangedEmitter.addListener( updateGraph );
+    sceneModel.isEmittingProperty.link( () => updateGraph() );
     sceneModel.detectionModeProperty.link( () => updateGraph() );
     this.zoomLevelProperty.link( () => updateGraph() );
     sceneModel.slitSeparationProperty.link( () => updateGraph() );
@@ -256,13 +257,10 @@ export default class GraphAccordionBox extends Node {
    * parameters, directly supporting the learning goal: "Predict qualitatively and quantitatively
    * how changing wavelength, particle properties, or slit geometry affects the observed pattern."
    *
-   * The curve opacity scales with accumulated data so that the graph builds up over time,
-   * matching the design requirement that time controls affect the intensity aggregation rate.
+   * In intensity mode, the graph shows the instantaneous theoretical pattern at full visibility.
    */
   private paintIntensityCurve( dataPath: Path, sceneModel: SceneModel ): void {
-    const maxBin = sceneModel.intensityBinsMax;
-
-    if ( maxBin === 0 ) {
+    if ( !sceneModel.isEmittingProperty.value ) {
       dataPath.shape = null;
       return;
     }
@@ -299,23 +297,17 @@ export default class GraphAccordionBox extends Node {
     dataPath.shape = shape;
     dataPath.lineWidth = 1.5;
 
-    // Opacity scales with total accumulated hits, so the curve builds up over time.
-    // Uses a logarithmic scale so the curve becomes visible quickly but continues
-    // to saturate smoothly as more data accumulates.
-    const totalHits = sceneModel.totalHitsProperty.value;
-    const opacityScale = Math.min( 1, Math.log10( totalHits + 1 ) / 2 );
-
     // Fill and stroke with colors matching the source type. For photons, use the
     // wavelength-derived color so the graph visually matches the detector screen display
     // and the histogram bars (which already use wavelength-dependent colors).
     if ( sceneModel.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
-      dataPath.fill = color.withAlpha( 0.3 * opacityScale );
-      dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 * opacityScale );
+      dataPath.fill = color.withAlpha( 0.3 );
+      dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
     }
  else {
-      dataPath.fill = `rgba(100,100,180,${0.3 * opacityScale})`;
-      dataPath.stroke = `rgba(50,50,130,${0.8 * opacityScale})`;
+      dataPath.fill = 'rgba(100,100,180,0.3)';
+      dataPath.stroke = 'rgba(50,50,130,0.8)';
     }
   }
 
