@@ -46,7 +46,7 @@ const MAX_EMISSION_RATE = 100;
 // size by HITS_TRIM_MARGIN, it is trimmed back to MAX_HITS_RETAINED from the front. This
 // prevents unbounded memory growth while the intensityBins continue accumulating correctly.
 // The trim margin amortizes the cost of array splicing across many frames.
-const MAX_HITS_RETAINED = 20000;
+const MAX_HITS_RETAINED = 100000;
 const HITS_TRIM_MARGIN = 2000;
 
 // Maximum iterations for rejection sampling to prevent infinite loops

@@ -19,8 +19,7 @@ const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 // Hit dot rendering parameters.
 const HIT_CORE_RADIUS = 2.5;
 const HIT_GLOW_RADIUS = 5;
-const GLOW_THRESHOLD = 2000;
-const MAX_RENDERED_HITS = 20000;
+const MAX_RENDERED_HITS = 100000;
 const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
 const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
 const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
@@ -77,6 +76,9 @@ const getHitsScreenBrightnessMultiplier = ( sliderBrightness: number, sliderMax:
   );
 };
 
+// Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
+let hasLoggedRenderCap = false;
+
 const paintHits = (
   context: CanvasRenderingContext2D,
   sceneModel: SceneModel,
@@ -84,6 +86,7 @@ const paintHits = (
 ): void => {
   const hits = sceneModel.hits;
   if ( hits.length === 0 ) {
+    hasLoggedRenderCap = false;
     return;
   }
 
@@ -100,6 +103,11 @@ const paintHits = (
   const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
   const startIndex = hitCount - renderCount;
 
+  if ( renderCount >= MAX_RENDERED_HITS && !hasLoggedRenderCap ) {
+    hasLoggedRenderCap = true;
+    console.log( `[DetectorScreen] Render cap reached: only the most recent ${MAX_RENDERED_HITS} hits are drawn. Hit counter continues to accumulate.` );
+  }
+
   const drawHits = ( alpha: number, radius: number ): void => {
     context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${alpha})`;
     for ( let i = startIndex; i < hitCount; i++ ) {
@@ -112,9 +120,7 @@ const paintHits = (
     }
   };
 
-  if ( hitCount <= GLOW_THRESHOLD ) {
-    drawHits( glowAlpha, glowRadius );
-  }
+  drawHits( glowAlpha, glowRadius );
   drawHits( coreAlpha, HIT_CORE_RADIUS );
 };
 
