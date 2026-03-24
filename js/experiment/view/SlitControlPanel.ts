@@ -34,11 +34,12 @@ import { type SlitSetting } from '../model/SlitSetting.js';
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
 const SLIDER_TRACK_SIZE = new Dimension2( 150, 3 );
-const COMBO_BOX_FONT = new PhetFont( 13 );
+const SLIT_SETTINGS_TITLE_FONT = new PhetFont( 14 );
+const COMBO_BOX_FONT = new PhetFont( 14 );
 const NUMBER_CONTROL_Y_SPACING = 8;
 const ARROW_BUTTONS_X_SPACING = 6;
 const PANEL_CONTENT_SPACING = 20;
-const SLIT_SETTINGS_SECTION_SPACING = 4;
+const SLIT_SETTINGS_SECTION_SPACING = 6;
 const PANEL_WIDTH = ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH + 20;
 const PANEL_MIN_HEIGHT = 270;
 
@@ -47,26 +48,35 @@ type SelfOptions = EmptySelfOptions;
 type SlitControlPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tandem'>;
 
 export default class SlitControlPanel extends Panel {
-
-  public constructor( sceneProperty: Property<SceneModel>, scenes: SceneModel[],
-                      comboBoxParent: Node, providedOptions: SlitControlPanelOptions ) {
-
-    const options = optionize<SlitControlPanelOptions, SelfOptions, PanelOptions>()( {
-      xMargin: 14,
-      yMargin: 8,
-      fill: QuantumWaveInterferenceColors.panelFillProperty,
-      stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-      minWidth: PANEL_WIDTH,
-      maxWidth: PANEL_WIDTH,
-      minHeight: PANEL_MIN_HEIGHT
-    }, providedOptions );
+  public constructor(
+    sceneProperty: Property<SceneModel>,
+    scenes: SceneModel[],
+    comboBoxParent: Node,
+    providedOptions: SlitControlPanelOptions
+  ) {
+    const options = optionize<SlitControlPanelOptions, SelfOptions, PanelOptions>()(
+      {
+        xMargin: 14,
+        yMargin: 8,
+        fill: QuantumWaveInterferenceColors.panelFillProperty,
+        stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
+        minWidth: PANEL_WIDTH,
+        maxWidth: PANEL_WIDTH,
+        minHeight: PANEL_MIN_HEIGHT
+      },
+      providedOptions
+    );
 
     // Create the content for each scene (different NumberControl ranges per scene), swap visibility.
     const sceneNodes: Node[] = [];
 
     for ( const scene of scenes ) {
-      const sceneContent = SlitControlPanel.createSceneContent( scene, comboBoxParent, options.tandem );
-      sceneContent.visible = ( scene === sceneProperty.value );
+      const sceneContent = SlitControlPanel.createSceneContent(
+        scene,
+        comboBoxParent,
+        options.tandem
+      );
+      sceneContent.visible = scene === sceneProperty.value;
       sceneNodes.push( sceneContent );
     }
 
@@ -83,7 +93,7 @@ export default class SlitControlPanel extends Panel {
     // Switch visibility when the scene changes
     sceneProperty.link( activeScene => {
       for ( let i = 0; i < scenes.length; i++ ) {
-        sceneNodes[ i ].visible = ( scenes[ i ] === activeScene );
+        sceneNodes[ i ].visible = scenes[ i ] === activeScene;
       }
     } );
   }
@@ -91,9 +101,11 @@ export default class SlitControlPanel extends Panel {
   /**
    * Creates the slit control content for a single scene.
    */
-  private static createSceneContent( scene: SceneModel, comboBoxParent: Node,
-                                     tandem: SlitControlPanelOptions['tandem'] ): Node {
-
+  private static createSceneContent(
+    scene: SceneModel,
+    comboBoxParent: Node,
+    tandem: SlitControlPanelOptions['tandem']
+  ): Node {
     const sceneTandemName = scene.sourceType;
 
     // Slit separation NumberControl.
@@ -115,9 +127,12 @@ export default class SlitControlPanel extends Panel {
       slitSeparationNumberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
           const valueUM = valueMM * 1000;
-          return StringUtils.fillIn( QuantumWaveInterferenceFluent.slitSeparationMicrometerPatternStringProperty.value, {
-            value: Utils.toFixed( valueUM, mmToMicrometerDecimalPlaces )
-          } );
+          return StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.slitSeparationMicrometerPatternStringProperty.value,
+            {
+              value: Utils.toFixed( valueUM, mmToMicrometerDecimalPlaces )
+            }
+          );
         },
         textOptions: {
           font: new PhetFont( 13 )
@@ -126,7 +141,7 @@ export default class SlitControlPanel extends Panel {
       };
       slitSeparationTicks = SlitControlPanel.createMicrometerTicks( slitSeparationRange );
     }
-    else {
+ else {
       const slitSeparationDecimalPlaces = SlitControlPanel.getDecimalPlaces( slitSeparationRange );
       slitSeparationDelta = SlitControlPanel.getDelta( slitSeparationRange );
       slitSeparationNumberDisplayOptions = {
@@ -204,44 +219,69 @@ export default class SlitControlPanel extends Panel {
 
     // Slit settings ComboBox
     const slitSettingsLabel = new Text( QuantumWaveInterferenceFluent.slitSettingsStringProperty, {
-      font: TITLE_FONT,
-      maxWidth: 150
+      font: SLIT_SETTINGS_TITLE_FONT,
+      maxWidth: 170
     } );
 
     const comboBoxItems: ComboBoxItem<SlitSetting>[] = [
       {
         value: 'bothOpen',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 130 } ),
+        createNode: () =>
+          new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, {
+            font: COMBO_BOX_FONT,
+            maxWidth: 150
+          } ),
         tandemName: 'bothOpenItem'
       },
       {
         value: 'leftCovered',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.leftCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 130 } ),
+        createNode: () =>
+          new Text( QuantumWaveInterferenceFluent.leftCoveredStringProperty, {
+            font: COMBO_BOX_FONT,
+            maxWidth: 150
+          } ),
         tandemName: 'leftCoveredItem'
       },
       {
         value: 'rightCovered',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.rightCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 130 } ),
+        createNode: () =>
+          new Text( QuantumWaveInterferenceFluent.rightCoveredStringProperty, {
+            font: COMBO_BOX_FONT,
+            maxWidth: 150
+          } ),
         tandemName: 'rightCoveredItem'
       },
       {
         value: 'leftDetector',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.leftDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 130 } ),
+        createNode: () =>
+          new Text( QuantumWaveInterferenceFluent.leftDetectorStringProperty, {
+            font: COMBO_BOX_FONT,
+            maxWidth: 150
+          } ),
         tandemName: 'leftDetectorItem'
       },
       {
         value: 'rightDetector',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.rightDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 130 } ),
+        createNode: () =>
+          new Text( QuantumWaveInterferenceFluent.rightDetectorStringProperty, {
+            font: COMBO_BOX_FONT,
+            maxWidth: 150
+          } ),
         tandemName: 'rightDetectorItem'
       }
     ];
 
-    const slitSettingsComboBox = new ComboBox( scene.slitSettingProperty, comboBoxItems, comboBoxParent, {
-      xMargin: 12,
-      yMargin: 6,
-      listPosition: 'above',
-      tandem: tandem.createTandem( `${sceneTandemName}SlitSettingsComboBox` )
-    } );
+    const slitSettingsComboBox = new ComboBox(
+      scene.slitSettingProperty,
+      comboBoxItems,
+      comboBoxParent,
+      {
+        xMargin: 16,
+        yMargin: 8,
+        listPosition: 'above',
+        tandem: tandem.createTandem( `${sceneTandemName}SlitSettingsComboBox` )
+      }
+    );
 
     const slitSettingsSection = new VBox( {
       spacing: SLIT_SETTINGS_SECTION_SPACING,
@@ -252,11 +292,7 @@ export default class SlitControlPanel extends Panel {
     return new VBox( {
       spacing: PANEL_CONTENT_SPACING,
       align: 'center',
-      children: [
-        slitSeparationControl,
-        screenDistanceControl,
-        slitSettingsSection
-      ]
+      children: [ slitSeparationControl, screenDistanceControl, slitSettingsSection ]
     } );
   }
 
@@ -265,7 +301,6 @@ export default class SlitControlPanel extends Panel {
    * The range is in mm but the labels display the values converted to μm for readability.
    */
   private static createMicrometerTicks( range: Range ): { value: number; label: Node }[] {
-
     // Use consistent decimal places across both tick labels so they visually match.
     // E.g., for range 0.5–1.0 μm, both ticks should show 1 decimal place: "0.5" and "1.0".
     const minUM = range.min * 1000;
@@ -298,7 +333,6 @@ export default class SlitControlPanel extends Panel {
    * Uses minimal decimal places needed to represent the values without trailing zeros.
    */
   private static createNumericTicks( range: Range ): { value: number; label: Node }[] {
-
     // Use consistent decimal places across both tick labels so they visually match.
     // E.g., for range 0.2–1.0 mm, both ticks should show 1 decimal place: "0.2" and "1.0".
     const decimalPlaces = Math.max(

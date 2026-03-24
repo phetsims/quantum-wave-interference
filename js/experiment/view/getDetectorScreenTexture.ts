@@ -17,14 +17,18 @@ const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 
 // Hit dot rendering parameters.
-const HIT_CORE_RADIUS = 2.5;
-const HIT_GLOW_RADIUS = 5;
+const HIT_CORE_RADIUS = 2.0;
+const HIT_GLOW_RADIUS = 3.4;
 const MAX_RENDERED_HITS = 100000;
 const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
 const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
 const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
 const HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 0.1;
 const HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 1.8; // previous default hits gain
+const HITS_CORE_ALPHA_MIN = 0.2;
+const HITS_CORE_ALPHA_MIDPOINT_MAX = 1;
+const HITS_GLOW_ALPHA_MAX = 0.15;
+const HITS_GLOW_START_FRACTION = 0.5;
 
 type SceneTextureCache = {
   canvas: HTMLCanvasElement;
@@ -76,13 +80,36 @@ const getHitsScreenBrightnessMultiplier = ( sliderBrightness: number, sliderMax:
   );
 };
 
+const getHitsCoreAlpha = ( brightnessFraction: number ): number => {
+  const clampedFraction = Utils.clamp( brightnessFraction, 0, 1 );
+  if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {
+    return Utils.linear(
+      0,
+      HITS_GLOW_START_FRACTION,
+      HITS_CORE_ALPHA_MIN,
+      HITS_CORE_ALPHA_MIDPOINT_MAX,
+      clampedFraction
+    );
+  }
+  return HITS_CORE_ALPHA_MIDPOINT_MAX;
+};
+
+const getHitsGlowAlpha = ( brightnessFraction: number ): number => {
+  const clampedFraction = Utils.clamp( brightnessFraction, 0, 1 );
+  if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {
+    return 0;
+  }
+  return Utils.linear( HITS_GLOW_START_FRACTION, 1, 0, HITS_GLOW_ALPHA_MAX, clampedFraction );
+};
+
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
 
 const paintHits = (
   context: CanvasRenderingContext2D,
   sceneModel: SceneModel,
-  displayGain: number
+  displayGain: number,
+  brightnessFraction: number
 ): void => {
   const hits = sceneModel.hits;
   if ( hits.length === 0 ) {
@@ -91,12 +118,11 @@ const paintHits = (
   }
 
   const rgb = getHitRGB( sceneModel );
-  const colorScale = Math.max( 1, displayGain );
-  const scaledR = Utils.clamp( Utils.roundSymmetric( rgb.r * colorScale ), 0, 255 );
-  const scaledG = Utils.clamp( Utils.roundSymmetric( rgb.g * colorScale ), 0, 255 );
-  const scaledB = Utils.clamp( Utils.roundSymmetric( rgb.b * colorScale ), 0, 255 );
-  const coreAlpha = Utils.clamp( displayGain, 0, 1 );
-  const glowAlpha = Utils.clamp( displayGain * 0.2, 0, 1 );
+  const scaledR = rgb.r;
+  const scaledG = rgb.g;
+  const scaledB = rgb.b;
+  const coreAlpha = getHitsCoreAlpha( brightnessFraction );
+  const glowAlpha = getHitsGlowAlpha( brightnessFraction );
   const glowRadius = HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
 
   const hitCount = hits.length;
@@ -105,7 +131,9 @@ const paintHits = (
 
   if ( renderCount >= MAX_RENDERED_HITS && !hasLoggedRenderCap ) {
     hasLoggedRenderCap = true;
-    console.log( `[DetectorScreen] Render cap reached: only the most recent ${MAX_RENDERED_HITS} hits are drawn. Hit counter continues to accumulate.` );
+    console.log(
+      `[DetectorScreen] Render cap reached: only the most recent ${MAX_RENDERED_HITS} hits are drawn. Hit counter continues to accumulate.`
+    );
   }
 
   const drawHits = ( alpha: number, radius: number ): void => {
@@ -170,10 +198,15 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
   const intensityMultiplier =
     Utils.clamp( sceneModel.intensityProperty.value, 0, 1 ) * INTENSITY_BRIGHTNESS_MAX_MULTIPLIER;
   const hitsDisplayGain = hitsBrightnessMultiplier;
+  const hitsBrightnessFraction = Utils.clamp(
+    sceneModel.screenBrightnessProperty.value / sceneModel.screenBrightnessProperty.range.max,
+    0,
+    1
+  );
   const intensityDisplayGain = intensityBrightnessMultiplier * intensityMultiplier;
 
   if ( sceneModel.detectionModeProperty.value === 'hits' ) {
-    paintHits( context, sceneModel, hitsDisplayGain );
+    paintHits( context, sceneModel, hitsDisplayGain, hitsBrightnessFraction );
   }
  else {
     paintIntensity( context, sceneModel, intensityDisplayGain );
