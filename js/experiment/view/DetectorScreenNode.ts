@@ -31,6 +31,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import cameraSolidShape from '../../../../sherpa/js/fontawesome-5/cameraSolidShape.js';
 import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
+import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
@@ -305,6 +306,7 @@ export default class DetectorScreenNode extends Node {
       minWidth: detectorActionButtonMinWidth,
       minHeight: detectorActionButtonMinHeight,
       listener: () => sceneModel.clearScreen(),
+      soundPlayer: sharedSoundPlayers.get( 'erase' ),
       enabledProperty: eraserButtonEnabledProperty,
       touchAreaXDilation: 5,
       touchAreaYDilation: 5,
