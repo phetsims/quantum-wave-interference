@@ -18,7 +18,7 @@ particleSpeedKmPerSecondPattern:      '{{value}} km/s'
 max:                                  Max
 slitSeparation:                       Slit Separation
 screenDistance:                       Screen Distance
-slitSettings:                         Slit Settings
+slitSettings:                         Slit Configuration
 slitSeparationPattern:                '{{value}} mm'
 slitSeparationMicrometerPattern:      '{{value}} μm'
 screenDistancePattern:                '{{value}} m'
