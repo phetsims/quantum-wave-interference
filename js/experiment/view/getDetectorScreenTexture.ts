@@ -34,6 +34,24 @@ type SceneTextureCache = {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   dirty: boolean;
+
+  // Persistent-canvas optimization: track how many hits have already been painted so
+  // incremental frames only blit the new ones. When rendering parameters change (brightness,
+  // wavelength, mode) we set lastRenderedHitCount to 0 to force a full repaint.
+  lastRenderedHitCount: number;
+
+  // The parameters that were used for the last render, so we can detect when a full
+  // repaint is needed vs an incremental blit.
+  lastBrightness: number;
+  lastWavelength: number;
+  lastDetectionMode: string;
+  lastIntensity: number;
+  lastIsEmitting: boolean;
+
+  // Cached hit sprite (small offscreen canvas with glow + core pre-rendered).
+  // Invalidated when brightness or color changes.
+  hitSprite: HTMLCanvasElement | null;
+  hitSpriteParams: { r: number; g: number; b: number; coreAlpha: number; glowAlpha: number; glowRadius: number } | null;
 };
 
 const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
@@ -105,7 +123,65 @@ const getHitsGlowAlpha = ( brightnessFraction: number ): number => {
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
 
+/**
+ * Creates (or returns a cached) hit sprite — a small offscreen canvas with the glow ring and
+ * solid core pre-rendered. Using drawImage per hit instead of beginPath/arc/fill avoids path
+ * tessellation and is typically 3-5× faster.
+ */
+const getHitSprite = (
+  cache: SceneTextureCache,
+  rgb: { r: number; g: number; b: number },
+  coreAlpha: number,
+  glowAlpha: number,
+  glowRadius: number
+): HTMLCanvasElement => {
+
+  // Return cached sprite if parameters haven't changed.
+  if ( cache.hitSprite && cache.hitSpriteParams &&
+       cache.hitSpriteParams.r === rgb.r &&
+       cache.hitSpriteParams.g === rgb.g &&
+       cache.hitSpriteParams.b === rgb.b &&
+       cache.hitSpriteParams.coreAlpha === coreAlpha &&
+       cache.hitSpriteParams.glowAlpha === glowAlpha &&
+       cache.hitSpriteParams.glowRadius === glowRadius ) {
+    return cache.hitSprite;
+  }
+
+  const maxRadius = Math.max( glowRadius, HIT_CORE_RADIUS );
+  // Pad by 1 px so antialiased edges aren't clipped.
+  const size = Math.ceil( maxRadius * 2 ) + 2;
+  const center = size / 2;
+
+  const spriteCanvas = document.createElement( 'canvas' );
+  spriteCanvas.width = size;
+  spriteCanvas.height = size;
+  const ctx = spriteCanvas.getContext( '2d' )!;
+
+  // Draw glow circle first (larger, semi-transparent).
+  if ( glowAlpha > 0 ) {
+    ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${glowAlpha})`;
+    ctx.beginPath();
+    ctx.arc( center, center, glowRadius, 0, Math.PI * 2 );
+    ctx.fill();
+  }
+
+  // Draw core circle on top (smaller, more opaque).
+  ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${coreAlpha})`;
+  ctx.beginPath();
+  ctx.arc( center, center, HIT_CORE_RADIUS, 0, Math.PI * 2 );
+  ctx.fill();
+
+  cache.hitSprite = spriteCanvas;
+  cache.hitSpriteParams = { r: rgb.r, g: rgb.g, b: rgb.b, coreAlpha: coreAlpha, glowAlpha: glowAlpha, glowRadius: glowRadius };
+  return spriteCanvas;
+};
+
+/**
+ * Paints hits onto the cache canvas. When possible, only new hits (those added since the last
+ * render) are blitted, making the per-frame cost O(new hits) ≈ 1–6 instead of O(total hits).
+ */
 const paintHits = (
+  cache: SceneTextureCache,
   context: CanvasRenderingContext2D,
   sceneModel: SceneModel,
   displayGain: number,
@@ -114,16 +190,21 @@ const paintHits = (
   const hits = sceneModel.hits;
   if ( hits.length === 0 ) {
     hasLoggedRenderCap = false;
+    if ( cache.lastRenderedHitCount > 0 ) {
+      context.clearRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
+    }
+    cache.lastRenderedHitCount = 0;
     return;
   }
 
   const rgb = getHitRGB( sceneModel );
-  const scaledR = rgb.r;
-  const scaledG = rgb.g;
-  const scaledB = rgb.b;
   const coreAlpha = getHitsCoreAlpha( brightnessFraction );
   const glowAlpha = getHitsGlowAlpha( brightnessFraction );
   const glowRadius = HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
+
+  const sprite = getHitSprite( cache, rgb, coreAlpha, glowAlpha, glowRadius );
+  const spriteHalfW = sprite.width / 2;
+  const spriteHalfH = sprite.height / 2;
 
   const hitCount = hits.length;
   const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
@@ -136,20 +217,27 @@ const paintHits = (
     );
   }
 
-  const drawHits = ( alpha: number, radius: number ): void => {
-    context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${alpha})`;
-    for ( let i = startIndex; i < hitCount; i++ ) {
-      const hit = hits[ i ];
-      const viewX = ( ( hit.x + 1 ) / 2 ) * SCREEN_WIDTH;
-      const viewY = ( ( hit.y + 1 ) / 2 ) * SCREEN_HEIGHT;
-      context.beginPath();
-      context.arc( viewX, viewY, radius, 0, Math.PI * 2 );
-      context.fill();
-    }
-  };
+  // Determine the range of hits that still need to be drawn. If the cache already has
+  // some hits rendered (from a previous frame), skip those.
+  const alreadyRendered = cache.lastRenderedHitCount;
 
-  drawHits( glowAlpha, glowRadius );
-  drawHits( coreAlpha, HIT_CORE_RADIUS );
+  // If hits were trimmed (array splice in SceneModel.step), the previously rendered hits
+  // may no longer be at the same indices. Detect this and force a full repaint.
+  const needsFullRepaint = alreadyRendered > hitCount || startIndex > 0 && alreadyRendered <= startIndex;
+  const incrementalStart = needsFullRepaint ? startIndex : Math.max( startIndex, alreadyRendered );
+
+  if ( needsFullRepaint ) {
+    context.clearRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
+  }
+
+  for ( let i = incrementalStart; i < hitCount; i++ ) {
+    const hit = hits[ i ];
+    const viewX = ( ( hit.x + 1 ) / 2 ) * SCREEN_WIDTH;
+    const viewY = ( ( hit.y + 1 ) / 2 ) * SCREEN_HEIGHT;
+    context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
+  }
+
+  cache.lastRenderedHitCount = hitCount;
 };
 
 const paintIntensity = (
@@ -186,29 +274,57 @@ const paintIntensity = (
 
 const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ): void => {
   const context = cache.context;
-  context.clearRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
 
-  const intensityBrightnessMultiplier = getIntensityScreenBrightnessMultiplier(
-    sceneModel.screenBrightnessProperty.value
-  );
+  const currentBrightness = sceneModel.screenBrightnessProperty.value;
+  const currentWavelength = sceneModel.wavelengthProperty.value;
+  const currentDetectionMode = sceneModel.detectionModeProperty.value;
+  const currentIntensity = sceneModel.intensityProperty.value;
+  const currentIsEmitting = sceneModel.isEmittingProperty.value;
+
+  // Detect whether rendering parameters changed (requiring a full repaint of all hits)
+  // vs only new hits were added (allowing an incremental blit).
+  const paramsChanged =
+    cache.lastBrightness !== currentBrightness ||
+    cache.lastWavelength !== currentWavelength ||
+    cache.lastDetectionMode !== currentDetectionMode ||
+    cache.lastIntensity !== currentIntensity ||
+    cache.lastIsEmitting !== currentIsEmitting;
+
+  if ( paramsChanged ) {
+    // Force full repaint by resetting the incremental counter and clearing the sprite cache.
+    cache.lastRenderedHitCount = 0;
+    cache.hitSprite = null;
+    cache.hitSpriteParams = null;
+    context.clearRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
+
+    cache.lastBrightness = currentBrightness;
+    cache.lastWavelength = currentWavelength;
+    cache.lastDetectionMode = currentDetectionMode;
+    cache.lastIntensity = currentIntensity;
+    cache.lastIsEmitting = currentIsEmitting;
+  }
+
+  const intensityBrightnessMultiplier = getIntensityScreenBrightnessMultiplier( currentBrightness );
   const hitsBrightnessMultiplier = getHitsScreenBrightnessMultiplier(
-    sceneModel.screenBrightnessProperty.value,
+    currentBrightness,
     sceneModel.screenBrightnessProperty.range.max
   );
   const intensityMultiplier =
-    Utils.clamp( sceneModel.intensityProperty.value, 0, 1 ) * INTENSITY_BRIGHTNESS_MAX_MULTIPLIER;
+    Utils.clamp( currentIntensity, 0, 1 ) * INTENSITY_BRIGHTNESS_MAX_MULTIPLIER;
   const hitsDisplayGain = hitsBrightnessMultiplier;
   const hitsBrightnessFraction = Utils.clamp(
-    sceneModel.screenBrightnessProperty.value / sceneModel.screenBrightnessProperty.range.max,
+    currentBrightness / sceneModel.screenBrightnessProperty.range.max,
     0,
     1
   );
   const intensityDisplayGain = intensityBrightnessMultiplier * intensityMultiplier;
 
-  if ( sceneModel.detectionModeProperty.value === 'hits' ) {
-    paintHits( context, sceneModel, hitsDisplayGain, hitsBrightnessFraction );
+  if ( currentDetectionMode === 'hits' ) {
+    paintHits( cache, context, sceneModel, hitsDisplayGain, hitsBrightnessFraction );
   }
- else {
+  else {
+    // Intensity mode always redraws fully (it's O(SCREEN_WIDTH) ≈ 280 iterations, already fast).
+    context.clearRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
     paintIntensity( context, sceneModel, intensityDisplayGain );
   }
 
@@ -228,7 +344,15 @@ const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache =>
   const cache: SceneTextureCache = {
     canvas: canvas,
     context: context,
-    dirty: true
+    dirty: true,
+    lastRenderedHitCount: 0,
+    lastBrightness: -1,
+    lastWavelength: -1,
+    lastDetectionMode: '',
+    lastIntensity: -1,
+    lastIsEmitting: false,
+    hitSprite: null,
+    hitSpriteParams: null
   };
 
   const markDirty = () => {
