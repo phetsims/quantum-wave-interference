@@ -171,31 +171,31 @@ export default class SceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.05, 0.5 ); // mm
       this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
       this.screenHalfWidth = 0.02; // 20 mm (40 mm total width; 10 mm scale bar spans ~1/4 of screen)
-      defaultScreenDistance = 0.8;// start at the max
+      defaultScreenDistance = this.screenDistanceRange.max;
       defaultVelocity = 0;
       defaultSlitSeparation = 0.25;
     }
     else if ( options.sourceType === 'electrons' ) {
       this.particleMass = ELECTRON_MASS;
-      this.slitWidth = 0.0002; // mm (0.2 μm, per design mockup)
+      this.slitWidth = 0.00003; // mm (0.03 μm)
       this.velocityRange = new Range( 7e5, 1.5e6 ); // m/s (700–1500 km/s per design mockup)
-      this.slitSeparationRange = new Range( 0.0005, 0.001 ); // mm (0.5–1.0 μm per design mockup)
+      this.slitSeparationRange = new Range( 0.0001, 0.0009 ); // mm (0.1–0.9 μm)
       this.screenDistanceRange = new Range( 0.4, 0.8 ); // m (per design mockup)
       this.screenHalfWidth = 0.02; // 20 mm (40 mm total width; 10 mm scale bar spans ~1/4 of screen)
-      defaultScreenDistance = 0.5; // Moderate default for clear interference fringes
-      defaultVelocity = 1e6; // 1000 km/s per design mockup
-      defaultSlitSeparation = this.slitSeparationRange.max;
+      defaultScreenDistance = this.screenDistanceRange.max;
+      defaultVelocity = 1.1e6; // 1100 km/s
+      defaultSlitSeparation = 0.0005; // 0.5 μm
     }
     else if ( options.sourceType === 'neutrons' ) {
       this.particleMass = NEUTRON_MASS;
-      this.slitWidth = 0.01; // mm
-      this.velocityRange = new Range( 200, 2000 ); // m/s (thermal to cold neutrons)
-      this.slitSeparationRange = new Range( 0.02, 0.1 ); // mm
-      this.screenDistanceRange = new Range( 0.5, 5.0 ); // m
+      this.slitWidth = 0.003; // mm (3 μm)
+      this.velocityRange = new Range( 200, 800 ); // m/s
+      this.slitSeparationRange = new Range( 0.01, 0.07 ); // mm (10–70 μm)
+      this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
       this.screenHalfWidth = 4e-4; // 0.4 mm (0.8 mm total width; scale bar spans ~1/4 of screen)
-      defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
-      defaultVelocity = ( this.velocityRange.min + this.velocityRange.max ) / 2;
-      defaultSlitSeparation = this.slitSeparationRange.max;
+      defaultScreenDistance = this.screenDistanceRange.max;
+      defaultVelocity = 500;
+      defaultSlitSeparation = 0.04; // mm (40 μm)
     }
     else {
       // Helium atoms
@@ -203,9 +203,9 @@ export default class SceneModel extends PhetioObject {
       this.slitWidth = 0.001; // mm
       this.velocityRange = new Range( 500, 3000 ); // m/s
       this.slitSeparationRange = new Range( 0.002, 0.01 ); // mm
-      this.screenDistanceRange = new Range( 0.5, 2.0 ); // m
+      this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
       this.screenHalfWidth = 4e-4; // 0.4 mm (0.8 mm total width; scale bar spans ~1/4 of screen)
-      defaultScreenDistance = ( this.screenDistanceRange.min + this.screenDistanceRange.max ) / 2;
+      defaultScreenDistance = this.screenDistanceRange.max;
       defaultVelocity = ( this.velocityRange.min + this.velocityRange.max ) / 2;
       defaultSlitSeparation = this.slitSeparationRange.max;
     }

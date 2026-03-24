@@ -199,6 +199,11 @@ export default class SourceControlPanel extends Panel {
       // "the panel contains a Velocity NumberControl and Intensity Slider".
       // Speed is displayed in km/s for electrons (large: 1e5–1e7 m/s) and m/s for slower particles.
       const velocityRange = scene.velocityRange;
+      const velocityDelta = scene.sourceType === 'electrons'
+                            ? 10000 // 10 km/s
+                            : scene.sourceType === 'neutrons'
+                              ? 10
+                            : ( velocityRange.max - velocityRange.min ) / 100;
 
       // Use km/s for electrons (large velocities), m/s for neutrons and helium atoms
       const useKmPerSecond = velocityRange.max >= 10000;
@@ -235,7 +240,7 @@ export default class SourceControlPanel extends Panel {
         scene.velocityProperty,
         velocityRange,
         {
-          delta: ( velocityRange.max - velocityRange.min ) / 100,
+          delta: velocityDelta,
           titleNodeOptions: {
             font: TITLE_FONT,
             maxWidth: 100
