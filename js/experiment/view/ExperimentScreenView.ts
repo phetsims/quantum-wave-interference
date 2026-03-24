@@ -508,9 +508,9 @@ export default class ExperimentScreenView extends ScreenView {
         ds.snapshotButton,
         ds.viewSnapshotsButton
       ] ),
+      screenSettingsPanel,
       ...this.graphAccordionBoxes,
-      ...this.graphAccordionBoxes.map( g => g.zoomButtonGroup ),
-      screenSettingsPanel
+      ...this.graphAccordionBoxes.map( g => g.zoomButtonGroup )
     ];
 
     // Control Area focus order
