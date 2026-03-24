@@ -20,6 +20,7 @@ import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import RulerNode from '../../../../scenery-phet/js/RulerNode.js';
+import InteractiveHighlightingNode from '../../../../scenery/js/accessibility/voicing/nodes/InteractiveHighlightingNode.js';
 import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
@@ -352,7 +353,7 @@ export default class ExperimentScreenView extends ScreenView {
     // screen: its full width maps to the scene's full detector width in mm.
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
-    const createRulerNode = ( detectorWidthMM: number, index: number ): RulerNode => {
+    const createRulerNode = ( detectorWidthMM: number, index: number ): InteractiveHighlightingNode => {
       const majorTickWidth = ExperimentConstants.DETECTOR_SCREEN_WIDTH / RULER_INTERVAL_COUNT;
       const halfDetectorWidthMM = detectorWidthMM / 2;
       const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM );
@@ -363,7 +364,7 @@ export default class ExperimentScreenView extends ScreenView {
         return toFixed( labelValue, labelDecimalPlaces );
       } );
 
-      return new RulerNode(
+      const rulerNode = new RulerNode(
         ExperimentConstants.DETECTOR_SCREEN_WIDTH,
         RULER_HEIGHT,
         majorTickWidth,
@@ -374,11 +375,15 @@ export default class ExperimentScreenView extends ScreenView {
           unitsMajorTickIndex: RULER_CENTER_TICK_INDEX,
           majorTickFont: new PhetFont( 12 ),
           unitsFont: new PhetFont( 11 ),
-          cursor: 'pointer',
-          opacity: 0.8,
           tandem: rulerNodesTandem.createTandem( `rulerNode${index}` )
         }
       );
+
+      return new InteractiveHighlightingNode( {
+        children: [ rulerNode ],
+        cursor: 'pointer',
+        opacity: 0.8
+      } );
     };
 
     const rulerNodes = model.scenes.map( ( scene, index ) => {
