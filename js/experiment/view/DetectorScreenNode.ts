@@ -32,6 +32,8 @@ import cameraSolidShape from '../../../../sherpa/js/fontawesome-5/cameraSolidSha
 import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
+import Animation from '../../../../twixt/js/Animation.js';
+import Easing from '../../../../twixt/js/Easing.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
@@ -43,6 +45,8 @@ const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 0;
 const BUTTON_COLUMN_GAP = 10.5;
 const TARGET_SCALE_WIDTH_MM = 10;
+const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
+const SNAPSHOT_FLASH_DURATION = 0.6;
 
 const getScaleLabelDecimalPlaces = ( valueMM: number ): number => {
   if ( valueMM >= 1 ) {
@@ -99,6 +103,52 @@ export default class DetectorScreenNode extends Node {
     this.screenCanvasNode = new DetectorScreenCanvasNode( sceneModel, SCREEN_WIDTH, SCREEN_HEIGHT );
     this.screenCanvasNode.clipArea = this.screenBackgroundRect.shape!;
     this.addChild( this.screenCanvasNode );
+
+    // Transient snapshot flash overlay. This is a visual effect only (not model state).
+    const snapshotFlashRect = new Rectangle( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, {
+      fill: 'white',
+      opacity: 0,
+      visible: false,
+      pickable: false
+    } );
+    this.addChild( snapshotFlashRect );
+
+    let snapshotFlashAnimation: Animation | null = null;
+
+    const clearSnapshotFlash = () => {
+      if ( snapshotFlashAnimation ) {
+        snapshotFlashAnimation.stop();
+      }
+      snapshotFlashRect.opacity = 0;
+      snapshotFlashRect.visible = false;
+    };
+
+    const startSnapshotFlash = () => {
+      clearSnapshotFlash();
+      snapshotFlashRect.opacity = SNAPSHOT_FLASH_INITIAL_OPACITY;
+      snapshotFlashRect.visible = true;
+
+      const flashAnimation = new Animation( {
+        object: snapshotFlashRect,
+        attribute: 'opacity',
+        from: SNAPSHOT_FLASH_INITIAL_OPACITY,
+        to: 0,
+        duration: SNAPSHOT_FLASH_DURATION,
+        easing: Easing.LINEAR
+      } );
+
+      snapshotFlashAnimation = flashAnimation;
+
+      flashAnimation.endedEmitter.addListener( () => {
+        if ( snapshotFlashAnimation === flashAnimation ) {
+          snapshotFlashAnimation = null;
+        }
+        snapshotFlashRect.visible = false;
+        flashAnimation.dispose();
+      } );
+
+      flashAnimation.start();
+    };
 
     // Hit count text - only visible in Hits mode, positioned above the screen on the right side
     // (per design: "Above the screen... on the right, there is a readout displaying the total number
@@ -205,15 +255,6 @@ export default class DetectorScreenNode extends Node {
       }
     );
 
-    this.eraserButton = new EraserButton( {
-      iconWidth: 18,
-      listener: () => sceneModel.clearScreen(),
-      enabledProperty: eraserButtonEnabledProperty,
-      touchAreaXDilation: 5,
-      touchAreaYDilation: 5,
-      tandem: providedOptions.tandem.createTandem( 'eraserButton' )
-    } );
-
     // Snapshot dialog (one per scene)
     const snapshotsDialog = new SnapshotsDialog(
       sceneModel,
@@ -231,7 +272,13 @@ export default class DetectorScreenNode extends Node {
 
     // Camera button to take a snapshot
     this.snapshotButton = new RectangularPushButton( {
-      listener: () => sceneModel.takeSnapshot(),
+      listener: () => {
+        const numberOfSnapshotsBefore = sceneModel.numberOfSnapshotsProperty.value;
+        sceneModel.takeSnapshot();
+        if ( sceneModel.numberOfSnapshotsProperty.value > numberOfSnapshotsBefore ) {
+          startSnapshotFlash();
+        }
+      },
       baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
       content: new Path( cameraSolidShape, {
         fill: 'black',
@@ -248,6 +295,22 @@ export default class DetectorScreenNode extends Node {
       tandem: providedOptions.tandem.createTandem( 'snapshotButton' )
     } );
 
+    // Match detector-side action button dimensions to the camera button without scaling icons.
+    const detectorActionButtonMinHeight = this.snapshotButton.height;
+    const detectorActionButtonMinWidth = this.snapshotButton.width;
+
+    // Eraser button to clear the screen
+    this.eraserButton = new EraserButton( {
+      iconWidth: 18,
+      minWidth: detectorActionButtonMinWidth,
+      minHeight: detectorActionButtonMinHeight,
+      listener: () => sceneModel.clearScreen(),
+      enabledProperty: eraserButtonEnabledProperty,
+      touchAreaXDilation: 5,
+      touchAreaYDilation: 5,
+      tandem: providedOptions.tandem.createTandem( 'eraserButton' )
+    } );
+
     // Eye button to view snapshots
     this.viewSnapshotsButton = new RectangularPushButton( {
       listener: () => {
@@ -262,6 +325,8 @@ export default class DetectorScreenNode extends Node {
         fill: 'black',
         scale: 0.04
       } ),
+      minWidth: detectorActionButtonMinWidth,
+      minHeight: detectorActionButtonMinHeight,
       enabledProperty: new DerivedProperty(
         [ sceneModel.numberOfSnapshotsProperty ],
         numberOfSnapshots => numberOfSnapshots > 0,
@@ -271,21 +336,6 @@ export default class DetectorScreenNode extends Node {
         }
       ),
       tandem: providedOptions.tandem.createTandem( 'viewSnapshotsButton' )
-    } );
-
-    // Match all right-side detector buttons to the widest one by uniformly scaling each
-    // narrower button, so icon and button aspect ratios are preserved.
-    const targetButtonWidth = Math.max(
-      this.eraserButton.width,
-      this.snapshotButton.width,
-      this.viewSnapshotsButton.width
-    );
-    const buttons = [ this.eraserButton, this.snapshotButton, this.viewSnapshotsButton ];
-    buttons.forEach( button => {
-      if ( button.width < targetButtonWidth ) {
-        const scale = targetButtonWidth / button.width;
-        button.setScaleMagnitude( scale, scale );
-      }
     } );
 
     // Snapshot indicator circles (4 small circles that fill as snapshots are taken)
@@ -322,6 +372,16 @@ export default class DetectorScreenNode extends Node {
     this.visibleProperty.lazyLink( visible => {
       if ( !visible && snapshotsDialog.isShowingProperty.value ) {
         snapshotsDialog.hide();
+      }
+      if ( !visible ) {
+        clearSnapshotFlash();
+      }
+    } );
+
+    // If this node is detached from all displays (e.g. screen switch), stop and clear any active flash effect.
+    this.rootedDisplayChangedEmitter.addListener( () => {
+      if ( this.rootedDisplays.length === 0 ) {
+        clearSnapshotFlash();
       }
     } );
 

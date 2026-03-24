@@ -36,13 +36,17 @@ import Snapshot from '../model/Snapshot.js';
 const SNAPSHOT_WIDTH = 360;
 const SNAPSHOT_HEIGHT = 132;
 const CORNER_RADIUS = 6;
-const HIT_CORE_RADIUS = 2.5;
-const HIT_GLOW_RADIUS = 5;
+const HIT_CORE_RADIUS = 2.0;
+const HIT_GLOW_RADIUS = 3.4;
 const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
 const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
 const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
 const HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 0.1;
 const HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 1.8; // previous default hits gain
+const HITS_CORE_ALPHA_MIN = 0.2;
+const HITS_CORE_ALPHA_MIDPOINT_MAX = 1;
+const HITS_GLOW_ALPHA_MAX = 0.15;
+const HITS_GLOW_START_FRACTION = 0.5;
 const MAX_RENDERED_SNAPSHOT_HITS = 100000;
 
 const PARAM_FONT = new PhetFont( 11 );
@@ -82,6 +86,32 @@ const getHitsDisplayGain = ( brightness: number ): number => {
     HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
     clampedBrightness
   );
+};
+
+const getHitsBrightnessFraction = ( brightness: number ): number => {
+  return Utils.clamp( brightness / SceneModel.SCREEN_BRIGHTNESS_MAX, 0, 1 );
+};
+
+const getHitsCoreAlpha = ( brightnessFraction: number ): number => {
+  const clampedFraction = Utils.clamp( brightnessFraction, 0, 1 );
+  if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {
+    return Utils.linear(
+      0,
+      HITS_GLOW_START_FRACTION,
+      HITS_CORE_ALPHA_MIN,
+      HITS_CORE_ALPHA_MIDPOINT_MAX,
+      clampedFraction
+    );
+  }
+  return HITS_CORE_ALPHA_MIDPOINT_MAX;
+};
+
+const getHitsGlowAlpha = ( brightnessFraction: number ): number => {
+  const clampedFraction = Utils.clamp( brightnessFraction, 0, 1 );
+  if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {
+    return 0;
+  }
+  return Utils.linear( HITS_GLOW_START_FRACTION, 1, 0, HITS_GLOW_ALPHA_MAX, clampedFraction );
 };
 
 const getIntensityDisplayGain = ( brightness: number, intensity: number ): number => {
@@ -295,18 +325,18 @@ class SnapshotCanvasNode extends CanvasNode {
     const width = SNAPSHOT_WIDTH;
     const height = SNAPSHOT_HEIGHT;
     const displayGain = getHitsDisplayGain( snapshot.brightness );
-    const colorScale = Math.max( 1, displayGain );
-    const coreAlpha = Utils.clamp( displayGain, 0, 1 );
-    const glowAlpha = Utils.clamp( displayGain * 0.2, 0, 1 );
+    const brightnessFraction = getHitsBrightnessFraction( snapshot.brightness );
+    const coreAlpha = getHitsCoreAlpha( brightnessFraction );
+    const glowAlpha = getHitsGlowAlpha( brightnessFraction );
     const glowRadius = HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
 
     const baseRGB =
       snapshot.sourceType === 'photons'
         ? VisibleColor.wavelengthToColor( snapshot.wavelength )
         : { red: 255, green: 255, blue: 255 };
-    const scaledR = Utils.clamp( Utils.roundSymmetric( baseRGB.red * colorScale ), 0, 255 );
-    const scaledG = Utils.clamp( Utils.roundSymmetric( baseRGB.green * colorScale ), 0, 255 );
-    const scaledB = Utils.clamp( Utils.roundSymmetric( baseRGB.blue * colorScale ), 0, 255 );
+    const scaledR = baseRGB.red;
+    const scaledG = baseRGB.green;
+    const scaledB = baseRGB.blue;
 
     const hitCount = hits.length;
     const renderCount = Math.min( hitCount, MAX_RENDERED_SNAPSHOT_HITS );

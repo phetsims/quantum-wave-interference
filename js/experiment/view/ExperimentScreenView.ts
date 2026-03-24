@@ -53,7 +53,7 @@ const RULER_INTERVAL_COUNT = 8;
 const RULER_CENTER_TICK_INDEX = RULER_INTERVAL_COUNT / 2;
 const RULER_MINOR_TICKS_PER_MAJOR = 4;
 const RULER_HEIGHT = 40;
-const RULER_X_OFFSET = 1;
+const RULER_X_OFFSET = 0;
 
 const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number ): number => {
   if ( halfDetectorWidthMM >= 10 ) {
@@ -358,7 +358,8 @@ export default class ExperimentScreenView extends ScreenView {
       const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM );
       const majorTickLabels = rangeInclusive( 0, RULER_INTERVAL_COUNT ).map( i => {
         const signedNormalizedOffset = ( i - RULER_CENTER_TICK_INDEX ) / RULER_CENTER_TICK_INDEX;
-        const labelValue = i === RULER_CENTER_TICK_INDEX ? 0 : halfDetectorWidthMM * signedNormalizedOffset;
+        const labelValue =
+          i === RULER_CENTER_TICK_INDEX ? 0 : halfDetectorWidthMM * signedNormalizedOffset;
         return toFixed( labelValue, labelDecimalPlaces );
       } );
 
@@ -412,14 +413,21 @@ export default class ExperimentScreenView extends ScreenView {
         const activeGraphBox = this.graphAccordionBoxes[ activeSceneIndex ];
         const activeRulerNode = rulerNodes[ activeSceneIndex ];
 
-        const detectorRectCenterX = activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+        const detectorRectCenterX =
+          activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
         const fixedLeft = detectorRectCenterX - activeRulerNode.width / 2 + RULER_X_OFFSET;
 
-        const detectorScreenRectBounds = this.globalToLocalBounds( activeDetectorScreen.getScreenRectangleGlobalBounds() );
+        const detectorScreenRectBounds = this.globalToLocalBounds(
+          activeDetectorScreen.getScreenRectangleGlobalBounds()
+        );
         const minTopFromScreen = detectorScreenRectBounds.top;
-        const graphChartBounds = this.globalToLocalBounds( activeGraphBox.getChartAreaGlobalBounds() );
+        const graphChartBounds = this.globalToLocalBounds(
+          activeGraphBox.getChartAreaGlobalBounds()
+        );
         const maxTopFromGraph =
-          graphChartBounds.bottom - activeRulerNode.height + activeGraphBox.getChartAreaStrokeLineWidth();
+          graphChartBounds.bottom -
+          activeRulerNode.height +
+          activeGraphBox.getChartAreaStrokeLineWidth();
 
         const minTop = Math.max( minTopFromScreen, visibleBounds.minY );
         const maxTop = Math.max(
@@ -443,7 +451,8 @@ export default class ExperimentScreenView extends ScreenView {
       const activeDetectorScreen = detectorScreenNodes[ activeSceneIndex ];
       const activeRulerNode = rulerNodes[ activeSceneIndex ];
       const centeredTop = activeDetectorScreen.centerY - activeRulerNode.height / 2;
-      const detectorRectCenterX = activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+      const detectorRectCenterX =
+        activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
       const centeredLeft = detectorRectCenterX - activeRulerNode.width / 2 + RULER_X_OFFSET;
       model.rulerPositionProperty.value = rulerDragBoundsProperty.value.closestPointTo(
         new Vector2( centeredLeft, centeredTop )
@@ -456,9 +465,7 @@ export default class ExperimentScreenView extends ScreenView {
         new SoundDragListener( {
           positionProperty: model.rulerPositionProperty,
           dragBoundsProperty: rulerDragBoundsProperty,
-          tandem: rulerNodesTandem
-            .createTandem( `rulerNode${index}` )
-            .createTandem( 'dragListener' )
+          tandem: rulerNodesTandem.createTandem( `rulerNode${index}` ).createTandem( 'dragListener' )
         } )
       );
     } );
