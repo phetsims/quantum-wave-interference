@@ -19,6 +19,7 @@ import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Utils from '../../../../dot/js/Utils.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import TrashButton from '../../../../scenery-phet/js/buttons/TrashButton.js';
+import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
@@ -249,6 +250,7 @@ export default class SnapshotNode extends Node {
           sceneModel.deleteSnapshot( snapshot );
         }
       },
+      soundPlayer: sharedSoundPlayers.get( 'erase' ),
       baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
       iconOptions: {
         scale: 0.6
