@@ -64,6 +64,10 @@ type StringsType = {
       'currentDetailsStringProperty': LocalizedStringProperty;
       'interactionHintStringProperty': LocalizedStringProperty;
     };
+    'sourceHeadingStringProperty': LocalizedStringProperty;
+    'slitsHeadingStringProperty': LocalizedStringProperty;
+    'detectorScreenHeadingStringProperty': LocalizedStringProperty;
+    'graphHeadingStringProperty': LocalizedStringProperty;
     'emitterButton': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;

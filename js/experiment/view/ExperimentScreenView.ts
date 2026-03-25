@@ -28,6 +28,7 @@ import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
+import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
@@ -538,21 +539,59 @@ export default class ExperimentScreenView extends ScreenView {
       }
     } );
 
-    // Play Area focus order
-    this.pdomPlayAreaNode.pdomOrder = [
+    // Heading nodes for PDOM navigation. Each groups related controls under a heading
+    // so screen reader users can jump between major sections with heading shortcuts.
+    const sourceHeadingNode = new Node( {
+      accessibleHeading: QuantumWaveInterferenceFluent.a11y.sourceHeadingStringProperty
+    } );
+    this.addChild( sourceHeadingNode );
+
+    const slitsHeadingNode = new Node( {
+      accessibleHeading: QuantumWaveInterferenceFluent.a11y.slitsHeadingStringProperty
+    } );
+    this.addChild( slitsHeadingNode );
+
+    const detectorScreenHeadingNode = new Node( {
+      accessibleHeading: QuantumWaveInterferenceFluent.a11y.detectorScreenHeadingStringProperty
+    } );
+    this.addChild( detectorScreenHeadingNode );
+
+    const graphHeadingNode = new Node( {
+      accessibleHeading: QuantumWaveInterferenceFluent.a11y.graphHeadingStringProperty
+    } );
+    this.addChild( graphHeadingNode );
+
+    // Play Area focus order, organized under headings for screen reader navigation
+    sourceHeadingNode.pdomOrder = [
       overheadEmitterNode.laserPointerNode,
       overheadEmitterNode.particleEmitterNode,
       sourceControlPanel,
-      sceneRadioButtonGroup,
-      slitControlPanel,
+      sceneRadioButtonGroup
+    ];
+
+    slitsHeadingNode.pdomOrder = [
+      slitControlPanel
+    ];
+
+    detectorScreenHeadingNode.pdomOrder = [
       ...detectorScreenNodes.flatMap( ds => [
         ds.eraserButton,
         ds.snapshotButton,
         ds.viewSnapshotsButton
       ] ),
-      screenSettingsPanel,
+      screenSettingsPanel
+    ];
+
+    graphHeadingNode.pdomOrder = [
       ...this.graphAccordionBoxes,
       ...this.graphAccordionBoxes.map( g => g.zoomButtonGroup )
+    ];
+
+    this.pdomPlayAreaNode.pdomOrder = [
+      sourceHeadingNode,
+      slitsHeadingNode,
+      detectorScreenHeadingNode,
+      graphHeadingNode
     ];
 
     // Control Area focus order

@@ -131,6 +131,18 @@
         "value": "Turn on the { $sourceType ->\n  [photons] photon source\n  [electrons] electron source\n  [neutrons] neutron source\n *[heliumAtoms] helium atom source\n} to start the experiment."
       }
     },
+    "sourceHeading": {
+      "value": "Source"
+    },
+    "slitsHeading": {
+      "value": "Slits"
+    },
+    "detectorScreenHeading": {
+      "value": "Detector Screen"
+    },
+    "graphHeading": {
+      "value": "Graph"
+    },
     "emitterButton": {
       "accessibleName": {
         "value": "{ $sourceType ->\n  [photons] Photon Source\n  [electrons] Electron Source\n  [neutrons] Neutron Source\n *[heliumAtoms] Helium Atom Source\n}"
