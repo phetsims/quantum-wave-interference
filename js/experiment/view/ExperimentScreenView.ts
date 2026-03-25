@@ -11,6 +11,7 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
@@ -49,6 +50,8 @@ import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
 import SourceControlPanel from './SourceControlPanel.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
+import { type DetectionMode } from '../model/DetectionMode.js';
+import SceneModel from '../model/SceneModel.js';
 import { type SourceType } from '../model/SourceType.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -539,6 +542,32 @@ export default class ExperimentScreenView extends ScreenView {
       }
     } );
 
+    // Accessible paragraph describing the current state of the detector screen for screen
+    // reader users. This is important non-interactive visual content: the screen shows the
+    // interference pattern (intensity mode) or accumulated hits, which is the primary
+    // experimental output.
+    const detectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>(
+      model.sceneProperty, { derive: 'detectionModeProperty' }
+    );
+    const isEmittingStringProperty = new DerivedProperty(
+      [ new DynamicProperty<boolean, boolean, SceneModel>(
+        model.sceneProperty, { derive: 'isEmittingProperty' }
+      ) ],
+      ( isEmitting: boolean ) => isEmitting ? 'true' as const : 'false' as const
+    );
+    const totalHitsProperty = new DynamicProperty<number, number, SceneModel>(
+      model.sceneProperty, { derive: 'totalHitsProperty' }
+    );
+
+    const detectorScreenDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.createProperty( {
+        detectionMode: detectionModeProperty,
+        isEmitting: isEmittingStringProperty,
+        totalHits: totalHitsProperty
+      } )
+    } );
+    this.addChild( detectorScreenDescriptionNode );
+
     // Heading nodes for PDOM navigation. Each groups related controls under a heading
     // so screen reader users can jump between major sections with heading shortcuts.
     const sourceHeadingNode = new Node( {
@@ -574,6 +603,7 @@ export default class ExperimentScreenView extends ScreenView {
     ];
 
     detectorScreenHeadingNode.pdomOrder = [
+      detectorScreenDescriptionNode,
       ...detectorScreenNodes.flatMap( ds => [
         ds.eraserButton,
         ds.snapshotButton,

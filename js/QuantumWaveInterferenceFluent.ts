@@ -96,6 +96,7 @@ addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleContextResponse', 'a11y.
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph', 'a11y.graphAccordionBox.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseExpanded', 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph', 'a11y.detectorScreen.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleName', 'a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleHelpText', 'a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleContextResponse', 'a11y.detectorScreenButtons.clearScreen.accessibleContextResponseStringProperty' );
@@ -229,6 +230,9 @@ const QuantumWaveInterferenceFluent = {
       accessibleParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleParagraphStringProperty' ) ),
       accessibleContextResponseExpandedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseExpanded', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' ) ),
       accessibleContextResponseCollapsedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' ) )
+    },
+    detectorScreen: {
+      accessibleParagraph: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'>, isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, totalHits: 0 | number | 'other' | TReadOnlyProperty<0 | number | 'other'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraphStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]},{"name":"isEmitting","variants":["true","false"]},{"name":"totalHits","variants":[0,{"type":"number","value":"other"}]}] )
     },
     detectorScreenButtons: {
       clearScreen: {

@@ -125,6 +125,9 @@ type StringsType = {
       'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseCollapsedStringProperty': LocalizedStringProperty;
     };
+    'detectorScreen': {
+      'accessibleParagraphStringProperty': LocalizedStringProperty;
+    };
     'detectorScreenButtons': {
       'clearScreen': {
         'accessibleNameStringProperty': LocalizedStringProperty;

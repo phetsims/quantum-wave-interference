@@ -157,6 +157,18 @@ a11y:
     accessibleParagraph: Shows how detections are distributed across horizontal position on the detector screen.
     accessibleContextResponseExpanded: Graph expanded.
     accessibleContextResponseCollapsed: Graph collapsed.
+  detectorScreen:
+    accessibleParagraph: >-
+      { $detectionMode ->
+        [averageIntensity] { $isEmitting ->
+          [true] Detector screen displays a continuous intensity pattern.
+         *[false] Detector screen is blank.
+        }
+       *[hits] { $totalHits ->
+          [0] Detector screen is blank with no hits recorded.
+         *[other] Detector screen shows { $totalHits } accumulated hits.
+        }
+      }
   detectorScreenButtons:
     clearScreen:
       accessibleName: Clear Screen

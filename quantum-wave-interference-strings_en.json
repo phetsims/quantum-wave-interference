@@ -254,6 +254,11 @@
         "value": "Graph collapsed."
       }
     },
+    "detectorScreen": {
+      "accessibleParagraph": {
+        "value": "{ $detectionMode ->\n  [averageIntensity] { $isEmitting ->\n    [true] Detector screen displays a continuous intensity pattern.\n   *[false] Detector screen is blank.\n  }\n *[hits] { $totalHits ->\n    [0] Detector screen is blank with no hits recorded.\n   *[other] Detector screen shows { $totalHits } accumulated hits.\n  }\n}"
+      }
+    },
     "detectorScreenButtons": {
       "clearScreen": {
         "accessibleName": {
