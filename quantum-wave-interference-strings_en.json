@@ -173,6 +173,14 @@
         "value": "Stopwatch hidden."
       }
     },
+    "brightnessSlider": {
+      "accessibleName": {
+        "value": "Screen Brightness"
+      },
+      "accessibleHelpText": {
+        "value": "Adjust the brightness of the detector screen display."
+      }
+    },
     "detectionModeRadioButtons": {
       "accessibleName": {
         "value": "Detection Mode"

@@ -113,6 +113,9 @@ a11y:
     accessibleHelpText: Show or hide a stopwatch to time the experiment.
     accessibleContextResponseChecked: Stopwatch shown.
     accessibleContextResponseUnchecked: Stopwatch hidden.
+  brightnessSlider:
+    accessibleName: Screen Brightness
+    accessibleHelpText: Adjust the brightness of the detector screen display.
   detectionModeRadioButtons:
     accessibleName: Detection Mode
     accessibleHelpText: Choose how detections are displayed on the detector screen.

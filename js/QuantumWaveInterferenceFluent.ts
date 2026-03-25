@@ -77,6 +77,8 @@ addToMapIfDefined( 'a11y_rulerCheckbox_accessibleContextResponseUnchecked', 'a11
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleHelpText', 'a11y.stopwatchCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseChecked', 'a11y.stopwatchCheckbox.accessibleContextResponseCheckedStringProperty' );
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', 'a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty' );
+addToMapIfDefined( 'a11y_brightnessSlider_accessibleName', 'a11y.brightnessSlider.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_brightnessSlider_accessibleHelpText', 'a11y.brightnessSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectionModeRadioButtons_accessibleName', 'a11y.detectionModeRadioButtons.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_detectionModeRadioButtons_accessibleHelpText', 'a11y.detectionModeRadioButtons.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectionModeRadioButtons_intensityRadioButton_accessibleContextResponse', 'a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseStringProperty' );
@@ -182,6 +184,10 @@ const QuantumWaveInterferenceFluent = {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_stopwatchCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.stopwatchCheckbox.accessibleHelpTextStringProperty' ) ),
       accessibleContextResponseCheckedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_stopwatchCheckbox_accessibleContextResponseChecked', _.get( QuantumWaveInterferenceStrings, 'a11y.stopwatchCheckbox.accessibleContextResponseCheckedStringProperty' ) ),
       accessibleContextResponseUncheckedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', _.get( QuantumWaveInterferenceStrings, 'a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty' ) )
+    },
+    brightnessSlider: {
+      accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_brightnessSlider_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.brightnessSlider.accessibleNameStringProperty' ) ),
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_brightnessSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.brightnessSlider.accessibleHelpTextStringProperty' ) )
     },
     detectionModeRadioButtons: {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.accessibleNameStringProperty' ) ),

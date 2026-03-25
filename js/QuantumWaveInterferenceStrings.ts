@@ -82,6 +82,10 @@ type StringsType = {
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseUncheckedStringProperty': LocalizedStringProperty;
     };
+    'brightnessSlider': {
+      'accessibleNameStringProperty': LocalizedStringProperty;
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'detectionModeRadioButtons': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;

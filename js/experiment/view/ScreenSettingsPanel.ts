@@ -110,6 +110,8 @@ export default class ScreenSettingsPanel extends Panel {
       trackSize: new Dimension2( 130, 3 ),
       thumbSize: new Dimension2( 13, 22 ),
       majorTickLength: 12,
+      accessibleName: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleHelpTextStringProperty,
       tandem: options.tandem.createTandem( 'brightnessSlider' )
     } );
     const brightnessControl = new VBox( {
