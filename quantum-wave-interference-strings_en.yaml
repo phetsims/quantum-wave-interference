@@ -131,6 +131,7 @@ a11y:
     clearScreen:
       accessibleName: Clear Screen
       accessibleHelpText: Clear all hits from the detector screen.
+      accessibleContextResponse: Screen cleared.
     takeSnapshot:
       accessibleName: Take Snapshot
       accessibleHelpText: Capture the current detector screen pattern as a snapshot.

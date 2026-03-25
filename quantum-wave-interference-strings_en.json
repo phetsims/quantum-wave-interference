@@ -214,6 +214,9 @@
         },
         "accessibleHelpText": {
           "value": "Clear all hits from the detector screen."
+        },
+        "accessibleContextResponse": {
+          "value": "Screen cleared."
         }
       },
       "takeSnapshot": {

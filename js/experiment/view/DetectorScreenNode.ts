@@ -328,6 +328,7 @@ export default class DetectorScreenNode extends Node {
       touchAreaYDilation: 5,
       accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty,
+      accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleContextResponseStringProperty,
       tandem: providedOptions.tandem.createTandem( 'eraserButton' )
     } );
 

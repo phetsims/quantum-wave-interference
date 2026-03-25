@@ -108,6 +108,7 @@ type StringsType = {
       'clearScreen': {
         'accessibleNameStringProperty': LocalizedStringProperty;
         'accessibleHelpTextStringProperty': LocalizedStringProperty;
+        'accessibleContextResponseStringProperty': LocalizedStringProperty;
       };
       'takeSnapshot': {
         'accessibleNameStringProperty': LocalizedStringProperty;
