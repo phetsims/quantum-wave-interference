@@ -37,3 +37,58 @@ snapshotNumberPattern:                'Snapshot {{number}}'
 ruler:                                Ruler
 stopwatch:                            Stopwatch
 detector:                             Detector
+
+# Accessibility strings
+a11y:
+  screenSummary:
+    playArea: >-
+      In a double-slit experiment, a { $sourceType ->
+        [photons] photon source
+        [electrons] electron source
+        [neutrons] neutron source
+       *[heliumAtoms] helium atom source
+      } emits { $sourceType ->
+        [photons] photons
+        [electrons] electrons
+        [neutrons] neutrons
+       *[heliumAtoms] helium atoms
+      } toward a barrier with two narrow slits.
+      { $sourceType ->
+        [photons] Photons
+        [electrons] Electrons
+        [neutrons] Neutrons
+       *[heliumAtoms] Helium atoms
+      } that pass through the slits land on a detector screen, building up a pattern over time.
+      A magnified view of the slits, a front-facing detector screen, and an intensity graph are shown.
+    controlArea: >-
+      Checkboxes show or hide a ruler and stopwatch.
+      Play and pause controls and a Reset All button are available.
+    currentDetails: >-
+      Source is { $sourceType ->
+        [photons] photons
+        [electrons] electrons
+        [neutrons] neutrons
+       *[heliumAtoms] helium atoms
+      }.
+      Slit configuration is { $slitSetting ->
+        [bothOpen] both open
+        [leftCovered] left covered
+        [rightCovered] right covered
+        [leftDetector] left detector
+       *[rightDetector] right detector
+      }.
+      Detection mode is { $detectionMode ->
+        [averageIntensity] intensity
+       *[hits] hits
+      }.
+      { $isEmitting ->
+        [true] Source is on, { $totalHits } hits accumulated.
+       *[false] Source is off.
+      }
+    interactionHint: >-
+      Turn on the { $sourceType ->
+        [photons] photon source
+        [electrons] electron source
+        [neutrons] neutron source
+       *[heliumAtoms] helium atom source
+      } to start the experiment.

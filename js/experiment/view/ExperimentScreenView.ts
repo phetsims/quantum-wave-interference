@@ -35,6 +35,7 @@ import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
+import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
@@ -83,10 +84,9 @@ export default class ExperimentScreenView extends ScreenView {
   private readonly graphExpandedProperty: BooleanProperty;
 
   public constructor( model: ExperimentModel, providedOptions: ExperimentScreenViewOptions ) {
-    const options = optionize<ExperimentScreenViewOptions, SelfOptions, ScreenViewOptions>()(
-      {},
-      providedOptions
-    );
+    const options = optionize<ExperimentScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
+      screenSummaryContent: new ExperimentScreenSummaryContent( model )
+    }, providedOptions );
 
     super( options );
 

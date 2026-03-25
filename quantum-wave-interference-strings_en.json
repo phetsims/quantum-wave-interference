@@ -115,5 +115,21 @@
   },
   "detector": {
     "value": "Detector"
+  },
+  "a11y": {
+    "screenSummary": {
+      "playArea": {
+        "value": "In a double-slit experiment, a { $sourceType ->\n  [photons] photon source\n  [electrons] electron source\n  [neutrons] neutron source\n *[heliumAtoms] helium atom source\n} emits { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} toward a barrier with two narrow slits. { $sourceType ->\n  [photons] Photons\n  [electrons] Electrons\n  [neutrons] Neutrons\n *[heliumAtoms] Helium atoms\n} that pass through the slits land on a detector screen, building up a pattern over time. A magnified view of the slits, a front-facing detector screen, and an intensity graph are shown."
+      },
+      "controlArea": {
+        "value": "Checkboxes show or hide a ruler and stopwatch. Play and pause controls and a Reset All button are available."
+      },
+      "currentDetails": {
+        "value": "Source is { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n}. Slit configuration is { $slitSetting ->\n  [bothOpen] both open\n  [leftCovered] left covered\n  [rightCovered] right covered\n  [leftDetector] left detector\n *[rightDetector] right detector\n}. Detection mode is { $detectionMode ->\n  [averageIntensity] intensity\n *[hits] hits\n}. { $isEmitting ->\n  [true] Source is on, { $totalHits } hits accumulated.\n *[false] Source is off.\n}"
+      },
+      "interactionHint": {
+        "value": "Turn on the { $sourceType ->\n  [photons] photon source\n  [electrons] electron source\n  [neutrons] neutron source\n *[heliumAtoms] helium atom source\n} to start the experiment."
+      }
+    }
   }
 }
