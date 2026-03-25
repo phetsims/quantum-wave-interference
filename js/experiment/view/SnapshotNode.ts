@@ -30,12 +30,15 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import Snapshot from '../model/Snapshot.js';
 
 // Snapshot display dimensions (scaled down from the full detector screen)
 const SNAPSHOT_WIDTH = 360;
 const SNAPSHOT_HEIGHT = 132;
+const FULL_SCREEN_TEXTURE_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
+const FULL_SCREEN_TEXTURE_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const CORNER_RADIUS = 6;
 const HIT_CORE_RADIUS = 2.0;
 const HIT_GLOW_RADIUS = 3.4;
@@ -290,6 +293,8 @@ export default class SnapshotNode extends Node {
 class SnapshotCanvasNode extends CanvasNode {
   private readonly snapshotProperty: TReadOnlyProperty<Snapshot | null>;
   private readonly sceneModel: SceneModel;
+  private readonly intensityTextureCanvas: HTMLCanvasElement;
+  private readonly intensityTextureContext: CanvasRenderingContext2D;
 
   public constructor(
     snapshotProperty: TReadOnlyProperty<Snapshot | null>,
@@ -302,6 +307,15 @@ class SnapshotCanvasNode extends CanvasNode {
     } );
     this.snapshotProperty = snapshotProperty;
     this.sceneModel = sceneModel;
+    this.intensityTextureCanvas = document.createElement( 'canvas' );
+    this.intensityTextureCanvas.width = FULL_SCREEN_TEXTURE_WIDTH;
+    this.intensityTextureCanvas.height = FULL_SCREEN_TEXTURE_HEIGHT;
+
+    const intensityTextureContext = this.intensityTextureCanvas.getContext( '2d' );
+    if ( !intensityTextureContext ) {
+      throw new Error( 'Could not create 2D context for snapshot intensity texture' );
+    }
+    this.intensityTextureContext = intensityTextureContext;
   }
 
   public paintCanvas( context: CanvasRenderingContext2D ): void {
@@ -365,6 +379,9 @@ class SnapshotCanvasNode extends CanvasNode {
   }
 
   private paintIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
+    const textureContext = this.intensityTextureContext;
+    textureContext.clearRect( 0, 0, FULL_SCREEN_TEXTURE_WIDTH, FULL_SCREEN_TEXTURE_HEIGHT );
+
     if ( !snapshot.isEmitting ) {
       return;
     }
@@ -374,8 +391,6 @@ class SnapshotCanvasNode extends CanvasNode {
       return;
     }
 
-    const width = SNAPSHOT_WIDTH;
-    const height = SNAPSHOT_HEIGHT;
     const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
     const screenHalfWidth = this.sceneModel.screenHalfWidth;
     const slitWidthMeters = this.sceneModel.slitWidth * 1e-3;
@@ -392,8 +407,8 @@ class SnapshotCanvasNode extends CanvasNode {
       ? VisibleColor.wavelengthToColor( snapshot.wavelength )
       : null;
 
-    for ( let x = 0; x < width; x++ ) {
-      const fraction = ( x + 0.5 ) / width;
+    for ( let x = 0; x < FULL_SCREEN_TEXTURE_WIDTH; x++ ) {
+      const fraction = ( x + 0.5 ) / FULL_SCREEN_TEXTURE_WIDTH;
       const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
       const sinTheta = physicalX / Math.sqrt( physicalX * physicalX + L * L );
 
@@ -414,13 +429,18 @@ class SnapshotCanvasNode extends CanvasNode {
         const r = Utils.clamp( Utils.roundSymmetric( photonColor.red * intensityScale ), 0, 255 );
         const g = Utils.clamp( Utils.roundSymmetric( photonColor.green * intensityScale ), 0, 255 );
         const b = Utils.clamp( Utils.roundSymmetric( photonColor.blue * intensityScale ), 0, 255 );
-        context.fillStyle = `rgb(${r},${g},${b})`;
+        textureContext.fillStyle = `rgb(${r},${g},${b})`;
       }
  else {
         const value = Utils.clamp( Utils.roundSymmetric( 255 * intensityScale ), 0, 255 );
-        context.fillStyle = `rgb(${value},${value},${value})`;
+        textureContext.fillStyle = `rgb(${value},${value},${value})`;
       }
-      context.fillRect( x, 0, 1, height );
+      textureContext.fillRect( x, 0, 1, FULL_SCREEN_TEXTURE_HEIGHT );
     }
+
+    context.save();
+    context.imageSmoothingEnabled = true;
+    context.drawImage( this.intensityTextureCanvas, 0, 0, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT );
+    context.restore();
   }
 }
