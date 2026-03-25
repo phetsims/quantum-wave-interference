@@ -82,6 +82,12 @@ type StringsType = {
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseUncheckedStringProperty': LocalizedStringProperty;
     };
+    'slitSeparationSlider': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
+    'screenDistanceSlider': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'intensitySlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };

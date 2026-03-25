@@ -116,6 +116,10 @@ a11y:
     accessibleHelpText: Show or hide a stopwatch to time the experiment.
     accessibleContextResponseChecked: Stopwatch shown.
     accessibleContextResponseUnchecked: Stopwatch hidden.
+  slitSeparationSlider:
+    accessibleHelpText: Adjust the distance between the centers of the two slits.
+  screenDistanceSlider:
+    accessibleHelpText: Adjust the distance from the barrier to the detector screen.
   intensitySlider:
     accessibleHelpText: >-
       Adjust how many { $sourceType ->

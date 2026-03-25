@@ -77,6 +77,8 @@ addToMapIfDefined( 'a11y_rulerCheckbox_accessibleContextResponseUnchecked', 'a11
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleHelpText', 'a11y.stopwatchCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseChecked', 'a11y.stopwatchCheckbox.accessibleContextResponseCheckedStringProperty' );
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', 'a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty' );
+addToMapIfDefined( 'a11y_slitSeparationSlider_accessibleHelpText', 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_screenDistanceSlider_accessibleHelpText', 'a11y.screenDistanceSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_intensitySlider_accessibleHelpText', 'a11y.intensitySlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_brightnessSlider_accessibleName', 'a11y.brightnessSlider.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_brightnessSlider_accessibleHelpText', 'a11y.brightnessSlider.accessibleHelpTextStringProperty' );
@@ -188,6 +190,12 @@ const QuantumWaveInterferenceFluent = {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_stopwatchCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.stopwatchCheckbox.accessibleHelpTextStringProperty' ) ),
       accessibleContextResponseCheckedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_stopwatchCheckbox_accessibleContextResponseChecked', _.get( QuantumWaveInterferenceStrings, 'a11y.stopwatchCheckbox.accessibleContextResponseCheckedStringProperty' ) ),
       accessibleContextResponseUncheckedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', _.get( QuantumWaveInterferenceStrings, 'a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty' ) )
+    },
+    slitSeparationSlider: {
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSeparationSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' ) )
+    },
+    screenDistanceSlider: {
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenDistanceSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.screenDistanceSlider.accessibleHelpTextStringProperty' ) )
     },
     intensitySlider: {
       accessibleHelpText: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_intensitySlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.intensitySlider.accessibleHelpTextStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] )

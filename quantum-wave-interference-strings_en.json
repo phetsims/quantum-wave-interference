@@ -173,6 +173,16 @@
         "value": "Stopwatch hidden."
       }
     },
+    "slitSeparationSlider": {
+      "accessibleHelpText": {
+        "value": "Adjust the distance between the centers of the two slits."
+      }
+    },
+    "screenDistanceSlider": {
+      "accessibleHelpText": {
+        "value": "Adjust the distance from the barrier to the detector screen."
+      }
+    },
     "intensitySlider": {
       "accessibleHelpText": {
         "value": "Adjust how many { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} the source emits per unit time."

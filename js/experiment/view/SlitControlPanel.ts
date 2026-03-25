@@ -166,6 +166,7 @@ export default class SlitControlPanel extends Panel {
           maxWidth: 150
         },
         numberDisplayOptions: slitSeparationNumberDisplayOptions,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSeparationSlider.accessibleHelpTextStringProperty,
         sliderOptions: {
           trackSize: SLIDER_TRACK_SIZE,
           thumbSize: new Dimension2( 13, 22 ),
@@ -203,6 +204,7 @@ export default class SlitControlPanel extends Panel {
           },
           maxWidth: 100
         },
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.screenDistanceSlider.accessibleHelpTextStringProperty,
         sliderOptions: {
           trackSize: SLIDER_TRACK_SIZE,
           thumbSize: new Dimension2( 13, 22 ),
