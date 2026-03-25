@@ -146,6 +146,7 @@ a11y:
        *[rightDetector] Right slit now monitored by a detector.
       }
   graphAccordionBox:
+    accessibleParagraph: Shows how detections are distributed across horizontal position on the detector screen.
     accessibleContextResponseExpanded: Graph expanded.
     accessibleContextResponseCollapsed: Graph collapsed.
   detectorScreenButtons:

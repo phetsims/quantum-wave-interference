@@ -142,8 +142,14 @@ export default class GraphAccordionBox extends Node {
     };
     yAxisLabel.localBoundsProperty.link( layoutYAxisLabel );
 
+    // Accessible paragraph describing the graph content for screen reader users.
+    // Per the core description checklist: "Paragraphs exist for text inside accordion boxes."
+    const graphDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraphStringProperty
+    } );
+
     const chartNode = new Node( {
-      children: [ yAxisLabel, chartBackground, dataPath ]
+      children: [ yAxisLabel, chartBackground, dataPath, graphDescriptionNode ]
     } );
 
     // Title text changes dynamically based on detection mode: "Intensity Graph" vs "Hits Graph".

@@ -92,6 +92,7 @@ addToMapIfDefined( 'a11y_sceneRadioButtonGroup_heliumAtomsRadioButton_accessible
 addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleName', 'a11y.slitSettingsComboBox.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleHelpText', 'a11y.slitSettingsComboBox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleContextResponse', 'a11y.slitSettingsComboBox.accessibleContextResponseStringProperty' );
+addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph', 'a11y.graphAccordionBox.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseExpanded', 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleName', 'a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty' );
@@ -221,6 +222,7 @@ const QuantumWaveInterferenceFluent = {
       accessibleContextResponse: new FluentPattern<{ slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector'> }>( fluentSupport.bundleProperty, 'a11y_slitSettingsComboBox_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSettingsComboBox.accessibleContextResponseStringProperty' ), [{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector"]}] )
     },
     graphAccordionBox: {
+      accessibleParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleParagraphStringProperty' ) ),
       accessibleContextResponseExpandedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseExpanded', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' ) ),
       accessibleContextResponseCollapsedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' ) )
     },

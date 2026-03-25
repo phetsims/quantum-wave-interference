@@ -239,6 +239,9 @@
       }
     },
     "graphAccordionBox": {
+      "accessibleParagraph": {
+        "value": "Shows how detections are distributed across horizontal position on the detector screen."
+      },
       "accessibleContextResponseExpanded": {
         "value": "Graph expanded."
       },

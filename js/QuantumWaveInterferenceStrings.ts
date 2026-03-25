@@ -118,6 +118,7 @@ type StringsType = {
       'accessibleContextResponseStringProperty': LocalizedStringProperty;
     };
     'graphAccordionBox': {
+      'accessibleParagraphStringProperty': LocalizedStringProperty;
       'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseCollapsedStringProperty': LocalizedStringProperty;
     };
