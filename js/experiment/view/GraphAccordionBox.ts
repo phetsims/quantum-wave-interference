@@ -144,8 +144,12 @@ export default class GraphAccordionBox extends Node {
 
     // Accessible paragraph describing the graph content for screen reader users.
     // Per the core description checklist: "Paragraphs exist for text inside accordion boxes."
+    // Dynamic based on detection mode so that screen reader users understand whether they are
+    // looking at a continuous intensity curve or a histogram of discrete hits.
     const graphDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraphStringProperty
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.createProperty( {
+        detectionMode: sceneModel.detectionModeProperty
+      } )
     } );
 
     const chartNode = new Node( {
