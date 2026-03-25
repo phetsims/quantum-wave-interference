@@ -68,6 +68,9 @@ type StringsType = {
     'slitsHeadingStringProperty': LocalizedStringProperty;
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;
     'graphHeadingStringProperty': LocalizedStringProperty;
+    'particleMass': {
+      'accessibleParagraphStringProperty': LocalizedStringProperty;
+    };
     'emitterButton': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;

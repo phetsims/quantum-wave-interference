@@ -99,6 +99,13 @@ a11y:
   slitsHeading: Slits
   detectorScreenHeading: Detector Screen
   graphHeading: Graph
+  particleMass:
+    accessibleParagraph: >-
+      { $sourceType ->
+        [electrons] Particle mass: 9.1 times 10 to the negative 31 kilograms.
+        [neutrons] Particle mass: 1.7 times 10 to the negative 27 kilograms.
+       *[heliumAtoms] Particle mass: 6.6 times 10 to the negative 27 kilograms.
+      }
   emitterButton:
     accessibleName: >-
       { $sourceType ->

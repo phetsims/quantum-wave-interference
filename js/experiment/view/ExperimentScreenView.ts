@@ -600,6 +600,24 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( slitViewDescriptionNode );
 
+    // Accessible paragraph describing the particle mass for screen reader users.
+    // This is important on-screen text (rendered as RichText in OverheadEmitterNode) that
+    // supports the learning goal: "Relate particle momentum to wavelength using the de Broglie
+    // relationship." Hidden for photons (which are massless).
+    const particleSourceTypeProperty = new DerivedProperty(
+      [ model.sceneProperty ],
+      ( scene: SceneModel ) => scene.sourceType as 'electrons' | 'neutrons' | 'heliumAtoms'
+    );
+    const particleMassDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.particleMass.accessibleParagraph.createProperty( {
+        sourceType: particleSourceTypeProperty
+      } )
+    } );
+    model.sceneProperty.link( scene => {
+      particleMassDescriptionNode.visible = scene.sourceType !== 'photons';
+    } );
+    this.addChild( particleMassDescriptionNode );
+
     // Heading nodes for PDOM navigation. Each groups related controls under a heading
     // so screen reader users can jump between major sections with heading shortcuts.
     const sourceHeadingNode = new Node( {
@@ -626,6 +644,7 @@ export default class ExperimentScreenView extends ScreenView {
     sourceHeadingNode.pdomOrder = [
       overheadEmitterNode.laserPointerNode,
       overheadEmitterNode.particleEmitterNode,
+      particleMassDescriptionNode,
       sourceControlPanel,
       sceneRadioButtonGroup
     ];
