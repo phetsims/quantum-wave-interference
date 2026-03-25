@@ -30,9 +30,9 @@ import SceneModel from '../model/SceneModel.js';
 import { type SourceType } from '../model/SourceType.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
-const LABEL_FONT = new PhetFont( 14 * OVERHEAD_SCALE );
+const LABEL_FONT = new PhetFont( 16 );
 const LABEL_Y = 30;
-const MASS_LABEL_FONT = new PhetFont( 15 * OVERHEAD_SCALE );
+const MASS_LABEL_FONT = new PhetFont( 12 );
 
 const BASE_BODY_WIDTH = 88;
 const BASE_BODY_HEIGHT = 40;

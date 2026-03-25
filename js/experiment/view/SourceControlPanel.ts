@@ -181,7 +181,7 @@ export default class SourceControlPanel extends Panel {
         },
         numberDisplayOptions: {
           textOptions: {
-            font: new PhetFont( 13 )
+            font: new PhetFont( 14 )
           },
           maxWidth: 80
         },
@@ -250,7 +250,7 @@ export default class SourceControlPanel extends Panel {
           numberDisplayOptions: {
             numberFormatter: formatSpeed,
             textOptions: {
-              font: new PhetFont( 13 )
+              font: new PhetFont( 14 )
             },
             maxWidth: 120
           },

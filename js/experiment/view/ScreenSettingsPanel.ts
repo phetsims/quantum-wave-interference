@@ -28,7 +28,7 @@ import { type DetectionMode } from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
 
 const TITLE_FONT = new PhetFont( 14 );
-const LABEL_FONT = new PhetFont( 13 );
+const LABEL_FONT = new PhetFont( 14 );
 const SETTINGS_ROW_SPACING = 40;
 
 type SelfOptions = EmptySelfOptions;

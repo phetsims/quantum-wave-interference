@@ -135,7 +135,7 @@ export default class SlitControlPanel extends Panel {
           );
         },
         textOptions: {
-          font: new PhetFont( 13 )
+          font: new PhetFont( 14 )
         },
         maxWidth: 100
       };
@@ -148,7 +148,7 @@ export default class SlitControlPanel extends Panel {
         decimalPlaces: slitSeparationDecimalPlaces,
         valuePattern: QuantumWaveInterferenceFluent.slitSeparationPatternStringProperty,
         textOptions: {
-          font: new PhetFont( 13 )
+          font: new PhetFont( 14 )
         },
         maxWidth: 100
       };
@@ -199,7 +199,7 @@ export default class SlitControlPanel extends Panel {
           decimalPlaces: screenDistanceDecimalPlaces,
           valuePattern: QuantumWaveInterferenceFluent.screenDistancePatternStringProperty,
           textOptions: {
-            font: new PhetFont( 13 )
+            font: new PhetFont( 14 )
           },
           maxWidth: 100
         },

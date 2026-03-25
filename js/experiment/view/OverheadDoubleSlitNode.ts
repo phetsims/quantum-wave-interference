@@ -22,7 +22,7 @@ import createParallelogramNode from './createParallelogramNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const OVERHEAD_SKEW_SCALE = ExperimentConstants.OVERHEAD_SKEW_SCALE;
-const LABEL_FONT = new PhetFont( 14 * OVERHEAD_SCALE );
+const LABEL_FONT = new PhetFont( 16 );
 const LABEL_Y = 24;
 const BASE_PARALLELOGRAM_X = 365;
 const BASE_PARALLELOGRAM_DX = 51;

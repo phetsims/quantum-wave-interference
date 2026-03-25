@@ -131,7 +131,7 @@ export default class GraphAccordionBox extends Node {
         detectionMode === 'hits' ? countString : intensityString
     );
     const yAxisLabel = new Text( yAxisLabelStringProperty, {
-      font: new PhetFont( 11 ),
+      font: new PhetFont( 12 ),
       rotation: -Math.PI / 2,
       maxWidth: CHART_HEIGHT
     } );

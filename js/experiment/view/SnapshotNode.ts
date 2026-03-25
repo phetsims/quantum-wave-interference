@@ -55,8 +55,8 @@ const HITS_GLOW_ALPHA_MAX = 0.15;
 const HITS_GLOW_START_FRACTION = 0.5;
 const MAX_RENDERED_SNAPSHOT_HITS = 100000;
 
-const PARAM_FONT = new PhetFont( 11 );
-const TITLE_FONT = new PhetFont( { size: 12, weight: 'bold' } );
+const PARAM_FONT = new PhetFont( 12 );
+const TITLE_FONT = new PhetFont( { size: 16, weight: 'bold' } );
 
 const SOURCE_TYPE_DISPLAY_MAP: Record<string, TReadOnlyProperty<string>> = {
   photons: QuantumWaveInterferenceFluent.photonsStringProperty,

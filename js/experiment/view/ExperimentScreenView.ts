@@ -283,7 +283,7 @@ export default class ExperimentScreenView extends ScreenView {
 
     // Ruler checkbox
     const rulerCheckboxLabel = new Text( QuantumWaveInterferenceFluent.rulerStringProperty, {
-      font: new PhetFont( 15 ),
+      font: new PhetFont( 14 ),
       maxWidth: 80
     } );
     const rulerCheckbox = new Checkbox( model.isRulerVisibleProperty, rulerCheckboxLabel, {
@@ -294,7 +294,7 @@ export default class ExperimentScreenView extends ScreenView {
 
     // Stopwatch checkbox - positioned below the ruler checkbox
     const stopwatchCheckboxLabel = new Text( QuantumWaveInterferenceFluent.stopwatchStringProperty, {
-      font: new PhetFont( 15 ),
+      font: new PhetFont( 14 ),
       maxWidth: 80
     } );
     const stopwatchCheckbox = new Checkbox(
@@ -374,7 +374,7 @@ export default class ExperimentScreenView extends ScreenView {
           minorTicksPerMajorTick: RULER_MINOR_TICKS_PER_MAJOR,
           unitsMajorTickIndex: RULER_CENTER_TICK_INDEX,
           majorTickFont: new PhetFont( 12 ),
-          unitsFont: new PhetFont( 11 ),
+          unitsFont: new PhetFont( 12 ),
           tandem: rulerNodesTandem.createTandem( `rulerNode${index}` )
         }
       );

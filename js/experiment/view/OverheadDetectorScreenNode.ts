@@ -23,10 +23,10 @@ import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const OVERHEAD_SKEW_SCALE = ExperimentConstants.OVERHEAD_SKEW_SCALE;
-const LABEL_FONT = new PhetFont( 14 * OVERHEAD_SCALE );
+const LABEL_FONT = new PhetFont( 16 );
 const LABEL_Y = 18;
 const BASE_DETECTOR_DX = 60;
-const DISTANCE_LABEL_FONT = new PhetFont( 11 * OVERHEAD_SCALE );
+const DISTANCE_LABEL_FONT = new PhetFont( 12 );
 
 export const DETECTOR_DX = BASE_DETECTOR_DX * OVERHEAD_SCALE;
 export const DETECTOR_DY = 24 * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;

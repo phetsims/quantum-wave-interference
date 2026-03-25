@@ -37,12 +37,12 @@ export default class WhichPathDetectorIndicatorNode extends Node {
     } );
 
     const detectorIndicatorLabel = new Text( QuantumWaveInterferenceFluent.detectorStringProperty, {
-      font: new PhetFont( 11 * OVERHEAD_SCALE ),
+      font: new PhetFont( 12 ),
       maxWidth: DETECTOR_BOX_WIDTH - 6 * OVERHEAD_SCALE
     } );
 
     const detectorHitCountText = new Text( '', {
-      font: new PhetFont( 10 * OVERHEAD_SCALE ),
+      font: new PhetFont( 12 ),
       maxWidth: DETECTOR_BOX_WIDTH - 6 * OVERHEAD_SCALE,
       visible: false
     } );

@@ -167,7 +167,7 @@ export default class DetectorScreenNode extends Node {
     // (per design: "Above the screen... on the right, there is a readout displaying the total number
     // of detected hits (only if 'Hits' selected)")
     const hitCountText = new Text( '', {
-      font: new PhetFont( 13 ),
+      font: new PhetFont( 12 ),
       fill: 'black',
       maxWidth: 100
     } );
@@ -221,7 +221,7 @@ export default class DetectorScreenNode extends Node {
     this.addChild( scaleRightTick );
 
     const scaleLabelText = new Text( scaleLabelString, {
-      font: new PhetFont( 11 ),
+      font: new PhetFont( 12 ),
       fill: 'black',
       maxWidth: 100,
       left: scaleArrowWidth + 4,
