@@ -16,9 +16,16 @@ import SceneModel from '../model/SceneModel.js';
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 
-// Hit dot rendering parameters.
-const HIT_CORE_RADIUS = 2.0;
-const HIT_GLOW_RADIUS = 3.4;
+// Supersample factor: render the texture at 2x resolution for crisper hit dots on the
+// front-facing detector screen. Consumers draw the texture with drawImage(..., destW, destH)
+// which naturally downscales, producing smoother results similar to the snapshot dialog.
+const SUPERSAMPLE = 2;
+const TEXTURE_WIDTH = SCREEN_WIDTH * SUPERSAMPLE;
+const TEXTURE_HEIGHT = SCREEN_HEIGHT * SUPERSAMPLE;
+
+// Hit dot rendering parameters (in texture-space, i.e. scaled by SUPERSAMPLE).
+const HIT_CORE_RADIUS = 2.0 * SUPERSAMPLE;
+const HIT_GLOW_RADIUS = 3.4 * SUPERSAMPLE;
 const MAX_RENDERED_HITS = 100000;
 const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
 const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
@@ -191,7 +198,7 @@ const paintHits = (
   if ( hits.length === 0 ) {
     hasLoggedRenderCap = false;
     if ( cache.lastRenderedHitCount > 0 ) {
-      context.clearRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
+      context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
     }
     cache.lastRenderedHitCount = 0;
     return;
@@ -227,13 +234,13 @@ const paintHits = (
   const incrementalStart = needsFullRepaint ? startIndex : Math.max( startIndex, alreadyRendered );
 
   if ( needsFullRepaint ) {
-    context.clearRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
+    context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
   }
 
   for ( let i = incrementalStart; i < hitCount; i++ ) {
     const hit = hits[ i ];
-    const viewX = ( ( hit.x + 1 ) / 2 ) * SCREEN_WIDTH;
-    const viewY = ( ( hit.y + 1 ) / 2 ) * SCREEN_HEIGHT;
+    const viewX = ( ( hit.x + 1 ) / 2 ) * TEXTURE_WIDTH;
+    const viewY = ( ( hit.y + 1 ) / 2 ) * TEXTURE_HEIGHT;
     context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
   }
 
@@ -254,8 +261,8 @@ const paintIntensity = (
   const rgb = getIntensityRGB( sceneModel );
   const baseGain = displayGain;
 
-  for ( let x = 0; x < SCREEN_WIDTH; x++ ) {
-    const fraction = ( x + 0.5 ) / SCREEN_WIDTH;
+  for ( let x = 0; x < TEXTURE_WIDTH; x++ ) {
+    const fraction = ( x + 0.5 ) / TEXTURE_WIDTH;
     const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
     const intensity = sceneModel.getIntensityAtPosition( physicalX );
     const scale = intensity * baseGain;
@@ -268,7 +275,7 @@ const paintIntensity = (
     const g = Utils.clamp( Utils.roundSymmetric( rgb.g * scale ), 0, 255 );
     const b = Utils.clamp( Utils.roundSymmetric( rgb.b * scale ), 0, 255 );
     context.fillStyle = `rgb(${r},${g},${b})`;
-    context.fillRect( x, 0, 1, SCREEN_HEIGHT );
+    context.fillRect( x, 0, 1, TEXTURE_HEIGHT );
   }
 };
 
@@ -295,7 +302,7 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
     cache.lastRenderedHitCount = 0;
     cache.hitSprite = null;
     cache.hitSpriteParams = null;
-    context.clearRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
+    context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
 
     cache.lastBrightness = currentBrightness;
     cache.lastWavelength = currentWavelength;
@@ -323,8 +330,8 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
     paintHits( cache, context, sceneModel, hitsDisplayGain, hitsBrightnessFraction );
   }
   else {
-    // Intensity mode always redraws fully (it's O(SCREEN_WIDTH) ≈ 280 iterations, already fast).
-    context.clearRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
+    // Intensity mode always redraws fully (it's O(TEXTURE_WIDTH) ≈ 560 iterations, already fast).
+    context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
     paintIntensity( context, sceneModel, intensityDisplayGain );
   }
 
@@ -333,8 +340,8 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
 
 const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache => {
   const canvas = document.createElement( 'canvas' );
-  canvas.width = SCREEN_WIDTH;
-  canvas.height = SCREEN_HEIGHT;
+  canvas.width = TEXTURE_WIDTH;
+  canvas.height = TEXTURE_HEIGHT;
 
   const context = canvas.getContext( '2d' );
   if ( !context ) {
