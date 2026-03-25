@@ -86,6 +86,10 @@ type StringsType = {
         'accessibleContextResponseStringProperty': LocalizedStringProperty;
       }
     };
+    'sceneRadioButtonGroup': {
+      'accessibleNameStringProperty': LocalizedStringProperty;
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'detectorScreenButtons': {
       'clearScreen': {
         'accessibleNameStringProperty': LocalizedStringProperty;

@@ -75,6 +75,8 @@ addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseChecked', 'a
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', 'a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty' );
 addToMapIfDefined( 'a11y_detectionModeRadioButtons_intensityRadioButton_accessibleContextResponse', 'a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_detectionModeRadioButtons_hitsRadioButton_accessibleContextResponse', 'a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponseStringProperty' );
+addToMapIfDefined( 'a11y_sceneRadioButtonGroup_accessibleName', 'a11y.sceneRadioButtonGroup.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_sceneRadioButtonGroup_accessibleHelpText', 'a11y.sceneRadioButtonGroup.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleName', 'a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleHelpText', 'a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_takeSnapshot_accessibleName', 'a11y.detectorScreenButtons.takeSnapshot.accessibleNameStringProperty' );
@@ -168,6 +170,10 @@ const QuantumWaveInterferenceFluent = {
       hitsRadioButton: {
         accessibleContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_hitsRadioButton_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponseStringProperty' ) )
       }
+    },
+    sceneRadioButtonGroup: {
+      accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sceneRadioButtonGroup_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.sceneRadioButtonGroup.accessibleNameStringProperty' ) ),
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sceneRadioButtonGroup_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.sceneRadioButtonGroup.accessibleHelpTextStringProperty' ) )
     },
     detectorScreenButtons: {
       clearScreen: {

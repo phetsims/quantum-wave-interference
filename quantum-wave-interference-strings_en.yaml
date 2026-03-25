@@ -114,6 +114,9 @@ a11y:
       accessibleContextResponse: Detector screen shows continuous intensity pattern.
     hitsRadioButton:
       accessibleContextResponse: Detector screen shows individual hits.
+  sceneRadioButtonGroup:
+    accessibleName: Particle Type
+    accessibleHelpText: Choose a particle type to change the source used in the double-slit experiment.
   detectorScreenButtons:
     clearScreen:
       accessibleName: Clear Screen

@@ -119,6 +119,8 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
           selectedLineWidth: 2
         }
       },
+      accessibleName: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleHelpTextStringProperty,
       tandem: tandem
     } );
   }

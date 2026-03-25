@@ -173,6 +173,14 @@
         }
       }
     },
+    "sceneRadioButtonGroup": {
+      "accessibleName": {
+        "value": "Particle Type"
+      },
+      "accessibleHelpText": {
+        "value": "Choose a particle type to change the source used in the double-slit experiment."
+      }
+    },
     "detectorScreenButtons": {
       "clearScreen": {
         "accessibleName": {
