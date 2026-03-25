@@ -57,11 +57,6 @@ type StringsType = {
   'rulerStringProperty': LocalizedStringProperty;
   'stopwatchStringProperty': LocalizedStringProperty;
   'detectorStringProperty': LocalizedStringProperty;
-  'wavelengthPatternStringProperty': LocalizedStringProperty;
-  'deBroglieWavelengthPatternStringProperty': LocalizedStringProperty;
-  'slitSeparationValuePatternStringProperty': LocalizedStringProperty;
-  'slitSeparationMicrometerValuePatternStringProperty': LocalizedStringProperty;
-  'screenDistanceValuePatternStringProperty': LocalizedStringProperty;
 };
 
 const QuantumWaveInterferenceStrings = getStringModule( 'QUANTUM_WAVE_INTERFERENCE' ) as StringsType;

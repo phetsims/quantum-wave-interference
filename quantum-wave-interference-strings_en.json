@@ -115,20 +115,5 @@
   },
   "detector": {
     "value": "Detector"
-  },
-  "wavelengthPattern": {
-    "value": "λ = {{value}} nm"
-  },
-  "deBroglieWavelengthPattern": {
-    "value": "λ = {{value}} nm"
-  },
-  "slitSeparationValuePattern": {
-    "value": "d = {{value}} mm"
-  },
-  "slitSeparationMicrometerValuePattern": {
-    "value": "d = {{value}} μm"
-  },
-  "screenDistanceValuePattern": {
-    "value": "D = {{value}} m"
   }
 }
