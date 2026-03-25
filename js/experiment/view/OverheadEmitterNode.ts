@@ -13,16 +13,21 @@ import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
+import ShadedSphereNode from '../../../../scenery-phet/js/ShadedSphereNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
+import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
+import RadialGradient from '../../../../scenery/js/util/RadialGradient.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
+import { type SourceType } from '../model/SourceType.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const LABEL_FONT = new PhetFont( 14 * OVERHEAD_SCALE );
@@ -35,6 +40,62 @@ const BASE_NOZZLE_WIDTH = 16;
 const BASE_NOZZLE_HEIGHT = 32;
 const BASE_BUTTON_RADIUS = 14;
 const BASE_EMITTER_LEFT = 20;
+const EMITTER_HIGHLIGHT_COLOR_STOP = 0.3;
+const GLASS_HIGHLIGHT_DIAMETER_RATIO = 0.5;
+const GLASS_HIGHLIGHT_OFFSET = -0.4;
+
+type ParticleEmitterPalette = {
+  topColor: string;
+  bottomColor: string;
+  highlightColor: string;
+  glassMainColor: string;
+  glassHighlightColor: string;
+  glassShadowColor: string;
+};
+
+const PARTICLE_EMITTER_PALETTES: Record<Exclude<SourceType, 'photons'>, ParticleEmitterPalette> = {
+  electrons: {
+    topColor: 'rgb(100, 120, 180)',
+    bottomColor: 'rgb(30, 40, 80)',
+    highlightColor: 'rgb(160, 180, 230)',
+    glassMainColor: 'rgb(160, 190, 220)',
+    glassHighlightColor: 'white',
+    glassShadowColor: 'rgb(100, 130, 160)'
+  },
+  neutrons: {
+    topColor: 'rgb(92, 137, 144)',
+    bottomColor: 'rgb(26, 63, 70)',
+    highlightColor: 'rgb(168, 205, 208)',
+    glassMainColor: 'rgb(160, 190, 220)',
+    glassHighlightColor: 'white',
+    glassShadowColor: 'rgb(100, 130, 160)'
+  },
+  heliumAtoms: {
+    topColor: 'rgb(173, 138, 94)',
+    bottomColor: 'rgb(84, 58, 30)',
+    highlightColor: 'rgb(224, 194, 150)',
+    glassMainColor: 'rgb(160, 190, 220)',
+    glassHighlightColor: 'white',
+    glassShadowColor: 'rgb(100, 130, 160)'
+  }
+};
+
+const createEmitterGradient = ( height: number, palette: ParticleEmitterPalette ): LinearGradient =>
+  new LinearGradient( 0, 0, 0, height )
+    .addColorStop( 0, palette.topColor )
+    .addColorStop( EMITTER_HIGHLIGHT_COLOR_STOP, palette.highlightColor )
+    .addColorStop( 1, palette.bottomColor );
+
+const createGlassGradient = ( glassNode: ShadedSphereNode, palette: ParticleEmitterPalette ): RadialGradient => {
+  const radius = glassNode.radius;
+  const highlightX = radius * GLASS_HIGHLIGHT_OFFSET;
+  const highlightY = radius * GLASS_HIGHLIGHT_OFFSET;
+
+  return new RadialGradient( highlightX, highlightY, 0, highlightX, highlightY, radius * 2 )
+    .addColorStop( 0, palette.glassHighlightColor )
+    .addColorStop( GLASS_HIGHLIGHT_DIAMETER_RATIO, palette.glassMainColor )
+    .addColorStop( 1, palette.glassShadowColor );
+};
 
 export default class OverheadEmitterNode extends Node {
 
@@ -125,18 +186,18 @@ export default class OverheadEmitterNode extends Node {
     this.particleEmitterNode = new LaserPointerNode( isEmittingProperty, {
       bodySize: new Dimension2( BASE_BODY_WIDTH * OVERHEAD_SCALE, BASE_BODY_HEIGHT * OVERHEAD_SCALE ),
       nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * OVERHEAD_SCALE, BASE_NOZZLE_HEIGHT * OVERHEAD_SCALE ),
-      topColor: 'rgb(100, 120, 180)',
-      bottomColor: 'rgb(30, 40, 80)',
-      highlightColor: 'rgb(160, 180, 230)',
+      topColor: PARTICLE_EMITTER_PALETTES.electrons.topColor,
+      bottomColor: PARTICLE_EMITTER_PALETTES.electrons.bottomColor,
+      highlightColor: PARTICLE_EMITTER_PALETTES.electrons.highlightColor,
       buttonOptions: {
         baseColor: 'red',
         radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE
       },
       hasGlass: true,
       glassOptions: {
-        mainColor: 'rgb(160, 190, 220)',
-        highlightColor: 'white',
-        shadowColor: 'rgb(100, 130, 160)',
+        mainColor: PARTICLE_EMITTER_PALETTES.electrons.glassMainColor,
+        highlightColor: PARTICLE_EMITTER_PALETTES.electrons.glassHighlightColor,
+        shadowColor: PARTICLE_EMITTER_PALETTES.electrons.glassShadowColor,
         heightProportion: 0.7,
         proportionStickingOut: 0.3
       },
@@ -146,11 +207,30 @@ export default class OverheadEmitterNode extends Node {
     } );
     this.addChild( this.particleEmitterNode );
 
+    const applyParticleEmitterPalette = ( sourceType: SourceType ) => {
+      if ( sourceType === 'photons' ) {
+        return;
+      }
+
+      const palette = PARTICLE_EMITTER_PALETTES[ sourceType ];
+      this.particleEmitterNode.children.forEach( child => {
+        if ( child instanceof Rectangle ) {
+          child.fill = createEmitterGradient( child.height, palette );
+        }
+        else if ( child instanceof ShadedSphereNode ) {
+          child.fill = createGlassGradient( child, palette );
+        }
+      } );
+    };
+
     // Toggle visibility and position based on scene
     const updateEmitterLayout = () => {
-      const isPhoton = model.sceneProperty.value.sourceType === 'photons';
+      const sourceType = model.sceneProperty.value.sourceType;
+      const isPhoton = sourceType === 'photons';
       this.laserPointerNode.visible = isPhoton;
       this.particleEmitterNode.visible = !isPhoton;
+
+      applyParticleEmitterPalette( sourceType );
 
       const activeEmitter = isPhoton ? this.laserPointerNode : this.particleEmitterNode;
       activeEmitter.top = sourceLabel.bottom + 6 * OVERHEAD_SCALE;
