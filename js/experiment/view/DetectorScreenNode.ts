@@ -32,9 +32,12 @@ import cameraSolidShape from '../../../../sherpa/js/fontawesome-5/cameraSolidSha
 import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
+import SoundClip from '../../../../tambo/js/sound-generators/SoundClip.js';
+import soundManager from '../../../../tambo/js/soundManager.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
+import snapshotCaptured_mp3 from '../../../sounds/snapshotCaptured_mp3.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
@@ -48,6 +51,15 @@ const BUTTON_COLUMN_GAP = 10.5;
 const TARGET_SCALE_WIDTH_MM = 10;
 const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
 const SNAPSHOT_FLASH_DURATION = 0.6;
+
+const snapshotCapturedSoundClip = new SoundClip( snapshotCaptured_mp3, {
+  initialOutputLevel: 0.4
+} );
+soundManager.addSoundGenerator( snapshotCapturedSoundClip );
+const noOpSoundPlayer = {
+  play: () => undefined,
+  stop: () => undefined
+};
 
 const getScaleLabelDecimalPlaces = ( valueMM: number ): number => {
   if ( valueMM >= 1 ) {
@@ -277,6 +289,7 @@ export default class DetectorScreenNode extends Node {
         const numberOfSnapshotsBefore = sceneModel.numberOfSnapshotsProperty.value;
         sceneModel.takeSnapshot();
         if ( sceneModel.numberOfSnapshotsProperty.value > numberOfSnapshotsBefore ) {
+          snapshotCapturedSoundClip.play();
           startSnapshotFlash();
         }
       },
@@ -293,6 +306,7 @@ export default class DetectorScreenNode extends Node {
           phetioValueType: BooleanIO
         }
       ),
+      soundPlayer: noOpSoundPlayer,
       tandem: providedOptions.tandem.createTandem( 'snapshotButton' )
     } );
 

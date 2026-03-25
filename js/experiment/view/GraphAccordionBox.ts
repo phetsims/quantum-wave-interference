@@ -66,8 +66,8 @@ export default class GraphAccordionBox extends Node {
     super( options );
 
     // Zoom level for the y-axis
-    // Start fully zoomed in so Hits mode opens at maximum vertical magnification.
-    const zoomRange = new RangeWithValue( 1, 6, 6 );
+    // Start two steps below the maximum zoom so the graph opens less magnified by default.
+    const zoomRange = new RangeWithValue( 1, 6, 4 );
     this.zoomLevelProperty = new NumberProperty( zoomRange.defaultValue, {
       range: zoomRange,
       tandem: providedOptions.tandem.createTandem( 'zoomLevelProperty' ),
