@@ -86,12 +86,15 @@ a11y:
        *[false] Source is off.
       }
     interactionHint: >-
-      Turn on the { $sourceType ->
-        [photons] photon source
-        [electrons] electron source
-        [neutrons] neutron source
-       *[heliumAtoms] helium atom source
-      } to start the experiment.
+      { $isEmitting ->
+        [true] Change particle type, adjust slit settings, or switch detection mode to explore the experiment.
+       *[false] Turn on the { $sourceType ->
+          [photons] photon source
+          [electrons] electron source
+          [neutrons] neutron source
+         *[heliumAtoms] helium atom source
+        } to start the experiment.
+      }
   sourceHeading: Source
   slitsHeading: Slits
   detectorScreenHeading: Detector Screen

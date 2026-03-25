@@ -71,7 +71,8 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
         totalHits: totalHitsProperty
       } ),
       interactionHintContent: QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {
-        sourceType: sourceTypeProperty
+        sourceType: sourceTypeProperty,
+        isEmitting: isEmittingStringProperty
       } )
     } );
   }
