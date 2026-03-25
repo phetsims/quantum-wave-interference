@@ -171,12 +171,25 @@ export default class OverheadEmitterNode extends Node {
       bidirectional: true
     } );
 
+    // Track the active scene's source type for accessible name
+    const sourceTypeProperty = new DerivedProperty(
+      [ model.sceneProperty ],
+      ( scene: SceneModel ): SourceType => scene.sourceType
+    );
+
+    // Accessible name for the emitter button, changes with the active source type
+    const emitterAccessibleNameProperty = QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleName.createProperty( {
+      sourceType: sourceTypeProperty
+    } );
+
     this.laserPointerNode = new LaserPointerNode( isEmittingProperty, {
       bodySize: new Dimension2( BASE_BODY_WIDTH * OVERHEAD_SCALE, BASE_BODY_HEIGHT * OVERHEAD_SCALE ),
       nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * OVERHEAD_SCALE, BASE_NOZZLE_HEIGHT * OVERHEAD_SCALE ),
       buttonOptions: {
         baseColor: 'red',
-        radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE
+        radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE,
+        accessibleName: emitterAccessibleNameProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpTextStringProperty
       },
       left: emitterLeft,
       tandem: tandem.createTandem( 'laserPointerNode' )
@@ -191,7 +204,9 @@ export default class OverheadEmitterNode extends Node {
       highlightColor: PARTICLE_EMITTER_PALETTES.electrons.highlightColor,
       buttonOptions: {
         baseColor: 'red',
-        radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE
+        radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE,
+        accessibleName: emitterAccessibleNameProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpTextStringProperty
       },
       hasGlass: true,
       glassOptions: {

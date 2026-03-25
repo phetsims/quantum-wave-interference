@@ -92,6 +92,15 @@ a11y:
         [neutrons] neutron source
        *[heliumAtoms] helium atom source
       } to start the experiment.
+  emitterButton:
+    accessibleName: >-
+      { $sourceType ->
+        [photons] Photon Source
+        [electrons] Electron Source
+        [neutrons] Neutron Source
+       *[heliumAtoms] Helium Atom Source
+      }
+    accessibleHelpText: Turn the source on and off to start or stop the experiment.
   detectorScreenButtons:
     clearScreen:
       accessibleName: Clear Screen
