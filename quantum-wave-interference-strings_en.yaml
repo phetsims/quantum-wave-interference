@@ -108,6 +108,8 @@ a11y:
        *[heliumAtoms] Helium Atom Source
       }
     accessibleHelpText: Turn the source on and off to start or stop the experiment.
+  ruler:
+    accessibleHelpText: Drag ruler up or down to align with features on the detector screen and graph.
   rulerCheckbox:
     accessibleHelpText: Show or hide a ruler to measure distances on the detector screen.
     accessibleContextResponseChecked: Ruler shown.

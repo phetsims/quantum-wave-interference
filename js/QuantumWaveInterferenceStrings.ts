@@ -72,6 +72,9 @@ type StringsType = {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
+    'ruler': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'rulerCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;
