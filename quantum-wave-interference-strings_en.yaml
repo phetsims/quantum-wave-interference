@@ -117,6 +117,14 @@ a11y:
   sceneRadioButtonGroup:
     accessibleName: Particle Type
     accessibleHelpText: Choose a particle type to change the source used in the double-slit experiment.
+    photonsRadioButton:
+      accessibleContextResponse: Experiment now uses a photon source.
+    electronsRadioButton:
+      accessibleContextResponse: Experiment now uses an electron source.
+    neutronsRadioButton:
+      accessibleContextResponse: Experiment now uses a neutron source.
+    heliumAtomsRadioButton:
+      accessibleContextResponse: Experiment now uses a helium atom source.
   detectorScreenButtons:
     clearScreen:
       accessibleName: Clear Screen

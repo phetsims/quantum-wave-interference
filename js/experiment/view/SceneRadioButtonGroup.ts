@@ -61,6 +61,14 @@ const SOURCE_TYPE_STRING_PROPERTIES = {
   heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomsStringProperty
 } as const satisfies Record<SourceType, typeof QuantumWaveInterferenceFluent.photonsStringProperty>;
 
+// Context response string properties for each scene radio button, confirming the particle type change.
+const SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES = {
+  photons: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.photonsRadioButton.accessibleContextResponseStringProperty,
+  electrons: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.electronsRadioButton.accessibleContextResponseStringProperty,
+  neutrons: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.neutronsRadioButton.accessibleContextResponseStringProperty,
+  heliumAtoms: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.heliumAtomsRadioButton.accessibleContextResponseStringProperty
+} as const;
+
 export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<SceneModel> {
 
   public constructor( sceneProperty: Property<SceneModel>, scenes: SceneModel[], tandem: Tandem ) {
@@ -95,7 +103,10 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
           preferredWidth: LABEL_WIDTH,
           preferredHeight: LABEL_HEIGHT
         } ),
-        tandemName: `${sourceType}RadioButton`
+        tandemName: `${sourceType}RadioButton`,
+        options: {
+          accessibleContextResponse: SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES[ sourceType ]
+        }
       };
     } );
 

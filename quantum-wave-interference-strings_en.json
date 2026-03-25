@@ -179,6 +179,26 @@
       },
       "accessibleHelpText": {
         "value": "Choose a particle type to change the source used in the double-slit experiment."
+      },
+      "photonsRadioButton": {
+        "accessibleContextResponse": {
+          "value": "Experiment now uses a photon source."
+        }
+      },
+      "electronsRadioButton": {
+        "accessibleContextResponse": {
+          "value": "Experiment now uses an electron source."
+        }
+      },
+      "neutronsRadioButton": {
+        "accessibleContextResponse": {
+          "value": "Experiment now uses a neutron source."
+        }
+      },
+      "heliumAtomsRadioButton": {
+        "accessibleContextResponse": {
+          "value": "Experiment now uses a helium atom source."
+        }
       }
     },
     "detectorScreenButtons": {

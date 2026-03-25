@@ -89,6 +89,18 @@ type StringsType = {
     'sceneRadioButtonGroup': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'photonsRadioButton': {
+        'accessibleContextResponseStringProperty': LocalizedStringProperty;
+      };
+      'electronsRadioButton': {
+        'accessibleContextResponseStringProperty': LocalizedStringProperty;
+      };
+      'neutronsRadioButton': {
+        'accessibleContextResponseStringProperty': LocalizedStringProperty;
+      };
+      'heliumAtomsRadioButton': {
+        'accessibleContextResponseStringProperty': LocalizedStringProperty;
+      }
     };
     'detectorScreenButtons': {
       'clearScreen': {
