@@ -207,6 +207,14 @@
         }
       }
     },
+    "slitSettingsComboBox": {
+      "accessibleName": {
+        "value": "Slit Configuration"
+      },
+      "accessibleHelpText": {
+        "value": "Choose a slit configuration to change which slits are open, covered, or monitored by a detector."
+      }
+    },
     "detectorScreenButtons": {
       "clearScreen": {
         "accessibleName": {

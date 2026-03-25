@@ -104,6 +104,10 @@ type StringsType = {
         'accessibleContextResponseStringProperty': LocalizedStringProperty;
       }
     };
+    'slitSettingsComboBox': {
+      'accessibleNameStringProperty': LocalizedStringProperty;
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'detectorScreenButtons': {
       'clearScreen': {
         'accessibleNameStringProperty': LocalizedStringProperty;

@@ -83,6 +83,8 @@ addToMapIfDefined( 'a11y_sceneRadioButtonGroup_photonsRadioButton_accessibleCont
 addToMapIfDefined( 'a11y_sceneRadioButtonGroup_electronsRadioButton_accessibleContextResponse', 'a11y.sceneRadioButtonGroup.electronsRadioButton.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_sceneRadioButtonGroup_neutronsRadioButton_accessibleContextResponse', 'a11y.sceneRadioButtonGroup.neutronsRadioButton.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_sceneRadioButtonGroup_heliumAtomsRadioButton_accessibleContextResponse', 'a11y.sceneRadioButtonGroup.heliumAtomsRadioButton.accessibleContextResponseStringProperty' );
+addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleName', 'a11y.slitSettingsComboBox.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleHelpText', 'a11y.slitSettingsComboBox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleName', 'a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleHelpText', 'a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleContextResponse', 'a11y.detectorScreenButtons.clearScreen.accessibleContextResponseStringProperty' );
@@ -195,6 +197,10 @@ const QuantumWaveInterferenceFluent = {
       heliumAtomsRadioButton: {
         accessibleContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sceneRadioButtonGroup_heliumAtomsRadioButton_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.sceneRadioButtonGroup.heliumAtomsRadioButton.accessibleContextResponseStringProperty' ) )
       }
+    },
+    slitSettingsComboBox: {
+      accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSettingsComboBox_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSettingsComboBox.accessibleNameStringProperty' ) ),
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSettingsComboBox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSettingsComboBox.accessibleHelpTextStringProperty' ) )
     },
     detectorScreenButtons: {
       clearScreen: {

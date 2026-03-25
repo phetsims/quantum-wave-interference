@@ -127,6 +127,9 @@ a11y:
       accessibleContextResponse: Experiment now uses a neutron source.
     heliumAtomsRadioButton:
       accessibleContextResponse: Experiment now uses a helium atom source.
+  slitSettingsComboBox:
+    accessibleName: Slit Configuration
+    accessibleHelpText: Choose a slit configuration to change which slits are open, covered, or monitored by a detector.
   detectorScreenButtons:
     clearScreen:
       accessibleName: Clear Screen

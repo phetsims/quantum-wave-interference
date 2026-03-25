@@ -279,6 +279,8 @@ export default class SlitControlPanel extends Panel {
         xMargin: 16,
         yMargin: 8,
         listPosition: 'above',
+        accessibleName: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( `${sceneTandemName}SlitSettingsComboBox` )
       }
     );
