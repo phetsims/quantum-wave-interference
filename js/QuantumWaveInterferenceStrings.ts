@@ -112,6 +112,10 @@ type StringsType = {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
+    'graphAccordionBox': {
+      'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseCollapsedStringProperty': LocalizedStringProperty;
+    };
     'detectorScreenButtons': {
       'clearScreen': {
         'accessibleNameStringProperty': LocalizedStringProperty;

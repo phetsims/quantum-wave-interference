@@ -134,6 +134,9 @@ a11y:
   slitSettingsComboBox:
     accessibleName: Slit Configuration
     accessibleHelpText: Choose a slit configuration to change which slits are open, covered, or monitored by a detector.
+  graphAccordionBox:
+    accessibleContextResponseExpanded: Graph expanded.
+    accessibleContextResponseCollapsed: Graph collapsed.
   detectorScreenButtons:
     clearScreen:
       accessibleName: Clear Screen

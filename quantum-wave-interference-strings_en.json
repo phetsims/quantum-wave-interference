@@ -227,6 +227,14 @@
         "value": "Choose a slit configuration to change which slits are open, covered, or monitored by a detector."
       }
     },
+    "graphAccordionBox": {
+      "accessibleContextResponseExpanded": {
+        "value": "Graph expanded."
+      },
+      "accessibleContextResponseCollapsed": {
+        "value": "Graph collapsed."
+      }
+    },
     "detectorScreenButtons": {
       "clearScreen": {
         "accessibleName": {

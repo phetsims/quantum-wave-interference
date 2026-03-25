@@ -183,6 +183,8 @@ export default class GraphAccordionBox extends Node {
       titleBarOptions: {
         fill: QuantumWaveInterferenceColors.panelFillProperty
       },
+      accessibleContextResponseExpanded: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty,
+      accessibleContextResponseCollapsed: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty,
       tandem: providedOptions.tandem.createTandem( 'accordionBox' )
     } );
     this.addChild( this.accordionBox );
