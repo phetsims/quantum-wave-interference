@@ -271,6 +271,10 @@ export default class SlitControlPanel extends Panel {
       }
     ];
 
+    const slitSettingsContextResponseProperty = QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleContextResponse.createProperty( {
+      slitSetting: scene.slitSettingProperty
+    } );
+
     const slitSettingsComboBox = new ComboBox(
       scene.slitSettingProperty,
       comboBoxItems,
@@ -281,6 +285,7 @@ export default class SlitControlPanel extends Panel {
         listPosition: 'above',
         accessibleName: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty,
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleHelpTextStringProperty,
+        accessibleContextResponse: slitSettingsContextResponseProperty,
         tandem: tandem.createTandem( `${sceneTandemName}SlitSettingsComboBox` )
       }
     );

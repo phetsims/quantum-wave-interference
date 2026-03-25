@@ -225,6 +225,9 @@
       },
       "accessibleHelpText": {
         "value": "Choose a slit configuration to change which slits are open, covered, or monitored by a detector."
+      },
+      "accessibleContextResponse": {
+        "value": "{ $slitSetting ->\n  [bothOpen] Both slits now open.\n  [leftCovered] Left slit now covered.\n  [rightCovered] Right slit now covered.\n  [leftDetector] Left slit now monitored by a detector.\n *[rightDetector] Right slit now monitored by a detector.\n}"
       }
     },
     "graphAccordionBox": {

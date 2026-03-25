@@ -111,6 +111,7 @@ type StringsType = {
     'slitSettingsComboBox': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseStringProperty': LocalizedStringProperty;
     };
     'graphAccordionBox': {
       'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
