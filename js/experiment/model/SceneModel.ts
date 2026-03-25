@@ -200,14 +200,14 @@ export default class SceneModel extends PhetioObject {
     else {
       // Helium atoms
       this.particleMass = HELIUM_ATOM_MASS;
-      this.slitWidth = 0.001; // mm
-      this.velocityRange = new Range( 500, 3000 ); // m/s
-      this.slitSeparationRange = new Range( 0.002, 0.01 ); // mm
+      this.slitWidth = 0.0003; // mm (0.3 μm)
+      this.velocityRange = new Range( 400, 2000 ); // m/s
+      this.slitSeparationRange = new Range( 0.001, 0.007 ); // mm (1–7 μm)
       this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
       this.screenHalfWidth = 4e-4; // 0.4 mm (0.8 mm total width; scale bar spans ~1/4 of screen)
       defaultScreenDistance = this.screenDistanceRange.max;
-      defaultVelocity = ( this.velocityRange.min + this.velocityRange.max ) / 2;
-      defaultSlitSeparation = this.slitSeparationRange.max;
+      defaultVelocity = 1200;
+      defaultSlitSeparation = 0.004; // mm (4 μm)
     }
 
     this.hits = [];

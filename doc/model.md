@@ -106,11 +106,11 @@ as the number of events increases.
 
 | Parameter         | Photons        | Electrons        | Neutrons          | Helium Atoms       |
 |-------------------|----------------|------------------|-------------------|--------------------|
-| Slit Width        | 0.1 mm         | 0.2 μm           | 0.01 mm           | 0.001 mm           |
-| Slit Separation   | 0.2–1.0 mm     | 0.5–1.0 μm       | 0.02–0.1 mm       | 0.002–0.01 mm      |
+| Slit Width        | 0.1 mm         | 0.2 μm           | 0.01 mm           | 0.3 μm             |
+| Slit Separation   | 0.2–1.0 mm     | 0.5–1.0 μm       | 0.02–0.1 mm       | 1–7 μm             |
 | Screen Distance   | 0.4–0.8 m      | 0.4–0.8 m        | 0.5–5.0 m         | 0.5–2.0 m          |
 | Particle Mass     | —              | 9.1 × 10⁻³¹ kg  | 1.7 × 10⁻²⁷ kg   | 6.6 × 10⁻²⁷ kg    |
-| Speed Range       | c (fixed)      | 700–1500 km/s    | 200–2000 m/s      | 500–3000 m/s       |
+| Speed Range       | c (fixed)      | 700–1500 km/s    | 200–2000 m/s      | 400–2000 m/s       |
 
 ## Approximations and Assumptions
 

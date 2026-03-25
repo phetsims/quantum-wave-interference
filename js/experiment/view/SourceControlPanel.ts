@@ -203,7 +203,9 @@ export default class SourceControlPanel extends Panel {
                             ? 10000 // 10 km/s
                             : scene.sourceType === 'neutrons'
                               ? 10
-                            : ( velocityRange.max - velocityRange.min ) / 100;
+                              : scene.sourceType === 'heliumAtoms'
+                                ? 50
+                                : ( velocityRange.max - velocityRange.min ) / 100;
 
       // Use km/s for electrons (large velocities), m/s for neutrons and helium atoms
       const useKmPerSecond = velocityRange.max >= 10000;
