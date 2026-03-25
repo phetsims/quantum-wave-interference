@@ -92,3 +92,13 @@ a11y:
         [neutrons] neutron source
        *[heliumAtoms] helium atom source
       } to start the experiment.
+  detectorScreenButtons:
+    clearScreen:
+      accessibleName: Clear Screen
+      accessibleHelpText: Clear all hits from the detector screen.
+    takeSnapshot:
+      accessibleName: Take Snapshot
+      accessibleHelpText: Capture the current detector screen pattern as a snapshot.
+    viewSnapshots:
+      accessibleName: View Snapshots
+      accessibleHelpText: Open a dialog to compare saved snapshots.

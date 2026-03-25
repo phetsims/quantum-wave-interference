@@ -306,6 +306,8 @@ export default class DetectorScreenNode extends Node {
           phetioValueType: BooleanIO
         }
       ),
+      accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleHelpTextStringProperty,
       soundPlayer: noOpSoundPlayer,
       tandem: providedOptions.tandem.createTandem( 'snapshotButton' )
     } );
@@ -324,6 +326,8 @@ export default class DetectorScreenNode extends Node {
       enabledProperty: eraserButtonEnabledProperty,
       touchAreaXDilation: 5,
       touchAreaYDilation: 5,
+      accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty,
       tandem: providedOptions.tandem.createTandem( 'eraserButton' )
     } );
 
@@ -351,6 +355,8 @@ export default class DetectorScreenNode extends Node {
           phetioValueType: BooleanIO
         }
       ),
+      accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleHelpTextStringProperty,
       soundPlayer: noOpSoundPlayer,
       tandem: providedOptions.tandem.createTandem( 'viewSnapshotsButton' )
     } );
