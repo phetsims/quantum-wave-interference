@@ -73,7 +73,7 @@ export default class OverheadDoubleSlitNode extends Node {
     doubleSlitLabel.top = LABEL_Y;
 
     // Slit lines on the parallelogram
-    const slitLineLength = 25 * OVERHEAD_SCALE;
+    const slitLineLength = 18.75 * OVERHEAD_SCALE;
     const slitXFraction = 0.5;
     // Keep slit lines vertically centered in the slit element.
     const slitYCenter = PARALLELOGRAM_LEFT_HEIGHT / 2;

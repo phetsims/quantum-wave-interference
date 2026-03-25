@@ -104,9 +104,6 @@ export default class ScreenSettingsPanel extends Panel {
       majorTickLength: 12,
       tandem: options.tandem.createTandem( 'brightnessSlider' )
     } );
-    brightnessSlider.addMajorTick( brightnessRange.min );
-    brightnessSlider.addMajorTick( brightnessRange.max );
-
     const brightnessControl = new VBox( {
       spacing: 2,
       children: [ brightnessLabel, brightnessSlider ]
