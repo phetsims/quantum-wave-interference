@@ -120,6 +120,9 @@ type StringsType = {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleContextResponseStringProperty': LocalizedStringProperty;
     };
+    'slitView': {
+      'accessibleParagraphStringProperty': LocalizedStringProperty;
+    };
     'graphAccordionBox': {
       'accessibleParagraphStringProperty': LocalizedStringProperty;
       'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;

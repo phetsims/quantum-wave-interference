@@ -153,6 +153,16 @@ a11y:
         [leftDetector] Left slit now monitored by a detector.
        *[rightDetector] Right slit now monitored by a detector.
       }
+  slitView:
+    accessibleParagraph: >-
+      Magnified view of the barrier with two vertical slits, each { $slitWidth } wide.
+      { $slitSetting ->
+        [bothOpen] Both slits are open.
+        [leftCovered] Left slit is covered.
+        [rightCovered] Right slit is covered.
+        [leftDetector] Left slit is monitored by a which-path detector.
+       *[rightDetector] Right slit is monitored by a which-path detector.
+      }
   graphAccordionBox:
     accessibleParagraph: >-
       { $detectionMode ->

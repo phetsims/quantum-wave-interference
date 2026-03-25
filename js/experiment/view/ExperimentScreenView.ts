@@ -52,6 +52,7 @@ import SourceControlPanel from './SourceControlPanel.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
+import { type SlitSetting } from '../model/SlitSetting.js';
 import { type SourceType } from '../model/SourceType.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -568,6 +569,36 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( detectorScreenDescriptionNode );
 
+    // Accessible paragraph describing the magnified slit view for screen reader users.
+    // This is important non-interactive visual content: the slit view shows the barrier
+    // with two slits, their width, and the current slit configuration (open/covered/detector).
+    // The slit width is a constant per scene that is visible on screen but not accessible
+    // through any interactive control.
+    const slitSettingProperty = new DynamicProperty<SlitSetting, SlitSetting, SceneModel>(
+      model.sceneProperty, { derive: 'slitSettingProperty' }
+    );
+    const slitWidthStringProperty = new DerivedProperty(
+      [ model.sceneProperty ],
+      ( scene: SceneModel ) => {
+        const slitWidthMM = scene.slitWidth;
+        if ( slitWidthMM >= 0.01 ) {
+          return `${toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )} mm`;
+        }
+        else {
+          const slitWidthUM = slitWidthMM * 1000;
+          const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2;
+          return `${toFixed( slitWidthUM, umDecimalPlaces )} \u00B5m`;
+        }
+      }
+    );
+    const slitViewDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.slitView.accessibleParagraph.createProperty( {
+        slitWidth: slitWidthStringProperty,
+        slitSetting: slitSettingProperty
+      } )
+    } );
+    this.addChild( slitViewDescriptionNode );
+
     // Heading nodes for PDOM navigation. Each groups related controls under a heading
     // so screen reader users can jump between major sections with heading shortcuts.
     const sourceHeadingNode = new Node( {
@@ -599,6 +630,7 @@ export default class ExperimentScreenView extends ScreenView {
     ];
 
     slitsHeadingNode.pdomOrder = [
+      slitViewDescriptionNode,
       slitControlPanel
     ];
 
