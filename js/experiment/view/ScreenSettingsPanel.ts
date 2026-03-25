@@ -67,7 +67,10 @@ export default class ScreenSettingsPanel extends Panel {
           font: LABEL_FONT,
           maxWidth: 130
         } ),
-        tandemName: 'averageIntensityRadioButton'
+        tandemName: 'averageIntensityRadioButton',
+        options: {
+          accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseStringProperty
+        }
       },
       {
         value: 'hits',
@@ -75,7 +78,10 @@ export default class ScreenSettingsPanel extends Panel {
           font: LABEL_FONT,
           maxWidth: 130
         } ),
-        tandemName: 'hitsRadioButton'
+        tandemName: 'hitsRadioButton',
+        options: {
+          accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponseStringProperty
+        }
       }
     ];
 

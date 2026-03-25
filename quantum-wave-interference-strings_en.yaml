@@ -109,6 +109,11 @@ a11y:
     accessibleHelpText: Show or hide a stopwatch to time the experiment.
     accessibleContextResponseChecked: Stopwatch shown.
     accessibleContextResponseUnchecked: Stopwatch hidden.
+  detectionModeRadioButtons:
+    intensityRadioButton:
+      accessibleContextResponse: Detector screen shows continuous intensity pattern.
+    hitsRadioButton:
+      accessibleContextResponse: Detector screen shows individual hits.
   detectorScreenButtons:
     clearScreen:
       accessibleName: Clear Screen

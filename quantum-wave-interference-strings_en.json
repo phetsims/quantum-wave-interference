@@ -161,6 +161,18 @@
         "value": "Stopwatch hidden."
       }
     },
+    "detectionModeRadioButtons": {
+      "intensityRadioButton": {
+        "accessibleContextResponse": {
+          "value": "Detector screen shows continuous intensity pattern."
+        }
+      },
+      "hitsRadioButton": {
+        "accessibleContextResponse": {
+          "value": "Detector screen shows individual hits."
+        }
+      }
+    },
     "detectorScreenButtons": {
       "clearScreen": {
         "accessibleName": {

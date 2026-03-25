@@ -78,6 +78,14 @@ type StringsType = {
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseUncheckedStringProperty': LocalizedStringProperty;
     };
+    'detectionModeRadioButtons': {
+      'intensityRadioButton': {
+        'accessibleContextResponseStringProperty': LocalizedStringProperty;
+      };
+      'hitsRadioButton': {
+        'accessibleContextResponseStringProperty': LocalizedStringProperty;
+      }
+    };
     'detectorScreenButtons': {
       'clearScreen': {
         'accessibleNameStringProperty': LocalizedStringProperty;
