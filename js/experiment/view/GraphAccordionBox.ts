@@ -133,8 +133,14 @@ export default class GraphAccordionBox extends Node {
     const yAxisLabel = new Text( yAxisLabelStringProperty, {
       font: new PhetFont( 12 ),
       rotation: -Math.PI / 2,
-      maxWidth: CHART_HEIGHT
+      maxWidth: chartBackground.height
     } );
+
+    const layoutYAxisLabel = () => {
+      yAxisLabel.right = chartBackground.left - 4;
+      yAxisLabel.centerY = chartBackground.centerY;
+    };
+    yAxisLabel.localBoundsProperty.link( layoutYAxisLabel );
 
     const chartNode = new Node( {
       children: [ yAxisLabel, chartBackground, dataPath ]
@@ -223,12 +229,10 @@ export default class GraphAccordionBox extends Node {
       if ( isHitsMode ) {
         this.paintHistogram( dataPath, sceneModel );
       }
- else {
+      else {
         this.paintIntensityCurve( dataPath, sceneModel );
       }
-      // Position y-axis label to the left of the chart, vertically centered
-      yAxisLabel.right = chartBackground.left - 4;
-      yAxisLabel.centerY = CHART_HEIGHT / 2;
+      layoutYAxisLabel();
     };
 
     // Wire up updates
