@@ -101,6 +101,14 @@ a11y:
        *[heliumAtoms] Helium Atom Source
       }
     accessibleHelpText: Turn the source on and off to start or stop the experiment.
+  rulerCheckbox:
+    accessibleHelpText: Show or hide a ruler to measure distances on the detector screen.
+    accessibleContextResponseChecked: Ruler shown.
+    accessibleContextResponseUnchecked: Ruler hidden.
+  stopwatchCheckbox:
+    accessibleHelpText: Show or hide a stopwatch to time the experiment.
+    accessibleContextResponseChecked: Stopwatch shown.
+    accessibleContextResponseUnchecked: Stopwatch hidden.
   detectorScreenButtons:
     clearScreen:
       accessibleName: Clear Screen

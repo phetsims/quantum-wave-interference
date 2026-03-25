@@ -139,6 +139,28 @@
         "value": "Turn the source on and off to start or stop the experiment."
       }
     },
+    "rulerCheckbox": {
+      "accessibleHelpText": {
+        "value": "Show or hide a ruler to measure distances on the detector screen."
+      },
+      "accessibleContextResponseChecked": {
+        "value": "Ruler shown."
+      },
+      "accessibleContextResponseUnchecked": {
+        "value": "Ruler hidden."
+      }
+    },
+    "stopwatchCheckbox": {
+      "accessibleHelpText": {
+        "value": "Show or hide a stopwatch to time the experiment."
+      },
+      "accessibleContextResponseChecked": {
+        "value": "Stopwatch shown."
+      },
+      "accessibleContextResponseUnchecked": {
+        "value": "Stopwatch hidden."
+      }
+    },
     "detectorScreenButtons": {
       "clearScreen": {
         "accessibleName": {
