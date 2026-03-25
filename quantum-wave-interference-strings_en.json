@@ -162,6 +162,12 @@
       }
     },
     "detectionModeRadioButtons": {
+      "accessibleName": {
+        "value": "Detection Mode"
+      },
+      "accessibleHelpText": {
+        "value": "Choose how detections are displayed on the detector screen."
+      },
       "intensityRadioButton": {
         "accessibleContextResponse": {
           "value": "Detector screen shows continuous intensity pattern."

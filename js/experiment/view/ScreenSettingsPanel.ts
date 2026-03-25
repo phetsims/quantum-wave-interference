@@ -94,6 +94,8 @@ export default class ScreenSettingsPanel extends Panel {
       },
       touchAreaXDilation: 10,
       mouseAreaXDilation: 10,
+      accessibleName: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleHelpTextStringProperty,
       tandem: options.tandem.createTandem( 'detectionModeRadioButtonGroup' )
     } );
 

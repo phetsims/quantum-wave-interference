@@ -110,6 +110,8 @@ a11y:
     accessibleContextResponseChecked: Stopwatch shown.
     accessibleContextResponseUnchecked: Stopwatch hidden.
   detectionModeRadioButtons:
+    accessibleName: Detection Mode
+    accessibleHelpText: Choose how detections are displayed on the detector screen.
     intensityRadioButton:
       accessibleContextResponse: Detector screen shows continuous intensity pattern.
     hitsRadioButton:
