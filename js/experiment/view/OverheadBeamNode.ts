@@ -125,6 +125,20 @@ export default class OverheadBeamNode extends Node {
         .close();
       fanBeamNode.shape = fanShape;
 
+      // Clip the fan beam along a diagonal from the detector screen parallelogram's
+      // top-left corner to its bottom-right corner, so no light is visible past the screen.
+      const screenTopLeftX = detectorScreenParallelogram.left;
+      const screenTopLeftY = detectorScreenParallelogram.top;
+      const screenBottomRightX = detectorScreenParallelogram.right;
+      const screenBottomRightY = detectorScreenParallelogram.bottom;
+      const clipPadding = 200;
+      fanBeamNode.clipArea = new Shape()
+        .moveTo( fanLeft - clipPadding, screenTopLeftY - clipPadding )
+        .lineTo( screenTopLeftX, screenTopLeftY )
+        .lineTo( screenBottomRightX, screenBottomRightY )
+        .lineTo( fanLeft - clipPadding, screenBottomRightY + clipPadding )
+        .close();
+
       const gradient = new LinearGradient( fanLeft, 0, fanRight, 0 )
         .addColorStop( 0, beamColor.withAlpha( 0.4 * intensity ) )
         .addColorStop( 1, beamColor.withAlpha( 0 ) );
