@@ -17,9 +17,11 @@ import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import AccessibleDraggableOptions from '../../../../scenery-phet/js/accessibility/grab-drag/AccessibleDraggableOptions.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import RulerNode from '../../../../scenery-phet/js/RulerNode.js';
+import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboardDragListener.js';
 import InteractiveHighlightingNode from '../../../../scenery/js/accessibility/voicing/nodes/InteractiveHighlightingNode.js';
 import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
@@ -45,6 +47,7 @@ import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
 import SourceControlPanel from './SourceControlPanel.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
+import { type SourceType } from '../model/SourceType.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -54,9 +57,14 @@ const RULER_INTERVAL_COUNT = 8;
 const RULER_CENTER_TICK_INDEX = RULER_INTERVAL_COUNT / 2;
 const RULER_MINOR_TICKS_PER_MAJOR = 4;
 const RULER_HEIGHT = 40;
-const RULER_X_OFFSET = 0;
+const RULER_X_OFFSET = 1;
+const RULER_KEYBOARD_DRAG_DELTA = 5;
+const RULER_KEYBOARD_SHIFT_DRAG_DELTA = 1;
 
-const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number ): number => {
+const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number, sourceType: SourceType ): number => {
+  if ( sourceType === 'neutrons' || sourceType === 'heliumAtoms' ) {
+    return 1;
+  }
   if ( halfDetectorWidthMM >= 10 ) {
     return 0;
   }
@@ -353,10 +361,14 @@ export default class ExperimentScreenView extends ScreenView {
     // screen: its full width maps to the scene's full detector width in mm.
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
-    const createRulerNode = ( detectorWidthMM: number, index: number ): InteractiveHighlightingNode => {
+    const createRulerNode = (
+      detectorWidthMM: number,
+      sourceType: SourceType,
+      index: number
+    ): InteractiveHighlightingNode => {
       const majorTickWidth = ExperimentConstants.DETECTOR_SCREEN_WIDTH / RULER_INTERVAL_COUNT;
       const halfDetectorWidthMM = detectorWidthMM / 2;
-      const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM );
+      const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM, sourceType );
       const majorTickLabels = rangeInclusive( 0, RULER_INTERVAL_COUNT ).map( i => {
         const signedNormalizedOffset = ( i - RULER_CENTER_TICK_INDEX ) / RULER_CENTER_TICK_INDEX;
         const labelValue =
@@ -382,13 +394,19 @@ export default class ExperimentScreenView extends ScreenView {
       return new InteractiveHighlightingNode( {
         children: [ rulerNode ],
         cursor: 'pointer',
-        opacity: 0.8
+        opacity: 0.8,
+        accessibleName: QuantumWaveInterferenceFluent.rulerStringProperty,
+        tagName: AccessibleDraggableOptions.tagName,
+        focusable: AccessibleDraggableOptions.focusable,
+        ariaRole: AccessibleDraggableOptions.ariaRole,
+        accessibleNameBehavior: AccessibleDraggableOptions.accessibleNameBehavior,
+        accessibleRoleDescription: AccessibleDraggableOptions.accessibleRoleDescription
       } );
     };
 
     const rulerNodes = model.scenes.map( ( scene, index ) => {
       const detectorWidthMM = scene.screenHalfWidth * 2 * 1e3;
-      const rulerNode = createRulerNode( detectorWidthMM, index );
+      const rulerNode = createRulerNode( detectorWidthMM, scene.sourceType, index );
       this.addChild( rulerNode );
       return rulerNode;
     } );
@@ -466,11 +484,24 @@ export default class ExperimentScreenView extends ScreenView {
     this.centerRulerOnDetectorScreen();
 
     rulerNodes.forEach( ( rulerNode, index ) => {
+      const rulerTandem = rulerNodesTandem.createTandem( `rulerNode${index}` );
+
       rulerNode.addInputListener(
         new SoundDragListener( {
           positionProperty: model.rulerPositionProperty,
           dragBoundsProperty: rulerDragBoundsProperty,
-          tandem: rulerNodesTandem.createTandem( `rulerNode${index}` ).createTandem( 'dragListener' )
+          tandem: rulerTandem.createTandem( 'dragListener' )
+        } )
+      );
+
+      rulerNode.addInputListener(
+        new SoundKeyboardDragListener( {
+          positionProperty: model.rulerPositionProperty,
+          dragBoundsProperty: rulerDragBoundsProperty,
+          keyboardDragDirection: 'upDown',
+          dragDelta: RULER_KEYBOARD_DRAG_DELTA,
+          shiftDragDelta: RULER_KEYBOARD_SHIFT_DRAG_DELTA,
+          tandem: rulerTandem.createTandem( 'keyboardDragListener' )
         } )
       );
     } );

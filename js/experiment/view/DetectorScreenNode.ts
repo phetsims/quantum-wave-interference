@@ -351,6 +351,7 @@ export default class DetectorScreenNode extends Node {
           phetioValueType: BooleanIO
         }
       ),
+      soundPlayer: noOpSoundPlayer,
       tandem: providedOptions.tandem.createTandem( 'viewSnapshotsButton' )
     } );
 
