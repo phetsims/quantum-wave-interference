@@ -82,6 +82,9 @@ type StringsType = {
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseUncheckedStringProperty': LocalizedStringProperty;
     };
+    'intensitySlider': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'brightnessSlider': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;

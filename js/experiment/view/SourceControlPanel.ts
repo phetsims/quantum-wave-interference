@@ -126,12 +126,23 @@ export default class SourceControlPanel extends Panel {
     topControl: Node;
     bottomControl: Node;
   } {
+    // Photon scenes use "Source Intensity" while particle scenes use "Emission Rate" per the
+    // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
+    const intensityLabelStringProperty =
+      scene.sourceType === 'photons'
+        ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
+        : QuantumWaveInterferenceFluent.emissionRateStringProperty;
+
     // Intensity slider (shared by all source types)
     const intensitySlider = new HSlider( scene.intensityProperty, scene.intensityProperty.range, {
       trackSize: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SLIDER_TRACK_HEIGHT ),
       thumbSize: new Dimension2( 13, 22 ),
       majorTickLength: 12,
       tickLabelSpacing: scene.sourceType === 'photons' ? 2 : 6,
+      accessibleName: intensityLabelStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleHelpText.createProperty( {
+        sourceType: scene.sourceType
+      } ),
       tandem: tandem.createTandem( `${scene.sourceType}IntensitySlider` )
     } );
 
@@ -145,12 +156,6 @@ export default class SourceControlPanel extends Panel {
       } )
     );
 
-    // Photon scenes use "Source Intensity" while particle scenes use "Emission Rate" per the
-    // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
-    const intensityLabelStringProperty =
-      scene.sourceType === 'photons'
-        ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
-        : QuantumWaveInterferenceFluent.emissionRateStringProperty;
     const intensityLabel = new Text( intensityLabelStringProperty, {
       font: TITLE_FONT,
       maxWidth: 120

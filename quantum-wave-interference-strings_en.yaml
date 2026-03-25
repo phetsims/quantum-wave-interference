@@ -113,6 +113,14 @@ a11y:
     accessibleHelpText: Show or hide a stopwatch to time the experiment.
     accessibleContextResponseChecked: Stopwatch shown.
     accessibleContextResponseUnchecked: Stopwatch hidden.
+  intensitySlider:
+    accessibleHelpText: >-
+      Adjust how many { $sourceType ->
+        [photons] photons
+        [electrons] electrons
+        [neutrons] neutrons
+       *[heliumAtoms] helium atoms
+      } the source emits per unit time.
   brightnessSlider:
     accessibleName: Screen Brightness
     accessibleHelpText: Adjust the brightness of the detector screen display.

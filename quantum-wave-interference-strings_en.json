@@ -173,6 +173,11 @@
         "value": "Stopwatch hidden."
       }
     },
+    "intensitySlider": {
+      "accessibleHelpText": {
+        "value": "Adjust how many { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} the source emits per unit time."
+      }
+    },
     "brightnessSlider": {
       "accessibleName": {
         "value": "Screen Brightness"
