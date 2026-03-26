@@ -166,6 +166,7 @@ export default class SnapshotNode extends Node {
     canvasNode.clipArea = background.shape!;
 
     // Title text shown as a heading above the metadata on the right side
+    // TODO: Should these hardcoded colors ('black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const titleText = new Text( '', {
       font: TITLE_FONT,
       fill: 'black',
@@ -406,7 +407,7 @@ class SnapshotCanvasNode extends CanvasNode {
     const screenHalfWidth = this.sceneModel.screenHalfWidth;
     const slitWidthMeters = this.sceneModel.slitWidth * 1e-3;
     const d = snapshot.slitSeparation * 1e-3; // TODO: Use descriptive names (e.g. slitSeparationMeters) instead of single-letter physics variables, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    const L = snapshot.screenDistance;
+    const L = snapshot.screenDistance; // TODO: Use descriptive names (e.g. screenDistanceMeters) instead of single-letter physics variables, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const slitSetting = snapshot.slitSetting;
     const isSingleSlit =
       slitSetting === 'leftCovered' ||

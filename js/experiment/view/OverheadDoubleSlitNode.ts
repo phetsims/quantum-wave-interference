@@ -59,6 +59,7 @@ export default class OverheadDoubleSlitNode extends Node {
 
     // Reduce the visible rounded-rectangle/parallelogram background by 25% in both width and height
     // while preserving the existing slit-line coordinates and overall node positioning.
+    // TODO: Should these hardcoded colors ('black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     this.reducedBackgroundNode = createParallelogramNode(
       this.skewDx * SLIT_BACKGROUND_SCALE,
       this.skewDy * SLIT_BACKGROUND_SCALE,
@@ -83,6 +84,7 @@ export default class OverheadDoubleSlitNode extends Node {
     const MIN_VISUAL_SLIT_SPACING = 1 * OVERHEAD_SCALE;
     const MAX_VISUAL_SLIT_SPACING = 4 * OVERHEAD_SCALE;
 
+    // TODO: Should these hardcoded colors ('white') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const leftSlitLine = new Path( null, { stroke: 'white', lineWidth: 1 } );
     const rightSlitLine = new Path( null, { stroke: 'white', lineWidth: 1 } );
     this.parallelogramNode.addChild( leftSlitLine );

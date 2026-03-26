@@ -132,6 +132,7 @@ export default class GraphDescriber {
       scene.slitSettingProperty.lazyLink( fullUpdate );
       scene.slitSeparationProperty.lazyLink( fullUpdate );
       scene.screenDistanceProperty.lazyLink( fullUpdate );
+      // TODO: wavelengthProperty and velocityProperty also affect the theoretical pattern but are not listened to here, see https://github.com/phetsims/quantum-wave-interference/issues/9
       previousScene = scene;
       fullUpdate();
     } );

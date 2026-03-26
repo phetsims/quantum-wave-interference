@@ -120,6 +120,7 @@ export default class DetectorScreenNode extends Node {
     this.screenCanvasNode.clipArea = this.screenBackgroundRect.shape!;
     this.addChild( this.screenCanvasNode );
 
+    // TODO: Should these hardcoded colors ('white', 'black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     // Transient snapshot flash overlay. This is a visual effect only (not model state).
     const snapshotFlashRect = new Rectangle( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, {
       fill: 'white',
@@ -169,6 +170,7 @@ export default class DetectorScreenNode extends Node {
     // Hit count text - only visible in Hits mode, positioned above the screen on the right side
     // (per design: "Above the screen... on the right, there is a readout displaying the total number
     // of detected hits (only if 'Hits' selected)")
+    // TODO: Should these hardcoded colors ('black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const hitCountText = new Text( '', {
       font: new PhetFont( 12 ),
       fill: 'black',
@@ -198,6 +200,7 @@ export default class DetectorScreenNode extends Node {
     const scaleLabelString = `${toFixed( scalePhysicalWidthMM, getScaleLabelDecimalPlaces( scalePhysicalWidthMM ) )} mm`;
 
     // TODO: Factor out arrow + lines + text to a new file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+    // TODO: Should these hardcoded colors ('black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const scaleArrow = new ArrowNode( 0, SPAN_ARROW_Y, scaleArrowWidth, SPAN_ARROW_Y, {
       headHeight: 5,
       headWidth: 5,
@@ -226,6 +229,7 @@ export default class DetectorScreenNode extends Node {
     );
     this.addChild( scaleRightTick );
 
+    // TODO: Should these hardcoded colors ('black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const scaleLabelText = new Text( scaleLabelString, {
       font: new PhetFont( 12 ),
       fill: 'black',
@@ -302,7 +306,7 @@ export default class DetectorScreenNode extends Node {
       },
       baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
       content: new Path( cameraSolidShape, {
-        fill: 'black',
+        fill: 'black', // TODO: Should these hardcoded colors be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
         scale: 0.04
       } ),
       minWidth: DETECTOR_ACTION_BUTTON_MIN_WIDTH,
@@ -354,7 +358,7 @@ export default class DetectorScreenNode extends Node {
       baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
       xMargin: EYE_BUTTON_X_MARGIN,
       content: new Path( eyeSolidShape, {
-        fill: 'black',
+        fill: 'black', // TODO: Should these hardcoded colors be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
         scale: 0.04
       } ),
       minWidth: detectorActionButtonMinWidth,

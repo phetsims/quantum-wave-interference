@@ -78,6 +78,7 @@ export default class OverheadDetectorScreenNode extends Node {
     } );
     this.addChild( distanceSpanArrow );
 
+    // TODO: Should these hardcoded colors ('black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const distanceSpanLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
       stroke: 'black', lineWidth: 1
     } );

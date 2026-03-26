@@ -145,6 +145,8 @@ export default class OverheadEmitterNode extends Node {
     this.addChild( sourceLabel );
 
     // Particle mass label (hidden for photons)
+    // TODO: These hardcoded mass label strings must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+    // TODO: These physical constants (particle masses) should reference the named constants from SceneModel, not be duplicated here as magic numbers, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const massLabelMap: Record<string, string> = {
       electrons: 'm<sub>e</sub> = 9.1\u00D710<sup>\u221231</sup> kg',
       neutrons: 'm<sub>n</sub> = 1.7\u00D710<sup>\u221227</sup> kg',

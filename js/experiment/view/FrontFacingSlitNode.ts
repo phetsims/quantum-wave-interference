@@ -36,6 +36,7 @@ const SLIT_HEIGHT = VIEW_HEIGHT - 2 * SLIT_VERTICAL_PADDING; // Height of the wh
 const HORIZONTAL_PADDING = 10; // Left/right padding for mapping physical x positions into the view
 
 // Span arrow constants for slit separation (full-size span below the view)
+// TODO: Should these hardcoded colors ('black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
 const SPAN_ARROW_OPTIONS = {
   headHeight: 5,
   headWidth: 5,
@@ -113,6 +114,7 @@ export default class FrontFacingSlitNode extends Node {
     // Beam color overlay: shown when the source is emitting, tinting the black barrier
     // with the beam color to indicate light/particles hitting the slit barrier.
     // Clipped to the background rectangle shape.
+    // TODO: Should these hardcoded colors ('red', 'white') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const beamOverlay = new Rectangle(
       0,
       0,
@@ -137,6 +139,7 @@ export default class FrontFacingSlitNode extends Node {
     // light/particles passing through the openings.
     const slitY = ( VIEW_HEIGHT - SLIT_HEIGHT ) / 2;
 
+    // TODO: Should these hardcoded colors ('white') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const leftSlit = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: 'white'
     } );
@@ -182,6 +185,7 @@ export default class FrontFacingSlitNode extends Node {
 
     // --- Slit width span (above the left slit) ---
     const slitWidthArrow = new ArrowNode( 0, 0, 1, 0, SLIT_WIDTH_ARROW_OPTIONS );
+    // TODO: Should these hardcoded colors ('black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const slitWidthLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
       stroke: 'black',
       lineWidth: 1
@@ -215,6 +219,7 @@ export default class FrontFacingSlitNode extends Node {
 
     // --- Slit separation span (below the view) ---
     const separationArrow = new ArrowNode( 0, 0, 1, 0, SPAN_ARROW_OPTIONS );
+    // TODO: Should these hardcoded colors ('black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const separationLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
       stroke: 'black',
       lineWidth: 1

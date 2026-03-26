@@ -23,6 +23,7 @@ const SUPERSAMPLE = 2;
 const TEXTURE_WIDTH = SCREEN_WIDTH * SUPERSAMPLE;
 const TEXTURE_HEIGHT = SCREEN_HEIGHT * SUPERSAMPLE;
 
+// TODO: These brightness/alpha constants are duplicated in SnapshotNode.ts. Factor to shared constants, see https://github.com/phetsims/quantum-wave-interference/issues/9
 // Hit dot rendering parameters (in texture-space, i.e. scaled by SUPERSAMPLE).
 const HIT_CORE_RADIUS = 2.0 * SUPERSAMPLE;
 const HIT_GLOW_RADIUS = 3.4 * SUPERSAMPLE;
@@ -63,6 +64,7 @@ type SceneTextureCache = {
 
 const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
 
+// TODO: Duplicated code fragment - getHitRGB and getIntensityRGB have identical implementations. Factor to a shared function, see https://github.com/phetsims/quantum-wave-interference/issues/9
 const getHitRGB = ( sceneModel: SceneModel ): { r: number; g: number; b: number } => {
   if ( sceneModel.sourceType === 'photons' ) {
     const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );

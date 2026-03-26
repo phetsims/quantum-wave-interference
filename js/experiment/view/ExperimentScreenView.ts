@@ -1,6 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
+ * TODO: This file is large. Consider moving RulerNode creation and other sub-sections to separate files, see https://github.com/phetsims/quantum-wave-interference/issues/9
+ *
  * ExperimentScreenView is the top-level view for the Quantum Wave Interference simulation.
  * It contains three visual "rows": the top row with the emitter, double slit, and detector screen
  * in overhead perspective; the middle row with controls and front-facing views; and the bottom row
@@ -422,6 +424,7 @@ export default class ExperimentScreenView extends ScreenView {
         return toFixed( labelValue, labelDecimalPlaces );
       } );
 
+      // TODO: This 'mm' unit string must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
       const rulerNode = new RulerNode(
         ExperimentConstants.DETECTOR_SCREEN_WIDTH,
         RULER_HEIGHT,

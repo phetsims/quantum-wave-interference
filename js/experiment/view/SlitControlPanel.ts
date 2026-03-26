@@ -310,6 +310,7 @@ export default class SlitControlPanel extends Panel {
    * Creates major tick marks with μm labels for slit separation ranges that are in the micrometer scale.
    * The range is in mm but the labels display the values converted to μm for readability.
    */
+  // TODO: Avoid deprecated methods from Utils. (Utils.toFixed used in createMicrometerTicks and createNumericTicks), see https://github.com/phetsims/quantum-wave-interference/issues/9
   private static createMicrometerTicks( range: Range ): { value: number; label: Node }[] {
     // Use consistent decimal places across both tick labels so they visually match.
     // E.g., for range 0.5–1.0 μm, both ticks should show 1 decimal place: "0.5" and "1.0".
