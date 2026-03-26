@@ -239,51 +239,49 @@ export default class BandAnalysis {
       return '';
     }
 
-    const spatial = QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription;
-
     if ( usePeakLanguage ) {
       if ( isDoubleSlit ) {
         if ( isRulerVisible && analysis.averageSpacingMM > 0 ) {
-          return spatial.rulerPeaks.format( {
+          return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerPeaks.format( {
             numPeaks: analysis.bandCount,
             peakSpacing: toFixed( analysis.averageSpacingMM, 1 )
           } );
         }
         else {
-          return spatial.noRulerPeaks.format( { numPeaks: analysis.bandCount } );
+          return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerPeaks.format( { numPeaks: analysis.bandCount } );
         }
       }
       else {
         if ( isRulerVisible && analysis.centralWidthMM > 0 ) {
-          return spatial.rulerPeaksSingleSlit.format( {
+          return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerPeaksSingleSlit.format( {
             centralWidth: toFixed( analysis.centralWidthMM, 1 )
           } );
         }
         else {
-          return spatial.noRulerPeaksSingleSlitStringProperty.value;
+          return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerPeaksSingleSlitStringProperty.value;
         }
       }
     }
     else {
       if ( isDoubleSlit ) {
         if ( isRulerVisible && analysis.averageSpacingMM > 0 ) {
-          return spatial.rulerBands.format( {
+          return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerBands.format( {
             numBands: analysis.bandCount,
             bandSpacing: toFixed( analysis.averageSpacingMM, 1 )
           } );
         }
         else {
-          return spatial.noRulerBands.format( { numBands: analysis.bandCount } );
+          return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerBands.format( { numBands: analysis.bandCount } );
         }
       }
       else {
         if ( isRulerVisible && analysis.centralWidthMM > 0 ) {
-          return spatial.rulerBandsSingleSlit.format( {
+          return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerBandsSingleSlit.format( {
             centralWidth: toFixed( analysis.centralWidthMM, 1 )
           } );
         }
         else {
-          return spatial.noRulerBandsSingleSlitStringProperty.value;
+          return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerBandsSingleSlitStringProperty.value;
         }
       }
     }

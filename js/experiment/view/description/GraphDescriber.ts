@@ -36,14 +36,13 @@ export default class GraphDescriber {
     const update = () => {
       const scene = model.sceneProperty.value;
       const detectionMode = scene.detectionModeProperty.value;
-      const paragraphs = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph;
       const isRulerVisible = model.isRulerVisibleProperty.value;
       const slitSetting = scene.slitSettingProperty.value;
       const isDoubleSlit = slitSetting === 'bothOpen';
 
       if ( detectionMode === 'averageIntensity' ) {
         if ( !scene.isEmittingProperty.value ) {
-          descriptionProperty.value = paragraphs.intensityOffStringProperty.value;
+          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty.value;
           return;
         }
 
@@ -53,8 +52,8 @@ export default class GraphDescriber {
         );
 
         descriptionProperty.value = isDoubleSlit
-          ? paragraphs.intensity.format( { spatialDescription: spatialDescription } )
-          : paragraphs.intensitySingleSlit.format( { spatialDescription: spatialDescription } );
+          ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } )
+          : QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensitySingleSlit.format( { spatialDescription: spatialDescription } );
         return;
       }
 
@@ -75,33 +74,33 @@ export default class GraphDescriber {
 
       if ( isDoubleSlit ) {
         if ( newStage === 'none' ) {
-          descriptionProperty.value = paragraphs.hitsNoneStringProperty.value;
+          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsNoneStringProperty.value;
         }
         else if ( newStage === 'few' ) {
-          descriptionProperty.value = paragraphs.hitsFewStringProperty.value;
+          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsFewStringProperty.value;
         }
         else if ( newStage === 'emerging' ) {
-          descriptionProperty.value = paragraphs.hitsEmergingStringProperty.value;
+          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsEmergingStringProperty.value;
         }
         else if ( newStage === 'developing' ) {
-          descriptionProperty.value = paragraphs.hitsDeveloping.format( { spatialDescription: spatialDescription } );
+          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsDeveloping.format( { spatialDescription: spatialDescription } );
         }
         else {
-          descriptionProperty.value = paragraphs.hitsClear.format( { spatialDescription: spatialDescription } );
+          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsClear.format( { spatialDescription: spatialDescription } );
         }
       }
       else {
         if ( newStage === 'none' ) {
-          descriptionProperty.value = paragraphs.hitsNoneStringProperty.value;
+          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsNoneStringProperty.value;
         }
         else if ( newStage === 'few' ) {
-          descriptionProperty.value = paragraphs.hitsFewStringProperty.value;
+          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsFewStringProperty.value;
         }
         else if ( newStage === 'emerging' ) {
-          descriptionProperty.value = paragraphs.hitsSingleSlitEmergingStringProperty.value;
+          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value;
         }
         else {
-          descriptionProperty.value = paragraphs.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } );
+          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } );
         }
       }
     };
