@@ -89,6 +89,9 @@ export default class FrontFacingSlitNode extends Node {
 
     super( options );
 
+    const barrierNode = new Node();
+    this.addChild( barrierNode );
+
     // Black rounded rectangle background
     const backgroundRect = new Rectangle(
       0,
@@ -102,7 +105,10 @@ export default class FrontFacingSlitNode extends Node {
         stroke: null
       }
     );
-    this.addChild( backgroundRect );
+    barrierNode.addChild( backgroundRect );
+
+    const behindGlowSlitsLayer = new Node();
+    barrierNode.addChild( behindGlowSlitsLayer );
 
     // Beam color overlay: shown when the source is emitting, tinting the black barrier
     // with the beam color to indicate light/particles hitting the slit barrier.
@@ -119,7 +125,10 @@ export default class FrontFacingSlitNode extends Node {
         visible: false
       }
     );
-    this.addChild( beamOverlay );
+    barrierNode.addChild( beamOverlay );
+
+    const frontSlitsLayer = new Node();
+    barrierNode.addChild( frontSlitsLayer );
 
     const particleBeamColorProperty = QuantumWaveInterferenceColors.particleBeamColorProperty;
 
@@ -131,12 +140,12 @@ export default class FrontFacingSlitNode extends Node {
     const leftSlit = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: 'white'
     } );
-    this.addChild( leftSlit );
+    frontSlitsLayer.addChild( leftSlit );
 
     const rightSlit = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: 'white'
     } );
-    this.addChild( rightSlit );
+    frontSlitsLayer.addChild( rightSlit );
 
     // Update beam overlay visibility, color, and slit glow based on emitter state
     const updateBeamOverlay = () => {
@@ -171,19 +180,6 @@ export default class FrontFacingSlitNode extends Node {
     sceneModel.isEmittingProperty.link( updateBeamOverlay );
     sceneModel.intensityProperty.link( updateBeamOverlay );
     sceneModel.wavelengthProperty.link( updateBeamOverlay );
-
-    // Cover rectangles for when a slit is covered
-    const leftCover = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
-      fill: QuantumWaveInterferenceColors.slitCoverFillProperty,
-      visible: false
-    } );
-    this.addChild( leftCover );
-
-    const rightCover = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
-      fill: QuantumWaveInterferenceColors.slitCoverFillProperty,
-      visible: false
-    } );
-    this.addChild( rightCover );
 
     // --- Slit width span (above the left slit) ---
     const slitWidthArrow = new ArrowNode( 0, 0, 1, 0, SLIT_WIDTH_ARROW_OPTIONS );
@@ -273,10 +269,6 @@ export default class FrontFacingSlitNode extends Node {
         SLIT_HEIGHT
       );
 
-      // Position covers to match slits
-      leftCover.setRect( leftSlit.rectX, slitY, leftSlit.rectWidth, SLIT_HEIGHT );
-      rightCover.setRect( rightSlit.rectX, slitY, rightSlit.rectWidth, SLIT_HEIGHT );
-
       // Update slit width span (above the left slit).
       // Per the design mockup, tick marks flank the slit edges and the label is to the right.
       const slitLeft = leftSlit.left;
@@ -359,12 +351,45 @@ export default class FrontFacingSlitNode extends Node {
     } );
     this.addChild( rightDetector );
 
-    // Update cover and detector visibility based on slit setting
+    const updateCoveredSlitAppearance = () => {
+      const slitSetting = sceneModel.slitSettingProperty.value;
+      const isEmitting = sceneModel.isEmittingProperty.value;
+      const leftCovered = slitSetting === 'leftCovered';
+      const rightCovered = slitSetting === 'rightCovered';
+
+      const moveSlitToLayer = ( slit: Rectangle, targetLayer: Node ): void => {
+        if ( behindGlowSlitsLayer.hasChild( slit ) ) {
+          behindGlowSlitsLayer.removeChild( slit );
+        }
+        if ( frontSlitsLayer.hasChild( slit ) ) {
+          frontSlitsLayer.removeChild( slit );
+        }
+        targetLayer.addChild( slit );
+      };
+
+      leftSlit.fill = leftCovered ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
+      rightSlit.fill = rightCovered ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
+
+      if ( leftCovered && isEmitting ) {
+        moveSlitToLayer( leftSlit, behindGlowSlitsLayer );
+      }
+      else {
+        moveSlitToLayer( leftSlit, frontSlitsLayer );
+      }
+
+      if ( rightCovered && isEmitting ) {
+        moveSlitToLayer( rightSlit, behindGlowSlitsLayer );
+      }
+      else {
+        moveSlitToLayer( rightSlit, frontSlitsLayer );
+      }
+    };
+
+    // Update covered-slit appearance and detector visibility based on slit setting
     Multilink.multilink(
-      [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty ],
+      [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty, sceneModel.isEmittingProperty ],
       slitSetting => {
-        leftCover.visible = slitSetting === 'leftCovered';
-        rightCover.visible = slitSetting === 'rightCovered';
+        updateCoveredSlitAppearance();
         leftDetector.visible = slitSetting === 'leftDetector';
         rightDetector.visible = slitSetting === 'rightDetector';
 

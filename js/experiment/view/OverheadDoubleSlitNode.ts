@@ -88,19 +88,9 @@ export default class OverheadDoubleSlitNode extends Node {
     this.parallelogramNode.addChild( leftSlitLine );
     this.parallelogramNode.addChild( rightSlitLine );
 
-    // Cover/detector overlays
+    // Detector overlays
     const slitOverlayHeight = slitLineLength + 4 * OVERHEAD_SCALE;
     const slitOverlayWidth = 5 * OVERHEAD_SCALE;
-
-    const leftSlitCover = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
-      fill: QuantumWaveInterferenceColors.slitCoverFillProperty, visible: false
-    } );
-    this.parallelogramNode.addChild( leftSlitCover );
-
-    const rightSlitCover = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
-      fill: QuantumWaveInterferenceColors.slitCoverFillProperty, visible: false
-    } );
-    this.parallelogramNode.addChild( rightSlitCover );
 
     const leftSlitDetectorOverlay = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
       fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.8 ), visible: false
@@ -112,7 +102,7 @@ export default class OverheadDoubleSlitNode extends Node {
     } );
     this.parallelogramNode.addChild( rightSlitDetectorOverlay );
 
-    // Updates slit line positions, covers, and detector overlays
+    // Updates slit line positions and detector overlays
     const updateOverheadSlits = () => {
       const scene = model.sceneProperty.value;
       const separation = scene.slitSeparationProperty.value;
@@ -132,19 +122,16 @@ export default class OverheadDoubleSlitNode extends Node {
       rightSlitLine.shape = Shape.lineSegment( rightX, rightY - slitLineLength / 2,
         rightX, rightY + slitLineLength / 2 );
 
-      leftSlitCover.x = leftX - slitOverlayWidth / 2;
-      leftSlitCover.y = leftY - slitOverlayHeight / 2;
-      rightSlitCover.x = rightX - slitOverlayWidth / 2;
-      rightSlitCover.y = rightY - slitOverlayHeight / 2;
-
       leftSlitDetectorOverlay.x = leftX - slitOverlayWidth / 2;
       leftSlitDetectorOverlay.y = leftY - slitOverlayHeight / 2;
       rightSlitDetectorOverlay.x = rightX - slitOverlayWidth / 2;
       rightSlitDetectorOverlay.y = rightY - slitOverlayHeight / 2;
 
       const slitSetting = scene.slitSettingProperty.value;
-      leftSlitCover.visible = ( slitSetting === 'leftCovered' );
-      rightSlitCover.visible = ( slitSetting === 'rightCovered' );
+      leftSlitLine.visible = true;
+      rightSlitLine.visible = true;
+      leftSlitLine.stroke = slitSetting === 'leftCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
+      rightSlitLine.stroke = slitSetting === 'rightCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
       leftSlitDetectorOverlay.visible = ( slitSetting === 'leftDetector' );
       rightSlitDetectorOverlay.visible = ( slitSetting === 'rightDetector' );
     };

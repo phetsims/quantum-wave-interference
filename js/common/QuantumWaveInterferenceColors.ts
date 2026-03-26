@@ -41,7 +41,7 @@ export default class QuantumWaveInterferenceColors {
   // Slit cover fill color, shared by OverheadDoubleSlitNode and FrontFacingSlitNode
   public static readonly slitCoverFillProperty = new ProfileColorProperty(
     quantumWaveInterference, 'slitCoverFill', {
-      default: '#555'
+      default: '#3f3f3f'
     } );
 
   // Detector overlay colors, shared by OverheadDoubleSlitNode, FrontFacingSlitNode,
