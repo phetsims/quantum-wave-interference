@@ -125,7 +125,7 @@
         "value": "Checkboxes show or hide a ruler and stopwatch. Play and pause controls and a Reset All button are available."
       },
       "currentDetails": {
-        "value": "Source is { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n}. Slit configuration is { $slitSetting ->\n  [bothOpen] both open\n  [leftCovered] left covered\n  [rightCovered] right covered\n  [leftDetector] left detector\n *[rightDetector] right detector\n}. Detection mode is { $detectionMode ->\n  [averageIntensity] intensity\n *[hits] hits\n}. { $isEmitting ->\n  [true] Source is on, { $totalHits } hits accumulated.\n *[false] Source is off.\n}"
+        "value": "Source is { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n}. Slit configuration is { $slitSetting ->\n  [bothOpen] both open\n  [leftCovered] left covered\n  [rightCovered] right covered\n  [leftDetector] left detector\n *[rightDetector] right detector\n}. Detection mode is { $detectionMode ->\n  [averageIntensity] intensity\n *[hits] hits\n}. { $isEmitting ->\n  [true] { $detectionMode ->\n    [hits] Source is on, { $totalHits } hits accumulated.\n   *[averageIntensity] Source is on.\n  }\n *[false] Source is off.\n}"
       },
       "interactionHint": {
         "value": "{ $isEmitting ->\n  [true] Change particle type, adjust slit settings, or switch detection mode to explore the experiment.\n *[false] Turn on the { $sourceType ->\n    [photons] photon source\n    [electrons] electron source\n    [neutrons] neutron source\n   *[heliumAtoms] helium atom source\n  } to start the experiment.\n}"

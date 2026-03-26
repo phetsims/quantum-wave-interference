@@ -82,7 +82,10 @@ a11y:
        *[hits] hits
       }.
       { $isEmitting ->
-        [true] Source is on, { $totalHits } hits accumulated.
+        [true] { $detectionMode ->
+          [hits] Source is on, { $totalHits } hits accumulated.
+         *[averageIntensity] Source is on.
+        }
        *[false] Source is off.
       }
     interactionHint: >-
