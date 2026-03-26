@@ -105,7 +105,15 @@ addToMapIfDefined( 'a11y_zoomOutButton_accessibleName', 'a11y.zoomOutButton.acce
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph', 'a11y.graphAccordionBox.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseExpanded', 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph', 'a11y.detectorScreen.accessibleParagraphStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_averageIntensity', 'a11y.detectorScreen.accessibleParagraph.averageIntensityStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_hitsNone', 'a11y.detectorScreen.accessibleParagraph.hitsNoneStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_hitsFew', 'a11y.detectorScreen.accessibleParagraph.hitsFewStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_hitsEmerging', 'a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_hitsDeveloping', 'a11y.detectorScreen.accessibleParagraph.hitsDevelopingStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_hitsClear', 'a11y.detectorScreen.accessibleParagraph.hitsClearStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_hitsSingleSlitEmerging', 'a11y.detectorScreen.accessibleParagraph.hitsSingleSlitEmergingStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_hitsSingleSlitClear', 'a11y.detectorScreen.accessibleParagraph.hitsSingleSlitClearStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_bandDescriptionPattern', 'a11y.detectorScreen.bandDescriptionPatternStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleName', 'a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleHelpText', 'a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleContextResponse', 'a11y.detectorScreenButtons.clearScreen.accessibleContextResponseStringProperty' );
@@ -264,7 +272,17 @@ const QuantumWaveInterferenceFluent = {
       accessibleContextResponseCollapsedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' ) )
     },
     detectorScreen: {
-      accessibleParagraph: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'>, isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, totalHits: 0 | number | 'other' | TReadOnlyProperty<0 | number | 'other'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraphStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]},{"name":"isEmitting","variants":["true","false"]},{"name":"totalHits","variants":[0,{"type":"number","value":"other"}]}] )
+      accessibleParagraph: {
+        averageIntensity: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_averageIntensity', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.averageIntensityStringProperty' ), [{"name":"isEmitting","variants":["true","false"]}] ),
+        hitsNoneStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_hitsNone', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.hitsNoneStringProperty' ) ),
+        hitsFew: new FluentPattern<{ totalHits: 1 | number | 'other' | TReadOnlyProperty<1 | number | 'other'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_hitsFew', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.hitsFewStringProperty' ), [{"name":"totalHits","variants":[1,{"type":"number","value":"other"}]}] ),
+        hitsEmerging: new FluentPattern<{ totalHits: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_hitsEmerging', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty' ), [{"name":"totalHits"}] ),
+        hitsDeveloping: new FluentPattern<{ bandDescription: FluentVariable, totalHits: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_hitsDeveloping', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.hitsDevelopingStringProperty' ), [{"name":"bandDescription"},{"name":"totalHits"}] ),
+        hitsClear: new FluentPattern<{ bandDescription: FluentVariable, totalHits: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_hitsClear', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.hitsClearStringProperty' ), [{"name":"bandDescription"},{"name":"totalHits"}] ),
+        hitsSingleSlitEmerging: new FluentPattern<{ totalHits: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_hitsSingleSlitEmerging', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.hitsSingleSlitEmergingStringProperty' ), [{"name":"totalHits"}] ),
+        hitsSingleSlitClear: new FluentPattern<{ bandDescription: FluentVariable, totalHits: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_hitsSingleSlitClear', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.hitsSingleSlitClearStringProperty' ), [{"name":"bandDescription"},{"name":"totalHits"}] )
+      },
+      bandDescriptionPattern: new FluentPattern<{ numBands: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_bandDescriptionPattern', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.bandDescriptionPatternStringProperty' ), [{"name":"numBands"}] )
     },
     detectorScreenButtons: {
       clearScreen: {

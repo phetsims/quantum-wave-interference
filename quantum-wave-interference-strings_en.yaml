@@ -194,17 +194,38 @@ a11y:
     accessibleContextResponseExpanded: Graph expanded.
     accessibleContextResponseCollapsed: Graph collapsed.
   detectorScreen:
-    accessibleParagraph: >-
-      { $detectionMode ->
-        [averageIntensity] { $isEmitting ->
+    accessibleParagraph:
+      averageIntensity: >-
+        { $isEmitting ->
           [true] Detector screen displays a continuous intensity pattern.
          *[false] Detector screen is blank.
         }
-       *[hits] { $totalHits ->
-          [0] Detector screen is blank with no hits recorded.
-         *[other] Detector screen shows { $totalHits } accumulated hits.
-        }
-      }
+      hitsNone: Detector screen is blank with no hits recorded.
+      hitsFew: >-
+        Detector screen shows { $totalHits } individual
+        { $totalHits ->
+          [1] detection
+         *[other] detections
+        } scattered across the screen. Positions appear random; no clear pattern is visible yet.
+      hitsEmerging: >-
+        Detector screen shows { $totalHits } accumulated hits. Detections are beginning to cluster
+        into vertical banded regions, with sparser areas between them.
+      hitsDeveloping: >-
+        Detector screen shows { $totalHits } accumulated hits forming a banded pattern.
+        { $bandDescription }
+      hitsClear: >-
+        Detector screen shows { $totalHits } accumulated hits. A clear interference pattern of
+        alternating bright and dark vertical bands is visible. { $bandDescription }
+        The pattern mirrors the continuous intensity distribution.
+      hitsSingleSlitEmerging: >-
+        Detector screen shows { $totalHits } accumulated hits. Detections are concentrating
+        in a broad central region, with fewer hits toward the edges.
+      hitsSingleSlitClear: >-
+        Detector screen shows { $totalHits } accumulated hits forming a broad central band
+        that fades toward the edges. { $bandDescription }
+    bandDescriptionPattern: >-
+      { $numBands } bright bands are visible, centered on the screen and spread symmetrically
+      to either side.
   detectorScreenButtons:
     clearScreen:
       accessibleName: Clear Screen

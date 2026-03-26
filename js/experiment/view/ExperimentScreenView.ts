@@ -37,6 +37,7 @@ import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
+import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
 import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
@@ -50,7 +51,6 @@ import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
 import SourceControlPanel from './SourceControlPanel.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
-import { type DetectionMode } from '../model/DetectionMode.js';
 import SceneModel from '../model/SceneModel.js';
 import { type SlitSetting } from '../model/SlitSetting.js';
 import { type SourceType } from '../model/SourceType.js';
@@ -545,28 +545,11 @@ export default class ExperimentScreenView extends ScreenView {
     } );
 
     // Accessible paragraph describing the current state of the detector screen for screen
-    // reader users. This is important non-interactive visual content: the screen shows the
-    // interference pattern (intensity mode) or accumulated hits, which is the primary
-    // experimental output.
-    const detectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>(
-      model.sceneProperty, { derive: 'detectionModeProperty' }
-    );
-    const isEmittingStringProperty = new DerivedProperty(
-      [ new DynamicProperty<boolean, boolean, SceneModel>(
-        model.sceneProperty, { derive: 'isEmittingProperty' }
-      ) ],
-      ( isEmitting: boolean ) => isEmitting ? 'true' as const : 'false' as const
-    );
-    const totalHitsProperty = new DynamicProperty<number, number, SceneModel>(
-      model.sceneProperty, { derive: 'totalHitsProperty' }
-    );
-
+    // reader users. The description scales with hit count: few hits describe scattered
+    // detections, many hits describe the emerging/established interference pattern.
+    const detectorScreenDescriber = new DetectorScreenDescriber( model );
     const detectorScreenDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.createProperty( {
-        detectionMode: detectionModeProperty,
-        isEmitting: isEmittingStringProperty,
-        totalHits: totalHitsProperty
-      } )
+      accessibleParagraph: detectorScreenDescriber.descriptionProperty
     } );
     this.addChild( detectorScreenDescriptionNode );
 

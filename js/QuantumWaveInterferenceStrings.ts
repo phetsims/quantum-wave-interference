@@ -149,7 +149,17 @@ type StringsType = {
       'accessibleContextResponseCollapsedStringProperty': LocalizedStringProperty;
     };
     'detectorScreen': {
-      'accessibleParagraphStringProperty': LocalizedStringProperty;
+      'accessibleParagraph': {
+        'averageIntensityStringProperty': LocalizedStringProperty;
+        'hitsNoneStringProperty': LocalizedStringProperty;
+        'hitsFewStringProperty': LocalizedStringProperty;
+        'hitsEmergingStringProperty': LocalizedStringProperty;
+        'hitsDevelopingStringProperty': LocalizedStringProperty;
+        'hitsClearStringProperty': LocalizedStringProperty;
+        'hitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
+        'hitsSingleSlitClearStringProperty': LocalizedStringProperty;
+      };
+      'bandDescriptionPatternStringProperty': LocalizedStringProperty;
     };
     'detectorScreenButtons': {
       'clearScreen': {

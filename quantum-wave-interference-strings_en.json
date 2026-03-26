@@ -297,7 +297,33 @@
     },
     "detectorScreen": {
       "accessibleParagraph": {
-        "value": "{ $detectionMode ->\n  [averageIntensity] { $isEmitting ->\n    [true] Detector screen displays a continuous intensity pattern.\n   *[false] Detector screen is blank.\n  }\n *[hits] { $totalHits ->\n    [0] Detector screen is blank with no hits recorded.\n   *[other] Detector screen shows { $totalHits } accumulated hits.\n  }\n}"
+        "averageIntensity": {
+          "value": "{ $isEmitting ->\n  [true] Detector screen displays a continuous intensity pattern.\n *[false] Detector screen is blank.\n}"
+        },
+        "hitsNone": {
+          "value": "Detector screen is blank with no hits recorded."
+        },
+        "hitsFew": {
+          "value": "Detector screen shows { $totalHits } individual { $totalHits ->\n  [1] detection\n *[other] detections\n} scattered across the screen. Positions appear random; no clear pattern is visible yet."
+        },
+        "hitsEmerging": {
+          "value": "Detector screen shows { $totalHits } accumulated hits. Detections are beginning to cluster into vertical banded regions, with sparser areas between them."
+        },
+        "hitsDeveloping": {
+          "value": "Detector screen shows { $totalHits } accumulated hits forming a banded pattern. { $bandDescription }"
+        },
+        "hitsClear": {
+          "value": "Detector screen shows { $totalHits } accumulated hits. A clear interference pattern of alternating bright and dark vertical bands is visible. { $bandDescription } The pattern mirrors the continuous intensity distribution."
+        },
+        "hitsSingleSlitEmerging": {
+          "value": "Detector screen shows { $totalHits } accumulated hits. Detections are concentrating in a broad central region, with fewer hits toward the edges."
+        },
+        "hitsSingleSlitClear": {
+          "value": "Detector screen shows { $totalHits } accumulated hits forming a broad central band that fades toward the edges. { $bandDescription }"
+        }
+      },
+      "bandDescriptionPattern": {
+        "value": "{ $numBands } bright bands are visible, centered on the screen and spread symmetrically to either side."
       }
     },
     "detectorScreenButtons": {
