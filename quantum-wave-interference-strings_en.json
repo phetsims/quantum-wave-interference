@@ -263,6 +263,12 @@
         "value": "{ $slitSetting ->\n  [bothOpen] Both slits now open.\n  [leftCovered] Left slit now covered.\n  [rightCovered] Right slit now covered.\n  [leftDetector] Left slit now monitored by a detector.\n *[rightDetector] Right slit now monitored by a detector.\n}"
       }
     },
+    "slitWidthMillimetersPattern": {
+      "value": "{ $value } millimeters"
+    },
+    "slitWidthMicrometersPattern": {
+      "value": "{ $value } micrometers"
+    },
     "slitView": {
       "accessibleParagraph": {
         "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits are open.\n  [leftCovered] Left slit is covered.\n  [rightCovered] Right slit is covered.\n  [leftDetector] Left slit is monitored by a which-path detector.\n *[rightDetector] Right slit is monitored by a which-path detector.\n}"

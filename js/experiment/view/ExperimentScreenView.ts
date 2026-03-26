@@ -583,12 +583,16 @@ export default class ExperimentScreenView extends ScreenView {
       ( scene: SceneModel ) => {
         const slitWidthMM = scene.slitWidth;
         if ( slitWidthMM >= 0.01 ) {
-          return `${toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )} mm`;
+          return QuantumWaveInterferenceFluent.a11y.slitWidthMillimetersPattern.format( {
+            value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )
+          } );
         }
         else {
           const slitWidthUM = slitWidthMM * 1000;
           const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2;
-          return `${toFixed( slitWidthUM, umDecimalPlaces )} \u00B5m`;
+          return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
+            value: toFixed( slitWidthUM, umDecimalPlaces )
+          } );
         }
       }
     );

@@ -132,6 +132,8 @@ type StringsType = {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleContextResponseStringProperty': LocalizedStringProperty;
     };
+    'slitWidthMillimetersPatternStringProperty': LocalizedStringProperty;
+    'slitWidthMicrometersPatternStringProperty': LocalizedStringProperty;
     'slitView': {
       'accessibleParagraphStringProperty': LocalizedStringProperty;
     };

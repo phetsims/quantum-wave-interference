@@ -169,6 +169,8 @@ a11y:
         [leftDetector] Left slit now monitored by a detector.
        *[rightDetector] Right slit now monitored by a detector.
       }
+  slitWidthMillimetersPattern: '{ $value } millimeters'
+  slitWidthMicrometersPattern: '{ $value } micrometers'
   slitView:
     accessibleParagraph: >-
       Magnified view of the barrier with two vertical slits, each { $slitWidth } wide.
