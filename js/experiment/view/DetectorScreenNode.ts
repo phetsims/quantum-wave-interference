@@ -10,7 +10,6 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Property from '../../../../axon/js/Property.js';
-import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -24,7 +23,6 @@ import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
-import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -38,9 +36,11 @@ import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import snapshotCaptured_mp3 from '../../../sounds/snapshotCaptured_mp3.js';
-import ExperimentConstants from '../ExperimentConstants.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
+import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.
@@ -244,7 +244,7 @@ export default class DetectorScreenNode extends Node {
         hitCountText.bottom = SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2 - 2;
         hitCountText.visible = true;
       }
- else {
+      else {
         hitCountText.visible = false;
       }
       this.screenCanvasNode.invalidatePaint();
@@ -389,8 +389,8 @@ export default class DetectorScreenNode extends Node {
       for ( let i = 0; i < SceneModel.MAX_SNAPSHOTS; i++ ) {
         indicatorDots[ i ].fill =
           i < count
-            ? QuantumWaveInterferenceColors.indicatorDotActiveFillProperty
-            : QuantumWaveInterferenceColors.indicatorDotInactiveFillProperty;
+          ? QuantumWaveInterferenceColors.indicatorDotActiveFillProperty
+          : QuantumWaveInterferenceColors.indicatorDotInactiveFillProperty;
       }
     } );
 

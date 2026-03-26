@@ -27,8 +27,8 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AccordionBox from '../../../../sun/js/AccordionBox.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 
 // Chart dimensions — width matches the front-facing detector screen.
@@ -264,7 +264,7 @@ export default class GraphAccordionBox extends Node {
     if ( sceneModel.sourceType === 'photons' ) {
       sceneModel.wavelengthProperty.link( () => updateGraph() );
     }
- else {
+    else {
       sceneModel.velocityProperty.link( () => updateGraph() );
     }
   }
@@ -325,7 +325,7 @@ export default class GraphAccordionBox extends Node {
       dataPath.fill = color.withAlpha( 0.3 );
       dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
     }
- else {
+    else {
       dataPath.fill = 'rgba(100,100,180,0.3)';
       dataPath.stroke = 'rgba(50,50,130,0.8)';
     }
@@ -393,7 +393,7 @@ export default class GraphAccordionBox extends Node {
       dataPath.fill = color.withAlpha( 0.7 );
       dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
     }
- else {
+    else {
       dataPath.fill = QuantumWaveInterferenceColors.particleHistogramFillProperty;
       dataPath.stroke = QuantumWaveInterferenceColors.particleHistogramStrokeProperty;
     }

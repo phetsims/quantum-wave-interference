@@ -20,8 +20,8 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import WavelengthNumberControl from '../../../../scenery-phet/js/WavelengthNumberControl.js';
+import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -130,8 +130,8 @@ export default class SourceControlPanel extends Panel {
     // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
     const intensityLabelStringProperty =
       scene.sourceType === 'photons'
-        ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
-        : QuantumWaveInterferenceFluent.emissionRateStringProperty;
+      ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
+      : QuantumWaveInterferenceFluent.emissionRateStringProperty;
 
     // Intensity slider (shared by all source types)
     const intensitySlider = new HSlider( scene.intensityProperty, scene.intensityProperty.range, {

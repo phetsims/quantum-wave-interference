@@ -160,20 +160,20 @@ export default class FrontFacingSlitNode extends Node {
       beamOverlay.visible = true;
       const beamColor =
         sceneModel.sourceType === 'photons'
-          ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
-          : particleBeamColorProperty.value;
+        ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
+        : particleBeamColorProperty.value;
 
       // Keep the exact same appearance at the default intensity (0.5). Above default,
       // increase alpha more aggressively so the displayed color is less dark and closer
       // to the true source hue instead of channel-clipped brightening.
       const alpha =
         intensity <= DEFAULT_SOURCE_INTENSITY
-          ? MIN_BEAM_OVERLAY_ALPHA +
-            ( DEFAULT_BEAM_OVERLAY_ALPHA - MIN_BEAM_OVERLAY_ALPHA ) *
-              ( intensity / DEFAULT_SOURCE_INTENSITY )
-          : DEFAULT_BEAM_OVERLAY_ALPHA +
-            ( MAX_BEAM_OVERLAY_ALPHA - DEFAULT_BEAM_OVERLAY_ALPHA ) *
-              ( ( intensity - DEFAULT_SOURCE_INTENSITY ) / ( 1 - DEFAULT_SOURCE_INTENSITY ) );
+        ? MIN_BEAM_OVERLAY_ALPHA +
+          ( DEFAULT_BEAM_OVERLAY_ALPHA - MIN_BEAM_OVERLAY_ALPHA ) *
+          ( intensity / DEFAULT_SOURCE_INTENSITY )
+        : DEFAULT_BEAM_OVERLAY_ALPHA +
+          ( MAX_BEAM_OVERLAY_ALPHA - DEFAULT_BEAM_OVERLAY_ALPHA ) *
+          ( ( intensity - DEFAULT_SOURCE_INTENSITY ) / ( 1 - DEFAULT_SOURCE_INTENSITY ) );
       beamOverlay.fill = beamColor.withAlpha( alpha );
     };
 
@@ -199,7 +199,7 @@ export default class FrontFacingSlitNode extends Node {
     if ( slitWidthMM >= 0.01 ) {
       slitWidthLabel = `${toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )} mm`;
     }
- else {
+    else {
       const slitWidthUM = slitWidthMM * 1000;
       const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2;
       slitWidthLabel = `${toFixed( slitWidthUM, umDecimalPlaces )} μm`;
@@ -243,8 +243,8 @@ export default class FrontFacingSlitNode extends Node {
       sceneModel.sourceType === 'photons' ? 2 * HORIZONTAL_PADDING : HORIZONTAL_PADDING;
     const scaleDenominatorMM =
       sceneModel.sourceType === 'photons'
-        ? sceneModel.slitSeparationRange.max
-        : sceneModel.slitSeparationRange.max + sceneModel.slitWidth;
+      ? sceneModel.slitSeparationRange.max
+      : sceneModel.slitSeparationRange.max + sceneModel.slitWidth;
     const mmToViewX = ( VIEW_WIDTH - 2 * maxSeparationPadding ) / scaleDenominatorMM;
     const slitVisualWidth = sceneModel.slitWidth * mmToViewX;
 
@@ -279,7 +279,7 @@ export default class FrontFacingSlitNode extends Node {
         slitWidthArrow.setTailAndTip( slitLeft, 0, slitRight, 0 );
         slitWidthArrow.visible = true;
       }
- else {
+      else {
         // Arrow too small to render nicely, hide it but keep ticks and label
         slitWidthArrow.visible = false;
       }
@@ -315,7 +315,7 @@ export default class FrontFacingSlitNode extends Node {
         );
         separationText.string = `${toFixed( valueUM, decimalPlaces )} μm`;
       }
- else {
+      else {
         const decimalPlaces = getRangeDecimalPlaces(
           slitSeparationRange.min,
           slitSeparationRange.max

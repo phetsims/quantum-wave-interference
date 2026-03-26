@@ -53,8 +53,8 @@ export default class DetectorScreenDescriber {
         );
 
         descriptionProperty.value = isDoubleSlit
-          ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } )
-          : QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( { spatialDescription: spatialDescription } );
+                                    ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } )
+                                    : QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( { spatialDescription: spatialDescription } );
         return;
       }
 

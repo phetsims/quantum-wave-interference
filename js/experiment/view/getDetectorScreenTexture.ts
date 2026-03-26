@@ -68,7 +68,7 @@ const getHitRGB = ( sceneModel: SceneModel ): { r: number; g: number; b: number 
     const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
     return { r: color.red, g: color.green, b: color.blue };
   }
- else {
+  else {
     return { r: 255, g: 255, b: 255 };
   }
 };
@@ -78,7 +78,7 @@ const getIntensityRGB = ( sceneModel: SceneModel ): { r: number; g: number; b: n
     const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
     return { r: color.red, g: color.green, b: color.blue };
   }
- else {
+  else {
     return { r: 255, g: 255, b: 255 };
   }
 };

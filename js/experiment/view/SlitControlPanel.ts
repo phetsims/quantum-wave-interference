@@ -26,8 +26,8 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import { type SlitSetting } from '../model/SlitSetting.js';
 
@@ -141,7 +141,7 @@ export default class SlitControlPanel extends Panel {
       };
       slitSeparationTicks = SlitControlPanel.createMicrometerTicks( slitSeparationRange );
     }
- else {
+    else {
       const slitSeparationDecimalPlaces = SlitControlPanel.getDecimalPlaces( slitSeparationRange );
       slitSeparationDelta = SlitControlPanel.getDelta( slitSeparationRange );
       slitSeparationNumberDisplayOptions = {

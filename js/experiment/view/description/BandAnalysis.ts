@@ -9,8 +9,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import Utils from '../../../../../dot/js/Utils.js';
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
+import Utils from '../../../../../dot/js/Utils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../../model/SceneModel.js';
 

@@ -13,34 +13,37 @@ import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import Vector2 from '../../../../dot/js/Vector2.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
+import { toFixed } from '../../../../dot/js/util/toFixed.js';
+import Vector2 from '../../../../dot/js/Vector2.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import AccessibleDraggableOptions from '../../../../scenery-phet/js/accessibility/grab-drag/AccessibleDraggableOptions.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import RulerNode from '../../../../scenery-phet/js/RulerNode.js';
-import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboardDragListener.js';
-import InteractiveHighlightingNode from '../../../../scenery/js/accessibility/voicing/nodes/InteractiveHighlightingNode.js';
 import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
+import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboardDragListener.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import InteractiveHighlightingNode from '../../../../scenery/js/accessibility/voicing/nodes/InteractiveHighlightingNode.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
+import SceneModel from '../model/SceneModel.js';
+import { type SlitSetting } from '../model/SlitSetting.js';
+import { type SourceType } from '../model/SourceType.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
 import GraphDescriber from './description/GraphDescriber.js';
-import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
+import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
 import OverheadBeamNode from './OverheadBeamNode.js';
@@ -52,9 +55,6 @@ import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
 import SourceControlPanel from './SourceControlPanel.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
-import SceneModel from '../model/SceneModel.js';
-import { type SlitSetting } from '../model/SlitSetting.js';
-import { type SourceType } from '../model/SourceType.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -137,8 +137,8 @@ export default class ExperimentScreenView extends ScreenView {
     const alignOverheadElements = () => {
       const activeEmitter =
         model.sceneProperty.value.sourceType === 'photons'
-          ? overheadEmitterNode.laserPointerNode
-          : overheadEmitterNode.particleEmitterNode;
+        ? overheadEmitterNode.laserPointerNode
+        : overheadEmitterNode.particleEmitterNode;
 
       // Keep the slit centered on the active emitter's beam centerline.
       overheadDoubleSlitNode.parallelogramNode.centerY = activeEmitter.centerY;
@@ -326,13 +326,13 @@ export default class ExperimentScreenView extends ScreenView {
       boxWidth: 16,
       spacing: 6,
       accessibleHelpText:
-        QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty,
+      QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty,
       accessibleContextResponseChecked:
-        QuantumWaveInterferenceFluent.a11y.rulerCheckbox
-          .accessibleContextResponseCheckedStringProperty,
+      QuantumWaveInterferenceFluent.a11y.rulerCheckbox
+        .accessibleContextResponseCheckedStringProperty,
       accessibleContextResponseUnchecked:
-        QuantumWaveInterferenceFluent.a11y.rulerCheckbox
-          .accessibleContextResponseUncheckedStringProperty,
+      QuantumWaveInterferenceFluent.a11y.rulerCheckbox
+        .accessibleContextResponseUncheckedStringProperty,
       tandem: options.tandem.createTandem( 'rulerCheckbox' )
     } );
 
@@ -348,13 +348,13 @@ export default class ExperimentScreenView extends ScreenView {
         boxWidth: 16,
         spacing: 6,
         accessibleHelpText:
-          QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleHelpTextStringProperty,
+        QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleHelpTextStringProperty,
         accessibleContextResponseChecked:
-          QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox
-            .accessibleContextResponseCheckedStringProperty,
+        QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox
+          .accessibleContextResponseCheckedStringProperty,
         accessibleContextResponseUnchecked:
-          QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox
-            .accessibleContextResponseUncheckedStringProperty,
+        QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox
+          .accessibleContextResponseUncheckedStringProperty,
         tandem: options.tandem.createTandem( 'stopwatchCheckbox' )
       }
     );
@@ -441,7 +441,7 @@ export default class ExperimentScreenView extends ScreenView {
         opacity: 0.8,
         accessibleName: QuantumWaveInterferenceFluent.rulerStringProperty,
         accessibleHelpText:
-          QuantumWaveInterferenceFluent.a11y.ruler.accessibleHelpTextStringProperty,
+        QuantumWaveInterferenceFluent.a11y.ruler.accessibleHelpTextStringProperty,
         tagName: AccessibleDraggableOptions.tagName,
         focusable: AccessibleDraggableOptions.focusable,
         ariaRole: AccessibleDraggableOptions.ariaRole,
@@ -613,7 +613,7 @@ export default class ExperimentScreenView extends ScreenView {
             value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )
           } );
         }
- else {
+        else {
           const slitWidthUM = slitWidthMM * 1000;
           const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2;
           return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {

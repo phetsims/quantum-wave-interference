@@ -1,132 +1,132 @@
-quantum-wave-interference.title:      'Quantum Wave Interference'
-screen.experiment.name:               Experiment
-photons:                              Photons
-electrons:                            Electrons
-neutrons:                             Neutrons
-heliumAtoms:                          Helium Atoms
-photonSource:                         Photon source
-electronSource:                       Electron source
-neutronSource:                        Neutron source
-heliumAtomSource:                     Helium atom source
-doubleSlit:                           Double slit
-detectorScreen:                       Detector screen
-intensity:                            Intensity
-sourceIntensity:                      Source Intensity
-particleSpeed:                        Particle Speed
-emissionRate:                         Emission Rate
-particleSpeedKmPerSecondPattern:      '{{value}} km/s'
-max:                                  Max
-slitSeparation:                       Slit Separation
-screenDistance:                       Screen Distance
-slitSettings:                         Slit Configuration
-slitSeparationPattern:                '{{value}} mm'
-slitSeparationMicrometerPattern:      '{{value}} μm'
-screenDistancePattern:                '{{value}} m'
-bothOpen:                             Both Open
-leftCovered:                          Left Covered
-rightCovered:                         Right Covered
-leftDetector:                         Left Detector
-rightDetector:                        Right Detector
-hits:                                 Hits
-hitsCountPattern:                     'Hits: {{count}}'
-screenBrightness:                     Screen Brightness
-intensityGraph:                       Intensity Graph
-hitsGraph:                            Hits Graph
-count:                                Count
-snapshotNumberPattern:                'Snapshot {{number}}'
-ruler:                                Ruler
-stopwatch:                            Stopwatch
-detector:                             Detector
+quantum-wave-interference.title: 'Quantum Wave Interference'
+screen.experiment.name:          Experiment
+photons:                         Photons
+electrons:                       Electrons
+neutrons:                        Neutrons
+heliumAtoms:                     Helium Atoms
+photonSource:                    Photon source
+electronSource:                  Electron source
+neutronSource:                   Neutron source
+heliumAtomSource:                Helium atom source
+doubleSlit:                      Double slit
+detectorScreen:                  Detector screen
+intensity:                       Intensity
+sourceIntensity:                 Source Intensity
+particleSpeed:                   Particle Speed
+emissionRate:                    Emission Rate
+particleSpeedKmPerSecondPattern: '{{value}} km/s'
+max:                             Max
+slitSeparation:                  Slit Separation
+screenDistance:                  Screen Distance
+slitSettings:                    Slit Configuration
+slitSeparationPattern:           '{{value}} mm'
+slitSeparationMicrometerPattern: '{{value}} μm'
+screenDistancePattern:           '{{value}} m'
+bothOpen:                        Both Open
+leftCovered:                     Left Covered
+rightCovered:                    Right Covered
+leftDetector:                    Left Detector
+rightDetector:                   Right Detector
+hits:                            Hits
+hitsCountPattern:                'Hits: {{count}}'
+screenBrightness:                Screen Brightness
+intensityGraph:                  Intensity Graph
+hitsGraph:                       Hits Graph
+count:                           Count
+snapshotNumberPattern:           'Snapshot {{number}}'
+ruler:                           Ruler
+stopwatch:                       Stopwatch
+detector:                        Detector
 
 # Accessibility strings
 a11y:
   screenSummary:
-    playArea: >-
-      In a double-slit experiment, a { $sourceType ->
-        [photons] photon source
-        [electrons] electron source
-        [neutrons] neutron source
-       *[heliumAtoms] helium atom source
-      } emits { $sourceType ->
-        [photons] photons
-        [electrons] electrons
-        [neutrons] neutrons
-       *[heliumAtoms] helium atoms
-      } toward a barrier with two narrow slits.
-      { $sourceType ->
-        [photons] Photons
-        [electrons] Electrons
-        [neutrons] Neutrons
-       *[heliumAtoms] Helium atoms
-      } that pass through the slits land on a detector screen, building up a pattern over time.
-      A magnified view of the slits, a front-facing detector screen, and an intensity graph are shown.
-    controlArea: >-
-      Checkboxes show or hide a ruler and stopwatch.
-      Play and pause controls and a Reset All button are available.
-    currentDetails: >-
-      Source is { $sourceType ->
-        [photons] photons
-        [electrons] electrons
-        [neutrons] neutrons
-       *[heliumAtoms] helium atoms
-      }.
-      Slit configuration is { $slitSetting ->
-        [bothOpen] both open
-        [leftCovered] left covered
-        [rightCovered] right covered
-        [leftDetector] left detector
-       *[rightDetector] right detector
-      }.
-      Detection mode is { $detectionMode ->
-        [averageIntensity] intensity
-       *[hits] hits
-      }.
-      { $isEmitting ->
-        [true] { $detectionMode ->
-          [hits] Source is on, { $totalHits } hits accumulated.
-         *[averageIntensity] Source is on.
-        }
-       *[false] Source is off.
-      }
+    playArea:        >-
+                     In a double-slit experiment, a { $sourceType ->
+                       [photons] photon source
+                       [electrons] electron source
+                       [neutrons] neutron source
+                      *[heliumAtoms] helium atom source
+                     } emits { $sourceType ->
+                       [photons] photons
+                       [electrons] electrons
+                       [neutrons] neutrons
+                      *[heliumAtoms] helium atoms
+                     } toward a barrier with two narrow slits.
+                     { $sourceType ->
+                       [photons] Photons
+                       [electrons] Electrons
+                       [neutrons] Neutrons
+                      *[heliumAtoms] Helium atoms
+                     } that pass through the slits land on a detector screen, building up a pattern over time.
+                     A magnified view of the slits, a front-facing detector screen, and an intensity graph are shown.
+    controlArea:     >-
+                     Checkboxes show or hide a ruler and stopwatch.
+                     Play and pause controls and a Reset All button are available.
+    currentDetails:  >-
+                     Source is { $sourceType ->
+                       [photons] photons
+                       [electrons] electrons
+                       [neutrons] neutrons
+                      *[heliumAtoms] helium atoms
+                     }.
+                     Slit configuration is { $slitSetting ->
+                       [bothOpen] both open
+                       [leftCovered] left covered
+                       [rightCovered] right covered
+                       [leftDetector] left detector
+                      *[rightDetector] right detector
+                     }.
+                     Detection mode is { $detectionMode ->
+                       [averageIntensity] intensity
+                      *[hits] hits
+                     }.
+                     { $isEmitting ->
+                       [true] { $detectionMode ->
+                         [hits] Source is on, { $totalHits } hits accumulated.
+                        *[averageIntensity] Source is on.
+                       }
+                      *[false] Source is off.
+                     }
     interactionHint: >-
-      { $isEmitting ->
-        [true] Change particle type, adjust slit settings, or switch detection mode to explore the experiment.
-       *[false] Turn on the { $sourceType ->
-          [photons] photon source
-          [electrons] electron source
-          [neutrons] neutron source
-         *[heliumAtoms] helium atom source
-        } to start the experiment.
-      }
-  sourceHeading: Source
-  slitsHeading: Slits
-  detectorScreenHeading: Detector Screen
-  graphHeading: Graph
+                     { $isEmitting ->
+                       [true] Change particle type, adjust slit settings, or switch detection mode to explore the experiment.
+                      *[false] Turn on the { $sourceType ->
+                         [photons] photon source
+                         [electrons] electron source
+                         [neutrons] neutron source
+                        *[heliumAtoms] helium atom source
+                       } to start the experiment.
+                     }
+  sourceHeading:               Source
+  slitsHeading:                Slits
+  detectorScreenHeading:       Detector Screen
+  graphHeading:                Graph
   particleMass:
     accessibleParagraph: >-
-      { $sourceType ->
-        [electrons] Particle mass: 9.1 times 10 to the negative 31 kilograms.
-        [neutrons] Particle mass: 1.7 times 10 to the negative 27 kilograms.
-       *[heliumAtoms] Particle mass: 6.6 times 10 to the negative 27 kilograms.
-      }
+                         { $sourceType ->
+                           [electrons] Particle mass: 9.1 times 10 to the negative 31 kilograms.
+                           [neutrons] Particle mass: 1.7 times 10 to the negative 27 kilograms.
+                          *[heliumAtoms] Particle mass: 6.6 times 10 to the negative 27 kilograms.
+                         }
   emitterButton:
-    accessibleName: >-
-      { $sourceType ->
-        [photons] Photon Source
-        [electrons] Electron Source
-        [neutrons] Neutron Source
-       *[heliumAtoms] Helium Atom Source
-      }
+    accessibleName:     >-
+                        { $sourceType ->
+                          [photons] Photon Source
+                          [electrons] Electron Source
+                          [neutrons] Neutron Source
+                         *[heliumAtoms] Helium Atom Source
+                        }
     accessibleHelpText: Turn the source on and off to start or stop the experiment.
   ruler:
     accessibleHelpText: Drag ruler up or down to align with features on the detector screen and graph.
   rulerCheckbox:
-    accessibleHelpText: Show or hide a ruler to measure distances on the detector screen.
-    accessibleContextResponseChecked: Ruler shown.
+    accessibleHelpText:                 Show or hide a ruler to measure distances on the detector screen.
+    accessibleContextResponseChecked:   Ruler shown.
     accessibleContextResponseUnchecked: Ruler hidden.
   stopwatchCheckbox:
-    accessibleHelpText: Show or hide a stopwatch to time the experiment.
-    accessibleContextResponseChecked: Stopwatch shown.
+    accessibleHelpText:                 Show or hide a stopwatch to time the experiment.
+    accessibleContextResponseChecked:   Stopwatch shown.
     accessibleContextResponseUnchecked: Stopwatch hidden.
   slitSeparationSlider:
     accessibleHelpText: Adjust the distance between the centers of the two slits.
@@ -134,24 +134,24 @@ a11y:
     accessibleHelpText: Adjust the distance from the barrier to the detector screen.
   intensitySlider:
     accessibleHelpText: >-
-      Adjust how many { $sourceType ->
-        [photons] photons
-        [electrons] electrons
-        [neutrons] neutrons
-       *[heliumAtoms] helium atoms
-      } the source emits per unit time.
+                        Adjust how many { $sourceType ->
+                          [photons] photons
+                          [electrons] electrons
+                          [neutrons] neutrons
+                         *[heliumAtoms] helium atoms
+                        } the source emits per unit time.
   brightnessSlider:
-    accessibleName: Screen Brightness
+    accessibleName:     Screen Brightness
     accessibleHelpText: Adjust the brightness of the detector screen display.
   detectionModeRadioButtons:
-    accessibleName: Detection Mode
+    accessibleName:     Detection Mode
     accessibleHelpText: Choose how detections are displayed on the detector screen.
     intensityRadioButton:
       accessibleContextResponse: Detector screen shows continuous intensity pattern.
     hitsRadioButton:
       accessibleContextResponse: Detector screen shows individual hits.
   sceneRadioButtonGroup:
-    accessibleName: Particle Type
+    accessibleName:     Particle Type
     accessibleHelpText: Choose a particle type to change the source used in the double-slit experiment.
     photonsRadioButton:
       accessibleContextResponse: Experiment now uses a photon source.
@@ -162,121 +162,121 @@ a11y:
     heliumAtomsRadioButton:
       accessibleContextResponse: Experiment now uses a helium atom source.
   slitSettingsComboBox:
-    accessibleName: Slit Configuration
-    accessibleHelpText: Choose a slit configuration to change which slits are open, covered, or monitored by a detector.
+    accessibleName:            Slit Configuration
+    accessibleHelpText:        Choose a slit configuration to change which slits are open, covered, or monitored by a detector.
     accessibleContextResponse: >-
-      { $slitSetting ->
-        [bothOpen] Both slits now open.
-        [leftCovered] Left slit now covered.
-        [rightCovered] Right slit now covered.
-        [leftDetector] Left slit now monitored by a detector.
-       *[rightDetector] Right slit now monitored by a detector.
-      }
+                               { $slitSetting ->
+                                 [bothOpen] Both slits now open.
+                                 [leftCovered] Left slit now covered.
+                                 [rightCovered] Right slit now covered.
+                                 [leftDetector] Left slit now monitored by a detector.
+                                *[rightDetector] Right slit now monitored by a detector.
+                               }
   slitWidthMillimetersPattern: '{ $value } millimeters'
   slitWidthMicrometersPattern: '{ $value } micrometers'
   slitView:
     accessibleParagraph: >-
-      Magnified view of the barrier with two vertical slits, each { $slitWidth } wide.
-      { $slitSetting ->
-        [bothOpen] Both slits are open.
-        [leftCovered] Left slit is covered.
-        [rightCovered] Right slit is covered.
-        [leftDetector] Left slit is monitored by a which-path detector.
-       *[rightDetector] Right slit is monitored by a which-path detector.
-      }
+                         Magnified view of the barrier with two vertical slits, each { $slitWidth } wide.
+                         { $slitSetting ->
+                           [bothOpen] Both slits are open.
+                           [leftCovered] Left slit is covered.
+                           [rightCovered] Right slit is covered.
+                           [leftDetector] Left slit is monitored by a which-path detector.
+                          *[rightDetector] Right slit is monitored by a which-path detector.
+                         }
   zoomInButton:
     accessibleName: Zoom In
   zoomOutButton:
     accessibleName: Zoom Out
   graphAccordionBox:
     accessibleParagraph:
-      intensityOff: The graph is empty. The source is off.
-      intensity: >-
-        The graph traces intensity versus position as a wave-like curve, rising to a tall
-        central peak and falling through a series of smaller peaks on either side.
-        { $spatialDescription }
-      intensitySingleSlit: >-
-        The graph traces intensity versus position as a single broad peak centered on the
-        screen, tapering smoothly toward the edges. { $spatialDescription }
-      hitsNone: The histogram is empty. No particles have been counted yet.
-      hitsFew: >-
-        A few bars have appeared at scattered positions across the histogram. The distribution
-        looks random so far.
-      hitsEmerging: >-
-        The histogram is growing unevenly. Some positions are accumulating counts faster
-        than others, hinting at a pattern beneath the randomness.
-      hitsDeveloping: >-
-        The histogram is taking on a wave-like shape. Taller bars cluster at regular
-        intervals with shorter bars between them. { $spatialDescription }
-      hitsClear: >-
-        The histogram has settled into a stable wave-like shape matching the intensity
-        curve, a central peak flanked by repeating side peaks, assembled from individual
-        particle counts. { $spatialDescription }
+      intensityOff:           The graph is empty. The source is off.
+      intensity:              >-
+                              The graph traces intensity versus position as a wave-like curve, rising to a tall
+                              central peak and falling through a series of smaller peaks on either side.
+                              { $spatialDescription }
+      intensitySingleSlit:    >-
+                              The graph traces intensity versus position as a single broad peak centered on the
+                              screen, tapering smoothly toward the edges. { $spatialDescription }
+      hitsNone:               The histogram is empty. No particles have been counted yet.
+      hitsFew:                >-
+                              A few bars have appeared at scattered positions across the histogram. The distribution
+                              looks random so far.
+      hitsEmerging:           >-
+                              The histogram is growing unevenly. Some positions are accumulating counts faster
+                              than others, hinting at a pattern beneath the randomness.
+      hitsDeveloping:         >-
+                              The histogram is taking on a wave-like shape. Taller bars cluster at regular
+                              intervals with shorter bars between them. { $spatialDescription }
+      hitsClear:              >-
+                              The histogram has settled into a stable wave-like shape matching the intensity
+                              curve, a central peak flanked by repeating side peaks, assembled from individual
+                              particle counts. { $spatialDescription }
       hitsSingleSlitEmerging: >-
-        The histogram is growing, with bars tallest near the center and shorter toward
-        the edges.
-      hitsSingleSlitClear: >-
-        The histogram shows a broad central peak that tapers toward the edges, matching
-        the continuous intensity pattern. { $spatialDescription }
-    accessibleContextResponseExpanded: Graph expanded.
+                              The histogram is growing, with bars tallest near the center and shorter toward
+                              the edges.
+      hitsSingleSlitClear:    >-
+                              The histogram shows a broad central peak that tapers toward the edges, matching
+                              the continuous intensity pattern. { $spatialDescription }
+    accessibleContextResponseExpanded:  Graph expanded.
     accessibleContextResponseCollapsed: Graph collapsed.
   detectorScreen:
     accessibleParagraph:
-      intensityOff: The detector screen is dark. The source is off.
-      intensity: >-
-        The detector screen glows with alternating bright and dark vertical bands, strongest
-        at the center and fading symmetrically outward. { $spatialDescription }
-      intensitySingleSlit: >-
-        The detector screen glows brightest at the center, fading smoothly toward the edges
-        in a broad diffraction pattern. { $spatialDescription }
-      hitsNone: The detector screen is empty. No particles have arrived yet.
-      hitsFew: >-
-        A handful of particles have arrived, scattered across the screen in no obvious order.
-      hitsEmerging: >-
-        As more particles arrive, a hint of order is appearing. Detections are beginning
-        to cluster into faint vertical stripes with gaps between them.
-      hitsDeveloping: >-
-        A pattern is emerging from the randomness. Individual impacts are gathering into
-        distinct vertical bands, separated by regions where few particles land.
-        { $spatialDescription }
-      hitsClear: >-
-        A clear interference pattern has formed, one particle at a time. Dense vertical
-        bands alternate with nearly empty gaps, the signature of wave-like behavior built
-        from individual impacts. { $spatialDescription }
+      intensityOff:           The detector screen is dark. The source is off.
+      intensity:              >-
+                              The detector screen glows with alternating bright and dark vertical bands, strongest
+                              at the center and fading symmetrically outward. { $spatialDescription }
+      intensitySingleSlit:    >-
+                              The detector screen glows brightest at the center, fading smoothly toward the edges
+                              in a broad diffraction pattern. { $spatialDescription }
+      hitsNone:               The detector screen is empty. No particles have arrived yet.
+      hitsFew:                >-
+                              A handful of particles have arrived, scattered across the screen in no obvious order.
+      hitsEmerging:           >-
+                              As more particles arrive, a hint of order is appearing. Detections are beginning
+                              to cluster into faint vertical stripes with gaps between them.
+      hitsDeveloping:         >-
+                              A pattern is emerging from the randomness. Individual impacts are gathering into
+                              distinct vertical bands, separated by regions where few particles land.
+                              { $spatialDescription }
+      hitsClear:              >-
+                              A clear interference pattern has formed, one particle at a time. Dense vertical
+                              bands alternate with nearly empty gaps, the signature of wave-like behavior built
+                              from individual impacts. { $spatialDescription }
       hitsSingleSlitEmerging: >-
-        As more particles arrive, hits are beginning to concentrate in a broad region near
-        the center of the screen, with fewer toward the edges.
-      hitsSingleSlitClear: >-
-        A diffraction pattern has formed. Hits concentrate in a broad central band that
-        tapers toward the edges, matching the continuous intensity pattern.
-        { $spatialDescription }
+                              As more particles arrive, hits are beginning to concentrate in a broad region near
+                              the center of the screen, with fewer toward the edges.
+      hitsSingleSlitClear:    >-
+                              A diffraction pattern has formed. Hits concentrate in a broad central band that
+                              tapers toward the edges, matching the continuous intensity pattern.
+                              { $spatialDescription }
     spatialDescription:
-      rulerBands: >-
-        { $numBands } bands centered at 0 millimeters, spaced roughly { $bandSpacing }
-        millimeters apart.
-      rulerBandsSingleSlit: >-
-        The central band spans roughly { $centralWidth } millimeters, centered at 0.
-      noRulerBands: >-
-        { $numBands } bands centered on the screen, spread symmetrically to either side.
+      rulerBands:             >-
+                              { $numBands } bands centered at 0 millimeters, spaced roughly { $bandSpacing }
+                              millimeters apart.
+      rulerBandsSingleSlit:   >-
+                              The central band spans roughly { $centralWidth } millimeters, centered at 0.
+      noRulerBands:           >-
+                              { $numBands } bands centered on the screen, spread symmetrically to either side.
       noRulerBandsSingleSlit: >-
-        A broad central band centered on the screen, tapering toward the edges.
-      rulerPeaks: >-
-        { $numPeaks } peaks centered at 0 millimeters, spaced roughly { $peakSpacing }
-        millimeters apart.
-      rulerPeaksSingleSlit: >-
-        The central peak spans roughly { $centralWidth } millimeters, centered at 0.
-      noRulerPeaks: >-
-        { $numPeaks } peaks centered on the graph, spread symmetrically to either side.
+                              A broad central band centered on the screen, tapering toward the edges.
+      rulerPeaks:             >-
+                              { $numPeaks } peaks centered at 0 millimeters, spaced roughly { $peakSpacing }
+                              millimeters apart.
+      rulerPeaksSingleSlit:   >-
+                              The central peak spans roughly { $centralWidth } millimeters, centered at 0.
+      noRulerPeaks:           >-
+                              { $numPeaks } peaks centered on the graph, spread symmetrically to either side.
       noRulerPeaksSingleSlit: >-
-        A broad central peak, tapering toward the edges.
+                              A broad central peak, tapering toward the edges.
   detectorScreenButtons:
     clearScreen:
-      accessibleName: Clear Screen
-      accessibleHelpText: Clear all hits from the detector screen.
+      accessibleName:            Clear Screen
+      accessibleHelpText:        Clear all hits from the detector screen.
       accessibleContextResponse: Screen cleared.
     takeSnapshot:
-      accessibleName: Take Snapshot
+      accessibleName:     Take Snapshot
       accessibleHelpText: Capture the current detector screen pattern as a snapshot.
     viewSnapshots:
-      accessibleName: View Snapshots
+      accessibleName:     View Snapshots
       accessibleHelpText: Open a dialog to compare saved snapshots.

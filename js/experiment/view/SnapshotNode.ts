@@ -19,9 +19,8 @@ import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Utils from '../../../../dot/js/Utils.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import TrashButton from '../../../../scenery-phet/js/buttons/TrashButton.js';
-import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
-import SceneryPhetFluent from '../../../../scenery-phet/js/SceneryPhetFluent.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import SceneryPhetFluent from '../../../../scenery-phet/js/SceneryPhetFluent.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
@@ -29,6 +28,7 @@ import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
@@ -207,7 +207,7 @@ export default class SnapshotNode extends Node {
         if ( snapshot.sourceType === 'photons' ) {
           wavelengthOrSpeedText.string = `${SceneryPhetFluent.wavelengthStringProperty.value}: ${Utils.roundSymmetric( snapshot.wavelength )} nm`;
         }
- else {
+        else {
           const particleMass =
             snapshot.sourceType === 'electrons' ? 9.109e-31 :
             snapshot.sourceType === 'neutrons' ? 1.675e-27 :
@@ -330,7 +330,7 @@ class SnapshotCanvasNode extends CanvasNode {
     if ( snapshot.detectionMode === 'hits' ) {
       this.paintHits( context, snapshot );
     }
- else {
+    else {
       this.paintIntensity( context, snapshot );
     }
   }
@@ -351,8 +351,8 @@ class SnapshotCanvasNode extends CanvasNode {
 
     const baseRGB =
       snapshot.sourceType === 'photons'
-        ? VisibleColor.wavelengthToColor( snapshot.wavelength )
-        : { red: 255, green: 255, blue: 255 };
+      ? VisibleColor.wavelengthToColor( snapshot.wavelength )
+      : { red: 255, green: 255, blue: 255 };
     const scaledR = baseRGB.red;
     const scaledG = baseRGB.green;
     const scaledB = baseRGB.blue;
@@ -407,8 +407,8 @@ class SnapshotCanvasNode extends CanvasNode {
       slitSetting === 'rightDetector';
 
     const photonColor = snapshot.sourceType === 'photons'
-      ? VisibleColor.wavelengthToColor( snapshot.wavelength )
-      : null;
+                        ? VisibleColor.wavelengthToColor( snapshot.wavelength )
+                        : null;
 
     for ( let x = 0; x < FULL_SCREEN_TEXTURE_WIDTH; x++ ) {
       const fraction = ( x + 0.5 ) / FULL_SCREEN_TEXTURE_WIDTH;
@@ -420,8 +420,8 @@ class SnapshotCanvasNode extends CanvasNode {
 
       const intensity =
         isSingleSlit
-          ? singleSlitFactor
-          : Math.pow( Math.cos( Math.PI * d * sinTheta / lambda ), 2 ) * singleSlitFactor;
+        ? singleSlitFactor
+        : Math.pow( Math.cos( Math.PI * d * sinTheta / lambda ), 2 ) * singleSlitFactor;
 
       const intensityScale = intensity * displayGain;
       if ( intensityScale < 0.004 ) {
@@ -434,7 +434,7 @@ class SnapshotCanvasNode extends CanvasNode {
         const b = Utils.clamp( Utils.roundSymmetric( photonColor.blue * intensityScale ), 0, 255 );
         textureContext.fillStyle = `rgb(${r},${g},${b})`;
       }
- else {
+      else {
         const value = Utils.clamp( Utils.roundSymmetric( 255 * intensityScale ), 0, 255 );
         textureContext.fillStyle = `rgb(${value},${value},${value})`;
       }
