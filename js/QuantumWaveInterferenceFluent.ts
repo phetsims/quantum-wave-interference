@@ -100,6 +100,8 @@ addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleContextResponse', 'a11y.
 addToMapIfDefined( 'a11y_slitWidthMillimetersPattern', 'a11y.slitWidthMillimetersPatternStringProperty' );
 addToMapIfDefined( 'a11y_slitWidthMicrometersPattern', 'a11y.slitWidthMicrometersPatternStringProperty' );
 addToMapIfDefined( 'a11y_slitView_accessibleParagraph', 'a11y.slitView.accessibleParagraphStringProperty' );
+addToMapIfDefined( 'a11y_zoomInButton_accessibleName', 'a11y.zoomInButton.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_zoomOutButton_accessibleName', 'a11y.zoomOutButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph', 'a11y.graphAccordionBox.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseExpanded', 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' );
@@ -249,6 +251,12 @@ const QuantumWaveInterferenceFluent = {
     slitWidthMicrometersPattern: new FluentPattern<{ value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitWidthMicrometersPattern', _.get( QuantumWaveInterferenceStrings, 'a11y.slitWidthMicrometersPatternStringProperty' ), [{"name":"value"}] ),
     slitView: {
       accessibleParagraph: new FluentPattern<{ slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector'>, slitWidth: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitView_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.slitView.accessibleParagraphStringProperty' ), [{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector"]},{"name":"slitWidth"}] )
+    },
+    zoomInButton: {
+      accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_zoomInButton_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.zoomInButton.accessibleNameStringProperty' ) )
+    },
+    zoomOutButton: {
+      accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_zoomOutButton_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.zoomOutButton.accessibleNameStringProperty' ) )
     },
     graphAccordionBox: {
       accessibleParagraph: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'> }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleParagraphStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]}] ),

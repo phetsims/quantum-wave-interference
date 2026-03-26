@@ -274,6 +274,16 @@
         "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits are open.\n  [leftCovered] Left slit is covered.\n  [rightCovered] Right slit is covered.\n  [leftDetector] Left slit is monitored by a which-path detector.\n *[rightDetector] Right slit is monitored by a which-path detector.\n}"
       }
     },
+    "zoomInButton": {
+      "accessibleName": {
+        "value": "Zoom In"
+      }
+    },
+    "zoomOutButton": {
+      "accessibleName": {
+        "value": "Zoom Out"
+      }
+    },
     "graphAccordionBox": {
       "accessibleParagraph": {
         "value": "{ $detectionMode ->\n  [averageIntensity] Graph shows a continuous intensity curve versus horizontal position on the detector screen. Peaks in the curve correspond to bright bands where detections are most likely.\n *[hits] Graph shows a histogram of accumulated hit counts versus horizontal position on the detector screen. Taller bars indicate positions where more detections have landed.\n}"

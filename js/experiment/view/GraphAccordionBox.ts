@@ -207,6 +207,12 @@ export default class GraphAccordionBox extends Node {
       buttonOptions: {
         baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty
       },
+      zoomInButtonOptions: {
+        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty
+      },
+      zoomOutButtonOptions: {
+        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty
+      },
       magnifyingGlassNodeOptions: {
         glassRadius: 8
       },

@@ -181,6 +181,10 @@ a11y:
         [leftDetector] Left slit is monitored by a which-path detector.
        *[rightDetector] Right slit is monitored by a which-path detector.
       }
+  zoomInButton:
+    accessibleName: Zoom In
+  zoomOutButton:
+    accessibleName: Zoom Out
   graphAccordionBox:
     accessibleParagraph: >-
       { $detectionMode ->

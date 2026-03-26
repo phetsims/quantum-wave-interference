@@ -137,6 +137,12 @@ type StringsType = {
     'slitView': {
       'accessibleParagraphStringProperty': LocalizedStringProperty;
     };
+    'zoomInButton': {
+      'accessibleNameStringProperty': LocalizedStringProperty;
+    };
+    'zoomOutButton': {
+      'accessibleNameStringProperty': LocalizedStringProperty;
+    };
     'graphAccordionBox': {
       'accessibleParagraphStringProperty': LocalizedStringProperty;
       'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
