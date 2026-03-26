@@ -159,4 +159,11 @@ export default class OverheadDetectorScreenNode extends Node {
     const maxScreenCenterX = this.frontFacingScreenRight - BASE_DETECTOR_DX / 2;
     return maxScreenCenterX - DETECTOR_DX / 2;
   }
+
+  /**
+   * Recomputes the detector screen position using the current slit position and active scene distance.
+   */
+  public updatePosition(): void {
+    this.updateDetectorScreenPosition();
+  }
 }

@@ -64,11 +64,15 @@ const RULER_INTERVAL_COUNT = 8;
 const RULER_CENTER_TICK_INDEX = RULER_INTERVAL_COUNT / 2;
 const RULER_MINOR_TICKS_PER_MAJOR = 4;
 const RULER_HEIGHT = 40;
-const RULER_X_OFFSET = 1;
+const RULER_X_OFFSET = 0.5;
 const RULER_KEYBOARD_DRAG_DELTA = 5;
 const RULER_KEYBOARD_SHIFT_DRAG_DELTA = 1;
+const MIDDLE_COLUMN_LEFT_SHIFT = 3;
 
-const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number, sourceType: SourceType ): number => {
+const getRulerLabelDecimalPlaces = (
+  halfDetectorWidthMM: number,
+  sourceType: SourceType
+): number => {
   if ( sourceType === 'neutrons' || sourceType === 'heliumAtoms' ) {
     return 1;
   }
@@ -90,9 +94,12 @@ export default class ExperimentScreenView extends ScreenView {
   private readonly graphExpandedProperty: BooleanProperty;
 
   public constructor( model: ExperimentModel, providedOptions: ExperimentScreenViewOptions ) {
-    const options = optionize<ExperimentScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
-      screenSummaryContent: new ExperimentScreenSummaryContent( model )
-    }, providedOptions );
+    const options = optionize<ExperimentScreenViewOptions, SelfOptions, ScreenViewOptions>()(
+      {
+        screenSummaryContent: new ExperimentScreenSummaryContent( model )
+      },
+      providedOptions
+    );
 
     super( options );
 
@@ -179,6 +186,8 @@ export default class ExperimentScreenView extends ScreenView {
     const frontFacingScreenLeft = detectorScreenNodes[ 0 ].x;
     const frontFacingScreenRight =
       detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH;
+    const detectorScreenCenterX =
+      detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
     overheadDetectorScreenNode.setFrontFacingScreenBounds(
       frontFacingScreenLeft,
       frontFacingScreenRight
@@ -200,11 +209,18 @@ export default class ExperimentScreenView extends ScreenView {
         expandedProperty: this.graphExpandedProperty,
         tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
       } );
-      graphBox.x = controlsRight - graphBox.localBounds.maxX;
+      graphBox.x = detectorScreenCenterX - graphBox.getChartAreaLocalBounds().centerX;
       graphBox.top = detectorScreenNodes[ 0 ].bottom + 8;
       this.addChild( graphBox );
       return graphBox;
     } );
+
+    const layoutGraphAccordionBoxes = () => {
+      this.graphAccordionBoxes.forEach( graphBox => {
+        graphBox.x = detectorScreenCenterX - graphBox.getChartAreaLocalBounds().centerX;
+        graphBox.top = screenSettingsPanel.bottom + 8;
+      } );
+    };
 
     // Toggle visibility of front-facing slits, detector screens, and graphs based on the selected scene
     model.sceneProperty.link( selectedScene => {
@@ -257,11 +273,15 @@ export default class ExperimentScreenView extends ScreenView {
 
     // Center the slit-view/slit-panel middle column between the left and right columns.
     const leftColumnRight = Math.max( sourceControlPanel.right, sceneRadioButtonGroup.right );
-    const rightColumnLeft = Math.min( detectorScreenNodes[ 0 ].left, this.graphAccordionBoxes[ 0 ].left );
-    const middleColumnCenterX = ( leftColumnRight + rightColumnLeft ) / 2;
+    const rightColumnLeft = detectorScreenNodes[ 0 ].left;
+    const middleColumnCenterX = ( leftColumnRight + rightColumnLeft ) / 2 - MIDDLE_COLUMN_LEFT_SHIFT;
     frontFacingSlitNodes.forEach( node => {
       node.centerX = middleColumnCenterX;
     } );
+    overheadDoubleSlitNode.setParallelogramCenterX( middleColumnCenterX );
+    whichPathDetectorNode.left = overheadDoubleSlitNode.parallelogramNode.right + 4;
+    overheadDetectorScreenNode.updatePosition();
+    overheadBeamNode.updateBeam();
     slitControlPanel.centerX = middleColumnCenterX;
     slitControlPanel.top = frontFacingSlitNodes[ 0 ].bottom + 8;
     this.addChild( slitControlPanel );
@@ -279,10 +299,12 @@ export default class ExperimentScreenView extends ScreenView {
     screenSettingsPanel.top = detectorScreenNodes[ 0 ].bottom + 8;
     this.addChild( screenSettingsPanel );
 
-    // Keep the graph below the screen settings panel to avoid overlap.
+    // Keep the graph below the screen settings panel to avoid overlap and align the chart
+    // rectangle to the detector screen rectangle even if labels or scale change.
     this.graphAccordionBoxes.forEach( graphBox => {
-      graphBox.top = screenSettingsPanel.bottom + 8;
+      graphBox.localBoundsProperty.link( layoutGraphAccordionBoxes );
     } );
+    layoutGraphAccordionBoxes();
 
     const resetAllButton = new ResetAllButton( {
       listener: () => {
@@ -303,9 +325,14 @@ export default class ExperimentScreenView extends ScreenView {
     const rulerCheckbox = new Checkbox( model.isRulerVisibleProperty, rulerCheckboxLabel, {
       boxWidth: 16,
       spacing: 6,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty,
-      accessibleContextResponseChecked: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleContextResponseCheckedStringProperty,
-      accessibleContextResponseUnchecked: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleContextResponseUncheckedStringProperty,
+      accessibleHelpText:
+        QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty,
+      accessibleContextResponseChecked:
+        QuantumWaveInterferenceFluent.a11y.rulerCheckbox
+          .accessibleContextResponseCheckedStringProperty,
+      accessibleContextResponseUnchecked:
+        QuantumWaveInterferenceFluent.a11y.rulerCheckbox
+          .accessibleContextResponseUncheckedStringProperty,
       tandem: options.tandem.createTandem( 'rulerCheckbox' )
     } );
 
@@ -320,9 +347,14 @@ export default class ExperimentScreenView extends ScreenView {
       {
         boxWidth: 16,
         spacing: 6,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleHelpTextStringProperty,
-        accessibleContextResponseChecked: QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleContextResponseCheckedStringProperty,
-        accessibleContextResponseUnchecked: QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty,
+        accessibleHelpText:
+          QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleHelpTextStringProperty,
+        accessibleContextResponseChecked:
+          QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox
+            .accessibleContextResponseCheckedStringProperty,
+        accessibleContextResponseUnchecked:
+          QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox
+            .accessibleContextResponseUncheckedStringProperty,
         tandem: options.tandem.createTandem( 'stopwatchCheckbox' )
       }
     );
@@ -408,7 +440,8 @@ export default class ExperimentScreenView extends ScreenView {
         cursor: 'pointer',
         opacity: 0.8,
         accessibleName: QuantumWaveInterferenceFluent.rulerStringProperty,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.ruler.accessibleHelpTextStringProperty,
+        accessibleHelpText:
+          QuantumWaveInterferenceFluent.a11y.ruler.accessibleHelpTextStringProperty,
         tagName: AccessibleDraggableOptions.tagName,
         focusable: AccessibleDraggableOptions.focusable,
         ariaRole: AccessibleDraggableOptions.ariaRole,
@@ -568,7 +601,8 @@ export default class ExperimentScreenView extends ScreenView {
     // The slit width is a constant per scene that is visible on screen but not accessible
     // through any interactive control.
     const slitSettingProperty = new DynamicProperty<SlitSetting, SlitSetting, SceneModel>(
-      model.sceneProperty, { derive: 'slitSettingProperty' }
+      model.sceneProperty,
+      { derive: 'slitSettingProperty' }
     );
     const slitWidthStringProperty = new DerivedProperty(
       [ model.sceneProperty ],
@@ -579,7 +613,7 @@ export default class ExperimentScreenView extends ScreenView {
             value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )
           } );
         }
-        else {
+ else {
           const slitWidthUM = slitWidthMM * 1000;
           const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2;
           return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
@@ -589,10 +623,11 @@ export default class ExperimentScreenView extends ScreenView {
       }
     );
     const slitViewDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.slitView.accessibleParagraph.createProperty( {
-        slitWidth: slitWidthStringProperty,
-        slitSetting: slitSettingProperty
-      } )
+      accessibleParagraph:
+        QuantumWaveInterferenceFluent.a11y.slitView.accessibleParagraph.createProperty( {
+          slitWidth: slitWidthStringProperty,
+          slitSetting: slitSettingProperty
+        } )
     } );
     this.addChild( slitViewDescriptionNode );
 
@@ -605,9 +640,10 @@ export default class ExperimentScreenView extends ScreenView {
       ( scene: SceneModel ) => scene.sourceType as 'electrons' | 'neutrons' | 'heliumAtoms'
     );
     const particleMassDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.particleMass.accessibleParagraph.createProperty( {
-        sourceType: particleSourceTypeProperty
-      } )
+      accessibleParagraph:
+        QuantumWaveInterferenceFluent.a11y.particleMass.accessibleParagraph.createProperty( {
+          sourceType: particleSourceTypeProperty
+        } )
     } );
     model.sceneProperty.link( scene => {
       particleMassDescriptionNode.visible = scene.sourceType !== 'photons';
@@ -645,10 +681,7 @@ export default class ExperimentScreenView extends ScreenView {
       sceneRadioButtonGroup
     ];
 
-    slitsHeadingNode.pdomOrder = [
-      slitViewDescriptionNode,
-      slitControlPanel
-    ];
+    slitsHeadingNode.pdomOrder = [ slitViewDescriptionNode, slitControlPanel ];
 
     detectorScreenHeadingNode.pdomOrder = [
       detectorScreenDescriptionNode,

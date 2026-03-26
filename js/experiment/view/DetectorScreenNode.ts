@@ -47,10 +47,12 @@ import SnapshotsDialog from './SnapshotsDialog.js';
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 0;
-const BUTTON_COLUMN_GAP = 10.5;
+const BUTTON_COLUMN_GAP = 6;
+const EYE_BUTTON_X_MARGIN = 4;
 const TARGET_SCALE_WIDTH_MM = 10;
 const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
 const SNAPSHOT_FLASH_DURATION = 0.6;
+const DETECTOR_ACTION_BUTTON_MIN_WIDTH = 36;
 
 const snapshotCapturedSoundClip = new SoundClip( snapshotCaptured_mp3, {
   initialOutputLevel: 0.4
@@ -298,6 +300,7 @@ export default class DetectorScreenNode extends Node {
         fill: 'black',
         scale: 0.04
       } ),
+      minWidth: DETECTOR_ACTION_BUTTON_MIN_WIDTH,
       enabledProperty: new DerivedProperty(
         [ sceneModel.numberOfSnapshotsProperty ],
         numberOfSnapshots => numberOfSnapshots < SceneModel.MAX_SNAPSHOTS,
@@ -314,7 +317,7 @@ export default class DetectorScreenNode extends Node {
 
     // Match detector-side action button dimensions to the camera button without scaling icons.
     const detectorActionButtonMinHeight = this.snapshotButton.height;
-    const detectorActionButtonMinWidth = this.snapshotButton.width;
+    const detectorActionButtonMinWidth = DETECTOR_ACTION_BUTTON_MIN_WIDTH;
 
     // Eraser button to clear the screen
     this.eraserButton = new EraserButton( {
@@ -342,6 +345,7 @@ export default class DetectorScreenNode extends Node {
         snapshotsDialog.show();
       },
       baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
+      xMargin: EYE_BUTTON_X_MARGIN,
       content: new Path( eyeSolidShape, {
         fill: 'black',
         scale: 0.04
@@ -412,7 +416,7 @@ export default class DetectorScreenNode extends Node {
     // Snapshot buttons and indicator dots, bottom-aligned to the right of the screen
     this.snapshotButtonGroup = new VBox( {
       spacing: 4,
-      align: 'center',
+      align: 'left',
       children: [ indicatorDotsBox, this.snapshotButton, this.viewSnapshotsButton ]
     } );
 

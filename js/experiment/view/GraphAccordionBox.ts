@@ -27,7 +27,6 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AccordionBox from '../../../../sun/js/AccordionBox.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
@@ -35,6 +34,9 @@ import SceneModel from '../model/SceneModel.js';
 // Chart dimensions — width matches the front-facing detector screen.
 const CHART_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const CHART_HEIGHT = 103;
+const CHART_Y_AXIS_GUTTER_WIDTH = 24;
+const ZOOM_BUTTON_GROUP_GAP = 4;
+const ACCORDION_CONTENT_X_MARGIN = 4;
 
 // Number of bins for the histogram in Hits mode
 const HISTOGRAM_BINS = 100;
@@ -81,6 +83,10 @@ export default class GraphAccordionBox extends Node {
       lineWidth: 1
     } );
     const chartBackground = this.chartBackground;
+    const chartAreaNode = new Node( {
+      x: CHART_Y_AXIS_GUTTER_WIDTH,
+      children: [ chartBackground ]
+    } );
 
     // Grid lines matching the design mockup: evenly-spaced horizontal and vertical lines
     // create a grid that helps correlate graph peaks with detector screen positions.
@@ -118,6 +124,7 @@ export default class GraphAccordionBox extends Node {
     } );
     // Prevent bounds recomputation on every update for performance
     dataPath.computeShapeBounds = () => chartBackground.bounds;
+    chartAreaNode.addChild( dataPath );
 
     // Y-axis label that changes based on detection mode, positioned to the left of the chart.
     // Depends on both the detection mode and the string properties for proper locale change support.
@@ -137,13 +144,13 @@ export default class GraphAccordionBox extends Node {
     } );
 
     const layoutYAxisLabel = () => {
-      yAxisLabel.right = chartBackground.left - 4;
+      yAxisLabel.centerX = CHART_Y_AXIS_GUTTER_WIDTH / 2;
       yAxisLabel.centerY = chartBackground.centerY;
     };
     yAxisLabel.localBoundsProperty.link( layoutYAxisLabel );
 
     const chartNode = new Node( {
-      children: [ yAxisLabel, chartBackground, dataPath ]
+      children: [ yAxisLabel, chartAreaNode ]
     } );
 
     // Title text changes dynamically based on detection mode: "Intensity Graph" vs "Hits Graph".
@@ -172,12 +179,12 @@ export default class GraphAccordionBox extends Node {
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.graphAccordionBoxStrokeProperty,
       cornerRadius: 5,
-      contentXMargin: 8,
+      contentXMargin: ACCORDION_CONTENT_X_MARGIN,
       contentYMargin: 6,
       contentYSpacing: 0,
       buttonXMargin: 8,
       buttonYMargin: 6,
-      minWidth: CHART_WIDTH + 16, // contentXMargin * 2
+      minWidth: CHART_WIDTH + CHART_Y_AXIS_GUTTER_WIDTH + 2 * ACCORDION_CONTENT_X_MARGIN,
 
       // Match the title-bar color to the panel gray used in the rest of the UI.
       titleBarOptions: {
@@ -193,7 +200,7 @@ export default class GraphAccordionBox extends Node {
     this.zoomButtonGroup = new MagnifyingGlassZoomButtonGroup( this.zoomLevelProperty, {
       orientation: 'vertical',
       spacing: 8,
-      left: this.accordionBox.right + QuantumWaveInterferenceConstants.INTERNAL_PADDING,
+      left: this.accordionBox.right + ZOOM_BUTTON_GROUP_GAP,
       buttonOptions: {
         baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty
       },
@@ -401,6 +408,13 @@ export default class GraphAccordionBox extends Node {
    */
   public getChartAreaGlobalBounds(): Bounds2 {
     return this.chartBackground.localToGlobalBounds( this.chartBackground.localBounds );
+  }
+
+  /**
+   * Gets the local bounds of the rectangular graph plotting area.
+   */
+  public getChartAreaLocalBounds(): Bounds2 {
+    return this.globalToLocalBounds( this.getChartAreaGlobalBounds() );
   }
 
   /**

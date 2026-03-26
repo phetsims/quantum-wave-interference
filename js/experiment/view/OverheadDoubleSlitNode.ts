@@ -34,6 +34,7 @@ export default class OverheadDoubleSlitNode extends Node {
 
   public readonly parallelogramNode: Path;
   private readonly reducedBackgroundNode: Path;
+  private readonly doubleSlitLabel: Text;
 
   // Skew parameters for the overhead parallelogram, exposed so sibling nodes can match the perspective.
   public readonly skewDx = 51 * OVERHEAD_SCALE;
@@ -43,11 +44,11 @@ export default class OverheadDoubleSlitNode extends Node {
     super();
 
     // Double slit label
-    const doubleSlitLabel = new Text( QuantumWaveInterferenceFluent.doubleSlitStringProperty, {
+    this.doubleSlitLabel = new Text( QuantumWaveInterferenceFluent.doubleSlitStringProperty, {
       font: LABEL_FONT,
       maxWidth: 120
     } );
-    this.addChild( doubleSlitLabel );
+    this.addChild( this.doubleSlitLabel );
 
     // Double slit parallelogram container (overhead perspective view). The container keeps the
     // original bounds for layout/beam geometry, while the visible background is a smaller child.
@@ -69,8 +70,7 @@ export default class OverheadDoubleSlitNode extends Node {
     this.parallelogramNode.addChild( this.reducedBackgroundNode );
 
     // Position label centered above the parallelogram
-    doubleSlitLabel.centerX = this.parallelogramNode.centerX;
-    doubleSlitLabel.top = LABEL_Y;
+    this.layoutLabel();
 
     // Slit lines on the parallelogram
     const slitLineLength = 18.75 * OVERHEAD_SCALE;
@@ -165,5 +165,18 @@ export default class OverheadDoubleSlitNode extends Node {
    */
   public getVisibleBackgroundRightX(): number {
     return this.parallelogramNode.x + this.reducedBackgroundNode.right;
+  }
+
+  /**
+   * Sets the horizontal center position of the overhead slit parallelogram and keeps its label aligned.
+   */
+  public setParallelogramCenterX( centerX: number ): void {
+    this.parallelogramNode.centerX = centerX;
+    this.layoutLabel();
+  }
+
+  private layoutLabel(): void {
+    this.doubleSlitLabel.centerX = this.parallelogramNode.centerX;
+    this.doubleSlitLabel.top = LABEL_Y;
   }
 }
