@@ -353,6 +353,7 @@ export default class SceneModel extends PhetioObject {
       return 0;
     }
 
+    // TODO: Use descriptive names (e.g. slitSeparationMeters, slitWidthMeters, screenDistanceMeters) instead of single-letter physics variables, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const d = this.slitSeparationProperty.value * 1e-3; // mm to m
     const a = this.slitWidth * 1e-3; // mm to m
     const L = this.screenDistanceProperty.value; // m
@@ -436,6 +437,7 @@ export default class SceneModel extends PhetioObject {
   // Number of bins used for the intensity accumulator
   public static readonly INTENSITY_BIN_COUNT = INTENSITY_BIN_COUNT;
 
+  // TODO: Add documentation, see https://github.com/phetsims/quantum-wave-interference/issues/9
   public reset(): void {
     this.isEmittingProperty.reset();
     this.wavelengthProperty.reset();

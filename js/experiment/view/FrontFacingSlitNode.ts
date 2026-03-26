@@ -101,7 +101,7 @@ export default class FrontFacingSlitNode extends Node {
       VIEW_CORNER_RADIUS,
       VIEW_CORNER_RADIUS,
       {
-        fill: 'black',
+        fill: 'black', // TODO: Should these hardcoded colors be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
         stroke: null
       }
     );
@@ -196,12 +196,12 @@ export default class FrontFacingSlitNode extends Node {
     const slitWidthMM = sceneModel.slitWidth;
     let slitWidthLabel: string;
     if ( slitWidthMM >= 0.01 ) {
-      slitWidthLabel = `${toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )} mm`;
+      slitWidthLabel = `${toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )} mm`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
     }
     else {
       const slitWidthUM = slitWidthMM * 1000;
-      const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2;
-      slitWidthLabel = `${toFixed( slitWidthUM, umDecimalPlaces )} μm`;
+      const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2; // TODO: This is very hard to read. Factor out const to make easier, see https://github.com/phetsims/quantum-wave-interference/issues/9
+      slitWidthLabel = `${toFixed( slitWidthUM, umDecimalPlaces )} μm`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
     }
     const slitWidthText = new Text( slitWidthLabel, {
       font: SPAN_FONT,

@@ -57,6 +57,7 @@ export default class BandAnalysis {
       return { bandCount: 0, peakPositionsMM: [], averageSpacingMM: 0, centralWidthMM: 0 };
     }
 
+    // TODO: Use descriptive names (e.g. screenDistanceMeters, slitWidthMeters, slitSeparationMeters) instead of single-letter physics variables, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const L = scene.screenDistanceProperty.value; // m
     const screenHalfWidthM = scene.screenHalfWidth;
     const a = scene.slitWidth * 1e-3; // mm → m
@@ -195,6 +196,7 @@ export default class BandAnalysis {
         }
       }
 
+      // TODO: Avoid deprecated methods from Utils., see https://github.com/phetsims/quantum-wave-interference/issues/9
       const centerBin = Utils.roundSymmetric(
         ( peakPositionsMM[ closestIndex ] / ( 2 * screenHalfWidthMM ) + 0.5 ) * ( numBins - 1 )
       );

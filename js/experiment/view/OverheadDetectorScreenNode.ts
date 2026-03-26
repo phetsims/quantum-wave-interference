@@ -46,6 +46,7 @@ export default class OverheadDetectorScreenNode extends Node {
   public constructor( model: ExperimentModel, doubleSlitParallelogramNode: Node ) {
     super();
 
+    // TODO: Do we want to use parameter properties throughout this sim, see https://github.com/phetsims/quantum-wave-interference/issues/9
     this.model = model;
     this.doubleSlitParallelogramNode = doubleSlitParallelogramNode;
 
@@ -72,7 +73,7 @@ export default class OverheadDetectorScreenNode extends Node {
       headWidth: 5 * OVERHEAD_SCALE,
       tailWidth: 1 * OVERHEAD_SCALE,
       doubleHead: true,
-      fill: 'black',
+      fill: 'black', // TODO: Should these hardcoded colors be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
       stroke: null
     } );
     this.addChild( distanceSpanArrow );
@@ -124,7 +125,7 @@ export default class OverheadDetectorScreenNode extends Node {
       distanceSpanRightTick.x = rightX;
       distanceSpanRightTick.centerY = spanY;
 
-      distanceText.string = `${toFixed( distance, 1 )} m`;
+      distanceText.string = `${toFixed( distance, 1 )} m`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
       distanceText.centerX = ( leftX + rightX ) / 2;
       distanceText.bottom = spanY - SPAN_TICK_LENGTH / 2;
     };

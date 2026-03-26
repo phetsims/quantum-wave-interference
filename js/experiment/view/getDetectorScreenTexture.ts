@@ -220,6 +220,7 @@ const paintHits = (
   const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
   const startIndex = hitCount - renderCount;
 
+  // TODO: Remove or replace this console.log with a proper logging mechanism, see https://github.com/phetsims/quantum-wave-interference/issues/9
   if ( renderCount >= MAX_RENDERED_HITS && !hasLoggedRenderCap ) {
     hasLoggedRenderCap = true;
     console.log(
@@ -270,10 +271,11 @@ const paintIntensity = (
     const intensity = sceneModel.getIntensityAtPosition( physicalX );
     const scale = intensity * baseGain;
 
-    if ( scale < 0.004 ) {
+    if ( scale < 0.004 ) { // TODO: Document this magic number threshold (also duplicated in SnapshotNode.ts), see https://github.com/phetsims/quantum-wave-interference/issues/9
       continue;
     }
 
+    // TODO: Avoid deprecated methods from Utils., see https://github.com/phetsims/quantum-wave-interference/issues/9
     const r = Utils.clamp( Utils.roundSymmetric( rgb.r * scale ), 0, 255 );
     const g = Utils.clamp( Utils.roundSymmetric( rgb.g * scale ), 0, 255 );
     const b = Utils.clamp( Utils.roundSymmetric( rgb.b * scale ), 0, 255 );

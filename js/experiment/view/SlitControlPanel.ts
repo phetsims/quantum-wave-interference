@@ -125,6 +125,7 @@ export default class SlitControlPanel extends Panel {
       );
       slitSeparationDelta = SlitControlPanel.getDelta( slitSeparationRange );
       slitSeparationNumberDisplayOptions = {
+        // TODO: Avoid deprecated methods from Utils. (Utils.toFixed used in number formatters and tick labels throughout this file), see https://github.com/phetsims/quantum-wave-interference/issues/9
         numberFormatter: ( valueMM: number ) => {
           const valueUM = valueMM * 1000;
           return StringUtils.fillIn(

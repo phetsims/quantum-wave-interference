@@ -108,7 +108,7 @@ export default class DetectorScreenNode extends Node {
       SCREEN_CORNER_RADIUS,
       SCREEN_CORNER_RADIUS,
       {
-        fill: 'black',
+        fill: 'black', // TODO: Should these hardcoded colors be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
         stroke: QuantumWaveInterferenceColors.frontFacingStrokeProperty,
         lineWidth: 1
       }

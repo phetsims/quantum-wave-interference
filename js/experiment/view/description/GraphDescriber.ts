@@ -34,6 +34,7 @@ export default class GraphDescriber {
     // a pedagogically meaningful threshold, not on every frame of hit accumulation.
     let hitStage = '';
 
+    // TODO: This callback accesses many StringProperties that are not dependencies; locale changes won't trigger updates, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const update = () => {
       const scene = model.sceneProperty.value;
       const detectionMode = scene.detectionModeProperty.value;

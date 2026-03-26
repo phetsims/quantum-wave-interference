@@ -617,7 +617,7 @@ export default class ExperimentScreenView extends ScreenView {
         }
         else {
           const slitWidthUM = slitWidthMM * 1000;
-          const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2;
+          const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2; // TODO: This is very hard to read. Factor out const to make easier, see https://github.com/phetsims/quantum-wave-interference/issues/9
           return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
             value: toFixed( slitWidthUM, umDecimalPlaces )
           } );

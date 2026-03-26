@@ -285,6 +285,7 @@ export default class GraphAccordionBox extends Node {
       return;
     }
 
+    // TODO: Avoid deprecated methods from Utils., see https://github.com/phetsims/quantum-wave-interference/issues/9
     const zoomScale = Utils.linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
     const sourceIntensity = sceneModel.intensityProperty.value;
     const screenHalfWidth = sceneModel.screenHalfWidth;

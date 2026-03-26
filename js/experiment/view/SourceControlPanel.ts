@@ -205,6 +205,7 @@ export default class SourceControlPanel extends Panel {
       // "the panel contains a Velocity NumberControl and Intensity Slider".
       // Speed is displayed in km/s for electrons (large: 1e5–1e7 m/s) and m/s for slower particles.
       const velocityRange = scene.velocityRange;
+      // TODO: Format cases like this to read more like first value on one line, : value on 2nd line, see https://github.com/phetsims/quantum-wave-interference/issues/9
       const velocityDelta = scene.sourceType === 'electrons'
                             ? 10000 // 10 km/s
                             : scene.sourceType === 'neutrons'
@@ -217,6 +218,7 @@ export default class SourceControlPanel extends Panel {
       const useKmPerSecond = velocityRange.max >= 10000;
 
       // Format the number display value and tick labels appropriately for the speed range
+      // TODO: Avoid deprecated methods from Utils. (Utils.roundSymmetric used in formatSpeed and formatTickLabel), see https://github.com/phetsims/quantum-wave-interference/issues/9
       const formatSpeed = ( value: number ): string => {
         if ( useKmPerSecond ) {
           const kmPerS = value / 1000;
@@ -228,7 +230,7 @@ export default class SourceControlPanel extends Panel {
           );
         }
         else {
-          return `${Utils.roundSymmetric( value )} m/s`;
+          return `${Utils.roundSymmetric( value )} m/s`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
         }
       };
 
