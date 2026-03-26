@@ -1,6 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
+ * TODO: Add documentation, see https://github.com/phetsims/quantum-wave-interference/issues/9
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
