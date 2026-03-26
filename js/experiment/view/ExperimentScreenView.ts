@@ -38,6 +38,7 @@ import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInte
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
+import GraphDescriber from './description/GraphDescriber.js';
 import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
@@ -553,6 +554,14 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( detectorScreenDescriptionNode );
 
+    // Accessible paragraph describing the graph content for screen reader users.
+    // Dynamic based on detection mode, hit count, and pattern analysis.
+    const graphDescriber = new GraphDescriber( model );
+    const graphDescriptionNode = new Node( {
+      accessibleParagraph: graphDescriber.descriptionProperty
+    } );
+    this.addChild( graphDescriptionNode );
+
     // Accessible paragraph describing the magnified slit view for screen reader users.
     // This is important non-interactive visual content: the slit view shows the barrier
     // with two slits, their width, and the current slit configuration (open/covered/detector).
@@ -652,6 +661,7 @@ export default class ExperimentScreenView extends ScreenView {
     ];
 
     graphHeadingNode.pdomOrder = [
+      graphDescriptionNode,
       ...this.graphAccordionBoxes,
       ...this.graphAccordionBoxes.map( g => g.zoomButtonGroup )
     ];

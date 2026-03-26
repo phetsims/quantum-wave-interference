@@ -1,9 +1,10 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * DetectorScreenDescriber produces a dynamic accessible description of the detector screen
- * that scales with the number of accumulated hits and describes the theoretical intensity
- * pattern. Uses ruler-anchored spatial language when the ruler is visible.
+ * GraphDescriber produces a dynamic accessible description of the intensity graph / hits
+ * histogram that scales with hit count and describes the theoretical intensity curve.
+ * Uses the same band analysis as DetectorScreenDescriber but with graph-oriented language
+ * ("peaks" and "valleys" instead of "bright bands" and "dark bands").
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -15,7 +16,7 @@ import ExperimentModel from '../../model/ExperimentModel.js';
 import SceneModel from '../../model/SceneModel.js';
 import BandAnalysis from './BandAnalysis.js';
 
-export default class DetectorScreenDescriber {
+export default class GraphDescriber {
 
   public readonly descriptionProperty: TReadOnlyProperty<string>;
 
@@ -27,7 +28,7 @@ export default class DetectorScreenDescriber {
     const update = () => {
       const scene = model.sceneProperty.value;
       const detectionMode = scene.detectionModeProperty.value;
-      const paragraphs = QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph;
+      const paragraphs = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph;
       const isRulerVisible = model.isRulerVisibleProperty.value;
       const slitSetting = scene.slitSettingProperty.value;
       const isDoubleSlit = slitSetting === 'bothOpen';
@@ -40,7 +41,7 @@ export default class DetectorScreenDescriber {
 
         const analysis = BandAnalysis.analyzeTheoreticalPattern( scene );
         const spatialDescription = BandAnalysis.formatSpatialDescription(
-          analysis, isDoubleSlit, isRulerVisible, false
+          analysis, isDoubleSlit, isRulerVisible, true
         );
 
         if ( isDoubleSlit ) {
@@ -62,7 +63,7 @@ export default class DetectorScreenDescriber {
 
       const analysis = BandAnalysis.analyzeHitBins( scene );
       const spatialDescription = BandAnalysis.formatSpatialDescription(
-        analysis, isDoubleSlit, isRulerVisible, false
+        analysis, isDoubleSlit, isRulerVisible, true
       );
 
       if ( isDoubleSlit ) {
@@ -70,9 +71,7 @@ export default class DetectorScreenDescriber {
           descriptionProperty.value = paragraphs.hitsFew.format( { totalHits: totalHits } );
         }
         else if ( totalHits <= 50 ) {
-          descriptionProperty.value = paragraphs.hitsEmerging.format( {
-            totalHits: totalHits, spatialDescription: spatialDescription
-          } );
+          descriptionProperty.value = paragraphs.hitsEmerging.format( { totalHits: totalHits } );
         }
         else if ( totalHits <= 200 ) {
           descriptionProperty.value = paragraphs.hitsDeveloping.format( {
@@ -90,9 +89,7 @@ export default class DetectorScreenDescriber {
           descriptionProperty.value = paragraphs.hitsFew.format( { totalHits: totalHits } );
         }
         else if ( totalHits <= 50 ) {
-          descriptionProperty.value = paragraphs.hitsSingleSlitEmerging.format( {
-            totalHits: totalHits, spatialDescription: spatialDescription
-          } );
+          descriptionProperty.value = paragraphs.hitsSingleSlitEmerging.format( { totalHits: totalHits } );
         }
         else {
           descriptionProperty.value = paragraphs.hitsSingleSlitClear.format( {
@@ -123,7 +120,6 @@ export default class DetectorScreenDescriber {
       update();
     } );
 
-    // Also update when the ruler visibility changes, since it affects spatial language.
     model.isRulerVisibleProperty.lazyLink( update );
   }
 }

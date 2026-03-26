@@ -144,13 +144,10 @@ type StringsType = {
       'accessibleNameStringProperty': LocalizedStringProperty;
     };
     'graphAccordionBox': {
-      'accessibleParagraphStringProperty': LocalizedStringProperty;
-      'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
-      'accessibleContextResponseCollapsedStringProperty': LocalizedStringProperty;
-    };
-    'detectorScreen': {
       'accessibleParagraph': {
-        'averageIntensityStringProperty': LocalizedStringProperty;
+        'intensityOffStringProperty': LocalizedStringProperty;
+        'intensityStringProperty': LocalizedStringProperty;
+        'intensitySingleSlitStringProperty': LocalizedStringProperty;
         'hitsNoneStringProperty': LocalizedStringProperty;
         'hitsFewStringProperty': LocalizedStringProperty;
         'hitsEmergingStringProperty': LocalizedStringProperty;
@@ -159,7 +156,32 @@ type StringsType = {
         'hitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
         'hitsSingleSlitClearStringProperty': LocalizedStringProperty;
       };
-      'bandDescriptionPatternStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseCollapsedStringProperty': LocalizedStringProperty;
+    };
+    'detectorScreen': {
+      'accessibleParagraph': {
+        'intensityOffStringProperty': LocalizedStringProperty;
+        'intensityStringProperty': LocalizedStringProperty;
+        'intensitySingleSlitStringProperty': LocalizedStringProperty;
+        'hitsNoneStringProperty': LocalizedStringProperty;
+        'hitsFewStringProperty': LocalizedStringProperty;
+        'hitsEmergingStringProperty': LocalizedStringProperty;
+        'hitsDevelopingStringProperty': LocalizedStringProperty;
+        'hitsClearStringProperty': LocalizedStringProperty;
+        'hitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
+        'hitsSingleSlitClearStringProperty': LocalizedStringProperty;
+      };
+      'spatialDescription': {
+        'rulerBandsStringProperty': LocalizedStringProperty;
+        'rulerBandsSingleSlitStringProperty': LocalizedStringProperty;
+        'noRulerBandsStringProperty': LocalizedStringProperty;
+        'noRulerBandsSingleSlitStringProperty': LocalizedStringProperty;
+        'rulerPeaksStringProperty': LocalizedStringProperty;
+        'rulerPeaksSingleSlitStringProperty': LocalizedStringProperty;
+        'noRulerPeaksStringProperty': LocalizedStringProperty;
+        'noRulerPeaksSingleSlitStringProperty': LocalizedStringProperty;
+      }
     };
     'detectorScreenButtons': {
       'clearScreen': {
