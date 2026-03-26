@@ -8,10 +8,16 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import Utils from '../../../../dot/js/Utils.js';
-import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
+import { clamp } from '../../../../dot/js/util/clamp.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
+import { getHitsBrightnessFraction } from './ScreenBrightnessUtils.js';
+import { getHitsCoreAlpha } from './ScreenBrightnessUtils.js';
+import { getHitsDisplayGain } from './ScreenBrightnessUtils.js';
+import { getHitsGlowAlpha } from './ScreenBrightnessUtils.js';
+import { getIntensityDisplayGain } from './ScreenBrightnessUtils.js';
+import { getSceneRGB } from './ScreenBrightnessUtils.js';
 
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
@@ -23,20 +29,10 @@ const SUPERSAMPLE = 2;
 const TEXTURE_WIDTH = SCREEN_WIDTH * SUPERSAMPLE;
 const TEXTURE_HEIGHT = SCREEN_HEIGHT * SUPERSAMPLE;
 
-// TODO: These brightness/alpha constants are duplicated in SnapshotNode.ts. Factor to shared constants, see https://github.com/phetsims/quantum-wave-interference/issues/9
 // Hit dot rendering parameters (in texture-space, i.e. scaled by SUPERSAMPLE).
 const HIT_CORE_RADIUS = 2.0 * SUPERSAMPLE;
 const HIT_GLOW_RADIUS = 3.4 * SUPERSAMPLE;
 const MAX_RENDERED_HITS = 100000;
-const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
-const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
-const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
-const HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 0.1;
-const HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 1.8; // previous default hits gain
-const HITS_CORE_ALPHA_MIN = 0.2;
-const HITS_CORE_ALPHA_MIDPOINT_MAX = 1;
-const HITS_GLOW_ALPHA_MAX = 0.15;
-const HITS_GLOW_START_FRACTION = 0.5;
 
 type SceneTextureCache = {
   canvas: HTMLCanvasElement;
@@ -63,74 +59,6 @@ type SceneTextureCache = {
 };
 
 const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
-
-// TODO: Duplicated code fragment - getHitRGB and getIntensityRGB have identical implementations. Factor to a shared function, see https://github.com/phetsims/quantum-wave-interference/issues/9
-const getHitRGB = ( sceneModel: SceneModel ): { r: number; g: number; b: number } => {
-  if ( sceneModel.sourceType === 'photons' ) {
-    const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
-    return { r: color.red, g: color.green, b: color.blue };
-  }
-  else {
-    return { r: 255, g: 255, b: 255 };
-  }
-};
-
-const getIntensityRGB = ( sceneModel: SceneModel ): { r: number; g: number; b: number } => {
-  if ( sceneModel.sourceType === 'photons' ) {
-    const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
-    return { r: color.red, g: color.green, b: color.blue };
-  }
-  else {
-    return { r: 255, g: 255, b: 255 };
-  }
-};
-
-const getIntensityScreenBrightnessMultiplier = ( sliderBrightness: number ): number => {
-  const clampedBrightness = Utils.clamp( sliderBrightness, 0, 1 );
-  return Utils.linear(
-    0,
-    1,
-    INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER,
-    INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
-    clampedBrightness
-  );
-};
-
-const getHitsScreenBrightnessMultiplier = ( sliderBrightness: number, sliderMax: number ): number => {
-  const clampedBrightness = Utils.clamp( sliderBrightness, 0, sliderMax );
-
-  // TODO: Avoid deprecated methods from Utils., see https://github.com/phetsims/quantum-wave-interference/issues/9
-  return Utils.linear(
-    0,
-    sliderMax,
-    HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER,
-    HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
-    clampedBrightness
-  );
-};
-
-// TODO: Duplicated code fragment (21 lines), see https://github.com/phetsims/quantum-wave-interference/issues/9
-const getHitsCoreAlpha = ( brightnessFraction: number ): number => {
-  const clampedFraction = Utils.clamp( brightnessFraction, 0, 1 );
-  if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {
-    return Utils.linear(
-      0,
-      HITS_GLOW_START_FRACTION,
-      HITS_CORE_ALPHA_MIN,
-      HITS_CORE_ALPHA_MIDPOINT_MAX,
-      clampedFraction
-    );
-  }
-  return HITS_CORE_ALPHA_MIDPOINT_MAX;
-};
-
-const getHitsGlowAlpha = ( brightnessFraction: number ): number => {
-  const clampedFraction = Utils.clamp( brightnessFraction, 0, 1 );
-  if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {
-    return 0;
-  }
-  return Utils.linear( HITS_GLOW_START_FRACTION, 1, 0, HITS_GLOW_ALPHA_MAX, clampedFraction );
-};
 
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
@@ -209,7 +137,7 @@ const paintHits = (
     return;
   }
 
-  const rgb = getHitRGB( sceneModel );
+  const rgb = getSceneRGB( sceneModel );
   const coreAlpha = getHitsCoreAlpha( brightnessFraction );
   const glowAlpha = getHitsGlowAlpha( brightnessFraction );
   const glowRadius = HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
@@ -222,10 +150,9 @@ const paintHits = (
   const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
   const startIndex = hitCount - renderCount;
 
-  // TODO: Remove or replace this console.log with a proper logging mechanism, see https://github.com/phetsims/quantum-wave-interference/issues/9
   if ( renderCount >= MAX_RENDERED_HITS && !hasLoggedRenderCap ) {
     hasLoggedRenderCap = true;
-    console.log(
+    phet.log && phet.log(
       `[DetectorScreen] Render cap reached: only the most recent ${MAX_RENDERED_HITS} hits are drawn. Hit counter continues to accumulate.`
     );
   }
@@ -264,7 +191,7 @@ const paintIntensity = (
   }
 
   const screenHalfWidth = sceneModel.screenHalfWidth;
-  const rgb = getIntensityRGB( sceneModel );
+  const rgb = getSceneRGB( sceneModel );
   const baseGain = displayGain;
 
   for ( let x = 0; x < TEXTURE_WIDTH; x++ ) {
@@ -273,14 +200,14 @@ const paintIntensity = (
     const intensity = sceneModel.getIntensityAtPosition( physicalX );
     const scale = intensity * baseGain;
 
-    if ( scale < 0.004 ) { // TODO: Document this magic number threshold (also duplicated in SnapshotNode.ts), see https://github.com/phetsims/quantum-wave-interference/issues/9
+    // Skip bands below perceptual visibility to avoid painting nearly-black pixels
+    if ( scale < 0.004 ) {
       continue;
     }
 
-    // TODO: Avoid deprecated methods from Utils., see https://github.com/phetsims/quantum-wave-interference/issues/9
-    const r = Utils.clamp( Utils.roundSymmetric( rgb.r * scale ), 0, 255 );
-    const g = Utils.clamp( Utils.roundSymmetric( rgb.g * scale ), 0, 255 );
-    const b = Utils.clamp( Utils.roundSymmetric( rgb.b * scale ), 0, 255 );
+    const r = clamp( roundSymmetric( rgb.r * scale ), 0, 255 );
+    const g = clamp( roundSymmetric( rgb.g * scale ), 0, 255 );
+    const b = clamp( roundSymmetric( rgb.b * scale ), 0, 255 );
     context.fillStyle = `rgb(${r},${g},${b})`;
     context.fillRect( x, 0, 1, TEXTURE_HEIGHT );
   }
@@ -318,23 +245,15 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
     cache.lastIsEmitting = currentIsEmitting;
   }
 
-  const intensityBrightnessMultiplier = getIntensityScreenBrightnessMultiplier( currentBrightness );
-  const hitsBrightnessMultiplier = getHitsScreenBrightnessMultiplier(
+  const hitsDisplayGain = getHitsDisplayGain(
     currentBrightness,
     sceneModel.screenBrightnessProperty.range.max
   );
-  const intensityMultiplier =
-    Utils.clamp( currentIntensity, 0, 1 ) * INTENSITY_BRIGHTNESS_MAX_MULTIPLIER;
-  const hitsDisplayGain = hitsBrightnessMultiplier;
-  const hitsBrightnessFraction = Utils.clamp(
-    currentBrightness / sceneModel.screenBrightnessProperty.range.max,
-    0,
-    1
-  );
-  const intensityDisplayGain = intensityBrightnessMultiplier * intensityMultiplier;
+  const hitsBrightnessFractionValue = getHitsBrightnessFraction( currentBrightness );
+  const intensityDisplayGain = getIntensityDisplayGain( currentBrightness, currentIntensity );
 
   if ( currentDetectionMode === 'hits' ) {
-    paintHits( cache, context, sceneModel, hitsDisplayGain, hitsBrightnessFraction );
+    paintHits( cache, context, sceneModel, hitsDisplayGain, hitsBrightnessFractionValue );
   }
   else {
     // Intensity mode always redraws fully (it's O(TEXTURE_WIDTH) ≈ 560 iterations, already fast).

@@ -75,7 +75,8 @@ export default class OverheadDoubleSlitNode extends Node {
     // Slit lines on the parallelogram
     const slitLineLength = 18.75 * OVERHEAD_SCALE;
     const slitXFraction = 0.5;
-    // Keep slit lines vertically centered in the slit element. // TODO: line comments should have a blank line preceding, see https://github.com/phetsims/quantum-wave-interference/issues/9
+
+    // Keep slit lines vertically centered in the slit element.
     const slitYCenter = PARALLELOGRAM_LEFT_HEIGHT / 2;
     const slitBaseX = slitXFraction * this.skewDx;
     const slitBaseY = slitYCenter + slitXFraction * this.skewDy;

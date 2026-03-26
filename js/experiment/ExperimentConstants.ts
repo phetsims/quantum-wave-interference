@@ -22,10 +22,6 @@ export default class ExperimentConstants {
   // Increased to add more vertical separation below the overhead row.
   public static readonly FRONT_FACING_ROW_TOP = 180;
 
-  // X position of the front-facing slit view left edge.
-  // TODO: Unused, see https://github.com/phetsims/quantum-wave-interference/issues/9
-  public static readonly FRONT_FACING_SLIT_LEFT = 305;
-
   // Width of the front-facing detector screen rect.
   public static readonly DETECTOR_SCREEN_WIDTH = 376;
 

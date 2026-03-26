@@ -1,8 +1,6 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * TODO: This file is large (~460 lines). Consider moving SnapshotCanvasNode to a separate file, see https://github.com/phetsims/quantum-wave-interference/issues/9
- *
  * SnapshotNode displays a single snapshot in the SnapshotsDialog. It shows a miniature rendering of the
  * detector screen state at the time the snapshot was taken, along with a title, key physics parameters
  * (slit separation, screen distance, wavelength), and a delete button.
@@ -17,8 +15,9 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import { clamp } from '../../../../dot/js/util/clamp.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
-import Utils from '../../../../dot/js/Utils.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import TrashButton from '../../../../scenery-phet/js/buttons/TrashButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -34,8 +33,17 @@ import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
+import { ELECTRON_MASS } from '../model/SceneModel.js';
+import { HELIUM_ATOM_MASS } from '../model/SceneModel.js';
+import { NEUTRON_MASS } from '../model/SceneModel.js';
+import { PLANCK_CONSTANT } from '../model/SceneModel.js';
 import SceneModel from '../model/SceneModel.js';
 import Snapshot from '../model/Snapshot.js';
+import { getHitsBrightnessFraction } from './ScreenBrightnessUtils.js';
+import { getHitsCoreAlpha } from './ScreenBrightnessUtils.js';
+import { getHitsDisplayGain } from './ScreenBrightnessUtils.js';
+import { getHitsGlowAlpha } from './ScreenBrightnessUtils.js';
+import { getIntensityDisplayGain } from './ScreenBrightnessUtils.js';
 
 // Snapshot display dimensions (scaled down from the full detector screen)
 const SNAPSHOT_WIDTH = 360;
@@ -46,15 +54,6 @@ const CORNER_RADIUS = 6;
 const METADATA_WIDTH = 165;
 const HIT_CORE_RADIUS = 2.0;
 const HIT_GLOW_RADIUS = 3.4;
-const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
-const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
-const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
-const HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 0.1;
-const HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 1.8; // previous default hits gain
-const HITS_CORE_ALPHA_MIN = 0.2;
-const HITS_CORE_ALPHA_MIDPOINT_MAX = 1;
-const HITS_GLOW_ALPHA_MAX = 0.15;
-const HITS_GLOW_START_FRACTION = 0.5;
 const MAX_RENDERED_SNAPSHOT_HITS = 100000;
 
 const PARAM_FONT = new PhetFont( 12 );
@@ -80,63 +79,6 @@ const SLIT_SETTING_DISPLAY_MAP: Record<string, TReadOnlyProperty<string>> = {
   rightDetector: QuantumWaveInterferenceFluent.rightDetectorStringProperty
 };
 
-// TODO: Duplicated code fragment - these brightness/alpha functions are duplicated from getDetectorScreenTexture.ts. Factor to shared utility, see https://github.com/phetsims/quantum-wave-interference/issues/9
-// TODO: Avoid deprecated methods from Utils. (Utils.clamp, Utils.linear, Utils.roundSymmetric used throughout this file), see https://github.com/phetsims/quantum-wave-interference/issues/9
-const getIntensityScreenBrightnessMultiplier = ( sliderBrightness: number ): number => {
-  const clampedBrightness = Utils.clamp( sliderBrightness, 0, 1 );
-  return Utils.linear(
-    0,
-    1,
-    INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER,
-    INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
-    clampedBrightness
-  );
-};
-
-const getHitsDisplayGain = ( brightness: number ): number => {
-  const clampedBrightness = Utils.clamp( brightness, 0, SceneModel.SCREEN_BRIGHTNESS_MAX );
-  return Utils.linear(
-    0,
-    SceneModel.SCREEN_BRIGHTNESS_MAX,
-    HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER,
-    HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
-    clampedBrightness
-  );
-};
-
-const getHitsBrightnessFraction = ( brightness: number ): number => {
-  return Utils.clamp( brightness / SceneModel.SCREEN_BRIGHTNESS_MAX, 0, 1 );
-};
-
-const getHitsCoreAlpha = ( brightnessFraction: number ): number => {
-  const clampedFraction = Utils.clamp( brightnessFraction, 0, 1 );
-  if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {
-    return Utils.linear(
-      0,
-      HITS_GLOW_START_FRACTION,
-      HITS_CORE_ALPHA_MIN,
-      HITS_CORE_ALPHA_MIDPOINT_MAX,
-      clampedFraction
-    );
-  }
-  return HITS_CORE_ALPHA_MIDPOINT_MAX;
-};
-
-const getHitsGlowAlpha = ( brightnessFraction: number ): number => {
-  const clampedFraction = Utils.clamp( brightnessFraction, 0, 1 );
-  if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {
-    return 0;
-  }
-  return Utils.linear( HITS_GLOW_START_FRACTION, 1, 0, HITS_GLOW_ALPHA_MAX, clampedFraction );
-};
-
-const getIntensityDisplayGain = ( brightness: number, intensity: number ): number => {
-  return (
-    getIntensityScreenBrightnessMultiplier( brightness ) *
-    Utils.clamp( intensity, 0, 1 ) *
-    INTENSITY_BRIGHTNESS_MAX_MULTIPLIER
-  );
-};
 
 export default class SnapshotNode extends Node {
   public constructor( sceneModel: SceneModel, index: number ) {
@@ -184,15 +126,13 @@ export default class SnapshotNode extends Node {
       children: [ sceneNameText, wavelengthOrSpeedText, slitSepText, screenDistText, slitSettingText ]
     } );
 
-    // Update all text content when the snapshot changes
-    // TODO: This callback uses many StringProperties (snapshotNumberPatternStringProperty, slitSeparationStringProperty, screenDistanceStringProperty, wavelengthStringProperty, particleSpeedStringProperty, etc.) that are not dependencies. Locale changes won't trigger updates, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    snapshotProperty.link( snapshot => {
+    // Update all text content when the snapshot changes or when locale strings change.
+    const updateLabels = (): void => {
+      const snapshot = snapshotProperty.value;
       if ( snapshot ) {
         titleText.string = StringUtils.fillIn(
           QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty.value,
-          {
-            number: index + 1
-          }
+          { number: index + 1 }
         );
         const sourceTypeDisplayProperty = SOURCE_TYPE_DISPLAY_MAP[ snapshot.sourceType ];
         sceneNameText.string = sourceTypeDisplayProperty ? sourceTypeDisplayProperty.value : snapshot.sourceType;
@@ -200,46 +140,94 @@ export default class SnapshotNode extends Node {
         // Slit separation: use μm for small values (< 0.1 mm) for readability
         if ( snapshot.slitSeparation < 0.1 ) {
           const valueUM = snapshot.slitSeparation * 1000;
-          slitSepText.string = `${QuantumWaveInterferenceFluent.slitSeparationStringProperty.value}: ${toFixed( valueUM, 1 )} μm`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+          const slitSepValue = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
+            { value: toFixed( valueUM, 1 ) }
+          );
+          slitSepText.string = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
+            { label: QuantumWaveInterferenceFluent.slitSeparationStringProperty.value, value: slitSepValue }
+          );
         }
         else {
-          slitSepText.string = `${QuantumWaveInterferenceFluent.slitSeparationStringProperty.value}: ${toFixed( snapshot.slitSeparation, 2 )} mm`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+          const slitSepValue = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value,
+            { value: toFixed( snapshot.slitSeparation, 2 ) }
+          );
+          slitSepText.string = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
+            { label: QuantumWaveInterferenceFluent.slitSeparationStringProperty.value, value: slitSepValue }
+          );
         }
 
-        screenDistText.string = `${QuantumWaveInterferenceFluent.screenDistanceStringProperty.value}: ${toFixed( snapshot.screenDistance, 1 )} m`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+        const screenDistValue = StringUtils.fillIn(
+          QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value,
+          { value: toFixed( snapshot.screenDistance, 1 ) }
+        );
+        screenDistText.string = StringUtils.fillIn(
+          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
+          { label: QuantumWaveInterferenceFluent.screenDistanceStringProperty.value, value: screenDistValue }
+        );
 
         // Show photon wavelength directly, and particle speed for matter-wave scenes.
         if ( snapshot.sourceType === 'photons' ) {
-          wavelengthOrSpeedText.string = `${SceneryPhetFluent.wavelengthStringProperty.value}: ${Utils.roundSymmetric( snapshot.wavelength )} nm`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+          const wavelengthValue = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty.value,
+            { value: roundSymmetric( snapshot.wavelength ) }
+          );
+          wavelengthOrSpeedText.string = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
+            { label: SceneryPhetFluent.wavelengthStringProperty.value, value: wavelengthValue }
+          );
         }
         else {
-          // TODO: These physical constants (particle masses, Planck's constant) should be named constants, not magic numbers. Also duplicated from SceneModel, see https://github.com/phetsims/quantum-wave-interference/issues/9
           const particleMass =
-            snapshot.sourceType === 'electrons' ? 9.109e-31 :
-            snapshot.sourceType === 'neutrons' ? 1.675e-27 :
-            6.646e-27;
-          const speed = snapshot.effectiveWavelength === 0 ? 0 : 6.626e-34 / ( particleMass * snapshot.effectiveWavelength );
+            snapshot.sourceType === 'electrons' ? ELECTRON_MASS :
+            snapshot.sourceType === 'neutrons' ? NEUTRON_MASS :
+            HELIUM_ATOM_MASS;
+          const speed = snapshot.effectiveWavelength === 0 ? 0 : PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
           if ( speed >= 10000 ) {
-            wavelengthOrSpeedText.string = StringUtils.fillIn(
+            const kmPerSValue = StringUtils.fillIn(
               QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value,
-              {
-                value: Utils.roundSymmetric( speed / 1000 )
-              }
+              { value: roundSymmetric( speed / 1000 ) }
             );
-            wavelengthOrSpeedText.string = `${QuantumWaveInterferenceFluent.particleSpeedStringProperty.value}: ${wavelengthOrSpeedText.string}`;
+            wavelengthOrSpeedText.string = StringUtils.fillIn(
+              QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
+              { label: QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, value: kmPerSValue }
+            );
           }
           else {
-            wavelengthOrSpeedText.string = `${QuantumWaveInterferenceFluent.particleSpeedStringProperty.value}: ${Utils.roundSymmetric( speed )} m/s`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+            const speedValue = StringUtils.fillIn(
+              QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty.value,
+              { value: roundSymmetric( speed ) }
+            );
+            wavelengthOrSpeedText.string = StringUtils.fillIn(
+              QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
+              { label: QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, value: speedValue }
+            );
           }
         }
 
         const slitSettingDisplayProperty = SLIT_SETTING_DISPLAY_MAP[ snapshot.slitSetting ];
         const slitSettingDisplayString = slitSettingDisplayProperty ? slitSettingDisplayProperty.value : snapshot.slitSetting;
-        slitSettingText.string = `Slits: ${slitSettingDisplayString}`; // TODO: "Slits:" must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+        slitSettingText.string = StringUtils.fillIn(
+          QuantumWaveInterferenceFluent.slitsLabelPatternStringProperty.value,
+          { setting: slitSettingDisplayString }
+        );
       }
 
       canvasNode.invalidatePaint();
-    } );
+    };
+
+    // Re-render when the snapshot itself changes or when any locale-dependent string changes.
+    snapshotProperty.link( updateLabels );
+    QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty.lazyLink( updateLabels );
+    QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.lazyLink( updateLabels );
+    QuantumWaveInterferenceFluent.slitSeparationStringProperty.lazyLink( updateLabels );
+    QuantumWaveInterferenceFluent.screenDistanceStringProperty.lazyLink( updateLabels );
+    QuantumWaveInterferenceFluent.particleSpeedStringProperty.lazyLink( updateLabels );
+    QuantumWaveInterferenceFluent.slitsLabelPatternStringProperty.lazyLink( updateLabels );
+    SceneryPhetFluent.wavelengthStringProperty.lazyLink( updateLabels );
 
     const trashButton = new TrashButton( {
       listener: () => {
@@ -314,7 +302,6 @@ class SnapshotCanvasNode extends CanvasNode {
     super( {
       canvasBounds: new Bounds2( 0, 0, width, height )
     } );
-    // TODO: Do we want to use parameter properties throughout this sim, see https://github.com/phetsims/quantum-wave-interference/issues/9
     this.snapshotProperty = snapshotProperty;
     this.sceneModel = sceneModel;
     this.intensityTextureCanvas = document.createElement( 'canvas' );
@@ -404,8 +391,8 @@ class SnapshotCanvasNode extends CanvasNode {
     const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
     const screenHalfWidth = this.sceneModel.screenHalfWidth;
     const slitWidthMeters = this.sceneModel.slitWidth * 1e-3;
-    const d = snapshot.slitSeparation * 1e-3; // TODO: Use descriptive names (e.g. slitSeparationMeters) instead of single-letter physics variables, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    const L = snapshot.screenDistance; // TODO: Use descriptive names (e.g. screenDistanceMeters) instead of single-letter physics variables, see https://github.com/phetsims/quantum-wave-interference/issues/9
+    const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
+    const screenDistanceMeters = snapshot.screenDistance;
     const slitSetting = snapshot.slitSetting;
     const isSingleSlit =
       slitSetting === 'leftCovered' ||
@@ -420,7 +407,7 @@ class SnapshotCanvasNode extends CanvasNode {
     for ( let x = 0; x < FULL_SCREEN_TEXTURE_WIDTH; x++ ) {
       const fraction = ( x + 0.5 ) / FULL_SCREEN_TEXTURE_WIDTH;
       const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
-      const sinTheta = physicalX / Math.sqrt( physicalX * physicalX + L * L );
+      const sinTheta = physicalX / Math.sqrt( physicalX * physicalX + screenDistanceMeters * screenDistanceMeters );
 
       const singleSlitArg = Math.PI * slitWidthMeters * sinTheta / lambda;
       const singleSlitFactor = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
@@ -428,21 +415,22 @@ class SnapshotCanvasNode extends CanvasNode {
       const intensity =
         isSingleSlit
         ? singleSlitFactor
-        : Math.pow( Math.cos( Math.PI * d * sinTheta / lambda ), 2 ) * singleSlitFactor;
+        : Math.pow( Math.cos( Math.PI * slitSeparationMeters * sinTheta / lambda ), 2 ) * singleSlitFactor;
 
       const intensityScale = intensity * displayGain;
-      if ( intensityScale < 0.004 ) { // TODO: Document this magic number threshold, see https://github.com/phetsims/quantum-wave-interference/issues/9
+      // Skip bands below perceptual visibility to avoid painting nearly-black pixels
+      if ( intensityScale < 0.004 ) {
         continue;
       }
 
       if ( photonColor ) {
-        const r = Utils.clamp( Utils.roundSymmetric( photonColor.red * intensityScale ), 0, 255 );
-        const g = Utils.clamp( Utils.roundSymmetric( photonColor.green * intensityScale ), 0, 255 );
-        const b = Utils.clamp( Utils.roundSymmetric( photonColor.blue * intensityScale ), 0, 255 );
+        const r = clamp( roundSymmetric( photonColor.red * intensityScale ), 0, 255 );
+        const g = clamp( roundSymmetric( photonColor.green * intensityScale ), 0, 255 );
+        const b = clamp( roundSymmetric( photonColor.blue * intensityScale ), 0, 255 );
         textureContext.fillStyle = `rgb(${r},${g},${b})`;
       }
       else {
-        const value = Utils.clamp( Utils.roundSymmetric( 255 * intensityScale ), 0, 255 );
+        const value = clamp( roundSymmetric( 255 * intensityScale ), 0, 255 );
         textureContext.fillStyle = `rgb(${value},${value},${value})`;
       }
       textureContext.fillRect( x, 0, 1, FULL_SCREEN_TEXTURE_HEIGHT );

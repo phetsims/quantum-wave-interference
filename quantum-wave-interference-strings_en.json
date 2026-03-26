@@ -50,6 +50,39 @@
   "particleSpeedKmPerSecondPattern": {
     "value": "{{value}} km/s"
   },
+  "particleSpeedMeterPerSecondPattern": {
+    "value": "{{value}} m/s"
+  },
+  "wavelengthNanometersPattern": {
+    "value": "{{value}} nm"
+  },
+  "valueMillimetersPattern": {
+    "value": "{{value}} mm"
+  },
+  "valueMicrometersPattern": {
+    "value": "{{value}} μm"
+  },
+  "valueMetersPattern": {
+    "value": "{{value}} m"
+  },
+  "rulerUnits": {
+    "value": "mm"
+  },
+  "slitsLabelPattern": {
+    "value": "Slits: {{setting}}"
+  },
+  "snapshotLabelValuePattern": {
+    "value": "{{label}}: {{value}}"
+  },
+  "electronMassLabel": {
+    "value": "m<sub>e</sub> = 9.1×10<sup>−31</sup> kg"
+  },
+  "neutronMassLabel": {
+    "value": "m<sub>n</sub> = 1.7×10<sup>−27</sup> kg"
+  },
+  "heliumAtomMassLabel": {
+    "value": "m<sub>He</sub> = 6.6×10<sup>−27</sup> kg"
+  },
   "max": {
     "value": "Max"
   },

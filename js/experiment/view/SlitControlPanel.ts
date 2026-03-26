@@ -14,7 +14,7 @@
 import Property from '../../../../axon/js/Property.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
-import Utils from '../../../../dot/js/Utils.js';
+import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
@@ -29,7 +29,7 @@ import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceC
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SlitSetting } from '../model/SlitSetting.js';
+import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
@@ -125,13 +125,12 @@ export default class SlitControlPanel extends Panel {
       );
       slitSeparationDelta = SlitControlPanel.getDelta( slitSeparationRange );
       slitSeparationNumberDisplayOptions = {
-        // TODO: Avoid deprecated methods from Utils. (Utils.toFixed used in number formatters and tick labels throughout this file), see https://github.com/phetsims/quantum-wave-interference/issues/9
         numberFormatter: ( valueMM: number ) => {
           const valueUM = valueMM * 1000;
           return StringUtils.fillIn(
             QuantumWaveInterferenceFluent.slitSeparationMicrometerPatternStringProperty.value,
             {
-              value: Utils.toFixed( valueUM, mmToMicrometerDecimalPlaces )
+              value: toFixed( valueUM, mmToMicrometerDecimalPlaces )
             }
           );
         },
@@ -226,7 +225,7 @@ export default class SlitControlPanel extends Panel {
       maxWidth: 170
     } );
 
-    const comboBoxItems: ComboBoxItem<SlitSetting>[] = [
+    const comboBoxItems: ComboBoxItem<SlitConfiguration>[] = [
       {
         value: 'bothOpen',
         createNode: () =>
@@ -310,7 +309,6 @@ export default class SlitControlPanel extends Panel {
    * Creates major tick marks with μm labels for slit separation ranges that are in the micrometer scale.
    * The range is in mm but the labels display the values converted to μm for readability.
    */
-  // TODO: Avoid deprecated methods from Utils. (Utils.toFixed used in createMicrometerTicks and createNumericTicks), see https://github.com/phetsims/quantum-wave-interference/issues/9
   private static createMicrometerTicks( range: Range ): { value: number; label: Node }[] {
     // Use consistent decimal places across both tick labels so they visually match.
     // E.g., for range 0.5–1.0 μm, both ticks should show 1 decimal place: "0.5" and "1.0".
@@ -324,14 +322,14 @@ export default class SlitControlPanel extends Panel {
     return [
       {
         value: range.min,
-        label: new Text( Utils.toFixed( minUM, decimalPlaces ), {
+        label: new Text( toFixed( minUM, decimalPlaces ), {
           font: TICK_LABEL_FONT,
           maxWidth: 40
         } )
       },
       {
         value: range.max,
-        label: new Text( Utils.toFixed( maxUM, decimalPlaces ), {
+        label: new Text( toFixed( maxUM, decimalPlaces ), {
           font: TICK_LABEL_FONT,
           maxWidth: 40
         } )
@@ -354,14 +352,14 @@ export default class SlitControlPanel extends Panel {
     return [
       {
         value: range.min,
-        label: new Text( Utils.toFixed( range.min, decimalPlaces ), {
+        label: new Text( toFixed( range.min, decimalPlaces ), {
           font: TICK_LABEL_FONT,
           maxWidth: 40
         } )
       },
       {
         value: range.max,
-        label: new Text( Utils.toFixed( range.max, decimalPlaces ), {
+        label: new Text( toFixed( range.max, decimalPlaces ), {
           font: TICK_LABEL_FONT,
           maxWidth: 40
         } )

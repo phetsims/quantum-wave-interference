@@ -19,7 +19,7 @@ import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SlitSetting } from '../model/SlitSetting.js';
+import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const DETECTOR_BOX_WIDTH = 58 * OVERHEAD_SCALE;
@@ -65,7 +65,7 @@ export default class WhichPathDetectorIndicatorNode extends Node {
       }
     };
 
-    const slitSettingProperty = new DynamicProperty<SlitSetting, SlitSetting, SceneModel>( model.sceneProperty, {
+    const slitSettingProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>( model.sceneProperty, {
       derive: scene => scene.slitSettingProperty
     } );
 

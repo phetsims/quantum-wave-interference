@@ -20,9 +20,7 @@ import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
-import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import SceneModel from './SceneModel.js';
-import { type SlitSetting, SlitSettingValues } from './SlitSetting.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -115,82 +113,6 @@ export default class ExperimentModel implements TModel {
       }
     } );
 
-    // Apply query parameters for initial state configuration.
-    // These are useful for testing specific scenarios without manual UI interaction.
-    const sceneParam = QuantumWaveInterferenceQueryParameters.scene;
-    if ( sceneParam ) {
-      const sceneMap: Record<string, SceneModel> = {
-        photons: this.photonsScene,
-        electrons: this.electronsScene,
-        neutrons: this.neutronsScene,
-        helium: this.heliumAtomsScene
-      };
-      if ( sceneMap[ sceneParam ] ) {
-        this.sceneProperty.value = sceneMap[ sceneParam ];
-      }
-    }
-
-    // TODO: Remove these testing query parameters, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    if ( QuantumWaveInterferenceQueryParameters.emitting ) {
-      this.sceneProperty.value.isEmittingProperty.value = true;
-    }
-
-    if ( QuantumWaveInterferenceQueryParameters.hitsMode ) {
-      this.sceneProperty.value.detectionModeProperty.value = 'hits';
-    }
-
-    const speedParam = QuantumWaveInterferenceQueryParameters.timeSpeed;
-    if ( speedParam ) {
-      const speedMap: Record<string, TimeSpeed> = {
-        slow: TimeSpeed.SLOW,
-        normal: TimeSpeed.NORMAL,
-        fast: TimeSpeed.FAST
-      };
-      if ( speedMap[ speedParam ] ) {
-        this.timeSpeedProperty.value = speedMap[ speedParam ];
-      }
-    }
-
-    // Apply physics query parameters to the active scene (selected by ?scene or default photons).
-    // String params are parsed as numbers and clamped to the active scene's valid range.
-    const activeScene = this.sceneProperty.value;
-
-    const wavelengthParam = QuantumWaveInterferenceQueryParameters.wavelength;
-    if ( wavelengthParam !== null && activeScene.sourceType === 'photons' ) {
-      const value = parseFloat( wavelengthParam );
-      if ( !isNaN( value ) ) {
-        activeScene.wavelengthProperty.value = activeScene.wavelengthProperty.range.constrainValue( value );
-      }
-    }
-
-    const slitSeparationParam = QuantumWaveInterferenceQueryParameters.slitSeparation;
-    if ( slitSeparationParam !== null ) {
-      const value = parseFloat( slitSeparationParam );
-      if ( !isNaN( value ) ) {
-        activeScene.slitSeparationProperty.value = activeScene.slitSeparationRange.constrainValue( value );
-      }
-    }
-
-    const screenDistanceParam = QuantumWaveInterferenceQueryParameters.screenDistance;
-    if ( screenDistanceParam !== null ) {
-      const value = parseFloat( screenDistanceParam );
-      if ( !isNaN( value ) ) {
-        activeScene.screenDistanceProperty.value = activeScene.screenDistanceRange.constrainValue( value );
-      }
-    }
-
-    const intensityParam = QuantumWaveInterferenceQueryParameters.intensity;
-    if ( intensityParam !== null ) {
-      const value = parseFloat( intensityParam );
-      if ( !isNaN( value ) ) {
-        activeScene.intensityProperty.value = activeScene.intensityProperty.range.constrainValue( value );
-      }
-    }
-
-    const slitSettingParam = QuantumWaveInterferenceQueryParameters.slitSetting;
-    if ( slitSettingParam !== null && ( SlitSettingValues as readonly string[] ).includes( slitSettingParam ) ) {
-      activeScene.slitSettingProperty.value = slitSettingParam as SlitSetting;
-    }
   }
 
   /**

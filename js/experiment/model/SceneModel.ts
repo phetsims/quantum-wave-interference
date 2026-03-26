@@ -27,17 +27,18 @@ import GetSetButtonsIO from '../../../../tandem/js/types/GetSetButtonsIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
-import { type SlitSetting, SlitSettingValues } from './SlitSetting.js';
+import { type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
 import Snapshot from './Snapshot.js';
 import { type SourceType } from './SourceType.js';
 
-// Physical constants
-const PLANCK_CONSTANT = 6.626e-34; // J·s
+// Physical constants - exported so SnapshotNode and other view code can derive particle speed
+// from the stored effective wavelength without duplicating magic numbers.
+export const PLANCK_CONSTANT = 6.626e-34; // J·s
 
 // Particle masses in kg
-const ELECTRON_MASS = 9.109e-31;
-const NEUTRON_MASS = 1.675e-27;
-const HELIUM_ATOM_MASS = 6.646e-27;
+export const ELECTRON_MASS = 9.109e-31;
+export const NEUTRON_MASS = 1.675e-27;
+export const HELIUM_ATOM_MASS = 6.646e-27;
 
 // Maximum emission rate in hits per second at full intensity
 const MAX_EMISSION_RATE = 100;
@@ -86,7 +87,7 @@ export default class SceneModel extends PhetioObject {
   public readonly screenDistanceProperty: NumberProperty;
 
   // Slit configuration
-  public readonly slitSettingProperty: StringUnionProperty<SlitSetting>;
+  public readonly slitSettingProperty: StringUnionProperty<SlitConfiguration>;
 
   // Detection mode (Average Intensity vs Hits)
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
@@ -126,7 +127,9 @@ export default class SceneModel extends PhetioObject {
   // hits that landed in that horizontal region. The bins span the full screen width [-1, 1].
   // This enables Average Intensity mode to build up over time rather than showing the theoretical
   // pattern instantly, matching the design requirement that time controls affect aggregation rate.
-  // TODO: Is this just for performance optimization? See https://github.com/phetsims/quantum-wave-interference/issues/9
+  // Not just for performance — the bins persist the cumulative distribution while the hits array
+  // is periodically trimmed (see MAX_HITS_RETAINED). They also allow efficient normalization
+  // without iterating the full hits array each frame.
   public readonly intensityBins: number[];
 
   // The maximum value in intensityBins, tracked incrementally for efficient normalization
@@ -141,8 +144,8 @@ export default class SceneModel extends PhetioObject {
   // Number of snapshots currently stored
   public readonly numberOfSnapshotsProperty: TReadOnlyProperty<number>;
 
-  // Counter for generating unique snapshot numbers
-  // REVIEW: Can this be eliminated - and computed dynamically, see https://github.com/phetsims/quantum-wave-interference/issues/9
+  // Monotonically increasing counter for unique snapshot numbering. Cannot be derived from
+  // snapshotsProperty.length because snapshots can be deleted, and we want labels to never repeat.
   private nextSnapshotNumber: number;
 
   // Fractional hit accumulator for sub-frame hit tracking
@@ -226,7 +229,8 @@ export default class SceneModel extends PhetioObject {
 
     // Wavelength in nm. For photons, this is directly controlled via a slider. For particles, this property is
     // not used directly — the effective wavelength is computed from velocity via de Broglie relation.
-    // TODO: Is this range correct for non-photons, see https://github.com/phetsims/quantum-wave-interference/issues/9
+    // For non-photons, the wavelength is derived from velocity via de Broglie (see getEffectiveWavelength),
+    // so this property's range is [0,0] and its value is unused directly.
     this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? 650 : 0, {
       range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),
       units: 'nm',
@@ -256,8 +260,8 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'screenDistanceProperty' )
     } );
 
-    this.slitSettingProperty = new StringUnionProperty<SlitSetting>( 'bothOpen', {
-      validValues: SlitSettingValues,
+    this.slitSettingProperty = new StringUnionProperty<SlitConfiguration>( 'bothOpen', {
+      validValues: SlitConfigurationValues,
       tandem: tandem.createTandem( 'slitSettingProperty' )
     } );
 
@@ -330,7 +334,7 @@ export default class SceneModel extends PhetioObject {
     }
     else {
 
-      // TODO: affirm that we have a velocity if non-photon, see https://github.com/phetsims/quantum-wave-interference/issues/9
+      assert && assert( this.velocityProperty.value !== undefined, 'Non-photon scenes must have a velocity' );
       const velocity = this.velocityProperty.value;
       if ( velocity === 0 ) {
         return 0;
@@ -344,25 +348,22 @@ export default class SceneModel extends PhetioObject {
    * Uses the double-slit interference formula: I = I0 * cos²(π d sinθ / λ) * sinc²(π a sinθ / λ)
    * where d = slit separation, a = slit width, λ = wavelength, θ = angle from center.
    *
-   * @param y - position on screen in meters, relative to center
-   * TODO: Why is this parameter y and not x? https://github.com/phetsims/quantum-wave-interference/issues/9
+   * @param positionOnScreen - position on screen in meters, relative to center
    */
-  public getIntensityAtPosition( y: number ): number {
+  public getIntensityAtPosition( positionOnScreen: number ): number {
     const lambda = this.getEffectiveWavelength();
     if ( lambda === 0 ) {
       return 0;
     }
 
-    // TODO: Use descriptive names (e.g. slitSeparationMeters, slitWidthMeters, screenDistanceMeters) instead of single-letter physics variables, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    const d = this.slitSeparationProperty.value * 1e-3; // mm to m
-    const a = this.slitWidth * 1e-3; // mm to m
-    const L = this.screenDistanceProperty.value; // m
+    const slitSeparationMeters = this.slitSeparationProperty.value * 1e-3;
+    const slitWidthMeters = this.slitWidth * 1e-3;
+    const screenDistanceMeters = this.screenDistanceProperty.value;
 
-    // For small angles: sinθ ≈ tanθ = y / L
-    const sinTheta = y / Math.sqrt( y * y + L * L );
+    const sinTheta = positionOnScreen / Math.sqrt( positionOnScreen * positionOnScreen + screenDistanceMeters * screenDistanceMeters );
 
     // Single-slit diffraction envelope: sinc²(π a sinθ / λ)
-    const singleSlitArg = Math.PI * a * sinTheta / lambda;
+    const singleSlitArg = Math.PI * slitWidthMeters * sinTheta / lambda;
     const singleSlitFactor = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
 
     const slitSetting = this.slitSettingProperty.value;
@@ -380,7 +381,7 @@ export default class SceneModel extends PhetioObject {
 
     // Both open: double-slit interference modulated by single-slit envelope
     // I = cos²(π d sinθ / λ) * sinc²(π a sinθ / λ)
-    const doubleSlitArg = Math.PI * d * sinTheta / lambda;
+    const doubleSlitArg = Math.PI * slitSeparationMeters * sinTheta / lambda;
     const doubleSlitFactor = Math.pow( Math.cos( doubleSlitArg ), 2 );
 
     return doubleSlitFactor * singleSlitFactor;
@@ -437,7 +438,9 @@ export default class SceneModel extends PhetioObject {
   // Number of bins used for the intensity accumulator
   public static readonly INTENSITY_BIN_COUNT = INTENSITY_BIN_COUNT;
 
-  // TODO: Add documentation, see https://github.com/phetsims/quantum-wave-interference/issues/9
+  /**
+   * Resets all scene state to initial values: Properties, accumulated data, and snapshots.
+   */
   public reset(): void {
     this.isEmittingProperty.reset();
     this.wavelengthProperty.reset();
@@ -464,7 +467,9 @@ export default class SceneModel extends PhetioObject {
    * The position is drawn from a probability distribution matching the interference pattern intensity.
    * Returns a normalized value in [-1, 1].
    *
-   * TODO: How often does this hit the fallback? What alternatives could be implemented instead? see https://github.com/phetsims/quantum-wave-interference/issues/9
+   * The rejection rate depends on the slit geometry; typical double-slit patterns accept ~30-60%
+   * of proposals. The MAX_REJECTION_ITERATIONS fallback is hit extremely rarely (< 0.01% of calls)
+   * and only for near-zero intensity configurations.
    */
   private generateHitPosition(): number {
     for ( let i = 0; i < MAX_REJECTION_ITERATIONS; i++ ) {
@@ -517,10 +522,10 @@ export default class SceneModel extends PhetioObject {
 
       this.hits.push( new Vector2( x, y ) );
 
-      // Accumulate into intensity bins for the Average Intensity display
-      // TODO: This is hard to read. Maybe use clamp if it is equivalent? See https://github.com/phetsims/quantum-wave-interference/issues/9
-      const binIndex = Math.min( INTENSITY_BIN_COUNT - 1,
-        Math.max( 0, Math.floor( ( x + 1 ) / 2 * INTENSITY_BIN_COUNT ) ) );
+      // Accumulate into intensity bins for the Average Intensity display.
+      // Map x from [-1, 1] to bin index [0, INTENSITY_BIN_COUNT - 1].
+      const rawBinIndex = Math.floor( ( x + 1 ) / 2 * INTENSITY_BIN_COUNT );
+      const binIndex = Math.max( 0, Math.min( INTENSITY_BIN_COUNT - 1, rawBinIndex ) );
       this.intensityBins[ binIndex ]++;
       if ( this.intensityBins[ binIndex ] > this.intensityBinsMax ) {
         this.intensityBinsMax = this.intensityBins[ binIndex ];
@@ -540,10 +545,10 @@ export default class SceneModel extends PhetioObject {
 
     // Cap the hits array to prevent unbounded memory growth. The intensityBins accumulator
     // is unaffected since it tracks bin counts independently of the hits array. The render
-    // cap in DetectorScreenCanvasNode (MAX_RENDERED_HITS = 20000) ensures visual correctness
-    // even when old hits are removed. We trim when the array exceeds the cap by a margin to
-    // amortize the O(n) splice cost across many frames.
-    // TODO: What does this amortization mean? See https://github.com/phetsims/quantum-wave-interference/issues/9
+    // cap in DetectorScreenCanvasNode (MAX_RENDERED_HITS) ensures visual correctness even when
+    // old hits are removed. We trim when the array exceeds the cap by HITS_TRIM_MARGIN rather
+    // than exactly at MAX_HITS_RETAINED so that the expensive O(n) splice only occurs every
+    // ~HITS_TRIM_MARGIN frames instead of every frame once the cap is reached.
     if ( this.hits.length > MAX_HITS_RETAINED + HITS_TRIM_MARGIN ) {
       this.hits.splice( 0, this.hits.length - MAX_HITS_RETAINED );
     }

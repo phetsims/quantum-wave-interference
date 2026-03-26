@@ -14,7 +14,7 @@
 import Property from '../../../../axon/js/Property.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
-import Utils from '../../../../dot/js/Utils.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
@@ -128,9 +128,7 @@ export default class SourceControlPanel extends Panel {
   } {
     // Photon scenes use "Source Intensity" while particle scenes use "Emission Rate" per the
     // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
-    // TODO: Format cases like this to read more like first value on one line, : value on 2nd line, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    const intensityLabelStringProperty =
-      scene.sourceType === 'photons'
+    const intensityLabelStringProperty = scene.sourceType === 'photons'
       ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
       : QuantumWaveInterferenceFluent.emissionRateStringProperty;
 
@@ -170,7 +168,8 @@ export default class SourceControlPanel extends Panel {
     let topControl: Node;
 
     if ( scene.sourceType === 'photons' ) {
-      // Wavelength control with spectrum slider // TODO: Line comments should be preceded by blank line, see https://github.com/phetsims/quantum-wave-interference/issues/9
+
+      // Wavelength control with spectrum slider
       topControl = new WavelengthNumberControl( scene.wavelengthProperty, {
         range: new Range( 400, 700 ),
         spectrumSliderTrackOptions: {
@@ -201,45 +200,47 @@ export default class SourceControlPanel extends Panel {
       } );
     }
     else {
-      // Velocity NumberControl for particle scenes, per the design document: // TODO: Line comments should be preceded by blank line, see https://github.com/phetsims/quantum-wave-interference/issues/9
+
+      // Velocity NumberControl for particle scenes, per the design document:
       // "the panel contains a Velocity NumberControl and Intensity Slider".
       // Speed is displayed in km/s for electrons (large: 1e5–1e7 m/s) and m/s for slower particles.
       const velocityRange = scene.velocityRange;
-      // TODO: Format cases like this to read more like first value on one line, : value on 2nd line, see https://github.com/phetsims/quantum-wave-interference/issues/9
-      const velocityDelta = scene.sourceType === 'electrons'
-                            ? 10000 // 10 km/s
-                            : scene.sourceType === 'neutrons'
-                              ? 10
-                              : scene.sourceType === 'heliumAtoms'
-                                ? 50
+
+      const velocityDelta = scene.sourceType === 'electrons' ? 10000 // 10 km/s
+                            : scene.sourceType === 'neutrons' ? 10
+                            : scene.sourceType === 'heliumAtoms' ? 50
                                 : ( velocityRange.max - velocityRange.min ) / 100;
 
       // Use km/s for electrons (large velocities), m/s for neutrons and helium atoms
       const useKmPerSecond = velocityRange.max >= 10000;
 
       // Format the number display value and tick labels appropriately for the speed range
-      // TODO: Avoid deprecated methods from Utils. (Utils.roundSymmetric used in formatSpeed and formatTickLabel), see https://github.com/phetsims/quantum-wave-interference/issues/9
       const formatSpeed = ( value: number ): string => {
         if ( useKmPerSecond ) {
           const kmPerS = value / 1000;
           return StringUtils.fillIn(
             QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value,
             {
-              value: Utils.roundSymmetric( kmPerS )
+              value: roundSymmetric( kmPerS )
             }
           );
         }
         else {
-          return `${Utils.roundSymmetric( value )} m/s`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+          return StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty.value,
+            {
+              value: roundSymmetric( value )
+            }
+          );
         }
       };
 
       const formatTickLabel = ( value: number ): string => {
         if ( useKmPerSecond ) {
-          return `${Utils.roundSymmetric( value / 1000 )}`;
+          return `${roundSymmetric( value / 1000 )}`;
         }
         else {
-          return `${Utils.roundSymmetric( value )}`;
+          return `${roundSymmetric( value )}`;
         }
       };
 

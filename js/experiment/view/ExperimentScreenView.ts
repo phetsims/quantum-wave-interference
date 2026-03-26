@@ -1,8 +1,6 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * TODO: This file is large. Consider moving RulerNode creation and other sub-sections to separate files, see https://github.com/phetsims/quantum-wave-interference/issues/9
- *
  * ExperimentScreenView is the top-level view for the Quantum Wave Interference simulation.
  * It contains three visual "rows": the top row with the emitter, double slit, and detector screen
  * in overhead perspective; the middle row with controls and front-facing views; and the bottom row
@@ -35,12 +33,11 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SlitSetting } from '../model/SlitSetting.js';
+import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 import { type SourceType } from '../model/SourceType.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
 import GraphDescriber from './description/GraphDescriber.js';
@@ -197,12 +194,9 @@ export default class ExperimentScreenView extends ScreenView {
     overheadBeamNode.updateBeam();
 
     // Shared expanded property for the graph accordion box
-    this.graphExpandedProperty = new BooleanProperty(
-      QuantumWaveInterferenceQueryParameters.graphExpanded,
-      {
-        tandem: options.tandem.createTandem( 'graphExpandedProperty' )
-      }
-    );
+    this.graphExpandedProperty = new BooleanProperty( false, {
+      tandem: options.tandem.createTandem( 'graphExpandedProperty' )
+    } );
 
     // Graph accordion box - one per scene
     const graphTandem = options.tandem.createTandem( 'graphAccordionBoxes' );
@@ -407,8 +401,6 @@ export default class ExperimentScreenView extends ScreenView {
     // screen: its full width maps to the scene's full detector width in mm.
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
-    // TODO: Move RulerNode to a subclass or auxiliary function in another file, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    // TODO: This will help us prune down this large file. See https://github.com/phetsims/quantum-wave-interference/issues/9
     const createRulerNode = (
       detectorWidthMM: number,
       sourceType: SourceType,
@@ -424,13 +416,12 @@ export default class ExperimentScreenView extends ScreenView {
         return toFixed( labelValue, labelDecimalPlaces );
       } );
 
-      // TODO: This 'mm' unit string must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
       const rulerNode = new RulerNode(
         ExperimentConstants.DETECTOR_SCREEN_WIDTH,
         RULER_HEIGHT,
         majorTickWidth,
         majorTickLabels,
-        'mm',
+        QuantumWaveInterferenceFluent.rulerUnitsStringProperty.value,
         {
           minorTicksPerMajorTick: RULER_MINOR_TICKS_PER_MAJOR,
           unitsMajorTickIndex: RULER_CENTER_TICK_INDEX,
@@ -605,7 +596,7 @@ export default class ExperimentScreenView extends ScreenView {
     // with two slits, their width, and the current slit configuration (open/covered/detector).
     // The slit width is a constant per scene that is visible on screen but not accessible
     // through any interactive control.
-    const slitSettingProperty = new DynamicProperty<SlitSetting, SlitSetting, SceneModel>(
+    const slitSettingProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>(
       model.sceneProperty,
       { derive: 'slitSettingProperty' }
     );
@@ -620,7 +611,9 @@ export default class ExperimentScreenView extends ScreenView {
         }
         else {
           const slitWidthUM = slitWidthMM * 1000;
-          const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2; // TODO: This is very hard to read. Factor out const to make easier, see https://github.com/phetsims/quantum-wave-interference/issues/9
+          // Show fewer decimal places for larger values: 0 for >=1, 1 for >=0.1, 2 otherwise
+          const umDecimalPlaces = slitWidthUM >= 1 ? 0 :
+                                  slitWidthUM >= 0.1 ? 1 : 2;
           return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
             value: toFixed( slitWidthUM, umDecimalPlaces )
           } );

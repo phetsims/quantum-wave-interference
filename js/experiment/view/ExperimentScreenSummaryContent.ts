@@ -14,7 +14,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import { type DetectionMode } from '../model/DetectionMode.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SlitSetting } from '../model/SlitSetting.js';
+import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 import { type SourceType } from '../model/SourceType.js';
 
 export default class ExperimentScreenSummaryContent extends ScreenSummaryContent {
@@ -28,7 +28,7 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
     );
 
     // Track the active scene's slit setting
-    const slitSettingProperty = new DynamicProperty<SlitSetting, SlitSetting, SceneModel>(
+    const slitSettingProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>(
       model.sceneProperty, {
         derive: 'slitSettingProperty'
       }

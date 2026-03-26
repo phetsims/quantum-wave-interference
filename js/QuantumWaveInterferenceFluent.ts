@@ -44,6 +44,10 @@ addToMapIfDefined( 'intensity', 'intensityStringProperty' );
 addToMapIfDefined( 'sourceIntensity', 'sourceIntensityStringProperty' );
 addToMapIfDefined( 'particleSpeed', 'particleSpeedStringProperty' );
 addToMapIfDefined( 'emissionRate', 'emissionRateStringProperty' );
+addToMapIfDefined( 'rulerUnits', 'rulerUnitsStringProperty' );
+addToMapIfDefined( 'electronMassLabel', 'electronMassLabelStringProperty' );
+addToMapIfDefined( 'neutronMassLabel', 'neutronMassLabelStringProperty' );
+addToMapIfDefined( 'heliumAtomMassLabel', 'heliumAtomMassLabelStringProperty' );
 addToMapIfDefined( 'max', 'maxStringProperty' );
 addToMapIfDefined( 'slitSeparation', 'slitSeparationStringProperty' );
 addToMapIfDefined( 'screenDistance', 'screenDistanceStringProperty' );
@@ -175,6 +179,17 @@ const QuantumWaveInterferenceFluent = {
   particleSpeedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedStringProperty' ),
   emissionRateStringProperty: _.get( QuantumWaveInterferenceStrings, 'emissionRateStringProperty' ),
   particleSpeedKmPerSecondPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedKmPerSecondPatternStringProperty' ),
+  particleSpeedMeterPerSecondPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedMeterPerSecondPatternStringProperty' ),
+  wavelengthNanometersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'wavelengthNanometersPatternStringProperty' ),
+  valueMillimetersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueMillimetersPatternStringProperty' ),
+  valueMicrometersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueMicrometersPatternStringProperty' ),
+  valueMetersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueMetersPatternStringProperty' ),
+  rulerUnitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerUnitsStringProperty' ),
+  slitsLabelPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitsLabelPatternStringProperty' ),
+  snapshotLabelValuePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotLabelValuePatternStringProperty' ),
+  electronMassLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'electronMassLabelStringProperty' ),
+  neutronMassLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'neutronMassLabelStringProperty' ),
+  heliumAtomMassLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'heliumAtomMassLabelStringProperty' ),
   maxStringProperty: _.get( QuantumWaveInterferenceStrings, 'maxStringProperty' ),
   slitSeparationStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationStringProperty' ),
   screenDistanceStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistanceStringProperty' ),

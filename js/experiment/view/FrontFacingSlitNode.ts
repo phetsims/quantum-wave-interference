@@ -12,6 +12,7 @@
 import Multilink from '../../../../axon/js/Multilink.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -21,6 +22,7 @@ import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 
@@ -166,13 +168,14 @@ export default class FrontFacingSlitNode extends Node {
       // Keep the exact same appearance at the default intensity (0.5). Above default,
       // increase alpha more aggressively so the displayed color is less dark and closer
       // to the true source hue instead of channel-clipped brightening.
-      // TODO: This is very hard to read. Factor out const to make easier, see https://github.com/phetsims/quantum-wave-interference/issues/9
-      const alpha = intensity <= DEFAULT_SOURCE_INTENSITY ? MIN_BEAM_OVERLAY_ALPHA +
-                                                            ( DEFAULT_BEAM_OVERLAY_ALPHA - MIN_BEAM_OVERLAY_ALPHA ) *
-                                                            ( intensity / DEFAULT_SOURCE_INTENSITY )
-                                                          : DEFAULT_BEAM_OVERLAY_ALPHA +
-                                                            ( MAX_BEAM_OVERLAY_ALPHA - DEFAULT_BEAM_OVERLAY_ALPHA ) *
-                                                            ( ( intensity - DEFAULT_SOURCE_INTENSITY ) / ( 1 - DEFAULT_SOURCE_INTENSITY ) );
+      // Piecewise-linear alpha: ramp from MIN to DEFAULT below the midpoint, DEFAULT to MAX above.
+      const belowMidpoint = intensity <= DEFAULT_SOURCE_INTENSITY;
+      const fraction = belowMidpoint
+        ? intensity / DEFAULT_SOURCE_INTENSITY
+        : ( intensity - DEFAULT_SOURCE_INTENSITY ) / ( 1 - DEFAULT_SOURCE_INTENSITY );
+      const alpha = belowMidpoint
+        ? MIN_BEAM_OVERLAY_ALPHA + ( DEFAULT_BEAM_OVERLAY_ALPHA - MIN_BEAM_OVERLAY_ALPHA ) * fraction
+        : DEFAULT_BEAM_OVERLAY_ALPHA + ( MAX_BEAM_OVERLAY_ALPHA - DEFAULT_BEAM_OVERLAY_ALPHA ) * fraction;
       beamOverlay.fill = beamColor.withAlpha( alpha );
     };
 
@@ -196,12 +199,14 @@ export default class FrontFacingSlitNode extends Node {
     const slitWidthMM = sceneModel.slitWidth;
     let slitWidthLabel: string;
     if ( slitWidthMM >= 0.01 ) {
-      slitWidthLabel = `${toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )} mm`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+      slitWidthLabel = StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value, { value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 ) } );
     }
     else {
       const slitWidthUM = slitWidthMM * 1000;
-      const umDecimalPlaces = slitWidthUM >= 1 ? 0 : slitWidthUM >= 0.1 ? 1 : 2; // TODO: This is very hard to read. Factor out const to make easier, see https://github.com/phetsims/quantum-wave-interference/issues/9
-      slitWidthLabel = `${toFixed( slitWidthUM, umDecimalPlaces )} μm`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+      // Show fewer decimal places for larger values: 0 for >=1, 1 for >=0.1, 2 otherwise
+      const umDecimalPlaces = slitWidthUM >= 1 ? 0 :
+                              slitWidthUM >= 0.1 ? 1 : 2;
+      slitWidthLabel = StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value, { value: toFixed( slitWidthUM, umDecimalPlaces ) } );
     }
     const slitWidthText = new Text( slitWidthLabel, {
       font: SPAN_FONT,
@@ -311,8 +316,7 @@ export default class FrontFacingSlitNode extends Node {
           slitSeparationRange.max * 1000
         );
 
-        // TODO: This must be i18n in the yaml file, in the visual part, see https://github.com/phetsims/quantum-wave-interference/issues/9
-        separationText.string = `${toFixed( valueUM, decimalPlaces )} μm`;
+        separationText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value, { value: toFixed( valueUM, decimalPlaces ) } );
       }
       else {
         const decimalPlaces = getRangeDecimalPlaces(
@@ -320,8 +324,7 @@ export default class FrontFacingSlitNode extends Node {
           slitSeparationRange.max
         );
 
-        // TODO: This must be i18n in the yaml file, in the visual part, see https://github.com/phetsims/quantum-wave-interference/issues/9
-        separationText.string = `${toFixed( separationMM, decimalPlaces )} mm`;
+        separationText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value, { value: toFixed( separationMM, decimalPlaces ) } );
       }
 
       // Position the label to the right of the right tick mark, matching the
@@ -385,9 +388,8 @@ export default class FrontFacingSlitNode extends Node {
       }
     };
 
-    // Update covered-slit appearance and detector visibility based on slit setting
-    // TODO: Subscribe/Listen for all variables in the callback, including but not limited to QuantumWaveInterferenceColors.slitCoverFillProperty, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    // TODO: Or maybe that is OK since the fill subscribes to the property itself, see https://github.com/phetsims/quantum-wave-interference/issues/9
+    // Update covered-slit appearance and detector visibility based on slit setting.
+    // Note: QuantumWaveInterferenceColors.slitCoverFillProperty is handled by the fill property auto-subscription.
     Multilink.multilink(
       [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty, sceneModel.isEmittingProperty ],
       slitSetting => {

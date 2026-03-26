@@ -35,6 +35,17 @@ type StringsType = {
   'particleSpeedStringProperty': LocalizedStringProperty;
   'emissionRateStringProperty': LocalizedStringProperty;
   'particleSpeedKmPerSecondPatternStringProperty': LocalizedStringProperty;
+  'particleSpeedMeterPerSecondPatternStringProperty': LocalizedStringProperty;
+  'wavelengthNanometersPatternStringProperty': LocalizedStringProperty;
+  'valueMillimetersPatternStringProperty': LocalizedStringProperty;
+  'valueMicrometersPatternStringProperty': LocalizedStringProperty;
+  'valueMetersPatternStringProperty': LocalizedStringProperty;
+  'rulerUnitsStringProperty': LocalizedStringProperty;
+  'slitsLabelPatternStringProperty': LocalizedStringProperty;
+  'snapshotLabelValuePatternStringProperty': LocalizedStringProperty;
+  'electronMassLabelStringProperty': LocalizedStringProperty;
+  'neutronMassLabelStringProperty': LocalizedStringProperty;
+  'heliumAtomMassLabelStringProperty': LocalizedStringProperty;
   'maxStringProperty': LocalizedStringProperty;
   'slitSeparationStringProperty': LocalizedStringProperty;
   'screenDistanceStringProperty': LocalizedStringProperty;

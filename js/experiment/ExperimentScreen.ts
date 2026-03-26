@@ -1,7 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * TODO: Add documentation, see https://github.com/phetsims/quantum-wave-interference/issues/9
+ * The single screen for the Quantum Wave Interference simulation. Sets up the ExperimentModel
+ * and ExperimentScreenView with the appropriate tandem structure.
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 

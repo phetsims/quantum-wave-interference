@@ -15,6 +15,7 @@ import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
@@ -46,7 +47,6 @@ export default class OverheadDetectorScreenNode extends Node {
   public constructor( model: ExperimentModel, doubleSlitParallelogramNode: Node ) {
     super();
 
-    // TODO: Do we want to use parameter properties throughout this sim, see https://github.com/phetsims/quantum-wave-interference/issues/9
     this.model = model;
     this.doubleSlitParallelogramNode = doubleSlitParallelogramNode;
 
@@ -125,7 +125,10 @@ export default class OverheadDetectorScreenNode extends Node {
       distanceSpanRightTick.x = rightX;
       distanceSpanRightTick.centerY = spanY;
 
-      distanceText.string = `${toFixed( distance, 1 )} m`; // TODO: This must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+      distanceText.string = StringUtils.fillIn(
+        QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value,
+        { value: toFixed( distance, 1 ) }
+      );
       distanceText.centerX = ( leftX + rightX ) / 2;
       distanceText.bottom = spanY - SPAN_TICK_LENGTH / 2;
     };

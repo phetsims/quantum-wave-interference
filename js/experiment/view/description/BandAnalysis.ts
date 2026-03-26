@@ -10,7 +10,7 @@
  */
 
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
-import Utils from '../../../../../dot/js/Utils.js';
+import { roundSymmetric } from '../../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../../model/SceneModel.js';
 
@@ -57,17 +57,16 @@ export default class BandAnalysis {
       return { bandCount: 0, peakPositionsMM: [], averageSpacingMM: 0, centralWidthMM: 0 };
     }
 
-    // TODO: Use descriptive names (e.g. screenDistanceMeters, slitWidthMeters, slitSeparationMeters) instead of single-letter physics variables, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    const L = scene.screenDistanceProperty.value; // m
+    const screenDistanceMeters = scene.screenDistanceProperty.value;
     const screenHalfWidthM = scene.screenHalfWidth;
-    const a = scene.slitWidth * 1e-3; // mm → m
+    const slitWidthMeters = scene.slitWidth * 1e-3; // mm -> m
     const slitSetting = scene.slitSettingProperty.value;
 
     if ( slitSetting === 'bothOpen' ) {
-      const d = scene.slitSeparationProperty.value * 1e-3; // mm → m
+      const slitSeparationMeters = scene.slitSeparationProperty.value * 1e-3; // mm -> m
 
       // Fringe spacing: Δy = λL/d
-      const fringeSpacingM = lambda * L / d;
+      const fringeSpacingM = lambda * screenDistanceMeters / slitSeparationMeters;
       const fringeSpacingMM = fringeSpacingM * 1000;
 
       // Count fringes visible on screen: central fringe at 0 plus n pairs on each side
@@ -89,7 +88,7 @@ export default class BandAnalysis {
     else {
       // Single slit or which-path detector: broad central diffraction maximum.
       // First zeros at y = ±λL/a, so central width ≈ 2λL/a.
-      const centralHalfWidthM = lambda * L / a;
+      const centralHalfWidthM = lambda * screenDistanceMeters / slitWidthMeters;
       const centralWidthMM = 2 * centralHalfWidthM * 1000;
 
       return {
@@ -103,7 +102,11 @@ export default class BandAnalysis {
 
   /**
    * Core analysis: smooth the data, find peaks, compute positions and spacing.
-   * TODO: Is this emergent, or analytical? Should it be purely analytical? See https://github.com/phetsims/quantum-wave-interference/issues/9
+   * This is an emergent/empirical analysis of the actual accumulated data (bin counts or
+   * intensity samples), complementing the purely analytical analysis in analyzeTheoreticalPattern.
+   * The emergent approach is useful for describing what the user actually sees, especially in
+   * the early stages when the pattern hasn't fully formed.
+   *
    * @param data - array of values (bin counts or intensity samples)
    * @param dataMax - maximum value in the array
    * @param screenHalfWidthMM - half-width of the detector screen in mm
@@ -196,8 +199,7 @@ export default class BandAnalysis {
         }
       }
 
-      // TODO: Avoid deprecated methods from Utils., see https://github.com/phetsims/quantum-wave-interference/issues/9
-      const centerBin = Utils.roundSymmetric(
+      const centerBin = roundSymmetric(
         ( peakPositionsMM[ closestIndex ] / ( 2 * screenHalfWidthMM ) + 0.5 ) * ( numBins - 1 )
       );
       let left = centerBin;

@@ -10,6 +10,7 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
@@ -144,12 +145,10 @@ export default class OverheadEmitterNode extends Node {
     this.addChild( sourceLabel );
 
     // Particle mass label (hidden for photons)
-    // TODO: These hardcoded mass label strings must be i18n in the yaml file, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    // TODO: These physical constants (particle masses) should reference the named constants from SceneModel, not be duplicated here as magic numbers, see https://github.com/phetsims/quantum-wave-interference/issues/9
-    const massLabelMap: Record<string, string> = {
-      electrons: 'm<sub>e</sub> = 9.1\u00D710<sup>\u221231</sup> kg',
-      neutrons: 'm<sub>n</sub> = 1.7\u00D710<sup>\u221227</sup> kg',
-      heliumAtoms: 'm<sub>He</sub> = 6.6\u00D710<sup>\u221227</sup> kg'
+    const massLabelMap: Record<string, TReadOnlyProperty<string>> = {
+      electrons: QuantumWaveInterferenceFluent.electronMassLabelStringProperty,
+      neutrons: QuantumWaveInterferenceFluent.neutronMassLabelStringProperty,
+      heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomMassLabelStringProperty
     };
 
     const particleMassLabel = new RichText( '', {
@@ -163,7 +162,7 @@ export default class OverheadEmitterNode extends Node {
       const isParticle = scene.sourceType !== 'photons';
       particleMassLabel.visible = isParticle;
       if ( isParticle ) {
-        particleMassLabel.string = massLabelMap[ scene.sourceType ];
+        particleMassLabel.string = massLabelMap[ scene.sourceType ].value;
       }
     } );
 
@@ -231,7 +230,8 @@ export default class OverheadEmitterNode extends Node {
 
       const palette = PARTICLE_EMITTER_PALETTES[ sourceType ];
 
-      // TODO: This looks suspicious. Document or find a better way, see https://github.com/phetsims/quantum-wave-interference/issues/9
+      // Re-color the emitter body and glass highlights to match the new particle type's palette.
+      // Uses instanceof to distinguish the body rectangles from the glass sphere overlays.
       this.particleEmitterNode.children.forEach( child => {
         if ( child instanceof Rectangle ) {
           child.fill = createEmitterGradient( child.height, palette );

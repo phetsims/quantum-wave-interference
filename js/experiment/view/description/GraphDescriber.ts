@@ -26,7 +26,6 @@ export default class GraphDescriber {
 
   public constructor( model: ExperimentModel ) {
 
-    // TODO: Initialize at declaration, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const descriptionProperty = new Property<string>( '' );
     this.descriptionProperty = descriptionProperty;
 
@@ -34,7 +33,6 @@ export default class GraphDescriber {
     // a pedagogically meaningful threshold, not on every frame of hit accumulation.
     let hitStage = '';
 
-    // TODO: This callback accesses many StringProperties that are not dependencies; locale changes won't trigger updates, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const update = () => {
       const scene = model.sceneProperty.value;
       const detectionMode = scene.detectionModeProperty.value;
@@ -116,7 +114,6 @@ export default class GraphDescriber {
     // Listen to scene changes and rewire listeners for the active scene.
     let previousScene: SceneModel | null = null;
 
-    // TODO: There are also strings in the callback which could change, and must trigger an update, see https://github.com/phetsims/quantum-wave-interference/issues/9
     model.sceneProperty.link( scene => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( update );
@@ -125,6 +122,8 @@ export default class GraphDescriber {
         previousScene.slitSettingProperty.unlink( fullUpdate );
         previousScene.slitSeparationProperty.unlink( fullUpdate );
         previousScene.screenDistanceProperty.unlink( fullUpdate );
+        previousScene.wavelengthProperty.unlink( fullUpdate );
+        previousScene.velocityProperty.unlink( fullUpdate );
       }
       scene.hitsChangedEmitter.addListener( update );
       scene.detectionModeProperty.lazyLink( fullUpdate );
@@ -132,7 +131,8 @@ export default class GraphDescriber {
       scene.slitSettingProperty.lazyLink( fullUpdate );
       scene.slitSeparationProperty.lazyLink( fullUpdate );
       scene.screenDistanceProperty.lazyLink( fullUpdate );
-      // TODO: wavelengthProperty and velocityProperty also affect the theoretical pattern but are not listened to here, see https://github.com/phetsims/quantum-wave-interference/issues/9
+      scene.wavelengthProperty.lazyLink( fullUpdate );
+      scene.velocityProperty.lazyLink( fullUpdate );
       previousScene = scene;
       fullUpdate();
     } );
