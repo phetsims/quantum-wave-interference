@@ -187,87 +187,85 @@ a11y:
     accessibleName: Zoom Out
   graphAccordionBox:
     accessibleParagraph:
-      intensityOff: Graph is blank; source is off.
+      intensityOff: The graph is empty. The source is off.
       intensity: >-
-        Graph shows intensity versus position. { $spatialDescription }
+        The graph traces intensity versus position as a wave-like curve, rising to a tall
+        central peak and falling through a series of smaller peaks on either side.
+        { $spatialDescription }
       intensitySingleSlit: >-
-        Graph shows intensity versus position. { $spatialDescription }
-      hitsNone: Graph shows an empty histogram; no hits recorded.
+        The graph traces intensity versus position as a single broad peak centered on the
+        screen, tapering smoothly toward the edges. { $spatialDescription }
+      hitsNone: The histogram is empty. No particles have been counted yet.
       hitsFew: >-
-        Graph shows a histogram with { $totalHits }
-        { $totalHits ->
-          [1] bar beginning to rise
-         *[other] bars beginning to rise
-        }. The distribution appears uneven; no clear pattern is evident yet.
+        A few bars have appeared at scattered positions across the histogram. The distribution
+        looks random so far.
       hitsEmerging: >-
-        Graph shows a histogram of { $totalHits } hits. Some bars are growing taller than others,
-        and the overall shape is beginning to match an alternating peak-and-valley pattern.
+        The histogram is growing unevenly. Some positions are accumulating counts faster
+        than others, hinting at a pattern beneath the randomness.
       hitsDeveloping: >-
-        Graph shows a histogram of { $totalHits } hits forming a banded distribution.
-        Taller bars cluster at regular intervals with shorter bars between them. { $spatialDescription }
+        The histogram is taking on a wave-like shape. Taller bars cluster at regular
+        intervals with shorter bars between them. { $spatialDescription }
       hitsClear: >-
-        Graph shows a histogram of { $totalHits } hits. The distribution is stable, with taller bars
-        at likely detection positions and shorter bars in between. { $spatialDescription }
-        The histogram matches the shape of the continuous intensity curve.
+        The histogram has settled into a stable wave-like shape matching the intensity
+        curve, a central peak flanked by repeating side peaks, assembled from individual
+        particle counts. { $spatialDescription }
       hitsSingleSlitEmerging: >-
-        Graph shows a histogram of { $totalHits } hits. Bars are tallest near the center and shorter
-        toward the edges.
+        The histogram is growing, with bars tallest near the center and shorter toward
+        the edges.
       hitsSingleSlitClear: >-
-        Graph shows a histogram of { $totalHits } hits forming a broad central peak that tapers
-        toward the edges. { $spatialDescription }
+        The histogram shows a broad central peak that tapers toward the edges, matching
+        the continuous intensity pattern. { $spatialDescription }
     accessibleContextResponseExpanded: Graph expanded.
     accessibleContextResponseCollapsed: Graph collapsed.
   detectorScreen:
     accessibleParagraph:
-      intensityOff: Detector screen is blank; source is off.
+      intensityOff: The detector screen is dark. The source is off.
       intensity: >-
-        Detector screen displays a continuous intensity pattern of alternating bright and dark
-        vertical bands. { $spatialDescription }
+        The detector screen glows with alternating bright and dark vertical bands, strongest
+        at the center and fading symmetrically outward. { $spatialDescription }
       intensitySingleSlit: >-
-        Detector screen displays a continuous intensity pattern with a bright central region
-        that fades toward the edges. { $spatialDescription }
-      hitsNone: Detector screen is blank with no hits recorded.
+        The detector screen glows brightest at the center, fading smoothly toward the edges
+        in a broad diffraction pattern. { $spatialDescription }
+      hitsNone: The detector screen is empty. No particles have arrived yet.
       hitsFew: >-
-        Detector screen shows { $totalHits } individual
-        { $totalHits ->
-          [1] detection
-         *[other] detections
-        } scattered across the screen. Positions appear random; no clear pattern is visible yet.
+        A handful of particles have arrived, scattered across the screen in no obvious order.
       hitsEmerging: >-
-        Detector screen shows { $totalHits } accumulated hits. Detections are beginning to cluster
-        into vertical banded regions, with sparser areas between them. { $spatialDescription }
+        As more particles arrive, a hint of order is appearing. Detections are beginning
+        to cluster into faint vertical stripes with gaps between them.
       hitsDeveloping: >-
-        Detector screen shows { $totalHits } accumulated hits forming a banded pattern.
+        A pattern is emerging from the randomness. Individual impacts are gathering into
+        distinct vertical bands, separated by regions where few particles land.
         { $spatialDescription }
       hitsClear: >-
-        Detector screen shows { $totalHits } accumulated hits. A clear interference pattern of
-        alternating bright and dark vertical bands is visible. { $spatialDescription }
-        The pattern mirrors the continuous intensity distribution.
+        A clear interference pattern has formed, one particle at a time. Dense vertical
+        bands alternate with nearly empty gaps, the signature of wave-like behavior built
+        from individual impacts. { $spatialDescription }
       hitsSingleSlitEmerging: >-
-        Detector screen shows { $totalHits } accumulated hits. Detections are concentrating
-        in a broad central region, with fewer hits toward the edges. { $spatialDescription }
+        As more particles arrive, hits are beginning to concentrate in a broad region near
+        the center of the screen, with fewer toward the edges.
       hitsSingleSlitClear: >-
-        Detector screen shows { $totalHits } accumulated hits forming a broad central band
-        that fades toward the edges. { $spatialDescription }
+        A diffraction pattern has formed. Hits concentrate in a broad central band that
+        tapers toward the edges, matching the continuous intensity pattern.
+        { $spatialDescription }
     spatialDescription:
       rulerBands: >-
-        { $numBands } bright bands centered at 0 millimeters, spread symmetrically left and right.
-        Adjacent bands are roughly { $bandSpacing } millimeters apart.
+        { $numBands } bands centered at 0 millimeters, spaced roughly { $bandSpacing }
+        millimeters apart.
       rulerBandsSingleSlit: >-
-        The central band is centered at 0 millimeters and spans roughly { $centralWidth } millimeters.
+        The central band spans roughly { $centralWidth } millimeters, centered at 0.
       noRulerBands: >-
-        { $numBands } bright bands centered on the screen, spread symmetrically to either side.
+        { $numBands } bands centered on the screen, spread symmetrically to either side.
       noRulerBandsSingleSlit: >-
-        A broad central band centered on the screen, with fewer detections toward the edges.
+        A broad central band centered on the screen, tapering toward the edges.
       rulerPeaks: >-
-        { $numPeaks } peaks centered at 0 millimeters, spread symmetrically left and right.
-        Adjacent peaks are roughly { $peakSpacing } millimeters apart.
+        { $numPeaks } peaks centered at 0 millimeters, spaced roughly { $peakSpacing }
+        millimeters apart.
       rulerPeaksSingleSlit: >-
-        The central peak is at 0 millimeters; the curve spans roughly { $centralWidth } millimeters.
+        The central peak spans roughly { $centralWidth } millimeters, centered at 0.
       noRulerPeaks: >-
         { $numPeaks } peaks centered on the graph, spread symmetrically to either side.
       noRulerPeaksSingleSlit: >-
-        A single broad peak centered on the graph, tapering toward the edges.
+        A broad central peak, tapering toward the edges.
   detectorScreenButtons:
     clearScreen:
       accessibleName: Clear Screen

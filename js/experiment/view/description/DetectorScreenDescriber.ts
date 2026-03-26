@@ -3,7 +3,13 @@
 /**
  * DetectorScreenDescriber produces a dynamic accessible description of the detector screen
  * that scales with the number of accumulated hits and describes the theoretical intensity
- * pattern. Uses ruler-anchored spatial language when the ruler is visible.
+ * pattern. Descriptions are poetic and gestalt — they convey the overall shape and evolution
+ * of the pattern rather than enumerating exact data. In hits mode, descriptions only change
+ * when the qualitative stage crosses a threshold (few → emerging → developing → clear),
+ * preventing numbers from jumping sporadically as hits accumulate frame by frame.
+ *
+ * Spatial language (band count, spacing) is derived from the theoretical intensity formula
+ * rather than from noisy accumulated bin data, so it remains stable across all hit counts.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -24,6 +30,10 @@ export default class DetectorScreenDescriber {
     const descriptionProperty = new Property<string>( '' );
     this.descriptionProperty = descriptionProperty;
 
+    // Track the current hit stage so that the description only updates when crossing
+    // a pedagogically meaningful threshold, not on every frame of hit accumulation.
+    let hitStage = '';
+
     const update = () => {
       const scene = model.sceneProperty.value;
       const detectionMode = scene.detectionModeProperty.value;
@@ -43,63 +53,65 @@ export default class DetectorScreenDescriber {
           analysis, isDoubleSlit, isRulerVisible, false
         );
 
-        if ( isDoubleSlit ) {
-          descriptionProperty.value = paragraphs.intensity.format( { spatialDescription: spatialDescription } );
-        }
-        else {
-          descriptionProperty.value = paragraphs.intensitySingleSlit.format( { spatialDescription: spatialDescription } );
-        }
+        descriptionProperty.value = isDoubleSlit
+          ? paragraphs.intensity.format( { spatialDescription: spatialDescription } )
+          : paragraphs.intensitySingleSlit.format( { spatialDescription: spatialDescription } );
         return;
       }
 
-      // Hits mode.
+      // Hits mode: only recompute description when the qualitative stage changes.
       const totalHits = scene.totalHitsProperty.value;
-
-      if ( totalHits === 0 ) {
-        descriptionProperty.value = paragraphs.hitsNoneStringProperty.value;
+      const newStage = BandAnalysis.getHitStage( totalHits, isDoubleSlit );
+      if ( newStage === hitStage ) {
         return;
       }
+      hitStage = newStage;
 
-      const analysis = BandAnalysis.analyzeHitBins( scene );
+      // Use the theoretical pattern for spatial descriptions so they remain stable
+      // as hits accumulate, rather than jumping with noisy bin data.
+      const analysis = BandAnalysis.analyzeTheoreticalPattern( scene );
       const spatialDescription = BandAnalysis.formatSpatialDescription(
         analysis, isDoubleSlit, isRulerVisible, false
       );
 
       if ( isDoubleSlit ) {
-        if ( totalHits <= 10 ) {
-          descriptionProperty.value = paragraphs.hitsFew.format( { totalHits: totalHits } );
+        if ( newStage === 'none' ) {
+          descriptionProperty.value = paragraphs.hitsNoneStringProperty.value;
         }
-        else if ( totalHits <= 50 ) {
-          descriptionProperty.value = paragraphs.hitsEmerging.format( {
-            totalHits: totalHits, spatialDescription: spatialDescription
-          } );
+        else if ( newStage === 'few' ) {
+          descriptionProperty.value = paragraphs.hitsFewStringProperty.value;
         }
-        else if ( totalHits <= 200 ) {
-          descriptionProperty.value = paragraphs.hitsDeveloping.format( {
-            totalHits: totalHits, spatialDescription: spatialDescription
-          } );
+        else if ( newStage === 'emerging' ) {
+          descriptionProperty.value = paragraphs.hitsEmergingStringProperty.value;
+        }
+        else if ( newStage === 'developing' ) {
+          descriptionProperty.value = paragraphs.hitsDeveloping.format( { spatialDescription: spatialDescription } );
         }
         else {
-          descriptionProperty.value = paragraphs.hitsClear.format( {
-            totalHits: totalHits, spatialDescription: spatialDescription
-          } );
+          descriptionProperty.value = paragraphs.hitsClear.format( { spatialDescription: spatialDescription } );
         }
       }
       else {
-        if ( totalHits <= 10 ) {
-          descriptionProperty.value = paragraphs.hitsFew.format( { totalHits: totalHits } );
+        if ( newStage === 'none' ) {
+          descriptionProperty.value = paragraphs.hitsNoneStringProperty.value;
         }
-        else if ( totalHits <= 50 ) {
-          descriptionProperty.value = paragraphs.hitsSingleSlitEmerging.format( {
-            totalHits: totalHits, spatialDescription: spatialDescription
-          } );
+        else if ( newStage === 'few' ) {
+          descriptionProperty.value = paragraphs.hitsFewStringProperty.value;
+        }
+        else if ( newStage === 'emerging' ) {
+          descriptionProperty.value = paragraphs.hitsSingleSlitEmergingStringProperty.value;
         }
         else {
-          descriptionProperty.value = paragraphs.hitsSingleSlitClear.format( {
-            totalHits: totalHits, spatialDescription: spatialDescription
-          } );
+          descriptionProperty.value = paragraphs.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } );
         }
       }
+    };
+
+    // Force a full update when any physics parameter or display setting changes.
+    // This resets the hit stage so the description is recomputed from scratch.
+    const fullUpdate = () => {
+      hitStage = '';
+      update();
     };
 
     // Listen to scene changes and rewire listeners for the active scene.
@@ -107,23 +119,23 @@ export default class DetectorScreenDescriber {
     model.sceneProperty.link( scene => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( update );
-        previousScene.detectionModeProperty.unlink( update );
-        previousScene.isEmittingProperty.unlink( update );
-        previousScene.slitSettingProperty.unlink( update );
-        previousScene.slitSeparationProperty.unlink( update );
-        previousScene.screenDistanceProperty.unlink( update );
+        previousScene.detectionModeProperty.unlink( fullUpdate );
+        previousScene.isEmittingProperty.unlink( fullUpdate );
+        previousScene.slitSettingProperty.unlink( fullUpdate );
+        previousScene.slitSeparationProperty.unlink( fullUpdate );
+        previousScene.screenDistanceProperty.unlink( fullUpdate );
       }
       scene.hitsChangedEmitter.addListener( update );
-      scene.detectionModeProperty.lazyLink( update );
-      scene.isEmittingProperty.lazyLink( update );
-      scene.slitSettingProperty.lazyLink( update );
-      scene.slitSeparationProperty.lazyLink( update );
-      scene.screenDistanceProperty.lazyLink( update );
+      scene.detectionModeProperty.lazyLink( fullUpdate );
+      scene.isEmittingProperty.lazyLink( fullUpdate );
+      scene.slitSettingProperty.lazyLink( fullUpdate );
+      scene.slitSeparationProperty.lazyLink( fullUpdate );
+      scene.screenDistanceProperty.lazyLink( fullUpdate );
       previousScene = scene;
-      update();
+      fullUpdate();
     } );
 
     // Also update when the ruler visibility changes, since it affects spatial language.
-    model.isRulerVisibleProperty.lazyLink( update );
+    model.isRulerVisibleProperty.lazyLink( fullUpdate );
   }
 }

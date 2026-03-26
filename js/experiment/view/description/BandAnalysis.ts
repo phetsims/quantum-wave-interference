@@ -14,6 +14,10 @@ import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../../model/SceneModel.js';
 
+// Qualitative stage of hit accumulation, used by describers to select which description
+// string to show and to throttle updates so they only fire at pedagogically meaningful thresholds.
+export type HitStage = 'none' | 'few' | 'emerging' | 'developing' | 'clear';
+
 // Results from analyzing an intensity distribution.
 export type BandAnalysisResult = {
   bandCount: number;
@@ -177,6 +181,19 @@ export default class BandAnalysis {
       averageSpacingMM: averageSpacingMM,
       centralWidthMM: centralWidthMM
     };
+  }
+
+  /**
+   * Returns the qualitative hit stage for the current number of accumulated hits.
+   * Double-slit patterns require more hits to resolve (extra 'developing' stage at 51–200)
+   * because interference fringes are finer than the broad single-slit diffraction envelope.
+   */
+  public static getHitStage( totalHits: number, isDoubleSlit: boolean ): HitStage {
+    if ( totalHits === 0 ) { return 'none'; }
+    if ( totalHits <= 10 ) { return 'few'; }
+    if ( totalHits <= 50 ) { return 'emerging'; }
+    if ( isDoubleSlit && totalHits <= 200 ) { return 'developing'; }
+    return 'clear';
   }
 
   /**
