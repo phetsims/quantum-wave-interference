@@ -146,7 +146,6 @@ export default class SnapshotNode extends Node {
     );
 
     // Background rectangle for the snapshot image
-    // TODO: Should these hardcoded colors ('black', etc.) be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const background = new Rectangle(
       0,
       0,
@@ -166,7 +165,6 @@ export default class SnapshotNode extends Node {
     canvasNode.clipArea = background.shape!;
 
     // Title text shown as a heading above the metadata on the right side
-    // TODO: Should these hardcoded colors ('black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     const titleText = new Text( '', {
       font: TITLE_FONT,
       fill: 'black',

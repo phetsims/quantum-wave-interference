@@ -76,7 +76,6 @@ export default class GraphAccordionBox extends Node {
       numberType: 'Integer'
     } );
 
-    // TODO: Should these hardcoded colors ('white', 'black') be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
     // White chart background with border
     this.chartBackground = new Rectangle( 0, 0, CHART_WIDTH, CHART_HEIGHT, {
       fill: 'white',
@@ -328,7 +327,7 @@ export default class GraphAccordionBox extends Node {
       dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
     }
     else {
-      dataPath.fill = 'rgba(100,100,180,0.3)'; // TODO: Should these hardcoded colors be in the QuantumWaveInterferenceColors profile? See https://github.com/phetsims/quantum-wave-interference/issues/9
+      dataPath.fill = 'rgba(100,100,180,0.3)';
       dataPath.stroke = 'rgba(50,50,130,0.8)';
     }
   }
