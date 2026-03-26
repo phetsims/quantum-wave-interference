@@ -63,6 +63,7 @@ const noOpSoundPlayer = {
   stop: () => undefined
 };
 
+// TODO: Add documentation, see https://github.com/phetsims/quantum-wave-interference/issues/9
 const getScaleLabelDecimalPlaces = ( valueMM: number ): number => {
   if ( valueMM >= 1 ) {
     return Number.isInteger( valueMM ) ? 0 : 1;
@@ -192,8 +193,11 @@ export default class DetectorScreenNode extends Node {
     const scalePhysicalWidthMM =
       fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
     const scaleArrowWidth = ( scalePhysicalWidthMM * 1e-3 ) / metersPerPixel;
+
+    // TODO: This must be moved to yaml for i18n, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const scaleLabelString = `${toFixed( scalePhysicalWidthMM, getScaleLabelDecimalPlaces( scalePhysicalWidthMM ) )} mm`;
 
+    // TODO: Factor out arrow + lines + text to a new file, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const scaleArrow = new ArrowNode( 0, SPAN_ARROW_Y, scaleArrowWidth, SPAN_ARROW_Y, {
       headHeight: 5,
       headWidth: 5,
@@ -232,6 +236,7 @@ export default class DetectorScreenNode extends Node {
     this.addChild( scaleLabelText );
 
     // Update the hit count text and canvas when hits change
+    // TODO: We have to update also when any value in the callback changes. For instance: QuantumWaveInterferenceFluent.hitsCountPatternStringProperty, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const updateDisplay = () => {
       if ( sceneModel.detectionModeProperty.value === 'hits' ) {
         hitCountText.string = StringUtils.fillIn(
@@ -320,6 +325,7 @@ export default class DetectorScreenNode extends Node {
     const detectorActionButtonMinWidth = DETECTOR_ACTION_BUTTON_MIN_WIDTH;
 
     // Eraser button to clear the screen
+    // TODO: Move to a subclass in a new file, see https://github.com/phetsims/quantum-wave-interference/issues/9
     this.eraserButton = new EraserButton( {
       iconWidth: 18,
       minWidth: detectorActionButtonMinWidth,
@@ -336,6 +342,7 @@ export default class DetectorScreenNode extends Node {
     } );
 
     // Eye button to view snapshots
+    // TODO: Move to a subclass in a new file, see https://github.com/phetsims/quantum-wave-interference/issues/9
     this.viewSnapshotsButton = new RectangularPushButton( {
       listener: () => {
         if ( !snapshotsDialog.isShowingProperty.value ) {

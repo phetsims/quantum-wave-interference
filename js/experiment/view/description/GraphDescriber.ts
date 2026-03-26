@@ -26,6 +26,7 @@ export default class GraphDescriber {
 
   public constructor( model: ExperimentModel ) {
 
+    // TODO: Initialize at declaration, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const descriptionProperty = new Property<string>( '' );
     this.descriptionProperty = descriptionProperty;
 
@@ -113,6 +114,8 @@ export default class GraphDescriber {
 
     // Listen to scene changes and rewire listeners for the active scene.
     let previousScene: SceneModel | null = null;
+
+    // TODO: There are also strings in the callback which could change, and must trigger an update, see https://github.com/phetsims/quantum-wave-interference/issues/9
     model.sceneProperty.link( scene => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( update );

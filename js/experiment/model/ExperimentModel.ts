@@ -130,6 +130,7 @@ export default class ExperimentModel implements TModel {
       }
     }
 
+    // TODO: Remove these testing query parameters, see https://github.com/phetsims/quantum-wave-interference/issues/9
     if ( QuantumWaveInterferenceQueryParameters.emitting ) {
       this.sceneProperty.value.isEmittingProperty.value = true;
     }

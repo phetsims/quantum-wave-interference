@@ -53,6 +53,7 @@ type ParticleEmitterPalette = {
   glassShadowColor: string;
 };
 
+// TODO: Should any of these colors be in the color constants profile, so they can be edited at runtime? See https://github.com/phetsims/quantum-wave-interference/issues/9
 const PARTICLE_EMITTER_PALETTES: Record<Exclude<SourceType, 'photons'>, ParticleEmitterPalette> = {
   electrons: {
     topColor: 'rgb(100, 120, 180)',
@@ -228,6 +229,8 @@ export default class OverheadEmitterNode extends Node {
       }
 
       const palette = PARTICLE_EMITTER_PALETTES[ sourceType ];
+
+      // TODO: This looks suspicious. Document or find a better way, see https://github.com/phetsims/quantum-wave-interference/issues/9
       this.particleEmitterNode.children.forEach( child => {
         if ( child instanceof Rectangle ) {
           child.fill = createEmitterGradient( child.height, palette );

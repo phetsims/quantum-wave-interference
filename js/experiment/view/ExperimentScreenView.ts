@@ -405,6 +405,8 @@ export default class ExperimentScreenView extends ScreenView {
     // screen: its full width maps to the scene's full detector width in mm.
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
+    // TODO: Move RulerNode to a subclass or auxiliary function in another file, see https://github.com/phetsims/quantum-wave-interference/issues/9
+    // TODO: This will help us prune down this large file. See https://github.com/phetsims/quantum-wave-interference/issues/9
     const createRulerNode = (
       detectorWidthMM: number,
       sourceType: SourceType,

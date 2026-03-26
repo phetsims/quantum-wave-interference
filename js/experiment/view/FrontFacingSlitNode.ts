@@ -166,14 +166,13 @@ export default class FrontFacingSlitNode extends Node {
       // Keep the exact same appearance at the default intensity (0.5). Above default,
       // increase alpha more aggressively so the displayed color is less dark and closer
       // to the true source hue instead of channel-clipped brightening.
-      const alpha =
-        intensity <= DEFAULT_SOURCE_INTENSITY
-        ? MIN_BEAM_OVERLAY_ALPHA +
-          ( DEFAULT_BEAM_OVERLAY_ALPHA - MIN_BEAM_OVERLAY_ALPHA ) *
-          ( intensity / DEFAULT_SOURCE_INTENSITY )
-        : DEFAULT_BEAM_OVERLAY_ALPHA +
-          ( MAX_BEAM_OVERLAY_ALPHA - DEFAULT_BEAM_OVERLAY_ALPHA ) *
-          ( ( intensity - DEFAULT_SOURCE_INTENSITY ) / ( 1 - DEFAULT_SOURCE_INTENSITY ) );
+      // TODO: This is very hard to read. Factor out const to make easier, see https://github.com/phetsims/quantum-wave-interference/issues/9
+      const alpha = intensity <= DEFAULT_SOURCE_INTENSITY ? MIN_BEAM_OVERLAY_ALPHA +
+                                                            ( DEFAULT_BEAM_OVERLAY_ALPHA - MIN_BEAM_OVERLAY_ALPHA ) *
+                                                            ( intensity / DEFAULT_SOURCE_INTENSITY )
+                                                          : DEFAULT_BEAM_OVERLAY_ALPHA +
+                                                            ( MAX_BEAM_OVERLAY_ALPHA - DEFAULT_BEAM_OVERLAY_ALPHA ) *
+                                                            ( ( intensity - DEFAULT_SOURCE_INTENSITY ) / ( 1 - DEFAULT_SOURCE_INTENSITY ) );
       beamOverlay.fill = beamColor.withAlpha( alpha );
     };
 
@@ -241,10 +240,8 @@ export default class FrontFacingSlitNode extends Node {
     // drawable width (minus horizontal padding), per design request.
     const maxSeparationPadding =
       sceneModel.sourceType === 'photons' ? 2 * HORIZONTAL_PADDING : HORIZONTAL_PADDING;
-    const scaleDenominatorMM =
-      sceneModel.sourceType === 'photons'
-      ? sceneModel.slitSeparationRange.max
-      : sceneModel.slitSeparationRange.max + sceneModel.slitWidth;
+    const scaleDenominatorMM = sceneModel.sourceType === 'photons' ? sceneModel.slitSeparationRange.max
+                                                                   : sceneModel.slitSeparationRange.max + sceneModel.slitWidth;
     const mmToViewX = ( VIEW_WIDTH - 2 * maxSeparationPadding ) / scaleDenominatorMM;
     const slitVisualWidth = sceneModel.slitWidth * mmToViewX;
 
@@ -313,6 +310,8 @@ export default class FrontFacingSlitNode extends Node {
           slitSeparationRange.min * 1000,
           slitSeparationRange.max * 1000
         );
+
+        // TODO: This must be i18n in the yaml file, in the visual part, see https://github.com/phetsims/quantum-wave-interference/issues/9
         separationText.string = `${toFixed( valueUM, decimalPlaces )} μm`;
       }
       else {
@@ -320,6 +319,8 @@ export default class FrontFacingSlitNode extends Node {
           slitSeparationRange.min,
           slitSeparationRange.max
         );
+
+        // TODO: This must be i18n in the yaml file, in the visual part, see https://github.com/phetsims/quantum-wave-interference/issues/9
         separationText.string = `${toFixed( separationMM, decimalPlaces )} mm`;
       }
 
@@ -333,8 +334,7 @@ export default class FrontFacingSlitNode extends Node {
     sceneModel.slitSeparationProperty.link( updateSlits );
 
     // Detector indicator rectangles (yellow/orange translucent overlays, distinct from gray covers)
-    const DETECTOR_COLOR =
-      QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.6 );
+    const DETECTOR_COLOR = QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.6 );
     const leftDetector = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: DETECTOR_COLOR,
       stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
@@ -386,6 +386,8 @@ export default class FrontFacingSlitNode extends Node {
     };
 
     // Update covered-slit appearance and detector visibility based on slit setting
+    // TODO: Subscribe/Listen for all variables in the callback, including but not limited to QuantumWaveInterferenceColors.slitCoverFillProperty, see https://github.com/phetsims/quantum-wave-interference/issues/9
+    // TODO: Or maybe that is OK since the fill subscribes to the property itself, see https://github.com/phetsims/quantum-wave-interference/issues/9
     Multilink.multilink(
       [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty, sceneModel.isEmittingProperty ],
       slitSetting => {

@@ -96,6 +96,8 @@ const getIntensityScreenBrightnessMultiplier = ( sliderBrightness: number ): num
 
 const getHitsScreenBrightnessMultiplier = ( sliderBrightness: number, sliderMax: number ): number => {
   const clampedBrightness = Utils.clamp( sliderBrightness, 0, sliderMax );
+
+  // TODO: Avoid deprecated methods from Utils., see https://github.com/phetsims/quantum-wave-interference/issues/9
   return Utils.linear(
     0,
     sliderMax,
@@ -105,6 +107,7 @@ const getHitsScreenBrightnessMultiplier = ( sliderBrightness: number, sliderMax:
   );
 };
 
+// TODO: Duplicated code fragment (21 lines), see https://github.com/phetsims/quantum-wave-interference/issues/9
 const getHitsCoreAlpha = ( brightnessFraction: number ): number => {
   const clampedFraction = Utils.clamp( brightnessFraction, 0, 1 );
   if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {

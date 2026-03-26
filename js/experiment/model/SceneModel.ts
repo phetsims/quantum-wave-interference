@@ -126,6 +126,7 @@ export default class SceneModel extends PhetioObject {
   // hits that landed in that horizontal region. The bins span the full screen width [-1, 1].
   // This enables Average Intensity mode to build up over time rather than showing the theoretical
   // pattern instantly, matching the design requirement that time controls affect aggregation rate.
+  // TODO: Is this just for performance optimization? See https://github.com/phetsims/quantum-wave-interference/issues/9
   public readonly intensityBins: number[];
 
   // The maximum value in intensityBins, tracked incrementally for efficient normalization
@@ -141,6 +142,7 @@ export default class SceneModel extends PhetioObject {
   public readonly numberOfSnapshotsProperty: TReadOnlyProperty<number>;
 
   // Counter for generating unique snapshot numbers
+  // REVIEW: Can this be eliminated - and computed dynamically, see https://github.com/phetsims/quantum-wave-interference/issues/9
   private nextSnapshotNumber: number;
 
   // Fractional hit accumulator for sub-frame hit tracking
@@ -224,6 +226,7 @@ export default class SceneModel extends PhetioObject {
 
     // Wavelength in nm. For photons, this is directly controlled via a slider. For particles, this property is
     // not used directly — the effective wavelength is computed from velocity via de Broglie relation.
+    // TODO: Is this range correct for non-photons, see https://github.com/phetsims/quantum-wave-interference/issues/9
     this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? 650 : 0, {
       range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),
       units: 'nm',
@@ -326,6 +329,8 @@ export default class SceneModel extends PhetioObject {
       return this.wavelengthProperty.value * 1e-9; // nm to m
     }
     else {
+
+      // TODO: affirm that we have a velocity if non-photon, see https://github.com/phetsims/quantum-wave-interference/issues/9
       const velocity = this.velocityProperty.value;
       if ( velocity === 0 ) {
         return 0;
@@ -340,6 +345,7 @@ export default class SceneModel extends PhetioObject {
    * where d = slit separation, a = slit width, λ = wavelength, θ = angle from center.
    *
    * @param y - position on screen in meters, relative to center
+   * TODO: Why is this parameter y and not x? https://github.com/phetsims/quantum-wave-interference/issues/9
    */
   public getIntensityAtPosition( y: number ): number {
     const lambda = this.getEffectiveWavelength();
@@ -455,6 +461,8 @@ export default class SceneModel extends PhetioObject {
    * Generates a random horizontal position on the detector screen using rejection sampling.
    * The position is drawn from a probability distribution matching the interference pattern intensity.
    * Returns a normalized value in [-1, 1].
+   *
+   * TODO: How often does this hit the fallback? What alternatives could be implemented instead? see https://github.com/phetsims/quantum-wave-interference/issues/9
    */
   private generateHitPosition(): number {
     for ( let i = 0; i < MAX_REJECTION_ITERATIONS; i++ ) {
@@ -508,6 +516,7 @@ export default class SceneModel extends PhetioObject {
       this.hits.push( new Vector2( x, y ) );
 
       // Accumulate into intensity bins for the Average Intensity display
+      // TODO: This is hard to read. Maybe use clamp if it is equivalent? See https://github.com/phetsims/quantum-wave-interference/issues/9
       const binIndex = Math.min( INTENSITY_BIN_COUNT - 1,
         Math.max( 0, Math.floor( ( x + 1 ) / 2 * INTENSITY_BIN_COUNT ) ) );
       this.intensityBins[ binIndex ]++;
@@ -532,6 +541,7 @@ export default class SceneModel extends PhetioObject {
     // cap in DetectorScreenCanvasNode (MAX_RENDERED_HITS = 20000) ensures visual correctness
     // even when old hits are removed. We trim when the array exceeds the cap by a margin to
     // amortize the O(n) splice cost across many frames.
+    // TODO: What does this amortization mean? See https://github.com/phetsims/quantum-wave-interference/issues/9
     if ( this.hits.length > MAX_HITS_RETAINED + HITS_TRIM_MARGIN ) {
       this.hits.splice( 0, this.hits.length - MAX_HITS_RETAINED );
     }

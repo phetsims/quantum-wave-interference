@@ -128,6 +128,7 @@ export default class SourceControlPanel extends Panel {
   } {
     // Photon scenes use "Source Intensity" while particle scenes use "Emission Rate" per the
     // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
+    // TODO: Format cases like this to read more like first value on one line, : value on 2nd line, see https://github.com/phetsims/quantum-wave-interference/issues/9
     const intensityLabelStringProperty =
       scene.sourceType === 'photons'
       ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
@@ -169,7 +170,7 @@ export default class SourceControlPanel extends Panel {
     let topControl: Node;
 
     if ( scene.sourceType === 'photons' ) {
-      // Wavelength control with spectrum slider
+      // Wavelength control with spectrum slider // TODO: Line comments should be preceded by blank line, see https://github.com/phetsims/quantum-wave-interference/issues/9
       topControl = new WavelengthNumberControl( scene.wavelengthProperty, {
         range: new Range( 400, 700 ),
         spectrumSliderTrackOptions: {
@@ -200,7 +201,7 @@ export default class SourceControlPanel extends Panel {
       } );
     }
     else {
-      // Velocity NumberControl for particle scenes, per the design document:
+      // Velocity NumberControl for particle scenes, per the design document: // TODO: Line comments should be preceded by blank line, see https://github.com/phetsims/quantum-wave-interference/issues/9
       // "the panel contains a Velocity NumberControl and Intensity Slider".
       // Speed is displayed in km/s for electrons (large: 1e5–1e7 m/s) and m/s for slower particles.
       const velocityRange = scene.velocityRange;

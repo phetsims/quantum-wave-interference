@@ -102,6 +102,7 @@ export default class BandAnalysis {
 
   /**
    * Core analysis: smooth the data, find peaks, compute positions and spacing.
+   * TODO: Is this emergent, or analytical? Should it be purely analytical? See https://github.com/phetsims/quantum-wave-interference/issues/9
    * @param data - array of values (bin counts or intensity samples)
    * @param dataMax - maximum value in the array
    * @param screenHalfWidthMM - half-width of the detector screen in mm

@@ -17,6 +17,7 @@ export default class DetectorScreenCanvasNode extends CanvasNode {
   private readonly textureWidth: number;
   private readonly textureHeight: number;
 
+  // TODO: Do we want to use parameter properties throughout this sim, see https://github.com/phetsims/quantum-wave-interference/issues/9
   public constructor( sceneModel: SceneModel, width: number, height: number ) {
     super( {
       canvasBounds: new Bounds2( 0, 0, width, height )

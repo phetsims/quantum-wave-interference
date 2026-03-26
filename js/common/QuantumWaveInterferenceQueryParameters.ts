@@ -12,6 +12,7 @@ import { QueryStringMachine } from '../../../query-string-machine/js/QueryString
 
 const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
 
+  // TODO: Remove the testing QueryParameters, see https://github.com/phetsims/quantum-wave-interference/issues/9
   // Selects the initial scene. Values: 'photons', 'electrons', 'neutrons', 'helium'
   scene: {
     type: 'string',
