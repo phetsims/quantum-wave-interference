@@ -32,9 +32,6 @@ export type BandAnalysisResult = {
   centralWidthMM: number;
 };
 
-// Number of sample points for theoretical intensity analysis.
-const NUM_INTENSITY_SAMPLES = 200;
-
 export default class BandAnalysis {
 
   /**
@@ -48,27 +45,59 @@ export default class BandAnalysis {
   }
 
   /**
-   * Analyzes the theoretical intensity pattern to extract band information.
-   * Used for intensity-mode descriptions where the pattern is computed analytically.
+   * Computes band information analytically from the interference/diffraction formula.
+   * For double slit, interference maxima occur at y_n = n·λL/d, so the count of visible
+   * fringes is 2·floor(screenHalfWidth·d/(λL)) + 1. For single slit (or which-path detector),
+   * only the broad central diffraction maximum is reported. This avoids the resolution and
+   * smoothing artifacts of numerical peak detection.
    */
   public static analyzeTheoreticalPattern( scene: SceneModel ): BandAnalysisResult {
-
-    // Sample the theoretical intensity at regular positions across the screen.
-    const screenHalfWidthM = scene.screenHalfWidth;
-    const samples = new Array( NUM_INTENSITY_SAMPLES );
-    let samplesMax = 0;
-
-    for ( let i = 0; i < NUM_INTENSITY_SAMPLES; i++ ) {
-      const fraction = ( i + 0.5 ) / NUM_INTENSITY_SAMPLES;
-      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidthM;
-      const intensity = scene.getIntensityAtPosition( physicalX );
-      samples[ i ] = intensity;
-      if ( intensity > samplesMax ) {
-        samplesMax = intensity;
-      }
+    const lambda = scene.getEffectiveWavelength(); // m
+    if ( lambda === 0 ) {
+      return { bandCount: 0, peakPositionsMM: [], averageSpacingMM: 0, centralWidthMM: 0 };
     }
 
-    return BandAnalysis.analyzeArray( samples, samplesMax, screenHalfWidthM * 1000 );
+    const L = scene.screenDistanceProperty.value; // m
+    const screenHalfWidthM = scene.screenHalfWidth;
+    const a = scene.slitWidth * 1e-3; // mm → m
+    const slitSetting = scene.slitSettingProperty.value;
+
+    if ( slitSetting === 'bothOpen' ) {
+      const d = scene.slitSeparationProperty.value * 1e-3; // mm → m
+
+      // Fringe spacing: Δy = λL/d
+      const fringeSpacingM = lambda * L / d;
+      const fringeSpacingMM = fringeSpacingM * 1000;
+
+      // Count fringes visible on screen: central fringe at 0 plus n pairs on each side
+      const nMax = Math.floor( screenHalfWidthM / fringeSpacingM );
+      const bandCount = 2 * nMax + 1;
+
+      const peakPositionsMM: number[] = [];
+      for ( let n = -nMax; n <= nMax; n++ ) {
+        peakPositionsMM.push( n * fringeSpacingMM );
+      }
+
+      return {
+        bandCount: bandCount,
+        peakPositionsMM: peakPositionsMM,
+        averageSpacingMM: fringeSpacingMM,
+        centralWidthMM: fringeSpacingMM
+      };
+    }
+    else {
+      // Single slit or which-path detector: broad central diffraction maximum.
+      // First zeros at y = ±λL/a, so central width ≈ 2λL/a.
+      const centralHalfWidthM = lambda * L / a;
+      const centralWidthMM = 2 * centralHalfWidthM * 1000;
+
+      return {
+        bandCount: 1,
+        peakPositionsMM: [ 0 ],
+        averageSpacingMM: 0,
+        centralWidthMM: centralWidthMM
+      };
+    }
   }
 
   /**
@@ -78,7 +107,7 @@ export default class BandAnalysis {
    * @param screenHalfWidthMM - half-width of the detector screen in mm
    */
   private static analyzeArray(
-    data: number[], dataMax: number, screenHalfWidthMM: number
+    data: number[], dataMax: number, screenHalfWidthMM: number, thresholdFraction = 0.2
   ): BandAnalysisResult {
     const empty: BandAnalysisResult = {
       bandCount: 0, peakPositionsMM: [], averageSpacingMM: 0, centralWidthMM: 0
@@ -113,8 +142,8 @@ export default class BandAnalysis {
       return empty;
     }
 
-    // A region is considered "bright" if it exceeds 20% of the smoothed peak.
-    const threshold = smoothedMax * 0.2;
+    // A region is considered "bright" if it exceeds the threshold fraction of the smoothed peak.
+    const threshold = smoothedMax * thresholdFraction;
 
     // Identify contiguous bright regions and record their weighted-center positions.
     const peakPositionsMM: number[] = [];
