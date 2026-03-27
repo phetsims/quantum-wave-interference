@@ -290,13 +290,22 @@ export default class ExperimentScreenView extends ScreenView {
     const screenSettingsPanel = new ScreenSettingsPanel( model.sceneProperty, {
       tandem: options.tandem.createTandem( 'screenSettingsPanel' )
     } );
-    screenSettingsPanel.centerX =
-      detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
-    screenSettingsPanel.top = detectorScreenNodes[ 0 ].bottom + 8;
+
+    const layoutScreenSettingsPanel = () => {
+      screenSettingsPanel.centerX =
+        detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+      screenSettingsPanel.top = detectorScreenNodes[ 0 ].bottom + 8;
+    };
+
+    layoutScreenSettingsPanel();
     this.addChild( screenSettingsPanel );
 
     // Keep the graph below the screen settings panel to avoid overlap and align the chart
     // rectangle to the detector screen rectangle even if labels or scale change.
+    screenSettingsPanel.localBoundsProperty.link( () => {
+      layoutScreenSettingsPanel();
+      layoutGraphAccordionBoxes();
+    } );
     this.graphAccordionBoxes.forEach( graphBox => {
       graphBox.localBoundsProperty.link( layoutGraphAccordionBoxes );
     } );

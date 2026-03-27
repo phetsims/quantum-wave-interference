@@ -88,6 +88,15 @@ export default class GraphAccordionBox extends Node {
       children: [ chartBackground ]
     } );
 
+    // Keep the plotting region anchored in a fixed horizontal position even if the rotated
+    // y-axis label rescales. Without this fixed gutter, the content bounds can shrink and
+    // cause the chart area to slide horizontally within the accordion box.
+    const yAxisGutterSpacer = new Rectangle( 0, 0, CHART_Y_AXIS_GUTTER_WIDTH, CHART_HEIGHT, {
+      fill: 'rgba( 0, 0, 0, 0 )',
+      stroke: null,
+      pickable: false
+    } );
+
     // Grid lines matching the design mockup: evenly-spaced horizontal and vertical lines
     // create a grid that helps correlate graph peaks with detector screen positions.
 
@@ -150,7 +159,7 @@ export default class GraphAccordionBox extends Node {
     yAxisLabel.localBoundsProperty.link( layoutYAxisLabel );
 
     const chartNode = new Node( {
-      children: [ yAxisLabel, chartAreaNode ]
+      children: [ yAxisGutterSpacer, yAxisLabel, chartAreaNode ]
     } );
 
     // Title text changes dynamically based on detection mode: "Intensity Graph" vs "Hits Graph".
