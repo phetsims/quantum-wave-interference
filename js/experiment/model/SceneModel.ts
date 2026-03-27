@@ -369,8 +369,23 @@ export default class SceneModel extends PhetioObject {
     const slitSetting = this.slitSettingProperty.value;
 
     if ( slitSetting === 'leftCovered' || slitSetting === 'rightCovered' ) {
-      // Single slit: only diffraction envelope, no interference
-      return singleSlitFactor;
+      // When one slit is covered, shift the single-slit pattern center by half the slit
+      // separation toward the uncovered slit while preserving the full detector-screen width.
+      const uncoveredSlitOffsetMeters =
+        slitSetting === 'leftCovered' ? slitSeparationMeters / 2 : -slitSeparationMeters / 2;
+      const shiftedPositionOnScreen = positionOnScreen - uncoveredSlitOffsetMeters;
+      const shiftedSinTheta =
+        shiftedPositionOnScreen /
+        Math.sqrt(
+          shiftedPositionOnScreen * shiftedPositionOnScreen +
+          screenDistanceMeters * screenDistanceMeters
+        );
+      const shiftedSingleSlitArg = Math.PI * slitWidthMeters * shiftedSinTheta / lambda;
+
+      // Single slit: only the diffraction envelope, centered on the uncovered slit.
+      return shiftedSingleSlitArg === 0 ?
+             1 :
+             Math.pow( Math.sin( shiftedSingleSlitArg ) / shiftedSingleSlitArg, 2 );
     }
 
     if ( slitSetting === 'leftDetector' || slitSetting === 'rightDetector' ) {
