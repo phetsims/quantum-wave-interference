@@ -388,8 +388,7 @@ export default class SceneModel extends PhetioObject {
       return;
     }
 
-    const snapshot = new Snapshot( this.nextSnapshotNumber++, {
-      hits: this.hits,
+    const snapshot = new Snapshot( this.nextSnapshotNumber++, [ ...this.hits ], {
       detectionMode: this.detectionModeProperty.value,
       sourceType: this.sourceType,
       wavelength: this.wavelengthProperty.value,
