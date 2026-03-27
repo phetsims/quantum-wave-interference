@@ -18,6 +18,7 @@ import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
+import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
@@ -334,7 +335,7 @@ export default class SceneModel extends PhetioObject {
     }
     else {
 
-      assert && assert( this.velocityProperty.value !== undefined, 'Non-photon scenes must have a velocity' );
+      affirm( this.velocityProperty.value !== undefined, 'Non-photon scenes must have a velocity' );
       const velocity = this.velocityProperty.value;
       if ( velocity === 0 ) {
         return 0;
