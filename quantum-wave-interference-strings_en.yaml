@@ -1,53 +1,53 @@
-quantum-wave-interference.title: 'Quantum Wave Interference'
-screen.experiment.name:          Experiment
-photons:                         Photons
-electrons:                       Electrons
-neutrons:                        Neutrons
-heliumAtoms:                     Helium Atoms
-photonSource:                    Photon source
-electronSource:                  Electron source
-neutronSource:                   Neutron source
-heliumAtomSource:                Helium atom source
-doubleSlit:                      Double slit
-detectorScreen:                  Detector screen
-intensity:                       Intensity
-sourceIntensity:                 Source Intensity
-particleSpeed:                   Particle Speed
-emissionRate:                    Emission Rate
-particleSpeedKmPerSecondPattern: '{{value}} km/s'
+quantum-wave-interference.title:    'Quantum Wave Interference'
+screen.experiment.name:             Experiment
+photons:                            Photons
+electrons:                          Electrons
+neutrons:                           Neutrons
+heliumAtoms:                        Helium Atoms
+photonSource:                       Photon source
+electronSource:                     Electron source
+neutronSource:                      Neutron source
+heliumAtomSource:                   Helium atom source
+doubleSlit:                         Double slit
+detectorScreen:                     Detector screen
+intensity:                          Intensity
+sourceIntensity:                    Source Intensity
+particleSpeed:                      Particle Speed
+emissionRate:                       Emission Rate
+particleSpeedKmPerSecondPattern:    '{{value}} km/s'
 particleSpeedMeterPerSecondPattern: '{{value}} m/s'
-wavelengthNanometersPattern:     '{{value}} nm'
-valueMillimetersPattern:         '{{value}} mm'
-valueMicrometersPattern:         '{{value}} μm'
-valueMetersPattern:              '{{value}} m'
-rulerUnits:                      mm
-slitsLabelPattern:               'Slits: {{setting}}'
-snapshotLabelValuePattern:       '{{label}}: {{value}}'
-electronMassLabel:               'm<sub>e</sub> = 9.1×10<sup>−31</sup> kg'
-neutronMassLabel:                'm<sub>n</sub> = 1.7×10<sup>−27</sup> kg'
-heliumAtomMassLabel:             'm<sub>He</sub> = 6.6×10<sup>−27</sup> kg'
-max:                             Max
-slitSeparation:                  Slit Separation
-screenDistance:                  Screen Distance
-slitSettings:                    Slit Configuration
-slitSeparationPattern:           '{{value}} mm'
-slitSeparationMicrometerPattern: '{{value}} μm'
-screenDistancePattern:           '{{value}} m'
-bothOpen:                        Both Open
-leftCovered:                     Left Covered
-rightCovered:                    Right Covered
-leftDetector:                    Left Detector
-rightDetector:                   Right Detector
-hits:                            Hits
-hitsCountPattern:                'Hits: {{count}}'
-screenBrightness:                Screen Brightness
-intensityGraph:                  Intensity Graph
-hitsGraph:                       Hits Graph
-count:                           Count
-snapshotNumberPattern:           'Snapshot {{number}}'
-ruler:                           Ruler
-stopwatch:                       Stopwatch
-detector:                        Detector
+wavelengthNanometersPattern:        '{{value}} nm'
+valueMillimetersPattern:            '{{value}} mm'
+valueMicrometersPattern:            '{{value}} μm'
+valueMetersPattern:                 '{{value}} m'
+rulerUnits:                         mm
+slitsLabelPattern:                  'Slits: {{setting}}'
+snapshotLabelValuePattern:          '{{label}}: {{value}}'
+electronMassLabel:                  'm<sub>e</sub> = 9.1×10<sup>−31</sup> kg'
+neutronMassLabel:                   'm<sub>n</sub> = 1.7×10<sup>−27</sup> kg'
+heliumAtomMassLabel:                'm<sub>He</sub> = 6.6×10<sup>−27</sup> kg'
+max:                                Max
+slitSeparation:                     Slit Separation
+screenDistance:                     Screen Distance
+slitSettings:                       Slit Configuration
+slitSeparationPattern:              '{{value}} mm'
+slitSeparationMicrometerPattern:    '{{value}} μm'
+screenDistancePattern:              '{{value}} m'
+bothOpen:                           Both Open
+leftCovered:                        Left Covered
+rightCovered:                       Right Covered
+leftDetector:                       Left Detector
+rightDetector:                      Right Detector
+hits:                               Hits
+hitsCountPattern:                   'Hits: {{count}}'
+screenBrightness:                   Screen Brightness
+intensityGraph:                     Intensity Graph
+hitsGraph:                          Hits Graph
+count:                              Count
+snapshotNumberPattern:              'Snapshot {{number}}'
+ruler:                              Ruler
+stopwatch:                          Stopwatch
+detector:                           Detector
 
 # Accessibility strings
 a11y:
