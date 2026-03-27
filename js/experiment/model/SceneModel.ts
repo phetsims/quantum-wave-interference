@@ -17,7 +17,7 @@ import TEmitter from '../../../../axon/js/TEmitter.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
-import Vector2 from '../../../../dot/js/Vector2.js';
+import Vector2, { type Vector2StateObject } from '../../../../dot/js/Vector2.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
@@ -567,21 +567,15 @@ export default class SceneModel extends PhetioObject {
     valueType: SceneModel,
     supertype: GetSetButtonsIO,
     stateSchema: {
-      hits: IOType.ObjectIO, // Flat number[] [x0, y0, x1, y1, ...]
+      hits: ArrayIO( Vector2.Vector2IO ),
       intensityBins: IOType.ObjectIO, // number[]
       intensityBinsMax: NumberIO,
       hitAccumulator: NumberIO,
       nextSnapshotNumber: NumberIO
     },
     toStateObject: ( model: SceneModel ): SceneModelStateObject => {
-      // Pack hits into a flat array for efficient serialization
-      const flatHits: number[] = new Array( model.hits.length * 2 );
-      for ( let i = 0; i < model.hits.length; i++ ) {
-        flatHits[ i * 2 ] = model.hits[ i ].x;
-        flatHits[ i * 2 + 1 ] = model.hits[ i ].y;
-      }
       return {
-        hits: flatHits,
+        hits: model.hits.map( v => v.toStateObject() ),
         intensityBins: [ ...model.intensityBins ],
         intensityBinsMax: model.intensityBinsMax,
         hitAccumulator: model.hitAccumulator,
@@ -590,11 +584,8 @@ export default class SceneModel extends PhetioObject {
     },
     applyState: ( model: SceneModel, state: SceneModelStateObject ) => {
 
-      // Restore hits from flat array
       model.hits.length = 0;
-      for ( let i = 0; i < state.hits.length; i += 2 ) {
-        model.hits.push( new Vector2( state.hits[ i ], state.hits[ i + 1 ] ) );
-      }
+      model.hits.push( ...state.hits.map( s => Vector2.fromStateObject( s ) ) );
 
       // Restore intensity bins
       for ( let i = 0; i < state.intensityBins.length; i++ ) {
@@ -611,7 +602,7 @@ export default class SceneModel extends PhetioObject {
 }
 
 type SceneModelStateObject = {
-  hits: number[];
+  hits: Vector2StateObject[];
   intensityBins: number[];
   intensityBinsMax: number;
   hitAccumulator: number;
