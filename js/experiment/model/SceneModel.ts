@@ -27,10 +27,10 @@ import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import GetSetButtonsIO from '../../../../tandem/js/types/GetSetButtonsIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
 import Snapshot from './Snapshot.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type SourceType } from './SourceType.js';
 
 // Maximum emission rate in hits per second at full intensity
@@ -364,24 +364,21 @@ export default class SceneModel extends PhetioObject {
     if ( slitSetting === 'leftCovered' || slitSetting === 'rightCovered' ) {
       // When one slit is covered, shift the single-slit pattern center by half the slit
       // separation toward the uncovered slit while preserving the full detector-screen width.
-      const uncoveredSlitOffsetMeters =
-        slitSetting === 'leftCovered' ? slitSeparationMeters / 2 : -slitSeparationMeters / 2;
+      const uncoveredSlitOffsetMeters = slitSetting === 'leftCovered' ? slitSeparationMeters / 2 :
+                                        -slitSeparationMeters / 2;
       const shiftedPositionOnScreen = positionOnScreen - uncoveredSlitOffsetMeters;
       const shiftedSinTheta =
         shiftedPositionOnScreen /
-        Math.sqrt(
-          shiftedPositionOnScreen * shiftedPositionOnScreen +
-          screenDistanceMeters * screenDistanceMeters
-        );
+        Math.sqrt( shiftedPositionOnScreen * shiftedPositionOnScreen + screenDistanceMeters * screenDistanceMeters );
       const shiftedSingleSlitArg = Math.PI * slitWidthMeters * shiftedSinTheta / lambda;
 
       // Single slit: only the diffraction envelope, centered on the uncovered slit.
-      return shiftedSingleSlitArg === 0 ?
-             1 :
+      return shiftedSingleSlitArg === 0 ? 1 :
              Math.pow( Math.sin( shiftedSingleSlitArg ) / shiftedSingleSlitArg, 2 );
     }
 
     if ( slitSetting === 'leftDetector' || slitSetting === 'rightDetector' ) {
+
       // Which-path detection destroys interference: sum of two single-slit patterns
       // (no cross-term), result is essentially a broad single-slit-like pattern
       return singleSlitFactor;
@@ -442,9 +439,6 @@ export default class SceneModel extends PhetioObject {
 
   // Maximum number of snapshots that can be stored per scene
   public static readonly MAX_SNAPSHOTS = 4;
-
-  // Number of bins used for the intensity accumulator
-  public static readonly INTENSITY_BIN_COUNT = INTENSITY_BIN_COUNT;
 
   /**
    * Resets all scene state to initial values: Properties, accumulated data, and snapshots.
