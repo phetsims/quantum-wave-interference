@@ -53,24 +53,9 @@ detector:                           Detector
 a11y:
   screenSummary:
     playArea:        >-
-                     In a double-slit experiment, a { $sourceType ->
-                       [photons] photon source
-                       [electrons] electron source
-                       [neutrons] neutron source
-                      *[heliumAtoms] helium atom source
-                     } emits { $sourceType ->
-                       [photons] photons
-                       [electrons] electrons
-                       [neutrons] neutrons
-                      *[heliumAtoms] helium atoms
-                     } toward a barrier with two narrow slits.
-                     { $sourceType ->
-                       [photons] Photons
-                       [electrons] Electrons
-                       [neutrons] Neutrons
-                      *[heliumAtoms] Helium atoms
-                     } that pass through the slits land on a detector screen, building up a pattern over time.
-                     A magnified view of the slits, a front-facing detector screen, and an intensity graph are shown.
+                     A double-slit experiment features a source emitting particles toward a barrier with two narrow slits.
+                     Particles that pass through the slits land on a detector screen, building up a pattern.
+                     You can adjust the source and slits, observe the resulting pattern, and save snapshots of the detector screen.
     controlArea:     >-
                      Checkboxes show or hide a ruler and stopwatch.
                      Play and pause controls and a Reset All button are available.

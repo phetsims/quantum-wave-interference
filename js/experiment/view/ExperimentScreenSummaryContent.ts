@@ -59,9 +59,7 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
     );
 
     super( {
-      playAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.playArea.createProperty( {
-        sourceType: sourceTypeProperty
-      } ),
+      playAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.controlAreaStringProperty,
       currentDetailsContent: QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
         sourceType: sourceTypeProperty,
