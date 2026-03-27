@@ -15,10 +15,6 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly SCREEN_VIEW_X_MARGIN = 15;
   public static readonly SCREEN_VIEW_Y_MARGIN = 15;
 
-  // Padding between the front-facing display areas (screen rect, accordion box) and their
-  // adjacent side buttons (eraser, snapshot, zoom).
-  public static readonly INTERNAL_PADDING = 10;
-
   // Physical constants
   public static readonly PLANCK_CONSTANT = 6.626e-34; // J·s
 
