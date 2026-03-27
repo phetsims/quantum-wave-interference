@@ -31,12 +31,9 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import { ELECTRON_MASS } from '../model/SceneModel.js';
-import { HELIUM_ATOM_MASS } from '../model/SceneModel.js';
-import { NEUTRON_MASS } from '../model/SceneModel.js';
-import { PLANCK_CONSTANT } from '../model/SceneModel.js';
 import SceneModel from '../model/SceneModel.js';
 import Snapshot from '../model/Snapshot.js';
 import { getHitsBrightnessFraction } from './ScreenBrightnessUtils.js';
@@ -182,10 +179,10 @@ export default class SnapshotNode extends Node {
         }
         else {
           const particleMass =
-            snapshot.sourceType === 'electrons' ? ELECTRON_MASS :
-            snapshot.sourceType === 'neutrons' ? NEUTRON_MASS :
-            HELIUM_ATOM_MASS;
-          const speed = snapshot.effectiveWavelength === 0 ? 0 : PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
+            snapshot.sourceType === 'electrons' ? QuantumWaveInterferenceConstants.ELECTRON_MASS :
+            snapshot.sourceType === 'neutrons' ? QuantumWaveInterferenceConstants.NEUTRON_MASS :
+            QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
+          const speed = snapshot.effectiveWavelength === 0 ? 0 : QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
           if ( speed >= 10000 ) {
             const kmPerSValue = StringUtils.fillIn(
               QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value,

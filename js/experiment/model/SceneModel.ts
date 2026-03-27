@@ -30,16 +30,8 @@ import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
 import Snapshot from './Snapshot.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type SourceType } from './SourceType.js';
-
-// Physical constants - exported so SnapshotNode and other view code can derive particle speed
-// from the stored effective wavelength without duplicating magic numbers.
-export const PLANCK_CONSTANT = 6.626e-34; // J·s
-
-// Particle masses in kg
-export const ELECTRON_MASS = 9.109e-31;
-export const NEUTRON_MASS = 1.675e-27;
-export const HELIUM_ATOM_MASS = 6.646e-27;
 
 // Maximum emission rate in hits per second at full intensity
 const MAX_EMISSION_RATE = 100;
@@ -182,7 +174,7 @@ export default class SceneModel extends PhetioObject {
       defaultSlitSeparation = 0.25;
     }
     else if ( options.sourceType === 'electrons' ) {
-      this.particleMass = ELECTRON_MASS;
+      this.particleMass = QuantumWaveInterferenceConstants.ELECTRON_MASS;
       this.slitWidth = 0.00003; // mm (0.03 μm)
       this.velocityRange = new Range( 7e5, 1.5e6 ); // m/s (700–1500 km/s per design mockup)
       this.slitSeparationRange = new Range( 0.0001, 0.0009 ); // mm (0.1–0.9 μm)
@@ -193,7 +185,7 @@ export default class SceneModel extends PhetioObject {
       defaultSlitSeparation = 0.0005; // 0.5 μm
     }
     else if ( options.sourceType === 'neutrons' ) {
-      this.particleMass = NEUTRON_MASS;
+      this.particleMass = QuantumWaveInterferenceConstants.NEUTRON_MASS;
       this.slitWidth = 0.003; // mm (3 μm)
       this.velocityRange = new Range( 200, 800 ); // m/s
       this.slitSeparationRange = new Range( 0.01, 0.07 ); // mm (10–70 μm)
@@ -205,7 +197,7 @@ export default class SceneModel extends PhetioObject {
     }
     else {
       // Helium atoms
-      this.particleMass = HELIUM_ATOM_MASS;
+      this.particleMass = QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
       this.slitWidth = 0.0003; // mm (0.3 μm)
       this.velocityRange = new Range( 400, 2000 ); // m/s
       this.slitSeparationRange = new Range( 0.001, 0.007 ); // mm (1–7 μm)
@@ -340,7 +332,7 @@ export default class SceneModel extends PhetioObject {
       if ( velocity === 0 ) {
         return 0;
       }
-      return PLANCK_CONSTANT / ( this.particleMass * velocity );
+      return QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * velocity );
     }
   }
 
