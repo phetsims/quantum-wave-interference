@@ -29,6 +29,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import cameraSolidShape from '../../../../sherpa/js/fontawesome-5/cameraSolidShape.js';
 import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
+import nullSoundPlayer from '../../../../tambo/js/nullSoundPlayer.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import SoundClip from '../../../../tambo/js/sound-generators/SoundClip.js';
 import soundManager from '../../../../tambo/js/soundManager.js';
@@ -58,10 +59,6 @@ const snapshotCapturedSoundClip = new SoundClip( snapshotCaptured_mp3, {
   initialOutputLevel: 0.4
 } );
 soundManager.addSoundGenerator( snapshotCapturedSoundClip );
-const noOpSoundPlayer = {
-  play: () => undefined,
-  stop: () => undefined
-};
 
 /**
  * Returns the number of decimal places to show in a millimeter scale label,
@@ -321,7 +318,7 @@ export default class DetectorScreenNode extends Node {
       ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleHelpTextStringProperty,
-      soundPlayer: noOpSoundPlayer,
+      soundPlayer: nullSoundPlayer,
       tandem: providedOptions.tandem.createTandem( 'snapshotButton' )
     } );
 
@@ -372,7 +369,7 @@ export default class DetectorScreenNode extends Node {
       ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleHelpTextStringProperty,
-      soundPlayer: noOpSoundPlayer,
+      soundPlayer: nullSoundPlayer,
       tandem: providedOptions.tandem.createTandem( 'viewSnapshotsButton' )
     } );
 
