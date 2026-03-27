@@ -28,6 +28,7 @@ import GetSetButtonsIO from '../../../../tandem/js/types/GetSetButtonsIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
 import Snapshot from './Snapshot.js';
@@ -36,18 +37,8 @@ import { type SourceType } from './SourceType.js';
 // Maximum emission rate in hits per second at full intensity
 const MAX_EMISSION_RATE = 100;
 
-// Maximum number of hit positions to retain in the hits array. When the array exceeds this
-// size by HITS_TRIM_MARGIN, it is trimmed back to MAX_HITS_RETAINED from the front. This
-// prevents unbounded memory growth while the intensityBins continue accumulating correctly.
-// The trim margin amortizes the cost of array splicing across many frames.
-const MAX_HITS_RETAINED = 100000;
-const HITS_TRIM_MARGIN = 2000;
-
 // Maximum iterations for rejection sampling to prevent infinite loops
 const MAX_REJECTION_ITERATIONS = 1000;
-
-// Number of bins for the intensity accumulator (used for Average Intensity display)
-const INTENSITY_BIN_COUNT = 200;
 
 type SelfOptions = {
   sourceType: SourceType;
@@ -115,18 +106,6 @@ export default class SceneModel extends PhetioObject {
   // Accumulated hit positions on the detector screen. Each Vector2 has x in [-1,1] (horizontal,
   // determined by interference pattern probability) and y in [-1,1] (vertical, uniformly random).
   public readonly hits: Vector2[];
-
-  // Intensity accumulator bins for the Average Intensity display. Each bin tracks the count of
-  // hits that landed in that horizontal region. The bins span the full screen width [-1, 1].
-  // This enables Average Intensity mode to build up over time rather than showing the theoretical
-  // pattern instantly, matching the design requirement that time controls affect aggregation rate.
-  // Not just for performance — the bins persist the cumulative distribution while the hits array
-  // is periodically trimmed (see MAX_HITS_RETAINED). They also allow efficient normalization
-  // without iterating the full hits array each frame.
-  public readonly intensityBins: number[];
-
-  // The maximum value in intensityBins, tracked incrementally for efficient normalization
-  public intensityBinsMax: number;
 
   // Emitter that fires when the hits array changes (new hits added or cleared)
   public readonly hitsChangedEmitter: TEmitter;
@@ -209,8 +188,6 @@ export default class SceneModel extends PhetioObject {
     }
 
     this.hits = [];
-    this.intensityBins = new Array<number>( INTENSITY_BIN_COUNT ).fill( 0 );
-    this.intensityBinsMax = 0;
     this.hitsChangedEmitter = new Emitter();
     this.hitAccumulator = 0;
 
@@ -397,8 +374,6 @@ export default class SceneModel extends PhetioObject {
    */
   public clearScreen(): void {
     this.hits.length = 0;
-    this.intensityBins.fill( 0 );
-    this.intensityBinsMax = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.value = 0;
     this.detectorHitsProperty.value = 0;
@@ -454,8 +429,6 @@ export default class SceneModel extends PhetioObject {
     this.detectionModeProperty.reset();
     this.screenBrightnessProperty.reset();
     this.hits.length = 0;
-    this.intensityBins.fill( 0 );
-    this.intensityBinsMax = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.reset();
     this.detectorHitsProperty.reset();
@@ -516,6 +489,10 @@ export default class SceneModel extends PhetioObject {
 
     for ( let i = 0; i < numHits; i++ ) {
 
+      if ( this.hits.length >= ExperimentConstants.MAX_HITS ) {
+        break;
+      }
+
       // Horizontal position determined by interference pattern probability distribution
       const x = this.generateHitPosition();
 
@@ -523,15 +500,6 @@ export default class SceneModel extends PhetioObject {
       const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * 0.95; // [-0.95, 0.95] to leave padding
 
       this.hits.push( new Vector2( x, y ) );
-
-      // Accumulate into intensity bins for the Average Intensity display.
-      // Map x from [-1, 1] to bin index [0, INTENSITY_BIN_COUNT - 1].
-      const rawBinIndex = Math.floor( ( x + 1 ) / 2 * INTENSITY_BIN_COUNT );
-      const binIndex = Math.max( 0, Math.min( INTENSITY_BIN_COUNT - 1, rawBinIndex ) );
-      this.intensityBins[ binIndex ]++;
-      if ( this.intensityBins[ binIndex ] > this.intensityBinsMax ) {
-        this.intensityBinsMax = this.intensityBins[ binIndex ];
-      }
 
       // When a which-path detector is active, each particle has ~50% probability of going
       // through the monitored slit (the one with the detector on it).
@@ -545,21 +513,11 @@ export default class SceneModel extends PhetioObject {
       this.detectorHitsProperty.value += detectorHitsThisFrame;
     }
 
-    // Cap the hits array to prevent unbounded memory growth. The intensityBins accumulator
-    // is unaffected since it tracks bin counts independently of the hits array. The render
-    // cap in DetectorScreenCanvasNode (MAX_RENDERED_HITS) ensures visual correctness even when
-    // old hits are removed. We trim when the array exceeds the cap by HITS_TRIM_MARGIN rather
-    // than exactly at MAX_HITS_RETAINED so that the expensive O(n) splice only occurs every
-    // ~HITS_TRIM_MARGIN frames instead of every frame once the cap is reached.
-    if ( this.hits.length > MAX_HITS_RETAINED + HITS_TRIM_MARGIN ) {
-      this.hits.splice( 0, this.hits.length - MAX_HITS_RETAINED );
-    }
-
     this.hitsChangedEmitter.emit();
   }
 
   /**
-   * IOType for SceneModel that serializes the live detector screen data (hits, intensity bins,
+   * IOType for SceneModel that serializes the live detector screen data (hits,
    * hit accumulator, and next snapshot number) which are plain arrays/numbers not covered by
    * the individual instrumented Properties.
    */
@@ -568,16 +526,12 @@ export default class SceneModel extends PhetioObject {
     supertype: GetSetButtonsIO,
     stateSchema: {
       hits: ArrayIO( Vector2.Vector2IO ),
-      intensityBins: IOType.ObjectIO, // number[]
-      intensityBinsMax: NumberIO,
       hitAccumulator: NumberIO,
       nextSnapshotNumber: NumberIO
     },
     toStateObject: ( model: SceneModel ): SceneModelStateObject => {
       return {
         hits: model.hits.map( v => v.toStateObject() ),
-        intensityBins: [ ...model.intensityBins ],
-        intensityBinsMax: model.intensityBinsMax,
         hitAccumulator: model.hitAccumulator,
         nextSnapshotNumber: model.nextSnapshotNumber
       };
@@ -586,12 +540,6 @@ export default class SceneModel extends PhetioObject {
 
       model.hits.length = 0;
       model.hits.push( ...state.hits.map( s => Vector2.fromStateObject( s ) ) );
-
-      // Restore intensity bins
-      for ( let i = 0; i < state.intensityBins.length; i++ ) {
-        model.intensityBins[ i ] = state.intensityBins[ i ];
-      }
-      model.intensityBinsMax = state.intensityBinsMax;
 
       model.hitAccumulator = state.hitAccumulator;
       model.nextSnapshotNumber = state.nextSnapshotNumber;
@@ -603,8 +551,6 @@ export default class SceneModel extends PhetioObject {
 
 type SceneModelStateObject = {
   hits: Vector2StateObject[];
-  intensityBins: number[];
-  intensityBinsMax: number;
   hitAccumulator: number;
   nextSnapshotNumber: number;
 };

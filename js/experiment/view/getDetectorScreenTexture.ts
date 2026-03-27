@@ -32,7 +32,6 @@ const TEXTURE_HEIGHT = SCREEN_HEIGHT * SUPERSAMPLE;
 // Hit dot rendering parameters (in texture-space, i.e. scaled by SUPERSAMPLE).
 const HIT_CORE_RADIUS = 2.0 * SUPERSAMPLE;
 const HIT_GLOW_RADIUS = 3.4 * SUPERSAMPLE;
-const MAX_RENDERED_HITS = 100000;
 
 type SceneTextureCache = {
   canvas: HTMLCanvasElement;
@@ -147,13 +146,13 @@ const paintHits = (
   const spriteHalfH = sprite.height / 2;
 
   const hitCount = hits.length;
-  const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
+  const renderCount = Math.min( hitCount, ExperimentConstants.MAX_HITS );
   const startIndex = hitCount - renderCount;
 
-  if ( renderCount >= MAX_RENDERED_HITS && !hasLoggedRenderCap ) {
+  if ( renderCount >= ExperimentConstants.MAX_HITS && !hasLoggedRenderCap ) {
     hasLoggedRenderCap = true;
     phet.log && phet.log(
-      `[DetectorScreen] Render cap reached: only the most recent ${MAX_RENDERED_HITS} hits are drawn. Hit counter continues to accumulate.`
+      `[DetectorScreen] Render cap reached: only the most recent ${ExperimentConstants.MAX_HITS} hits are drawn. Hit counter continues to accumulate.`
     );
   }
 

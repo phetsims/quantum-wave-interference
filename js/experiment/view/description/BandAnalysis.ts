@@ -34,14 +34,26 @@ export type BandAnalysisResult = {
 
 export default class BandAnalysis {
 
+  // Number of bins used when analyzing hit data
+  private static readonly ANALYSIS_BIN_COUNT = 200;
+
   /**
-   * Analyzes the accumulated intensity bins to extract band information.
-   * Used for hits-mode descriptions where data comes from accumulated detections.
+   * Analyzes the hit positions to extract band information.
+   * Bins the hits on the fly, then delegates to analyzeArray.
    */
   public static analyzeHitBins( scene: SceneModel ): BandAnalysisResult {
-    return BandAnalysis.analyzeArray(
-      scene.intensityBins, scene.intensityBinsMax, scene.screenHalfWidth * 1000
-    );
+    const binCount = BandAnalysis.ANALYSIS_BIN_COUNT;
+    const bins = new Array<number>( binCount ).fill( 0 );
+    let binsMax = 0;
+    for ( let i = 0; i < scene.hits.length; i++ ) {
+      const rawIndex = Math.floor( ( scene.hits[ i ].x + 1 ) / 2 * binCount );
+      const index = Math.max( 0, Math.min( binCount - 1, rawIndex ) );
+      bins[ index ]++;
+      if ( bins[ index ] > binsMax ) {
+        binsMax = bins[ index ];
+      }
+    }
+    return BandAnalysis.analyzeArray( bins, binsMax, scene.screenHalfWidth * 1000 );
   }
 
   /**
