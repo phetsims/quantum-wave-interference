@@ -144,16 +144,16 @@ a11y:
     hitsRadioButton:
       accessibleContextResponse: Detector screen shows individual hits.
   sceneRadioButtonGroup:
-    accessibleName:     Particle Type
-    accessibleHelpText: Choose a particle type to change the source used in the double-slit experiment.
+    accessibleName:     Experiment Type
+    accessibleHelpText: Choose a particle type to switch to a different experiment setup.
     photonsRadioButton:
-      accessibleContextResponse: Experiment now uses a photon source.
+      accessibleContextResponse: Now experimenting with photons. Source, slits, and screen settings updated.
     electronsRadioButton:
-      accessibleContextResponse: Experiment now uses an electron source.
+      accessibleContextResponse: Now experimenting with electrons. Source, slits, and screen settings updated.
     neutronsRadioButton:
-      accessibleContextResponse: Experiment now uses a neutron source.
+      accessibleContextResponse: Now experimenting with neutrons. Source, slits, and screen settings updated.
     heliumAtomsRadioButton:
-      accessibleContextResponse: Experiment now uses a helium atom source.
+      accessibleContextResponse: Now experimenting with helium atoms. Source, slits, and screen settings updated.
   slitSettingsComboBox:
     accessibleName:            Slit Configuration
     accessibleHelpText:        Choose a slit configuration to change which slits are open, covered, or monitored by a detector.

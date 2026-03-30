@@ -259,29 +259,29 @@
     },
     "sceneRadioButtonGroup": {
       "accessibleName": {
-        "value": "Particle Type"
+        "value": "Experiment Type"
       },
       "accessibleHelpText": {
-        "value": "Choose a particle type to change the source used in the double-slit experiment."
+        "value": "Choose a particle type to switch to a different experiment setup."
       },
       "photonsRadioButton": {
         "accessibleContextResponse": {
-          "value": "Experiment now uses a photon source."
+          "value": "Now experimenting with photons. Source, slits, and screen settings updated."
         }
       },
       "electronsRadioButton": {
         "accessibleContextResponse": {
-          "value": "Experiment now uses an electron source."
+          "value": "Now experimenting with electrons. Source, slits, and screen settings updated."
         }
       },
       "neutronsRadioButton": {
         "accessibleContextResponse": {
-          "value": "Experiment now uses a neutron source."
+          "value": "Now experimenting with neutrons. Source, slits, and screen settings updated."
         }
       },
       "heliumAtomsRadioButton": {
         "accessibleContextResponse": {
-          "value": "Experiment now uses a helium atom source."
+          "value": "Now experimenting with helium atoms. Source, slits, and screen settings updated."
         }
       }
     },
