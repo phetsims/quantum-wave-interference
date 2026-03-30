@@ -51,13 +51,6 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
       ( isEmitting: boolean ) => isEmitting ? 'true' as const : 'false' as const
     );
 
-    // Track the active scene's total hits
-    const totalHitsProperty = new DynamicProperty<number, number, SceneModel>(
-      model.sceneProperty, {
-        derive: 'totalHitsProperty'
-      }
-    );
-
     super( {
       playAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.controlAreaStringProperty,
@@ -65,8 +58,7 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
         sourceType: sourceTypeProperty,
         slitSetting: slitSettingProperty,
         detectionMode: detectionModeProperty,
-        isEmitting: isEmittingStringProperty,
-        totalHits: totalHitsProperty
+        isEmitting: isEmittingStringProperty
       } ),
       interactionHintContent: QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {
         sourceType: sourceTypeProperty,

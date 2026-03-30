@@ -57,42 +57,39 @@ a11y:
                      Particles that pass through the slits land on a detector screen, building up a pattern.
                      You can adjust the source and slits, observe the resulting pattern, and save snapshots of the detector screen.
     controlArea:     >-
-                     Checkboxes show or hide a ruler and stopwatch.
-                     Play and pause controls and a Reset All button are available.
+                     A ruler and stopwatch can be shown or hidden.
+                     There are controls to play, pause, or adjust experiment speed.
+                     Reset sim to start over.
     currentDetails:  >-
-                     Source is { $sourceType ->
-                       [photons] photons
-                       [electrons] electrons
-                       [neutrons] neutrons
-                      *[heliumAtoms] helium atoms
-                     }.
-                     Slit configuration is { $slitSetting ->
-                       [bothOpen] both open
-                       [leftCovered] left covered
-                       [rightCovered] right covered
-                       [leftDetector] left detector
-                      *[rightDetector] right detector
-                     }.
-                     Detection mode is { $detectionMode ->
+                     Currently, running a { $sourceType ->
+                       [photons] photon
+                       [electrons] electron
+                       [neutrons] neutron
+                      *[heliumAtoms] helium atom
+                     } experiment.
+                     The barrier has { $slitSetting ->
+                       [bothOpen] both slits open
+                       [leftCovered] the left slit covered
+                       [rightCovered] the right slit covered
+                       [leftDetector] a detector on the left slit
+                      *[rightDetector] a detector on the right slit
+                     } and the screen displays { $detectionMode ->
                        [averageIntensity] intensity
                       *[hits] hits
                      }.
-                     { $isEmitting ->
-                       [true] { $detectionMode ->
-                         [hits] Source is on, { $totalHits } hits accumulated.
-                        *[averageIntensity] Source is on.
-                       }
-                      *[false] Source is off.
-                     }
+                     The source is { $isEmitting ->
+                       [true] on
+                      *[false] off
+                     }.
     interactionHint: >-
                      { $isEmitting ->
-                       [true] Change particle type, adjust slit settings, or switch detection mode to explore the experiment.
+                       [true] Adjust the source or slits to make observations.
                       *[false] Turn on the { $sourceType ->
                          [photons] photon source
                          [electrons] electron source
                          [neutrons] neutron source
                         *[heliumAtoms] helium atom source
-                       } to start the experiment.
+                       } to start experimenting.
                      }
   sourceHeading:               Source
   slitsHeading:                Slits
