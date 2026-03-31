@@ -248,12 +248,12 @@
       },
       "intensityRadioButton": {
         "accessibleContextResponse": {
-          "value": "Detector screen shows continuous intensity pattern."
+          "value": "Detector screen now shows continuous intensity pattern."
         }
       },
       "hitsRadioButton": {
         "accessibleContextResponse": {
-          "value": "Detector screen shows individual hits."
+          "value": "Detector screen now shows individual hits."
         }
       }
     },
@@ -304,7 +304,7 @@
     },
     "slitView": {
       "accessibleParagraph": {
-        "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits are open.\n  [leftCovered] Left slit is covered.\n  [rightCovered] Right slit is covered.\n  [leftDetector] Left slit is monitored by a which-path detector.\n *[rightDetector] Right slit is monitored by a which-path detector.\n}"
+        "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits are open.\n  [leftCovered] Left slit is covered.\n  [rightCovered] Right slit is covered.\n  [leftDetector] Left slit is monitored by a detector.\n *[rightDetector] Right slit is monitored by a detector.\n}"
       }
     },
     "zoomInButton": {
@@ -442,7 +442,7 @@
           "value": "View Snapshots"
         },
         "accessibleHelpText": {
-          "value": "Open a dialog to compare saved snapshots."
+          "value": "View and compare saved snapshots of the detector screen."
         }
       }
     }
