@@ -31,6 +31,6 @@ export default class ExperimentConstants {
   // Relative skew amount for overhead parallelograms (1 = original skew, 0.5 = 50% less skew).
   public static readonly OVERHEAD_SKEW_SCALE = 0.5;
 
-  // Maximum number of hit positions retained on the detector screen.
-  public static readonly MAX_HITS = 20000;
+  // Maximum number of hits allowed in Hits mode before the source is shut off.
+  public static readonly MAX_HITS = 25000;
 }

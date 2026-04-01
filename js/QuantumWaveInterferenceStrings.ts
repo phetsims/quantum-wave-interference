@@ -30,6 +30,7 @@ type StringsType = {
   'heliumAtomSourceStringProperty': LocalizedStringProperty;
   'doubleSlitStringProperty': LocalizedStringProperty;
   'detectorScreenStringProperty': LocalizedStringProperty;
+  'maximumHitsReachedStringProperty': LocalizedStringProperty;
   'intensityStringProperty': LocalizedStringProperty;
   'sourceIntensityStringProperty': LocalizedStringProperty;
   'particleSpeedStringProperty': LocalizedStringProperty;
@@ -72,6 +73,8 @@ type StringsType = {
     'screenSummary': {
       'playAreaStringProperty': LocalizedStringProperty;
       'controlAreaStringProperty': LocalizedStringProperty;
+      'maxHitsReachedDetailsStringProperty': LocalizedStringProperty;
+      'maxHitsReachedHintStringProperty': LocalizedStringProperty;
       'currentDetailsStringProperty': LocalizedStringProperty;
       'interactionHintStringProperty': LocalizedStringProperty;
     };

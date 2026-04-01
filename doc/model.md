@@ -102,6 +102,10 @@ Individual detection events are generated using rejection sampling:
 This produces a spatial distribution of hits that converges to the theoretical interference pattern
 as the number of events increases.
 
+In Hits mode, each scene is capped at 25,000 hits (`ExperimentConstants.MAX_HITS`). When the cap is
+reached, the emitter turns off automatically, its on/off button is disabled, and the user must clear
+the detector screen before collecting more hits in that scene.
+
 ## Source-Specific Parameters
 
 | Parameter         | Photons        | Electrons        | Neutrons          | Helium Atoms       |

@@ -148,6 +148,14 @@ export default class OverheadDoubleSlitNode extends Node {
   }
 
   /**
+   * Returns the x-position (in parent coordinates) of the left edge of the visible
+   * rounded-rectangle/parallelogram graphic.
+   */
+  public getVisibleBackgroundLeftX(): number {
+    return this.parallelogramNode.x + this.reducedBackgroundNode.left;
+  }
+
+  /**
    * Returns the x-position (in parent coordinates) of the right edge of the visible
    * rounded-rectangle/parallelogram graphic.
    */

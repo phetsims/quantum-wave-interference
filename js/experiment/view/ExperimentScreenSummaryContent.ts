@@ -41,6 +41,12 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
       }
     );
 
+    const isMaxHitsReachedProperty = new DynamicProperty<boolean, boolean, SceneModel>(
+      model.sceneProperty, {
+        derive: 'isMaxHitsReachedProperty'
+      }
+    );
+
     // Track the active scene's emitting state as a string for Fluent select
     const isEmittingStringProperty = new DerivedProperty(
       [ new DynamicProperty<boolean, boolean, SceneModel>(
@@ -51,19 +57,43 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
       ( isEmitting: boolean ) => isEmitting ? 'true' as const : 'false' as const
     );
 
+    const defaultCurrentDetailsContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
+      sourceType: sourceTypeProperty,
+      slitSetting: slitSettingProperty,
+      detectionMode: detectionModeProperty,
+      isEmitting: isEmittingStringProperty
+    } );
+
+    const currentDetailsContentProperty = new DerivedProperty(
+      [
+        defaultCurrentDetailsContentProperty,
+        isMaxHitsReachedProperty,
+        QuantumWaveInterferenceFluent.a11y.screenSummary.maxHitsReachedDetailsStringProperty
+      ],
+      ( currentDetails, isMaxHitsReached, maxHitsReachedDetails ) =>
+        isMaxHitsReached ? `${currentDetails} ${maxHitsReachedDetails}` : currentDetails
+    );
+
+    const defaultInteractionHintContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {
+      sourceType: sourceTypeProperty,
+      isEmitting: isEmittingStringProperty
+    } );
+
+    const interactionHintContentProperty = new DerivedProperty(
+      [
+        defaultInteractionHintContentProperty,
+        isMaxHitsReachedProperty,
+        QuantumWaveInterferenceFluent.a11y.screenSummary.maxHitsReachedHintStringProperty
+      ],
+      ( defaultInteractionHint, isMaxHitsReached, maxHitsReachedHint ) =>
+        isMaxHitsReached ? maxHitsReachedHint : defaultInteractionHint
+    );
+
     super( {
       playAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.controlAreaStringProperty,
-      currentDetailsContent: QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
-        sourceType: sourceTypeProperty,
-        slitSetting: slitSettingProperty,
-        detectionMode: detectionModeProperty,
-        isEmitting: isEmittingStringProperty
-      } ),
-      interactionHintContent: QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {
-        sourceType: sourceTypeProperty,
-        isEmitting: isEmittingStringProperty
-      } )
+      currentDetailsContent: currentDetailsContentProperty,
+      interactionHintContent: interactionHintContentProperty
     } );
   }
 }

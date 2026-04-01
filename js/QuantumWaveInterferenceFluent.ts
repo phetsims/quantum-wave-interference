@@ -40,6 +40,7 @@ addToMapIfDefined( 'neutronSource', 'neutronSourceStringProperty' );
 addToMapIfDefined( 'heliumAtomSource', 'heliumAtomSourceStringProperty' );
 addToMapIfDefined( 'doubleSlit', 'doubleSlitStringProperty' );
 addToMapIfDefined( 'detectorScreen', 'detectorScreenStringProperty' );
+addToMapIfDefined( 'maximumHitsReached', 'maximumHitsReachedStringProperty' );
 addToMapIfDefined( 'intensity', 'intensityStringProperty' );
 addToMapIfDefined( 'sourceIntensity', 'sourceIntensityStringProperty' );
 addToMapIfDefined( 'particleSpeed', 'particleSpeedStringProperty' );
@@ -67,6 +68,8 @@ addToMapIfDefined( 'stopwatch', 'stopwatchStringProperty' );
 addToMapIfDefined( 'detector', 'detectorStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playArea', 'a11y.screenSummary.playAreaStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_controlArea', 'a11y.screenSummary.controlAreaStringProperty' );
+addToMapIfDefined( 'a11y_screenSummary_maxHitsReachedDetails', 'a11y.screenSummary.maxHitsReachedDetailsStringProperty' );
+addToMapIfDefined( 'a11y_screenSummary_maxHitsReachedHint', 'a11y.screenSummary.maxHitsReachedHintStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_currentDetails', 'a11y.screenSummary.currentDetailsStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_interactionHint', 'a11y.screenSummary.interactionHintStringProperty' );
 addToMapIfDefined( 'a11y_sourceHeading', 'a11y.sourceHeadingStringProperty' );
@@ -174,6 +177,7 @@ const QuantumWaveInterferenceFluent = {
   heliumAtomSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'heliumAtomSourceStringProperty' ),
   doubleSlitStringProperty: _.get( QuantumWaveInterferenceStrings, 'doubleSlitStringProperty' ),
   detectorScreenStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorScreenStringProperty' ),
+  maximumHitsReachedStringProperty: _.get( QuantumWaveInterferenceStrings, 'maximumHitsReachedStringProperty' ),
   intensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'intensityStringProperty' ),
   sourceIntensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'sourceIntensityStringProperty' ),
   particleSpeedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedStringProperty' ),
@@ -217,6 +221,8 @@ const QuantumWaveInterferenceFluent = {
     screenSummary: {
       playAreaStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_playArea', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.playAreaStringProperty' ) ),
       controlAreaStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_controlArea', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.controlAreaStringProperty' ) ),
+      maxHitsReachedDetailsStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_maxHitsReachedDetails', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.maxHitsReachedDetailsStringProperty' ) ),
+      maxHitsReachedHintStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_maxHitsReachedHint', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.maxHitsReachedHintStringProperty' ) ),
       currentDetails: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'>, isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_screenSummary_currentDetails', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.currentDetailsStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]},{"name":"isEmitting","variants":["true","false"]},{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
       interactionHint: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_screenSummary_interactionHint', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.interactionHintStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] )
     },

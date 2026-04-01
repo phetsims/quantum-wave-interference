@@ -143,6 +143,12 @@ export default class ExperimentScreenView extends ScreenView {
       overheadDoubleSlitNode.parallelogramNode.centerY = activeEmitter.centerY;
       whichPathDetectorNode.centerY = overheadDoubleSlitNode.parallelogramNode.centerY;
 
+      // Keep the hit-cap message centered in the horizontal gap between the active emitter
+      // and the visible black slit background, not the larger transparent parallelogram bounds.
+      overheadEmitterNode.maxHitsReachedPanel.centerX =
+        ( activeEmitter.right + overheadDoubleSlitNode.getVisibleBackgroundLeftX() ) / 2;
+      overheadEmitterNode.maxHitsReachedPanel.centerY = activeEmitter.centerY;
+
       // Recompute beams after vertical alignment changes.
       overheadBeamNode.updateBeam();
     };
@@ -683,6 +689,7 @@ export default class ExperimentScreenView extends ScreenView {
     sourceHeadingNode.pdomOrder = [
       overheadEmitterNode.laserPointerNode,
       overheadEmitterNode.particleEmitterNode,
+      overheadEmitterNode.maxHitsReachedPanel,
       particleMassDescriptionNode,
       sourceControlPanel,
       sceneRadioButtonGroup

@@ -35,6 +35,9 @@
   "detectorScreen": {
     "value": "Detector screen"
   },
+  "maximumHitsReached": {
+    "value": "Maximum hits reached"
+  },
   "intensity": {
     "value": "Intensity"
   },
@@ -156,6 +159,12 @@
       },
       "controlArea": {
         "value": "A ruler and stopwatch can be shown or hidden. There are controls to play, pause, or adjust experiment speed. Reset sim to start over."
+      },
+      "maxHitsReachedDetails": {
+        "value": "Maximum hits reached for this scene."
+      },
+      "maxHitsReachedHint": {
+        "value": "Clear the detector screen to collect more hits."
       },
       "currentDetails": {
         "value": "Currently, running a { $sourceType ->\n  [photons] photon\n  [electrons] electron\n  [neutrons] neutron\n *[heliumAtoms] helium atom\n} experiment. The barrier has { $slitSetting ->\n  [bothOpen] both slits open\n  [leftCovered] the left slit covered\n  [rightCovered] the right slit covered\n  [leftDetector] a detector on the left slit\n *[rightDetector] a detector on the right slit\n} and the screen displays { $detectionMode ->\n  [averageIntensity] intensity\n *[hits] hits\n}. The source is { $isEmitting ->\n  [true] on\n *[false] off\n}."

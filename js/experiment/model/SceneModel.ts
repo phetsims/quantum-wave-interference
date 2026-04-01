@@ -92,6 +92,12 @@ export default class SceneModel extends PhetioObject {
   // Approximately half of all hits pass through the monitored slit.
   public readonly detectorHitsProperty: NumberProperty;
 
+  // True when Hits mode has reached the per-scene hit cap.
+  public readonly isMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
+
+  // False when the emitter button should be disabled because the hit cap has been reached.
+  public readonly isEmitterEnabledProperty: TReadOnlyProperty<boolean>;
+
   // Ranges for velocity (m/s) - specific to each particle type
   public readonly velocityRange: Range;
 
@@ -255,6 +261,17 @@ export default class SceneModel extends PhetioObject {
       phetioReadOnly: true
     } );
 
+    this.isMaxHitsReachedProperty = new DerivedProperty(
+      [ this.detectionModeProperty, this.totalHitsProperty ],
+      ( detectionMode, totalHits ) =>
+        detectionMode === 'hits' && totalHits >= ExperimentConstants.MAX_HITS
+    );
+
+    this.isEmitterEnabledProperty = new DerivedProperty(
+      [ this.isMaxHitsReachedProperty ],
+      isMaxHitsReached => !isMaxHitsReached
+    );
+
     this.snapshotsProperty = new Property<Snapshot[]>( [], {
       tandem: tandem.createTandem( 'snapshotsProperty' ),
       phetioValueType: ArrayIO( Snapshot.SnapshotIO ),
@@ -291,6 +308,13 @@ export default class SceneModel extends PhetioObject {
 
     // Switching between Average Intensity and Hits should start a fresh accumulation.
     this.detectionModeProperty.lazyLink( () => this.clearScreen() );
+
+    // When the hit cap is reached in Hits mode, stop the source and require the user to clear the screen.
+    this.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
+      if ( isMaxHitsReached ) {
+        this.isEmittingProperty.value = false;
+      }
+    } );
   }
 
   /**
@@ -463,7 +487,7 @@ export default class SceneModel extends PhetioObject {
   }
 
   public step( dt: number ): void {
-    if ( !this.isEmittingProperty.value ) {
+    if ( !this.isEmittingProperty.value || this.isMaxHitsReachedProperty.value ) {
       return;
     }
 
@@ -484,11 +508,12 @@ export default class SceneModel extends PhetioObject {
 
     const slitSetting = this.slitSettingProperty.value;
     const isDetectorActive = slitSetting === 'leftDetector' || slitSetting === 'rightDetector';
+    let actualHitsAddedThisFrame = 0;
     let detectorHitsThisFrame = 0;
 
     for ( let i = 0; i < numHits; i++ ) {
 
-      if ( this.hits.length >= ExperimentConstants.MAX_HITS ) {
+      if ( this.totalHitsProperty.value + actualHitsAddedThisFrame >= ExperimentConstants.MAX_HITS ) {
         break;
       }
 
@@ -499,6 +524,7 @@ export default class SceneModel extends PhetioObject {
       const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * 0.95; // [-0.95, 0.95] to leave padding
 
       this.hits.push( new Vector2( x, y ) );
+      actualHitsAddedThisFrame++;
 
       // When a which-path detector is active, each particle has ~50% probability of going
       // through the monitored slit (the one with the detector on it).
@@ -507,9 +533,20 @@ export default class SceneModel extends PhetioObject {
       }
     }
 
-    this.totalHitsProperty.value += numHits;
+    if ( actualHitsAddedThisFrame === 0 ) {
+      if ( this.isMaxHitsReachedProperty.value ) {
+        this.isEmittingProperty.value = false;
+      }
+      return;
+    }
+
+    this.totalHitsProperty.value += actualHitsAddedThisFrame;
     if ( isDetectorActive ) {
       this.detectorHitsProperty.value += detectorHitsThisFrame;
+    }
+
+    if ( this.isMaxHitsReachedProperty.value ) {
+      this.isEmittingProperty.value = false;
     }
 
     this.hitsChangedEmitter.emit();

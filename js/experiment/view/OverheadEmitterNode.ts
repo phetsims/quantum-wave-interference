@@ -22,7 +22,9 @@ import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import RadialGradient from '../../../../scenery/js/util/RadialGradient.js';
+import Panel from '../../../../sun/js/Panel.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
@@ -102,6 +104,7 @@ export default class OverheadEmitterNode extends Node {
 
   public readonly laserPointerNode: LaserPointerNode;
   public readonly particleEmitterNode: LaserPointerNode;
+  public readonly maxHitsReachedPanel: Panel;
 
   public constructor( model: ExperimentModel, layoutBounds: Bounds2, tandem: Tandem ) {
     super();
@@ -158,6 +161,24 @@ export default class OverheadEmitterNode extends Node {
     } );
     this.addChild( particleMassLabel );
 
+    const maxHitsReachedText = new Text( QuantumWaveInterferenceFluent.maximumHitsReachedStringProperty, {
+      font: new PhetFont( 13 ),
+      maxWidth: 120
+    } );
+
+    this.maxHitsReachedPanel = new Panel( maxHitsReachedText, {
+      xMargin: 8,
+      yMargin: 6,
+      fill: QuantumWaveInterferenceColors.panelFillProperty,
+      stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
+      cornerRadius: 5,
+      visible: false,
+      pickable: false,
+      accessibleParagraph: QuantumWaveInterferenceFluent.maximumHitsReachedStringProperty,
+      tandem: tandem.createTandem( 'maxHitsReachedPanel' )
+    } );
+    this.addChild( this.maxHitsReachedPanel );
+
     model.sceneProperty.link( scene => {
       const isParticle = scene.sourceType !== 'photons';
       particleMassLabel.visible = isParticle;
@@ -170,6 +191,14 @@ export default class OverheadEmitterNode extends Node {
     const isEmittingProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
       derive: scene => scene.isEmittingProperty,
       bidirectional: true
+    } );
+
+    const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
+      derive: scene => scene.isEmitterEnabledProperty
+    } );
+
+    const isMaxHitsReachedProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
+      derive: scene => scene.isMaxHitsReachedProperty
     } );
 
     // Track the active scene's source type for accessible name
@@ -223,6 +252,21 @@ export default class OverheadEmitterNode extends Node {
     } );
     this.addChild( this.particleEmitterNode );
 
+    isEmitterEnabledProperty.link( isEnabled => {
+      this.laserPointerNode.enabled = isEnabled;
+      this.particleEmitterNode.enabled = isEnabled;
+      if ( this.laserPointerNode.onOffButton ) {
+        this.laserPointerNode.onOffButton.enabled = isEnabled;
+      }
+      if ( this.particleEmitterNode.onOffButton ) {
+        this.particleEmitterNode.onOffButton.enabled = isEnabled;
+      }
+    } );
+
+    isMaxHitsReachedProperty.link( isMaxHitsReached => {
+      this.maxHitsReachedPanel.visible = isMaxHitsReached;
+    } );
+
     const applyParticleEmitterPalette = ( sourceType: SourceType ) => {
       if ( sourceType === 'photons' ) {
         return;
@@ -254,6 +298,7 @@ export default class OverheadEmitterNode extends Node {
       const activeEmitter = isPhoton ? this.laserPointerNode : this.particleEmitterNode;
       activeEmitter.top = sourceLabel.bottom + 6 * OVERHEAD_SCALE;
       particleMassLabel.top = activeEmitter.bottom + 4 * OVERHEAD_SCALE;
+      this.maxHitsReachedPanel.centerY = activeEmitter.centerY;
     };
 
     model.sceneProperty.link( updateEmitterLayout );

@@ -20,7 +20,7 @@ Each `SceneModel` stores the complete physics state for one source type:
 - Emitter properties (wavelength/velocity, intensity, isEmitting)
 - Slit geometry (separation, screen distance, slit setting)
 - Detection mode (Average Intensity vs Hits) and screen brightness
-- Accumulated data: `hits[]` (Vector2 array, capped at 20,000)
+- Accumulated data: `hits[]` (Vector2 array, capped at 25,000 in Hits mode)
 
 **Interference calculation**: `getIntensityAtPosition(y)` computes the double-slit interference pattern
 using the Fraunhofer formula. It handles three cases: both slits open (full interference), one slit
@@ -31,8 +31,10 @@ envelope).
 proportional to intensity and time speed. Candidate positions are tested against the theoretical intensity
 curve and accepted probabilistically.
 
-**Memory management**: The `hits` array is capped at 20,000 entries (`ExperimentConstants.MAX_HITS`).
-Once the cap is reached, new hits are not added until the screen is cleared.
+**Hit limit behavior**: In Hits mode, each scene is capped at 25,000 hits
+(`ExperimentConstants.MAX_HITS`). When the cap is reached, the emitter turns off automatically,
+its button is disabled, and a message appears next to the source. Clearing the detector screen
+removes the message and re-enables the emitter button.
 
 **Parameter changes**: Changing slit separation, screen distance, velocity/wavelength, or slit setting
 calls `clearScreen()`, which resets all accumulated data. This ensures the displayed pattern always
