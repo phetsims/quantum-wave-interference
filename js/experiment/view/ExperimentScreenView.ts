@@ -717,15 +717,16 @@ export default class ExperimentScreenView extends ScreenView {
       sourceHeadingNode,
       slitsHeadingNode,
       detectorScreenHeadingNode,
-      graphHeadingNode
+      graphHeadingNode,
+      ...rulerNodes,
+      stopwatchNode
     ];
 
-    // Control Area focus order
+    // Control Area focus order. The ruler and stopwatch tools themselves remain in the Play Area,
+    // while their visibility checkboxes stay in the Control Area.
     this.pdomControlAreaNode.pdomOrder = [
       rulerCheckbox,
-      ...rulerNodes,
       stopwatchCheckbox,
-      stopwatchNode,
       timeControlNode,
       resetAllButton
     ];
