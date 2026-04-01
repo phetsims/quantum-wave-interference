@@ -293,6 +293,19 @@ export default class DetectorScreenNode extends Node {
     } );
 
     // Camera button to take a snapshot
+    const snapshotHelpTextProperty = new DerivedProperty(
+      [ QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleHelpTextStringProperty ],
+      accessibleHelpText =>
+        `${accessibleHelpText} Up to ${SceneModel.MAX_SNAPSHOTS} snapshots can be saved.`
+    );
+    const snapshotContextResponseProperty = new DerivedProperty(
+      [
+        sceneModel.numberOfSnapshotsProperty,
+        QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty
+      ],
+      ( count, snapshotNumberPattern ) =>
+        `${StringUtils.fillIn( snapshotNumberPattern, { number: count } )} taken.`
+    );
     this.snapshotButton = new RectangularPushButton( {
       listener: () => {
         const numberOfSnapshotsBefore = sceneModel.numberOfSnapshotsProperty.value;
@@ -317,7 +330,8 @@ export default class DetectorScreenNode extends Node {
         }
       ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleNameStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleHelpTextStringProperty,
+      accessibleHelpText: snapshotHelpTextProperty,
+      accessibleContextResponse: snapshotContextResponseProperty,
       soundPlayer: nullSoundPlayer,
       tandem: providedOptions.tandem.createTandem( 'snapshotButton' )
     } );
