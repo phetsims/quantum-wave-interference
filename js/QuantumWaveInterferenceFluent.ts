@@ -232,7 +232,7 @@ const QuantumWaveInterferenceFluent = {
     detectorScreenHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreenHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreenHeadingStringProperty' ) ),
     graphHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.graphHeadingStringProperty' ) ),
     snapshot: {
-      hitCountSentence: new FluentPattern<{ count: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_snapshot_hitCountSentence', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshot.hitCountSentenceStringProperty' ), [{"name":"count"}] )
+      hitCountSentence: new FluentPattern<{ count: 1 | number | 'other' | TReadOnlyProperty<1 | number | 'other'> }>( fluentSupport.bundleProperty, 'a11y_snapshot_hitCountSentence', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshot.hitCountSentenceStringProperty' ), [{"name":"count","variants":[1,{"type":"number","value":"other"}]}] )
     },
     particleMass: {
       accessibleParagraph: new FluentPattern<{ sourceType: 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_particleMass_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.particleMass.accessibleParagraphStringProperty' ), [{"name":"sourceType","variants":["electrons","neutrons","heliumAtoms"]}] )

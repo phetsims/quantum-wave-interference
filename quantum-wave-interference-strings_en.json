@@ -185,6 +185,11 @@
     "graphHeading": {
       "value": "Graph"
     },
+    "snapshot": {
+      "hitCountSentence": {
+        "value": "There { $count ->\n  [1] is 1 hit\n *[other] are { $count } hits\n} on the screen."
+      }
+    },
     "particleMass": {
       "accessibleParagraph": {
         "value": "{ $sourceType ->\n  [electrons] Particle mass: 9.1 times 10 to the negative 31 kilograms.\n  [neutrons] Particle mass: 1.7 times 10 to the negative 27 kilograms.\n *[heliumAtoms] Particle mass: 6.6 times 10 to the negative 27 kilograms.\n}"
@@ -332,31 +337,31 @@
           "value": "The graph is empty. The source is off."
         },
         "intensity": {
-          "value": "The graph traces intensity versus position as a wave-like curve, rising to a tall central peak and falling through a series of smaller peaks on either side. { $spatialDescription }"
+          "value": "The graph traces intensity versus position with a tall central peak and smaller peaks on either side. { $spatialDescription }"
         },
         "intensitySingleSlit": {
-          "value": "The graph traces intensity versus position as a single broad peak centered on the screen, tapering smoothly toward the edges. { $spatialDescription }"
+          "value": "The graph traces intensity versus position as a single broad peak centered on the graph, tapering smoothly toward the edges. { $spatialDescription }"
         },
         "hitsNone": {
           "value": "The histogram is empty. No particles have been counted yet."
         },
         "hitsFew": {
-          "value": "A few bars have appeared at scattered positions across the histogram. The distribution looks random so far."
+          "value": "A few bars have appeared at scattered positions across the histogram."
         },
         "hitsEmerging": {
-          "value": "The histogram is growing unevenly. Some positions are accumulating counts faster than others, hinting at a pattern beneath the randomness."
+          "value": "The histogram is growing. Some bars are becoming taller than others at repeated positions across the graph."
         },
         "hitsDeveloping": {
-          "value": "The histogram is taking on a wave-like shape. Taller bars cluster at regular intervals with shorter bars between them. { $spatialDescription }"
+          "value": "Taller bars are appearing at regular intervals, with shorter bars between them. { $spatialDescription }"
         },
         "hitsClear": {
-          "value": "The histogram has settled into a stable wave-like shape matching the intensity curve, a central peak flanked by repeating side peaks, assembled from individual particle counts. { $spatialDescription }"
+          "value": "The histogram shows a tall central peak with repeating side peaks and lower bars between them. { $spatialDescription }"
         },
         "hitsSingleSlitEmerging": {
-          "value": "The histogram is growing, with bars tallest near the center and shorter toward the edges."
+          "value": "The histogram is growing, with taller bars near the center and shorter bars toward the edges."
         },
         "hitsSingleSlitClear": {
-          "value": "The histogram shows a broad central peak that tapers toward the edges, matching the continuous intensity pattern. { $spatialDescription }"
+          "value": "The histogram shows a broad central peak that tapers toward the edges. { $spatialDescription }"
         }
       },
       "accessibleContextResponseExpanded": {
@@ -372,31 +377,31 @@
           "value": "The detector screen is dark. The source is off."
         },
         "intensity": {
-          "value": "The detector screen glows with alternating bright and dark vertical bands, strongest at the center and fading symmetrically outward. { $spatialDescription }"
+          "value": "The detector screen shows alternating bright and dark vertical bands, brightest at the center and fainter toward the edges. { $spatialDescription }"
         },
         "intensitySingleSlit": {
-          "value": "The detector screen glows brightest at the center, fading smoothly toward the edges in a broad diffraction pattern. { $spatialDescription }"
+          "value": "The detector screen is brightest at the center and fades smoothly toward the edges in a broad band. { $spatialDescription }"
         },
         "hitsNone": {
           "value": "The detector screen is empty. No particles have arrived yet."
         },
         "hitsFew": {
-          "value": "A handful of particles have arrived, scattered across the screen in no obvious order."
+          "value": "A handful of particles are visible at scattered positions across the screen."
         },
         "hitsEmerging": {
-          "value": "As more particles arrive, a hint of order is appearing. Detections are beginning to cluster into faint vertical stripes with gaps between them."
+          "value": "More particles are appearing, and faint vertical stripes are becoming visible with gaps between them."
         },
         "hitsDeveloping": {
-          "value": "A pattern is emerging from the randomness. Individual impacts are gathering into distinct vertical bands, separated by regions where few particles land. { $spatialDescription }"
+          "value": "Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $spatialDescription }"
         },
         "hitsClear": {
-          "value": "A clear interference pattern has formed, one particle at a time. Dense vertical bands alternate with nearly empty gaps, the signature of wave-like behavior built from individual impacts. { $spatialDescription }"
+          "value": "Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $spatialDescription }"
         },
         "hitsSingleSlitEmerging": {
-          "value": "As more particles arrive, hits are beginning to concentrate in a broad region near the center of the screen, with fewer toward the edges."
+          "value": "More particles are appearing in a broad region near the center of the screen, with fewer toward the edges."
         },
         "hitsSingleSlitClear": {
-          "value": "A diffraction pattern has formed. Hits concentrate in a broad central band that tapers toward the edges, matching the continuous intensity pattern. { $spatialDescription }"
+          "value": "Hits form a broad central band that tapers toward the edges. { $spatialDescription }"
         }
       },
       "spatialDescription": {
