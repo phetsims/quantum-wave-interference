@@ -82,6 +82,9 @@ type StringsType = {
     'slitsHeadingStringProperty': LocalizedStringProperty;
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;
     'graphHeadingStringProperty': LocalizedStringProperty;
+    'snapshot': {
+      'hitCountSentenceStringProperty': LocalizedStringProperty;
+    };
     'particleMass': {
       'accessibleParagraphStringProperty': LocalizedStringProperty;
     };

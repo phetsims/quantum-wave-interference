@@ -98,6 +98,12 @@ a11y:
   slitsHeading:                Slits
   detectorScreenHeading:       Detector Screen
   graphHeading:                Graph
+  snapshot:
+    hitCountSentence: >-
+      There { $count ->
+        [1] is 1 hit
+       *[other] are { $count } hits
+      } on the screen.
   particleMass:
     accessibleParagraph: >-
                          { $sourceType ->

@@ -13,6 +13,8 @@ import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import { roundSymmetric } from '../../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../../model/SceneModel.js';
+import Snapshot from '../../model/Snapshot.js';
+import { type SourceType } from '../../model/SourceType.js';
 
 // Qualitative stage of hit accumulation, used by describers to select which description
 // string to show and to throttle updates so they only fire at pedagogically meaningful thresholds.
@@ -110,6 +112,51 @@ export default class BandAnalysis {
         centralWidthMM: centralWidthMM
       };
     }
+  }
+
+  /**
+   * Computes band information analytically from a snapshot's stored detector-screen state.
+   */
+  public static analyzeTheoreticalPatternFromSnapshot( snapshot: Snapshot ): BandAnalysisResult {
+    const lambda = snapshot.effectiveWavelength;
+    if ( lambda === 0 ) {
+      return { bandCount: 0, peakPositionsMM: [], averageSpacingMM: 0, centralWidthMM: 0 };
+    }
+
+    const screenDistanceMeters = snapshot.screenDistance;
+    const screenHalfWidthM = BandAnalysis.getScreenHalfWidth( snapshot.sourceType );
+    const slitWidthMeters = BandAnalysis.getSlitWidth( snapshot.sourceType ) * 1e-3;
+    const slitSetting = snapshot.slitSetting;
+
+    if ( slitSetting === 'bothOpen' ) {
+      const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
+      const fringeSpacingM = lambda * screenDistanceMeters / slitSeparationMeters;
+      const fringeSpacingMM = fringeSpacingM * 1000;
+      const nMax = Math.floor( screenHalfWidthM / fringeSpacingM );
+      const bandCount = 2 * nMax + 1;
+
+      const peakPositionsMM: number[] = [];
+      for ( let n = -nMax; n <= nMax; n++ ) {
+        peakPositionsMM.push( n * fringeSpacingMM );
+      }
+
+      return {
+        bandCount: bandCount,
+        peakPositionsMM: peakPositionsMM,
+        averageSpacingMM: fringeSpacingMM,
+        centralWidthMM: fringeSpacingMM
+      };
+    }
+
+    const centralHalfWidthM = lambda * screenDistanceMeters / slitWidthMeters;
+    const centralWidthMM = 2 * centralHalfWidthM * 1000;
+
+    return {
+      bandCount: 1,
+      peakPositionsMM: [ 0 ],
+      averageSpacingMM: 0,
+      centralWidthMM: centralWidthMM
+    };
   }
 
   /**
@@ -302,5 +349,22 @@ export default class BandAnalysis {
         }
       }
     }
+  }
+
+  private static getScreenHalfWidth( sourceType: SourceType ): number {
+    return sourceType === 'neutrons' || sourceType === 'heliumAtoms' ? 4e-4 : 0.02;
+  }
+
+  private static getSlitWidth( sourceType: SourceType ): number {
+    if ( sourceType === 'photons' ) {
+      return 0.02;
+    }
+    if ( sourceType === 'electrons' ) {
+      return 0.00003;
+    }
+    if ( sourceType === 'neutrons' ) {
+      return 0.003;
+    }
+    return 0.0003;
   }
 }
