@@ -81,7 +81,6 @@ type StringsType = {
     'sourceHeadingStringProperty': LocalizedStringProperty;
     'slitsHeadingStringProperty': LocalizedStringProperty;
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;
-    'graphHeadingStringProperty': LocalizedStringProperty;
     'particleMass': {
       'accessibleParagraphStringProperty': LocalizedStringProperty;
     };
@@ -158,6 +157,7 @@ type StringsType = {
       'accessibleNameStringProperty': LocalizedStringProperty;
     };
     'graphAccordionBox': {
+      'accessibleHelpTextCollapsedStringProperty': LocalizedStringProperty;
       'accessibleParagraph': {
         'intensityOffStringProperty': LocalizedStringProperty;
         'intensityStringProperty': LocalizedStringProperty;
@@ -170,8 +170,9 @@ type StringsType = {
         'hitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
         'hitsSingleSlitClearStringProperty': LocalizedStringProperty;
       };
-      'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
-      'accessibleContextResponseCollapsedStringProperty': LocalizedStringProperty;
+      'zoomButtonGroup': {
+        'zoomLevelResponseStringProperty': LocalizedStringProperty;
+      }
     };
     'detectorScreen': {
       'accessibleParagraph': {

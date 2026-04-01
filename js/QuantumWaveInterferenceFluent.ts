@@ -75,7 +75,6 @@ addToMapIfDefined( 'a11y_screenSummary_interactionHint', 'a11y.screenSummary.int
 addToMapIfDefined( 'a11y_sourceHeading', 'a11y.sourceHeadingStringProperty' );
 addToMapIfDefined( 'a11y_slitsHeading', 'a11y.slitsHeadingStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenHeading', 'a11y.detectorScreenHeadingStringProperty' );
-addToMapIfDefined( 'a11y_graphHeading', 'a11y.graphHeadingStringProperty' );
 addToMapIfDefined( 'a11y_particleMass_accessibleParagraph', 'a11y.particleMass.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleName', 'a11y.emitterButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleHelpText', 'a11y.emitterButton.accessibleHelpTextStringProperty' );
@@ -109,6 +108,7 @@ addToMapIfDefined( 'a11y_slitWidthMicrometersPattern', 'a11y.slitWidthMicrometer
 addToMapIfDefined( 'a11y_slitView_accessibleParagraph', 'a11y.slitView.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_zoomInButton_accessibleName', 'a11y.zoomInButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_zoomOutButton_accessibleName', 'a11y.zoomOutButton.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_graphAccordionBox_accessibleHelpTextCollapsed', 'a11y.graphAccordionBox.accessibleHelpTextCollapsedStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_intensityOff', 'a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_intensity', 'a11y.graphAccordionBox.accessibleParagraph.intensityStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_intensitySingleSlit', 'a11y.graphAccordionBox.accessibleParagraph.intensitySingleSlitStringProperty' );
@@ -119,8 +119,7 @@ addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_hitsDeveloping', 
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_hitsClear', 'a11y.graphAccordionBox.accessibleParagraph.hitsClearStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_hitsSingleSlitEmerging', 'a11y.graphAccordionBox.accessibleParagraph.hitsSingleSlitEmergingStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_hitsSingleSlitClear', 'a11y.graphAccordionBox.accessibleParagraph.hitsSingleSlitClearStringProperty' );
-addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseExpanded', 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' );
-addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' );
+addToMapIfDefined( 'a11y_graphAccordionBox_zoomButtonGroup_zoomLevelResponse', 'a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponseStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_intensityOff', 'a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_intensity', 'a11y.detectorScreen.accessibleParagraph.intensityStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_intensitySingleSlit', 'a11y.detectorScreen.accessibleParagraph.intensitySingleSlitStringProperty' );
@@ -229,7 +228,6 @@ const QuantumWaveInterferenceFluent = {
     sourceHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sourceHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceHeadingStringProperty' ) ),
     slitsHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitsHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.slitsHeadingStringProperty' ) ),
     detectorScreenHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreenHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreenHeadingStringProperty' ) ),
-    graphHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.graphHeadingStringProperty' ) ),
     particleMass: {
       accessibleParagraph: new FluentPattern<{ sourceType: 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_particleMass_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.particleMass.accessibleParagraphStringProperty' ), [{"name":"sourceType","variants":["electrons","neutrons","heliumAtoms"]}] )
     },
@@ -306,6 +304,7 @@ const QuantumWaveInterferenceFluent = {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_zoomOutButton_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.zoomOutButton.accessibleNameStringProperty' ) )
     },
     graphAccordionBox: {
+      accessibleHelpTextCollapsedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleHelpTextCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleHelpTextCollapsedStringProperty' ) ),
       accessibleParagraph: {
         intensityOffStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleParagraph_intensityOff', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty' ) ),
         intensity: new FluentPattern<{ spatialDescription: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleParagraph_intensity', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleParagraph.intensityStringProperty' ), [{"name":"spatialDescription"}] ),
@@ -318,8 +317,9 @@ const QuantumWaveInterferenceFluent = {
         hitsSingleSlitEmergingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleParagraph_hitsSingleSlitEmerging', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleParagraph.hitsSingleSlitEmergingStringProperty' ) ),
         hitsSingleSlitClear: new FluentPattern<{ spatialDescription: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleParagraph_hitsSingleSlitClear', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleParagraph.hitsSingleSlitClearStringProperty' ), [{"name":"spatialDescription"}] )
       },
-      accessibleContextResponseExpandedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseExpanded', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' ) ),
-      accessibleContextResponseCollapsedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' ) )
+      zoomButtonGroup: {
+        zoomLevelResponse: new FluentPattern<{ level: FluentVariable, max: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_zoomButtonGroup_zoomLevelResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponseStringProperty' ), [{"name":"level"},{"name":"max"}] )
+      }
     },
     detectorScreen: {
       accessibleParagraph: {

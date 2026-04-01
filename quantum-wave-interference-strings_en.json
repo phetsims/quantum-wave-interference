@@ -182,9 +182,6 @@
     "detectorScreenHeading": {
       "value": "Detector Screen"
     },
-    "graphHeading": {
-      "value": "Graph"
-    },
     "particleMass": {
       "accessibleParagraph": {
         "value": "{ $sourceType ->\n  [electrons] Particle mass: 9.1 times 10 to the negative 31 kilograms.\n  [neutrons] Particle mass: 1.7 times 10 to the negative 27 kilograms.\n *[heliumAtoms] Particle mass: 6.6 times 10 to the negative 27 kilograms.\n}"
@@ -327,6 +324,9 @@
       }
     },
     "graphAccordionBox": {
+      "accessibleHelpTextCollapsed": {
+        "value": "Explore a graph of the detector screen pattern."
+      },
       "accessibleParagraph": {
         "intensityOff": {
           "value": "The graph is empty. The source is off."
@@ -359,11 +359,10 @@
           "value": "The histogram shows a broad central peak that tapers toward the edges. { $spatialDescription }"
         }
       },
-      "accessibleContextResponseExpanded": {
-        "value": "Graph expanded."
-      },
-      "accessibleContextResponseCollapsed": {
-        "value": "Graph collapsed."
+      "zoomButtonGroup": {
+        "zoomLevelResponse": {
+          "value": "Zoom { $level } of { $max }."
+        }
       }
     },
     "detectorScreen": {

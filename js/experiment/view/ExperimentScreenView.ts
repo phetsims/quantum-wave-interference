@@ -40,7 +40,6 @@ import SceneModel from '../model/SceneModel.js';
 import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 import { type SourceType } from '../model/SourceType.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
-import GraphDescriber from './description/GraphDescriber.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
@@ -209,6 +208,7 @@ export default class ExperimentScreenView extends ScreenView {
     this.graphAccordionBoxes = model.scenes.map( ( scene, index ) => {
       const graphBox = new GraphAccordionBox( scene, {
         expandedProperty: this.graphExpandedProperty,
+        isRulerVisibleProperty: model.isRulerVisibleProperty,
         tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
       } );
       graphBox.x = detectorScreenCenterX - graphBox.getChartAreaLocalBounds().centerX;
@@ -598,14 +598,6 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( detectorScreenDescriptionNode );
 
-    // Accessible paragraph describing the graph content for screen reader users.
-    // Dynamic based on detection mode, hit count, and pattern analysis.
-    const graphDescriber = new GraphDescriber( model );
-    const graphDescriptionNode = new Node( {
-      accessibleParagraph: graphDescriber.descriptionProperty
-    } );
-    this.addChild( graphDescriptionNode );
-
     // Accessible paragraph describing the magnified slit view for screen reader users.
     // This is important non-interactive visual content: the slit view shows the barrier
     // with two slits, their width, and the current slit configuration (open/covered/detector).
@@ -680,11 +672,6 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( detectorScreenHeadingNode );
 
-    const graphHeadingNode = new Node( {
-      accessibleHeading: QuantumWaveInterferenceFluent.a11y.graphHeadingStringProperty
-    } );
-    this.addChild( graphHeadingNode );
-
     // Play Area focus order, organized under headings for screen reader navigation
     sourceHeadingNode.pdomOrder = [
       overheadEmitterNode.laserPointerNode,
@@ -707,17 +694,11 @@ export default class ExperimentScreenView extends ScreenView {
       screenSettingsPanel
     ];
 
-    graphHeadingNode.pdomOrder = [
-      graphDescriptionNode,
-      ...this.graphAccordionBoxes,
-      ...this.graphAccordionBoxes.map( g => g.zoomButtonGroup )
-    ];
-
     this.pdomPlayAreaNode.pdomOrder = [
       sourceHeadingNode,
       slitsHeadingNode,
       detectorScreenHeadingNode,
-      graphHeadingNode,
+      ...this.graphAccordionBoxes,
       ...rulerNodes,
       stopwatchNode
     ];

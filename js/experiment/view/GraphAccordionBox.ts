@@ -11,6 +11,7 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
 import { linear } from '../../../../dot/js/util/linear.js';
@@ -30,6 +31,7 @@ import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceC
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
+import GraphDescriber from './description/GraphDescriber.js';
 
 // Chart dimensions — width matches the front-facing detector screen.
 const CHART_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
@@ -48,6 +50,7 @@ type SelfOptions = {
   // Shared expandedProperty so that switching scenes preserves the accordion box open/closed state,
   // per the design requirement that scene changes should not affect the graph accordion box state.
   expandedProperty: Property<boolean>;
+  isRulerVisibleProperty: TReadOnlyProperty<boolean>;
 };
 
 type GraphAccordionBoxOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
@@ -162,6 +165,11 @@ export default class GraphAccordionBox extends Node {
       children: [ yAxisGutterSpacer, yAxisLabel, chartAreaNode ]
     } );
 
+    const graphDescriber = new GraphDescriber( sceneModel, options.isRulerVisibleProperty );
+    const graphDescriptionNode = new Node( {
+      accessibleParagraph: graphDescriber.descriptionProperty
+    } );
+
     // Title text changes dynamically based on detection mode: "Intensity Graph" vs "Hits Graph".
     // Must depend on all three properties so the title updates on both mode change and locale change.
     const titleStringProperty = new DerivedProperty(
@@ -178,10 +186,50 @@ export default class GraphAccordionBox extends Node {
       maxWidth: 120
     } );
 
+    const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
+      level: this.zoomLevelProperty,
+      max: this.zoomLevelProperty.range.max
+    } );
+
+    // Zoom buttons are part of the accordion content so they remain under the accordion heading
+    // in the PDOM and are only available when the accordion is expanded.
+    this.zoomButtonGroup = new MagnifyingGlassZoomButtonGroup( this.zoomLevelProperty, {
+      orientation: 'vertical',
+      spacing: 8,
+      buttonOptions: {
+        baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty
+      },
+      zoomInButtonOptions: {
+        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
+        accessibleContextResponse: zoomLevelResponseProperty
+      },
+      zoomOutButtonOptions: {
+        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
+        accessibleContextResponse: zoomLevelResponseProperty
+      },
+      magnifyingGlassNodeOptions: {
+        glassRadius: 8
+      },
+      tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' )
+    } );
+    this.zoomButtonGroup.left = chartNode.right + ZOOM_BUTTON_GROUP_GAP;
+    this.zoomButtonGroup.top = chartNode.top;
+
+    const chartAndZoomNode = new Node( {
+      children: [ chartNode, this.zoomButtonGroup ]
+    } );
+    chartAndZoomNode.pdomOrder = [ chartNode, this.zoomButtonGroup ];
+
+    const contentNode = new Node( {
+      children: [ graphDescriptionNode, chartAndZoomNode ]
+    } );
+    contentNode.pdomOrder = [ graphDescriptionNode, chartAndZoomNode ];
+
     // Create the accordion box, using the shared expandedProperty so that all scenes'
     // graph accordion boxes stay in sync (per the design: scene changes should not affect
     // the accordion box open/closed state).
-    this.accordionBox = new AccordionBox( chartNode, {
+    this.accordionBox = new AccordionBox( contentNode, {
+      accessibleHelpTextCollapsed: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleHelpTextCollapsedStringProperty,
       titleNode: titleText,
       titleAlignX: 'left',
       expandedProperty: options.expandedProperty,
@@ -193,58 +241,15 @@ export default class GraphAccordionBox extends Node {
       contentYSpacing: 0,
       buttonXMargin: 8,
       buttonYMargin: 6,
-      minWidth: CHART_WIDTH + CHART_Y_AXIS_GUTTER_WIDTH + 2 * ACCORDION_CONTENT_X_MARGIN,
+      minWidth: chartAndZoomNode.width + 2 * ACCORDION_CONTENT_X_MARGIN,
 
       // Match the title-bar color to the panel gray used in the rest of the UI.
       titleBarOptions: {
         fill: QuantumWaveInterferenceColors.panelFillProperty
       },
-      accessibleContextResponseExpanded: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty,
-      accessibleContextResponseCollapsed: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty,
       tandem: providedOptions.tandem.createTandem( 'accordionBox' )
     } );
     this.addChild( this.accordionBox );
-
-    // Zoom buttons to the right of the accordion box, top-aligned per the design spec.
-    this.zoomButtonGroup = new MagnifyingGlassZoomButtonGroup( this.zoomLevelProperty, {
-      orientation: 'vertical',
-      spacing: 8,
-      left: this.accordionBox.right + ZOOM_BUTTON_GROUP_GAP,
-      buttonOptions: {
-        baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty
-      },
-      zoomInButtonOptions: {
-        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty
-      },
-      zoomOutButtonOptions: {
-        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty
-      },
-      magnifyingGlassNodeOptions: {
-        glassRadius: 8
-      },
-      tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' )
-    } );
-    this.addChild( this.zoomButtonGroup );
-
-    const updateZoomButtonLayout = () => {
-      const collapsibleSectionTop = this.globalToLocalBounds(
-        chartNode.localToGlobalBounds( chartNode.localBounds )
-      ).top;
-      this.zoomButtonGroup.top = collapsibleSectionTop;
-    };
-
-    // Hide zoom buttons when collapsed, and keep top-aligned with the collapsible section when expanded.
-    this.accordionBox.expandedProperty.link( expanded => {
-      this.zoomButtonGroup.visible = expanded;
-      if ( expanded ) {
-        updateZoomButtonLayout();
-      }
-    } );
-    this.accordionBox.localBoundsProperty.link( () => {
-      if ( this.accordionBox.expandedProperty.value ) {
-        updateZoomButtonLayout();
-      }
-    } );
 
     // Update the graph when data changes
     const updateGraph = () => {

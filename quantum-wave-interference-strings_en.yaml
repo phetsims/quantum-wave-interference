@@ -97,7 +97,6 @@ a11y:
   sourceHeading:               Source
   slitsHeading:                Slits
   detectorScreenHeading:       Detector Screen
-  graphHeading:                Graph
   particleMass:
     accessibleParagraph: >-
                          { $sourceType ->
@@ -185,6 +184,7 @@ a11y:
   zoomOutButton:
     accessibleName: Zoom Out
   graphAccordionBox:
+    accessibleHelpTextCollapsed: Explore a graph of the detector screen pattern.
     accessibleParagraph:
       intensityOff:           The graph is empty. The source is off.
       intensity:              >-
@@ -212,8 +212,8 @@ a11y:
       hitsSingleSlitClear:    >-
                               The histogram shows a broad central peak that tapers toward the edges.
                               { $spatialDescription }
-    accessibleContextResponseExpanded:  Graph expanded.
-    accessibleContextResponseCollapsed: Graph collapsed.
+    zoomButtonGroup:
+      zoomLevelResponse: 'Zoom { $level } of { $max }.'
   detectorScreen:
     accessibleParagraph:
       intensityOff:           The detector screen is dark. The source is off.

@@ -16,7 +16,6 @@
 import Property from '../../../../../axon/js/Property.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import ExperimentModel from '../../model/ExperimentModel.js';
 import SceneModel from '../../model/SceneModel.js';
 import BandAnalysis from './BandAnalysis.js';
 
@@ -24,7 +23,7 @@ export default class GraphDescriber {
 
   public readonly descriptionProperty: TReadOnlyProperty<string>;
 
-  public constructor( model: ExperimentModel ) {
+  public constructor( sceneModel: SceneModel, isRulerVisibleProperty: TReadOnlyProperty<boolean> ) {
 
     const descriptionProperty = new Property<string>( '' );
     this.descriptionProperty = descriptionProperty;
@@ -34,19 +33,18 @@ export default class GraphDescriber {
     let hitStage = '';
 
     const update = () => {
-      const scene = model.sceneProperty.value;
-      const detectionMode = scene.detectionModeProperty.value;
-      const isRulerVisible = model.isRulerVisibleProperty.value;
-      const slitSetting = scene.slitSettingProperty.value;
+      const detectionMode = sceneModel.detectionModeProperty.value;
+      const isRulerVisible = isRulerVisibleProperty.value;
+      const slitSetting = sceneModel.slitSettingProperty.value;
       const isDoubleSlit = slitSetting === 'bothOpen';
 
       if ( detectionMode === 'averageIntensity' ) {
-        if ( !scene.isEmittingProperty.value ) {
+        if ( !sceneModel.isEmittingProperty.value ) {
           descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty.value;
           return;
         }
 
-        const analysis = BandAnalysis.analyzeTheoreticalPattern( scene );
+        const analysis = BandAnalysis.analyzeTheoreticalPattern( sceneModel );
         const spatialDescription = BandAnalysis.formatSpatialDescription(
           analysis, isDoubleSlit, isRulerVisible, true
         );
@@ -58,7 +56,7 @@ export default class GraphDescriber {
       }
 
       // Hits mode: only recompute description when the qualitative stage changes.
-      const totalHits = scene.totalHitsProperty.value;
+      const totalHits = sceneModel.totalHitsProperty.value;
       const newStage = BandAnalysis.getHitStage( totalHits, isDoubleSlit );
       if ( newStage === hitStage ) {
         return;
@@ -67,7 +65,7 @@ export default class GraphDescriber {
 
       // Use the theoretical pattern for spatial descriptions so they remain stable
       // as hits accumulate, rather than jumping with noisy bin data.
-      const analysis = BandAnalysis.analyzeTheoreticalPattern( scene );
+      const analysis = BandAnalysis.analyzeTheoreticalPattern( sceneModel );
       const spatialDescription = BandAnalysis.formatSpatialDescription(
         analysis, isDoubleSlit, isRulerVisible, true
       );
@@ -111,32 +109,16 @@ export default class GraphDescriber {
       update();
     };
 
-    // Listen to scene changes and rewire listeners for the active scene.
-    let previousScene: SceneModel | null = null;
+    sceneModel.hitsChangedEmitter.addListener( update );
+    sceneModel.detectionModeProperty.lazyLink( fullUpdate );
+    sceneModel.isEmittingProperty.lazyLink( fullUpdate );
+    sceneModel.slitSettingProperty.lazyLink( fullUpdate );
+    sceneModel.slitSeparationProperty.lazyLink( fullUpdate );
+    sceneModel.screenDistanceProperty.lazyLink( fullUpdate );
+    sceneModel.wavelengthProperty.lazyLink( fullUpdate );
+    sceneModel.velocityProperty.lazyLink( fullUpdate );
+    isRulerVisibleProperty.lazyLink( fullUpdate );
 
-    model.sceneProperty.link( scene => {
-      if ( previousScene ) {
-        previousScene.hitsChangedEmitter.removeListener( update );
-        previousScene.detectionModeProperty.unlink( fullUpdate );
-        previousScene.isEmittingProperty.unlink( fullUpdate );
-        previousScene.slitSettingProperty.unlink( fullUpdate );
-        previousScene.slitSeparationProperty.unlink( fullUpdate );
-        previousScene.screenDistanceProperty.unlink( fullUpdate );
-        previousScene.wavelengthProperty.unlink( fullUpdate );
-        previousScene.velocityProperty.unlink( fullUpdate );
-      }
-      scene.hitsChangedEmitter.addListener( update );
-      scene.detectionModeProperty.lazyLink( fullUpdate );
-      scene.isEmittingProperty.lazyLink( fullUpdate );
-      scene.slitSettingProperty.lazyLink( fullUpdate );
-      scene.slitSeparationProperty.lazyLink( fullUpdate );
-      scene.screenDistanceProperty.lazyLink( fullUpdate );
-      scene.wavelengthProperty.lazyLink( fullUpdate );
-      scene.velocityProperty.lazyLink( fullUpdate );
-      previousScene = scene;
-      fullUpdate();
-    } );
-
-    model.isRulerVisibleProperty.lazyLink( fullUpdate );
+    fullUpdate();
   }
 }
