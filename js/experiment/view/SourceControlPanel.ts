@@ -20,6 +20,11 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import SceneryPhetFluent from '../../../../scenery-phet/js/SceneryPhetFluent.js';
+import { kilometersPerSecondUnit } from '../../../../scenery-phet/js/units/kilometersPerSecondUnit.js';
+import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
+import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
+import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import WavelengthNumberControl from '../../../../scenery-phet/js/WavelengthNumberControl.js';
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
@@ -138,6 +143,11 @@ export default class SourceControlPanel extends Panel {
       thumbSize: new Dimension2( 13, 22 ),
       majorTickLength: 12,
       tickLabelSpacing: scene.sourceType === 'photons' ? 2 : 6,
+      createAriaValueText: value => percentUnit.getAccessibleString( value * 100, {
+        decimalPlaces: 0,
+        showTrailingZeros: false,
+        showIntegersAsIntegers: true
+      } ),
       accessibleName: intensityLabelStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleHelpText.createProperty( {
         sourceType: scene.sourceType
@@ -185,6 +195,10 @@ export default class SourceControlPanel extends Panel {
           maxWidth: 100
         },
         numberDisplayOptions: {
+          valuePattern: {
+            visualPattern: SceneryPhetFluent.wavelengthNMValuePatternStringProperty,
+            accessiblePattern: nanometersUnit.accessiblePattern!
+          },
           textOptions: {
             font: new PhetFont( 14 )
           },
@@ -213,26 +227,42 @@ export default class SourceControlPanel extends Panel {
 
       // Use km/s for electrons (large velocities), m/s for neutrons and helium atoms
       const useKmPerSecond = velocityRange.max >= 10000;
+      const speedUnit = useKmPerSecond ? kilometersPerSecondUnit : metersPerSecondUnit;
 
       // Format the number display value and tick labels appropriately for the speed range
-      const formatSpeed = ( value: number ): string => {
+      const formatSpeed = ( value: number ) => {
         if ( useKmPerSecond ) {
           const kmPerS = value / 1000;
-          return StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value,
-            {
-              value: roundSymmetric( kmPerS )
-            }
-          );
+          const roundedValue = roundSymmetric( kmPerS );
+          return {
+            visualString: StringUtils.fillIn(
+              QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value,
+              {
+                value: roundedValue
+              }
+            ),
+            accessibleString: speedUnit.getAccessibleString( roundedValue, {
+              decimalPlaces: 0,
+              showTrailingZeros: false,
+              showIntegersAsIntegers: true
+            } )
+          };
         }
-        else {
-          return StringUtils.fillIn(
+
+        const roundedValue = roundSymmetric( value );
+        return {
+          visualString: StringUtils.fillIn(
             QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty.value,
             {
-              value: roundSymmetric( value )
+              value: roundedValue
             }
-          );
-        }
+          ),
+          accessibleString: speedUnit.getAccessibleString( roundedValue, {
+            decimalPlaces: 0,
+            showTrailingZeros: false,
+            showIntegersAsIntegers: true
+          } )
+        };
       };
 
       const formatTickLabel = ( value: number ): string => {
@@ -258,6 +288,7 @@ export default class SourceControlPanel extends Panel {
           },
           numberDisplayOptions: {
             numberFormatter: formatSpeed,
+            numberFormatterDependencies: speedUnit.getDependentProperties(),
             textOptions: {
               font: new PhetFont( 14 )
             },

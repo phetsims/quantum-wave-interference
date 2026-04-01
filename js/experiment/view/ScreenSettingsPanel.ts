@@ -17,6 +17,7 @@ import Range from '../../../../dot/js/Range.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -110,6 +111,14 @@ export default class ScreenSettingsPanel extends Panel {
       trackSize: new Dimension2( 130, 3 ),
       thumbSize: new Dimension2( 13, 22 ),
       majorTickLength: 12,
+      createAriaValueText: value => percentUnit.getAccessibleString(
+        value / SceneModel.SCREEN_BRIGHTNESS_MAX * 100,
+        {
+          decimalPlaces: 0,
+          showTrailingZeros: false,
+          showIntegersAsIntegers: true
+        }
+      ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleHelpTextStringProperty,
       tandem: options.tandem.createTandem( 'brightnessSlider' )
