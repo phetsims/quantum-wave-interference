@@ -185,11 +185,6 @@
     "graphHeading": {
       "value": "Graph"
     },
-    "snapshot": {
-      "hitCountSentence": {
-        "value": "There { $count ->\n  [1] is 1 hit\n *[other] are { $count } hits\n} on the screen."
-      }
-    },
     "particleMass": {
       "accessibleParagraph": {
         "value": "{ $sourceType ->\n  [electrons] Particle mass: 9.1 times 10 to the negative 31 kilograms.\n  [neutrons] Particle mass: 1.7 times 10 to the negative 27 kilograms.\n *[heliumAtoms] Particle mass: 6.6 times 10 to the negative 27 kilograms.\n}"

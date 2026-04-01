@@ -76,7 +76,6 @@ addToMapIfDefined( 'a11y_sourceHeading', 'a11y.sourceHeadingStringProperty' );
 addToMapIfDefined( 'a11y_slitsHeading', 'a11y.slitsHeadingStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenHeading', 'a11y.detectorScreenHeadingStringProperty' );
 addToMapIfDefined( 'a11y_graphHeading', 'a11y.graphHeadingStringProperty' );
-addToMapIfDefined( 'a11y_snapshot_hitCountSentence', 'a11y.snapshot.hitCountSentenceStringProperty' );
 addToMapIfDefined( 'a11y_particleMass_accessibleParagraph', 'a11y.particleMass.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleName', 'a11y.emitterButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleHelpText', 'a11y.emitterButton.accessibleHelpTextStringProperty' );
@@ -231,9 +230,6 @@ const QuantumWaveInterferenceFluent = {
     slitsHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitsHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.slitsHeadingStringProperty' ) ),
     detectorScreenHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreenHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreenHeadingStringProperty' ) ),
     graphHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.graphHeadingStringProperty' ) ),
-    snapshot: {
-      hitCountSentence: new FluentPattern<{ count: 1 | number | 'other' | TReadOnlyProperty<1 | number | 'other'> }>( fluentSupport.bundleProperty, 'a11y_snapshot_hitCountSentence', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshot.hitCountSentenceStringProperty' ), [{"name":"count","variants":[1,{"type":"number","value":"other"}]}] )
-    },
     particleMass: {
       accessibleParagraph: new FluentPattern<{ sourceType: 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_particleMass_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.particleMass.accessibleParagraphStringProperty' ), [{"name":"sourceType","variants":["electrons","neutrons","heliumAtoms"]}] )
     },
