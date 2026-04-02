@@ -108,8 +108,7 @@ export default class ExperimentScreenView extends ScreenView {
     const overheadEmitterNode = new OverheadEmitterNode( model, this.layoutBounds, options.tandem );
     const overheadDoubleSlitNode = new OverheadDoubleSlitNode( model );
 
-    const whichPathDetectorNode = new WhichPathDetectorIndicatorNode( model );
-    whichPathDetectorNode.left = overheadDoubleSlitNode.parallelogramNode.right + 4;
+    const whichPathDetectorNode = new WhichPathDetectorIndicatorNode( model, overheadDoubleSlitNode );
 
     const overheadDetectorScreenNode = new OverheadDetectorScreenNode(
       model,
@@ -127,9 +126,9 @@ export default class ExperimentScreenView extends ScreenView {
     // The incident beam (emitter to slit) is in front of the double slit but behind the laser.
     this.addChild( overheadDoubleSlitNode );
     this.addChild( overheadBeamNode );
+    this.addChild( overheadBeamNode.emitterBeamNode );
     this.addChild( overheadDetectorScreenNode );
     this.addChild( whichPathDetectorNode );
-    this.addChild( overheadBeamNode.emitterBeamNode );
     this.addChild( overheadEmitterNode );
 
     const alignOverheadElements = () => {
@@ -140,13 +139,14 @@ export default class ExperimentScreenView extends ScreenView {
 
       // Keep the slit centered on the active emitter's beam centerline.
       overheadDoubleSlitNode.parallelogramNode.centerY = activeEmitter.centerY;
-      whichPathDetectorNode.centerY = overheadDoubleSlitNode.parallelogramNode.centerY;
 
       // Keep the hit-cap message centered in the horizontal gap between the active emitter
       // and the visible black slit background, not the larger transparent parallelogram bounds.
       overheadEmitterNode.maxHitsReachedPanel.centerX =
         ( activeEmitter.right + overheadDoubleSlitNode.getVisibleBackgroundLeftX() ) / 2;
       overheadEmitterNode.maxHitsReachedPanel.centerY = activeEmitter.centerY;
+
+      whichPathDetectorNode.updateLayout();
 
       // Recompute beams after vertical alignment changes.
       overheadBeamNode.updateBeam();
@@ -281,7 +281,7 @@ export default class ExperimentScreenView extends ScreenView {
       node.centerX = middleColumnCenterX;
     } );
     overheadDoubleSlitNode.setParallelogramCenterX( middleColumnCenterX );
-    whichPathDetectorNode.left = overheadDoubleSlitNode.parallelogramNode.right + 4;
+    whichPathDetectorNode.updateLayout();
     overheadDetectorScreenNode.updatePosition();
     overheadBeamNode.updateBeam();
     slitControlPanel.centerX = middleColumnCenterX;

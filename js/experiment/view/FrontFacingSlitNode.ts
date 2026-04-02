@@ -25,6 +25,7 @@ import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceC
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
+import { hasDetectorOnSide } from '../model/SlitConfiguration.js';
 
 const VIEW_WIDTH = ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH;
 const VIEW_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
@@ -63,6 +64,9 @@ const DEFAULT_SOURCE_INTENSITY = 0.5;
 const MIN_BEAM_OVERLAY_ALPHA = 0.15;
 const DEFAULT_BEAM_OVERLAY_ALPHA = 0.15 + 0.35 * DEFAULT_SOURCE_INTENSITY;
 const MAX_BEAM_OVERLAY_ALPHA = 0.8;
+const DETECTOR_PADDING = 3;
+const DETECTOR_WIRE_HEIGHT = 6;
+const DETECTOR_WIRE_FILL = 'rgb( 140, 140, 140 )';
 
 // Match slit-separation readout precision to SlitControlPanel.
 const getDecimalPlacesForValue = ( value: number ): number => {
@@ -354,6 +358,20 @@ export default class FrontFacingSlitNode extends Node {
     } );
     this.addChild( rightDetector );
 
+    const leftDetectorWire = new Rectangle( 0, 0, 1, DETECTOR_WIRE_HEIGHT, {
+      fill: DETECTOR_WIRE_FILL,
+      stroke: null,
+      visible: false
+    } );
+    this.addChild( leftDetectorWire );
+
+    const rightDetectorWire = new Rectangle( 0, 0, 1, DETECTOR_WIRE_HEIGHT, {
+      fill: DETECTOR_WIRE_FILL,
+      stroke: null,
+      visible: false
+    } );
+    this.addChild( rightDetectorWire );
+
     const updateCoveredSlitAppearance = () => {
       const slitSetting = sceneModel.slitSettingProperty.value;
       const isEmitting = sceneModel.isEmittingProperty.value;
@@ -394,12 +412,38 @@ export default class FrontFacingSlitNode extends Node {
       [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty, sceneModel.isEmittingProperty ],
       slitSetting => {
         updateCoveredSlitAppearance();
-        leftDetector.visible = slitSetting === 'leftDetector';
-        rightDetector.visible = slitSetting === 'rightDetector';
+        leftDetector.visible = hasDetectorOnSide( slitSetting, 'left' );
+        rightDetector.visible = hasDetectorOnSide( slitSetting, 'right' );
+        leftDetectorWire.visible = hasDetectorOnSide( slitSetting, 'left' );
+        rightDetectorWire.visible = hasDetectorOnSide( slitSetting, 'right' );
 
-        // Position detectors to match slit positions
-        leftDetector.setRect( leftSlit.rectX, slitY, leftSlit.rectWidth, SLIT_HEIGHT );
-        rightDetector.setRect( rightSlit.rectX, slitY, rightSlit.rectWidth, SLIT_HEIGHT );
+        // Expand the detector graphics evenly in x and y relative to the slit rectangles,
+        // then draw a horizontal wire from the outer detector edge to the slit-view boundary.
+        leftDetector.setRect(
+          leftSlit.rectX - DETECTOR_PADDING,
+          slitY - DETECTOR_PADDING,
+          leftSlit.rectWidth + 2 * DETECTOR_PADDING,
+          SLIT_HEIGHT + 2 * DETECTOR_PADDING
+        );
+        rightDetector.setRect(
+          rightSlit.rectX - DETECTOR_PADDING,
+          slitY - DETECTOR_PADDING,
+          rightSlit.rectWidth + 2 * DETECTOR_PADDING,
+          SLIT_HEIGHT + 2 * DETECTOR_PADDING
+        );
+
+        leftDetectorWire.setRect(
+          0,
+          leftDetector.centerY - DETECTOR_WIRE_HEIGHT / 2,
+          leftDetector.left,
+          DETECTOR_WIRE_HEIGHT
+        );
+        rightDetectorWire.setRect(
+          rightDetector.right,
+          rightDetector.centerY - DETECTOR_WIRE_HEIGHT / 2,
+          VIEW_WIDTH - rightDetector.right,
+          DETECTOR_WIRE_HEIGHT
+        );
       }
     );
   }

@@ -14,6 +14,7 @@ import { roundSymmetric } from '../../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../../model/SceneModel.js';
 import Snapshot from '../../model/Snapshot.js';
+import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
 
 // Qualitative stage of hit accumulation, used by describers to select which description
@@ -76,7 +77,7 @@ export default class BandAnalysis {
     const slitWidthMeters = scene.slitWidth * 1e-3; // mm -> m
     const slitSetting = scene.slitSettingProperty.value;
 
-    if ( slitSetting === 'bothOpen' ) {
+    if ( isDoubleSlitConfiguration( slitSetting ) ) {
       const slitSeparationMeters = scene.slitSeparationProperty.value * 1e-3; // mm -> m
 
       // Fringe spacing: Δy = λL/d
@@ -128,7 +129,7 @@ export default class BandAnalysis {
     const slitWidthMeters = BandAnalysis.getSlitWidth( snapshot.sourceType ) * 1e-3;
     const slitSetting = snapshot.slitSetting;
 
-    if ( slitSetting === 'bothOpen' ) {
+    if ( isDoubleSlitConfiguration( slitSetting ) ) {
       const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
       const fringeSpacingM = lambda * screenDistanceMeters / slitSeparationMeters;
       const fringeSpacingMM = fringeSpacingM * 1000;

@@ -9,15 +9,16 @@
  */
 
 import Shape from '../../../../kite/js/Shape.js';
+import Vector2 from '../../../../dot/js/Vector2.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
-import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
+import { hasDetectorOnSide } from '../model/SlitConfiguration.js';
 import createParallelogramNode from './createParallelogramNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
@@ -35,6 +36,8 @@ export default class OverheadDoubleSlitNode extends Node {
   public readonly parallelogramNode: Path;
   private readonly reducedBackgroundNode: Path;
   private readonly doubleSlitLabel: Text;
+  private leftDetectorAnchorPoint = new Vector2( 0, 0 );
+  private rightDetectorAnchorPoint = new Vector2( 0, 0 );
 
   // Skew parameters for the overhead parallelogram, exposed so sibling nodes can match the perspective.
   public readonly skewDx = 51 * OVERHEAD_SCALE;
@@ -90,17 +93,32 @@ export default class OverheadDoubleSlitNode extends Node {
     this.parallelogramNode.addChild( rightSlitLine );
 
     // Detector overlays
-    const slitOverlayHeight = slitLineLength + 4 * OVERHEAD_SCALE;
-    const slitOverlayWidth = 5 * OVERHEAD_SCALE;
+    const slitOverlayHeight = slitLineLength + 1.5 * OVERHEAD_SCALE;
+    const slitOverlayDx = 4 * OVERHEAD_SCALE * 0.6 * 0.85;
+    const slitOverlayDy = slitOverlayDx * ( this.skewDy / this.skewDx );
 
-    const leftSlitDetectorOverlay = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
-      fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.8 ), visible: false
-    } );
+    const leftSlitDetectorOverlay = createParallelogramNode(
+      slitOverlayDx,
+      slitOverlayDy,
+      slitOverlayHeight,
+      QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.8 ).toCSS(),
+      0
+    );
+    leftSlitDetectorOverlay.stroke = QuantumWaveInterferenceColors.detectorOverlayStrokeProperty;
+    leftSlitDetectorOverlay.lineWidth = 1;
+    leftSlitDetectorOverlay.visible = false;
     this.parallelogramNode.addChild( leftSlitDetectorOverlay );
 
-    const rightSlitDetectorOverlay = new Rectangle( 0, 0, slitOverlayWidth, slitOverlayHeight, {
-      fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.8 ), visible: false
-    } );
+    const rightSlitDetectorOverlay = createParallelogramNode(
+      slitOverlayDx,
+      slitOverlayDy,
+      slitOverlayHeight,
+      QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.8 ).toCSS(),
+      0
+    );
+    rightSlitDetectorOverlay.stroke = QuantumWaveInterferenceColors.detectorOverlayStrokeProperty;
+    rightSlitDetectorOverlay.lineWidth = 1;
+    rightSlitDetectorOverlay.visible = false;
     this.parallelogramNode.addChild( rightSlitDetectorOverlay );
 
     // Updates slit line positions and detector overlays
@@ -123,18 +141,27 @@ export default class OverheadDoubleSlitNode extends Node {
       rightSlitLine.shape = Shape.lineSegment( rightX, rightY - slitLineLength / 2,
         rightX, rightY + slitLineLength / 2 );
 
-      leftSlitDetectorOverlay.x = leftX - slitOverlayWidth / 2;
+      leftSlitDetectorOverlay.x = leftX - slitOverlayDx / 2;
       leftSlitDetectorOverlay.y = leftY - slitOverlayHeight / 2;
-      rightSlitDetectorOverlay.x = rightX - slitOverlayWidth / 2;
+      rightSlitDetectorOverlay.x = rightX - slitOverlayDx / 2;
       rightSlitDetectorOverlay.y = rightY - slitOverlayHeight / 2;
+
+      this.leftDetectorAnchorPoint = new Vector2(
+        this.parallelogramNode.x + leftSlitDetectorOverlay.x,
+        this.parallelogramNode.y + leftY
+      );
+      this.rightDetectorAnchorPoint = new Vector2(
+        this.parallelogramNode.x + rightSlitDetectorOverlay.x + slitOverlayDx,
+        this.parallelogramNode.y + rightY + slitOverlayDy
+      );
 
       const slitSetting = scene.slitSettingProperty.value;
       leftSlitLine.visible = true;
       rightSlitLine.visible = true;
       leftSlitLine.stroke = slitSetting === 'leftCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
       rightSlitLine.stroke = slitSetting === 'rightCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
-      leftSlitDetectorOverlay.visible = ( slitSetting === 'leftDetector' );
-      rightSlitDetectorOverlay.visible = ( slitSetting === 'rightDetector' );
+      leftSlitDetectorOverlay.visible = hasDetectorOnSide( slitSetting, 'left' );
+      rightSlitDetectorOverlay.visible = hasDetectorOnSide( slitSetting, 'right' );
     };
 
     model.sceneProperty.link( ( newScene, oldScene ) => {
@@ -169,6 +196,10 @@ export default class OverheadDoubleSlitNode extends Node {
   public setParallelogramCenterX( centerX: number ): void {
     this.parallelogramNode.centerX = centerX;
     this.layoutLabel();
+  }
+
+  public getDetectorAnchorPoint( isLeftDetector: boolean ): Vector2 {
+    return isLeftDetector ? this.leftDetectorAnchorPoint : this.rightDetectorAnchorPoint;
   }
 
   private layoutLabel(): void {

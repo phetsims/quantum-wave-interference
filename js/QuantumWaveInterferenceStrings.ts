@@ -59,6 +59,7 @@ type StringsType = {
   'rightCoveredStringProperty': LocalizedStringProperty;
   'leftDetectorStringProperty': LocalizedStringProperty;
   'rightDetectorStringProperty': LocalizedStringProperty;
+  'bothDetectorsStringProperty': LocalizedStringProperty;
   'hitsStringProperty': LocalizedStringProperty;
   'hitsCountPatternStringProperty': LocalizedStringProperty;
   'screenBrightnessStringProperty': LocalizedStringProperty;

@@ -39,6 +39,7 @@ leftCovered:                        Left Covered
 rightCovered:                       Right Covered
 leftDetector:                       Left Detector
 rightDetector:                      Right Detector
+bothDetectors:                      Both Detectors
 hits:                               Hits
 hitsCountPattern:                   'Hits: {{count}}'
 screenBrightness:                   Screen Brightness
@@ -75,7 +76,8 @@ a11y:
                        [leftCovered] the left slit covered
                        [rightCovered] the right slit covered
                        [leftDetector] a detector on the left slit
-                      *[rightDetector] a detector on the right slit
+                       [rightDetector] a detector on the right slit
+                      *[bothDetectors] detectors on both slits
                      } and the screen displays { $detectionMode ->
                        [averageIntensity] intensity
                       *[hits] hits
@@ -165,7 +167,8 @@ a11y:
                                  [leftCovered] Left slit now covered.
                                  [rightCovered] Right slit now covered.
                                  [leftDetector] Left slit now monitored by a detector.
-                                *[rightDetector] Right slit now monitored by a detector.
+                                 [rightDetector] Right slit now monitored by a detector.
+                                *[bothDetectors] Both slits now monitored by detectors.
                                }
   slitWidthMillimetersPattern: '{ $value } millimeters'
   slitWidthMicrometersPattern: '{ $value } micrometers'
@@ -177,7 +180,8 @@ a11y:
                            [leftCovered] Left slit is covered.
                            [rightCovered] Right slit is covered.
                            [leftDetector] Left slit is monitored by a detector.
-                          *[rightDetector] Right slit is monitored by a detector.
+                           [rightDetector] Right slit is monitored by a detector.
+                          *[bothDetectors] Both slits are monitored by detectors.
                          }
   zoomInButton:
     accessibleName: Zoom In

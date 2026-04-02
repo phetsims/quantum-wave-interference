@@ -38,6 +38,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import Snapshot from '../model/Snapshot.js';
+import { hasAnyDetector } from '../model/SlitConfiguration.js';
 import { getHitsBrightnessFraction } from './ScreenBrightnessUtils.js';
 import { getHitsCoreAlpha } from './ScreenBrightnessUtils.js';
 import { getHitsDisplayGain } from './ScreenBrightnessUtils.js';
@@ -72,11 +73,13 @@ const SLIT_SETTING_DISPLAY_MAP: Record<string, TReadOnlyProperty<string>> = {
   RIGHT_COVERED: QuantumWaveInterferenceFluent.rightCoveredStringProperty,
   LEFT_DETECTOR: QuantumWaveInterferenceFluent.leftDetectorStringProperty,
   RIGHT_DETECTOR: QuantumWaveInterferenceFluent.rightDetectorStringProperty,
+  BOTH_DETECTORS: QuantumWaveInterferenceFluent.bothDetectorsStringProperty,
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
   leftCovered: QuantumWaveInterferenceFluent.leftCoveredStringProperty,
   rightCovered: QuantumWaveInterferenceFluent.rightCoveredStringProperty,
   leftDetector: QuantumWaveInterferenceFluent.leftDetectorStringProperty,
-  rightDetector: QuantumWaveInterferenceFluent.rightDetectorStringProperty
+  rightDetector: QuantumWaveInterferenceFluent.rightDetectorStringProperty,
+  bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
 };
 
 
@@ -324,6 +327,7 @@ export default class SnapshotNode extends Node {
     SLIT_SETTING_DISPLAY_MAP.RIGHT_COVERED.lazyLink( updateLabels );
     SLIT_SETTING_DISPLAY_MAP.LEFT_DETECTOR.lazyLink( updateLabels );
     SLIT_SETTING_DISPLAY_MAP.RIGHT_DETECTOR.lazyLink( updateLabels );
+    SLIT_SETTING_DISPLAY_MAP.BOTH_DETECTORS.lazyLink( updateLabels );
 
     const trashButton = new TrashButton( {
       listener: () => {
@@ -534,8 +538,7 @@ class SnapshotCanvasNode extends CanvasNode {
     const isSingleSlit =
       slitSetting === 'leftCovered' ||
       slitSetting === 'rightCovered' ||
-      slitSetting === 'leftDetector' ||
-      slitSetting === 'rightDetector';
+      hasAnyDetector( slitSetting );
 
     const photonColor = snapshot.sourceType === 'photons'
                         ? VisibleColor.wavelengthToColor( snapshot.wavelength )

@@ -19,6 +19,7 @@ import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../../model/ExperimentModel.js';
 import SceneModel from '../../model/SceneModel.js';
+import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
 import BandAnalysis from './BandAnalysis.js';
 
 export default class DetectorScreenDescriber {
@@ -39,7 +40,7 @@ export default class DetectorScreenDescriber {
       const detectionMode = scene.detectionModeProperty.value;
       const isRulerVisible = model.isRulerVisibleProperty.value;
       const slitSetting = scene.slitSettingProperty.value;
-      const isDoubleSlit = slitSetting === 'bothOpen';
+      const isDoubleSlit = isDoubleSlitConfiguration( slitSetting );
 
       if ( detectionMode === 'averageIntensity' ) {
         if ( !scene.isEmittingProperty.value ) {

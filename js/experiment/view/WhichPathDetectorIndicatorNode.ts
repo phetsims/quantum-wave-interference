@@ -1,16 +1,19 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * WhichPathDetectorIndicatorNode displays the which-path detector indicator box that appears
- * next to the double slit when a detector slit setting is active. Shows the detector label
- * and hit count when in Hits mode.
+ * WhichPathDetectorIndicatorNode displays one or more which-path detector panels next to the
+ * overhead double slit. Each panel is side-specific and connects to its slit detector marker
+ * with the same reusable layout and wire-drawing code, so left, right, and both-detectors
+ * configurations all share the same implementation.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
+import Shape from '../../../../kite/js/Shape.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
+import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
@@ -19,16 +22,42 @@ import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SlitConfiguration } from '../model/SlitConfiguration.js';
+import { DetectorSideValues, hasDetectorOnSide, type DetectorSide, type SlitConfiguration } from '../model/SlitConfiguration.js';
+import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const DETECTOR_BOX_WIDTH = 58 * OVERHEAD_SCALE;
 const DETECTOR_BOX_HEIGHT = 38 * OVERHEAD_SCALE;
+const DETECTOR_PANEL_GAP = 8 * OVERHEAD_SCALE;
+const DETECTOR_WIRE_STROKE = 'rgb( 140, 140, 140 )';
 
-export default class WhichPathDetectorIndicatorNode extends Node {
+const DETECTOR_SIDE_LAYOUT = {
+  left: {
+    verticalOffset: -3 * OVERHEAD_SCALE,
+    wireStartX: DETECTOR_BOX_WIDTH
+  },
+  right: {
+    verticalOffset: 4 * OVERHEAD_SCALE,
+    wireStartX: 0
+  }
+} as const satisfies Record<DetectorSide, { verticalOffset: number; wireStartX: number }>;
 
-  public constructor( model: ExperimentModel ) {
+class DetectorPanelNode extends Node {
+  private readonly updateIndicator: () => void;
+
+  public constructor(
+    model: ExperimentModel,
+    doubleSlitNode: OverheadDoubleSlitNode,
+    detectorSide: DetectorSide
+  ) {
     super( { visible: false } );
+
+    const detectorWirePath = new Path( null, {
+      stroke: DETECTOR_WIRE_STROKE,
+      lineWidth: 2,
+      lineCap: 'butt',
+      lineJoin: 'round'
+    } );
 
     const detectorIndicatorBox = new Rectangle( 0, 0, DETECTOR_BOX_WIDTH, DETECTOR_BOX_HEIGHT, 5, 5, {
       fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty,
@@ -51,7 +80,7 @@ export default class WhichPathDetectorIndicatorNode extends Node {
       children: [ detectorIndicatorLabel, detectorHitCountText ]
     } );
 
-    this.children = [ detectorIndicatorBox, detectorLabelContainer ];
+    this.children = [ detectorWirePath, detectorIndicatorBox, detectorLabelContainer ];
 
     const updateDetectorLabelLayout = () => {
       detectorIndicatorLabel.centerX = DETECTOR_BOX_WIDTH / 2;
@@ -65,35 +94,104 @@ export default class WhichPathDetectorIndicatorNode extends Node {
       }
     };
 
-    const slitSettingProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>( model.sceneProperty, {
-      derive: scene => scene.slitSettingProperty
-    } );
+    const slitSettingProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>(
+      model.sceneProperty,
+      {
+        derive: scene => scene.slitSettingProperty
+      }
+    );
 
-    const detectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>( model.sceneProperty, {
-      derive: scene => scene.detectionModeProperty
-    } );
+    const detectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>(
+      model.sceneProperty,
+      {
+        derive: scene => scene.detectionModeProperty
+      }
+    );
 
-    const detectorHitsProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
-      derive: scene => scene.detectorHitsProperty
-    } );
+    const detectorHitsProperty = new DynamicProperty<number, number, SceneModel>(
+      model.sceneProperty,
+      {
+        derive: scene => detectorSide === 'left' ? scene.leftDetectorHitsProperty : scene.rightDetectorHitsProperty
+      }
+    );
 
-    const updateDetectorIndicator = () => {
+    this.updateIndicator = () => {
       const slitSetting = slitSettingProperty.value;
-      const isDetectorActive = slitSetting === 'leftDetector' || slitSetting === 'rightDetector';
+      const isDetectorActive = hasDetectorOnSide( slitSetting, detectorSide );
       this.visible = isDetectorActive;
 
-      if ( isDetectorActive ) {
-        const isHitsMode = detectionModeProperty.value === 'hits';
-        detectorHitCountText.visible = isHitsMode;
-        if ( isHitsMode ) {
-          detectorHitCountText.string = `${detectorHitsProperty.value}`;
-        }
-        updateDetectorLabelLayout();
+      if ( !isDetectorActive ) {
+        detectorWirePath.shape = null;
+        return;
       }
+
+      const isHitsMode = detectionModeProperty.value === 'hits';
+      detectorHitCountText.visible = isHitsMode;
+      if ( isHitsMode ) {
+        detectorHitCountText.string =
+          `${detectorHitsProperty.value} ${QuantumWaveInterferenceFluent.hitsStringProperty.value}`;
+      }
+      updateDetectorLabelLayout();
+
+      const layout = DETECTOR_SIDE_LAYOUT[ detectorSide ];
+      if ( detectorSide === 'left' ) {
+        this.x = doubleSlitNode.getVisibleBackgroundLeftX() - DETECTOR_PANEL_GAP - DETECTOR_BOX_WIDTH;
+      }
+      else {
+        this.x = doubleSlitNode.getVisibleBackgroundRightX() + DETECTOR_PANEL_GAP;
+      }
+      this.y =
+        doubleSlitNode.parallelogramNode.centerY +
+        layout.verticalOffset -
+        DETECTOR_BOX_HEIGHT / 2;
+
+      const detectorAnchorPoint = doubleSlitNode.getDetectorAnchorPoint( detectorSide === 'left' );
+      const wireStartX = layout.wireStartX;
+      const wireStartY = DETECTOR_BOX_HEIGHT / 2;
+      const wireEndX = detectorAnchorPoint.x - this.x;
+      const wireEndY = detectorAnchorPoint.y - this.y;
+      const horizontalSpan = Math.abs( wireEndX - wireStartX );
+      const handleDistance = Math.max( 10 * OVERHEAD_SCALE, horizontalSpan * 0.35 );
+      const firstControlX = detectorSide === 'left' ? wireStartX + handleDistance : wireStartX - handleDistance;
+      const secondControlX = detectorSide === 'left' ? wireEndX - handleDistance : wireEndX + handleDistance;
+
+      detectorWirePath.shape = new Shape()
+        .moveTo( wireStartX, wireStartY )
+        .cubicCurveTo(
+          firstControlX, wireStartY,
+          secondControlX, wireEndY,
+          wireEndX, wireEndY
+        );
     };
 
-    slitSettingProperty.link( updateDetectorIndicator );
-    detectionModeProperty.link( updateDetectorIndicator );
-    detectorHitsProperty.link( updateDetectorIndicator );
+    slitSettingProperty.link( this.updateIndicator );
+    detectionModeProperty.link( this.updateIndicator );
+    detectorHitsProperty.link( this.updateIndicator );
+    model.sceneProperty.link( this.updateIndicator );
+    QuantumWaveInterferenceFluent.hitsStringProperty.lazyLink( this.updateIndicator );
+  }
+
+  public updateLayout(): void {
+    this.updateIndicator();
+  }
+}
+
+export default class WhichPathDetectorIndicatorNode extends Node {
+  private readonly detectorPanelNodes: DetectorPanelNode[];
+
+  public constructor( model: ExperimentModel, doubleSlitNode: OverheadDoubleSlitNode ) {
+    const detectorPanelNodes = DetectorSideValues.map(
+      detectorSide => new DetectorPanelNode( model, doubleSlitNode, detectorSide )
+    );
+
+    super( {
+      children: detectorPanelNodes
+    } );
+
+    this.detectorPanelNodes = detectorPanelNodes;
+  }
+
+  public updateLayout(): void {
+    this.detectorPanelNodes.forEach( detectorPanelNode => detectorPanelNode.updateLayout() );
   }
 }

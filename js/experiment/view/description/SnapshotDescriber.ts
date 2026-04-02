@@ -9,12 +9,13 @@
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import Snapshot from '../../model/Snapshot.js';
+import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
 import BandAnalysis from './BandAnalysis.js';
 
 export default class SnapshotDescriber {
 
   public static getDescription( snapshot: Snapshot ): string {
-    const isDoubleSlit = snapshot.slitSetting === 'bothOpen';
+    const isDoubleSlit = isDoubleSlitConfiguration( snapshot.slitSetting );
 
     if ( snapshot.detectionMode === 'averageIntensity' ) {
       if ( !snapshot.isEmitting ) {

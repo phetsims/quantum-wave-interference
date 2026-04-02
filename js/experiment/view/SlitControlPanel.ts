@@ -287,6 +287,15 @@ export default class SlitControlPanel extends Panel {
             maxWidth: 150
           } ),
         tandemName: 'rightDetectorItem'
+      },
+      {
+        value: 'bothDetectors',
+        createNode: () =>
+          new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, {
+            font: COMBO_BOX_FONT,
+            maxWidth: 150
+          } ),
+        tandemName: 'bothDetectorsItem'
       }
     ];
 

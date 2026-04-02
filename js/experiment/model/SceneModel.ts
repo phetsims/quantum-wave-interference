@@ -30,7 +30,7 @@ import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
-import { type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
+import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
 import Snapshot from './Snapshot.js';
 import { type SourceType } from './SourceType.js';
 
@@ -90,6 +90,8 @@ export default class SceneModel extends PhetioObject {
 
   // Number of hits detected by the which-path detector (when LEFT_DETECTOR or RIGHT_DETECTOR is active).
   // Approximately half of all hits pass through the monitored slit.
+  public readonly leftDetectorHitsProperty: NumberProperty;
+  public readonly rightDetectorHitsProperty: NumberProperty;
   public readonly detectorHitsProperty: NumberProperty;
 
   // True when Hits mode has reached the per-scene hit cap.
@@ -256,6 +258,16 @@ export default class SceneModel extends PhetioObject {
       phetioReadOnly: true
     } );
 
+    this.leftDetectorHitsProperty = new NumberProperty( 0, {
+      tandem: tandem.createTandem( 'leftDetectorHitsProperty' ),
+      phetioReadOnly: true
+    } );
+
+    this.rightDetectorHitsProperty = new NumberProperty( 0, {
+      tandem: tandem.createTandem( 'rightDetectorHitsProperty' ),
+      phetioReadOnly: true
+    } );
+
     this.detectorHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'detectorHitsProperty' ),
       phetioReadOnly: true
@@ -378,7 +390,7 @@ export default class SceneModel extends PhetioObject {
              Math.pow( Math.sin( shiftedSingleSlitArg ) / shiftedSingleSlitArg, 2 );
     }
 
-    if ( slitSetting === 'leftDetector' || slitSetting === 'rightDetector' ) {
+    if ( hasAnyDetector( slitSetting ) ) {
 
       // Which-path detection destroys interference: sum of two single-slit patterns
       // (no cross-term), result is essentially a broad single-slit-like pattern
@@ -400,6 +412,8 @@ export default class SceneModel extends PhetioObject {
     this.hits.length = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.value = 0;
+    this.leftDetectorHitsProperty.value = 0;
+    this.rightDetectorHitsProperty.value = 0;
     this.detectorHitsProperty.value = 0;
     this.hitsChangedEmitter.emit();
   }
@@ -454,6 +468,8 @@ export default class SceneModel extends PhetioObject {
     this.hits.length = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.reset();
+    this.leftDetectorHitsProperty.reset();
+    this.rightDetectorHitsProperty.reset();
     this.detectorHitsProperty.reset();
     this.snapshotsProperty.value = [];
     this.nextSnapshotNumber = 1;
@@ -507,9 +523,10 @@ export default class SceneModel extends PhetioObject {
     }
 
     const slitSetting = this.slitSettingProperty.value;
-    const isDetectorActive = slitSetting === 'leftDetector' || slitSetting === 'rightDetector';
+    const isDetectorActive = hasAnyDetector( slitSetting );
     let actualHitsAddedThisFrame = 0;
-    let detectorHitsThisFrame = 0;
+    let leftDetectorHitsThisFrame = 0;
+    let rightDetectorHitsThisFrame = 0;
 
     for ( let i = 0; i < numHits; i++ ) {
 
@@ -528,8 +545,16 @@ export default class SceneModel extends PhetioObject {
 
       // When a which-path detector is active, each particle has ~50% probability of going
       // through the monitored slit (the one with the detector on it).
-      if ( isDetectorActive && dotRandom.nextDouble() < 0.5 ) {
-        detectorHitsThisFrame++;
+      if ( isDetectorActive ) {
+        const detectorSide = dotRandom.nextDouble() < 0.5 ? 'left' : 'right';
+        if ( hasDetectorOnSide( slitSetting, detectorSide ) ) {
+          if ( detectorSide === 'left' ) {
+            leftDetectorHitsThisFrame++;
+          }
+          else {
+            rightDetectorHitsThisFrame++;
+          }
+        }
       }
     }
 
@@ -542,7 +567,10 @@ export default class SceneModel extends PhetioObject {
 
     this.totalHitsProperty.value += actualHitsAddedThisFrame;
     if ( isDetectorActive ) {
-      this.detectorHitsProperty.value += detectorHitsThisFrame;
+      this.leftDetectorHitsProperty.value += leftDetectorHitsThisFrame;
+      this.rightDetectorHitsProperty.value += rightDetectorHitsThisFrame;
+      this.detectorHitsProperty.value =
+        this.leftDetectorHitsProperty.value + this.rightDetectorHitsProperty.value;
     }
 
     if ( this.isMaxHitsReachedProperty.value ) {

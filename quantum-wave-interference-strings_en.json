@@ -122,6 +122,9 @@
   "rightDetector": {
     "value": "Right Detector"
   },
+  "bothDetectors": {
+    "value": "Both Detectors"
+  },
   "hits": {
     "value": "Hits"
   },
@@ -167,7 +170,7 @@
         "value": "Clear the detector screen to collect more hits."
       },
       "currentDetails": {
-        "value": "Currently, running a { $sourceType ->\n  [photons] photon\n  [electrons] electron\n  [neutrons] neutron\n *[heliumAtoms] helium atom\n} experiment. The barrier has { $slitSetting ->\n  [bothOpen] both slits open\n  [leftCovered] the left slit covered\n  [rightCovered] the right slit covered\n  [leftDetector] a detector on the left slit\n *[rightDetector] a detector on the right slit\n} and the screen displays { $detectionMode ->\n  [averageIntensity] intensity\n *[hits] hits\n}. The source is { $isEmitting ->\n  [true] on\n *[false] off\n}."
+        "value": "Currently, running a { $sourceType ->\n  [photons] photon\n  [electrons] electron\n  [neutrons] neutron\n *[heliumAtoms] helium atom\n} experiment. The barrier has { $slitSetting ->\n  [bothOpen] both slits open\n  [leftCovered] the left slit covered\n  [rightCovered] the right slit covered\n  [leftDetector] a detector on the left slit\n  [rightDetector] a detector on the right slit\n *[bothDetectors] detectors on both slits\n} and the screen displays { $detectionMode ->\n  [averageIntensity] intensity\n *[hits] hits\n}. The source is { $isEmitting ->\n  [true] on\n *[false] off\n}."
       },
       "interactionHint": {
         "value": "{ $isEmitting ->\n  [true] Adjust the source or slits to make observations.\n *[false] Turn on the { $sourceType ->\n    [photons] photon source\n    [electrons] electron source\n    [neutrons] neutron source\n   *[heliumAtoms] helium atom source\n  } to start experimenting.\n}"
@@ -299,7 +302,7 @@
         "value": "Choose a slit configuration to change which slits are open, covered, or monitored by a detector."
       },
       "accessibleContextResponse": {
-        "value": "{ $slitSetting ->\n  [bothOpen] Both slits now open.\n  [leftCovered] Left slit now covered.\n  [rightCovered] Right slit now covered.\n  [leftDetector] Left slit now monitored by a detector.\n *[rightDetector] Right slit now monitored by a detector.\n}"
+        "value": "{ $slitSetting ->\n  [bothOpen] Both slits now open.\n  [leftCovered] Left slit now covered.\n  [rightCovered] Right slit now covered.\n  [leftDetector] Left slit now monitored by a detector.\n  [rightDetector] Right slit now monitored by a detector.\n *[bothDetectors] Both slits now monitored by detectors.\n}"
       }
     },
     "slitWidthMillimetersPattern": {
@@ -310,7 +313,7 @@
     },
     "slitView": {
       "accessibleParagraph": {
-        "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits are open.\n  [leftCovered] Left slit is covered.\n  [rightCovered] Right slit is covered.\n  [leftDetector] Left slit is monitored by a detector.\n *[rightDetector] Right slit is monitored by a detector.\n}"
+        "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits are open.\n  [leftCovered] Left slit is covered.\n  [rightCovered] Right slit is covered.\n  [leftDetector] Left slit is monitored by a detector.\n  [rightDetector] Right slit is monitored by a detector.\n *[bothDetectors] Both slits are monitored by detectors.\n}"
       }
     },
     "zoomInButton": {
