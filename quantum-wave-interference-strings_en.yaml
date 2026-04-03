@@ -217,7 +217,7 @@ a11y:
                               The histogram shows a broad central peak that tapers toward the edges.
                               { $spatialDescription }
     zoomButtonGroup:
-      zoomLevelResponse: 'Zoom { $level } of { $max }.'
+      zoomLevelResponse: 'Zoom level { $level } of { $max }.'
   detectorScreen:
     accessibleParagraph:
       intensityOff:           The detector screen is dark. The source is off.

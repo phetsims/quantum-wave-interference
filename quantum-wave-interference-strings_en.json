@@ -364,7 +364,7 @@
       },
       "zoomButtonGroup": {
         "zoomLevelResponse": {
-          "value": "Zoom { $level } of { $max }."
+          "value": "Zoom level { $level } of { $max }."
         }
       }
     },
