@@ -381,6 +381,10 @@ export default class ExperimentScreenView extends ScreenView {
       timeSpeedProperty: model.timeSpeedProperty,
       timeSpeeds: [ TimeSpeed.NORMAL, TimeSpeed.FAST ],
       flowBoxSpacing: 15,
+      speedRadioButtonGroupOptions: {
+        accessibleHelpText:
+        QuantumWaveInterferenceFluent.a11y.timeControlNode.simSpeedDescriptionStringProperty
+      },
       playPauseStepButtonOptions: {
         includeStepForwardButton: false,
         playPauseButtonOptions: {

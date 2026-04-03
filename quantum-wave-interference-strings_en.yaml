@@ -147,6 +147,8 @@ a11y:
       accessibleContextResponse: Detector screen now shows continuous intensity pattern.
     hitsRadioButton:
       accessibleContextResponse: Detector screen now shows individual hits.
+  timeControlNode:
+    simSpeedDescription: Choose Normal or Fast speed. In Hits mode, Fast collects hits more quickly for faster data collection.
   sceneRadioButtonGroup:
     accessibleName:     Experiment Type
     accessibleHelpText: Choose a particle type to switch to a different experiment setup.

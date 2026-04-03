@@ -125,6 +125,9 @@ type StringsType = {
         'accessibleContextResponseStringProperty': LocalizedStringProperty;
       }
     };
+    'timeControlNode': {
+      'simSpeedDescriptionStringProperty': LocalizedStringProperty;
+    };
     'sceneRadioButtonGroup': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;

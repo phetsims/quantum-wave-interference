@@ -266,6 +266,11 @@
         }
       }
     },
+    "timeControlNode": {
+      "simSpeedDescription": {
+        "value": "Choose Normal or Fast speed. In Hits mode, Fast collects hits more quickly for faster data collection."
+      }
+    },
     "sceneRadioButtonGroup": {
       "accessibleName": {
         "value": "Experiment Type"
