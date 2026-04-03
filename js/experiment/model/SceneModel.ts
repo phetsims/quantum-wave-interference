@@ -40,6 +40,9 @@ const MAX_EMISSION_RATE = 100;
 // Maximum iterations for rejection sampling to prevent infinite loops
 const MAX_REJECTION_ITERATIONS = 1000;
 
+// With one slit covered, only half the beam contributes, so the peak intensity is reduced.
+const SINGLE_OPEN_SLIT_INTENSITY_SCALE = 0.5;
+
 type SelfOptions = {
   sourceType: SourceType;
 };
@@ -386,8 +389,11 @@ export default class SceneModel extends PhetioObject {
       const shiftedSingleSlitArg = Math.PI * slitWidthMeters * shiftedSinTheta / lambda;
 
       // Single slit: only the diffraction envelope, centered on the uncovered slit.
-      return shiftedSingleSlitArg === 0 ? 1 :
-             Math.pow( Math.sin( shiftedSingleSlitArg ) / shiftedSingleSlitArg, 2 );
+      // Closing one slit halves the total transmitted intensity, so scale the envelope accordingly.
+      return SINGLE_OPEN_SLIT_INTENSITY_SCALE * (
+        shiftedSingleSlitArg === 0 ? 1 :
+        Math.pow( Math.sin( shiftedSingleSlitArg ) / shiftedSingleSlitArg, 2 )
+      );
     }
 
     if ( hasAnyDetector( slitSetting ) ) {
