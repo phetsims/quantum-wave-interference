@@ -235,6 +235,16 @@
         "value": "Adjust the distance from the barrier to the detector screen."
       }
     },
+    "wavelengthSlider": {
+      "accessibleHelpText": {
+        "value": "Adjust wavelength of emitted photons."
+      }
+    },
+    "particleSpeedSlider": {
+      "accessibleHelpText": {
+        "value": "Adjust speed of emitted particles."
+      }
+    },
     "intensitySlider": {
       "accessibleHelpText": {
         "value": "Adjust how many { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} the source emits per unit time."

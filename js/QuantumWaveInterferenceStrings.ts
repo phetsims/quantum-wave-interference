@@ -108,6 +108,12 @@ type StringsType = {
     'screenDistanceSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
+    'wavelengthSlider': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
+    'particleSpeedSlider': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'intensitySlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };

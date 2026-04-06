@@ -210,6 +210,7 @@ export default class SourceControlPanel extends Panel {
           ySpacing: 8
         } ),
         includeArrowButtons: true,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.wavelengthSlider.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( 'wavelengthControl' )
       } );
     }
@@ -319,6 +320,7 @@ export default class SourceControlPanel extends Panel {
             arrowButtonsXSpacing: 8,
             ySpacing: 8
           } ),
+          accessibleHelpText: QuantumWaveInterferenceFluent.a11y.particleSpeedSlider.accessibleHelpTextStringProperty,
           tandem: tandem.createTandem( `${scene.sourceType}VelocityControl` )
         }
       );

@@ -129,6 +129,10 @@ a11y:
     accessibleHelpText: Adjust the distance between the centers of the two slits.
   screenDistanceSlider:
     accessibleHelpText: Adjust the distance from the barrier to the detector screen.
+  wavelengthSlider:
+    accessibleHelpText: Adjust wavelength of emitted photons.
+  particleSpeedSlider:
+    accessibleHelpText: Adjust speed of emitted particles.
   intensitySlider:
     accessibleHelpText: >-
                         Adjust how many { $sourceType ->
