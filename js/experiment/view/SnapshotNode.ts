@@ -209,7 +209,7 @@ export default class SnapshotNode extends Node {
 
         const screenDistValue = StringUtils.fillIn(
           QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value,
-          { value: toFixed( snapshot.screenDistance, 1 ) }
+          { value: toFixed( snapshot.screenDistance, 2 ) }
         );
         screenDistanceProperty.value = StringUtils.fillIn(
           QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,

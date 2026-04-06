@@ -127,7 +127,7 @@ export default class OverheadDetectorScreenNode extends Node {
 
       distanceText.string = StringUtils.fillIn(
         QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value,
-        { value: toFixed( distance, 1 ) }
+        { value: toFixed( distance, 2 ) }
       );
       distanceText.centerX = ( leftX + rightX ) / 2;
       distanceText.bottom = spanY - SPAN_TICK_LENGTH / 2;

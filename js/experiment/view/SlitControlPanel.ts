@@ -44,6 +44,8 @@ const PANEL_CONTENT_SPACING = 20;
 const SLIT_SETTINGS_SECTION_SPACING = 6;
 const PANEL_WIDTH = ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH + 20;
 const PANEL_MIN_HEIGHT = 270;
+const SCREEN_DISTANCE_DECIMAL_PLACES = 2;
+const SCREEN_DISTANCE_DELTA = 0.01;
 
 type SelfOptions = EmptySelfOptions;
 
@@ -197,21 +199,19 @@ export default class SlitControlPanel extends Panel {
 
     // Screen distance NumberControl
     const screenDistanceRange = scene.screenDistanceRange;
-    const screenDistanceDecimalPlaces = SlitControlPanel.getDecimalPlaces( screenDistanceRange );
-    const screenDistanceDelta = SlitControlPanel.getDelta( screenDistanceRange );
 
     const screenDistanceControl = new NumberControl(
       QuantumWaveInterferenceFluent.screenDistanceStringProperty,
       scene.screenDistanceProperty,
       screenDistanceRange,
       {
-        delta: screenDistanceDelta,
+        delta: SCREEN_DISTANCE_DELTA,
         titleNodeOptions: {
           font: TITLE_FONT,
           maxWidth: 150
         },
         numberDisplayOptions: {
-          decimalPlaces: screenDistanceDecimalPlaces,
+          decimalPlaces: SCREEN_DISTANCE_DECIMAL_PLACES,
           valuePattern: {
             visualPattern: QuantumWaveInterferenceFluent.screenDistancePatternStringProperty,
             accessiblePattern: metersUnit.accessiblePattern!
@@ -226,7 +226,7 @@ export default class SlitControlPanel extends Panel {
           trackSize: SLIDER_TRACK_SIZE,
           thumbSize: new Dimension2( 13, 22 ),
           majorTickLength: 12,
-          majorTicks: SlitControlPanel.createNumericTicks( screenDistanceRange )
+          majorTicks: SlitControlPanel.createNumericTicks( screenDistanceRange, SCREEN_DISTANCE_DECIMAL_PLACES )
         },
         layoutFunction: NumberControl.createLayoutFunction1( {
           ySpacing: NUMBER_CONTROL_Y_SPACING,
@@ -367,10 +367,10 @@ export default class SlitControlPanel extends Panel {
    * Creates major tick marks with numeric labels showing the min and max values of the range.
    * Uses minimal decimal places needed to represent the values without trailing zeros.
    */
-  private static createNumericTicks( range: Range ): { value: number; label: Node }[] {
+  private static createNumericTicks( range: Range, decimalPlaces?: number ): { value: number; label: Node }[] {
     // Use consistent decimal places across both tick labels so they visually match.
     // E.g., for range 0.2–1.0 mm, both ticks should show 1 decimal place: "0.2" and "1.0".
-    const decimalPlaces = Math.max(
+    const tickDecimalPlaces = decimalPlaces ?? Math.max(
       SlitControlPanel.getTickDecimalPlaces( range.min ),
       SlitControlPanel.getTickDecimalPlaces( range.max )
     );
@@ -378,14 +378,14 @@ export default class SlitControlPanel extends Panel {
     return [
       {
         value: range.min,
-        label: new Text( toFixed( range.min, decimalPlaces ), {
+        label: new Text( toFixed( range.min, tickDecimalPlaces ), {
           font: TICK_LABEL_FONT,
           maxWidth: 40
         } )
       },
       {
         value: range.max,
-        label: new Text( toFixed( range.max, decimalPlaces ), {
+        label: new Text( toFixed( range.max, tickDecimalPlaces ), {
           font: TICK_LABEL_FONT,
           maxWidth: 40
         } )
