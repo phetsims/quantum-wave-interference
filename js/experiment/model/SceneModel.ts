@@ -321,8 +321,8 @@ export default class SceneModel extends PhetioObject {
     this.wavelengthProperty.lazyLink( () => this.clearScreen() );
     this.velocityProperty.lazyLink( () => this.clearScreen() );
 
-    // Switching between Average Intensity and Hits should start a fresh accumulation.
-    this.detectionModeProperty.lazyLink( () => this.clearScreen() );
+    // Detection mode changes should not clear accumulated hits. Hits mode preserves its
+    // accumulated screen data when the user temporarily switches to intensity mode and back.
 
     // When the hit cap is reached in Hits mode, stop the source and require the user to clear the screen.
     this.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
@@ -509,7 +509,11 @@ export default class SceneModel extends PhetioObject {
   }
 
   public step( dt: number ): void {
-    if ( !this.isEmittingProperty.value || this.isMaxHitsReachedProperty.value ) {
+    if (
+      !this.isEmittingProperty.value ||
+      this.detectionModeProperty.value !== 'hits' ||
+      this.isMaxHitsReachedProperty.value
+    ) {
       return;
     }
 
