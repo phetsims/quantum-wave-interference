@@ -12,12 +12,7 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { getHitsBrightnessFraction } from './ScreenBrightnessUtils.js';
-import { getHitsCoreAlpha } from './ScreenBrightnessUtils.js';
-import { getHitsDisplayGain } from './ScreenBrightnessUtils.js';
-import { getHitsGlowAlpha } from './ScreenBrightnessUtils.js';
-import { getIntensityDisplayGain } from './ScreenBrightnessUtils.js';
-import { getSceneRGB } from './ScreenBrightnessUtils.js';
+import { getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB } from './ScreenBrightnessUtils.js';
 
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
@@ -191,13 +186,12 @@ const paintIntensity = (
 
   const screenHalfWidth = sceneModel.screenHalfWidth;
   const rgb = getSceneRGB( sceneModel );
-  const baseGain = displayGain;
 
   for ( let x = 0; x < TEXTURE_WIDTH; x++ ) {
     const fraction = ( x + 0.5 ) / TEXTURE_WIDTH;
     const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
     const intensity = sceneModel.getIntensityAtPosition( physicalX );
-    const scale = intensity * baseGain;
+    const scale = intensity * displayGain;
 
     // Skip bands below perceptual visibility to avoid painting nearly-black pixels
     if ( scale < 0.004 ) {

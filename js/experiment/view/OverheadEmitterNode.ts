@@ -276,7 +276,7 @@ export default class OverheadEmitterNode extends Node {
 
       // Re-color the emitter body and glass highlights to match the new particle type's palette.
       // Uses instanceof to distinguish the body rectangles from the glass sphere overlays.
-      this.particleEmitterNode.children.forEach( child => {
+      this.particleEmitterNode.children.forEach( ( child: Rectangle | ShadedSphereNode | Node ) => {
         if ( child instanceof Rectangle ) {
           child.fill = createEmitterGradient( child.height, palette );
         }

@@ -68,12 +68,6 @@ export default class QuantumWaveInterferenceColors {
       default: 'rgb(200,200,200)'
     } );
 
-  // Graph accordion box fill and stroke
-  public static readonly graphAccordionBoxFillProperty = new ProfileColorProperty(
-    quantumWaveInterference, 'graphAccordionBoxFill', {
-      default: 'rgb(230,230,230)'
-    } );
-
   public static readonly graphAccordionBoxStrokeProperty = new ProfileColorProperty(
     quantumWaveInterference, 'graphAccordionBoxStroke', {
       default: 'rgb(160,160,160)'
