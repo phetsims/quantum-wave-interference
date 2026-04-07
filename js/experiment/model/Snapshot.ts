@@ -98,11 +98,7 @@ export default class Snapshot {
     // toStateObject is auto-generated from stateSchema (composite schema with matching field names).
 
     fromStateObject: ( state: SnapshotStateObject ): Snapshot => {
-      return new Snapshot(
-        state.snapshotNumber,
-        state.hits.map( s => Vector2.fromStateObject( s ) ),
-        state
-      );
+      return new Snapshot( state.snapshotNumber, state.hits.map( s => Vector2.fromStateObject( s ) ), state );
     }
   } );
 }
