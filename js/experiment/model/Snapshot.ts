@@ -8,7 +8,6 @@
  */
 
 import Vector2, { type Vector2StateObject } from '../../../../dot/js/Vector2.js';
-import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
@@ -105,5 +104,5 @@ export default class Snapshot {
         state
       );
     }
-  } as IntentionalAny );
+  } );
 }

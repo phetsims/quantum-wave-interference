@@ -21,17 +21,16 @@ export const DetectorSideValues = [ 'left', 'right' ] as const;
 
 export type DetectorSide = typeof DetectorSideValues[number];
 
-export const hasDetectorOnSide = (
-  slitConfiguration: SlitConfiguration,
-  detectorSide: DetectorSide
-): boolean => {
-  return slitConfiguration === 'bothDetectors' ||
+export const hasDetectorOnSide = ( slitConfiguration: SlitConfiguration, detectorSide: DetectorSide ): boolean => {
+  return ( slitConfiguration === 'bothDetectors' ) ||
          ( slitConfiguration === 'leftDetector' && detectorSide === 'left' ) ||
          ( slitConfiguration === 'rightDetector' && detectorSide === 'right' );
 };
 
 export const hasAnyDetector = ( slitConfiguration: SlitConfiguration ): boolean => {
-  return hasDetectorOnSide( slitConfiguration, 'left' ) || hasDetectorOnSide( slitConfiguration, 'right' );
+  return slitConfiguration === 'bothDetectors' ||
+         slitConfiguration === 'leftDetector' ||
+         slitConfiguration === 'rightDetector';
 };
 
 export const isDoubleSlitConfiguration = ( slitConfiguration: SlitConfiguration ): boolean => {
