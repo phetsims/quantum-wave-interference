@@ -49,9 +49,7 @@ export default class DetectorScreenDescriber {
         }
 
         const analysis = BandAnalysis.analyzeTheoreticalPattern( scene );
-        const spatialDescription = BandAnalysis.formatSpatialDescription(
-          analysis, isDoubleSlit, isRulerVisible, false
-        );
+        const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
         descriptionProperty.value = isDoubleSlit
                                     ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } )
@@ -70,9 +68,7 @@ export default class DetectorScreenDescriber {
       // Use the theoretical pattern for spatial descriptions so they remain stable
       // as hits accumulate, rather than jumping with noisy bin data.
       const analysis = BandAnalysis.analyzeTheoreticalPattern( scene );
-      const spatialDescription = BandAnalysis.formatSpatialDescription(
-        analysis, isDoubleSlit, isRulerVisible, false
-      );
+      const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
       if ( isDoubleSlit ) {
         if ( newStage === 'none' ) {

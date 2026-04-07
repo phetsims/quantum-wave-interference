@@ -8,8 +8,8 @@
  */
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import Snapshot from '../../model/Snapshot.js';
 import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
+import Snapshot from '../../model/Snapshot.js';
 import BandAnalysis from './BandAnalysis.js';
 
 export default class SnapshotDescriber {
@@ -23,12 +23,7 @@ export default class SnapshotDescriber {
       }
 
       const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot );
-      const spatialDescription = BandAnalysis.formatSpatialDescription(
-        analysis,
-        isDoubleSlit,
-        false,
-        false
-      );
+      const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
 
       return isDoubleSlit ?
              QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
@@ -46,12 +41,7 @@ export default class SnapshotDescriber {
       'The detector screen shows a total of 1 hit.' :
       `The detector screen shows a total of ${totalHits} hits.`;
     const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot );
-    const spatialDescription = BandAnalysis.formatSpatialDescription(
-      analysis,
-      isDoubleSlit,
-      false,
-      false
-    );
+    const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
 
     if ( isDoubleSlit ) {
       if ( hitStage === 'none' ) {

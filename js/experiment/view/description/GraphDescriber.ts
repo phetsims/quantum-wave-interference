@@ -46,9 +46,7 @@ export default class GraphDescriber {
         }
 
         const analysis = BandAnalysis.analyzeTheoreticalPattern( sceneModel );
-        const spatialDescription = BandAnalysis.formatSpatialDescription(
-          analysis, isDoubleSlit, isRulerVisible, true
-        );
+        const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
 
         descriptionProperty.value = isDoubleSlit
                                     ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } )
@@ -67,9 +65,7 @@ export default class GraphDescriber {
       // Use the theoretical pattern for spatial descriptions so they remain stable
       // as hits accumulate, rather than jumping with noisy bin data.
       const analysis = BandAnalysis.analyzeTheoreticalPattern( sceneModel );
-      const spatialDescription = BandAnalysis.formatSpatialDescription(
-        analysis, isDoubleSlit, isRulerVisible, true
-      );
+      const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
 
       if ( isDoubleSlit ) {
         if ( newStage === 'none' ) {
