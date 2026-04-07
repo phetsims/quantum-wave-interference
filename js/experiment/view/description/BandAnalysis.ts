@@ -15,7 +15,6 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
 import SceneModel from '../../model/SceneModel.js';
 import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
 import Snapshot from '../../model/Snapshot.js';
-import { type SourceType } from '../../model/SourceType.js';
 
 // Qualitative stage of hit accumulation, used by describers to select which description
 // string to show and to throttle updates so they only fire at pedagogically meaningful thresholds.
@@ -125,8 +124,8 @@ export default class BandAnalysis {
     }
 
     const screenDistanceMeters = snapshot.screenDistance;
-    const screenHalfWidthM = BandAnalysis.getScreenHalfWidth( snapshot.sourceType );
-    const slitWidthMeters = BandAnalysis.getSlitWidth( snapshot.sourceType ) * 1e-3;
+    const screenHalfWidthM = SceneModel.getScreenHalfWidth( snapshot.sourceType );
+    const slitWidthMeters = SceneModel.getSlitWidth( snapshot.sourceType ) * 1e-3;
     const slitSetting = snapshot.slitSetting;
 
     if ( isDoubleSlitConfiguration( slitSetting ) ) {
@@ -356,20 +355,4 @@ export default class BandAnalysis {
     }
   }
 
-  private static getScreenHalfWidth( sourceType: SourceType ): number {
-    return sourceType === 'neutrons' || sourceType === 'heliumAtoms' ? 4e-4 : 0.02;
-  }
-
-  private static getSlitWidth( sourceType: SourceType ): number {
-    if ( sourceType === 'photons' ) {
-      return 0.02;
-    }
-    if ( sourceType === 'electrons' ) {
-      return 0.00003;
-    }
-    if ( sourceType === 'neutrons' ) {
-      return 0.003;
-    }
-    return 0.0003;
-  }
 }
