@@ -137,5 +137,13 @@ export default class DetectorScreenDescriber {
 
     // Also update when the ruler visibility changes, since it affects spatial language.
     model.isRulerVisibleProperty.lazyLink( fullUpdate );
+
+    // Re-render whenever the Fluent bundle changes (e.g. locale change, or PhET-iO string
+    // edits that swap the bundle without changing localeProperty). We subscribe via any
+    // Fluent pattern's getDependentProperties() — they all share the same bundleProperty
+    // signal — so we don't have to enumerate every string this describer reads, and new
+    // strings added later are automatically covered.
+    QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity
+      .getDependentProperties().forEach( dep => dep.lazyLink( fullUpdate ) );
   }
 }
