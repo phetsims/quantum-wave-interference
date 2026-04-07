@@ -9,12 +9,12 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import { roundSymmetric } from '../../../../../dot/js/util/roundSymmetric.js';
+import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../../model/SceneModel.js';
-import Snapshot from '../../model/Snapshot.js';
 import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
+import Snapshot from '../../model/Snapshot.js';
 import { type SourceType } from '../../model/SourceType.js';
 
 // Qualitative stage of hit accumulation, used by describers to select which description
@@ -171,11 +171,15 @@ export default class BandAnalysis {
    * @param dataMax - maximum value in the array
    * @param screenHalfWidthMM - half-width of the detector screen in mm
    */
-  private static analyzeArray(
-    data: number[], dataMax: number, screenHalfWidthMM: number, thresholdFraction = 0.2
-  ): BandAnalysisResult {
+  private static analyzeArray( data: number[], dataMax: number, screenHalfWidthMM: number ): BandAnalysisResult {
+
+    const thresholdFraction = 0.2;
+
     const empty: BandAnalysisResult = {
-      bandCount: 0, peakPositionsMM: [], averageSpacingMM: 0, centralWidthMM: 0
+      bandCount: 0,
+      peakPositionsMM: [],
+      averageSpacingMM: 0,
+      centralWidthMM: 0
     };
 
     if ( dataMax === 0 ) {
