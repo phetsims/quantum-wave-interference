@@ -293,19 +293,12 @@ export default class DetectorScreenNode extends Node {
     } );
 
     // Camera button to take a snapshot
-    const snapshotHelpTextProperty = new DerivedProperty(
-      [ QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleHelpTextStringProperty ],
-      accessibleHelpText =>
-        `${accessibleHelpText} Up to ${SceneModel.MAX_SNAPSHOTS} snapshots can be saved.`
-    );
-    const snapshotContextResponseProperty = new DerivedProperty(
-      [
-        sceneModel.numberOfSnapshotsProperty,
-        QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty
-      ],
-      ( count, snapshotNumberPattern ) =>
-        `${StringUtils.fillIn( snapshotNumberPattern, { number: count } )} taken.`
-    );
+    const snapshotHelpTextProperty = QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleHelpText.createProperty( {
+      maxSnapshots: SceneModel.MAX_SNAPSHOTS
+    } );
+    const snapshotContextResponseProperty = QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleContextResponse.createProperty( {
+      snapshotNumber: sceneModel.numberOfSnapshotsProperty
+    } );
     this.snapshotButton = new RectangularPushButton( {
       listener: () => {
         const numberOfSnapshotsBefore = sceneModel.numberOfSnapshotsProperty.value;

@@ -460,7 +460,10 @@
           "value": "Take Snapshot"
         },
         "accessibleHelpText": {
-          "value": "Capture the current detector screen pattern as a snapshot."
+          "value": "Capture the current detector screen pattern as a snapshot. Up to { $maxSnapshots } snapshots can be saved."
+        },
+        "accessibleContextResponse": {
+          "value": "Snapshot { $snapshotNumber } taken."
         }
       },
       "viewSnapshots": {

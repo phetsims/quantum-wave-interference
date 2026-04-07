@@ -217,6 +217,7 @@ type StringsType = {
       'takeSnapshot': {
         'accessibleNameStringProperty': LocalizedStringProperty;
         'accessibleHelpTextStringProperty': LocalizedStringProperty;
+        'accessibleContextResponseStringProperty': LocalizedStringProperty;
       };
       'viewSnapshots': {
         'accessibleNameStringProperty': LocalizedStringProperty;

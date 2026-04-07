@@ -277,8 +277,9 @@ a11y:
       accessibleHelpText:        Clear all hits from the detector screen.
       accessibleContextResponse: Screen cleared.
     takeSnapshot:
-      accessibleName:     Take Snapshot
-      accessibleHelpText: Capture the current detector screen pattern as a snapshot.
+      accessibleName:            Take Snapshot
+      accessibleHelpText:        'Capture the current detector screen pattern as a snapshot. Up to { $maxSnapshots } snapshots can be saved.'
+      accessibleContextResponse: 'Snapshot { $snapshotNumber } taken.'
     viewSnapshots:
       accessibleName:     View Snapshots
       accessibleHelpText: View and compare saved snapshots of the detector screen.
