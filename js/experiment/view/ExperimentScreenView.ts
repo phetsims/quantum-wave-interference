@@ -110,6 +110,16 @@ export default class ExperimentScreenView extends ScreenView {
 
     const whichPathDetectorNode = new WhichPathDetectorIndicatorNode( model, overheadDoubleSlitNode );
 
+    const updateWhichPathDetectorLayout = () => {
+      whichPathDetectorNode.updateLayout();
+    };
+    model.sceneProperty.link( ( newScene, oldScene ) => {
+      if ( oldScene ) {
+        oldScene.slitSeparationProperty.unlink( updateWhichPathDetectorLayout );
+      }
+      newScene.slitSeparationProperty.link( updateWhichPathDetectorLayout );
+    } );
+
     const overheadDetectorScreenNode = new OverheadDetectorScreenNode(
       model,
       overheadDoubleSlitNode.parallelogramNode

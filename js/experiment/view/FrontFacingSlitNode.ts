@@ -67,6 +67,8 @@ const MAX_BEAM_OVERLAY_ALPHA = 0.8;
 const DETECTOR_PADDING = 3;
 const DETECTOR_WIRE_HEIGHT = 6;
 const DETECTOR_WIRE_FILL = 'rgb( 140, 140, 140 )';
+const DETECTOR_OVERLAY_FILL_ALPHA = 0.3;
+const DETECTOR_OVERLAY_STROKE_WIDTH = 2;
 
 // Match slit-separation readout precision to SlitControlPanel.
 const getDecimalPlacesForValue = ( value: number ): number => {
@@ -341,11 +343,12 @@ export default class FrontFacingSlitNode extends Node {
     sceneModel.slitSeparationProperty.link( updateSlits );
 
     // Detector indicator rectangles (yellow/orange translucent overlays, distinct from gray covers)
-    const DETECTOR_COLOR = QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( 0.6 );
+    const DETECTOR_COLOR =
+      QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA );
     const leftDetector = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: DETECTOR_COLOR,
       stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
-      lineWidth: 1,
+      lineWidth: DETECTOR_OVERLAY_STROKE_WIDTH,
       visible: false
     } );
     this.addChild( leftDetector );
@@ -353,7 +356,7 @@ export default class FrontFacingSlitNode extends Node {
     const rightDetector = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: DETECTOR_COLOR,
       stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
-      lineWidth: 1,
+      lineWidth: DETECTOR_OVERLAY_STROKE_WIDTH,
       visible: false
     } );
     this.addChild( rightDetector );
