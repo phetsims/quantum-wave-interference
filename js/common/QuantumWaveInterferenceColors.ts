@@ -123,12 +123,6 @@ export default class QuantumWaveInterferenceColors {
       default: '#888'
     } );
 
-  // Snapshot parameter label secondary text color
-  public static readonly snapshotSecondaryTextFillProperty = new ProfileColorProperty(
-    quantumWaveInterference, 'snapshotSecondaryTextFill', {
-      default: '#666'
-    } );
-
   // Snapshot border stroke
   public static readonly snapshotStrokeProperty = new ProfileColorProperty(
     quantumWaveInterference, 'snapshotStroke', {
