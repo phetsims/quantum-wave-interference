@@ -47,15 +47,11 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
       }
     );
 
-    // Track the active scene's emitting state as a string for Fluent select
-    const isEmittingStringProperty = new DerivedProperty(
-      [ new DynamicProperty<boolean, boolean, SceneModel>(
-        model.sceneProperty, {
-          derive: 'isEmittingProperty'
-        }
-      ) ],
-      ( isEmitting: boolean ) => isEmitting ? 'true' as const : 'false' as const
-    );
+    // Track the active scene's emitting state, then map to a string for Fluent select
+    const isEmittingProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
+      derive: 'isEmittingProperty'
+    } );
+    const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
 
     const defaultCurrentDetailsContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
       sourceType: sourceTypeProperty,
@@ -64,8 +60,7 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
       isEmitting: isEmittingStringProperty
     } );
 
-    const currentDetailsContentProperty = new DerivedProperty(
-      [
+    const currentDetailsContentProperty = new DerivedProperty( [
         defaultCurrentDetailsContentProperty,
         isMaxHitsReachedProperty,
         QuantumWaveInterferenceFluent.a11y.screenSummary.maxHitsReachedDetailsStringProperty
