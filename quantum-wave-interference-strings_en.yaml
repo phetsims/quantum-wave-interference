@@ -252,6 +252,41 @@ a11y:
       hitsSingleSlitClear:    >-
                               Hits form a broad central band that tapers toward the edges.
                               { $spatialDescription }
+      snapshotHitsNone: |-
+        The detector screen is empty. { $hitCount ->
+            [one] The detector screen shows a total of 1 hit.
+           *[other] The detector screen shows a total of { $hitCount } hits.
+        } No particles have arrived yet.
+      snapshotHitsFew: |-
+        A handful of particles are visible at scattered positions across the screen. { $hitCount ->
+            [one] The detector screen shows a total of 1 hit.
+           *[other] The detector screen shows a total of { $hitCount } hits.
+        }
+      snapshotHitsEmerging: |-
+        More particles are appearing, and faint vertical stripes are becoming visible with gaps between them. { $hitCount ->
+            [one] The detector screen shows a total of 1 hit.
+           *[other] The detector screen shows a total of { $hitCount } hits.
+        }
+      snapshotHitsDeveloping: |-
+        Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $hitCount ->
+            [one] The detector screen shows a total of 1 hit.
+           *[other] The detector screen shows a total of { $hitCount } hits.
+        } { $spatialDescription }
+      snapshotHitsClear: |-
+        Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $hitCount ->
+            [one] The detector screen shows a total of 1 hit.
+           *[other] The detector screen shows a total of { $hitCount } hits.
+        } { $spatialDescription }
+      snapshotHitsSingleSlitEmerging: |-
+        More particles are appearing in a broad region near the center of the screen, with fewer toward the edges. { $hitCount ->
+            [one] The detector screen shows a total of 1 hit.
+           *[other] The detector screen shows a total of { $hitCount } hits.
+        }
+      snapshotHitsSingleSlitClear: |-
+        Hits form a broad central band that tapers toward the edges. { $hitCount ->
+            [one] The detector screen shows a total of 1 hit.
+           *[other] The detector screen shows a total of { $hitCount } hits.
+        } { $spatialDescription }
     spatialDescription:
       rulerBands:             >-
                               { $numBands } bands centered at 0 millimeters, spaced roughly { $bandSpacing }

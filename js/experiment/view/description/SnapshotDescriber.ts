@@ -34,86 +34,45 @@ export default class SnapshotDescriber {
              } );
     }
 
-    const totalHits = snapshot.hits.length;
-    const hitStage = BandAnalysis.getHitStage( totalHits, isDoubleSlit );
-    const hitCountSentence =
-      totalHits === 1 ?
-      'The detector screen shows a total of 1 hit.' :
-      `The detector screen shows a total of ${totalHits} hits.`;
+    const hitCount = snapshot.hits.length;
+    const hitStage = BandAnalysis.getHitStage( hitCount, isDoubleSlit );
     const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot );
     const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
 
     if ( isDoubleSlit ) {
       if ( hitStage === 'none' ) {
-        return SnapshotDescriber.insertSecondSentence(
-          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsNoneStringProperty.value,
-          hitCountSentence
-        );
+        return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNone.format( { hitCount: hitCount } );
       }
       if ( hitStage === 'few' ) {
-        return SnapshotDescriber.insertSecondSentence(
-          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsFewStringProperty.value,
-          hitCountSentence
-        );
+        return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsFew.format( { hitCount: hitCount } );
       }
       if ( hitStage === 'emerging' ) {
-        return SnapshotDescriber.insertSecondSentence(
-          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty.value,
-          hitCountSentence
-        );
+        return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsEmerging.format( { hitCount: hitCount } );
       }
       if ( hitStage === 'developing' ) {
-        return SnapshotDescriber.insertSecondSentence(
-          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDeveloping.format( {
-            spatialDescription: spatialDescription
-          } ),
-          hitCountSentence
-        );
-      }
-      return SnapshotDescriber.insertSecondSentence(
-        QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( {
+        return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsDeveloping.format( {
+          hitCount: hitCount,
           spatialDescription: spatialDescription
-        } ),
-        hitCountSentence
-      );
+        } );
+      }
+      return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsClear.format( {
+        hitCount: hitCount,
+        spatialDescription: spatialDescription
+      } );
     }
 
     if ( hitStage === 'none' ) {
-      return SnapshotDescriber.insertSecondSentence(
-        QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsNoneStringProperty.value,
-        hitCountSentence
-      );
+      return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNone.format( { hitCount: hitCount } );
     }
     if ( hitStage === 'few' ) {
-      return SnapshotDescriber.insertSecondSentence(
-        QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsFewStringProperty.value,
-        hitCountSentence
-      );
+      return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsFew.format( { hitCount: hitCount } );
     }
     if ( hitStage === 'emerging' ) {
-      return SnapshotDescriber.insertSecondSentence(
-        QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value,
-        hitCountSentence
-      );
+      return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitEmerging.format( { hitCount: hitCount } );
     }
-    return SnapshotDescriber.insertSecondSentence(
-      QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitClear.format( {
-        spatialDescription: spatialDescription
-      } ),
-      hitCountSentence
-    );
-  }
-
-  private static insertSecondSentence( paragraph: string, secondSentence: string ): string {
-    const firstSentenceMatch = paragraph.match( /^.*?[.!?](?:\s|$)/ );
-    if ( !firstSentenceMatch ) {
-      return `${paragraph} ${secondSentence}`;
-    }
-
-    const firstSentence = firstSentenceMatch[ 0 ].trim();
-    const remainingText = paragraph.slice( firstSentenceMatch[ 0 ].length ).trim();
-    return remainingText ?
-           `${firstSentence} ${secondSentence} ${remainingText}` :
-           `${firstSentence} ${secondSentence}`;
+    return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitClear.format( {
+      hitCount: hitCount,
+      spatialDescription: spatialDescription
+    } );
   }
 }

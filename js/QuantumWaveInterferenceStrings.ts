@@ -196,6 +196,13 @@ type StringsType = {
         'hitsClearStringProperty': LocalizedStringProperty;
         'hitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
         'hitsSingleSlitClearStringProperty': LocalizedStringProperty;
+        'snapshotHitsNoneStringProperty': LocalizedStringProperty;
+        'snapshotHitsFewStringProperty': LocalizedStringProperty;
+        'snapshotHitsEmergingStringProperty': LocalizedStringProperty;
+        'snapshotHitsDevelopingStringProperty': LocalizedStringProperty;
+        'snapshotHitsClearStringProperty': LocalizedStringProperty;
+        'snapshotHitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
+        'snapshotHitsSingleSlitClearStringProperty': LocalizedStringProperty;
       };
       'spatialDescription': {
         'rulerBandsStringProperty': LocalizedStringProperty;

@@ -414,6 +414,27 @@
         },
         "hitsSingleSlitClear": {
           "value": "Hits form a broad central band that tapers toward the edges. { $spatialDescription }"
+        },
+        "snapshotHitsNone": {
+          "value": "The detector screen is empty. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n} No particles have arrived yet."
+        },
+        "snapshotHitsFew": {
+          "value": "A handful of particles are visible at scattered positions across the screen. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n}"
+        },
+        "snapshotHitsEmerging": {
+          "value": "More particles are appearing, and faint vertical stripes are becoming visible with gaps between them. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n}"
+        },
+        "snapshotHitsDeveloping": {
+          "value": "Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n} { $spatialDescription }"
+        },
+        "snapshotHitsClear": {
+          "value": "Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n} { $spatialDescription }"
+        },
+        "snapshotHitsSingleSlitEmerging": {
+          "value": "More particles are appearing in a broad region near the center of the screen, with fewer toward the edges. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n}"
+        },
+        "snapshotHitsSingleSlitClear": {
+          "value": "Hits form a broad central band that tapers toward the edges. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n} { $spatialDescription }"
         }
       },
       "spatialDescription": {
