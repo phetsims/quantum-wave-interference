@@ -37,14 +37,10 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import Snapshot from '../model/Snapshot.js';
 import { hasAnyDetector } from '../model/SlitConfiguration.js';
-import { getHitsBrightnessFraction } from './ScreenBrightnessUtils.js';
-import { getHitsCoreAlpha } from './ScreenBrightnessUtils.js';
-import { getHitsDisplayGain } from './ScreenBrightnessUtils.js';
-import { getHitsGlowAlpha } from './ScreenBrightnessUtils.js';
-import { getIntensityDisplayGain } from './ScreenBrightnessUtils.js';
+import Snapshot from '../model/Snapshot.js';
 import SnapshotDescriber from './description/SnapshotDescriber.js';
+import { getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain } from './ScreenBrightnessUtils.js';
 
 // Snapshot display dimensions (scaled down from the full detector screen)
 const SNAPSHOT_WIDTH = 360;
@@ -217,9 +213,8 @@ export default class SnapshotNode extends Node {
         );
 
         const detectionModeDisplay =
-          snapshot.detectionMode === 'averageIntensity' ?
-          QuantumWaveInterferenceFluent.intensityStringProperty.value :
-          QuantumWaveInterferenceFluent.hitsStringProperty.value;
+          snapshot.detectionMode === 'averageIntensity' ? QuantumWaveInterferenceFluent.intensityStringProperty.value
+                                                        : QuantumWaveInterferenceFluent.hitsStringProperty.value;
         detectionModeListItemProperty.value = StringUtils.fillIn(
           QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
           {
@@ -240,10 +235,9 @@ export default class SnapshotNode extends Node {
           );
         }
         else {
-          const particleMass =
-            snapshot.sourceType === 'electrons' ? QuantumWaveInterferenceConstants.ELECTRON_MASS :
-            snapshot.sourceType === 'neutrons' ? QuantumWaveInterferenceConstants.NEUTRON_MASS :
-            QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
+          const particleMass = snapshot.sourceType === 'electrons' ? QuantumWaveInterferenceConstants.ELECTRON_MASS :
+                               snapshot.sourceType === 'neutrons' ? QuantumWaveInterferenceConstants.NEUTRON_MASS :
+                               QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
           const speed = snapshot.effectiveWavelength === 0 ? 0 : QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
           if ( speed >= 10000 ) {
             const kmPerSValue = StringUtils.fillIn(
@@ -281,8 +275,7 @@ export default class SnapshotNode extends Node {
           }
         );
         descriptionProperty.value = SnapshotDescriber.getDescription( snapshot );
-        trashButtonAccessibleNameProperty.value =
-          `${SceneryPhetStrings.key.deleteStringProperty.value} ${titleProperty.value}`;
+        trashButtonAccessibleNameProperty.value = `${SceneryPhetStrings.key.deleteStringProperty.value} ${titleProperty.value}`;
       }
       else {
         titleProperty.value = '';
@@ -484,10 +477,9 @@ class SnapshotCanvasNode extends CanvasNode {
     const glowAlpha = getHitsGlowAlpha( brightnessFraction );
     const glowRadius = HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
 
-    const baseRGB =
-      snapshot.sourceType === 'photons'
-      ? VisibleColor.wavelengthToColor( snapshot.wavelength )
-      : { red: 255, green: 255, blue: 255 };
+    const baseRGB = snapshot.sourceType === 'photons'
+                    ? VisibleColor.wavelengthToColor( snapshot.wavelength )
+                    : { red: 255, green: 255, blue: 255 };
     const scaledR = baseRGB.red;
     const scaledG = baseRGB.green;
     const scaledB = baseRGB.blue;
@@ -535,10 +527,7 @@ class SnapshotCanvasNode extends CanvasNode {
     const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
     const screenDistanceMeters = snapshot.screenDistance;
     const slitSetting = snapshot.slitSetting;
-    const isSingleSlit =
-      slitSetting === 'leftCovered' ||
-      slitSetting === 'rightCovered' ||
-      hasAnyDetector( slitSetting );
+    const isSingleSlit = slitSetting === 'leftCovered' || slitSetting === 'rightCovered' || hasAnyDetector( slitSetting );
 
     const photonColor = snapshot.sourceType === 'photons'
                         ? VisibleColor.wavelengthToColor( snapshot.wavelength )
@@ -552,10 +541,9 @@ class SnapshotCanvasNode extends CanvasNode {
       const singleSlitArg = Math.PI * slitWidthMeters * sinTheta / lambda;
       const singleSlitFactor = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
 
-      const intensity =
-        isSingleSlit
-        ? singleSlitFactor
-        : Math.pow( Math.cos( Math.PI * slitSeparationMeters * sinTheta / lambda ), 2 ) * singleSlitFactor;
+      const intensity = isSingleSlit
+                        ? singleSlitFactor
+                        : Math.pow( Math.cos( Math.PI * slitSeparationMeters * sinTheta / lambda ), 2 ) * singleSlitFactor;
 
       const intensityScale = intensity * displayGain;
       // Skip bands below perceptual visibility to avoid painting nearly-black pixels

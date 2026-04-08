@@ -166,10 +166,9 @@ export default class FrontFacingSlitNode extends Node {
       }
 
       beamOverlay.visible = true;
-      const beamColor =
-        sceneModel.sourceType === 'photons'
-        ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
-        : particleBeamColorProperty.value;
+      const beamColor = sceneModel.sourceType === 'photons'
+                        ? VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value )
+                        : particleBeamColorProperty.value;
 
       // Keep the exact same appearance at the default intensity (0.5). Above default,
       // increase alpha more aggressively so the displayed color is less dark and closer
@@ -249,8 +248,7 @@ export default class FrontFacingSlitNode extends Node {
     // front-facing slit rectangles are spatially consistent with the separation readout.
     // For photons, at maximum slider value, center-to-center slit separation spans the full
     // drawable width (minus horizontal padding), per design request.
-    const maxSeparationPadding =
-      sceneModel.sourceType === 'photons' ? 2 * HORIZONTAL_PADDING : HORIZONTAL_PADDING;
+    const maxSeparationPadding = sceneModel.sourceType === 'photons' ? 2 * HORIZONTAL_PADDING : HORIZONTAL_PADDING;
     const scaleDenominatorMM = sceneModel.sourceType === 'photons' ? sceneModel.slitSeparationRange.max
                                                                    : sceneModel.slitSeparationRange.max + sceneModel.slitWidth;
     const mmToViewX = ( VIEW_WIDTH - 2 * maxSeparationPadding ) / scaleDenominatorMM;
@@ -343,8 +341,7 @@ export default class FrontFacingSlitNode extends Node {
     sceneModel.slitSeparationProperty.link( updateSlits );
 
     // Detector indicator rectangles (yellow/orange translucent overlays, distinct from gray covers)
-    const DETECTOR_COLOR =
-      QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA );
+    const DETECTOR_COLOR = QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA );
     const leftDetector = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
       fill: DETECTOR_COLOR,
       stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,

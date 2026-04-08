@@ -217,12 +217,11 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
 
   // Detect whether rendering parameters changed (requiring a full repaint of all hits)
   // vs only new hits were added (allowing an incremental blit).
-  const paramsChanged =
-    cache.lastBrightness !== currentBrightness ||
-    cache.lastWavelength !== currentWavelength ||
-    cache.lastDetectionMode !== currentDetectionMode ||
-    cache.lastIntensity !== currentIntensity ||
-    cache.lastIsEmitting !== currentIsEmitting;
+  const paramsChanged = cache.lastBrightness !== currentBrightness ||
+                        cache.lastWavelength !== currentWavelength ||
+                        cache.lastDetectionMode !== currentDetectionMode ||
+                        cache.lastIntensity !== currentIntensity ||
+                        cache.lastIsEmitting !== currentIsEmitting;
 
   if ( paramsChanged ) {
     // Force full repaint by resetting the incremental counter and clearing the sprite cache.

@@ -182,8 +182,7 @@ export default class DetectorScreenNode extends Node {
     const fullPhysicalWidth = halfWidth * 2; // full physical width in meters
     const metersPerPixel = fullPhysicalWidth / SCREEN_WIDTH;
     const fullPhysicalWidthMM = fullPhysicalWidth * 1e3;
-    const scalePhysicalWidthMM =
-      fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
+    const scalePhysicalWidthMM = fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
     const scaleArrowWidth = ( scalePhysicalWidthMM * 1e-3 ) / metersPerPixel;
 
     const scaleLabelString = StringUtils.fillIn(
@@ -363,10 +362,9 @@ export default class DetectorScreenNode extends Node {
     // Update indicator dot fills when snapshots change
     sceneModel.numberOfSnapshotsProperty.link( count => {
       for ( let i = 0; i < SceneModel.MAX_SNAPSHOTS; i++ ) {
-        indicatorDots[ i ].fill =
-          i < count
-          ? QuantumWaveInterferenceColors.indicatorDotActiveFillProperty
-          : QuantumWaveInterferenceColors.indicatorDotInactiveFillProperty;
+        indicatorDots[ i ].fill = i < count
+                                  ? QuantumWaveInterferenceColors.indicatorDotActiveFillProperty
+                                  : QuantumWaveInterferenceColors.indicatorDotInactiveFillProperty;
       }
     } );
 

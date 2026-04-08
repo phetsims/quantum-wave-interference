@@ -113,8 +113,7 @@ class DetectorPanelNode extends Node {
       const isHitsMode = model.currentDetectionModeProperty.value === 'hits';
       detectorHitCountText.visible = isHitsMode;
       if ( isHitsMode ) {
-        detectorHitCountText.string =
-          `${detectorHitsProperty.value} ${QuantumWaveInterferenceFluent.hitsStringProperty.value}`;
+        detectorHitCountText.string = `${detectorHitsProperty.value} ${QuantumWaveInterferenceFluent.hitsStringProperty.value}`;
       }
       updateDetectorLabelLayout();
 
@@ -125,10 +124,7 @@ class DetectorPanelNode extends Node {
       else {
         this.x = doubleSlitNode.getVisibleBackgroundRightX() + DETECTOR_PANEL_GAP;
       }
-      this.y =
-        doubleSlitNode.parallelogramNode.centerY +
-        layout.verticalOffset -
-        DETECTOR_BOX_HEIGHT / 2;
+      this.y = doubleSlitNode.parallelogramNode.centerY + layout.verticalOffset - DETECTOR_BOX_HEIGHT / 2;
 
       const detectorAnchorPoint = doubleSlitNode.getDetectorAnchorPoint( detectorSide === 'left' );
       const wireStartX = layout.wireStartX;

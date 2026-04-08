@@ -140,18 +140,16 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( overheadEmitterNode );
 
     const alignOverheadElements = () => {
-      const activeEmitter =
-        model.sceneProperty.value.sourceType === 'photons'
-        ? overheadEmitterNode.laserPointerNode
-        : overheadEmitterNode.particleEmitterNode;
+      const activeEmitter = model.sceneProperty.value.sourceType === 'photons'
+                            ? overheadEmitterNode.laserPointerNode
+                            : overheadEmitterNode.particleEmitterNode;
 
       // Keep the slit centered on the active emitter's beam centerline.
       overheadDoubleSlitNode.parallelogramNode.centerY = activeEmitter.centerY;
 
       // Keep the hit-cap message centered in the horizontal gap between the active emitter
       // and the visible black slit background, not the larger transparent parallelogram bounds.
-      overheadEmitterNode.maxHitsReachedPanel.centerX =
-        ( activeEmitter.right + overheadDoubleSlitNode.getVisibleBackgroundLeftX() ) / 2;
+      overheadEmitterNode.maxHitsReachedPanel.centerX = ( activeEmitter.right + overheadDoubleSlitNode.getVisibleBackgroundLeftX() ) / 2;
       overheadEmitterNode.maxHitsReachedPanel.centerY = activeEmitter.centerY;
 
       whichPathDetectorNode.updateLayout();
@@ -177,8 +175,7 @@ export default class ExperimentScreenView extends ScreenView {
     } );
 
     // Front-facing detector screen - one per scene, with visibility toggling.
-    const controlsRight =
-      this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
+    const controlsRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
       return new DetectorScreenNode( scene, model.isPlayingProperty, {
@@ -196,10 +193,8 @@ export default class ExperimentScreenView extends ScreenView {
 
     // Set overhead parallelogram positioning bounds and trigger initial updates
     const frontFacingScreenLeft = detectorScreenNodes[ 0 ].x;
-    const frontFacingScreenRight =
-      detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH;
-    const detectorScreenCenterX =
-      detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+    const frontFacingScreenRight = detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH;
+    const detectorScreenCenterX = detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
     overheadDetectorScreenNode.setFrontFacingScreenBounds(
       frontFacingScreenLeft,
       frontFacingScreenRight
@@ -265,8 +260,7 @@ export default class ExperimentScreenView extends ScreenView {
       options.tandem.createTandem( 'sceneRadioButtonGroup' )
     );
     const sceneButtonAreaTop = sourceControlPanel.bottom;
-    const sceneButtonAreaBottom =
-      this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+    const sceneButtonAreaBottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     sceneRadioButtonGroup.centerX = sourceControlPanel.centerX;
     sceneRadioButtonGroup.centerY = ( sceneButtonAreaTop + sceneButtonAreaBottom ) / 2;
     this.addChild( sceneRadioButtonGroup );
@@ -306,8 +300,7 @@ export default class ExperimentScreenView extends ScreenView {
     } );
 
     const layoutScreenSettingsPanel = () => {
-      screenSettingsPanel.centerX =
-        detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+      screenSettingsPanel.centerX = detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
       screenSettingsPanel.top = detectorScreenNodes[ 0 ].bottom + 8;
     };
 
@@ -404,10 +397,8 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( timeControlNode );
 
     const bottomRowLeft = this.graphAccordionBoxes[ 0 ].left;
-    const bottomRowRight =
-      this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
-    const totalBottomControlsWidth =
-      checkboxGroup.width + timeControlNode.width + resetAllButton.width;
+    const bottomRowRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
+    const totalBottomControlsWidth = checkboxGroup.width + timeControlNode.width + resetAllButton.width;
     const bottomRowSpaceBetween = Math.max(
       0,
       ( bottomRowRight - bottomRowLeft - totalBottomControlsWidth ) / 2
@@ -438,8 +429,7 @@ export default class ExperimentScreenView extends ScreenView {
       const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM, sourceType );
       const majorTickLabels = rangeInclusive( 0, RULER_INTERVAL_COUNT ).map( i => {
         const signedNormalizedOffset = ( i - RULER_CENTER_TICK_INDEX ) / RULER_CENTER_TICK_INDEX;
-        const labelValue =
-          i === RULER_CENTER_TICK_INDEX ? 0 : halfDetectorWidthMM * signedNormalizedOffset;
+        const labelValue = i === RULER_CENTER_TICK_INDEX ? 0 : halfDetectorWidthMM * signedNormalizedOffset;
         return toFixed( labelValue, labelDecimalPlaces );
       } );
 
@@ -505,8 +495,7 @@ export default class ExperimentScreenView extends ScreenView {
         const activeGraphBox = this.graphAccordionBoxes[ activeSceneIndex ];
         const activeRulerNode = rulerNodes[ activeSceneIndex ];
 
-        const detectorRectCenterX =
-          activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+        const detectorRectCenterX = activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
         const fixedLeft = detectorRectCenterX - activeRulerNode.width / 2 + RULER_X_OFFSET;
 
         const detectorScreenRectBounds = this.globalToLocalBounds(
@@ -516,10 +505,7 @@ export default class ExperimentScreenView extends ScreenView {
         const graphChartBounds = this.globalToLocalBounds(
           activeGraphBox.getChartAreaGlobalBounds()
         );
-        const maxTopFromGraph =
-          graphChartBounds.bottom -
-          activeRulerNode.height +
-          activeGraphBox.getChartAreaStrokeLineWidth();
+        const maxTopFromGraph = graphChartBounds.bottom - activeRulerNode.height + activeGraphBox.getChartAreaStrokeLineWidth();
 
         const minTop = Math.max( minTopFromScreen, visibleBounds.minY );
         const maxTop = Math.max(
@@ -543,8 +529,7 @@ export default class ExperimentScreenView extends ScreenView {
       const activeDetectorScreen = detectorScreenNodes[ activeSceneIndex ];
       const activeRulerNode = rulerNodes[ activeSceneIndex ];
       const centeredTop = activeDetectorScreen.centerY - activeRulerNode.height / 2;
-      const detectorRectCenterX =
-        activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+      const detectorRectCenterX = activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
       const centeredLeft = detectorRectCenterX - activeRulerNode.width / 2 + RULER_X_OFFSET;
       model.rulerPositionProperty.value = rulerDragBoundsProperty.value.closestPointTo(
         new Vector2( centeredLeft, centeredTop )

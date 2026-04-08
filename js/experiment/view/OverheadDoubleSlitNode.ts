@@ -175,10 +175,8 @@ export default class OverheadDoubleSlitNode extends Node {
       const slitSetting = scene.slitSettingProperty.value;
       leftSlitMarker.visible = true;
       rightSlitMarker.visible = true;
-      leftSlitMarker.fill =
-        slitSetting === 'leftCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
-      rightSlitMarker.fill =
-        slitSetting === 'rightCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
+      leftSlitMarker.fill = slitSetting === 'leftCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
+      rightSlitMarker.fill = slitSetting === 'rightCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
       leftSlitDetectorOverlay.visible = hasDetectorOnSide( slitSetting, 'left' );
       rightSlitDetectorOverlay.visible = hasDetectorOnSide( slitSetting, 'right' );
     };

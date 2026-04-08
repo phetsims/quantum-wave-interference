@@ -402,9 +402,8 @@ export default class SceneModel extends PhetioObject {
       const uncoveredSlitOffsetMeters = slitSetting === 'leftCovered' ? slitSeparationMeters / 2 :
                                         -slitSeparationMeters / 2;
       const shiftedPositionOnScreen = positionOnScreen - uncoveredSlitOffsetMeters;
-      const shiftedSinTheta =
-        shiftedPositionOnScreen /
-        Math.sqrt( shiftedPositionOnScreen * shiftedPositionOnScreen + screenDistanceMeters * screenDistanceMeters );
+      const shiftedSinTheta = shiftedPositionOnScreen /
+                              Math.sqrt( shiftedPositionOnScreen * shiftedPositionOnScreen + screenDistanceMeters * screenDistanceMeters );
       const shiftedSingleSlitArg = Math.PI * slitWidthMeters * shiftedSinTheta / lambda;
 
       // Single slit: only the diffraction envelope, centered on the uncovered slit.
@@ -598,8 +597,7 @@ export default class SceneModel extends PhetioObject {
     if ( isDetectorActive ) {
       this.leftDetectorHitsProperty.value += leftDetectorHitsThisFrame;
       this.rightDetectorHitsProperty.value += rightDetectorHitsThisFrame;
-      this.detectorHitsProperty.value =
-        this.leftDetectorHitsProperty.value + this.rightDetectorHitsProperty.value;
+      this.detectorHitsProperty.value = this.leftDetectorHitsProperty.value + this.rightDetectorHitsProperty.value;
     }
 
     if ( this.isMaxHitsReachedProperty.value ) {
