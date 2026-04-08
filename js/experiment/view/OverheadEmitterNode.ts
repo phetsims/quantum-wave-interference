@@ -187,19 +187,13 @@ export default class OverheadEmitterNode extends Node {
       }
     } );
 
-    // DynamicProperty that follows the active scene's isEmittingProperty
-    const isEmittingProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
-      derive: scene => scene.isEmittingProperty,
-      bidirectional: true
-    } );
+    const isEmittingProperty = model.currentIsEmittingProperty;
 
     const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
       derive: scene => scene.isEmitterEnabledProperty
     } );
 
-    const isMaxHitsReachedProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
-      derive: scene => scene.isMaxHitsReachedProperty
-    } );
+    const isMaxHitsReachedProperty = model.currentIsMaxHitsReachedProperty;
 
     // Track the active scene's source type for accessible name
     const sourceTypeProperty = new DerivedProperty(

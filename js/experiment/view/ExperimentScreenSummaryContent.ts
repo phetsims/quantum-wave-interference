@@ -8,13 +8,10 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import ScreenSummaryContent from '../../../../joist/js/ScreenSummaryContent.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import { type DetectionMode } from '../model/DetectionMode.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 import { type SourceType } from '../model/SourceType.js';
 
 export default class ExperimentScreenSummaryContent extends ScreenSummaryContent {
@@ -27,40 +24,16 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
       ( scene: SceneModel ): SourceType => scene.sourceType
     );
 
-    // Track the active scene's slit setting
-    const slitSettingProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>(
-      model.sceneProperty, {
-        derive: 'slitSettingProperty'
-      }
-    );
+    const isEmittingStringProperty = model.currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
 
-    // Track the active scene's detection mode
-    const detectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>(
-      model.sceneProperty, {
-        derive: 'detectionModeProperty'
-      }
-    );
-
-    const isMaxHitsReachedProperty = new DynamicProperty<boolean, boolean, SceneModel>(
-      model.sceneProperty, {
-        derive: 'isMaxHitsReachedProperty'
-      }
-    );
-
-    // Track the active scene's emitting state, then map to a string for Fluent select
-    const isEmittingProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
-      derive: 'isEmittingProperty'
-    } );
-    const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
-
-    const isMaxHitsReachedStringProperty = isMaxHitsReachedProperty.derived(
+    const isMaxHitsReachedStringProperty = model.currentIsMaxHitsReachedProperty.derived(
       isMaxHitsReached => isMaxHitsReached ? 'true' : 'false'
     );
 
     const currentDetailsContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
       sourceType: sourceTypeProperty,
-      slitSetting: slitSettingProperty,
-      detectionMode: detectionModeProperty,
+      slitSetting: model.currentSlitSettingProperty,
+      detectionMode: model.currentDetectionModeProperty,
       isEmitting: isEmittingStringProperty,
       isMaxHitsReached: isMaxHitsReachedStringProperty
     } );
@@ -73,7 +46,7 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
     const interactionHintContentProperty = new DerivedProperty(
       [
         defaultInteractionHintContentProperty,
-        isMaxHitsReachedProperty,
+        model.currentIsMaxHitsReachedProperty,
         QuantumWaveInterferenceFluent.a11y.screenSummary.maxHitsReachedHintStringProperty
       ],
       ( defaultInteractionHint, isMaxHitsReached, maxHitsReachedHint ) =>

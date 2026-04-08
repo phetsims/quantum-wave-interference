@@ -8,6 +8,7 @@
  */
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
+import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -20,7 +21,9 @@ import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
+import { type DetectionMode } from './DetectionMode.js';
 import SceneModel from './SceneModel.js';
+import { type SlitConfiguration } from './SlitConfiguration.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -37,6 +40,13 @@ export default class ExperimentModel implements TModel {
 
   // The currently selected scene
   public readonly sceneProperty: Property<SceneModel>;
+
+  // DynamicProperties that follow fields of the active scene. Centralized here so view code can
+  // share a single instance instead of re-deriving the same wrapper in each view component.
+  public readonly currentSlitSettingProperty: DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>;
+  public readonly currentDetectionModeProperty: DynamicProperty<DetectionMode, DetectionMode, SceneModel>;
+  public readonly currentIsEmittingProperty: DynamicProperty<boolean, boolean, SceneModel>;
+  public readonly currentIsMaxHitsReachedProperty: DynamicProperty<boolean, boolean, SceneModel>;
 
   // Shared state: time controls
   public readonly isPlayingProperty: BooleanProperty;
@@ -85,6 +95,24 @@ export default class ExperimentModel implements TModel {
       validValues: this.scenes,
       tandem: tandem.createTandem( 'sceneProperty' ),
       phetioValueType: ReferenceIO( IOType.ObjectIO )
+    } );
+
+    this.currentSlitSettingProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>( this.sceneProperty, {
+      derive: 'slitSettingProperty'
+    } );
+
+    this.currentDetectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>( this.sceneProperty, {
+      derive: 'detectionModeProperty',
+      bidirectional: true
+    } );
+
+    this.currentIsEmittingProperty = new DynamicProperty<boolean, boolean, SceneModel>( this.sceneProperty, {
+      derive: 'isEmittingProperty',
+      bidirectional: true
+    } );
+
+    this.currentIsMaxHitsReachedProperty = new DynamicProperty<boolean, boolean, SceneModel>( this.sceneProperty, {
+      derive: 'isMaxHitsReachedProperty'
     } );
 
     this.isPlayingProperty = new BooleanProperty( true, {

@@ -11,7 +11,6 @@
  */
 
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
-import Property from '../../../../axon/js/Property.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -26,6 +25,7 @@ import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
+import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
 
 const TITLE_FONT = new PhetFont( 14 );
@@ -38,7 +38,7 @@ type ScreenSettingsPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tand
 
 export default class ScreenSettingsPanel extends Panel {
 
-  public constructor( sceneProperty: Property<SceneModel>,
+  public constructor( model: ExperimentModel,
                       providedOptions: ScreenSettingsPanelOptions ) {
 
     const options = optionize<ScreenSettingsPanelOptions, SelfOptions, PanelOptions>()( {
@@ -48,14 +48,10 @@ export default class ScreenSettingsPanel extends Panel {
       stroke: null
     }, providedOptions );
 
-    // DynamicProperty that follows the active scene's detectionModeProperty
-    const detectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>( sceneProperty, {
-      derive: scene => scene.detectionModeProperty,
-      bidirectional: true
-    } );
+    const detectionModeProperty = model.currentDetectionModeProperty;
 
     // DynamicProperty that follows the active scene's screenBrightnessProperty
-    const screenBrightnessProperty = new DynamicProperty<number, number, SceneModel>( sceneProperty, {
+    const screenBrightnessProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
       derive: scene => scene.screenBrightnessProperty,
       bidirectional: true
     } );

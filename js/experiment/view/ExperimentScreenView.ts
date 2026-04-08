@@ -11,7 +11,6 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
@@ -37,7 +36,6 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 import { type SourceType } from '../model/SourceType.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
@@ -303,7 +301,7 @@ export default class ExperimentScreenView extends ScreenView {
     frontFacingSlitNodes.forEach( n => n.moveToFront() );
 
     // Screen settings panel (detection mode + brightness), directly below the detector screen.
-    const screenSettingsPanel = new ScreenSettingsPanel( model.sceneProperty, {
+    const screenSettingsPanel = new ScreenSettingsPanel( model, {
       tandem: options.tandem.createTandem( 'screenSettingsPanel' )
     } );
 
@@ -617,10 +615,7 @@ export default class ExperimentScreenView extends ScreenView {
     // with two slits, their width, and the current slit configuration (open/covered/detector).
     // The slit width is a constant per scene that is visible on screen but not accessible
     // through any interactive control.
-    const slitSettingProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>(
-      model.sceneProperty,
-      { derive: 'slitSettingProperty' }
-    );
+    const slitSettingProperty = model.currentSlitSettingProperty;
     const slitWidthStringProperty = new DerivedProperty(
       [ model.sceneProperty ],
       ( scene: SceneModel ) => {

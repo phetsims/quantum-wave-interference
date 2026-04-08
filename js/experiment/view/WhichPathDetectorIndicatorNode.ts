@@ -19,10 +19,9 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import { type DetectionMode } from '../model/DetectionMode.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { DetectorSideValues, hasDetectorOnSide, type DetectorSide, type SlitConfiguration } from '../model/SlitConfiguration.js';
+import { DetectorSideValues, hasDetectorOnSide, type DetectorSide } from '../model/SlitConfiguration.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
@@ -94,20 +93,6 @@ class DetectorPanelNode extends Node {
       }
     };
 
-    const slitSettingProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>(
-      model.sceneProperty,
-      {
-        derive: scene => scene.slitSettingProperty
-      }
-    );
-
-    const detectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>(
-      model.sceneProperty,
-      {
-        derive: scene => scene.detectionModeProperty
-      }
-    );
-
     const detectorHitsProperty = new DynamicProperty<number, number, SceneModel>(
       model.sceneProperty,
       {
@@ -116,7 +101,7 @@ class DetectorPanelNode extends Node {
     );
 
     this.updateIndicator = () => {
-      const slitSetting = slitSettingProperty.value;
+      const slitSetting = model.currentSlitSettingProperty.value;
       const isDetectorActive = hasDetectorOnSide( slitSetting, detectorSide );
       this.visible = isDetectorActive;
 
@@ -125,7 +110,7 @@ class DetectorPanelNode extends Node {
         return;
       }
 
-      const isHitsMode = detectionModeProperty.value === 'hits';
+      const isHitsMode = model.currentDetectionModeProperty.value === 'hits';
       detectorHitCountText.visible = isHitsMode;
       if ( isHitsMode ) {
         detectorHitCountText.string =
@@ -164,8 +149,8 @@ class DetectorPanelNode extends Node {
         );
     };
 
-    slitSettingProperty.link( this.updateIndicator );
-    detectionModeProperty.link( this.updateIndicator );
+    model.currentSlitSettingProperty.link( this.updateIndicator );
+    model.currentDetectionModeProperty.link( this.updateIndicator );
     detectorHitsProperty.link( this.updateIndicator );
     model.sceneProperty.link( this.updateIndicator );
     QuantumWaveInterferenceFluent.hitsStringProperty.lazyLink( this.updateIndicator );
