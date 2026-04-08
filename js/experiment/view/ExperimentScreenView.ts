@@ -12,21 +12,17 @@
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
-import AccessibleDraggableOptions from '../../../../scenery-phet/js/accessibility/grab-drag/AccessibleDraggableOptions.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import RulerNode from '../../../../scenery-phet/js/RulerNode.js';
 import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
 import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboardDragListener.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
-import InteractiveHighlightingNode from '../../../../scenery/js/accessibility/voicing/nodes/InteractiveHighlightingNode.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -36,7 +32,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SourceType } from '../model/SourceType.js';
+import createRulerNode from './createRulerNode.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
@@ -56,30 +52,10 @@ type SelfOptions = EmptySelfOptions;
 
 type ExperimentScreenViewOptions = SelfOptions & ScreenViewOptions;
 
-const RULER_INTERVAL_COUNT = 8;
-const RULER_CENTER_TICK_INDEX = RULER_INTERVAL_COUNT / 2;
-const RULER_MINOR_TICKS_PER_MAJOR = 4;
-const RULER_HEIGHT = 40;
 const RULER_X_OFFSET = 0.5;
 const RULER_KEYBOARD_DRAG_DELTA = 5;
 const RULER_KEYBOARD_SHIFT_DRAG_DELTA = 1;
 const MIDDLE_COLUMN_LEFT_SHIFT = 3;
-
-const getRulerLabelDecimalPlaces = (
-  halfDetectorWidthMM: number,
-  sourceType: SourceType
-): number => {
-  if ( sourceType === 'neutrons' || sourceType === 'heliumAtoms' ) {
-    return 1;
-  }
-  if ( halfDetectorWidthMM >= 10 ) {
-    return 0;
-  }
-  if ( halfDetectorWidthMM >= 1 ) {
-    return 1;
-  }
-  return 2;
-};
 
 export default class ExperimentScreenView extends ScreenView {
   private readonly graphAccordionBoxes: GraphAccordionBox[];
@@ -419,53 +395,13 @@ export default class ExperimentScreenView extends ScreenView {
     // screen: its full width maps to the scene's full detector width in mm.
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
-    const createRulerNode = (
-      detectorWidthMM: number,
-      sourceType: SourceType,
-      index: number
-    ): InteractiveHighlightingNode => {
-      const majorTickWidth = ExperimentConstants.DETECTOR_SCREEN_WIDTH / RULER_INTERVAL_COUNT;
-      const halfDetectorWidthMM = detectorWidthMM / 2;
-      const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM, sourceType );
-      const majorTickLabels = rangeInclusive( 0, RULER_INTERVAL_COUNT ).map( i => {
-        const signedNormalizedOffset = ( i - RULER_CENTER_TICK_INDEX ) / RULER_CENTER_TICK_INDEX;
-        const labelValue = i === RULER_CENTER_TICK_INDEX ? 0 : halfDetectorWidthMM * signedNormalizedOffset;
-        return toFixed( labelValue, labelDecimalPlaces );
-      } );
-
-      const rulerNode = new RulerNode(
-        ExperimentConstants.DETECTOR_SCREEN_WIDTH,
-        RULER_HEIGHT,
-        majorTickWidth,
-        majorTickLabels,
-        QuantumWaveInterferenceFluent.rulerUnitsStringProperty.value,
-        {
-          minorTicksPerMajorTick: RULER_MINOR_TICKS_PER_MAJOR,
-          unitsMajorTickIndex: RULER_CENTER_TICK_INDEX,
-          majorTickFont: new PhetFont( 12 ),
-          unitsFont: new PhetFont( 12 ),
-          tandem: rulerNodesTandem.createTandem( `rulerNode${index}` )
-        }
-      );
-
-      return new InteractiveHighlightingNode( {
-        children: [ rulerNode ],
-        cursor: 'pointer',
-        opacity: 0.8,
-        accessibleName: QuantumWaveInterferenceFluent.rulerStringProperty,
-        accessibleHelpText:
-        QuantumWaveInterferenceFluent.a11y.ruler.accessibleHelpTextStringProperty,
-        tagName: AccessibleDraggableOptions.tagName,
-        focusable: AccessibleDraggableOptions.focusable,
-        ariaRole: AccessibleDraggableOptions.ariaRole,
-        accessibleNameBehavior: AccessibleDraggableOptions.accessibleNameBehavior,
-        accessibleRoleDescription: AccessibleDraggableOptions.accessibleRoleDescription
-      } );
-    };
-
     const rulerNodes = model.scenes.map( ( scene, index ) => {
       const detectorWidthMM = scene.screenHalfWidth * 2 * 1e3;
-      const rulerNode = createRulerNode( detectorWidthMM, scene.sourceType, index );
+      const rulerNode = createRulerNode(
+        detectorWidthMM,
+        scene.sourceType,
+        rulerNodesTandem.createTandem( `rulerNode${index}` )
+      );
       this.addChild( rulerNode );
       return rulerNode;
     } );
