@@ -53,21 +53,17 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
     } );
     const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
 
-    const defaultCurrentDetailsContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
+    const isMaxHitsReachedStringProperty = isMaxHitsReachedProperty.derived(
+      isMaxHitsReached => isMaxHitsReached ? 'true' : 'false'
+    );
+
+    const currentDetailsContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
       sourceType: sourceTypeProperty,
       slitSetting: slitSettingProperty,
       detectionMode: detectionModeProperty,
-      isEmitting: isEmittingStringProperty
+      isEmitting: isEmittingStringProperty,
+      isMaxHitsReached: isMaxHitsReachedStringProperty
     } );
-
-    const currentDetailsContentProperty = new DerivedProperty( [
-        defaultCurrentDetailsContentProperty,
-        isMaxHitsReachedProperty,
-        QuantumWaveInterferenceFluent.a11y.screenSummary.maxHitsReachedDetailsStringProperty
-      ],
-      ( currentDetails, isMaxHitsReached, maxHitsReachedDetails ) =>
-        isMaxHitsReached ? `${currentDetails} ${maxHitsReachedDetails}` : currentDetails
-    );
 
     const defaultInteractionHintContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {
       sourceType: sourceTypeProperty,

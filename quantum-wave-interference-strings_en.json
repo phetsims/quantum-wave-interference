@@ -170,7 +170,7 @@
         "value": "Clear the detector screen to collect more hits."
       },
       "currentDetails": {
-        "value": "Currently, running a { $sourceType ->\n  [photons] photon\n  [electrons] electron\n  [neutrons] neutron\n *[heliumAtoms] helium atom\n} experiment. The barrier has { $slitSetting ->\n  [bothOpen] both slits open\n  [leftCovered] the left slit covered\n  [rightCovered] the right slit covered\n  [leftDetector] a detector on the left slit\n  [rightDetector] a detector on the right slit\n *[bothDetectors] detectors on both slits\n} and the screen displays { $detectionMode ->\n  [averageIntensity] intensity\n *[hits] hits\n}. The source is { $isEmitting ->\n  [true] on\n *[false] off\n}."
+        "value": "Currently, running a { $sourceType ->\n  [photons] photon\n  [electrons] electron\n  [neutrons] neutron\n *[heliumAtoms] helium atom\n} experiment. The barrier has { $slitSetting ->\n  [bothOpen] both slits open\n  [leftCovered] the left slit covered\n  [rightCovered] the right slit covered\n  [leftDetector] a detector on the left slit\n  [rightDetector] a detector on the right slit\n *[bothDetectors] detectors on both slits\n} and the screen displays { $detectionMode ->\n  [averageIntensity] intensity\n *[hits] hits\n}. The source is { $isEmitting ->\n  [true] on\n *[false] off\n}{ $isMaxHitsReached ->\n  [true] . Maximum hits reached for this scene.\n *[false] .\n}"
       },
       "interactionHint": {
         "value": "{ $isEmitting ->\n  [true] Adjust the source or slits to make observations.\n *[false] Turn on the { $sourceType ->\n    [photons] photon source\n    [electrons] electron source\n    [neutrons] neutron source\n   *[heliumAtoms] helium atom source\n  } to start experimenting.\n}"

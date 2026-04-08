@@ -85,7 +85,10 @@ a11y:
                      The source is { $isEmitting ->
                        [true] on
                       *[false] off
-                     }.
+                     }{ $isMaxHitsReached ->
+                       [true] . Maximum hits reached for this scene.
+                      *[false] .
+                     }
     interactionHint: >-
                      { $isEmitting ->
                        [true] Adjust the source or slits to make observations.
