@@ -26,22 +26,19 @@ import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import cameraSolidShape from '../../../../sherpa/js/fontawesome-5/cameraSolidShape.js';
 import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
 import nullSoundPlayer from '../../../../tambo/js/nullSoundPlayer.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
-import SoundClip from '../../../../tambo/js/sound-generators/SoundClip.js';
-import soundManager from '../../../../tambo/js/soundManager.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
-import snapshotCaptured_mp3 from '../../../sounds/snapshotCaptured_mp3.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
+import SnapshotButton from './SnapshotButton.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.
@@ -54,11 +51,6 @@ const TARGET_SCALE_WIDTH_MM = 10;
 const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
 const SNAPSHOT_FLASH_DURATION = 0.6;
 const DETECTOR_ACTION_BUTTON_MIN_WIDTH = 36;
-
-const snapshotCapturedSoundClip = new SoundClip( snapshotCaptured_mp3, {
-  initialOutputLevel: 0.4
-} );
-soundManager.addSoundGenerator( snapshotCapturedSoundClip );
 
 /**
  * Returns the number of decimal places to show in a millimeter scale label,
@@ -83,7 +75,7 @@ export default class DetectorScreenNode extends Node {
   private readonly screenBackgroundRect: Rectangle;
 
   public readonly eraserButton: EraserButton;
-  public readonly snapshotButton: RectangularPushButton;
+  public readonly snapshotButton: SnapshotButton;
   public readonly viewSnapshotsButton: RectangularPushButton;
   private readonly snapshotButtonGroup: VBox;
 
@@ -293,41 +285,11 @@ export default class DetectorScreenNode extends Node {
     } );
 
     // Camera button to take a snapshot
-    const snapshotHelpTextProperty = QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleHelpText.createProperty( {
-      maxSnapshots: SceneModel.MAX_SNAPSHOTS
-    } );
-    const snapshotContextResponseProperty = QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleContextResponse.createProperty( {
-      snapshotNumber: sceneModel.numberOfSnapshotsProperty
-    } );
-    this.snapshotButton = new RectangularPushButton( {
-      listener: () => {
-        const numberOfSnapshotsBefore = sceneModel.numberOfSnapshotsProperty.value;
-        sceneModel.takeSnapshot();
-        if ( sceneModel.numberOfSnapshotsProperty.value > numberOfSnapshotsBefore ) {
-          snapshotCapturedSoundClip.play();
-          startSnapshotFlash();
-        }
-      },
-      baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
-      content: new Path( cameraSolidShape, {
-        fill: 'black',
-        scale: 0.04
-      } ),
-      minWidth: DETECTOR_ACTION_BUTTON_MIN_WIDTH,
-      enabledProperty: new DerivedProperty(
-        [ sceneModel.numberOfSnapshotsProperty ],
-        numberOfSnapshots => numberOfSnapshots < SceneModel.MAX_SNAPSHOTS,
-        {
-          tandem: providedOptions.tandem.createTandem( 'snapshotButtonEnabledProperty' ),
-          phetioValueType: BooleanIO
-        }
-      ),
-      accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleNameStringProperty,
-      accessibleHelpText: snapshotHelpTextProperty,
-      accessibleContextResponse: snapshotContextResponseProperty,
-      soundPlayer: nullSoundPlayer,
-      tandem: providedOptions.tandem.createTandem( 'snapshotButton' )
-    } );
+    this.snapshotButton = new SnapshotButton(
+      sceneModel,
+      startSnapshotFlash,
+      providedOptions.tandem.createTandem( 'snapshotButton' )
+    );
 
     // Match detector-side action button dimensions to the camera button without scaling icons.
     const detectorActionButtonMinHeight = this.snapshotButton.height;
