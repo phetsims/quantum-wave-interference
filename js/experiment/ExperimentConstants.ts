@@ -33,4 +33,15 @@ export default class ExperimentConstants {
 
   // Maximum number of hits allowed in Hits mode before the source is shut off.
   public static readonly MAX_HITS = 25000;
+
+  /**
+   * Converts a slit width from millimeters to micrometers and returns the value along with
+   * an appropriate number of decimal places: 0 for >=1, 1 for >=0.1, 2 otherwise.
+   */
+  public static slitWidthMMToMicrometers( slitWidthMM: number ): { slitWidthUM: number; decimalPlaces: number } {
+    const slitWidthUM = slitWidthMM * 1000;
+    const decimalPlaces = slitWidthUM >= 1 ? 0 :
+                          slitWidthUM >= 0.1 ? 1 : 2;
+    return { slitWidthUM: slitWidthUM, decimalPlaces: decimalPlaces };
+  }
 }

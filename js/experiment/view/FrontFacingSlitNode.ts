@@ -238,13 +238,10 @@ export default class FrontFacingSlitNode extends Node {
       );
     }
     else {
-      const slitWidthUM = slitWidthMM * 1000;
-      // Show fewer decimal places for larger values: 0 for >=1, 1 for >=0.1, 2 otherwise
-      const umDecimalPlaces = slitWidthUM >= 1 ? 0 :
-                              slitWidthUM >= 0.1 ? 1 : 2;
+      const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
       slitWidthLabelStringProperty = new DerivedProperty(
         [ QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty ],
-        pattern => StringUtils.fillIn( pattern, { value: toFixed( slitWidthUM, umDecimalPlaces ) } )
+        pattern => StringUtils.fillIn( pattern, { value: toFixed( slitWidthUM, decimalPlaces ) } )
       );
     }
 
