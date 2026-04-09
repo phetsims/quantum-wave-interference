@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * OverheadBeamNode displays the beam visualization in the overhead perspective, including the
- * emitter-to-slit rectangle beam and the slit-to-screen fan beam with gradient fade. Also
- * manages overhead pattern updates.
+ * OverheadBeamNode displays the beam visualization in the overhead perspective,
+ * including the emitter-to-slit rectangle beam and the slit-to-screen fan beam with gradient fade.
+ * Also manages overhead pattern updates.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -29,7 +29,8 @@ export default class OverheadBeamNode extends Node {
 
   private readonly _updateBeam: () => void;
 
-  // The incident beam (emitter to slit) with a skewed half-oval cap on the right, exposed so it can be z-ordered independently.
+  // The incident beam (emitter to slit) with a skewed half-oval cap on the right, exposed so it can be z-ordered
+  // independently.
   public readonly emitterBeamNode: Path;
 
   public constructor(
@@ -75,9 +76,8 @@ export default class OverheadBeamNode extends Node {
       const beamRight = ( doubleSlitParallelogram.left + doubleSlitParallelogram.right ) / 2;
 
       // Build a beam shape: rectangle body with a skewed half-oval cap on the right side.
-      // The cap is a half-ellipse whose vertical axis matches the beam height and whose
-      // horizontal bulge is capRadius. It is sheared vertically by the parallelogram's
-      // skew slope so it matches the overhead perspective.
+      // The cap is a half-ellipse whose vertical axis matches the beam height and whose horizontal bulge is capRadius.
+      // It is sheared vertically by the parallelogram's skew slope so it matches the overhead perspective.
       const beamTop = laserCenterY - beamHeight / 2;
       const beamBottom = laserCenterY + beamHeight / 2;
       const capRadius = beamHeight / 3;
@@ -125,8 +125,8 @@ export default class OverheadBeamNode extends Node {
         .close();
       fanBeamNode.shape = fanShape;
 
-      // Clip the fan beam along a diagonal from the detector screen parallelogram's
-      // top-left corner to its bottom-right corner, so no light is visible past the screen.
+      // Clip the fan beam along a diagonal from the detector screen parallelogram's top-left corner to its
+      // bottom-right corner, so no light is visible past the screen.
       const screenTopLeftX = detectorScreenParallelogram.left;
       const screenTopLeftY = detectorScreenParallelogram.top;
       const screenBottomRightX = detectorScreenParallelogram.right;

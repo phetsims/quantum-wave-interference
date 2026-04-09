@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * DetectorScreenNode is the front-facing view of the detector screen. It displays either individual hit dots
- * (in Hits mode) or an intensity glow pattern (in Average Intensity mode) on a black rounded rectangle.
- * Hit rendering uses CanvasNode for efficient drawing of potentially thousands of dots.
+ * DetectorScreenNode is the front-facing view of the detector screen.
+ * It displays either individual hit dots (in Hits mode) or an intensity glow pattern (in Average Intensity mode) on a
+ * black rounded rectangle. Hit rendering uses CanvasNode for efficient drawing of potentially thousands of dots.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -154,9 +154,9 @@ export default class DetectorScreenNode extends Node {
       flashAnimation.start();
     };
 
-    // Hit count text - only visible in Hits mode, positioned above the screen on the right side
-    // (per design: "Above the screen... on the right, there is a readout displaying the total number
-    // of detected hits (only if 'Hits' selected)")
+    // Hit count text - only visible in Hits mode, positioned above the screen on the right side (per design:
+    // "Above the screen... on the right, there is a readout displaying the total number of detected hits (only if
+    // 'Hits' selected)")
     const hitCountText = new Text( '', {
       font: new PhetFont( 12 ),
       fill: 'black',
@@ -170,8 +170,8 @@ export default class DetectorScreenNode extends Node {
     const SPAN_TICK_LENGTH = 8;
     const SPAN_ARROW_Y = -10; // y position of the span arrow above the screen
 
-    // Scale indicator: the span arrow length is computed directly from the scene's physical
-    // detector width, so the visual measurement is consistent with the interference pattern scale.
+    // Scale indicator: the span arrow length is computed directly from the scene's physical detector width,
+    // so the visual measurement is consistent with the interference pattern scale.
     // Use 10 mm when that fits on the detector screen. For scenes with sub-mm detector widths,
     // use 1/4 of the detector width so the scale bar remains readable.
     const halfWidth = sceneModel.screenHalfWidth;
@@ -335,9 +335,9 @@ export default class DetectorScreenNode extends Node {
       }
     } );
 
-    // Close the snapshots dialog when this DetectorScreenNode becomes invisible (i.e., when the
-    // user switches to a different scene). Without this, the dialog would remain open showing
-    // stale snapshot data from the previous scene, which is confusing.
+    // Close the snapshots dialog when this DetectorScreenNode becomes invisible (i.e.,
+    // when the user switches to a different scene). Without this,
+    // the dialog would remain open showing stale snapshot data from the previous scene, which is confusing.
     this.visibleProperty.lazyLink( visible => {
       if ( !visible && snapshotsDialog.isShowingProperty.value ) {
         snapshotsDialog.hide();
@@ -361,8 +361,8 @@ export default class DetectorScreenNode extends Node {
       children: [ indicatorDotsBox, this.snapshotButton, this.viewSnapshotsButton ]
     } );
 
-    // Left-align both button groups so their left edges match, with reduced horizontal gap
-    // from the detector screen to the button column.
+    // Left-align both button groups so their left edges match,
+    // with reduced horizontal gap from the detector screen to the button column.
     const buttonsLeft = SCREEN_WIDTH + BUTTON_COLUMN_GAP;
     this.eraserButton.left = buttonsLeft;
     this.eraserButton.top = 0;

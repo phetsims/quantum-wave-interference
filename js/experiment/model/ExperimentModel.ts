@@ -1,8 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Top-level model for the Quantum Wave Interference simulation. Manages four independent scene models
- * (one per source type) and shared state like time controls and the ruler visibility.
+ * Top-level model for the Quantum Wave Interference simulation.
+ * Manages four independent scene models (one per source type) and shared state like time controls and the ruler
+ * visibility.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -41,8 +42,9 @@ export default class ExperimentModel implements TModel {
   // The currently selected scene
   public readonly sceneProperty: Property<SceneModel>;
 
-  // DynamicProperties that follow fields of the active scene. Centralized here so view code can
-  // share a single instance instead of re-deriving the same wrapper in each view component.
+  // DynamicProperties that follow fields of the active scene.
+  // Centralized here so view code can share a single instance instead of re-deriving the same wrapper in each view
+  // component.
   public readonly currentSlitSettingProperty: DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>;
   public readonly currentDetectionModeProperty: DynamicProperty<DetectionMode, DetectionMode, SceneModel>;
   public readonly currentIsEmittingProperty: DynamicProperty<boolean, boolean, SceneModel>;

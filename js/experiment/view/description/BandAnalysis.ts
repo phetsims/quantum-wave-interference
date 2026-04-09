@@ -1,10 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Shared utility for analyzing interference/diffraction patterns in intensity data.
- * Used by both DetectorScreenDescriber and GraphDescriber to extract band counts,
- * peak positions, spacing, and central band width from either accumulated hit bins
- * or theoretical intensity samples.
+ * Shared utility for analyzing interference/diffraction patterns in intensity data. Used by both
+ * DetectorScreenDescriber and GraphDescriber to extract band counts, peak positions, spacing, and central band width
+ * from either accumulated hit bins or theoretical intensity samples.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -14,10 +13,9 @@ import SceneModel from '../../model/SceneModel.js';
 import { isDoubleSlitConfiguration, SlitConfiguration } from '../../model/SlitConfiguration.js';
 import Snapshot from '../../model/Snapshot.js';
 
-// Qualitative stage of hit accumulation, used by describers to select which description
-// string to show and to throttle updates so they only fire at pedagogically meaningful thresholds.
+// Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
+// updates so they only fire at pedagogically meaningful thresholds.
 export type HitStage = 'none' | 'few' | 'emerging' | 'developing' | 'clear';
-
 
 // Results from analyzing an intensity distribution.
 export type BandAnalysisResult = {
@@ -39,11 +37,10 @@ export default class BandAnalysis {
   private static readonly ANALYSIS_BIN_COUNT = 200;
 
   /**
-   * Computes band information analytically from the interference/diffraction formula.
-   * For double slit, interference maxima occur at y_n = n·λL/d, so the count of visible
-   * fringes is 2·floor(screenHalfWidth·d/(λL)) + 1. For single slit (or which-path detector),
-   * only the broad central diffraction maximum is reported. This avoids the resolution and
-   * smoothing artifacts of numerical peak detection.
+   * Computes band information analytically from the interference/diffraction formula. For double slit,
+   * interference maxima occur at y_n = n·λL/d, so the count of visible fringes is 2·floor(screenHalfWidth·d/(λL)) + 1.
+   * For single slit (or which-path detector), only the broad central diffraction maximum is reported.
+   * This avoids the resolution and smoothing artifacts of numerical peak detection.
    */
   public static analyzeTheoreticalPattern( scene: SceneModel ): BandAnalysisResult {
     return BandAnalysis.computeTheoreticalPattern(
@@ -71,9 +68,9 @@ export default class BandAnalysis {
   }
 
   /**
-   * Shared analytic computation. For double slit, interference maxima occur at y_n = n·λL/d, so the
-   * count of visible fringes is 2·floor(screenHalfWidth·d/(λL)) + 1. For single slit (or which-path
-   * detector), only the broad central diffraction maximum is reported, with first zeros at y = ±λL/a.
+   * Shared analytic computation. For double slit, interference maxima occur at y_n = n·λL/d,
+   * so the count of visible fringes is 2·floor(screenHalfWidth·d/(λL)) + 1. For single slit (or which-path detector),
+   * only the broad central diffraction maximum is reported, with first zeros at y = ±λL/a.
    */
   private static computeTheoreticalPattern(
     lambda: number,
@@ -126,8 +123,8 @@ export default class BandAnalysis {
 
   /**
    * Returns the qualitative hit stage for the current number of accumulated hits.
-   * Double-slit patterns require more hits to resolve (extra 'developing' stage at 51–200)
-   * because interference fringes are finer than the broad single-slit diffraction envelope.
+   * Double-slit patterns require more hits to resolve (extra 'developing' stage at 51–200) because interference
+   * fringes are finer than the broad single-slit diffraction envelope.
    */
   public static getHitStage( totalHits: number, isDoubleSlit: boolean ): HitStage {
     if ( totalHits === 0 ) { return 'none'; }
@@ -198,5 +195,4 @@ export default class BandAnalysis {
       }
     }
   }
-
 }

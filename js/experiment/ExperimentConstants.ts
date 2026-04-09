@@ -35,8 +35,8 @@ export default class ExperimentConstants {
   public static readonly MAX_HITS = 25000;
 
   /**
-   * Converts a slit width from millimeters to micrometers and returns the value along with
-   * an appropriate number of decimal places: 0 for >=1, 1 for >=0.1, 2 otherwise.
+   * Converts a slit width from millimeters to micrometers and returns the value along with an appropriate number of
+   * decimal places: 0 for >=1, 1 for >=0.1, 2 otherwise.
    */
   public static slitWidthMMToMicrometers( slitWidthMM: number ): { slitWidthUM: number; decimalPlaces: number } {
     const slitWidthUM = slitWidthMM * 1000;

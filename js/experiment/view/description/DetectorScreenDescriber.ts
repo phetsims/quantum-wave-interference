@@ -1,15 +1,14 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * DetectorScreenDescriber produces a dynamic accessible description of the detector screen
- * that scales with the number of accumulated hits and describes the theoretical intensity
- * pattern. Descriptions are poetic and gestalt — they convey the overall shape and evolution
- * of the pattern rather than enumerating exact data. In hits mode, descriptions only change
- * when the qualitative stage crosses a threshold (few → emerging → developing → clear),
- * preventing numbers from jumping sporadically as hits accumulate frame by frame.
+ * DetectorScreenDescriber produces a dynamic accessible description of the detector screen that scales with the number
+ * of accumulated hits and describes the theoretical intensity pattern.
+ * Descriptions are poetic and gestalt — they convey the overall shape and evolution of the pattern rather than
+ * enumerating exact data. In hits mode, descriptions only change when the qualitative stage crosses a threshold (few →
+ * emerging → developing → clear), preventing numbers from jumping sporadically as hits accumulate frame by frame.
  *
- * Spatial language (band count, spacing) is derived from the theoretical intensity formula
- * rather than from noisy accumulated bin data, so it remains stable across all hit counts.
+ * Spatial language (band count, spacing) is derived from the theoretical intensity formula rather than from noisy
+ * accumulated bin data, so it remains stable across all hit counts.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -31,8 +30,8 @@ export default class DetectorScreenDescriber {
     const descriptionProperty = new Property<string>( '' );
     this.descriptionProperty = descriptionProperty;
 
-    // Track the current hit stage so that the description only updates when crossing
-    // a pedagogically meaningful threshold, not on every frame of hit accumulation.
+    // Track the current hit stage so that the description only updates when crossing a pedagogically meaningful
+    // threshold, not on every frame of hit accumulation.
     let hitStage = '';
 
     const update = () => {
@@ -65,8 +64,8 @@ export default class DetectorScreenDescriber {
       }
       hitStage = newStage;
 
-      // Use the theoretical pattern for spatial descriptions so they remain stable
-      // as hits accumulate, rather than jumping with noisy bin data.
+      // Use the theoretical pattern for spatial descriptions so they remain stable as hits accumulate,
+      // rather than jumping with noisy bin data.
       const analysis = BandAnalysis.analyzeTheoreticalPattern( scene );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
@@ -122,11 +121,11 @@ export default class DetectorScreenDescriber {
     // Also update when the ruler visibility changes, since it affects spatial language.
     model.isRulerVisibleProperty.lazyLink( fullUpdate );
 
-    // Re-render whenever the Fluent bundle changes (e.g. locale change, or PhET-iO string
-    // edits that swap the bundle without changing localeProperty). We subscribe via any
-    // Fluent pattern's getDependentProperties() — they all share the same bundleProperty
-    // signal — so we don't have to enumerate every string this describer reads, and new
-    // strings added later are automatically covered.
+    // Re-render whenever the Fluent bundle changes (e.g. locale change,
+    // or PhET-iO string edits that swap the bundle without changing localeProperty).
+    // We subscribe via any Fluent pattern's getDependentProperties() — they all share the same bundleProperty signal —
+    // so we don't have to enumerate every string this describer reads, and new strings added later are automatically
+    // covered.
     QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity
       .getDependentProperties().forEach( dep => dep.lazyLink( fullUpdate ) );
   }

@@ -1,10 +1,10 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * ExperimentScreenView is the top-level view for the Quantum Wave Interference simulation.
- * It contains three visual "rows": the top row with the emitter, double slit, and detector screen
- * in overhead perspective; the middle row with controls and front-facing views; and the bottom row
- * with scene selectors, slit controls, and screen settings.
+ * ExperimentScreenView is the top-level view for the Quantum Wave Interference simulation. It contains three visual
+ * "rows": the top row with the emitter, double slit, and detector screen in overhead perspective;
+ * the middle row with controls and front-facing views; and the bottom row with scene selectors, slit controls,
+ * and screen settings.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -60,8 +60,8 @@ export default class ExperimentScreenView extends ScreenView {
   private readonly graphAccordionBoxes: GraphAccordionBox[];
   private readonly centerRulerOnDetectorScreen: () => void;
 
-  // Shared expanded state for the graph accordion boxes across all scenes, so that switching
-  // scenes preserves the open/closed state per the design requirement.
+  // Shared expanded state for the graph accordion boxes across all scenes,
+  // so that switching scenes preserves the open/closed state per the design requirement.
   private readonly graphExpandedProperty: BooleanProperty;
 
   public constructor( model: ExperimentModel, providedOptions: ExperimentScreenViewOptions ) {
@@ -122,8 +122,8 @@ export default class ExperimentScreenView extends ScreenView {
       // Keep the slit centered on the active emitter's beam centerline.
       overheadDoubleSlitNode.parallelogramNode.centerY = activeEmitter.centerY;
 
-      // Keep the hit-cap message centered in the horizontal gap between the active emitter
-      // and the visible black slit background, not the larger transparent parallelogram bounds.
+      // Keep the hit-cap message centered in the horizontal gap between the active emitter and the visible black slit
+      // background, not the larger transparent parallelogram bounds.
       overheadEmitterNode.maxHitsReachedPanel.centerX = ( activeEmitter.right + overheadDoubleSlitNode.getVisibleBackgroundLeftX() ) / 2;
       overheadEmitterNode.maxHitsReachedPanel.centerY = activeEmitter.centerY;
 
@@ -265,8 +265,8 @@ export default class ExperimentScreenView extends ScreenView {
     slitControlPanel.top = frontFacingSlitNodes[ 0 ].bottom + 8;
     this.addChild( slitControlPanel );
 
-    // Move front-facing slit nodes above the slit control panel so the slit separation
-    // span below the view is not obscured by the panel's background.
+    // Move front-facing slit nodes above the slit control panel so the slit separation span below the view is not
+    // obscured by the panel's background.
     frontFacingSlitNodes.forEach( n => n.moveToFront() );
 
     // Screen settings panel (detection mode + brightness), directly below the detector screen.
@@ -282,8 +282,8 @@ export default class ExperimentScreenView extends ScreenView {
     layoutScreenSettingsPanel();
     this.addChild( screenSettingsPanel );
 
-    // Keep the graph below the screen settings panel to avoid overlap and align the chart
-    // rectangle to the detector screen rectangle even if labels or scale change.
+    // Keep the graph below the screen settings panel to avoid overlap and align the chart rectangle to the detector
+    // screen rectangle even if labels or scale change.
     screenSettingsPanel.localBoundsProperty.link( () => {
       layoutScreenSettingsPanel();
       layoutGraphAccordionBoxes();
@@ -390,8 +390,8 @@ export default class ExperimentScreenView extends ScreenView {
     // Nudge the slit control panel slightly lower than the checkbox group.
     slitControlPanel.bottom = checkboxGroup.bottom + 2;
 
-    // Draggable ruler. The ruler's horizontal scale is calibrated to the active detector
-    // screen: its full width maps to the scene's full detector width in mm.
+    // Draggable ruler. The ruler's horizontal scale is calibrated to the active detector screen: its full width maps to
+    // the scene's full detector width in mm.
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
     const rulerNodes = model.scenes.map( ( scene, index ) => {
@@ -521,9 +521,9 @@ export default class ExperimentScreenView extends ScreenView {
       }
     } );
 
-    // Accessible paragraph describing the current state of the detector screen for screen
-    // reader users. The description scales with hit count: few hits describe scattered
-    // detections, many hits describe the emerging/established interference pattern.
+    // Accessible paragraph describing the current state of the detector screen for screen reader users.
+    // The description scales with hit count: few hits describe scattered detections,
+    // many hits describe the emerging/established interference pattern.
     const detectorScreenDescriber = new DetectorScreenDescriber( model );
     const detectorScreenDescriptionNode = new Node( {
       accessibleParagraph: detectorScreenDescriber.descriptionProperty
@@ -531,10 +531,9 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( detectorScreenDescriptionNode );
 
     // Accessible paragraph describing the magnified slit view for screen reader users.
-    // This is important non-interactive visual content: the slit view shows the barrier
-    // with two slits, their width, and the current slit configuration (open/covered/detector).
-    // The slit width is a constant per scene that is visible on screen but not accessible
-    // through any interactive control.
+    // This is important non-interactive visual content: the slit view shows the barrier with two slits, their width,
+    // and the current slit configuration (open/covered/detector). The slit width is a constant per scene that is
+    // visible on screen but not accessible through any interactive control.
     const slitSettingProperty = model.currentSlitSettingProperty;
     const slitWidthStringProperty = model.sceneProperty.derived( scene => {
       const slitWidthMM = scene.slitWidth;
@@ -560,9 +559,9 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( slitViewDescriptionNode );
 
     // Accessible paragraph describing the particle mass for screen reader users.
-    // This is important on-screen text (rendered as RichText in OverheadEmitterNode) that
-    // supports the learning goal: "Relate particle momentum to wavelength using the de Broglie
-    // relationship." Hidden for photons (which are massless).
+    // This is important on-screen text (rendered as RichText in OverheadEmitterNode) that supports the learning goal:
+    // "Relate particle momentum to wavelength using the de Broglie relationship." Hidden for photons (which are
+    // massless).
     const particleSourceTypeProperty = model.sceneProperty.derived(
       scene => scene.sourceType as 'electrons' | 'neutrons' | 'heliumAtoms'
     );
@@ -577,8 +576,8 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( particleMassDescriptionNode );
 
-    // Heading nodes for PDOM navigation. Each groups related controls under a heading
-    // so screen reader users can jump between major sections with heading shortcuts.
+    // Heading nodes for PDOM navigation. Each groups related controls under a heading so screen reader users can jump
+    // between major sections with heading shortcuts.
     const sourceHeadingNode = new Node( {
       accessibleHeading: QuantumWaveInterferenceFluent.a11y.sourceHeadingStringProperty
     } );

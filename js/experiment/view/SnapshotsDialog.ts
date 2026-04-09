@@ -1,9 +1,10 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SnapshotsDialog displays detector screen snapshots in a vertical list. Adapts the pattern from
- * models-of-the-hydrogen-atom SpectrometerSnapshotsDialog: pre-allocates a fixed number of SnapshotNode
- * instances and toggles their visibility based on how many snapshots exist.
+ * SnapshotsDialog displays detector screen snapshots in a vertical list.
+ * Adapts the pattern from models-of-the-hydrogen-atom SpectrometerSnapshotsDialog:
+ * pre-allocates a fixed number of SnapshotNode instances and toggles their visibility based on how many snapshots
+ * exist.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

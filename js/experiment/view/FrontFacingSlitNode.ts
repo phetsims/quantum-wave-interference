@@ -1,10 +1,10 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * FrontFacingSlitNode is the zoomed-in front-facing view of the double slits. It shows a black rounded rectangle
- * with two white vertical rectangles representing the slits. Above the left slit is a double-headed arrow
- * displaying the slit width (constant per source type). Below the view is a double-headed arrow displaying
- * the slit separation (updates with the slit separation control).
+ * FrontFacingSlitNode is the zoomed-in front-facing view of the double slits.
+ * It shows a black rounded rectangle with two white vertical rectangles representing the slits.
+ * Above the left slit is a double-headed arrow displaying the slit width (constant per source type).
+ * Below the view is a double-headed arrow displaying the slit separation (updates with the slit separation control).
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -95,9 +95,8 @@ type SpanNodeParts = {
 };
 
 /**
- * Creates a horizontal double-headed span (arrow + endpoint ticks + label) used to annotate
- * the slit width and slit separation in the front-facing slit view. The arrow tail/tip and
- * tick positions are repositioned by the caller.
+ * Creates a horizontal double-headed span (arrow + endpoint ticks + label) used to annotate the slit width and slit
+ * separation in the front-facing slit view. The arrow tail/tip and tick positions are repositioned by the caller.
  */
 const createSpanNode = (
   labelStringProperty: TReadOnlyProperty<string>,
@@ -157,8 +156,8 @@ export default class FrontFacingSlitNode extends Node {
     const behindGlowSlitsLayer = new Node();
     barrierNode.addChild( behindGlowSlitsLayer );
 
-    // Beam color overlay: shown when the source is emitting, tinting the black barrier
-    // with the beam color to indicate light/particles hitting the slit barrier.
+    // Beam color overlay: shown when the source is emitting,
+    // tinting the black barrier with the beam color to indicate light/particles hitting the slit barrier.
     // Clipped to the background rectangle shape.
     const beamOverlay = new Rectangle(
       0,
@@ -179,9 +178,8 @@ export default class FrontFacingSlitNode extends Node {
 
     const particleBeamColorProperty = QuantumWaveInterferenceColors.particleBeamColorProperty;
 
-    // Two white slit rectangles, centered vertically in the view.
-    // When the source is emitting, the slits glow with the beam color to show
-    // light/particles passing through the openings.
+    // Two white slit rectangles, centered vertically in the view. When the source is emitting,
+    // the slits glow with the beam color to show light/particles passing through the openings.
     const slitY = ( VIEW_HEIGHT - SLIT_HEIGHT ) / 2;
 
     const leftSlit = new Rectangle( 0, slitY, 1, SLIT_HEIGHT, {
@@ -210,9 +208,9 @@ export default class FrontFacingSlitNode extends Node {
                         : particleBeamColorProperty.value;
 
       // Keep the exact same appearance at the default intensity (0.5). Above default,
-      // increase alpha more aggressively so the displayed color is less dark and closer
-      // to the true source hue instead of channel-clipped brightening.
-      // Piecewise-linear alpha: ramp from MIN to DEFAULT below the midpoint, DEFAULT to MAX above.
+      // increase alpha more aggressively so the displayed color is less dark and closer to the true source hue instead
+      // of channel-clipped brightening. Piecewise-linear alpha: ramp from MIN to DEFAULT below the midpoint,
+      // DEFAULT to MAX above.
       const belowMidpoint = intensity <= DEFAULT_SOURCE_INTENSITY;
       const fraction = belowMidpoint
                        ? intensity / DEFAULT_SOURCE_INTENSITY
@@ -227,8 +225,8 @@ export default class FrontFacingSlitNode extends Node {
     sceneModel.intensityProperty.link( updateBeamOverlay );
     sceneModel.wavelengthProperty.link( updateBeamOverlay );
 
-    // Format slit width label: use μm for values < 0.01 mm, mm otherwise.
-    // Slit width is constant per scene; the label is a DerivedProperty so it re-renders on locale change.
+    // Format slit width label: use μm for values < 0.01 mm, mm otherwise. Slit width is constant per scene;
+    // the label is a DerivedProperty so it re-renders on locale change.
     const slitWidthMM = sceneModel.slitWidth;
     let slitWidthLabelStringProperty: TReadOnlyProperty<string>;
     if ( slitWidthMM >= 0.01 ) {
@@ -243,9 +241,9 @@ export default class FrontFacingSlitNode extends Node {
       );
     }
 
-    // Slit-separation label: matches the slit-separation control readout formatting (unit and
-    // decimal precision determined by the slider range for this scene). Reactive on both the
-    // separation value and the locale-dependent pattern strings.
+    // Slit-separation label: matches the slit-separation control readout formatting (unit and decimal precision
+    // determined by the slider range for this scene). Reactive on both the separation value and the locale-dependent
+    // pattern strings.
     const slitSeparationRange = sceneModel.slitSeparationRange;
     const usesMicrometers = slitSeparationRange.max <= 0.1;
     const separationLabelStringProperty = new DerivedProperty(
@@ -278,10 +276,9 @@ export default class FrontFacingSlitNode extends Node {
     const { arrow: slitWidthArrow, leftTick: slitWidthLeftTick, rightTick: slitWidthRightTick, text: slitWidthText, node: slitWidthSpanNode } = slitWidthSpan;
     const { arrow: separationArrow, leftTick: separationLeftTick, rightTick: separationRightTick, text: separationText, node: separationSpanNode } = separationSpan;
 
-    // Use one horizontal physical-to-view scale for slit positions and slit widths so the
-    // front-facing slit rectangles are spatially consistent with the separation readout.
-    // For photons, at maximum slider value, center-to-center slit separation spans the full
-    // drawable width (minus horizontal padding), per design request.
+    // Use one horizontal physical-to-view scale for slit positions and slit widths so the front-facing slit rectangles
+    // are spatially consistent with the separation readout. For photons, at maximum slider value,
+    // center-to-center slit separation spans the full drawable width (minus horizontal padding), per design request.
     const maxSeparationPadding = sceneModel.sourceType === 'photons' ? 2 * HORIZONTAL_PADDING : HORIZONTAL_PADDING;
     const scaleDenominatorMM = sceneModel.sourceType === 'photons' ? sceneModel.slitSeparationRange.max
                                                                    : sceneModel.slitSeparationRange.max + sceneModel.slitWidth;
@@ -309,8 +306,8 @@ export default class FrontFacingSlitNode extends Node {
         SLIT_HEIGHT
       );
 
-      // Update slit width span (above the left slit).
-      // Per the design mockup, tick marks flank the slit edges and the label is to the right.
+      // Update slit width span (above the left slit). Per the design mockup,
+      // tick marks flank the slit edges and the label is to the right.
       const slitLeft = leftSlit.left;
       const slitRight = leftSlit.right;
       const spanWidth = slitRight - slitLeft;
@@ -334,8 +331,8 @@ export default class FrontFacingSlitNode extends Node {
       slitWidthText.centerY = 0;
       slitWidthSpanNode.bottom = -4;
 
-      // Update slit separation span (below the view).
-      // Per the design mockup, the label is to the right of the right tick mark.
+      // Update slit separation span (below the view). Per the design mockup,
+      // the label is to the right of the right tick mark.
       const sepLeft = leftSlit.centerX;
       const sepRight = rightSlit.centerX;
 
@@ -343,8 +340,8 @@ export default class FrontFacingSlitNode extends Node {
       separationLeftTick.x = sepLeft;
       separationRightTick.x = sepRight;
 
-      // Position the label to the right of the right tick mark, matching the
-      // slit width span label style above the view (per the design mockup).
+      // Position the label to the right of the right tick mark,
+      // matching the slit width span label style above the view (per the design mockup).
       separationText.left = sepRight + 5;
       separationText.centerY = 0;
       separationSpanNode.top = VIEW_HEIGHT + 2;
@@ -422,8 +419,8 @@ export default class FrontFacingSlitNode extends Node {
       }
     };
 
-    // Update covered-slit appearance and detector visibility based on slit setting.
-    // Note: QuantumWaveInterferenceColors.slitCoverFillProperty is handled by the fill property auto-subscription.
+    // Update covered-slit appearance and detector visibility based on slit setting. Note:
+    // QuantumWaveInterferenceColors.slitCoverFillProperty is handled by the fill property auto-subscription.
     Multilink.multilink(
       [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty, sceneModel.isEmittingProperty ],
       slitSetting => {

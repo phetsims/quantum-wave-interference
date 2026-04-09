@@ -1,9 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Links a scene Property to a parallel array of Nodes, making only the Node corresponding
- * to the active scene visible. Used by panels that swap their content when the active
- * scene changes.
+ * Links a scene Property to a parallel array of Nodes, making only the Node corresponding to the active scene visible.
+ * Used by panels that swap their content when the active scene changes.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

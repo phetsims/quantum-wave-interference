@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * OverheadDetectorScreenNode displays the detector screen in overhead perspective, including the
- * label, parallelogram, pattern overlay, and distance span arrow. The parallelogram slides
- * horizontally based on the screen distance property.
+ * OverheadDetectorScreenNode displays the detector screen in overhead perspective, including the label, parallelogram,
+ * pattern overlay, and distance span arrow. The parallelogram slides horizontally based on the screen distance
+ * property.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -100,9 +100,8 @@ export default class OverheadDetectorScreenNode extends Node {
       // Keep the detector vertically aligned with the slit/beam centerline.
       this.parallelogramNode.centerY = this.doubleSlitParallelogramNode.centerY;
 
-      // Scene-dependent proportional mapping:
-      // center-to-center distance in view space is proportional to the model's screen distance.
-      // For each scene, its max screenDistance maps to the current far-right max position.
+      // Scene-dependent proportional mapping: center-to-center distance in view space is proportional to the model's
+      // screen distance. For each scene, its max screenDistance maps to the current far-right max position.
       const slitCenterX = this.doubleSlitParallelogramNode.centerX;
       const maxScreenCenterX = this.frontFacingScreenRight - BASE_DETECTOR_DX / 2;
       const maxCenterDistanceX = maxScreenCenterX - slitCenterX;
@@ -149,9 +148,9 @@ export default class OverheadDetectorScreenNode extends Node {
   }
 
   /**
-   * Returns the detector screen parallelogram left x-position corresponding to the
-   * maximum screen distance for the active scene. Used for keeping the overhead fan-beam
-   * graphic static in width while the detector screen itself moves.
+   * Returns the detector screen parallelogram left x-position corresponding to the maximum screen distance for the
+   * active scene. Used for keeping the overhead fan-beam graphic static in width while the detector screen itself
+   * moves.
    */
   public getMaxDistanceParallelogramLeft(): number {
     if ( this.frontFacingScreenRight <= this.frontFacingScreenLeft ) {

@@ -1,9 +1,10 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * GraphAccordionBox shows a graph below the front-facing detector screen. In Average Intensity mode, it displays
- * a smooth intensity curve vs horizontal position. In Hits mode, it displays a histogram of hit counts binned
- * into 100 bins. A MagnifyingGlassZoomButtonGroup to the right controls the y-axis zoom level.
+ * GraphAccordionBox shows a graph below the front-facing detector screen. In Average Intensity mode,
+ * it displays a smooth intensity curve vs horizontal position. In Hits mode,
+ * it displays a histogram of hit counts binned into 100 bins.
+ * A MagnifyingGlassZoomButtonGroup to the right controls the y-axis zoom level.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -70,7 +71,7 @@ export default class GraphAccordionBox extends Node {
 
     super( options );
 
-    // Zoom level for the y-axis
+    // Zoom level for the y-axis.
     // Start two steps below the maximum zoom so the graph opens less magnified by default.
     const zoomRange = new RangeWithValue( 1, 6, 4 );
     this.zoomLevelProperty = new NumberProperty( zoomRange.defaultValue, {
@@ -91,17 +92,17 @@ export default class GraphAccordionBox extends Node {
       children: [ chartBackground ]
     } );
 
-    // Keep the plotting region anchored in a fixed horizontal position even if the rotated
-    // y-axis label rescales. Without this fixed gutter, the content bounds can shrink and
-    // cause the chart area to slide horizontally within the accordion box.
+    // Keep the plotting region anchored in a fixed horizontal position even if the rotated y-axis label rescales.
+    // Without this fixed gutter, the content bounds can shrink and cause the chart area to slide horizontally within
+    // the accordion box.
     const yAxisGutterSpacer = new Rectangle( 0, 0, CHART_Y_AXIS_GUTTER_WIDTH, CHART_HEIGHT, {
       fill: 'rgba( 0, 0, 0, 0 )',
       stroke: null,
       pickable: false
     } );
 
-    // Grid lines matching the design mockup: evenly-spaced horizontal and vertical lines
-    // create a grid that helps correlate graph peaks with detector screen positions.
+    // Grid lines matching the design mockup: evenly-spaced horizontal and vertical lines create a grid that helps
+    // correlate graph peaks with detector screen positions.
 
     // Horizontal grid lines (4 divisions)
     const NUM_HORIZONTAL_GRID_LINES = 4;
@@ -191,8 +192,8 @@ export default class GraphAccordionBox extends Node {
       max: this.zoomLevelProperty.range.max
     } );
 
-    // Zoom buttons are part of the accordion content so they remain under the accordion heading
-    // in the PDOM and are only available when the accordion is expanded.
+    // Zoom buttons are part of the accordion content so they remain under the accordion heading in the PDOM and are
+    // only available when the accordion is expanded.
     this.zoomButtonGroup = new MagnifyingGlassZoomButtonGroup( this.zoomLevelProperty, {
       orientation: 'vertical',
       spacing: 8,
@@ -225,9 +226,8 @@ export default class GraphAccordionBox extends Node {
     } );
     contentNode.pdomOrder = [ graphDescriptionNode, chartAndZoomNode ];
 
-    // Create the accordion box, using the shared expandedProperty so that all scenes'
-    // graph accordion boxes stay in sync (per the design: scene changes should not affect
-    // the accordion box open/closed state).
+    // Create the accordion box, using the shared expandedProperty so that all scenes' graph accordion boxes stay in
+    // sync (per the design: scene changes should not affect the accordion box open/closed state).
     this.accordionBox = new AccordionBox( contentNode, {
       accessibleHelpTextCollapsed: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleHelpTextCollapsedStringProperty,
       titleNode: titleText,
@@ -285,11 +285,11 @@ export default class GraphAccordionBox extends Node {
 
   /**
    * Paints the intensity curve as a filled area chart for Average Intensity mode.
-   * Uses the theoretical interference pattern (via sceneModel.getIntensityAtPosition) to produce
-   * the smooth, clean curve shown in the design mockup (IntensityGraph.svg). The theoretical curve
-   * provides immediate, accurate feedback when students change wavelength, slit geometry, or other
-   * parameters, directly supporting the learning goal: "Predict qualitatively and quantitatively
-   * how changing wavelength, particle properties, or slit geometry affects the observed pattern."
+   * Uses the theoretical interference pattern (via sceneModel.getIntensityAtPosition) to produce the smooth,
+   * clean curve shown in the design mockup (IntensityGraph.svg). The theoretical curve provides immediate,
+   * accurate feedback when students change wavelength, slit geometry, or other parameters,
+   * directly supporting the learning goal: "Predict qualitatively and quantitatively how changing wavelength,
+   * particle properties, or slit geometry affects the observed pattern."
    *
    * In intensity mode, the graph shows the instantaneous theoretical pattern at full visibility.
    */
@@ -331,9 +331,9 @@ export default class GraphAccordionBox extends Node {
     dataPath.shape = shape;
     dataPath.lineWidth = 1.5;
 
-    // Fill and stroke with colors matching the source type. For photons, use the
-    // wavelength-derived color so the graph visually matches the detector screen display
-    // and the histogram bars (which already use wavelength-dependent colors).
+    // Fill and stroke with colors matching the source type. For photons,
+    // use the wavelength-derived color so the graph visually matches the detector screen display and the histogram bars
+    // (which already use wavelength-dependent colors).
     if ( sceneModel.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
       dataPath.fill = color.withAlpha( 0.3 );
@@ -364,9 +364,9 @@ export default class GraphAccordionBox extends Node {
       bins[ binIndex ]++;
     }
 
-    // Zoom scaling determines vertical pixels per count. Keep the same number of zoom
-    // levels, and make each adjacent level differ by exactly a factor of 2.
-    // At max zoom, each additional count increases bar height by exactly one bar width in pixels.
+    // Zoom scaling determines vertical pixels per count. Keep the same number of zoom levels,
+    // and make each adjacent level differ by exactly a factor of 2. At max zoom,
+    // each additional count increases bar height by exactly one bar width in pixels.
     const maxZoomLevel = this.zoomLevelProperty.range.max;
     const zoomStepsFromMax = maxZoomLevel - this.zoomLevelProperty.value;
     const zoomScale = Math.pow( 2, -zoomStepsFromMax );
@@ -392,8 +392,8 @@ export default class GraphAccordionBox extends Node {
     dataPath.shape = shape;
     dataPath.lineWidth = 0.5;
 
-    // Histogram bar color matches the source type. For photons, use the wavelength-derived
-    // color so the graph visually matches the detector screen display and reinforces the
+    // Histogram bar color matches the source type. For photons,
+    // use the wavelength-derived color so the graph visually matches the detector screen display and reinforces the
     // wavelength-color connection that supports the learning goals.
     if ( sceneModel.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );

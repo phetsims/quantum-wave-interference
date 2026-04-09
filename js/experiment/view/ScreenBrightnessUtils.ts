@@ -2,8 +2,8 @@
 
 /**
  * Shared brightness/alpha utility functions and constants used by both the live detector screen
- * (getDetectorScreenTexture.ts) and the snapshot dialog (SnapshotNode.ts) to render hit dots
- * and intensity bands with consistent visual appearance.
+ * (getDetectorScreenTexture.ts) and the snapshot dialog (SnapshotNode.ts) to render hit dots and intensity bands with
+ * consistent visual appearance.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -66,8 +66,8 @@ export const getHitsBrightnessFraction = ( brightness: number ): number => {
 
 /**
  * Returns the core alpha for a hit dot at the given brightness fraction.
- * The core alpha ramps from HITS_CORE_ALPHA_MIN to HITS_CORE_ALPHA_MIDPOINT_MAX over the
- * first half of the brightness range, then stays at maximum.
+ * The core alpha ramps from HITS_CORE_ALPHA_MIN to HITS_CORE_ALPHA_MIDPOINT_MAX over the first half of the brightness
+ * range, then stays at maximum.
  */
 export const getHitsCoreAlpha = ( brightnessFraction: number ): number => {
   const clampedFraction = clamp( brightnessFraction, 0, 1 );
@@ -84,8 +84,8 @@ export const getHitsCoreAlpha = ( brightnessFraction: number ): number => {
 };
 
 /**
- * Returns the glow alpha for a hit dot at the given brightness fraction.
- * Glow is zero until the brightness exceeds HITS_GLOW_START_FRACTION, then ramps up.
+ * Returns the glow alpha for a hit dot at the given brightness fraction. Glow is zero until the brightness exceeds
+ * HITS_GLOW_START_FRACTION, then ramps up.
  */
 export const getHitsGlowAlpha = ( brightnessFraction: number ): number => {
   const clampedFraction = clamp( brightnessFraction, 0, 1 );

@@ -2,8 +2,8 @@
 
 /**
  * CanvasNode that renders the interference pattern on the overhead detector screen parallelogram.
- * Draws the same shared detector-screen texture used by the front-facing detector view, with an
- * affine transform that skews it into the overhead parallelogram.
+ * Draws the same shared detector-screen texture used by the front-facing detector view,
+ * with an affine transform that skews it into the overhead parallelogram.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -49,8 +49,8 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
   }
 
   /**
-   * Renders the shared detector-screen texture with a skew transform so it matches
-   * the overhead detector parallelogram perspective.
+   * Renders the shared detector-screen texture with a skew transform so it matches the overhead detector parallelogram
+   * perspective.
    */
   public paintCanvas( context: CanvasRenderingContext2D ): void {
     if ( !this.sceneModel ) {

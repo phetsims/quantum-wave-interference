@@ -1,8 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Snapshot captures the state of the detector screen at a point in time. It stores a copy of the hits array
- * and the detection mode, along with metadata needed to render the snapshot in the dialog.
+ * Snapshot captures the state of the detector screen at a point in time.
+ * It stores a copy of the hits array and the detection mode, along with metadata needed to render the snapshot in the
+ * dialog.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

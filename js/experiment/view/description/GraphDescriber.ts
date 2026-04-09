@@ -1,14 +1,14 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * GraphDescriber produces a dynamic accessible description of the intensity graph / hits
- * histogram that scales with hit count and describes the theoretical intensity curve.
- * Uses the same band analysis as DetectorScreenDescriber but with graph-oriented language
- * ("peaks" and "valleys" instead of "bright bands" and "dark bands").
+ * GraphDescriber produces a dynamic accessible description of the intensity graph / hits histogram that scales with
+ * hit count and describes the theoretical intensity curve.
+ * Uses the same band analysis as DetectorScreenDescriber but with graph-oriented language ("peaks" and "valleys"
+ * instead of "bright bands" and "dark bands").
  *
- * Like DetectorScreenDescriber, descriptions are poetic and gestalt. In hits mode, the
- * description only changes at qualitative stage thresholds, and spatial information is
- * derived from the theoretical intensity formula for stability.
+ * Like DetectorScreenDescriber, descriptions are poetic and gestalt. In hits mode,
+ * the description only changes at qualitative stage thresholds,
+ * and spatial information is derived from the theoretical intensity formula for stability.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -29,8 +29,8 @@ export default class GraphDescriber {
     const descriptionProperty = new Property<string>( '' );
     this.descriptionProperty = descriptionProperty;
 
-    // Track the current hit stage so that the description only updates when crossing
-    // a pedagogically meaningful threshold, not on every frame of hit accumulation.
+    // Track the current hit stage so that the description only updates when crossing a pedagogically meaningful
+    // threshold, not on every frame of hit accumulation.
     let hitStage = '';
 
     const update = () => {
@@ -62,8 +62,8 @@ export default class GraphDescriber {
       }
       hitStage = newStage;
 
-      // Use the theoretical pattern for spatial descriptions so they remain stable
-      // as hits accumulate, rather than jumping with noisy bin data.
+      // Use the theoretical pattern for spatial descriptions so they remain stable as hits accumulate,
+      // rather than jumping with noisy bin data.
       const analysis = BandAnalysis.analyzeTheoreticalPattern( sceneModel );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
 
@@ -100,11 +100,11 @@ export default class GraphDescriber {
     sceneModel.velocityProperty.lazyLink( fullUpdate );
     isRulerVisibleProperty.lazyLink( fullUpdate );
 
-    // Re-render whenever the Fluent bundle changes (e.g. locale change, or PhET-iO string
-    // edits that swap the bundle without changing localeProperty). We subscribe via any
-    // Fluent pattern's getDependentProperties() — they all share the same bundleProperty
-    // signal — so we don't have to enumerate every string this describer reads, and new
-    // strings added later are automatically covered.
+    // Re-render whenever the Fluent bundle changes (e.g. locale change,
+    // or PhET-iO string edits that swap the bundle without changing localeProperty).
+    // We subscribe via any Fluent pattern's getDependentProperties() — they all share the same bundleProperty signal —
+    // so we don't have to enumerate every string this describer reads, and new strings added later are automatically
+    // covered.
     QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensity
       .getDependentProperties().forEach( dep => dep.lazyLink( fullUpdate ) );
 

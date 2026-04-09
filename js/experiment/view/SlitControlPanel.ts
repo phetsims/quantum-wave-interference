@@ -85,9 +85,9 @@ export default class SlitControlPanel extends Panel {
       sceneNodes.push( sceneContent );
     }
 
-    // Container node holds all scene content; only the active one is visible.
-    // excludeInvisibleChildrenFromBounds: false ensures the panel sizes to the widest
-    // content across all scenes, preventing layout shifts when switching scenes.
+    // Container node holds all scene content; only the active one is visible. excludeInvisibleChildrenFromBounds:
+    // false ensures the panel sizes to the widest content across all scenes, preventing layout shifts when switching
+    // scenes.
     const contentNode = new Node( {
       children: sceneNodes,
       excludeInvisibleChildrenFromBounds: false
@@ -108,9 +108,9 @@ export default class SlitControlPanel extends Panel {
   ): Node {
     const sceneTandemName = scene.sourceType;
 
-    // Slit separation NumberControl.
-    // For scenes with very small slit separations (max < 0.1 mm), display in μm instead of mm
-    // for readability. E.g., "10 μm" instead of "0.010 mm" for the electron/helium atom scenes.
+    // Slit separation NumberControl. For scenes with very small slit separations (max < 0.1 mm),
+    // display in μm instead of mm for readability. E.g., "10 μm" instead of "0.010 mm" for the electron/helium atom
+    // scenes.
     const slitSeparationRange = scene.slitSeparationRange;
     const usesMicrometers = slitSeparationRange.max <= 0.1; // mm threshold for switching to μm
 
@@ -332,8 +332,8 @@ export default class SlitControlPanel extends Panel {
    * The range is in mm but the labels display the values converted to μm for readability.
    */
   private static createMicrometerTicks( range: Range ): { value: number; label: Node }[] {
-    // Use consistent decimal places across both tick labels so they visually match.
-    // E.g., for range 0.5–1.0 μm, both ticks should show 1 decimal place: "0.5" and "1.0".
+    // Use consistent decimal places across both tick labels so they visually match. E.g., for range 0.5–1.0 μm,
+    // both ticks should show 1 decimal place: "0.5" and "1.0".
     const minUM = range.min * 1000;
     const maxUM = range.max * 1000;
     const decimalPlaces = Math.max(
@@ -364,8 +364,8 @@ export default class SlitControlPanel extends Panel {
    * Uses minimal decimal places needed to represent the values without trailing zeros.
    */
   private static createNumericTicks( range: Range, decimalPlaces?: number ): { value: number; label: Node }[] {
-    // Use consistent decimal places across both tick labels so they visually match.
-    // E.g., for range 0.2–1.0 mm, both ticks should show 1 decimal place: "0.2" and "1.0".
+    // Use consistent decimal places across both tick labels so they visually match. E.g., for range 0.2–1.0 mm,
+    // both ticks should show 1 decimal place: "0.2" and "1.0".
     const tickDecimalPlaces = decimalPlaces ?? Math.max(
       SlitControlPanel.getTickDecimalPlaces( range.min ),
       SlitControlPanel.getTickDecimalPlaces( range.max )
@@ -390,8 +390,8 @@ export default class SlitControlPanel extends Panel {
   }
 
   /**
-   * Determines the number of decimal places needed to display a tick value without trailing zeros.
-   * For example, 0.2 -> 1, 0.002 -> 3, 5.0 -> 1, 0.1 -> 1
+   * Determines the number of decimal places needed to display a tick value without trailing zeros. For example,
+   * 0.2 -> 1, 0.002 -> 3, 5.0 -> 1, 0.1 -> 1
    */
   private static getTickDecimalPlaces( value: number ): number {
     if ( value === Math.floor( value ) ) {
@@ -407,8 +407,8 @@ export default class SlitControlPanel extends Panel {
   }
 
   /**
-   * Determines appropriate decimal places based on the precision needed to represent the range
-   * boundary values. Uses the maximum number of decimal places from the min and max values.
+   * Determines appropriate decimal places based on the precision needed to represent the range boundary values.
+   * Uses the maximum number of decimal places from the min and max values.
    */
   private static getDecimalPlaces( range: Range ): number {
     return Math.max(
@@ -418,9 +418,9 @@ export default class SlitControlPanel extends Panel {
   }
 
   /**
-   * Determines an appropriate delta (step size) for a NumberControl based on the decimal
-   * precision of the range boundaries. The step size is the smallest increment representable
-   * at that precision (e.g., 1 decimal place → delta = 0.1).
+   * Determines an appropriate delta (step size) for a NumberControl based on the decimal precision of the range
+   * boundaries. The step size is the smallest increment representable at that precision (e.g.,
+   * 1 decimal place → delta = 0.1).
    */
   private static getDelta( range: Range ): number {
     const decimalPlaces = SlitControlPanel.getDecimalPlaces( range );

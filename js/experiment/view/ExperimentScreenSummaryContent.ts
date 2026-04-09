@@ -1,8 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * ExperimentScreenSummaryContent provides the screen summary for the Experiment screen, describing
- * the play area, control area, current details, and an interaction hint for screen reader users.
+ * ExperimentScreenSummaryContent provides the screen summary for the Experiment screen, describing the play area,
+ * control area, current details, and an interaction hint for screen reader users.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

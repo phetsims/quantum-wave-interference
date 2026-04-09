@@ -1,10 +1,10 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Factory for the draggable ruler used by the Experiment screen. The ruler's horizontal scale
- * is calibrated to the active detector screen: its full width maps to the scene's full detector
- * width in mm. Each scene gets its own ruler so the tick labels can be tuned to that scene's
- * source type and detector size.
+ * Factory for the draggable ruler used by the Experiment screen.
+ * The ruler's horizontal scale is calibrated to the active detector screen:
+ * its full width maps to the scene's full detector width in mm.
+ * Each scene gets its own ruler so the tick labels can be tuned to that scene's source type and detector size.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

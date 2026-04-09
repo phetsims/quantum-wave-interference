@@ -1,9 +1,10 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * OverheadEmitterNode displays the source label, mass label, and laser/particle emitter in the
- * overhead perspective top row. It toggles between a laser pointer (for photons) and a particle
- * emitter (for electrons/neutrons/helium atoms) based on the active scene.
+ * OverheadEmitterNode displays the source label, mass label,
+ * and laser/particle emitter in the overhead perspective top row.
+ * It toggles between a laser pointer (for photons) and a particle emitter (for electrons/neutrons/helium atoms) based
+ * on the active scene.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

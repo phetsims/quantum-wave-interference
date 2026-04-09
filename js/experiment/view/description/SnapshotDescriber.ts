@@ -1,8 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Produces an accessible paragraph for a detector-screen snapshot using the same qualitative
- * description structure as the live detector screen.
+ * Produces an accessible paragraph for a detector-screen snapshot using the same qualitative description structure as
+ * the live detector screen.
  *
  * @author Matthew Blackman (PhET Interactive Simulations)
  */

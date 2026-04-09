@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * OverheadDoubleSlitNode displays the double slit in overhead perspective, including the label,
- * parallelogram, slit lines, cover overlays, and detector overlays. Updates dynamically based
- * on the active scene's slit separation and slit setting.
+ * OverheadDoubleSlitNode displays the double slit in overhead perspective, including the label, parallelogram, slit
+ * lines, cover overlays, and detector overlays. Updates dynamically based on the active scene's slit separation and
+ * slit setting.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -57,15 +57,16 @@ export default class OverheadDoubleSlitNode extends Node {
     } );
     this.addChild( this.doubleSlitLabel );
 
-    // Double slit parallelogram container (overhead perspective view). The container keeps the
-    // original bounds for layout/beam geometry, while the visible background is a smaller child.
+    // Double slit parallelogram container (overhead perspective view).
+    // The container keeps the original bounds for layout/beam geometry, while the visible background is a smaller
+    // child.
     this.parallelogramNode = createParallelogramNode( this.skewDx, this.skewDy, PARALLELOGRAM_LEFT_HEIGHT, 'rgba(0,0,0,0)' );
     this.parallelogramNode.x = BASE_PARALLELOGRAM_CENTER_X - this.skewDx / 2;
     this.parallelogramNode.y = 45;
     this.addChild( this.parallelogramNode );
 
-    // Reduce the visible rounded-rectangle/parallelogram background by 25% in both width and height
-    // while preserving the existing slit-line coordinates and overall node positioning.
+    // Reduce the visible rounded-rectangle/parallelogram background by 25% in both width and height while preserving
+    // the existing slit-line coordinates and overall node positioning.
     this.reducedBackgroundNode = createParallelogramNode(
       this.skewDx * SLIT_BACKGROUND_SCALE,
       this.skewDy * SLIT_BACKGROUND_SCALE,
@@ -177,16 +178,16 @@ export default class OverheadDoubleSlitNode extends Node {
   }
 
   /**
-   * Returns the x-position (in parent coordinates) of the left edge of the visible
-   * rounded-rectangle/parallelogram graphic.
+   * Returns the x-position (in parent coordinates) of the left edge of the visible rounded-rectangle/parallelogram
+   * graphic.
    */
   public getVisibleBackgroundLeftX(): number {
     return this.parallelogramNode.x + this.reducedBackgroundNode.left;
   }
 
   /**
-   * Returns the x-position (in parent coordinates) of the right edge of the visible
-   * rounded-rectangle/parallelogram graphic.
+   * Returns the x-position (in parent coordinates) of the right edge of the visible rounded-rectangle/parallelogram
+   * graphic.
    */
   public getVisibleBackgroundRightX(): number {
     return this.parallelogramNode.x + this.reducedBackgroundNode.right;

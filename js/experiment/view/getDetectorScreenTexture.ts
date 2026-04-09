@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Provides a shared per-scene detector-screen texture. The texture is rendered with the same
- * logic used by the front-facing detector screen, so other views (e.g. overhead) can display
- * identical graphics by drawing the same cached image with different transforms.
+ * Provides a shared per-scene detector-screen texture. The texture is rendered with the same logic used by the
+ * front-facing detector screen, so other views (e.g. overhead) can display identical graphics by drawing the same
+ * cached image with different transforms.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -17,9 +17,9 @@ import { getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHit
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 
-// Supersample factor: render the texture at 2x resolution for crisper hit dots on the
-// front-facing detector screen. Consumers draw the texture with drawImage(..., destW, destH)
-// which naturally downscales, producing smoother results similar to the snapshot dialog.
+// Supersample factor: render the texture at 2x resolution for crisper hit dots on the front-facing detector screen.
+// Consumers draw the texture with drawImage(..., destW, destH) which naturally downscales,
+// producing smoother results similar to the snapshot dialog.
 const SUPERSAMPLE = 2;
 const TEXTURE_WIDTH = SCREEN_WIDTH * SUPERSAMPLE;
 const TEXTURE_HEIGHT = SCREEN_HEIGHT * SUPERSAMPLE;
@@ -33,21 +33,21 @@ type SceneTextureCache = {
   context: CanvasRenderingContext2D;
   dirty: boolean;
 
-  // Persistent-canvas optimization: track how many hits have already been painted so
-  // incremental frames only blit the new ones. When rendering parameters change (brightness,
-  // wavelength, mode) we set lastRenderedHitCount to 0 to force a full repaint.
+  // Persistent-canvas optimization: track how many hits have already been painted so incremental frames only blit
+  // the new ones. When rendering parameters change (brightness, wavelength, mode) we set lastRenderedHitCount to 0
+  // to force a full repaint.
   lastRenderedHitCount: number;
 
-  // The parameters that were used for the last render, so we can detect when a full
-  // repaint is needed vs an incremental blit.
+  // The parameters that were used for the last render, so we can detect when a full repaint is needed vs an
+  // incremental blit.
   lastBrightness: number;
   lastWavelength: number;
   lastDetectionMode: string;
   lastIntensity: number;
   lastIsEmitting: boolean;
 
-  // Cached hit sprite (small offscreen canvas with glow + core pre-rendered).
-  // Invalidated when brightness or color changes.
+  // Cached hit sprite (small offscreen canvas with glow + core pre-rendered). Invalidated when brightness or color
+  // changes.
   hitSprite: HTMLCanvasElement | null;
   hitSpriteParams: { r: number; g: number; b: number; coreAlpha: number; glowAlpha: number; glowRadius: number } | null;
 };
@@ -58,9 +58,8 @@ const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
 let hasLoggedRenderCap = false;
 
 /**
- * Creates (or returns a cached) hit sprite — a small offscreen canvas with the glow ring and
- * solid core pre-rendered. Using drawImage per hit instead of beginPath/arc/fill avoids path
- * tessellation and is typically 3-5× faster.
+ * Creates (or returns a cached) hit sprite — a small offscreen canvas with the glow ring and solid core pre-rendered.
+ * Using drawImage per hit instead of beginPath/arc/fill avoids path tessellation and is typically 3-5× faster.
  */
 const getHitSprite = (
   cache: SceneTextureCache,
@@ -111,8 +110,8 @@ const getHitSprite = (
 };
 
 /**
- * Paints hits onto the cache canvas. When possible, only new hits (those added since the last
- * render) are blitted, making the per-frame cost O(new hits) ≈ 1–6 instead of O(total hits).
+ * Paints hits onto the cache canvas. When possible, only new hits (those added since the last render) are blitted,
+ * making the per-frame cost O(new hits) ≈ 1–6 instead of O(total hits).
  */
 const paintHits = (
   cache: SceneTextureCache,
@@ -151,12 +150,12 @@ const paintHits = (
     );
   }
 
-  // Determine the range of hits that still need to be drawn. If the cache already has
-  // some hits rendered (from a previous frame), skip those.
+  // Determine the range of hits that still need to be drawn.
+  // If the cache already has some hits rendered (from a previous frame), skip those.
   const alreadyRendered = cache.lastRenderedHitCount;
 
-  // If hits were trimmed (array splice in SceneModel.step), the previously rendered hits
-  // may no longer be at the same indices. Detect this and force a full repaint.
+  // If hits were trimmed (array splice in SceneModel.step), the previously rendered hits may no longer be at the same
+  // indices. Detect this and force a full repaint.
   const needsFullRepaint = alreadyRendered > hitCount || startIndex > 0 && alreadyRendered <= startIndex;
   const incrementalStart = needsFullRepaint ? startIndex : Math.max( startIndex, alreadyRendered );
 
@@ -215,8 +214,8 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
   const currentIntensity = sceneModel.intensityProperty.value;
   const currentIsEmitting = sceneModel.isEmittingProperty.value;
 
-  // Detect whether rendering parameters changed (requiring a full repaint of all hits)
-  // vs only new hits were added (allowing an incremental blit).
+  // Detect whether rendering parameters changed (requiring a full repaint of all hits) vs only new hits were added
+  // (allowing an incremental blit).
   const paramsChanged = cache.lastBrightness !== currentBrightness ||
                         cache.lastWavelength !== currentWavelength ||
                         cache.lastDetectionMode !== currentDetectionMode ||

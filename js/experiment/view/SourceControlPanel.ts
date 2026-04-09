@@ -99,8 +99,8 @@ export default class SourceControlPanel extends Panel {
     } );
 
     // Container node holds all scene content nodes; only the active one is visible.
-    // excludeInvisibleChildrenFromBounds: false ensures the panel sizes to the widest
-    // content across all scenes, preventing layout shifts when switching scenes.
+    // excludeInvisibleChildrenFromBounds: false ensures the panel sizes to the widest content across all scenes,
+    // preventing layout shifts when switching scenes.
     const contentNode = new Node( {
       children: sceneNodes,
       excludeInvisibleChildrenFromBounds: false
@@ -121,8 +121,8 @@ export default class SourceControlPanel extends Panel {
     topControl: Node;
     bottomControl: Node;
   } {
-    // Photon scenes use "Source Intensity" while particle scenes use "Emission Rate" per the
-    // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
+    // Photon scenes use "Source Intensity" while particle scenes use "Emission Rate" per the ElectronEmitter.svg
+    // design mockup, which is more physically intuitive for students.
     const intensityLabelStringProperty = scene.sourceType === 'photons'
                                          ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
                                          : QuantumWaveInterferenceFluent.emissionRateStringProperty;
@@ -207,8 +207,8 @@ export default class SourceControlPanel extends Panel {
     else {
 
       // Velocity NumberControl for particle scenes, per the design document:
-      // "the panel contains a Velocity NumberControl and Intensity Slider".
-      // Speed is displayed in km/s for electrons (large: 1e5–1e7 m/s) and m/s for slower particles.
+      // "the panel contains a Velocity NumberControl and Intensity Slider". Speed is displayed in km/s for electrons
+      // (large: 1e5–1e7 m/s) and m/s for slower particles.
       const velocityRange = scene.velocityRange;
 
       const sourceType = scene.sourceType;
@@ -266,8 +266,8 @@ export default class SourceControlPanel extends Panel {
         }
       };
 
-      // Use "Particle Speed" per the ElectronEmitter.svg design mockup, which is more
-      // student-friendly than the physics term "Velocity".
+      // Use "Particle Speed" per the ElectronEmitter.svg design mockup,
+      // which is more student-friendly than the physics term "Velocity".
       topControl = new NumberControl(
         QuantumWaveInterferenceFluent.particleSpeedStringProperty,
         scene.velocityProperty,
@@ -324,8 +324,8 @@ export default class SourceControlPanel extends Panel {
   }
 
   /**
-   * Creates the scene content using fixed-size row containers so controls keep identical
-   * height and position across source types.
+   * Creates the scene content using fixed-size row containers so controls keep identical height and position across
+   * source types.
    */
   private static createSceneContent(
     topControl: Node,

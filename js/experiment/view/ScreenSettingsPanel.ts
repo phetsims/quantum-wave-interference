@@ -1,8 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * ScreenSettingsPanel contains the detection mode radio buttons ('Intensity' vs 'Hits')
- * and a 'Screen brightness' slider. These controls affect the display on the detector screen,
+ * ScreenSettingsPanel contains the detection mode radio buttons ('Intensity' vs 'Hits') and a 'Screen brightness'
+ * slider. These controls affect the display on the detector screen,
  * routed through the active scene's properties via ExperimentModel's centralized DynamicProperties.
  *
  * @author Sam Reid (PhET Interactive Simulations)

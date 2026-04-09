@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * ViewSnapshotsButton is the eye button used to open the snapshots dialog showing previously captured
- * detector screen patterns. It is disabled when no snapshots have been taken. Opening the dialog pauses
- * the sim; closing it resumes playback if the sim was playing when the dialog was opened.
+ * ViewSnapshotsButton is the eye button used to open the snapshots dialog showing previously captured detector screen
+ * patterns. It is disabled when no snapshots have been taken. Opening the dialog pauses the sim;
+ * closing it resumes playback if the sim was playing when the dialog was opened.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

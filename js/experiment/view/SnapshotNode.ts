@@ -1,13 +1,13 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SnapshotNode displays a single snapshot in the SnapshotsDialog. It shows a miniature rendering of the
- * detector screen state at the time the snapshot was taken, along with a title, key physics parameters
- * (slit separation, screen distance, wavelength), and a delete button.
+ * SnapshotNode displays a single snapshot in the SnapshotsDialog.
+ * It shows a miniature rendering of the detector screen state at the time the snapshot was taken, along with a title,
+ * key physics parameters (slit separation, screen distance, wavelength), and a delete button.
  *
- * The parameter labels allow users to compare how different settings produce different interference
- * patterns, directly supporting the learning goal of predicting how changes to wavelength, particle
- * properties, or slit geometry affect the observed pattern.
+ * The parameter labels allow users to compare how different settings produce different interference patterns,
+ * directly supporting the learning goal of predicting how changes to wavelength, particle properties,
+ * or slit geometry affect the observed pattern.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -79,9 +79,9 @@ export default class SnapshotNode extends Node {
       snapshots => ( index < snapshots.length ? snapshots[ index ] : null )
     );
 
-    // All metadata strings derive from the snapshot and the relevant locale-dependent string
-    // properties, so they update automatically on snapshot change AND locale change without
-    // any manual re-sync. Each derived property returns '' when there is no snapshot.
+    // All metadata strings derive from the snapshot and the relevant locale-dependent string properties,
+    // so they update automatically on snapshot change AND locale change without any manual re-sync.
+    // Each derived property returns '' when there is no snapshot.
 
     const ifSnapshot = <T>( compute: ( snapshot: Snapshot ) => T, empty: T ): ( snapshot: Snapshot | null ) => T =>
       snapshot => snapshot ? compute( snapshot ) : empty;

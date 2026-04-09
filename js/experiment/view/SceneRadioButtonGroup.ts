@@ -2,8 +2,8 @@
 
 /**
  * SceneRadioButtonGroup provides a 2x2 grid of radio buttons for selecting between the four source-type scenes
- * (Photons, Electrons, Neutrons, Helium atoms). Each button displays a source-type-specific icon with the
- * source name as a label beneath it.
+ * (Photons, Electrons, Neutrons, Helium atoms). Each button displays a source-type-specific icon with the source name
+ * as a label beneath it.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

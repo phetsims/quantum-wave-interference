@@ -2,9 +2,9 @@
 
 /**
  * SnapshotButton is the camera button used to capture the current detector screen pattern as a snapshot.
- * It is disabled once the maximum number of snapshots has been reached, plays a capture sound, and
- * invokes a caller-supplied callback when a snapshot is successfully taken (used by DetectorScreenNode
- * to trigger the flash overlay effect).
+ * It is disabled once the maximum number of snapshots has been reached, plays a capture sound,
+ * and invokes a caller-supplied callback when a snapshot is successfully taken (used by DetectorScreenNode to trigger
+ * the flash overlay effect).
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

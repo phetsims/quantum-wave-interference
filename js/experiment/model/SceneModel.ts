@@ -129,8 +129,8 @@ export default class SceneModel extends PhetioObject {
   public readonly slitSeparationRange: Range;
   public readonly screenDistanceRange: Range;
 
-  // Physical half-width of the detector screen in meters, chosen per source type
-  // so that ~10 interference fringes are visible at default settings
+  // Physical half-width of the detector screen in meters, chosen per source type so that ~10 interference fringes are
+  // visible at default settings
   public readonly screenHalfWidth: number;
 
   // Accumulated hit positions on the detector screen. Each Vector2 has x in [-1,1] (horizontal,
@@ -146,8 +146,9 @@ export default class SceneModel extends PhetioObject {
   // Number of snapshots currently stored
   public readonly numberOfSnapshotsProperty: TReadOnlyProperty<number>;
 
-  // Monotonically increasing counter for unique snapshot numbering. Cannot be derived from
-  // snapshotsProperty.length because snapshots can be deleted, and we want labels to never repeat.
+  // Monotonically increasing counter for unique snapshot numbering.
+  // Cannot be derived from snapshotsProperty.length because snapshots can be deleted, and we want labels to never
+  // repeat.
   private nextSnapshotNumber: number;
 
   // Fractional hit accumulator for sub-frame hit tracking
@@ -164,8 +165,8 @@ export default class SceneModel extends PhetioObject {
 
     this.sourceType = options.sourceType;
 
-    // Set per-source-type constants. screenHalfWidth is the physical half-width of the detector
-    // screen in meters, chosen so that approximately 10 fringes are visible at default settings.
+    // Set per-source-type constants. screenHalfWidth is the physical half-width of the detector screen in meters,
+    // chosen so that approximately 10 fringes are visible at default settings.
     // defaultScreenDistance and defaultVelocity are set per source type to match the design mockup.
     let defaultScreenDistance: number;
     let defaultVelocity: number;
@@ -324,16 +325,16 @@ export default class SceneModel extends PhetioObject {
     } );
 
     // Clear accumulated data when any parameter that affects the interference pattern changes.
-    // Accumulated hits are based on the probability distribution at the time of generation, so
-    // they become inconsistent (and pedagogically misleading) if the pattern changes beneath them.
+    // Accumulated hits are based on the probability distribution at the time of generation,
+    // so they become inconsistent (and pedagogically misleading) if the pattern changes beneath them.
     this.slitSeparationProperty.lazyLink( () => this.clearScreen() );
     this.screenDistanceProperty.lazyLink( () => this.clearScreen() );
     this.slitSettingProperty.lazyLink( () => this.clearScreen() );
     this.wavelengthProperty.lazyLink( () => this.clearScreen() );
     this.velocityProperty.lazyLink( () => this.clearScreen() );
 
-    // Detection mode changes should not clear accumulated hits. Hits mode preserves its
-    // accumulated screen data when the user temporarily switches to intensity mode and back.
+    // Detection mode changes should not clear accumulated hits.
+    // Hits mode preserves its accumulated screen data when the user temporarily switches to intensity mode and back.
 
     // When the hit cap is reached in Hits mode, stop the source and require the user to clear the screen.
     this.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
@@ -389,8 +390,8 @@ export default class SceneModel extends PhetioObject {
     const slitSetting = this.slitSettingProperty.value;
 
     if ( slitSetting === 'leftCovered' || slitSetting === 'rightCovered' ) {
-      // When one slit is covered, shift the single-slit pattern center by half the slit
-      // separation toward the uncovered slit while preserving the full detector-screen width.
+      // When one slit is covered, shift the single-slit pattern center by half the slit separation toward the
+      // uncovered slit while preserving the full detector-screen width.
       const uncoveredSlitOffsetMeters = slitSetting === 'leftCovered' ? slitSeparationMeters / 2 :
                                         -slitSeparationMeters / 2;
       const shiftedPositionOnScreen = positionOnScreen - uncoveredSlitOffsetMeters;
@@ -408,8 +409,8 @@ export default class SceneModel extends PhetioObject {
 
     if ( hasAnyDetector( slitSetting ) ) {
 
-      // Which-path detection destroys interference: sum of two single-slit patterns
-      // (no cross-term), result is essentially a broad single-slit-like pattern
+      // Which-path detection destroys interference: sum of two single-slit patterns (no cross-term),
+      // result is essentially a broad single-slit-like pattern
       return singleSlitFactor;
     }
 
@@ -497,9 +498,9 @@ export default class SceneModel extends PhetioObject {
    * The position is drawn from a probability distribution matching the interference pattern intensity.
    * Returns a normalized value in [-1, 1].
    *
-   * The rejection rate depends on the slit geometry; typical double-slit patterns accept ~30-60%
-   * of proposals. The MAX_REJECTION_ITERATIONS fallback is hit extremely rarely (< 0.01% of calls)
-   * and only for near-zero intensity configurations.
+   * The rejection rate depends on the slit geometry; typical double-slit patterns accept ~30-60% of proposals.
+   * The MAX_REJECTION_ITERATIONS fallback is hit extremely rarely (< 0.01% of calls) and only for near-zero intensity
+   * configurations.
    */
   private generateHitPosition(): number {
     for ( let i = 0; i < MAX_REJECTION_ITERATIONS; i++ ) {
@@ -563,8 +564,8 @@ export default class SceneModel extends PhetioObject {
       this.hits.push( new Vector2( x, y ) );
       actualHitsAddedThisFrame++;
 
-      // When a which-path detector is active, each particle has ~50% probability of going
-      // through the monitored slit (the one with the detector on it).
+      // When a which-path detector is active, each particle has ~50% probability of going through the monitored slit
+      // (the one with the detector on it).
       if ( isDetectorActive ) {
         const detectorSide = dotRandom.nextDouble() < 0.5 ? 'left' : 'right';
         if ( hasDetectorOnSide( slitSetting, detectorSide ) ) {
@@ -600,9 +601,8 @@ export default class SceneModel extends PhetioObject {
   }
 
   /**
-   * IOType for SceneModel that serializes the live detector screen data (hits,
-   * hit accumulator, and next snapshot number) which are plain arrays/numbers not covered by
-   * the individual instrumented Properties.
+   * IOType for SceneModel that serializes the live detector screen data (hits, hit accumulator,
+   * and next snapshot number) which are plain arrays/numbers not covered by the individual instrumented Properties.
    */
   private static readonly SceneModelIO = new IOType<SceneModel, SceneModelStateObject>( 'SceneModelIO', {
     valueType: SceneModel,

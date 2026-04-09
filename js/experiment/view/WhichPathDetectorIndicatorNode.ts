@@ -1,10 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * WhichPathDetectorIndicatorNode displays one or more which-path detector panels next to the
- * overhead double slit. Each panel is side-specific and connects to its slit detector marker
- * with the same reusable layout and wire-drawing code, so left, right, and both-detectors
- * configurations all share the same implementation.
+ * WhichPathDetectorIndicatorNode displays one or more which-path detector panels next to the overhead double slit.
+ * Each panel is side-specific and connects to its slit detector marker with the same reusable layout and wire-drawing
+ * code, so left, right, and both-detectors configurations all share the same implementation.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
