@@ -81,14 +81,8 @@ export default class SourceControlPanel extends Panel {
     );
 
     const sceneContentNodes = sceneControlContents.map( sceneControls =>
-      SourceControlPanel.createSceneContent(
-        sceneControls.topControl,
-        sceneControls.bottomControl,
-        maxTopControlWidth,
-        maxTopControlHeight,
-        maxBottomControlWidth,
-        maxBottomControlHeight
-      )
+      SourceControlPanel.createSceneContent( sceneControls.topControl, sceneControls.bottomControl, maxTopControlWidth,
+        maxTopControlHeight, maxBottomControlWidth, maxBottomControlHeight )
     );
 
     const maxSceneWidth = Math.max( ...sceneContentNodes.map( node => node.width ) );

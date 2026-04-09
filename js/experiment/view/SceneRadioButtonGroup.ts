@@ -23,7 +23,6 @@ import photon_svg from '../../../images/photon_svg.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SourceType } from '../model/SourceType.js';
 
 const LABEL_FONT = new PhetFont( 12 );
 const ICON_MAX_WIDTH = 24;
@@ -44,14 +43,14 @@ const ICON_SCALE = {
   electrons: 1,
   neutrons: 0.85,
   heliumAtoms: 1.2
-} as const satisfies Record<SourceType, number>;
+} as const;
 
 const SOURCE_TYPE_IMAGE_MAP = {
   photons: photon_svg,
   electrons: electron_svg,
   neutrons: neutron_svg,
   heliumAtoms: heliumAtom_svg
-} as const satisfies Record<SourceType, HTMLImageElement>;
+} as const;
 
 // String properties for each source type
 const SOURCE_TYPE_STRING_PROPERTIES = {
@@ -59,7 +58,7 @@ const SOURCE_TYPE_STRING_PROPERTIES = {
   electrons: QuantumWaveInterferenceFluent.electronsStringProperty,
   neutrons: QuantumWaveInterferenceFluent.neutronsStringProperty,
   heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomsStringProperty
-} as const satisfies Record<SourceType, typeof QuantumWaveInterferenceFluent.photonsStringProperty>;
+} as const;
 
 // Context response string properties for each scene radio button, confirming the particle type change.
 const SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES = {

@@ -40,7 +40,7 @@ const DETECTOR_SIDE_LAYOUT = {
     verticalOffset: 4 * OVERHEAD_SCALE,
     wireStartX: 0
   }
-} as const satisfies Record<DetectorSide, { verticalOffset: number; wireStartX: number }>;
+} as const;
 
 class DetectorPanelNode extends Node {
   private readonly updateIndicator: () => void;
