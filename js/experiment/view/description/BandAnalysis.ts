@@ -18,6 +18,7 @@ import Snapshot from '../../model/Snapshot.js';
 // string to show and to throttle updates so they only fire at pedagogically meaningful thresholds.
 export type HitStage = 'none' | 'few' | 'emerging' | 'developing' | 'clear';
 
+
 // Results from analyzing an intensity distribution.
 export type BandAnalysisResult = {
   bandCount: number;
