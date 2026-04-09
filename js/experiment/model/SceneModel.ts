@@ -296,10 +296,7 @@ export default class SceneModel extends PhetioObject {
         detectionMode === 'hits' && totalHits >= ExperimentConstants.MAX_HITS
     );
 
-    this.isEmitterEnabledProperty = new DerivedProperty(
-      [ this.isMaxHitsReachedProperty ],
-      isMaxHitsReached => !isMaxHitsReached
-    );
+    this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMaxHitsReached => !isMaxHitsReached );
 
     this.snapshotsProperty = new Property<Snapshot[]>( [], {
       tandem: tandem.createTandem( 'snapshotsProperty' ),

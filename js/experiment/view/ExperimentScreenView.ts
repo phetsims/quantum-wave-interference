@@ -536,23 +536,20 @@ export default class ExperimentScreenView extends ScreenView {
     // The slit width is a constant per scene that is visible on screen but not accessible
     // through any interactive control.
     const slitSettingProperty = model.currentSlitSettingProperty;
-    const slitWidthStringProperty = new DerivedProperty(
-      [ model.sceneProperty ],
-      scene => {
-        const slitWidthMM = scene.slitWidth;
-        if ( slitWidthMM >= 0.01 ) {
-          return QuantumWaveInterferenceFluent.a11y.slitWidthMillimetersPattern.format( {
-            value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )
-          } );
-        }
-        else {
-          const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
-          return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
-            value: toFixed( slitWidthUM, decimalPlaces )
-          } );
-        }
+    const slitWidthStringProperty = model.sceneProperty.derived( scene => {
+      const slitWidthMM = scene.slitWidth;
+      if ( slitWidthMM >= 0.01 ) {
+        return QuantumWaveInterferenceFluent.a11y.slitWidthMillimetersPattern.format( {
+          value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )
+        } );
       }
-    );
+      else {
+        const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
+        return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
+          value: toFixed( slitWidthUM, decimalPlaces )
+        } );
+      }
+    } );
     const slitViewDescriptionNode = new Node( {
       accessibleParagraph:
         QuantumWaveInterferenceFluent.a11y.slitView.accessibleParagraph.createProperty( {
@@ -566,8 +563,7 @@ export default class ExperimentScreenView extends ScreenView {
     // This is important on-screen text (rendered as RichText in OverheadEmitterNode) that
     // supports the learning goal: "Relate particle momentum to wavelength using the de Broglie
     // relationship." Hidden for photons (which are massless).
-    const particleSourceTypeProperty = new DerivedProperty(
-      [ model.sceneProperty ],
+    const particleSourceTypeProperty = model.sceneProperty.derived(
       scene => scene.sourceType as 'electrons' | 'neutrons' | 'heliumAtoms'
     );
     const particleMassDescriptionNode = new Node( {

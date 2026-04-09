@@ -232,15 +232,13 @@ export default class FrontFacingSlitNode extends Node {
     const slitWidthMM = sceneModel.slitWidth;
     let slitWidthLabelStringProperty: TReadOnlyProperty<string>;
     if ( slitWidthMM >= 0.01 ) {
-      slitWidthLabelStringProperty = new DerivedProperty(
-        [ QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty ],
+      slitWidthLabelStringProperty = QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.derived(
         pattern => StringUtils.fillIn( pattern, { value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 ) } )
       );
     }
     else {
       const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
-      slitWidthLabelStringProperty = new DerivedProperty(
-        [ QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty ],
+      slitWidthLabelStringProperty = QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.derived(
         pattern => StringUtils.fillIn( pattern, { value: toFixed( slitWidthUM, decimalPlaces ) } )
       );
     }

@@ -181,7 +181,7 @@ export default class DetectorScreenNode extends Node {
     const scalePhysicalWidthMM = fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
     const scaleArrowWidth = ( scalePhysicalWidthMM * 1e-3 ) / metersPerPixel;
 
-    const scaleLabelStringProperty = new DerivedProperty( [ QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty ],
+    const scaleLabelStringProperty = QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.derived(
       pattern => StringUtils.fillIn( pattern, {
         value: toFixed( scalePhysicalWidthMM, getScaleLabelDecimalPlaces( scalePhysicalWidthMM ) )
       } )
