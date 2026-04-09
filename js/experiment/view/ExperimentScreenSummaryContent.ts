@@ -21,7 +21,7 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
     // Track the active scene's source type (a plain value, not a Property, so derive with a function)
     const sourceTypeProperty = new DerivedProperty(
       [ model.sceneProperty ],
-      ( scene: SceneModel ): SourceType => scene.sourceType
+      scene => scene.sourceType
     );
 
     const isEmittingStringProperty = model.currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
