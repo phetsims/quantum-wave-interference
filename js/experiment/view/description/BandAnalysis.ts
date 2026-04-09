@@ -11,7 +11,7 @@
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../../model/SceneModel.js';
-import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
+import { isDoubleSlitConfiguration, SlitConfiguration } from '../../model/SlitConfiguration.js';
 import Snapshot from '../../model/Snapshot.js';
 
 // Qualitative stage of hit accumulation, used by describers to select which description
@@ -46,18 +46,48 @@ export default class BandAnalysis {
    * smoothing artifacts of numerical peak detection.
    */
   public static analyzeTheoreticalPattern( scene: SceneModel ): BandAnalysisResult {
-    const lambda = scene.getEffectiveWavelength(); // m
+    return BandAnalysis.computeTheoreticalPattern(
+      scene.getEffectiveWavelength(),
+      scene.screenDistanceProperty.value,
+      scene.screenHalfWidth,
+      scene.slitWidth * 1e-3, // mm -> m
+      scene.slitSettingProperty.value,
+      scene.slitSeparationProperty.value * 1e-3 // mm -> m
+    );
+  }
+
+  /**
+   * Computes band information analytically from a snapshot's stored detector-screen state.
+   */
+  public static analyzeTheoreticalPatternFromSnapshot( snapshot: Snapshot ): BandAnalysisResult {
+    return BandAnalysis.computeTheoreticalPattern(
+      snapshot.effectiveWavelength,
+      snapshot.screenDistance,
+      SceneModel.getScreenHalfWidth( snapshot.sourceType ),
+      SceneModel.getSlitWidth( snapshot.sourceType ) * 1e-3,
+      snapshot.slitSetting,
+      snapshot.slitSeparation * 1e-3
+    );
+  }
+
+  /**
+   * Shared analytic computation. For double slit, interference maxima occur at y_n = n·λL/d, so the
+   * count of visible fringes is 2·floor(screenHalfWidth·d/(λL)) + 1. For single slit (or which-path
+   * detector), only the broad central diffraction maximum is reported, with first zeros at y = ±λL/a.
+   */
+  private static computeTheoreticalPattern(
+    lambda: number,
+    screenDistanceMeters: number,
+    screenHalfWidthM: number,
+    slitWidthMeters: number,
+    slitSetting: SlitConfiguration,
+    slitSeparationMeters: number
+  ): BandAnalysisResult {
     if ( lambda === 0 ) {
       return { bandCount: 0, peakPositionsMM: [], averageSpacingMM: 0, centralWidthMM: 0 };
     }
 
-    const screenDistanceMeters = scene.screenDistanceProperty.value;
-    const screenHalfWidthM = scene.screenHalfWidth;
-    const slitWidthMeters = scene.slitWidth * 1e-3; // mm -> m
-    const slitSetting = scene.slitSettingProperty.value;
-
     if ( isDoubleSlitConfiguration( slitSetting ) ) {
-      const slitSeparationMeters = scene.slitSeparationProperty.value * 1e-3; // mm -> m
 
       // Fringe spacing: Δy = λL/d
       const fringeSpacingM = lambda * screenDistanceMeters / slitSeparationMeters;
@@ -80,8 +110,8 @@ export default class BandAnalysis {
       };
     }
     else {
+
       // Single slit or which-path detector: broad central diffraction maximum.
-      // First zeros at y = ±λL/a, so central width ≈ 2λL/a.
       const centralHalfWidthM = lambda * screenDistanceMeters / slitWidthMeters;
       const centralWidthMM = 2 * centralHalfWidthM * 1000;
 
@@ -92,51 +122,6 @@ export default class BandAnalysis {
         centralWidthMM: centralWidthMM
       };
     }
-  }
-
-  /**
-   * Computes band information analytically from a snapshot's stored detector-screen state.
-   */
-  public static analyzeTheoreticalPatternFromSnapshot( snapshot: Snapshot ): BandAnalysisResult {
-    const lambda = snapshot.effectiveWavelength;
-    if ( lambda === 0 ) {
-      return { bandCount: 0, peakPositionsMM: [], averageSpacingMM: 0, centralWidthMM: 0 };
-    }
-
-    const screenDistanceMeters = snapshot.screenDistance;
-    const screenHalfWidthM = SceneModel.getScreenHalfWidth( snapshot.sourceType );
-    const slitWidthMeters = SceneModel.getSlitWidth( snapshot.sourceType ) * 1e-3;
-    const slitSetting = snapshot.slitSetting;
-
-    if ( isDoubleSlitConfiguration( slitSetting ) ) {
-      const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
-      const fringeSpacingM = lambda * screenDistanceMeters / slitSeparationMeters;
-      const fringeSpacingMM = fringeSpacingM * 1000;
-      const nMax = Math.floor( screenHalfWidthM / fringeSpacingM );
-      const bandCount = 2 * nMax + 1;
-
-      const peakPositionsMM: number[] = [];
-      for ( let n = -nMax; n <= nMax; n++ ) {
-        peakPositionsMM.push( n * fringeSpacingMM );
-      }
-
-      return {
-        bandCount: bandCount,
-        peakPositionsMM: peakPositionsMM,
-        averageSpacingMM: fringeSpacingMM,
-        centralWidthMM: fringeSpacingMM
-      };
-    }
-
-    const centralHalfWidthM = lambda * screenDistanceMeters / slitWidthMeters;
-    const centralWidthMM = 2 * centralHalfWidthM * 1000;
-
-    return {
-      bandCount: 1,
-      peakPositionsMM: [ 0 ],
-      averageSpacingMM: 0,
-      centralWidthMM: centralWidthMM
-    };
   }
 
   /**
