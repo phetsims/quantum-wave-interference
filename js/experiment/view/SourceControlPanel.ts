@@ -35,6 +35,7 @@ import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../model/SceneModel.js';
+import linkSceneVisibility from './linkSceneVisibility.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
@@ -113,12 +114,7 @@ export default class SourceControlPanel extends Panel {
 
     super( contentNode, options );
 
-    // Switch visibility when the scene changes
-    sceneProperty.link( activeScene => {
-      for ( let i = 0; i < scenes.length; i++ ) {
-        sceneNodes[ i ].visible = scenes[ i ] === activeScene;
-      }
-    } );
+    linkSceneVisibility( sceneProperty, scenes, sceneNodes );
   }
 
   /**

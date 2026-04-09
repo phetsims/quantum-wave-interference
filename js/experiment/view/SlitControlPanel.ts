@@ -32,6 +32,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import { type SlitConfiguration } from '../model/SlitConfiguration.js';
+import linkSceneVisibility from './linkSceneVisibility.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
@@ -94,12 +95,7 @@ export default class SlitControlPanel extends Panel {
 
     super( contentNode, options );
 
-    // Switch visibility when the scene changes
-    sceneProperty.link( activeScene => {
-      for ( let i = 0; i < scenes.length; i++ ) {
-        sceneNodes[ i ].visible = scenes[ i ] === activeScene;
-      }
-    } );
+    linkSceneVisibility( sceneProperty, scenes, sceneNodes );
   }
 
   /**
