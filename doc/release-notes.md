@@ -30,3 +30,4 @@ For an exemplar, see https://github.com/phetsims/balancing-chemical-equations/bl
 -->
 
 ## 1.0 ({{PUBLICATION_DATE}})
+* Initial version
