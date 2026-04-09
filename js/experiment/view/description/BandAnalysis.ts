@@ -43,7 +43,7 @@ export default class BandAnalysis {
    * Analyzes the hit positions to extract band information.
    * Bins the hits on the fly, then delegates to analyzeArray.
    */
-  public static analyzeHitBins( scene: SceneModel ): BandAnalysisResult {
+  private static analyzeHitBins( scene: SceneModel ): BandAnalysisResult {
     const binCount = BandAnalysis.ANALYSIS_BIN_COUNT;
     const bins = new Array<number>( binCount ).fill( 0 );
     let binsMax = 0;

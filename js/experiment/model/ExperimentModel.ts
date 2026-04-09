@@ -32,10 +32,10 @@ type ExperimentModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 't
 export default class ExperimentModel implements TModel {
 
   // The four scene models, one per source type
-  public readonly photonsScene: SceneModel;
-  public readonly electronsScene: SceneModel;
-  public readonly neutronsScene: SceneModel;
-  public readonly heliumAtomsScene: SceneModel;
+  private readonly photonsScene: SceneModel;
+  private readonly electronsScene: SceneModel;
+  private readonly neutronsScene: SceneModel;
+  private readonly heliumAtomsScene: SceneModel;
   public readonly scenes: SceneModel[];
 
   // The currently selected scene
@@ -174,7 +174,7 @@ export default class ExperimentModel implements TModel {
    * multiplier), following the pattern in quantum-measurement's stepForwardInTime.
    * @param dt - time step, in seconds
    */
-  public stepForwardInTime( dt: number ): void {
+  private stepForwardInTime( dt: number ): void {
     this.sceneProperty.value.step( dt );
     this.stopwatch.step( dt );
   }

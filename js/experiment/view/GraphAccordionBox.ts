@@ -60,7 +60,7 @@ export default class GraphAccordionBox extends Node {
   private readonly zoomLevelProperty: NumberProperty;
 
   private readonly chartBackground: Rectangle;
-  public readonly zoomButtonGroup: MagnifyingGlassZoomButtonGroup;
+  private readonly zoomButtonGroup: MagnifyingGlassZoomButtonGroup;
 
   public constructor( sceneModel: SceneModel, providedOptions: GraphAccordionBoxOptions ) {
     const options = optionize<GraphAccordionBoxOptions, SelfOptions, NodeOptions>()(

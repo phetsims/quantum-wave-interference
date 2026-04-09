@@ -11,8 +11,6 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import ScreenSummaryContent from '../../../../joist/js/ScreenSummaryContent.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import SceneModel from '../model/SceneModel.js';
-import { type SourceType } from '../model/SourceType.js';
 
 export default class ExperimentScreenSummaryContent extends ScreenSummaryContent {
 

@@ -110,7 +110,7 @@ export default class SceneModel extends PhetioObject {
   public readonly slitWidth: number;
 
   // The mass of the particle (kg), or 0 for photons
-  public readonly particleMass: number;
+  private readonly particleMass: number;
 
   // Total number of hits accumulated on the detector screen
   public readonly totalHitsProperty: NumberProperty;
@@ -119,7 +119,7 @@ export default class SceneModel extends PhetioObject {
   // Approximately half of all hits pass through the monitored slit.
   public readonly leftDetectorHitsProperty: NumberProperty;
   public readonly rightDetectorHitsProperty: NumberProperty;
-  public readonly detectorHitsProperty: NumberProperty;
+  private readonly detectorHitsProperty: NumberProperty;
 
   // True when Hits mode has reached the per-scene hit cap.
   public readonly isMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
@@ -612,7 +612,7 @@ export default class SceneModel extends PhetioObject {
    * hit accumulator, and next snapshot number) which are plain arrays/numbers not covered by
    * the individual instrumented Properties.
    */
-  public static readonly SceneModelIO = new IOType<SceneModel, SceneModelStateObject>( 'SceneModelIO', {
+  private static readonly SceneModelIO = new IOType<SceneModel, SceneModelStateObject>( 'SceneModelIO', {
     valueType: SceneModel,
     supertype: GetSetButtonsIO,
     stateSchema: {

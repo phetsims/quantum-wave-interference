@@ -645,7 +645,7 @@ export default class ExperimentScreenView extends ScreenView {
   /**
    * Resets the view.
    */
-  public reset(): void {
+  private reset(): void {
     this.graphExpandedProperty.reset();
     this.graphAccordionBoxes.forEach( box => box.reset() );
     this.centerRulerOnDetectorScreen();
