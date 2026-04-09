@@ -23,12 +23,8 @@ import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
-import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js';
-import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
-import nullSoundPlayer from '../../../../tambo/js/nullSoundPlayer.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import Animation from '../../../../twixt/js/Animation.js';
@@ -40,13 +36,13 @@ import SceneModel from '../model/SceneModel.js';
 import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import SnapshotButton from './SnapshotButton.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
+import ViewSnapshotsButton from './ViewSnapshotsButton.js';
 
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 0;
 const BUTTON_COLUMN_GAP = 6;
-const EYE_BUTTON_X_MARGIN = 4;
 const TARGET_SCALE_WIDTH_MM = 10;
 const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
 const SNAPSHOT_FLASH_DURATION = 0.6;
@@ -76,7 +72,7 @@ export default class DetectorScreenNode extends Node {
 
   public readonly eraserButton: EraserButton;
   public readonly snapshotButton: SnapshotButton;
-  public readonly viewSnapshotsButton: RectangularPushButton;
+  public readonly viewSnapshotsButton: ViewSnapshotsButton;
   private readonly snapshotButtonGroup: VBox;
 
   public constructor(
@@ -274,15 +270,6 @@ export default class DetectorScreenNode extends Node {
       providedOptions.tandem.createTandem( 'snapshotsDialog' )
     );
 
-    // If the sim was playing when the snapshots dialog opened, resume when it closes.
-    let shouldResumeOnDialogClose = false;
-    snapshotsDialog.isShowingProperty.link( isShowing => {
-      if ( !isShowing && shouldResumeOnDialogClose ) {
-        isPlayingProperty.value = true;
-        shouldResumeOnDialogClose = false;
-      }
-    } );
-
     // Camera button to take a snapshot
     this.snapshotButton = new SnapshotButton(
       sceneModel,
@@ -311,35 +298,14 @@ export default class DetectorScreenNode extends Node {
     } );
 
     // Eye button to view snapshots
-    this.viewSnapshotsButton = new RectangularPushButton( {
-      listener: () => {
-        if ( !snapshotsDialog.isShowingProperty.value ) {
-          shouldResumeOnDialogClose = isPlayingProperty.value;
-          isPlayingProperty.value = false;
-        }
-        snapshotsDialog.show();
-      },
-      baseColor: QuantumWaveInterferenceColors.screenButtonBaseColorProperty,
-      xMargin: EYE_BUTTON_X_MARGIN,
-      content: new Path( eyeSolidShape, {
-        fill: 'black',
-        scale: 0.04
-      } ),
-      minWidth: detectorActionButtonMinWidth,
-      minHeight: detectorActionButtonMinHeight,
-      enabledProperty: new DerivedProperty(
-        [ sceneModel.numberOfSnapshotsProperty ],
-        numberOfSnapshots => numberOfSnapshots > 0,
-        {
-          tandem: providedOptions.tandem.createTandem( 'viewSnapshotsButtonEnabledProperty' ),
-          phetioValueType: BooleanIO
-        }
-      ),
-      accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleNameStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleHelpTextStringProperty,
-      soundPlayer: nullSoundPlayer,
-      tandem: providedOptions.tandem.createTandem( 'viewSnapshotsButton' )
-    } );
+    this.viewSnapshotsButton = new ViewSnapshotsButton(
+      sceneModel,
+      isPlayingProperty,
+      snapshotsDialog,
+      detectorActionButtonMinWidth,
+      detectorActionButtonMinHeight,
+      providedOptions.tandem.createTandem( 'viewSnapshotsButton' )
+    );
 
     // Snapshot indicator circles (4 small circles that fill as snapshots are taken)
     const DOT_RADIUS = 3;
