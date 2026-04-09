@@ -130,8 +130,8 @@ export default class SourceControlPanel extends Panel {
     // Photon scenes use "Source Intensity" while particle scenes use "Emission Rate" per the
     // ElectronEmitter.svg design mockup, which is more physically intuitive for students.
     const intensityLabelStringProperty = scene.sourceType === 'photons'
-      ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
-      : QuantumWaveInterferenceFluent.emissionRateStringProperty;
+                                         ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
+                                         : QuantumWaveInterferenceFluent.emissionRateStringProperty;
 
     // Intensity slider (shared by all source types)
     const intensitySlider = new HSlider( scene.intensityProperty, scene.intensityProperty.range, {

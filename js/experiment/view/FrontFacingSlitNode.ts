@@ -14,8 +14,8 @@ import Multilink from '../../../../axon/js/Multilink.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
@@ -215,11 +215,11 @@ export default class FrontFacingSlitNode extends Node {
       // Piecewise-linear alpha: ramp from MIN to DEFAULT below the midpoint, DEFAULT to MAX above.
       const belowMidpoint = intensity <= DEFAULT_SOURCE_INTENSITY;
       const fraction = belowMidpoint
-        ? intensity / DEFAULT_SOURCE_INTENSITY
-        : ( intensity - DEFAULT_SOURCE_INTENSITY ) / ( 1 - DEFAULT_SOURCE_INTENSITY );
+                       ? intensity / DEFAULT_SOURCE_INTENSITY
+                       : ( intensity - DEFAULT_SOURCE_INTENSITY ) / ( 1 - DEFAULT_SOURCE_INTENSITY );
       const alpha = belowMidpoint
-        ? MIN_BEAM_OVERLAY_ALPHA + ( DEFAULT_BEAM_OVERLAY_ALPHA - MIN_BEAM_OVERLAY_ALPHA ) * fraction
-        : DEFAULT_BEAM_OVERLAY_ALPHA + ( MAX_BEAM_OVERLAY_ALPHA - DEFAULT_BEAM_OVERLAY_ALPHA ) * fraction;
+                    ? MIN_BEAM_OVERLAY_ALPHA + ( DEFAULT_BEAM_OVERLAY_ALPHA - MIN_BEAM_OVERLAY_ALPHA ) * fraction
+                    : DEFAULT_BEAM_OVERLAY_ALPHA + ( MAX_BEAM_OVERLAY_ALPHA - DEFAULT_BEAM_OVERLAY_ALPHA ) * fraction;
       beamOverlay.fill = beamColor.withAlpha( alpha );
     };
 

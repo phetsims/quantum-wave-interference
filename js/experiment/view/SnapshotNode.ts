@@ -37,8 +37,8 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import { hasAnyDetector, type SlitConfiguration } from '../model/SlitConfiguration.js';
-import { type SourceType } from '../model/SourceType.js';
 import Snapshot from '../model/Snapshot.js';
+import { type SourceType } from '../model/SourceType.js';
 import SnapshotDescriber from './description/SnapshotDescriber.js';
 import { getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain } from './ScreenBrightnessUtils.js';
 
@@ -105,8 +105,8 @@ export default class SnapshotNode extends Node {
     const titleProperty = new DerivedProperty(
       [ snapshotProperty, QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty ],
       ( snapshot, pattern ) => snapshot
-        ? StringUtils.fillIn( pattern, { number: index + 1 } )
-        : ''
+                               ? StringUtils.fillIn( pattern, { number: index + 1 } )
+                               : ''
     );
 
     const sceneNameProperty = new DerivedProperty(
@@ -135,11 +135,11 @@ export default class SnapshotNode extends Node {
       ifSnapshot( snapshot => {
         // Slit separation: use μm for small values (< 0.1 mm) for readability.
         const slitSepValue = snapshot.slitSeparation < 0.1
-          ? StringUtils.fillIn(
+                             ? StringUtils.fillIn(
             QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
             { value: toFixed( snapshot.slitSeparation * 1000, 1 ) }
           )
-          : StringUtils.fillIn(
+                             : StringUtils.fillIn(
             QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value,
             { value: toFixed( snapshot.slitSeparation, 2 ) }
           );
@@ -195,11 +195,11 @@ export default class SnapshotNode extends Node {
                              ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
         const speed = snapshot.effectiveWavelength === 0 ? 0 : QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
         const speedValue = speed >= 10000
-          ? StringUtils.fillIn(
+                           ? StringUtils.fillIn(
             QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value,
             { value: roundSymmetric( speed / 1000 ) }
           )
-          : StringUtils.fillIn(
+                           : StringUtils.fillIn(
             QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty.value,
             { value: roundSymmetric( speed ) }
           );
@@ -243,8 +243,8 @@ export default class SnapshotNode extends Node {
       ifSnapshot( snapshot => formatLabelValue(
         QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty.value,
         snapshot.detectionMode === 'averageIntensity'
-          ? QuantumWaveInterferenceFluent.intensityStringProperty.value
-          : QuantumWaveInterferenceFluent.hitsStringProperty.value
+        ? QuantumWaveInterferenceFluent.intensityStringProperty.value
+        : QuantumWaveInterferenceFluent.hitsStringProperty.value
       ), '' )
     );
 
