@@ -65,16 +65,11 @@ export default class SceneModel extends PhetioObject {
    * Slit width in mm for a given source type.
    */
   public static getSlitWidth( sourceType: SourceType ): number {
-    if ( sourceType === 'photons' ) {
-      return 0.02; // 20 μm
-    }
-    if ( sourceType === 'electrons' ) {
-      return 0.00003; // 0.03 μm
-    }
-    if ( sourceType === 'neutrons' ) {
-      return 0.003; // 3 μm
-    }
-    return 0.0003; // helium atoms, 0.3 μm
+    return sourceType === 'photons' ? 0.02 :    // 20 μm
+           sourceType === 'electrons' ? 0.00003 : // 0.03 μm
+           sourceType === 'neutrons' ? 0.003 :   // 3 μm
+           sourceType === 'heliumAtoms' ? 0.0003 : // 0.3 μm
+           ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
   }
 
   public readonly sourceType: SourceType;

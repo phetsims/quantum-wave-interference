@@ -188,9 +188,11 @@ export default class SnapshotNode extends Node {
           );
           return formatLabelValue( SceneryPhetFluent.wavelengthStringProperty.value, wavelengthValue );
         }
-        const particleMass = snapshot.sourceType === 'electrons' ? QuantumWaveInterferenceConstants.ELECTRON_MASS :
-                             snapshot.sourceType === 'neutrons' ? QuantumWaveInterferenceConstants.NEUTRON_MASS :
-                             QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
+        const sourceType = snapshot.sourceType;
+        const particleMass = sourceType === 'electrons' ? QuantumWaveInterferenceConstants.ELECTRON_MASS :
+                             sourceType === 'neutrons' ? QuantumWaveInterferenceConstants.NEUTRON_MASS :
+                             sourceType === 'heliumAtoms' ? QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS :
+                             ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
         const speed = snapshot.effectiveWavelength === 0 ? 0 : QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
         const speedValue = speed >= 10000
           ? StringUtils.fillIn(
