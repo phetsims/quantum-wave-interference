@@ -118,18 +118,12 @@ export default class OverheadEmitterNode extends Node {
         QuantumWaveInterferenceFluent.heliumAtomSourceStringProperty
       ],
       ( scene, photonSource, electronSource, neutronSource, heliumAtomSource ) => {
-        if ( scene.sourceType === 'photons' ) {
-          return photonSource;
-        }
-        else if ( scene.sourceType === 'electrons' ) {
-          return electronSource;
-        }
-        else if ( scene.sourceType === 'neutrons' ) {
-          return neutronSource;
-        }
-        else {
-          return heliumAtomSource;
-        }
+        const sourceType = scene.sourceType;
+        return sourceType === 'photons' ? photonSource :
+               sourceType === 'electrons' ? electronSource :
+               sourceType === 'neutrons' ? neutronSource :
+               sourceType === 'heliumAtoms' ? heliumAtomSource :
+               ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
       }
     );
 
@@ -154,10 +148,12 @@ export default class OverheadEmitterNode extends Node {
       QuantumWaveInterferenceFluent.neutronMassLabelStringProperty,
       QuantumWaveInterferenceFluent.heliumAtomMassLabelStringProperty
     ], ( scene, electronMass, neutronMass, heliumAtomMass ) => {
-      if ( scene.sourceType === 'electrons' ) { return electronMass; }
-      if ( scene.sourceType === 'neutrons' ) { return neutronMass; }
-      if ( scene.sourceType === 'heliumAtoms' ) { return heliumAtomMass; }
-      return '';
+      const sourceType = scene.sourceType;
+      return sourceType === 'electrons' ? electronMass :
+             sourceType === 'neutrons' ? neutronMass :
+             sourceType === 'heliumAtoms' ? heliumAtomMass :
+             sourceType === 'photons' ? '' :
+             ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
     } );
 
     const particleMassLabel = new RichText( particleMassLabelStringProperty, {

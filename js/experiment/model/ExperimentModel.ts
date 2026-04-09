@@ -188,16 +188,11 @@ export default class ExperimentModel implements TModel {
     if ( this.isPlayingProperty.value ) {
 
       // Apply time speed multiplier
-      let effectiveDt: number;
-      if ( this.timeSpeedProperty.value === TimeSpeed.SLOW ) {
-        effectiveDt = dt * 0.25;
-      }
-      else if ( this.timeSpeedProperty.value === TimeSpeed.FAST ) {
-        effectiveDt = dt * 4;
-      }
-      else {
-        effectiveDt = dt;
-      }
+      const timeSpeed = this.timeSpeedProperty.value;
+      const effectiveDt = timeSpeed === TimeSpeed.SLOW ? dt * 0.25 :
+                          timeSpeed === TimeSpeed.FAST ? dt * 4 :
+                          timeSpeed === TimeSpeed.NORMAL ? dt :
+                          ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
 
       this.stepForwardInTime( effectiveDt );
     }

@@ -67,36 +67,21 @@ export default class GraphDescriber {
       const analysis = BandAnalysis.analyzeTheoreticalPattern( sceneModel );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
 
+      const paragraph = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph;
       if ( isDoubleSlit ) {
-        if ( newStage === 'none' ) {
-          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsNoneStringProperty.value;
-        }
-        else if ( newStage === 'few' ) {
-          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsFewStringProperty.value;
-        }
-        else if ( newStage === 'emerging' ) {
-          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsEmergingStringProperty.value;
-        }
-        else if ( newStage === 'developing' ) {
-          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsDeveloping.format( { spatialDescription: spatialDescription } );
-        }
-        else {
-          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsClear.format( { spatialDescription: spatialDescription } );
-        }
+        descriptionProperty.value = newStage === 'none' ? paragraph.hitsNoneStringProperty.value :
+                                    newStage === 'few' ? paragraph.hitsFewStringProperty.value :
+                                    newStage === 'emerging' ? paragraph.hitsEmergingStringProperty.value :
+                                    newStage === 'developing' ? paragraph.hitsDeveloping.format( { spatialDescription: spatialDescription } ) :
+                                    newStage === 'clear' ? paragraph.hitsClear.format( { spatialDescription: spatialDescription } ) :
+                                    ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
       }
       else {
-        if ( newStage === 'none' ) {
-          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsNoneStringProperty.value;
-        }
-        else if ( newStage === 'few' ) {
-          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsFewStringProperty.value;
-        }
-        else if ( newStage === 'emerging' ) {
-          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value;
-        }
-        else {
-          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } );
-        }
+        descriptionProperty.value = newStage === 'none' ? paragraph.hitsNoneStringProperty.value :
+                                    newStage === 'few' ? paragraph.hitsFewStringProperty.value :
+                                    newStage === 'emerging' ? paragraph.hitsSingleSlitEmergingStringProperty.value :
+                                    ( newStage === 'developing' || newStage === 'clear' ) ? paragraph.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } ) :
+                                    ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
       }
     };
 
