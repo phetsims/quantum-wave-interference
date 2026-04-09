@@ -10,7 +10,6 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
@@ -147,14 +146,21 @@ export default class OverheadEmitterNode extends Node {
     } );
     this.addChild( sourceLabel );
 
-    // Particle mass label (hidden for photons)
-    const massLabelMap: Record<string, TReadOnlyProperty<string>> = {
-      electrons: QuantumWaveInterferenceFluent.electronMassLabelStringProperty,
-      neutrons: QuantumWaveInterferenceFluent.neutronMassLabelStringProperty,
-      heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomMassLabelStringProperty
-    };
+    // Particle mass label (empty for photons; hidden via the visible link below).
+    // DerivedProperty so the label updates reactively on both scene change and locale change.
+    const particleMassLabelStringProperty = new DerivedProperty( [
+      model.sceneProperty,
+      QuantumWaveInterferenceFluent.electronMassLabelStringProperty,
+      QuantumWaveInterferenceFluent.neutronMassLabelStringProperty,
+      QuantumWaveInterferenceFluent.heliumAtomMassLabelStringProperty
+    ], ( scene, electronMass, neutronMass, heliumAtomMass ) => {
+      if ( scene.sourceType === 'electrons' ) { return electronMass; }
+      if ( scene.sourceType === 'neutrons' ) { return neutronMass; }
+      if ( scene.sourceType === 'heliumAtoms' ) { return heliumAtomMass; }
+      return '';
+    } );
 
-    const particleMassLabel = new RichText( '', {
+    const particleMassLabel = new RichText( particleMassLabelStringProperty, {
       font: MASS_LABEL_FONT,
       left: sourceLabel.left,
       maxWidth: 200
@@ -180,11 +186,7 @@ export default class OverheadEmitterNode extends Node {
     this.addChild( this.maxHitsReachedPanel );
 
     model.sceneProperty.link( scene => {
-      const isParticle = scene.sourceType !== 'photons';
-      particleMassLabel.visible = isParticle;
-      if ( isParticle ) {
-        particleMassLabel.string = massLabelMap[ scene.sourceType ].value;
-      }
+      particleMassLabel.visible = scene.sourceType !== 'photons';
     } );
 
     const isEmittingProperty = model.currentIsEmittingProperty;

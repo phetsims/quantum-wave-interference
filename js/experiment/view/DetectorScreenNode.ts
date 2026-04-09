@@ -181,9 +181,10 @@ export default class DetectorScreenNode extends Node {
     const scalePhysicalWidthMM = fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
     const scaleArrowWidth = ( scalePhysicalWidthMM * 1e-3 ) / metersPerPixel;
 
-    const scaleLabelString = StringUtils.fillIn(
-      QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value,
-      { value: toFixed( scalePhysicalWidthMM, getScaleLabelDecimalPlaces( scalePhysicalWidthMM ) ) }
+    const scaleLabelStringProperty = new DerivedProperty( [ QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty ],
+      pattern => StringUtils.fillIn( pattern, {
+        value: toFixed( scalePhysicalWidthMM, getScaleLabelDecimalPlaces( scalePhysicalWidthMM ) )
+      } )
     );
 
     // Future cleanup: the scale indicator (arrow + ticks + label) could be extracted to a reusable ScaleIndicatorNode.
@@ -215,7 +216,7 @@ export default class DetectorScreenNode extends Node {
     );
     this.addChild( scaleRightTick );
 
-    const scaleLabelText = new Text( scaleLabelString, {
+    const scaleLabelText = new Text( scaleLabelStringProperty, {
       font: new PhetFont( 12 ),
       fill: 'black',
       maxWidth: 100,

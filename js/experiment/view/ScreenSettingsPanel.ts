@@ -2,15 +2,12 @@
 
 /**
  * ScreenSettingsPanel contains the detection mode radio buttons ('Intensity' vs 'Hits')
- * and a 'Screen brightness' slider. These controls affect the display on the detector screen.
- *
- * Each scene has its own detectionModeProperty and screenBrightnessProperty, so DynamicProperty
- * is used to follow the active scene.
+ * and a 'Screen brightness' slider. These controls affect the display on the detector screen,
+ * routed through the active scene's properties via ExperimentModel's centralized DynamicProperties.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -49,12 +46,7 @@ export default class ScreenSettingsPanel extends Panel {
     }, providedOptions );
 
     const detectionModeProperty = model.currentDetectionModeProperty;
-
-    // DynamicProperty that follows the active scene's screenBrightnessProperty
-    const screenBrightnessProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
-      derive: scene => scene.screenBrightnessProperty,
-      bidirectional: true
-    } );
+    const screenBrightnessProperty = model.currentScreenBrightnessProperty;
 
     // Radio buttons for Intensity vs Hits
     const radioButtonItems: AquaRadioButtonGroupItem<DetectionMode>[] = [

@@ -9,6 +9,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Shape from '../../../../kite/js/Shape.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -69,7 +70,20 @@ class DetectorPanelNode extends Node {
       maxWidth: DETECTOR_BOX_WIDTH - 6 * OVERHEAD_SCALE
     } );
 
-    const detectorHitCountText = new Text( '', {
+    const detectorHitsProperty = new DynamicProperty<number, number, SceneModel>(
+      model.sceneProperty,
+      {
+        derive: scene => detectorSide === 'left' ? scene.leftDetectorHitsProperty : scene.rightDetectorHitsProperty
+      }
+    );
+
+    // Reactive: updates on hit count change and on locale change for the "hits" word.
+    const detectorHitCountStringProperty = new DerivedProperty(
+      [ detectorHitsProperty, QuantumWaveInterferenceFluent.hitsStringProperty ],
+      ( hits, hitsLabel ) => `${hits} ${hitsLabel}`
+    );
+
+    const detectorHitCountText = new Text( detectorHitCountStringProperty, {
       font: new PhetFont( 12 ),
       maxWidth: DETECTOR_BOX_WIDTH - 6 * OVERHEAD_SCALE,
       visible: false
@@ -93,13 +107,6 @@ class DetectorPanelNode extends Node {
       }
     };
 
-    const detectorHitsProperty = new DynamicProperty<number, number, SceneModel>(
-      model.sceneProperty,
-      {
-        derive: scene => detectorSide === 'left' ? scene.leftDetectorHitsProperty : scene.rightDetectorHitsProperty
-      }
-    );
-
     this.updateIndicator = () => {
       const slitSetting = model.currentSlitSettingProperty.value;
       const isDetectorActive = hasDetectorOnSide( slitSetting, detectorSide );
@@ -110,11 +117,7 @@ class DetectorPanelNode extends Node {
         return;
       }
 
-      const isHitsMode = model.currentDetectionModeProperty.value === 'hits';
-      detectorHitCountText.visible = isHitsMode;
-      if ( isHitsMode ) {
-        detectorHitCountText.string = `${detectorHitsProperty.value} ${QuantumWaveInterferenceFluent.hitsStringProperty.value}`;
-      }
+      detectorHitCountText.visible = model.currentDetectionModeProperty.value === 'hits';
       updateDetectorLabelLayout();
 
       const layout = DETECTOR_SIDE_LAYOUT[ detectorSide ];
@@ -147,9 +150,8 @@ class DetectorPanelNode extends Node {
 
     model.currentSlitSettingProperty.link( this.updateIndicator );
     model.currentDetectionModeProperty.link( this.updateIndicator );
-    detectorHitsProperty.link( this.updateIndicator );
+    detectorHitCountStringProperty.lazyLink( this.updateIndicator );
     model.sceneProperty.link( this.updateIndicator );
-    QuantumWaveInterferenceFluent.hitsStringProperty.lazyLink( this.updateIndicator );
   }
 
   public updateLayout(): void {

@@ -9,7 +9,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
+import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
@@ -82,6 +84,43 @@ const getDecimalPlacesForValue = ( value: number ): number => {
 
 const getRangeDecimalPlaces = ( min: number, max: number ): number => {
   return Math.max( getDecimalPlacesForValue( min ), getDecimalPlacesForValue( max ) );
+};
+
+type SpanNodeParts = {
+  arrow: ArrowNode;
+  leftTick: Line;
+  rightTick: Line;
+  text: Text;
+  node: Node;
+};
+
+/**
+ * Creates a horizontal double-headed span (arrow + endpoint ticks + label) used to annotate
+ * the slit width and slit separation in the front-facing slit view. The arrow tail/tip and
+ * tick positions are repositioned by the caller.
+ */
+const createSpanNode = (
+  labelStringProperty: TReadOnlyProperty<string>,
+  arrowOptions: typeof SPAN_ARROW_OPTIONS | typeof SLIT_WIDTH_ARROW_OPTIONS,
+  textMaxWidth: number
+): SpanNodeParts => {
+  const arrow = new ArrowNode( 0, 0, 1, 0, arrowOptions );
+  const leftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
+    stroke: 'black',
+    lineWidth: 1
+  } );
+  const rightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
+    stroke: 'black',
+    lineWidth: 1
+  } );
+  const text = new Text( labelStringProperty, {
+    font: SPAN_FONT,
+    maxWidth: textMaxWidth
+  } );
+  const node = new Node( {
+    children: [ arrow, leftTick, rightTick, text ]
+  } );
+  return { arrow: arrow, leftTick: leftTick, rightTick: rightTick, text: text, node: node };
 };
 
 type SelfOptions = EmptySelfOptions;
@@ -188,61 +227,61 @@ export default class FrontFacingSlitNode extends Node {
     sceneModel.intensityProperty.link( updateBeamOverlay );
     sceneModel.wavelengthProperty.link( updateBeamOverlay );
 
-    // --- Slit width span (above the left slit) ---
-    const slitWidthArrow = new ArrowNode( 0, 0, 1, 0, SLIT_WIDTH_ARROW_OPTIONS );
-    const slitWidthLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
-      stroke: 'black',
-      lineWidth: 1
-    } );
-    const slitWidthRightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
-      stroke: 'black',
-      lineWidth: 1
-    } );
-
     // Format slit width label: use μm for values < 0.01 mm, mm otherwise.
-    // Determine decimal places for μm display based on the actual value.
+    // Slit width is constant per scene; the label is a DerivedProperty so it re-renders on locale change.
     const slitWidthMM = sceneModel.slitWidth;
-    let slitWidthLabel: string;
+    let slitWidthLabelStringProperty: TReadOnlyProperty<string>;
     if ( slitWidthMM >= 0.01 ) {
-      slitWidthLabel = StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value, { value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 ) } );
+      slitWidthLabelStringProperty = new DerivedProperty(
+        [ QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty ],
+        pattern => StringUtils.fillIn( pattern, { value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 ) } )
+      );
     }
     else {
       const slitWidthUM = slitWidthMM * 1000;
       // Show fewer decimal places for larger values: 0 for >=1, 1 for >=0.1, 2 otherwise
       const umDecimalPlaces = slitWidthUM >= 1 ? 0 :
                               slitWidthUM >= 0.1 ? 1 : 2;
-      slitWidthLabel = StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value, { value: toFixed( slitWidthUM, umDecimalPlaces ) } );
+      slitWidthLabelStringProperty = new DerivedProperty(
+        [ QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty ],
+        pattern => StringUtils.fillIn( pattern, { value: toFixed( slitWidthUM, umDecimalPlaces ) } )
+      );
     }
-    const slitWidthText = new Text( slitWidthLabel, {
-      font: SPAN_FONT,
-      maxWidth: 80
-    } );
 
-    const slitWidthSpanNode = new Node( {
-      children: [ slitWidthArrow, slitWidthLeftTick, slitWidthRightTick, slitWidthText ]
-    } );
-    this.addChild( slitWidthSpanNode );
+    // Slit-separation label: matches the slit-separation control readout formatting (unit and
+    // decimal precision determined by the slider range for this scene). Reactive on both the
+    // separation value and the locale-dependent pattern strings.
+    const slitSeparationRange = sceneModel.slitSeparationRange;
+    const usesMicrometers = slitSeparationRange.max <= 0.1;
+    const separationLabelStringProperty = new DerivedProperty(
+      [
+        sceneModel.slitSeparationProperty,
+        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty,
+        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty
+      ],
+      ( separationMM, umPattern, mmPattern ) => {
+        if ( usesMicrometers ) {
+          const valueUM = separationMM * 1000;
+          const decimalPlaces = getRangeDecimalPlaces( slitSeparationRange.min * 1000, slitSeparationRange.max * 1000 );
+          return StringUtils.fillIn( umPattern, { value: toFixed( valueUM, decimalPlaces ) } );
+        }
+        else {
+          const decimalPlaces = getRangeDecimalPlaces( slitSeparationRange.min, slitSeparationRange.max );
+          return StringUtils.fillIn( mmPattern, { value: toFixed( separationMM, decimalPlaces ) } );
+        }
+      }
+    );
+
+    // --- Slit width span (above the left slit) ---
+    const slitWidthSpan = createSpanNode( slitWidthLabelStringProperty, SLIT_WIDTH_ARROW_OPTIONS, 80 );
+    this.addChild( slitWidthSpan.node );
 
     // --- Slit separation span (below the view) ---
-    const separationArrow = new ArrowNode( 0, 0, 1, 0, SPAN_ARROW_OPTIONS );
-    const separationLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
-      stroke: 'black',
-      lineWidth: 1
-    } );
-    const separationRightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
-      stroke: 'black',
-      lineWidth: 1
-    } );
+    const separationSpan = createSpanNode( separationLabelStringProperty, SPAN_ARROW_OPTIONS, 120 );
+    this.addChild( separationSpan.node );
 
-    const separationText = new Text( '', {
-      font: SPAN_FONT,
-      maxWidth: 120
-    } );
-
-    const separationSpanNode = new Node( {
-      children: [ separationArrow, separationLeftTick, separationRightTick, separationText ]
-    } );
-    this.addChild( separationSpanNode );
+    const { arrow: slitWidthArrow, leftTick: slitWidthLeftTick, rightTick: slitWidthRightTick, text: slitWidthText, node: slitWidthSpanNode } = slitWidthSpan;
+    const { arrow: separationArrow, leftTick: separationLeftTick, rightTick: separationRightTick, text: separationText, node: separationSpanNode } = separationSpan;
 
     // Use one horizontal physical-to-view scale for slit positions and slit widths so the
     // front-facing slit rectangles are spatially consistent with the separation readout.
@@ -309,28 +348,6 @@ export default class FrontFacingSlitNode extends Node {
       separationLeftTick.x = sepLeft;
       separationRightTick.x = sepRight;
 
-      // Match the slit-separation control readout formatting:
-      // unit and decimal precision are determined by the slider range for this scene.
-      const slitSeparationRange = sceneModel.slitSeparationRange;
-      const usesMicrometers = slitSeparationRange.max <= 0.1;
-      if ( usesMicrometers ) {
-        const valueUM = separationMM * 1000;
-        const decimalPlaces = getRangeDecimalPlaces(
-          slitSeparationRange.min * 1000,
-          slitSeparationRange.max * 1000
-        );
-
-        separationText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value, { value: toFixed( valueUM, decimalPlaces ) } );
-      }
-      else {
-        const decimalPlaces = getRangeDecimalPlaces(
-          slitSeparationRange.min,
-          slitSeparationRange.max
-        );
-
-        separationText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value, { value: toFixed( separationMM, decimalPlaces ) } );
-      }
-
       // Position the label to the right of the right tick mark, matching the
       // slit width span label style above the view (per the design mockup).
       separationText.left = sepRight + 5;
@@ -339,6 +356,10 @@ export default class FrontFacingSlitNode extends Node {
     };
 
     sceneModel.slitSeparationProperty.link( updateSlits );
+
+    // Re-run layout when label widths change due to locale switches.
+    slitWidthLabelStringProperty.lazyLink( updateSlits );
+    separationLabelStringProperty.lazyLink( updateSlits );
 
     // Detector indicator rectangles (yellow/orange translucent overlays, distinct from gray covers)
     const DETECTOR_COLOR = QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA );

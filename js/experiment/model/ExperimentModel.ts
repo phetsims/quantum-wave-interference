@@ -47,6 +47,7 @@ export default class ExperimentModel implements TModel {
   public readonly currentDetectionModeProperty: DynamicProperty<DetectionMode, DetectionMode, SceneModel>;
   public readonly currentIsEmittingProperty: DynamicProperty<boolean, boolean, SceneModel>;
   public readonly currentIsMaxHitsReachedProperty: DynamicProperty<boolean, boolean, SceneModel>;
+  public readonly currentScreenBrightnessProperty: DynamicProperty<number, number, SceneModel>;
 
   // Shared state: time controls
   public readonly isPlayingProperty: BooleanProperty;
@@ -113,6 +114,11 @@ export default class ExperimentModel implements TModel {
 
     this.currentIsMaxHitsReachedProperty = new DynamicProperty<boolean, boolean, SceneModel>( this.sceneProperty, {
       derive: 'isMaxHitsReachedProperty'
+    } );
+
+    this.currentScreenBrightnessProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
+      derive: 'screenBrightnessProperty',
+      bidirectional: true
     } );
 
     this.isPlayingProperty = new BooleanProperty( true, {

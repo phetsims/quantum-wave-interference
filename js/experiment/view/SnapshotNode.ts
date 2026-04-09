@@ -13,7 +13,6 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
@@ -37,7 +36,8 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { hasAnyDetector } from '../model/SlitConfiguration.js';
+import { hasAnyDetector, type SlitConfiguration } from '../model/SlitConfiguration.js';
+import { type SourceType } from '../model/SourceType.js';
 import Snapshot from '../model/Snapshot.js';
 import SnapshotDescriber from './description/SnapshotDescriber.js';
 import { getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain } from './ScreenBrightnessUtils.js';
@@ -56,20 +56,14 @@ const MAX_RENDERED_SNAPSHOT_HITS = 100000;
 const PARAM_FONT = new PhetFont( 12 );
 const TITLE_FONT = new PhetFont( { size: 16, weight: 'bold' } );
 
-const SOURCE_TYPE_DISPLAY_MAP: Record<string, TReadOnlyProperty<string>> = {
+const SOURCE_TYPE_DISPLAY_MAP: Record<SourceType, TReadOnlyProperty<string>> = {
   photons: QuantumWaveInterferenceFluent.photonsStringProperty,
   electrons: QuantumWaveInterferenceFluent.electronsStringProperty,
   neutrons: QuantumWaveInterferenceFluent.neutronsStringProperty,
   heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomsStringProperty
 };
 
-const SLIT_SETTING_DISPLAY_MAP: Record<string, TReadOnlyProperty<string>> = {
-  BOTH_OPEN: QuantumWaveInterferenceFluent.bothOpenStringProperty,
-  LEFT_COVERED: QuantumWaveInterferenceFluent.leftCoveredStringProperty,
-  RIGHT_COVERED: QuantumWaveInterferenceFluent.rightCoveredStringProperty,
-  LEFT_DETECTOR: QuantumWaveInterferenceFluent.leftDetectorStringProperty,
-  RIGHT_DETECTOR: QuantumWaveInterferenceFluent.rightDetectorStringProperty,
-  BOTH_DETECTORS: QuantumWaveInterferenceFluent.bothDetectorsStringProperty,
+const SLIT_SETTING_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyProperty<string>> = {
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
   leftCovered: QuantumWaveInterferenceFluent.leftCoveredStringProperty,
   rightCovered: QuantumWaveInterferenceFluent.rightCoveredStringProperty,
@@ -86,18 +80,194 @@ export default class SnapshotNode extends Node {
       snapshots => ( index < snapshots.length ? snapshots[ index ] : null )
     );
 
-    const titleProperty = new Property( '' );
-    const sceneNameProperty = new Property( '' );
-    const wavelengthOrSpeedProperty = new Property( '' );
-    const slitSeparationProperty = new Property( '' );
-    const screenDistanceProperty = new Property( '' );
-    const slitSettingProperty = new Property( '' );
-    const descriptionProperty = new Property( '' );
-    const headingProperty = new Property( '' );
-    const trashButtonAccessibleNameProperty = new Property( '' );
-    const experimentTypeListItemProperty = new Property( '' );
-    const detectionModeListItemProperty = new Property( '' );
-    const slitSettingListItemProperty = new Property( '' );
+    // All metadata strings derive from the snapshot and the relevant locale-dependent string
+    // properties, so they update automatically on snapshot change AND locale change without
+    // any manual re-sync. Each derived property returns '' when there is no snapshot.
+
+    const ifSnapshot = <T>( compute: ( snapshot: Snapshot ) => T, empty: T ): ( snapshot: Snapshot | null ) => T =>
+      snapshot => snapshot ? compute( snapshot ) : empty;
+
+    const sourceTypeDisplayDeps = [
+      SOURCE_TYPE_DISPLAY_MAP.photons,
+      SOURCE_TYPE_DISPLAY_MAP.electrons,
+      SOURCE_TYPE_DISPLAY_MAP.neutrons,
+      SOURCE_TYPE_DISPLAY_MAP.heliumAtoms
+    ] as const;
+    const slitSettingDisplayDeps = [
+      SLIT_SETTING_DISPLAY_MAP.bothOpen,
+      SLIT_SETTING_DISPLAY_MAP.leftCovered,
+      SLIT_SETTING_DISPLAY_MAP.rightCovered,
+      SLIT_SETTING_DISPLAY_MAP.leftDetector,
+      SLIT_SETTING_DISPLAY_MAP.rightDetector,
+      SLIT_SETTING_DISPLAY_MAP.bothDetectors
+    ] as const;
+
+    const titleProperty = new DerivedProperty(
+      [ snapshotProperty, QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty ],
+      ( snapshot, pattern ) => snapshot
+        ? StringUtils.fillIn( pattern, { number: index + 1 } )
+        : ''
+    );
+
+    const sceneNameProperty = new DerivedProperty(
+      [ snapshotProperty, ...sourceTypeDisplayDeps ],
+      ifSnapshot( snapshot => SOURCE_TYPE_DISPLAY_MAP[ snapshot.sourceType ].value, '' )
+    );
+
+    const headingProperty = new DerivedProperty(
+      [ titleProperty, sceneNameProperty ],
+      ( title, sceneName ) => title ? `${title}: ${sceneName}` : ''
+    );
+
+    const formatLabelValue = ( label: string, value: string ): string => StringUtils.fillIn(
+      QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
+      { label: label, value: value }
+    );
+
+    const slitSeparationProperty = new DerivedProperty(
+      [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+        QuantumWaveInterferenceFluent.slitSeparationStringProperty,
+        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty,
+        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty
+      ],
+      ifSnapshot( snapshot => {
+        // Slit separation: use μm for small values (< 0.1 mm) for readability.
+        const slitSepValue = snapshot.slitSeparation < 0.1
+          ? StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
+            { value: toFixed( snapshot.slitSeparation * 1000, 1 ) }
+          )
+          : StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value,
+            { value: toFixed( snapshot.slitSeparation, 2 ) }
+          );
+        return formatLabelValue(
+          QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
+          slitSepValue
+        );
+      }, '' )
+    );
+
+    const screenDistanceProperty = new DerivedProperty(
+      [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+        QuantumWaveInterferenceFluent.screenDistanceStringProperty,
+        QuantumWaveInterferenceFluent.valueMetersPatternStringProperty
+      ],
+      ifSnapshot( snapshot => {
+        const screenDistValue = StringUtils.fillIn(
+          QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value,
+          { value: toFixed( snapshot.screenDistance, 2 ) }
+        );
+        return formatLabelValue(
+          QuantumWaveInterferenceFluent.screenDistanceStringProperty.value,
+          screenDistValue
+        );
+      }, '' )
+    );
+
+    const wavelengthOrSpeedProperty = new DerivedProperty(
+      [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+        SceneryPhetFluent.wavelengthStringProperty,
+        QuantumWaveInterferenceFluent.particleSpeedStringProperty,
+        QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty,
+        QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty,
+        QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty
+      ],
+      ifSnapshot( snapshot => {
+        // Show photon wavelength directly, and particle speed for matter-wave scenes.
+        if ( snapshot.sourceType === 'photons' ) {
+          const wavelengthValue = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty.value,
+            { value: roundSymmetric( snapshot.wavelength ) }
+          );
+          return formatLabelValue( SceneryPhetFluent.wavelengthStringProperty.value, wavelengthValue );
+        }
+        const particleMass = snapshot.sourceType === 'electrons' ? QuantumWaveInterferenceConstants.ELECTRON_MASS :
+                             snapshot.sourceType === 'neutrons' ? QuantumWaveInterferenceConstants.NEUTRON_MASS :
+                             QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
+        const speed = snapshot.effectiveWavelength === 0 ? 0 : QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
+        const speedValue = speed >= 10000
+          ? StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value,
+            { value: roundSymmetric( speed / 1000 ) }
+          )
+          : StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty.value,
+            { value: roundSymmetric( speed ) }
+          );
+        return formatLabelValue( QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, speedValue );
+      }, '' )
+    );
+
+    const slitSettingProperty = new DerivedProperty(
+      [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.slitsLabelPatternStringProperty,
+        ...slitSettingDisplayDeps
+      ],
+      ifSnapshot( snapshot => StringUtils.fillIn(
+        QuantumWaveInterferenceFluent.slitsLabelPatternStringProperty.value,
+        { setting: SLIT_SETTING_DISPLAY_MAP[ snapshot.slitSetting ].value }
+      ), '' )
+    );
+
+    const experimentTypeListItemProperty = new DerivedProperty(
+      [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+        QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleNameStringProperty,
+        ...sourceTypeDisplayDeps
+      ],
+      ifSnapshot( snapshot => formatLabelValue(
+        QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleNameStringProperty.value,
+        SOURCE_TYPE_DISPLAY_MAP[ snapshot.sourceType ].value
+      ), '' )
+    );
+
+    const detectionModeListItemProperty = new DerivedProperty(
+      [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+        QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty,
+        QuantumWaveInterferenceFluent.intensityStringProperty,
+        QuantumWaveInterferenceFluent.hitsStringProperty
+      ],
+      ifSnapshot( snapshot => formatLabelValue(
+        QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty.value,
+        snapshot.detectionMode === 'averageIntensity'
+          ? QuantumWaveInterferenceFluent.intensityStringProperty.value
+          : QuantumWaveInterferenceFluent.hitsStringProperty.value
+      ), '' )
+    );
+
+    const slitSettingListItemProperty = new DerivedProperty(
+      [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+        QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty,
+        ...slitSettingDisplayDeps
+      ],
+      ifSnapshot( snapshot => formatLabelValue(
+        QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty.value,
+        SLIT_SETTING_DISPLAY_MAP[ snapshot.slitSetting ].value
+      ), '' )
+    );
+
+    const descriptionProperty = new DerivedProperty(
+      [ snapshotProperty ],
+      snapshot => snapshot ? SnapshotDescriber.getDescription( snapshot ) : ''
+    );
+
+    const trashButtonAccessibleNameProperty = new DerivedProperty(
+      [ snapshotProperty, SceneryPhetStrings.key.deleteStringProperty, titleProperty ],
+      ( snapshot, deleteString, title ) => snapshot ? `${deleteString} ${title}` : ''
+    );
 
     // Background rectangle for the snapshot image
     const background = new Rectangle(
@@ -158,169 +328,8 @@ export default class SnapshotNode extends Node {
       children: [ sceneNameText, wavelengthOrSpeedText, slitSepText, screenDistText, slitSettingText ]
     } );
 
-    // Update all text content when the snapshot changes or when locale strings change.
-    const updateLabels = (): void => {
-      const snapshot = snapshotProperty.value;
-      if ( snapshot ) {
-        titleProperty.value = StringUtils.fillIn(
-          QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty.value,
-          { number: index + 1 }
-        );
-        const sourceTypeDisplayProperty = SOURCE_TYPE_DISPLAY_MAP[ snapshot.sourceType ];
-        const sourceTypeDisplayString = sourceTypeDisplayProperty ?
-                                        sourceTypeDisplayProperty.value :
-                                        snapshot.sourceType;
-        sceneNameProperty.value = sourceTypeDisplayString;
-        headingProperty.value = `${titleProperty.value}: ${sourceTypeDisplayString}`;
-        experimentTypeListItemProperty.value = StringUtils.fillIn(
-          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
-          {
-            label: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleNameStringProperty.value,
-            value: sourceTypeDisplayString
-          }
-        );
-
-        // Slit separation: use μm for small values (< 0.1 mm) for readability
-        if ( snapshot.slitSeparation < 0.1 ) {
-          const valueUM = snapshot.slitSeparation * 1000;
-          const slitSepValue = StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
-            { value: toFixed( valueUM, 1 ) }
-          );
-          slitSeparationProperty.value = StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
-            { label: QuantumWaveInterferenceFluent.slitSeparationStringProperty.value, value: slitSepValue }
-          );
-        }
-        else {
-          const slitSepValue = StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value,
-            { value: toFixed( snapshot.slitSeparation, 2 ) }
-          );
-          slitSeparationProperty.value = StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
-            { label: QuantumWaveInterferenceFluent.slitSeparationStringProperty.value, value: slitSepValue }
-          );
-        }
-
-        const screenDistValue = StringUtils.fillIn(
-          QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value,
-          { value: toFixed( snapshot.screenDistance, 2 ) }
-        );
-        screenDistanceProperty.value = StringUtils.fillIn(
-          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
-          { label: QuantumWaveInterferenceFluent.screenDistanceStringProperty.value, value: screenDistValue }
-        );
-
-        const detectionModeDisplay =
-          snapshot.detectionMode === 'averageIntensity' ? QuantumWaveInterferenceFluent.intensityStringProperty.value
-                                                        : QuantumWaveInterferenceFluent.hitsStringProperty.value;
-        detectionModeListItemProperty.value = StringUtils.fillIn(
-          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
-          {
-            label: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty.value,
-            value: detectionModeDisplay
-          }
-        );
-
-        // Show photon wavelength directly, and particle speed for matter-wave scenes.
-        if ( snapshot.sourceType === 'photons' ) {
-          const wavelengthValue = StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty.value,
-            { value: roundSymmetric( snapshot.wavelength ) }
-          );
-          wavelengthOrSpeedProperty.value = StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
-            { label: SceneryPhetFluent.wavelengthStringProperty.value, value: wavelengthValue }
-          );
-        }
-        else {
-          const particleMass = snapshot.sourceType === 'electrons' ? QuantumWaveInterferenceConstants.ELECTRON_MASS :
-                               snapshot.sourceType === 'neutrons' ? QuantumWaveInterferenceConstants.NEUTRON_MASS :
-                               QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
-          const speed = snapshot.effectiveWavelength === 0 ? 0 : QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
-          if ( speed >= 10000 ) {
-            const kmPerSValue = StringUtils.fillIn(
-              QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value,
-              { value: roundSymmetric( speed / 1000 ) }
-            );
-            wavelengthOrSpeedProperty.value = StringUtils.fillIn(
-              QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
-              { label: QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, value: kmPerSValue }
-            );
-          }
-          else {
-            const speedValue = StringUtils.fillIn(
-              QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty.value,
-              { value: roundSymmetric( speed ) }
-            );
-            wavelengthOrSpeedProperty.value = StringUtils.fillIn(
-              QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
-              { label: QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, value: speedValue }
-            );
-          }
-        }
-
-        const slitSettingDisplayProperty = SLIT_SETTING_DISPLAY_MAP[ snapshot.slitSetting ];
-        const slitSettingDisplayString = slitSettingDisplayProperty ? slitSettingDisplayProperty.value : snapshot.slitSetting;
-        slitSettingProperty.value = StringUtils.fillIn(
-          QuantumWaveInterferenceFluent.slitsLabelPatternStringProperty.value,
-          { setting: slitSettingDisplayString }
-        );
-        slitSettingListItemProperty.value = StringUtils.fillIn(
-          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
-          {
-            label: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty.value,
-            value: slitSettingDisplayString
-          }
-        );
-        descriptionProperty.value = SnapshotDescriber.getDescription( snapshot );
-        trashButtonAccessibleNameProperty.value = `${SceneryPhetStrings.key.deleteStringProperty.value} ${titleProperty.value}`;
-      }
-      else {
-        titleProperty.value = '';
-        sceneNameProperty.value = '';
-        wavelengthOrSpeedProperty.value = '';
-        slitSeparationProperty.value = '';
-        screenDistanceProperty.value = '';
-        slitSettingProperty.value = '';
-        descriptionProperty.value = '';
-        headingProperty.value = '';
-        trashButtonAccessibleNameProperty.value = '';
-        experimentTypeListItemProperty.value = '';
-        detectionModeListItemProperty.value = '';
-        slitSettingListItemProperty.value = '';
-      }
-
-      canvasNode.invalidatePaint();
-    };
-
-    // Re-render when the snapshot itself changes or when any locale-dependent string changes.
-    snapshotProperty.link( updateLabels );
-    QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.slitSeparationStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.screenDistanceStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.particleSpeedStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.slitsLabelPatternStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.intensityStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.hitsStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleNameStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty.lazyLink( updateLabels );
-    QuantumWaveInterferenceFluent.hitsCountPatternStringProperty.lazyLink( updateLabels );
-    SceneryPhetStrings.key.deleteStringProperty.lazyLink( updateLabels );
-    SceneryPhetFluent.wavelengthStringProperty.lazyLink( updateLabels );
-    SOURCE_TYPE_DISPLAY_MAP.photons.lazyLink( updateLabels );
-    SOURCE_TYPE_DISPLAY_MAP.electrons.lazyLink( updateLabels );
-    SOURCE_TYPE_DISPLAY_MAP.neutrons.lazyLink( updateLabels );
-    SOURCE_TYPE_DISPLAY_MAP.heliumAtoms.lazyLink( updateLabels );
-    SLIT_SETTING_DISPLAY_MAP.BOTH_OPEN.lazyLink( updateLabels );
-    SLIT_SETTING_DISPLAY_MAP.LEFT_COVERED.lazyLink( updateLabels );
-    SLIT_SETTING_DISPLAY_MAP.RIGHT_COVERED.lazyLink( updateLabels );
-    SLIT_SETTING_DISPLAY_MAP.LEFT_DETECTOR.lazyLink( updateLabels );
-    SLIT_SETTING_DISPLAY_MAP.RIGHT_DETECTOR.lazyLink( updateLabels );
-    SLIT_SETTING_DISPLAY_MAP.BOTH_DETECTORS.lazyLink( updateLabels );
+    // Repaint the canvas whenever the snapshot itself changes (text content is reactive via DerivedProperties above).
+    snapshotProperty.link( () => canvasNode.invalidatePaint() );
 
     const trashButton = new TrashButton( {
       listener: () => {
