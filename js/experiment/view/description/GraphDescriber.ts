@@ -67,20 +67,19 @@ export default class GraphDescriber {
       const analysis = BandAnalysis.analyzeTheoreticalPattern( sceneModel );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
 
-      const paragraph = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph;
       if ( isDoubleSlit ) {
-        descriptionProperty.value = newStage === 'none' ? paragraph.hitsNoneStringProperty.value :
-                                    newStage === 'few' ? paragraph.hitsFewStringProperty.value :
-                                    newStage === 'emerging' ? paragraph.hitsEmergingStringProperty.value :
-                                    newStage === 'developing' ? paragraph.hitsDeveloping.format( { spatialDescription: spatialDescription } ) :
-                                    newStage === 'clear' ? paragraph.hitsClear.format( { spatialDescription: spatialDescription } ) :
+        descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsNoneStringProperty.value :
+                                    newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsFewStringProperty.value :
+                                    newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsEmergingStringProperty.value :
+                                    newStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsDeveloping.format( { spatialDescription: spatialDescription } ) :
+                                    newStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsClear.format( { spatialDescription: spatialDescription } ) :
                                     ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
       }
       else {
-        descriptionProperty.value = newStage === 'none' ? paragraph.hitsNoneStringProperty.value :
-                                    newStage === 'few' ? paragraph.hitsFewStringProperty.value :
-                                    newStage === 'emerging' ? paragraph.hitsSingleSlitEmergingStringProperty.value :
-                                    ( newStage === 'developing' || newStage === 'clear' ) ? paragraph.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } ) :
+        descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsNoneStringProperty.value :
+                                    newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsFewStringProperty.value :
+                                    newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value :
+                                    ( newStage === 'developing' || newStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } ) :
                                     ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
       }
     };
