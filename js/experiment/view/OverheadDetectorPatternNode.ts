@@ -66,12 +66,8 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
     // y' = (dy / sourceWidth) * x + (leftHeight / sourceHeight) * y
     context.save();
     context.transform(
-      this.dx / sourceWidth,
-      this.dy / sourceWidth,
-      0,
-      this.leftHeight / sourceHeight,
-      0,
-      0
+      this.dx / sourceWidth, this.dy / sourceWidth, 0,
+      this.leftHeight / sourceHeight, 0, 0
     );
     context.drawImage( texture, 0, 0 );
     context.restore();
