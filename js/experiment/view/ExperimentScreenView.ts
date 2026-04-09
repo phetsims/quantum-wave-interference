@@ -31,7 +31,6 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import SceneModel from '../model/SceneModel.js';
 import createRulerNode from './createRulerNode.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
@@ -539,7 +538,7 @@ export default class ExperimentScreenView extends ScreenView {
     const slitSettingProperty = model.currentSlitSettingProperty;
     const slitWidthStringProperty = new DerivedProperty(
       [ model.sceneProperty ],
-      ( scene: SceneModel ) => {
+      scene => {
         const slitWidthMM = scene.slitWidth;
         if ( slitWidthMM >= 0.01 ) {
           return QuantumWaveInterferenceFluent.a11y.slitWidthMillimetersPattern.format( {
@@ -572,7 +571,7 @@ export default class ExperimentScreenView extends ScreenView {
     // relationship." Hidden for photons (which are massless).
     const particleSourceTypeProperty = new DerivedProperty(
       [ model.sceneProperty ],
-      ( scene: SceneModel ) => scene.sourceType as 'electrons' | 'neutrons' | 'heliumAtoms'
+      scene => scene.sourceType as 'electrons' | 'neutrons' | 'heliumAtoms'
     );
     const particleMassDescriptionNode = new Node( {
       accessibleParagraph:

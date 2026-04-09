@@ -22,7 +22,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { DetectorSideValues, hasDetectorOnSide, type DetectorSide } from '../model/SlitConfiguration.js';
+import { type DetectorSide, DetectorSideValues, hasDetectorOnSide } from '../model/SlitConfiguration.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
@@ -78,9 +78,10 @@ class DetectorPanelNode extends Node {
     );
 
     // Reactive: updates on hit count change and on locale change for the "hits" word.
-    const detectorHitCountStringProperty = new DerivedProperty(
-      [ detectorHitsProperty, QuantumWaveInterferenceFluent.hitsStringProperty ],
-      ( hits, hitsLabel ) => `${hits} ${hitsLabel}`
+    const detectorHitCountStringProperty = new DerivedProperty( [
+        detectorHitsProperty,
+        QuantumWaveInterferenceFluent.hitsStringProperty
+      ], ( hits, hitsLabel ) => `${hits} ${hitsLabel}`
     );
 
     const detectorHitCountText = new Text( detectorHitCountStringProperty, {

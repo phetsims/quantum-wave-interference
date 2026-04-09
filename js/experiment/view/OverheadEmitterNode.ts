@@ -200,7 +200,7 @@ export default class OverheadEmitterNode extends Node {
     // Track the active scene's source type for accessible name
     const sourceTypeProperty = new DerivedProperty(
       [ model.sceneProperty ],
-      ( scene: SceneModel ): SourceType => scene.sourceType
+      scene => scene.sourceType
     );
 
     // Accessible name for the emitter button, changes with the active source type
