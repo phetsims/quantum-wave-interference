@@ -88,24 +88,12 @@ export default class OverheadDoubleSlitNode extends Node {
     const slitBaseX = slitXFraction * this.skewDx;
     const slitBaseY = slitYCenter + slitXFraction * this.skewDy;
 
-    const MIN_VISUAL_SLIT_SPACING = 1 * OVERHEAD_SCALE;
+    const MIN_VISUAL_SLIT_SPACING = OVERHEAD_SCALE;
     const MAX_VISUAL_SLIT_SPACING = 4 * OVERHEAD_SCALE;
 
     const slitMarkerDy = SLIT_MARKER_WIDTH * ( this.skewDy / this.skewDx );
-    const leftSlitMarker = createParallelogramNode(
-      SLIT_MARKER_WIDTH,
-      slitMarkerDy,
-      slitLineLength,
-      'white',
-      0
-    );
-    const rightSlitMarker = createParallelogramNode(
-      SLIT_MARKER_WIDTH,
-      slitMarkerDy,
-      slitLineLength,
-      'white',
-      0
-    );
+    const leftSlitMarker = createParallelogramNode( SLIT_MARKER_WIDTH, slitMarkerDy, slitLineLength, 'white', 0 );
+    const rightSlitMarker = createParallelogramNode( SLIT_MARKER_WIDTH, slitMarkerDy, slitLineLength, 'white', 0 );
     this.parallelogramNode.addChild( leftSlitMarker );
     this.parallelogramNode.addChild( rightSlitMarker );
 
@@ -114,10 +102,7 @@ export default class OverheadDoubleSlitNode extends Node {
     const slitOverlayDx = 4 * OVERHEAD_SCALE * 0.6 * 0.85 * DETECTOR_OVERLAY_WIDTH_SCALE;
     const slitOverlayDy = slitOverlayDx * ( this.skewDy / this.skewDx );
 
-    const leftSlitDetectorOverlay = createParallelogramNode(
-      slitOverlayDx,
-      slitOverlayDy,
-      slitOverlayHeight,
+    const leftSlitDetectorOverlay = createParallelogramNode( slitOverlayDx, slitOverlayDy, slitOverlayHeight,
       QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA ).toCSS(),
       0
     );

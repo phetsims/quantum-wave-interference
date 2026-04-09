@@ -198,10 +198,7 @@ export default class OverheadEmitterNode extends Node {
     const isMaxHitsReachedProperty = model.currentIsMaxHitsReachedProperty;
 
     // Track the active scene's source type for accessible name
-    const sourceTypeProperty = new DerivedProperty(
-      [ model.sceneProperty ],
-      scene => scene.sourceType
-    );
+    const sourceTypeProperty = new DerivedProperty( [ model.sceneProperty ], scene => scene.sourceType );
 
     // Accessible name for the emitter button, changes with the active source type
     const emitterAccessibleNameProperty = QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleName.createProperty( {

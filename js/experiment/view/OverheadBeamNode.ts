@@ -160,8 +160,7 @@ export default class OverheadBeamNode extends Node {
 
     // Wire up overhead pattern updates
     const updateOverheadPattern = () => {
-      const scene = model.sceneProperty.value;
-      detectorScreenNode.overheadPatternNode.updatePattern( scene );
+      detectorScreenNode.overheadPatternNode.updatePattern( model.sceneProperty.value );
     };
 
     const patternProperties = [

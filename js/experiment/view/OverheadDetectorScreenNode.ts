@@ -9,13 +9,13 @@
  */
 
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
@@ -41,13 +41,11 @@ export default class OverheadDetectorScreenNode extends Node {
   private frontFacingScreenLeft = 0;
   private frontFacingScreenRight = 0;
   private readonly doubleSlitParallelogramNode: Node;
-  private readonly model: ExperimentModel;
   private readonly updateDetectorScreenPosition: () => void;
 
   public constructor( model: ExperimentModel, doubleSlitParallelogramNode: Node ) {
     super();
 
-    this.model = model;
     this.doubleSlitParallelogramNode = doubleSlitParallelogramNode;
 
     // Detector screen label
@@ -71,7 +69,7 @@ export default class OverheadDetectorScreenNode extends Node {
     const distanceSpanArrow = new ArrowNode( 0, 0, 1, 0, {
       headHeight: 5 * OVERHEAD_SCALE,
       headWidth: 5 * OVERHEAD_SCALE,
-      tailWidth: 1 * OVERHEAD_SCALE,
+      tailWidth: OVERHEAD_SCALE,
       doubleHead: true,
       fill: 'black',
       stroke: null
@@ -125,10 +123,9 @@ export default class OverheadDetectorScreenNode extends Node {
       distanceSpanRightTick.x = rightX;
       distanceSpanRightTick.centerY = spanY;
 
-      distanceText.string = StringUtils.fillIn(
-        QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value,
-        { value: toFixed( distance, 2 ) }
-      );
+      distanceText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value, {
+        value: toFixed( distance, 2 )
+      } );
       distanceText.centerX = ( leftX + rightX ) / 2;
       distanceText.bottom = spanY - SPAN_TICK_LENGTH / 2;
     };
