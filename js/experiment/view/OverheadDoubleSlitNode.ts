@@ -79,6 +79,7 @@ export default class OverheadDoubleSlitNode extends Node {
 
     // Position label centered above the parallelogram
     this.layoutLabel();
+    this.doubleSlitLabel.localBoundsProperty.link( () => this.layoutLabel() );
 
     // Slit lines on the parallelogram
     const slitLineLength = 18.75 * OVERHEAD_SCALE;

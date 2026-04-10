@@ -136,10 +136,12 @@ export default class OverheadEmitterNode extends Node {
     const sourceLabel = new Text( sourceLabelStringProperty, {
       font: LABEL_FONT,
       maxWidth: 150,
-      left: emitterLeft,
       top: LABEL_Y
     } );
     this.addChild( sourceLabel );
+
+    // Keep the emitter at a fixed vertical position even if the source label rescales or changes height.
+    const emitterTop = sourceLabel.bottom + 6 * OVERHEAD_SCALE;
 
     // Particle mass label (empty for photons; hidden via the visible link below).
     // DerivedProperty so the label updates reactively on both scene change and locale change.
@@ -286,11 +288,16 @@ export default class OverheadEmitterNode extends Node {
       applyParticleEmitterPalette( sourceType );
 
       const activeEmitter = isPhoton ? this.laserPointerNode : this.particleEmitterNode;
-      activeEmitter.top = sourceLabel.bottom + 6 * OVERHEAD_SCALE;
+      activeEmitter.top = emitterTop;
+      const activeButton = activeEmitter.onOffButton;
+      sourceLabel.centerX = activeButton ?
+                            activeEmitter.localToParentPoint( activeButton.center ).x :
+                            activeEmitter.centerX;
       particleMassLabel.top = activeEmitter.bottom + 4 * OVERHEAD_SCALE;
       this.maxHitsReachedPanel.centerY = activeEmitter.centerY;
     };
 
+    sourceLabel.localBoundsProperty.link( updateEmitterLayout );
     model.sceneProperty.link( updateEmitterLayout );
   }
 }

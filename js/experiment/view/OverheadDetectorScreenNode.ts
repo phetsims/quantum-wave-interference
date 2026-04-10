@@ -129,6 +129,8 @@ export default class OverheadDetectorScreenNode extends Node {
       distanceText.bottom = spanY - SPAN_TICK_LENGTH / 2;
     };
 
+    detectorScreenLabel.localBoundsProperty.link( () => this.updateDetectorScreenPosition() );
+
     model.sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         oldScene.screenDistanceProperty.unlink( this.updateDetectorScreenPosition );
