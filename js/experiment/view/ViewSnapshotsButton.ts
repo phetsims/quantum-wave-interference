@@ -44,6 +44,7 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
     } );
 
     super( {
+      isDisposable: false,
       listener: () => {
         if ( !snapshotsDialog.isShowingProperty.value ) {
           shouldResumeOnDialogClose = isPlayingProperty.value;

@@ -65,7 +65,9 @@ export default class GraphAccordionBox extends Node {
 
   public constructor( sceneModel: SceneModel, providedOptions: GraphAccordionBoxOptions ) {
     const options = optionize<GraphAccordionBoxOptions, SelfOptions, NodeOptions>()(
-      {},
+      {
+        isDisposable: false
+      },
       providedOptions
     );
 

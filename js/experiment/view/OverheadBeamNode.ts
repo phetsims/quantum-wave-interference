@@ -39,7 +39,7 @@ export default class OverheadBeamNode extends Node {
     doubleSlitNode: OverheadDoubleSlitNode,
     detectorScreenNode: OverheadDetectorScreenNode
   ) {
-    super();
+    super( { isDisposable: false } );
 
     this.emitterBeamNode = new Path( null, { visible: false } );
     // emitterBeamNode is NOT added as a child here — it is z-ordered separately in ExperimentScreenView.

@@ -81,7 +81,9 @@ export default class DetectorScreenNode extends Node {
     providedOptions: DetectorScreenNodeOptions
   ) {
     const options = optionize<DetectorScreenNodeOptions, SelfOptions, NodeOptions>()(
-      {},
+      {
+        isDisposable: false
+      },
       providedOptions
     );
 

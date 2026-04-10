@@ -50,7 +50,7 @@ type StringsType = {
   'maxStringProperty': LocalizedStringProperty;
   'slitSeparationStringProperty': LocalizedStringProperty;
   'screenDistanceStringProperty': LocalizedStringProperty;
-  'slitSettingsStringProperty': LocalizedStringProperty;
+  'slitConfigurationStringProperty': LocalizedStringProperty;
   'slitSeparationPatternStringProperty': LocalizedStringProperty;
   'slitSeparationMicrometerPatternStringProperty': LocalizedStringProperty;
   'screenDistancePatternStringProperty': LocalizedStringProperty;

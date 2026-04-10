@@ -30,7 +30,7 @@ heliumAtomMassLabel:                'm<sub>He</sub> = 6.6×10<sup>−27</sup> kg
 max:                                Max
 slitSeparation:                     Slit Separation
 screenDistance:                     Screen Distance
-slitSettings:                       Slit Configuration
+slitConfiguration:                  Slit Configuration
 slitSeparationPattern:              '{{value}} mm'
 slitSeparationMicrometerPattern:    '{{value}} μm'
 screenDistancePattern:              '{{value}} m'

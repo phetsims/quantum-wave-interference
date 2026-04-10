@@ -156,6 +156,7 @@ export default class SceneModel extends PhetioObject {
   public constructor( providedOptions: SceneModelOptions ) {
 
     const options = optionize<SceneModelOptions, SelfOptions, PhetioObjectOptions>()( {
+      isDisposable: false,
       phetioType: SceneModel.SceneModelIO,
       phetioDocumentation: 'Model for a single source-type scene, including detector screen data.'
     }, providedOptions );

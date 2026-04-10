@@ -48,7 +48,7 @@ export default class OverheadDoubleSlitNode extends Node {
   public readonly skewDy = 21 * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;
 
   public constructor( model: ExperimentModel ) {
-    super();
+    super( { isDisposable: false } );
 
     // Double slit label
     this.doubleSlitLabel = new Text( QuantumWaveInterferenceFluent.doubleSlitStringProperty, {

@@ -59,6 +59,7 @@ export default class SourceControlPanel extends Panel {
   ) {
     const options = optionize<SourceControlPanelOptions, SelfOptions, PanelOptions>()(
       {
+        isDisposable: false,
         xMargin: 10,
         yMargin: 10,
         fill: QuantumWaveInterferenceColors.panelFillProperty,

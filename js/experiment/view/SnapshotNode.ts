@@ -413,6 +413,7 @@ export default class SnapshotNode extends Node {
     trashButton.bottom = SNAPSHOT_HEIGHT;
 
     super( {
+      isDisposable: false,
       tagName: 'div',
       containerTagName: 'section',
       accessibleHeading: headingProperty,

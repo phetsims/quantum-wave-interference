@@ -52,7 +52,7 @@ addToMapIfDefined( 'heliumAtomMassLabel', 'heliumAtomMassLabelStringProperty' );
 addToMapIfDefined( 'max', 'maxStringProperty' );
 addToMapIfDefined( 'slitSeparation', 'slitSeparationStringProperty' );
 addToMapIfDefined( 'screenDistance', 'screenDistanceStringProperty' );
-addToMapIfDefined( 'slitSettings', 'slitSettingsStringProperty' );
+addToMapIfDefined( 'slitConfiguration', 'slitConfigurationStringProperty' );
 addToMapIfDefined( 'bothOpen', 'bothOpenStringProperty' );
 addToMapIfDefined( 'leftCovered', 'leftCoveredStringProperty' );
 addToMapIfDefined( 'rightCovered', 'rightCoveredStringProperty' );
@@ -203,7 +203,7 @@ const QuantumWaveInterferenceFluent = {
   maxStringProperty: _.get( QuantumWaveInterferenceStrings, 'maxStringProperty' ),
   slitSeparationStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationStringProperty' ),
   screenDistanceStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistanceStringProperty' ),
-  slitSettingsStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSettingsStringProperty' ),
+  slitConfigurationStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitConfigurationStringProperty' ),
   slitSeparationPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationPatternStringProperty' ),
   slitSeparationMicrometerPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationMicrometerPatternStringProperty' ),
   screenDistancePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistancePatternStringProperty' ),

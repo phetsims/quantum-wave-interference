@@ -107,7 +107,7 @@ export default class OverheadEmitterNode extends Node {
   public readonly maxHitsReachedPanel: Panel;
 
   public constructor( model: ExperimentModel, layoutBounds: Bounds2, tandem: Tandem ) {
-    super();
+    super( { isDisposable: false } );
 
     // Source label that changes with the selected scene
     const sourceLabelStringProperty = new DerivedProperty(

@@ -61,6 +61,7 @@ export default class SlitControlPanel extends Panel {
   ) {
     const options = optionize<SlitControlPanelOptions, SelfOptions, PanelOptions>()(
       {
+        isDisposable: false,
         xMargin: 14,
         yMargin: 8,
         fill: QuantumWaveInterferenceColors.panelFillProperty,
@@ -233,7 +234,7 @@ export default class SlitControlPanel extends Panel {
     );
 
     // Slit settings ComboBox
-    const slitSettingsLabel = new Text( QuantumWaveInterferenceFluent.slitSettingsStringProperty, {
+    const slitSettingsLabel = new Text( QuantumWaveInterferenceFluent.slitConfigurationStringProperty, {
       font: SLIT_SETTINGS_TITLE_FONT,
       maxWidth: 170
     } );

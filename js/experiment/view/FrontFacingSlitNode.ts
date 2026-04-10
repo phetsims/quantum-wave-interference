@@ -116,7 +116,9 @@ type FrontFacingSlitNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tande
 export default class FrontFacingSlitNode extends Node {
   public constructor( sceneModel: SceneModel, providedOptions: FrontFacingSlitNodeOptions ) {
     const options = optionize<FrontFacingSlitNodeOptions, SelfOptions, NodeOptions>()(
-      {},
+      {
+        isDisposable: false
+      },
       providedOptions
     );
 

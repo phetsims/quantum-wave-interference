@@ -49,7 +49,7 @@ class DetectorPanelNode extends Node {
     doubleSlitNode: OverheadDoubleSlitNode,
     detectorSide: DetectorSide
   ) {
-    super( { visible: false } );
+    super( { visible: false, isDisposable: false } );
 
     const detectorWirePath = new Path( null, {
       stroke: DETECTOR_WIRE_STROKE,
@@ -168,7 +168,8 @@ export default class WhichPathDetectorIndicatorNode extends Node {
     );
 
     super( {
-      children: detectorPanelNodes
+      children: detectorPanelNodes,
+      isDisposable: false
     } );
 
     this.detectorPanelNodes = detectorPanelNodes;

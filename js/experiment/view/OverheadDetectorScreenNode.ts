@@ -44,7 +44,7 @@ export default class OverheadDetectorScreenNode extends Node {
   private readonly updateDetectorScreenPosition: () => void;
 
   public constructor( model: ExperimentModel, doubleSlitParallelogramNode: Node ) {
-    super();
+    super( { isDisposable: false } );
 
     this.doubleSlitParallelogramNode = doubleSlitParallelogramNode;
 

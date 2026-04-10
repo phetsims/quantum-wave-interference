@@ -95,7 +95,7 @@
   "screenDistance": {
     "value": "Screen Distance"
   },
-  "slitSettings": {
+  "slitConfiguration": {
     "value": "Slit Configuration"
   },
   "slitSeparationPattern": {

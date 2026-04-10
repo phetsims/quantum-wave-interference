@@ -42,6 +42,7 @@ export default class SnapshotButton extends RectangularPushButton {
     } );
 
     super( {
+      isDisposable: false,
       listener: () => {
         const numberOfSnapshotsBefore = sceneModel.numberOfSnapshotsProperty.value;
         sceneModel.takeSnapshot();

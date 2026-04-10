@@ -39,6 +39,7 @@ export default class ScreenSettingsPanel extends Panel {
                       providedOptions: ScreenSettingsPanelOptions ) {
 
     const options = optionize<ScreenSettingsPanelOptions, SelfOptions, PanelOptions>()( {
+      isDisposable: false,
       xMargin: 0,
       yMargin: 6,
       fill: null,
