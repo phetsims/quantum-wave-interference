@@ -74,7 +74,7 @@ const SLIT_SETTING_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyProperty<stri
 
 
 export default class SnapshotNode extends Node {
-  public constructor( sceneModel: SceneModel, index: number ) {
+  public constructor( sceneModel: SceneModel, index: number, onDeleteLastSnapshot?: () => void ) {
     const snapshotProperty: TReadOnlyProperty<Snapshot | null> = sceneModel.snapshotsProperty.derived(
       snapshots => ( index < snapshots.length ? snapshots[ index ] : null )
     );
@@ -335,6 +335,9 @@ export default class SnapshotNode extends Node {
       listener: () => {
         const snapshot = snapshotProperty.value;
         if ( snapshot ) {
+          if ( sceneModel.snapshotsProperty.value.length === 1 ) {
+            onDeleteLastSnapshot && onDeleteLastSnapshot();
+          }
           sceneModel.deleteSnapshot( snapshot );
         }
       },
