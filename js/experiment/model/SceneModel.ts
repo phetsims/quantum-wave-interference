@@ -20,7 +20,6 @@ import Range from '../../../../dot/js/Range.js';
 import Vector2, { type Vector2StateObject } from '../../../../dot/js/Vector2.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize from '../../../../phet-core/js/optionize.js';
-import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
@@ -629,7 +628,7 @@ export default class SceneModel extends PhetioObject {
 
       model.hitsChangedEmitter.emit();
     }
-  } as IntentionalAny );
+  } );
 }
 
 type SceneModelStateObject = {

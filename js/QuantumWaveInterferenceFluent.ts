@@ -5,7 +5,7 @@
 /* eslint-disable */
 /* @formatter:off */
 
-import {TReadOnlyProperty} from '../../axon/js/TReadOnlyProperty.js';
+import { TReadOnlyProperty } from '../../axon/js/TReadOnlyProperty.js';
 import FluentLibrary from '../../chipper/js/browser-and-node/FluentLibrary.js';
 import FluentComment from '../../chipper/js/browser/FluentComment.js';
 import FluentConstant from '../../chipper/js/browser/FluentConstant.js';
@@ -141,14 +141,10 @@ addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_snapshotHitsDevelopi
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_snapshotHitsClear', 'a11y.detectorScreen.accessibleParagraph.snapshotHitsClearStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_snapshotHitsSingleSlitEmerging', 'a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitEmergingStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_snapshotHitsSingleSlitClear', 'a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitClearStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_rulerBands', 'a11y.detectorScreen.spatialDescription.rulerBandsStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_rulerBandsSingleSlit', 'a11y.detectorScreen.spatialDescription.rulerBandsSingleSlitStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_noRulerBands', 'a11y.detectorScreen.spatialDescription.noRulerBandsStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_noRulerBandsSingleSlit', 'a11y.detectorScreen.spatialDescription.noRulerBandsSingleSlitStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_rulerPeaks', 'a11y.detectorScreen.spatialDescription.rulerPeaksStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_rulerPeaksSingleSlit', 'a11y.detectorScreen.spatialDescription.rulerPeaksSingleSlitStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_noRulerPeaks', 'a11y.detectorScreen.spatialDescription.noRulerPeaksStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_noRulerPeaksSingleSlit', 'a11y.detectorScreen.spatialDescription.noRulerPeaksSingleSlitStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_rulerDoubleSlit', 'a11y.detectorScreen.spatialDescription.rulerDoubleSlitStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_noRulerDoubleSlit', 'a11y.detectorScreen.spatialDescription.noRulerDoubleSlitStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_rulerSingleSlit', 'a11y.detectorScreen.spatialDescription.rulerSingleSlitStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_noRulerSingleSlit', 'a11y.detectorScreen.spatialDescription.noRulerSingleSlitStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleName', 'a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleHelpText', 'a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleContextResponse', 'a11y.detectorScreenButtons.clearScreen.accessibleContextResponseStringProperty' );
@@ -364,14 +360,10 @@ const QuantumWaveInterferenceFluent = {
         snapshotHitsSingleSlitClear: new FluentPattern<{ hitCount: number | 'one' | number | 'other' | TReadOnlyProperty<number | 'one' | number | 'other'>, spatialDescription: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_snapshotHitsSingleSlitClear', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitClearStringProperty' ), [{"name":"hitCount","variants":[{"type":"number","value":"one"},{"type":"number","value":"other"}]},{"name":"spatialDescription"}] )
       },
       spatialDescription: {
-        rulerBands: new FluentPattern<{ bandSpacing: FluentVariable, numBands: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_rulerBands', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.rulerBandsStringProperty' ), [{"name":"bandSpacing"},{"name":"numBands"}] ),
-        rulerBandsSingleSlit: new FluentPattern<{ centralWidth: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_rulerBandsSingleSlit', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.rulerBandsSingleSlitStringProperty' ), [{"name":"centralWidth"}] ),
-        noRulerBands: new FluentPattern<{ numBands: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_noRulerBands', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.noRulerBandsStringProperty' ), [{"name":"numBands"}] ),
-        noRulerBandsSingleSlitStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_noRulerBandsSingleSlit', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.noRulerBandsSingleSlitStringProperty' ) ),
-        rulerPeaks: new FluentPattern<{ numPeaks: FluentVariable, peakSpacing: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_rulerPeaks', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.rulerPeaksStringProperty' ), [{"name":"numPeaks"},{"name":"peakSpacing"}] ),
-        rulerPeaksSingleSlit: new FluentPattern<{ centralWidth: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_rulerPeaksSingleSlit', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.rulerPeaksSingleSlitStringProperty' ), [{"name":"centralWidth"}] ),
-        noRulerPeaks: new FluentPattern<{ numPeaks: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_noRulerPeaks', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.noRulerPeaksStringProperty' ), [{"name":"numPeaks"}] ),
-        noRulerPeaksSingleSlitStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_noRulerPeaksSingleSlit', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.noRulerPeaksSingleSlitStringProperty' ) )
+        rulerDoubleSlit: new FluentPattern<{ count: FluentVariable, spacing: FluentVariable, style: 'bands' | 'peaks' | TReadOnlyProperty<'bands' | 'peaks'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_rulerDoubleSlit', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.rulerDoubleSlitStringProperty' ), [{"name":"count"},{"name":"spacing"},{"name":"style","variants":["bands","peaks"]}] ),
+        noRulerDoubleSlit: new FluentPattern<{ count: FluentVariable, style: 'bands' | 'peaks' | TReadOnlyProperty<'bands' | 'peaks'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_noRulerDoubleSlit', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.noRulerDoubleSlitStringProperty' ), [{"name":"count"},{"name":"style","variants":["bands","peaks"]}] ),
+        rulerSingleSlit: new FluentPattern<{ centralWidth: FluentVariable, style: 'bands' | 'peaks' | TReadOnlyProperty<'bands' | 'peaks'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_rulerSingleSlit', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.rulerSingleSlitStringProperty' ), [{"name":"centralWidth"},{"name":"style","variants":["bands","peaks"]}] ),
+        noRulerSingleSlit: new FluentPattern<{ style: 'bands' | 'peaks' | TReadOnlyProperty<'bands' | 'peaks'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_noRulerSingleSlit', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.noRulerSingleSlitStringProperty' ), [{"name":"style","variants":["bands","peaks"]}] )
       }
     },
     detectorScreenButtons: {

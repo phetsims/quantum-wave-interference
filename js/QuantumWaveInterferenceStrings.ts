@@ -205,14 +205,10 @@ type StringsType = {
         'snapshotHitsSingleSlitClearStringProperty': LocalizedStringProperty;
       };
       'spatialDescription': {
-        'rulerBandsStringProperty': LocalizedStringProperty;
-        'rulerBandsSingleSlitStringProperty': LocalizedStringProperty;
-        'noRulerBandsStringProperty': LocalizedStringProperty;
-        'noRulerBandsSingleSlitStringProperty': LocalizedStringProperty;
-        'rulerPeaksStringProperty': LocalizedStringProperty;
-        'rulerPeaksSingleSlitStringProperty': LocalizedStringProperty;
-        'noRulerPeaksStringProperty': LocalizedStringProperty;
-        'noRulerPeaksSingleSlitStringProperty': LocalizedStringProperty;
+        'rulerDoubleSlitStringProperty': LocalizedStringProperty;
+        'noRulerDoubleSlitStringProperty': LocalizedStringProperty;
+        'rulerSingleSlitStringProperty': LocalizedStringProperty;
+        'noRulerSingleSlitStringProperty': LocalizedStringProperty;
       }
     };
     'detectorScreenButtons': {

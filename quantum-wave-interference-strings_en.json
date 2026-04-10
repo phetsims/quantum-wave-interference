@@ -438,29 +438,17 @@
         }
       },
       "spatialDescription": {
-        "rulerBands": {
-          "value": "{ $numBands } bands centered at 0 millimeters, spaced roughly { $bandSpacing } millimeters apart."
+        "rulerDoubleSlit": {
+          "value": "{ $style ->\n  [bands] { $count } bands centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.\n  *[peaks] { $count } peaks centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.\n}"
         },
-        "rulerBandsSingleSlit": {
-          "value": "The central band spans roughly { $centralWidth } millimeters, centered at 0."
+        "noRulerDoubleSlit": {
+          "value": "{ $style ->\n  [bands] { $count } bands centered on the screen, spread symmetrically to either side.\n  *[peaks] { $count } peaks centered on the graph, spread symmetrically to either side.\n}"
         },
-        "noRulerBands": {
-          "value": "{ $numBands } bands centered on the screen, spread symmetrically to either side."
+        "rulerSingleSlit": {
+          "value": "{ $style ->\n  [bands] The central band spans roughly { $centralWidth } millimeters, centered at 0.\n  *[peaks] The central peak spans roughly { $centralWidth } millimeters, centered at 0.\n}"
         },
-        "noRulerBandsSingleSlit": {
-          "value": "A broad central band centered on the screen, tapering toward the edges."
-        },
-        "rulerPeaks": {
-          "value": "{ $numPeaks } peaks centered at 0 millimeters, spaced roughly { $peakSpacing } millimeters apart."
-        },
-        "rulerPeaksSingleSlit": {
-          "value": "The central peak spans roughly { $centralWidth } millimeters, centered at 0."
-        },
-        "noRulerPeaks": {
-          "value": "{ $numPeaks } peaks centered on the graph, spread symmetrically to either side."
-        },
-        "noRulerPeaksSingleSlit": {
-          "value": "A broad central peak, tapering toward the edges."
+        "noRulerSingleSlit": {
+          "value": "{ $style ->\n  [bands] A broad central band centered on the screen, tapering toward the edges.\n  *[peaks] A broad central peak, tapering toward the edges.\n}"
         }
       }
     },

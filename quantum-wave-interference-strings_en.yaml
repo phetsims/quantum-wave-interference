@@ -291,24 +291,32 @@ a11y:
            *[other] The detector screen shows a total of { $hitCount } hits.
         } { $spatialDescription }
     spatialDescription:
-      rulerBands:             >-
-                              { $numBands } bands centered at 0 millimeters, spaced roughly { $bandSpacing }
-                              millimeters apart.
-      rulerBandsSingleSlit:   >-
-                              The central band spans roughly { $centralWidth } millimeters, centered at 0.
-      noRulerBands:           >-
-                              { $numBands } bands centered on the screen, spread symmetrically to either side.
-      noRulerBandsSingleSlit: >-
-                              A broad central band centered on the screen, tapering toward the edges.
-      rulerPeaks:             >-
-                              { $numPeaks } peaks centered at 0 millimeters, spaced roughly { $peakSpacing }
-                              millimeters apart.
-      rulerPeaksSingleSlit:   >-
-                              The central peak spans roughly { $centralWidth } millimeters, centered at 0.
-      noRulerPeaks:           >-
-                              { $numPeaks } peaks centered on the graph, spread symmetrically to either side.
-      noRulerPeaksSingleSlit: >-
-                              A broad central peak, tapering toward the edges.
+      rulerDoubleSlit:
+        select_style:
+          bands: >-
+            { $count } bands centered at 0 millimeters, spaced roughly { $spacing }
+            millimeters apart.
+          peaks: >-
+            { $count } peaks centered at 0 millimeters, spaced roughly { $spacing }
+            millimeters apart.
+      noRulerDoubleSlit:
+        select_style:
+          bands: >-
+            { $count } bands centered on the screen, spread symmetrically to either side.
+          peaks: >-
+            { $count } peaks centered on the graph, spread symmetrically to either side.
+      rulerSingleSlit:
+        select_style:
+          bands: >-
+            The central band spans roughly { $centralWidth } millimeters, centered at 0.
+          peaks: >-
+            The central peak spans roughly { $centralWidth } millimeters, centered at 0.
+      noRulerSingleSlit:
+        select_style:
+          bands: >-
+            A broad central band centered on the screen, tapering toward the edges.
+          peaks: >-
+            A broad central peak, tapering toward the edges.
   detectorScreenButtons:
     clearScreen:
       accessibleName:            Clear Screen
