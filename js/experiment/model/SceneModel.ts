@@ -42,6 +42,10 @@ const MAX_REJECTION_ITERATIONS = 1000;
 // With one slit covered, only half the beam contributes, so the peak intensity is reduced.
 const SINGLE_OPEN_SLIT_INTENSITY_SCALE = 0.5;
 
+// Vertical extent of the hit distribution on the detector screen, as a fraction of the full height.
+// Slightly less than 1 so hits don't touch the screen edges.
+const HIT_VERTICAL_EXTENT = 0.95;
+
 type SelfOptions = {
   sourceType: SourceType;
 };
@@ -167,20 +171,21 @@ export default class SceneModel extends PhetioObject {
 
     // Set per-source-type constants. screenHalfWidth is the physical half-width of the detector screen in meters,
     // chosen so that approximately 10 fringes are visible at default settings.
-    // defaultScreenDistance and defaultVelocity are set per source type to match the design mockup.
-    let defaultScreenDistance: number;
+    // defaultVelocity and defaultSlitSeparation are set per source type to match the design mockup.
     let defaultVelocity: number;
     let defaultSlitSeparation: number;
 
     this.slitWidth = SceneModel.getSlitWidth( options.sourceType );
     this.screenHalfWidth = SceneModel.getScreenHalfWidth( options.sourceType );
 
+    // Screen distance range is the same for all source types.
+    this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
+    const defaultScreenDistance = this.screenDistanceRange.max;
+
     if ( options.sourceType === 'photons' ) {
       this.particleMass = 0;
       this.velocityRange = new Range( 0, 0 ); // Not used for photons
       this.slitSeparationRange = new Range( 0.05, 0.5 ); // mm
-      this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
-      defaultScreenDistance = this.screenDistanceRange.max;
       defaultVelocity = 0;
       defaultSlitSeparation = 0.25;
     }
@@ -188,8 +193,6 @@ export default class SceneModel extends PhetioObject {
       this.particleMass = QuantumWaveInterferenceConstants.ELECTRON_MASS;
       this.velocityRange = new Range( 7e5, 1.5e6 ); // m/s (700–1500 km/s per design mockup)
       this.slitSeparationRange = new Range( 0.0001, 0.0009 ); // mm (0.1–0.9 μm)
-      this.screenDistanceRange = new Range( 0.4, 0.8 ); // m (per design mockup)
-      defaultScreenDistance = this.screenDistanceRange.max;
       defaultVelocity = 1.1e6; // 1100 km/s
       defaultSlitSeparation = 0.0005; // 0.5 μm
     }
@@ -197,8 +200,6 @@ export default class SceneModel extends PhetioObject {
       this.particleMass = QuantumWaveInterferenceConstants.NEUTRON_MASS;
       this.velocityRange = new Range( 200, 800 ); // m/s
       this.slitSeparationRange = new Range( 0.01, 0.07 ); // mm (10–70 μm)
-      this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
-      defaultScreenDistance = this.screenDistanceRange.max;
       defaultVelocity = 500;
       defaultSlitSeparation = 0.04; // mm (40 μm)
     }
@@ -207,8 +208,6 @@ export default class SceneModel extends PhetioObject {
       this.particleMass = QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
       this.velocityRange = new Range( 400, 2000 ); // m/s
       this.slitSeparationRange = new Range( 0.001, 0.007 ); // mm (1–7 μm)
-      this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
-      defaultScreenDistance = this.screenDistanceRange.max;
       defaultVelocity = 1200;
       defaultSlitSeparation = 0.004; // mm (4 μm)
     }
@@ -559,7 +558,7 @@ export default class SceneModel extends PhetioObject {
       const x = this.generateHitPosition();
 
       // Vertical position uniformly random across screen height (with small padding)
-      const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * 0.95; // [-0.95, 0.95] to leave padding
+      const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * HIT_VERTICAL_EXTENT;
 
       this.hits.push( new Vector2( x, y ) );
       actualHitsAddedThisFrame++;

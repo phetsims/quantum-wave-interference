@@ -3,11 +3,12 @@
 /**
  * ScreenSettingsPanel contains the detection mode radio buttons ('Intensity' vs 'Hits') and a 'Screen brightness'
  * slider. These controls affect the display on the detector screen,
- * routed through the active scene's properties via ExperimentModel's centralized DynamicProperties.
+ * routed through the active scene's properties via the caller-supplied DynamicProperties.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -22,7 +23,6 @@ import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
-import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
 
 const TITLE_FONT = new PhetFont( 14 );
@@ -35,7 +35,8 @@ type ScreenSettingsPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tand
 
 export default class ScreenSettingsPanel extends Panel {
 
-  public constructor( model: ExperimentModel,
+  public constructor( detectionModeProperty: PhetioProperty<DetectionMode>,
+                      screenBrightnessProperty: PhetioProperty<number>,
                       providedOptions: ScreenSettingsPanelOptions ) {
 
     const options = optionize<ScreenSettingsPanelOptions, SelfOptions, PanelOptions>()( {
@@ -45,9 +46,6 @@ export default class ScreenSettingsPanel extends Panel {
       fill: null,
       stroke: null
     }, providedOptions );
-
-    const detectionModeProperty = model.currentDetectionModeProperty;
-    const screenBrightnessProperty = model.currentScreenBrightnessProperty;
 
     // Radio buttons for Intensity vs Hits
     const radioButtonItems: AquaRadioButtonGroupItem<DetectionMode>[] = [

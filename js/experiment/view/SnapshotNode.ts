@@ -40,7 +40,7 @@ import { hasAnyDetector, type SlitConfiguration } from '../model/SlitConfigurati
 import Snapshot from '../model/Snapshot.js';
 import { type SourceType } from '../model/SourceType.js';
 import SnapshotDescriber from './description/SnapshotDescriber.js';
-import { getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 // Snapshot display dimensions (scaled down from the full detector screen)
 const SNAPSHOT_WIDTH = 360;
@@ -49,8 +49,8 @@ const FULL_SCREEN_TEXTURE_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const FULL_SCREEN_TEXTURE_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const CORNER_RADIUS = 6;
 const METADATA_WIDTH = 165;
-const HIT_CORE_RADIUS = 2.0;
-const HIT_GLOW_RADIUS = 3.4;
+const HIT_CORE_RADIUS = BASE_HIT_CORE_RADIUS;
+const HIT_GLOW_RADIUS = BASE_HIT_GLOW_RADIUS;
 const MAX_RENDERED_SNAPSHOT_HITS = 100000;
 
 const PARAM_FONT = new PhetFont( 12 );
@@ -560,7 +560,7 @@ class SnapshotCanvasNode extends CanvasNode {
 
       const intensityScale = intensity * displayGain;
       // Skip bands below perceptual visibility to avoid painting nearly-black pixels
-      if ( intensityScale < 0.004 ) {
+      if ( intensityScale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
         continue;
       }
 

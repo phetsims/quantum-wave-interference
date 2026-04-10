@@ -13,6 +13,14 @@ import { linear } from '../../../../dot/js/util/linear.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import SceneModel from '../model/SceneModel.js';
 
+// Below this intensity threshold, a band is considered perceptually invisible and is skipped during rendering.
+export const PERCEPTUAL_VISIBILITY_THRESHOLD = 0.004;
+
+// Base hit-dot radii in CSS pixels (before any supersampling). Shared between the live detector screen texture
+// (getDetectorScreenTexture.ts, which applies a SUPERSAMPLE multiplier) and the snapshot dialog (SnapshotNode.ts).
+export const BASE_HIT_CORE_RADIUS = 2.0;
+export const BASE_HIT_GLOW_RADIUS = 3.4;
+
 // Brightness multiplier range for intensity (Average Intensity) display mode.
 // The slider maps from a dim baseline (1.2x) up to a bright maximum (6.0x).
 export const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;

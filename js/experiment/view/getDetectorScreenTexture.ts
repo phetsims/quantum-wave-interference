@@ -12,7 +12,7 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
@@ -25,8 +25,8 @@ const TEXTURE_WIDTH = SCREEN_WIDTH * SUPERSAMPLE;
 const TEXTURE_HEIGHT = SCREEN_HEIGHT * SUPERSAMPLE;
 
 // Hit dot rendering parameters (in texture-space, i.e. scaled by SUPERSAMPLE).
-const HIT_CORE_RADIUS = 2.0 * SUPERSAMPLE;
-const HIT_GLOW_RADIUS = 3.4 * SUPERSAMPLE;
+const HIT_CORE_RADIUS = BASE_HIT_CORE_RADIUS * SUPERSAMPLE;
+const HIT_GLOW_RADIUS = BASE_HIT_GLOW_RADIUS * SUPERSAMPLE;
 
 type SceneTextureCache = {
   canvas: HTMLCanvasElement;
@@ -193,7 +193,7 @@ const paintIntensity = (
     const scale = intensity * displayGain;
 
     // Skip bands below perceptual visibility to avoid painting nearly-black pixels
-    if ( scale < 0.004 ) {
+    if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
       continue;
     }
 

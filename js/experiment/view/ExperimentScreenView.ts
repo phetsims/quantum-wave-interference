@@ -270,9 +270,13 @@ export default class ExperimentScreenView extends ScreenView {
     frontFacingSlitNodes.forEach( n => n.moveToFront() );
 
     // Screen settings panel (detection mode + brightness), directly below the detector screen.
-    const screenSettingsPanel = new ScreenSettingsPanel( model, {
-      tandem: options.tandem.createTandem( 'screenSettingsPanel' )
-    } );
+    const screenSettingsPanel = new ScreenSettingsPanel(
+      model.currentDetectionModeProperty,
+      model.currentScreenBrightnessProperty,
+      {
+        tandem: options.tandem.createTandem( 'screenSettingsPanel' )
+      }
+    );
 
     const layoutScreenSettingsPanel = () => {
       screenSettingsPanel.centerX = detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
