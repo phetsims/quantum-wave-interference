@@ -10,6 +10,7 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import eyeSolidShape from '../../../../sherpa/js/fontawesome-5/eyeSolidShape.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
@@ -18,7 +19,6 @@ import Tandem from '../../../../tandem/js/Tandem.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import SceneModel from '../model/SceneModel.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 
 const EYE_BUTTON_X_MARGIN = 4;
@@ -26,7 +26,7 @@ const EYE_BUTTON_X_MARGIN = 4;
 export default class ViewSnapshotsButton extends RectangularPushButton {
 
   public constructor(
-    sceneModel: SceneModel,
+    numberOfSnapshotsProperty: TReadOnlyProperty<number>,
     isPlayingProperty: Property<boolean>,
     snapshotsDialog: SnapshotsDialog,
     minWidth: number,
@@ -61,7 +61,7 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
       minWidth: minWidth,
       minHeight: minHeight,
       enabledProperty: new DerivedProperty(
-        [ sceneModel.numberOfSnapshotsProperty ],
+        [ numberOfSnapshotsProperty ],
         numberOfSnapshots => numberOfSnapshots > 0,
         {
           tandem: tandem.createTandem( 'enabledProperty' ),

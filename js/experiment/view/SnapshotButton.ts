@@ -10,6 +10,7 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import cameraSolidShape from '../../../../sherpa/js/fontawesome-5/cameraSolidShape.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
@@ -32,21 +33,21 @@ soundManager.addSoundGenerator( snapshotCapturedSoundClip );
 
 export default class SnapshotButton extends RectangularPushButton {
 
-  public constructor( sceneModel: SceneModel, onSnapshotCaptured: () => void, tandem: Tandem ) {
+  public constructor( numberOfSnapshotsProperty: TReadOnlyProperty<number>, takeSnapshot: () => void, onSnapshotCaptured: () => void, tandem: Tandem ) {
 
     const accessibleHelpTextProperty = QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleHelpText.createProperty( {
       maxSnapshots: SceneModel.MAX_SNAPSHOTS
     } );
     const accessibleContextResponseProperty = QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleContextResponse.createProperty( {
-      snapshotNumber: sceneModel.numberOfSnapshotsProperty
+      snapshotNumber: numberOfSnapshotsProperty
     } );
 
     super( {
       isDisposable: false,
       listener: () => {
-        const numberOfSnapshotsBefore = sceneModel.numberOfSnapshotsProperty.value;
-        sceneModel.takeSnapshot();
-        if ( sceneModel.numberOfSnapshotsProperty.value > numberOfSnapshotsBefore ) {
+        const numberOfSnapshotsBefore = numberOfSnapshotsProperty.value;
+        takeSnapshot();
+        if ( numberOfSnapshotsProperty.value > numberOfSnapshotsBefore ) {
           snapshotCapturedSoundClip.play();
           onSnapshotCaptured();
         }
@@ -58,7 +59,7 @@ export default class SnapshotButton extends RectangularPushButton {
       } ),
       minWidth: DETECTOR_ACTION_BUTTON_MIN_WIDTH,
       enabledProperty: new DerivedProperty(
-        [ sceneModel.numberOfSnapshotsProperty ],
+        [ numberOfSnapshotsProperty ],
         numberOfSnapshots => numberOfSnapshots < SceneModel.MAX_SNAPSHOTS,
         {
           tandem: tandem.createTandem( 'enabledProperty' ),

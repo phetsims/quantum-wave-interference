@@ -8,6 +8,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -16,7 +17,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import ExperimentModel from '../model/ExperimentModel.js';
+import SceneModel from '../model/SceneModel.js';
 import { hasDetectorOnSide } from '../model/SlitConfiguration.js';
 import createParallelogramNode from './createParallelogramNode.js';
 
@@ -47,7 +48,7 @@ export default class OverheadDoubleSlitNode extends Node {
   public readonly skewDx = 51 * OVERHEAD_SCALE;
   public readonly skewDy = 21 * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;
 
-  public constructor( model: ExperimentModel ) {
+  public constructor( sceneProperty: TReadOnlyProperty<SceneModel> ) {
     super( { isDisposable: false } );
 
     // Double slit label
@@ -127,7 +128,7 @@ export default class OverheadDoubleSlitNode extends Node {
 
     // Updates slit line positions and detector overlays
     const updateOverheadSlits = () => {
-      const scene = model.sceneProperty.value;
+      const scene = sceneProperty.value;
       const separation = scene.slitSeparationProperty.value;
       const range = scene.slitSeparationRange;
       const fraction = ( separation - range.min ) / ( range.max - range.min );
@@ -168,7 +169,7 @@ export default class OverheadDoubleSlitNode extends Node {
       rightSlitDetectorOverlay.visible = hasDetectorOnSide( slitSetting, 'right' );
     };
 
-    model.sceneProperty.link( ( newScene, oldScene ) => {
+    sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         oldScene.slitSeparationProperty.unlink( updateOverheadSlits );
         oldScene.slitSettingProperty.unlink( updateOverheadSlits );

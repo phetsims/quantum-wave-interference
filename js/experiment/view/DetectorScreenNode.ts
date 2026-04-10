@@ -275,7 +275,8 @@ export default class DetectorScreenNode extends Node {
 
     // Camera button to take a snapshot
     this.snapshotButton = new SnapshotButton(
-      sceneModel,
+      sceneModel.numberOfSnapshotsProperty,
+      () => sceneModel.takeSnapshot(),
       startSnapshotFlash,
       providedOptions.tandem.createTandem( 'snapshotButton' )
     );
@@ -302,7 +303,7 @@ export default class DetectorScreenNode extends Node {
 
     // Eye button to view snapshots
     this.viewSnapshotsButton = new ViewSnapshotsButton(
-      sceneModel,
+      sceneModel.numberOfSnapshotsProperty,
       isPlayingProperty,
       snapshotsDialog,
       detectorActionButtonMinWidth,

@@ -16,7 +16,6 @@
 import Property from '../../../../../axon/js/Property.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import ExperimentModel from '../../model/ExperimentModel.js';
 import SceneModel from '../../model/SceneModel.js';
 import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
 import BandAnalysis from './BandAnalysis.js';
@@ -25,7 +24,7 @@ export default class DetectorScreenDescriber {
 
   public readonly descriptionProperty: TReadOnlyProperty<string>;
 
-  public constructor( model: ExperimentModel ) {
+  public constructor( sceneProperty: TReadOnlyProperty<SceneModel>, isRulerVisibleProperty: TReadOnlyProperty<boolean> ) {
 
     const descriptionProperty = new Property<string>( '' );
     this.descriptionProperty = descriptionProperty;
@@ -35,9 +34,9 @@ export default class DetectorScreenDescriber {
     let hitStage = '';
 
     const update = () => {
-      const scene = model.sceneProperty.value;
+      const scene = sceneProperty.value;
       const detectionMode = scene.detectionModeProperty.value;
-      const isRulerVisible = model.isRulerVisibleProperty.value;
+      const isRulerVisible = isRulerVisibleProperty.value;
       const slitSetting = scene.slitSettingProperty.value;
       const isDoubleSlit = isDoubleSlitConfiguration( slitSetting );
 
@@ -95,7 +94,7 @@ export default class DetectorScreenDescriber {
 
     // Listen to scene changes and rewire listeners for the active scene.
     let previousScene: SceneModel | null = null;
-    model.sceneProperty.link( scene => {
+    sceneProperty.link( scene => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( update );
         previousScene.detectionModeProperty.unlink( fullUpdate );
@@ -119,7 +118,7 @@ export default class DetectorScreenDescriber {
     } );
 
     // Also update when the ruler visibility changes, since it affects spatial language.
-    model.isRulerVisibleProperty.lazyLink( fullUpdate );
+    isRulerVisibleProperty.lazyLink( fullUpdate );
 
     // Re-render whenever the Fluent bundle changes (e.g. locale change,
     // or PhET-iO string edits that swap the bundle without changing localeProperty).

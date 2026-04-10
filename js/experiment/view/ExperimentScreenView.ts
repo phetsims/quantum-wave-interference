@@ -79,7 +79,7 @@ export default class ExperimentScreenView extends ScreenView {
     // ==============================
 
     const overheadEmitterNode = new OverheadEmitterNode( model, this.layoutBounds, options.tandem );
-    const overheadDoubleSlitNode = new OverheadDoubleSlitNode( model );
+    const overheadDoubleSlitNode = new OverheadDoubleSlitNode( model.sceneProperty );
 
     const whichPathDetectorNode = new WhichPathDetectorIndicatorNode( model, overheadDoubleSlitNode );
 
@@ -94,11 +94,11 @@ export default class ExperimentScreenView extends ScreenView {
     } );
 
     const overheadDetectorScreenNode = new OverheadDetectorScreenNode(
-      model,
+      model.sceneProperty,
       overheadDoubleSlitNode.parallelogramNode
     );
     const overheadBeamNode = new OverheadBeamNode(
-      model,
+      model.sceneProperty,
       overheadEmitterNode,
       overheadDoubleSlitNode,
       overheadDetectorScreenNode
@@ -519,7 +519,7 @@ export default class ExperimentScreenView extends ScreenView {
     // Accessible paragraph describing the current state of the detector screen for screen reader users.
     // The description scales with hit count: few hits describe scattered detections,
     // many hits describe the emerging/established interference pattern.
-    const detectorScreenDescriber = new DetectorScreenDescriber( model );
+    const detectorScreenDescriber = new DetectorScreenDescriber( model.sceneProperty, model.isRulerVisibleProperty );
     const detectorScreenDescriptionNode = new Node( {
       accessibleParagraph: detectorScreenDescriber.descriptionProperty
     } );

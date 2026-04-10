@@ -8,6 +8,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
@@ -18,7 +19,7 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import ExperimentModel from '../model/ExperimentModel.js';
+import SceneModel from '../model/SceneModel.js';
 import createParallelogramNode from './createParallelogramNode.js';
 import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
 
@@ -43,7 +44,7 @@ export default class OverheadDetectorScreenNode extends Node {
   private readonly doubleSlitParallelogramNode: Node;
   private readonly updateDetectorScreenPosition: () => void;
 
-  public constructor( model: ExperimentModel, doubleSlitParallelogramNode: Node ) {
+  public constructor( sceneProperty: TReadOnlyProperty<SceneModel>, doubleSlitParallelogramNode: Node ) {
     super( { isDisposable: false } );
 
     this.doubleSlitParallelogramNode = doubleSlitParallelogramNode;
@@ -93,7 +94,7 @@ export default class OverheadDetectorScreenNode extends Node {
 
     // Update detector screen parallelogram position and span
     this.updateDetectorScreenPosition = () => {
-      const scene = model.sceneProperty.value;
+      const scene = sceneProperty.value;
       const distance = scene.screenDistanceProperty.value;
       const range = scene.screenDistanceRange;
 
@@ -131,7 +132,7 @@ export default class OverheadDetectorScreenNode extends Node {
 
     detectorScreenLabel.localBoundsProperty.link( () => this.updateDetectorScreenPosition() );
 
-    model.sceneProperty.link( ( newScene, oldScene ) => {
+    sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         oldScene.screenDistanceProperty.unlink( this.updateDetectorScreenPosition );
       }

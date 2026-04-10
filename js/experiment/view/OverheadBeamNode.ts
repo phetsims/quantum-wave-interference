@@ -8,6 +8,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Shape from '../../../../kite/js/Shape.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -15,7 +16,7 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import ExperimentModel from '../model/ExperimentModel.js';
+import SceneModel from '../model/SceneModel.js';
 import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
@@ -34,7 +35,7 @@ export default class OverheadBeamNode extends Node {
   public readonly emitterBeamNode: Path;
 
   public constructor(
-    model: ExperimentModel,
+    sceneProperty: TReadOnlyProperty<SceneModel>,
     emitterNode: OverheadEmitterNode,
     doubleSlitNode: OverheadDoubleSlitNode,
     detectorScreenNode: OverheadDetectorScreenNode
@@ -51,7 +52,7 @@ export default class OverheadBeamNode extends Node {
     const detectorScreenParallelogram = detectorScreenNode.parallelogramNode;
 
     this._updateBeam = () => {
-      const scene = model.sceneProperty.value;
+      const scene = sceneProperty.value;
       const isEmitting = scene.isEmittingProperty.value;
       const intensity = scene.intensityProperty.value;
 
@@ -147,7 +148,7 @@ export default class OverheadBeamNode extends Node {
 
     // Wire up beam updates
     const beamProperties = [ 'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'screenDistanceProperty' ] as const;
-    model.sceneProperty.link( ( newScene, oldScene ) => {
+    sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         for ( const propName of beamProperties ) {
           oldScene[ propName ].unlink( this._updateBeam );
@@ -160,7 +161,7 @@ export default class OverheadBeamNode extends Node {
 
     // Wire up overhead pattern updates
     const updateOverheadPattern = () => {
-      detectorScreenNode.overheadPatternNode.updatePattern( model.sceneProperty.value );
+      detectorScreenNode.overheadPatternNode.updatePattern( sceneProperty.value );
     };
 
     const patternProperties = [
@@ -169,7 +170,7 @@ export default class OverheadBeamNode extends Node {
       'detectionModeProperty', 'screenBrightnessProperty'
     ] as const;
 
-    model.sceneProperty.link( ( newScene, oldScene ) => {
+    sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         for ( const propName of patternProperties ) {
           oldScene[ propName ].unlink( updateOverheadPattern );
