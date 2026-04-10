@@ -54,50 +54,50 @@ detector:                           Detector
 # Accessibility strings
 a11y:
   screenSummary:
-    playArea:        >-
-                     A double-slit experiment features a source emitting particles toward a barrier with two narrow slits.
-                     Particles that pass through the slits land on a detector screen, building up a pattern.
-                     You can adjust the source and slits, observe the resulting pattern, and save snapshots of the detector screen.
-    controlArea:     >-
-                     A ruler and stopwatch can be shown or hidden.
-                     There are controls to play, pause, or adjust experiment speed.
-                     Reset sim to start over.
-    maxHitsReachedHint:    Clear the detector screen to collect more hits.
-    currentDetails:  >-
-                     Currently, running a { $sourceType ->
-                       [photons] photon
-                       [electrons] electron
-                       [neutrons] neutron
-                      *[heliumAtoms] helium atom
-                     } experiment.
-                     The barrier has { $slitSetting ->
-                       [bothOpen] both slits open
-                       [leftCovered] the left slit covered
-                       [rightCovered] the right slit covered
-                       [leftDetector] a detector on the left slit
-                       [rightDetector] a detector on the right slit
-                      *[bothDetectors] detectors on both slits
-                     } and the screen displays { $detectionMode ->
-                       [averageIntensity] intensity
-                      *[hits] hits
-                     }.
-                     The source is { $isEmitting ->
-                       [true] on
-                      *[false] off
-                     }{ $isMaxHitsReached ->
-                       [true] . Maximum hits reached for this scene.
-                      *[false] .
-                     }
-    interactionHint: >-
-                     { $isEmitting ->
-                       [true] Adjust the source or slits to make observations.
-                      *[false] Turn on the { $sourceType ->
-                         [photons] photon source
-                         [electrons] electron source
-                         [neutrons] neutron source
-                        *[heliumAtoms] helium atom source
-                       } to start experimenting.
-                     }
+    playArea:           >-
+                        A double-slit experiment features a source emitting particles toward a barrier with two narrow slits.
+                        Particles that pass through the slits land on a detector screen, building up a pattern.
+                        You can adjust the source and slits, observe the resulting pattern, and save snapshots of the detector screen.
+    controlArea:        >-
+                        A ruler and stopwatch can be shown or hidden.
+                        There are controls to play, pause, or adjust experiment speed.
+                        Reset sim to start over.
+    maxHitsReachedHint: Clear the detector screen to collect more hits.
+    currentDetails:     >-
+                        Currently, running a { $sourceType ->
+                          [photons] photon
+                          [electrons] electron
+                          [neutrons] neutron
+                         *[heliumAtoms] helium atom
+                        } experiment.
+                        The barrier has { $slitSetting ->
+                          [bothOpen] both slits open
+                          [leftCovered] the left slit covered
+                          [rightCovered] the right slit covered
+                          [leftDetector] a detector on the left slit
+                          [rightDetector] a detector on the right slit
+                         *[bothDetectors] detectors on both slits
+                        } and the screen displays { $detectionMode ->
+                          [averageIntensity] intensity
+                         *[hits] hits
+                        }.
+                        The source is { $isEmitting ->
+                          [true] on
+                         *[false] off
+                        }{ $isMaxHitsReached ->
+                          [true] . Maximum hits reached for this scene.
+                         *[false] .
+                        }
+    interactionHint:    >-
+                        { $isEmitting ->
+                          [true] Adjust the source or slits to make observations.
+                         *[false] Turn on the { $sourceType ->
+                            [photons] photon source
+                            [electrons] electron source
+                            [neutrons] neutron source
+                           *[heliumAtoms] helium atom source
+                          } to start experimenting.
+                        }
   sourceHeading:               Source
   slitsHeading:                Slits
   detectorScreenHeading:       Detector Screen
@@ -228,94 +228,94 @@ a11y:
       zoomLevelResponse: 'Zoom level { $level } of { $max }.'
   detectorScreen:
     accessibleParagraph:
-      intensityOff:           The detector screen is dark. The source is off.
-      intensity:              >-
-                              The detector screen shows alternating bright and dark vertical bands, brightest
-                              at the center and fainter toward the edges. { $spatialDescription }
-      intensitySingleSlit:    >-
-                              The detector screen is brightest at the center and fades smoothly toward the edges
-                              in a broad band. { $spatialDescription }
-      hitsNone:               The detector screen is empty. No particles have arrived yet.
-      hitsFew:                >-
-                              A handful of particles are visible at scattered positions across the screen.
-      hitsEmerging:           >-
-                              More particles are appearing, and faint vertical stripes are becoming visible with
-                              gaps between them.
-      hitsDeveloping:         >-
-                              Individual impacts are gathering into distinct vertical bands, separated by regions
-                              with fewer particles.
-                              { $spatialDescription }
-      hitsClear:              >-
-                              Distinct vertical bands fill the screen, with dense stripes separated by nearly
-                              empty gaps. { $spatialDescription }
-      hitsSingleSlitEmerging: >-
-                              More particles are appearing in a broad region near the center of the screen, with
-                              fewer toward the edges.
-      hitsSingleSlitClear:    >-
-                              Hits form a broad central band that tapers toward the edges.
-                              { $spatialDescription }
-      snapshotHitsNone: |-
-        The detector screen is empty. { $hitCount ->
-            [one] The detector screen shows a total of 1 hit.
-           *[other] The detector screen shows a total of { $hitCount } hits.
-        } No particles have arrived yet.
-      snapshotHitsFew: |-
-        A handful of particles are visible at scattered positions across the screen. { $hitCount ->
-            [one] The detector screen shows a total of 1 hit.
-           *[other] The detector screen shows a total of { $hitCount } hits.
-        }
-      snapshotHitsEmerging: |-
-        More particles are appearing, and faint vertical stripes are becoming visible with gaps between them. { $hitCount ->
-            [one] The detector screen shows a total of 1 hit.
-           *[other] The detector screen shows a total of { $hitCount } hits.
-        }
-      snapshotHitsDeveloping: |-
-        Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $hitCount ->
-            [one] The detector screen shows a total of 1 hit.
-           *[other] The detector screen shows a total of { $hitCount } hits.
-        } { $spatialDescription }
-      snapshotHitsClear: |-
-        Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $hitCount ->
-            [one] The detector screen shows a total of 1 hit.
-           *[other] The detector screen shows a total of { $hitCount } hits.
-        } { $spatialDescription }
+      intensityOff:                   The detector screen is dark. The source is off.
+      intensity:                      >-
+                                      The detector screen shows alternating bright and dark vertical bands, brightest
+                                      at the center and fainter toward the edges. { $spatialDescription }
+      intensitySingleSlit:            >-
+                                      The detector screen is brightest at the center and fades smoothly toward the edges
+                                      in a broad band. { $spatialDescription }
+      hitsNone:                       The detector screen is empty. No particles have arrived yet.
+      hitsFew:                        >-
+                                      A handful of particles are visible at scattered positions across the screen.
+      hitsEmerging:                   >-
+                                      More particles are appearing, and faint vertical stripes are becoming visible with
+                                      gaps between them.
+      hitsDeveloping:                 >-
+                                      Individual impacts are gathering into distinct vertical bands, separated by regions
+                                      with fewer particles.
+                                      { $spatialDescription }
+      hitsClear:                      >-
+                                      Distinct vertical bands fill the screen, with dense stripes separated by nearly
+                                      empty gaps. { $spatialDescription }
+      hitsSingleSlitEmerging:         >-
+                                      More particles are appearing in a broad region near the center of the screen, with
+                                      fewer toward the edges.
+      hitsSingleSlitClear:            >-
+                                      Hits form a broad central band that tapers toward the edges.
+                                      { $spatialDescription }
+      snapshotHitsNone:               |-
+                                      The detector screen is empty. { $hitCount ->
+                                          [one] The detector screen shows a total of 1 hit.
+                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                      } No particles have arrived yet.
+      snapshotHitsFew:                |-
+                                      A handful of particles are visible at scattered positions across the screen. { $hitCount ->
+                                          [one] The detector screen shows a total of 1 hit.
+                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                      }
+      snapshotHitsEmerging:           |-
+                                      More particles are appearing, and faint vertical stripes are becoming visible with gaps between them. { $hitCount ->
+                                          [one] The detector screen shows a total of 1 hit.
+                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                      }
+      snapshotHitsDeveloping:         |-
+                                      Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $hitCount ->
+                                          [one] The detector screen shows a total of 1 hit.
+                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                      } { $spatialDescription }
+      snapshotHitsClear:              |-
+                                      Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $hitCount ->
+                                          [one] The detector screen shows a total of 1 hit.
+                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                      } { $spatialDescription }
       snapshotHitsSingleSlitEmerging: |-
-        More particles are appearing in a broad region near the center of the screen, with fewer toward the edges. { $hitCount ->
-            [one] The detector screen shows a total of 1 hit.
-           *[other] The detector screen shows a total of { $hitCount } hits.
-        }
-      snapshotHitsSingleSlitClear: |-
-        Hits form a broad central band that tapers toward the edges. { $hitCount ->
-            [one] The detector screen shows a total of 1 hit.
-           *[other] The detector screen shows a total of { $hitCount } hits.
-        } { $spatialDescription }
+                                      More particles are appearing in a broad region near the center of the screen, with fewer toward the edges. { $hitCount ->
+                                          [one] The detector screen shows a total of 1 hit.
+                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                      }
+      snapshotHitsSingleSlitClear:    |-
+                                      Hits form a broad central band that tapers toward the edges. { $hitCount ->
+                                          [one] The detector screen shows a total of 1 hit.
+                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                      } { $spatialDescription }
     spatialDescription:
       rulerDoubleSlit:
         select_style:
           bands: >-
-            { $count } bands centered at 0 millimeters, spaced roughly { $spacing }
-            millimeters apart.
+                 { $count } bands centered at 0 millimeters, spaced roughly { $spacing }
+                 millimeters apart.
           peaks: >-
-            { $count } peaks centered at 0 millimeters, spaced roughly { $spacing }
-            millimeters apart.
+                 { $count } peaks centered at 0 millimeters, spaced roughly { $spacing }
+                 millimeters apart.
       noRulerDoubleSlit:
         select_style:
           bands: >-
-            { $count } bands centered on the screen, spread symmetrically to either side.
+                 { $count } bands centered on the screen, spread symmetrically to either side.
           peaks: >-
-            { $count } peaks centered on the graph, spread symmetrically to either side.
+                 { $count } peaks centered on the graph, spread symmetrically to either side.
       rulerSingleSlit:
         select_style:
           bands: >-
-            The central band spans roughly { $centralWidth } millimeters, centered at 0.
+                 The central band spans roughly { $centralWidth } millimeters, centered at 0.
           peaks: >-
-            The central peak spans roughly { $centralWidth } millimeters, centered at 0.
+                 The central peak spans roughly { $centralWidth } millimeters, centered at 0.
       noRulerSingleSlit:
         select_style:
           bands: >-
-            A broad central band centered on the screen, tapering toward the edges.
+                 A broad central band centered on the screen, tapering toward the edges.
           peaks: >-
-            A broad central peak, tapering toward the edges.
+                 A broad central peak, tapering toward the edges.
   detectorScreenButtons:
     clearScreen:
       accessibleName:            Clear Screen
