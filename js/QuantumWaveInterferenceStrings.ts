@@ -74,7 +74,6 @@ type StringsType = {
     'screenSummary': {
       'playAreaStringProperty': LocalizedStringProperty;
       'controlAreaStringProperty': LocalizedStringProperty;
-      'maxHitsReachedDetailsStringProperty': LocalizedStringProperty;
       'maxHitsReachedHintStringProperty': LocalizedStringProperty;
       'currentDetailsStringProperty': LocalizedStringProperty;
       'interactionHintStringProperty': LocalizedStringProperty;

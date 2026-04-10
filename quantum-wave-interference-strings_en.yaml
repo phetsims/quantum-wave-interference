@@ -62,7 +62,6 @@ a11y:
                      A ruler and stopwatch can be shown or hidden.
                      There are controls to play, pause, or adjust experiment speed.
                      Reset sim to start over.
-    maxHitsReachedDetails: Maximum hits reached for this scene.
     maxHitsReachedHint:    Clear the detector screen to collect more hits.
     currentDetails:  >-
                      Currently, running a { $sourceType ->
