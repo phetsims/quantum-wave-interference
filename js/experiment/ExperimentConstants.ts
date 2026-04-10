@@ -35,6 +35,26 @@ export default class ExperimentConstants {
   public static readonly MAX_HITS = 25000;
 
   /**
+   * Determines the number of decimal places needed to display a value without trailing zeros.
+   * For example, 0.2 -> 1, 0.002 -> 3, 5 -> 0, 0.1 -> 1.
+   */
+  public static getDecimalPlacesForValue( value: number ): number {
+    if ( value === Math.floor( value ) ) {
+      return 0;
+    }
+    const str = value.toString();
+    const decimalIndex = str.indexOf( '.' );
+    return decimalIndex === -1 ? 0 : str.length - decimalIndex - 1;
+  }
+
+  /**
+   * Determines the maximum number of decimal places needed to display both boundary values of a range.
+   */
+  public static getRangeDecimalPlaces( min: number, max: number ): number {
+    return Math.max( ExperimentConstants.getDecimalPlacesForValue( min ), ExperimentConstants.getDecimalPlacesForValue( max ) );
+  }
+
+  /**
    * Converts a slit width from millimeters to micrometers and returns the value along with an appropriate number of
    * decimal places: 0 for >=1, 1 for >=0.1, 2 otherwise.
    */

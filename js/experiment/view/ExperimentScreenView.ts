@@ -312,14 +312,9 @@ export default class ExperimentScreenView extends ScreenView {
     const rulerCheckbox = new Checkbox( model.isRulerVisibleProperty, rulerCheckboxLabel, {
       boxWidth: 16,
       spacing: 6,
-      accessibleHelpText:
-      QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty,
-      accessibleContextResponseChecked:
-      QuantumWaveInterferenceFluent.a11y.rulerCheckbox
-        .accessibleContextResponseCheckedStringProperty,
-      accessibleContextResponseUnchecked:
-      QuantumWaveInterferenceFluent.a11y.rulerCheckbox
-        .accessibleContextResponseUncheckedStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty,
+      accessibleContextResponseChecked: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleContextResponseCheckedStringProperty,
+      accessibleContextResponseUnchecked: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleContextResponseUncheckedStringProperty,
       tandem: options.tandem.createTandem( 'rulerCheckbox' )
     } );
 
@@ -336,12 +331,8 @@ export default class ExperimentScreenView extends ScreenView {
         spacing: 6,
         accessibleHelpText:
         QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleHelpTextStringProperty,
-        accessibleContextResponseChecked:
-        QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox
-          .accessibleContextResponseCheckedStringProperty,
-        accessibleContextResponseUnchecked:
-        QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox
-          .accessibleContextResponseUncheckedStringProperty,
+        accessibleContextResponseChecked: QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleContextResponseCheckedStringProperty,
+        accessibleContextResponseUnchecked: QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty,
         tandem: options.tandem.createTandem( 'stopwatchCheckbox' )
       }
     );

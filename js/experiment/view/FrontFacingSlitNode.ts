@@ -72,19 +72,6 @@ const DETECTOR_WIRE_FILL = 'rgb( 140, 140, 140 )';
 const DETECTOR_OVERLAY_FILL_ALPHA = 0.3;
 const DETECTOR_OVERLAY_STROKE_WIDTH = 2;
 
-// Match slit-separation readout precision to SlitControlPanel.
-const getDecimalPlacesForValue = ( value: number ): number => {
-  if ( value === Math.floor( value ) ) {
-    return 0;
-  }
-  const str = value.toString();
-  const decimalIndex = str.indexOf( '.' );
-  return decimalIndex === -1 ? 0 : str.length - decimalIndex - 1;
-};
-
-const getRangeDecimalPlaces = ( min: number, max: number ): number => {
-  return Math.max( getDecimalPlacesForValue( min ), getDecimalPlacesForValue( max ) );
-};
 
 type SpanNodeParts = {
   arrow: ArrowNode;
@@ -255,11 +242,11 @@ export default class FrontFacingSlitNode extends Node {
       ( separationMM, umPattern, mmPattern ) => {
         if ( usesMicrometers ) {
           const valueUM = separationMM * 1000;
-          const decimalPlaces = getRangeDecimalPlaces( slitSeparationRange.min * 1000, slitSeparationRange.max * 1000 );
+          const decimalPlaces = ExperimentConstants.getRangeDecimalPlaces( slitSeparationRange.min * 1000, slitSeparationRange.max * 1000 );
           return StringUtils.fillIn( umPattern, { value: toFixed( valueUM, decimalPlaces ) } );
         }
         else {
-          const decimalPlaces = getRangeDecimalPlaces( slitSeparationRange.min, slitSeparationRange.max );
+          const decimalPlaces = ExperimentConstants.getRangeDecimalPlaces( slitSeparationRange.min, slitSeparationRange.max );
           return StringUtils.fillIn( mmPattern, { value: toFixed( separationMM, decimalPlaces ) } );
         }
       }
