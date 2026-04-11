@@ -30,5 +30,13 @@
     "projectURL": "https://phet.colorado.edu",
     "license": "contact phethelp@colorado.edu",
     "notes": "created by Matthew Blackman"
+  },
+  "singleParticleEmitter.svg": {
+    "text": [
+      "Copyright 2026 University of Colorado Boulder"
+    ],
+    "projectURL": "https://phet.colorado.edu",
+    "license": "contact phethelp@colorado.edu",
+    "notes": "created by Matthew Blackman"
   }
 }
