@@ -20,14 +20,11 @@ export default class SnapshotsDialog extends Dialog {
 
   public constructor( sceneModel: SceneModel, tandem: Tandem ) {
     let suppressNextCloseSound = false;
-    const markSuppressNextCloseSound = () => {
-      suppressNextCloseSound = true;
-    };
 
     // Pre-allocate snapshot nodes for the maximum number of snapshots
     const snapshotNodes: SnapshotNode[] = [];
     for ( let i = 0; i < SceneModel.MAX_SNAPSHOTS; i++ ) {
-      snapshotNodes.push( new SnapshotNode( sceneModel, i, markSuppressNextCloseSound ) );
+      snapshotNodes.push( new SnapshotNode( sceneModel, i ) );
     }
 
     const content = new VBox( {
@@ -58,6 +55,7 @@ export default class SnapshotsDialog extends Dialog {
     // Close the dialog when all snapshots are deleted
     sceneModel.snapshotsProperty.link( snapshots => {
       if ( snapshots.length === 0 && this.isShowingProperty.value ) {
+        suppressNextCloseSound = true;
         this.hide();
       }
     } );
