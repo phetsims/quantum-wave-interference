@@ -3,13 +3,13 @@
 ## Overview
 
 This is a single-screen simulation with four independent scenes (Photons, Electrons, Neutrons, Helium atoms).
-The architecture follows PhET conventions: a top-level model (`QuantumWaveInterferenceModel`) owns four
-`SceneModel` instances, and the view (`QuantumWaveInterferenceScreenView`) creates per-scene UI components
+The architecture follows PhET conventions: a top-level model (`ExperimentModel`) owns four
+`SceneModel` instances, and the view (`ExperimentScreenView`) creates per-scene UI components
 whose visibility is toggled by the selected scene.
 
 ## Model
 
-### QuantumWaveInterferenceModel
+### ExperimentModel
 
 The top-level model manages shared state (play/pause, time speed, ruler visibility, stopwatch) and an array
 of four `SceneModel` instances. A `sceneProperty` tracks which scene is currently selected.
@@ -47,7 +47,7 @@ viewing in the snapshots dialog. Each scene supports up to 4 snapshots.
 
 ## View
 
-### QuantumWaveInterferenceScreenView
+### ExperimentScreenView
 
 The main view creates a three-row layout:
 1. **Top row** (overhead perspective): Emitter, beam, double slit parallelogram, fan beam, detector
@@ -60,9 +60,10 @@ Per-scene components (front-facing slits, detector screens, graphs, panels) are 
 scenes, with visibility toggled by `sceneProperty`. Shared state (graph expanded, time speed) is managed
 by the model or the ScreenView and not duplicated per scene.
 
-**DynamicProperty pattern**: Several `DynamicProperty` instances follow the active scene's properties
-(e.g., `isEmittingProperty`, `slitSettingProperty`, `detectionModeProperty`), allowing the overhead view
-and other shared UI to react to the currently selected scene without manual re-linking.
+**DynamicProperty pattern**: Several `DynamicProperty` instances in `ExperimentModel` follow the active
+scene's properties (e.g., `currentIsEmittingProperty`, `currentSlitSettingProperty`,
+`currentDetectionModeProperty`, `currentScreenBrightnessProperty`), allowing the overhead view and other
+shared UI to react to the currently selected scene without manual re-linking.
 
 **Manual linking**: The overhead beam and pattern updates use explicit `link`/`unlink` on scene properties
 when the scene changes, because they need to update from multiple properties simultaneously and the
@@ -70,17 +71,21 @@ when the scene changes, because they need to update from multiple properties sim
 
 ### Canvas-based Rendering
 
-Three components use `CanvasNode` for performance:
+A shared texture system (`getDetectorScreenTexture`) renders the detector screen content once per scene
+per frame, then multiple views draw from the same cached canvas. Three CanvasNode subclasses consume
+this texture:
 
-- **DetectorScreenNode**: Renders up to 20,000 hit dots or intensity bands. Hit dots use a radial
-  gradient for glow effects (disabled above 2,000 hits for performance). In Average Intensity mode,
-  renders vertical bands with opacity proportional to the theoretical intensity.
+- **DetectorScreenCanvasNode**: Front-facing detector screen. In Hits mode, renders hit dots as
+  pre-rendered sprites (core + glow circle) with incremental blitting — only new hits are drawn each
+  frame, keeping per-frame cost proportional to new hits rather than total hits. In Average Intensity
+  mode, renders per-pixel vertical bands whose color is proportional to the theoretical intensity.
+  Hit dot glow intensity is controlled by the screen brightness slider, not by hit count.
 
-- **OverheadDetectorPatternNode**: Renders the interference pattern on the overhead parallelogram.
-  In Average Intensity mode, uses the theoretical intensity curve. In Hits mode, downsamples from the
-  model's 200-bin histogram.
+- **OverheadDetectorPatternNode**: Renders the interference pattern on the overhead parallelogram by
+  drawing the same shared texture with an affine transform that skews it into the parallelogram shape.
 
-- **SnapshotNode**: Renders a miniature version of the detector screen for the snapshots dialog.
+- **SnapshotNode**: Renders a miniature version of the detector screen for the snapshots dialog,
+  using its own canvas rendering with the same core+glow hit sprite approach.
 
 ### Key View Components
 
@@ -88,7 +93,7 @@ Three components use `CanvasNode` for performance:
   beam overlay, slit width span, slit separation span, and cover/detector overlays.
 
 - **GraphAccordionBox**: Shows either a smooth theoretical intensity curve (Average Intensity mode) or
-  a 40-bin histogram (Hits mode). The intensity curve uses `getIntensityAtPosition()` for immediate
+  a 100-bin histogram (Hits mode). The intensity curve uses `getIntensityAtPosition()` for immediate
   feedback; opacity scales with accumulated hits so the curve "builds up" over time.
 
 - **SourceControlPanel**: Switches between wavelength control (photons) and particle speed control
@@ -127,14 +132,8 @@ No components in this simulation require disposal. All UI elements persist for t
 simulation. `SceneModel` instances are never removed. Listeners registered by per-scene components
 remain active but are effectively no-ops when the component is not visible.
 
-## Query Parameters
+## Time Controls
 
-The simulation supports several query parameters for testing (defined in
-`QuantumWaveInterferenceQueryParameters.ts`):
-- `scene`: Initial scene selection (photons, electrons, neutrons, helium)
-- `emitting`: Start with the emitter on
-- `hitsMode`: Start in Hits detection mode
-- `timeSpeed`: Initial time speed (slow, normal, fast)
-- `wavelength`, `slitSeparation`, `screenDistance`, `intensity`: Override initial parameter values
-- `slitSetting`: Override initial slit setting
-- `graphExpanded`: Start with the graph accordion box expanded
+The `TimeControlNode` in the view exposes two time speeds: Normal and Fast. The model additionally
+supports Slow speed (via `timeSpeedProperty`), but the Slow option is not shown in the UI. Speed
+multipliers in `ExperimentModel.step`: Slow = 0.25×, Normal = 1×, Fast = 4×.

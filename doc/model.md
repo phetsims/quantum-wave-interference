@@ -22,7 +22,8 @@ so switching scenes preserves the user's configuration and data for each source 
 - **Wavelength** (photons only): 380–780 nm, directly controlling the photon wavelength and beam color.
 - **Particle Speed** (particles only): Controls velocity, which determines the de Broglie wavelength.
 - **Intensity / Emission Rate**: 0–1, controls the rate at which detection events accumulate and the
-  opacity of the beam visualization. At full intensity, approximately 200 hits per second are generated.
+  opacity of the beam visualization. At full intensity, up to 100 hits per second are generated
+  (`MAX_EMISSION_RATE` in `SceneModel`).
 
 ### Double Slit
 
@@ -108,13 +109,13 @@ the detector screen before collecting more hits in that scene.
 
 ## Source-Specific Parameters
 
-| Parameter         | Photons        | Electrons        | Neutrons          | Helium Atoms       |
-|-------------------|----------------|------------------|-------------------|--------------------|
-| Slit Width        | 0.1 mm         | 0.2 μm           | 0.01 mm           | 0.3 μm             |
-| Slit Separation   | 0.2–1.0 mm     | 0.5–1.0 μm       | 0.02–0.1 mm       | 1–7 μm             |
-| Screen Distance   | 0.4–0.8 m      | 0.4–0.8 m        | 0.5–5.0 m         | 0.5–2.0 m          |
-| Particle Mass     | —              | 9.1 × 10⁻³¹ kg  | 1.7 × 10⁻²⁷ kg   | 6.6 × 10⁻²⁷ kg    |
-| Speed Range       | c (fixed)      | 700–1500 km/s    | 200–2000 m/s      | 400–2000 m/s       |
+| Parameter         | Photons        | Electrons          | Neutrons          | Helium Atoms       |
+|-------------------|----------------|--------------------|-------------------|--------------------|
+| Slit Width        | 20 μm          | 0.03 μm            | 3 μm              | 0.3 μm             |
+| Slit Separation   | 0.05–0.5 mm    | 0.1–0.9 μm         | 10–70 μm          | 1–7 μm             |
+| Screen Distance   | 0.4–0.8 m      | 0.4–0.8 m          | 0.4–0.8 m         | 0.4–0.8 m          |
+| Particle Mass     | —              | 9.109 × 10⁻³¹ kg  | 1.675 × 10⁻²⁷ kg | 6.646 × 10⁻²⁷ kg  |
+| Speed Range       | c (fixed)      | 700–1500 km/s      | 200–800 m/s       | 400–2000 m/s       |
 
 ## Approximations and Assumptions
 
