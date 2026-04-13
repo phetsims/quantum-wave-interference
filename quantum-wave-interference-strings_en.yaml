@@ -52,6 +52,24 @@ snapshotNumberPattern:              'Snapshot {{number}}'
 ruler:                              Ruler
 stopwatch:                          Stopwatch
 detector:                           Detector
+tapeMeasure:                        Tape Measure
+timePlot:                           Time Plot
+positionPlot:                       Position Plot
+obstacle:                           Obstacle
+none:                               None
+waveDisplay:                        Wave Display
+waveFunctionDisplay:                Wave Function Display
+electricField:                      Electric Field
+timeAveragedIntensity:              Time-averaged Intensity
+magnitude:                          Magnitude
+realPart:                           Real Part
+imaginaryPart:                      Imaginary Part
+topCovered:                         Top Covered
+bottomCovered:                      Bottom Covered
+topDetector:                        Top Detector
+bottomDetector:                     Bottom Detector
+erase:                              Erase
+snapshots:                          Snapshots
 
 # Accessibility strings
 a11y:
@@ -62,7 +80,7 @@ a11y:
                         You can adjust the source and slits, observe the resulting pattern, and save snapshots of the detector screen.
     controlArea:        >-
                         A ruler and stopwatch can be shown or hidden.
-                        In hits mode, there are controls to play, pause, or adjust experiment speed.
+                        There are controls to play, pause, or adjust experiment speed.
                         Reset sim to start over.
     maxHitsReachedHint: Clear the detector screen to collect more hits.
     currentDetails:     >-

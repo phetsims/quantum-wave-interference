@@ -76,6 +76,24 @@ type StringsType = {
   'rulerStringProperty': LocalizedStringProperty;
   'stopwatchStringProperty': LocalizedStringProperty;
   'detectorStringProperty': LocalizedStringProperty;
+  'tapeMeasureStringProperty': LocalizedStringProperty;
+  'timePlotStringProperty': LocalizedStringProperty;
+  'positionPlotStringProperty': LocalizedStringProperty;
+  'obstacleStringProperty': LocalizedStringProperty;
+  'noneStringProperty': LocalizedStringProperty;
+  'waveDisplayStringProperty': LocalizedStringProperty;
+  'waveFunctionDisplayStringProperty': LocalizedStringProperty;
+  'electricFieldStringProperty': LocalizedStringProperty;
+  'timeAveragedIntensityStringProperty': LocalizedStringProperty;
+  'magnitudeStringProperty': LocalizedStringProperty;
+  'realPartStringProperty': LocalizedStringProperty;
+  'imaginaryPartStringProperty': LocalizedStringProperty;
+  'topCoveredStringProperty': LocalizedStringProperty;
+  'bottomCoveredStringProperty': LocalizedStringProperty;
+  'topDetectorStringProperty': LocalizedStringProperty;
+  'bottomDetectorStringProperty': LocalizedStringProperty;
+  'eraseStringProperty': LocalizedStringProperty;
+  'snapshotsStringProperty': LocalizedStringProperty;
   'a11y': {
     'screenSummary': {
       'playAreaStringProperty': LocalizedStringProperty;

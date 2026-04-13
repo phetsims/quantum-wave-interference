@@ -1,16 +1,18 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SourceControlPanel is the panel beneath the emitter source in the middle row. It contains controls
- * for the source properties:
+ * SourceControlPanel is a panel containing source controls for a scene. It contains:
  * - For photons: a WavelengthNumberControl and an Intensity slider
  * - For particles (electrons, neutrons, helium atoms): a Velocity NumberControl and an Intensity slider
  *
  * The panel swaps its content when the active scene changes.
  *
+ * Generic over any scene type that has the required source properties.
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
@@ -32,9 +34,9 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
-import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
+import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import SceneModel from '../model/SceneModel.js';
+import { type SourceType } from '../model/SourceType.js';
 import linkSceneVisibility from './linkSceneVisibility.js';
 
 const TITLE_FONT = new PhetFont( 14 );
@@ -47,14 +49,22 @@ const PARTICLE_INTENSITY_LABEL_SPACING = 2;
 const CONTROL_SECTION_SPACING = 16;
 const CONTROL_ROW_VERTICAL_MARGIN = 4;
 
+export type SourceControlScene = {
+  readonly sourceType: SourceType;
+  readonly intensityProperty: NumberProperty;
+  readonly wavelengthProperty: NumberProperty;
+  readonly velocityProperty: NumberProperty;
+  readonly velocityRange: Range;
+};
+
 type SelfOptions = EmptySelfOptions;
 
 type SourceControlPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tandem'>;
 
-export default class SourceControlPanel extends Panel {
+export default class SourceControlPanel<T extends SourceControlScene> extends Panel {
   public constructor(
-    sceneProperty: Property<SceneModel>,
-    scenes: SceneModel[],
+    sceneProperty: Property<T>,
+    scenes: T[],
     providedOptions: SourceControlPanelOptions
   ) {
     const options = optionize<SourceControlPanelOptions, SelfOptions, PanelOptions>()(
@@ -73,7 +83,6 @@ export default class SourceControlPanel extends Panel {
       SourceControlPanel.createSceneControlContent( scene, options.tandem )
     );
 
-    // Match row geometry across scenes so control placement does not shift when switching source types.
     const maxTopControlWidth = Math.max( ...sceneControlContents.map( content => content.topControl.width ) );
     const maxTopControlHeight = Math.max( ...sceneControlContents.map( content => content.topControl.height ) );
     const maxBottomControlWidth = Math.max( ...sceneControlContents.map( content => content.bottomControl.width ) );
@@ -99,9 +108,6 @@ export default class SourceControlPanel extends Panel {
       } );
     } );
 
-    // Container node holds all scene content nodes; only the active one is visible.
-    // excludeInvisibleChildrenFromBounds: false ensures the panel sizes to the widest content across all scenes,
-    // preventing layout shifts when switching scenes.
     const contentNode = new Node( {
       children: sceneNodes,
       excludeInvisibleChildrenFromBounds: false
@@ -112,23 +118,17 @@ export default class SourceControlPanel extends Panel {
     linkSceneVisibility( sceneProperty, scenes, sceneNodes );
   }
 
-  /**
-   * Creates the source-type-specific controls for one scene.
-   */
   private static createSceneControlContent(
-    scene: SceneModel,
+    scene: SourceControlScene,
     tandem: PickRequired<PanelOptions, 'tandem'>['tandem']
   ): {
     topControl: Node;
     bottomControl: Node;
   } {
-    // Photon scenes use "Source Intensity" while particle scenes use "Emission Rate" per the ElectronEmitter.svg
-    // design mockup, which is more physically intuitive for students.
     const intensityLabelStringProperty = scene.sourceType === 'photons'
                                          ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
                                          : QuantumWaveInterferenceFluent.emissionRateStringProperty;
 
-    // Intensity slider (shared by all source types)
     const intensitySlider = new HSlider( scene.intensityProperty, scene.intensityProperty.range, {
       trackSize: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SLIDER_TRACK_HEIGHT ),
       thumbSize: new Dimension2( 13, 22 ),
@@ -146,7 +146,6 @@ export default class SourceControlPanel extends Panel {
       tandem: tandem.createTandem( `${scene.sourceType}IntensitySlider` )
     } );
 
-    // Add min ("0") and max ("Max") tick marks
     intensitySlider.addMajorTick( 0, new Text( '0', { font: TICK_LABEL_FONT } ) );
     intensitySlider.addMajorTick(
       1,
@@ -169,8 +168,6 @@ export default class SourceControlPanel extends Panel {
     let topControl: Node;
 
     if ( scene.sourceType === 'photons' ) {
-
-      // Wavelength control with spectrum slider
       topControl = new WavelengthNumberControl( scene.wavelengthProperty, {
         range: new Range( 400, 700 ),
         spectrumSliderTrackOptions: {
@@ -206,23 +203,17 @@ export default class SourceControlPanel extends Panel {
       } );
     }
     else {
-
-      // Velocity NumberControl for particle scenes, per the design document:
-      // "the panel contains a Velocity NumberControl and Intensity Slider". Speed is displayed in km/s for electrons
-      // (large: 1e5–1e7 m/s) and m/s for slower particles.
       const velocityRange = scene.velocityRange;
 
       const sourceType = scene.sourceType;
-      const velocityDelta = sourceType === 'electrons' ? 10000 : // 10 km/s
+      const velocityDelta = sourceType === 'electrons' ? 10000 :
                             sourceType === 'neutrons' ? 10 :
                             sourceType === 'heliumAtoms' ? 50 :
                             ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
 
-      // Use km/s for electrons (large velocities), m/s for neutrons and helium atoms
       const useKmPerSecond = velocityRange.max >= 10000;
       const speedUnit = useKmPerSecond ? kilometersPerSecondUnit : metersPerSecondUnit;
 
-      // Format the number display value and tick labels appropriately for the speed range
       const formatSpeed = ( value: number ) => {
         if ( useKmPerSecond ) {
           const kmPerS = value / 1000;
@@ -267,8 +258,6 @@ export default class SourceControlPanel extends Panel {
         }
       };
 
-      // Use "Particle Speed" per the ElectronEmitter.svg design mockup,
-      // which is more student-friendly than the physics term "Velocity".
       topControl = new NumberControl(
         QuantumWaveInterferenceFluent.particleSpeedStringProperty,
         scene.velocityProperty,
@@ -324,10 +313,6 @@ export default class SourceControlPanel extends Panel {
     };
   }
 
-  /**
-   * Creates the scene content using fixed-size row containers so controls keep identical height and position across
-   * source types.
-   */
   private static createSceneContent(
     topControl: Node,
     bottomControl: Node,

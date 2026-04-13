@@ -161,6 +161,60 @@
   "detector": {
     "value": "Detector"
   },
+  "tapeMeasure": {
+    "value": "Tape Measure"
+  },
+  "timePlot": {
+    "value": "Time Plot"
+  },
+  "positionPlot": {
+    "value": "Position Plot"
+  },
+  "obstacle": {
+    "value": "Obstacle"
+  },
+  "none": {
+    "value": "None"
+  },
+  "waveDisplay": {
+    "value": "Wave Display"
+  },
+  "waveFunctionDisplay": {
+    "value": "Wave Function Display"
+  },
+  "electricField": {
+    "value": "Electric Field"
+  },
+  "timeAveragedIntensity": {
+    "value": "Time-averaged Intensity"
+  },
+  "magnitude": {
+    "value": "Magnitude"
+  },
+  "realPart": {
+    "value": "Real Part"
+  },
+  "imaginaryPart": {
+    "value": "Imaginary Part"
+  },
+  "topCovered": {
+    "value": "Top Covered"
+  },
+  "bottomCovered": {
+    "value": "Bottom Covered"
+  },
+  "topDetector": {
+    "value": "Top Detector"
+  },
+  "bottomDetector": {
+    "value": "Bottom Detector"
+  },
+  "erase": {
+    "value": "Erase"
+  },
+  "snapshots": {
+    "value": "Snapshots"
+  },
   "a11y": {
     "screenSummary": {
       "playArea": {

@@ -130,7 +130,7 @@ const paintHits = (
     return;
   }
 
-  const rgb = getSceneRGB( sceneModel );
+  const rgb = getSceneRGB( sceneModel.sourceType, sceneModel.wavelengthProperty.value );
   const coreAlpha = getHitsCoreAlpha( brightnessFraction );
   const glowAlpha = getHitsGlowAlpha( brightnessFraction );
   const glowRadius = HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
@@ -184,7 +184,7 @@ const paintIntensity = (
   }
 
   const screenHalfWidth = sceneModel.screenHalfWidth;
-  const rgb = getSceneRGB( sceneModel );
+  const rgb = getSceneRGB( sceneModel.sourceType, sceneModel.wavelengthProperty.value );
 
   for ( let x = 0; x < TEXTURE_WIDTH; x++ ) {
     const fraction = ( x + 0.5 ) / TEXTURE_WIDTH;
@@ -288,9 +288,7 @@ const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache =>
   sceneModel.detectionModeProperty.link( markDirty );
   sceneModel.screenBrightnessProperty.link( markDirty );
   sceneModel.intensityProperty.link( markDirty );
-  sceneModel.detectorScreenScaleIndexProperty.link( markDirty );
   sceneModel.wavelengthProperty.link( markDirty );
-  sceneModel.velocityProperty.link( markDirty );
 
   return cache;
 };

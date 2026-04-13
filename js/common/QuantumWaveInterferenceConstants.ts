@@ -22,4 +22,7 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly ELECTRON_MASS = 9.109e-31;
   public static readonly NEUTRON_MASS = 1.675e-27;
   public static readonly HELIUM_ATOM_MASS = 6.646e-27;
+
+  // Maximum value for the screen brightness slider, shared across all screens
+  public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
 }

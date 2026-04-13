@@ -11,8 +11,6 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import GatedEnabledProperty from '../../../../axon/js/GatedEnabledProperty.js';
-import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -43,10 +41,10 @@ import OverheadBeamNode from './OverheadBeamNode.js';
 import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
-import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
+import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
-import SourceControlPanel from './SourceControlPanel.js';
+import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -257,7 +255,7 @@ export default class ExperimentScreenView extends ScreenView {
     const rightColumnLeft = detectorScreenNodes[ 0 ].left;
     const middleColumnCenterX = ( leftColumnRight + rightColumnLeft ) / 2 - MIDDLE_COLUMN_LEFT_SHIFT;
     frontFacingSlitNodes.forEach( node => {
-      node.setViewCenterX( middleColumnCenterX );
+      node.centerX = middleColumnCenterX;
     } );
     overheadDoubleSlitNode.setParallelogramCenterX( middleColumnCenterX );
     whichPathDetectorNode.updateLayout();
@@ -350,14 +348,10 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( checkboxGroup );
 
     // Time controls: play/pause button with speed radio buttons.
-    const timeControlNodeTandem = options.tandem.createTandem( 'timeControlNode' );
-    const timeControlsHitsModeProperty = model.currentDetectionModeProperty.derived( detectionMode => detectionMode === 'hits' );
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
       timeSpeeds: [ TimeSpeed.NORMAL, TimeSpeed.FAST ],
       flowBoxSpacing: 15,
-      visibleProperty: new GatedVisibleProperty( timeControlsHitsModeProperty, timeControlNodeTandem ),
-      enabledProperty: new GatedEnabledProperty( timeControlsHitsModeProperty, timeControlNodeTandem ),
       speedRadioButtonGroupOptions: {
         accessibleHelpText:
         QuantumWaveInterferenceFluent.a11y.timeControlNode.simSpeedDescriptionStringProperty
@@ -368,7 +362,7 @@ export default class ExperimentScreenView extends ScreenView {
           radius: 22
         }
       },
-      tandem: timeControlNodeTandem
+      tandem: options.tandem.createTandem( 'timeControlNode' )
     } );
     this.addChild( timeControlNode );
 
@@ -396,8 +390,10 @@ export default class ExperimentScreenView extends ScreenView {
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
     const rulerNodes = model.scenes.map( ( scene, index ) => {
+      const detectorWidthMM = scene.screenHalfWidth * 2 * 1e3;
       const rulerNode = createRulerNode(
-        scene,
+        detectorWidthMM,
+        scene.sourceType,
         rulerNodesTandem.createTandem( `rulerNode${index}` )
       );
       this.addChild( rulerNode );
@@ -536,10 +532,17 @@ export default class ExperimentScreenView extends ScreenView {
     const slitSettingProperty = model.currentSlitSettingProperty;
     const slitWidthStringProperty = model.sceneProperty.derived( scene => {
       const slitWidthMM = scene.slitWidth;
-      const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
-      return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
-        value: toFixed( slitWidthUM, decimalPlaces )
-      } );
+      if ( slitWidthMM >= 0.01 ) {
+        return QuantumWaveInterferenceFluent.a11y.slitWidthMillimetersPattern.format( {
+          value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )
+        } );
+      }
+      else {
+        const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
+        return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
+          value: toFixed( slitWidthUM, decimalPlaces )
+        } );
+      }
     } );
     const slitViewDescriptionNode = new Node( {
       accessibleParagraph:
