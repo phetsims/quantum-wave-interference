@@ -5,6 +5,12 @@
   "screen.experiment.name": {
     "value": "Experiment"
   },
+  "screen.highIntensity.name": {
+    "value": "High Intensity"
+  },
+  "screen.singleParticles.name": {
+    "value": "Single Particles"
+  },
   "photons": {
     "value": "Photons"
   },

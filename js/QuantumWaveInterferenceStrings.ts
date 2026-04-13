@@ -18,6 +18,12 @@ type StringsType = {
   'screen': {
     'experiment': {
       'nameStringProperty': LocalizedStringProperty;
+    };
+    'highIntensity': {
+      'nameStringProperty': LocalizedStringProperty;
+    };
+    'singleParticles': {
+      'nameStringProperty': LocalizedStringProperty;
     }
   };
   'photonsStringProperty': LocalizedStringProperty;

@@ -30,6 +30,8 @@ const addToMapIfDefined = ( key: string, path: string ) => {
 
 addToMapIfDefined( 'quantum_wave_interference_title', 'quantum-wave-interference.titleStringProperty' );
 addToMapIfDefined( 'screen_experiment_name', 'screen.experiment.nameStringProperty' );
+addToMapIfDefined( 'screen_highIntensity_name', 'screen.highIntensity.nameStringProperty' );
+addToMapIfDefined( 'screen_singleParticles_name', 'screen.singleParticles.nameStringProperty' );
 addToMapIfDefined( 'photons', 'photonsStringProperty' );
 addToMapIfDefined( 'electrons', 'electronsStringProperty' );
 addToMapIfDefined( 'neutrons', 'neutronsStringProperty' );
@@ -171,6 +173,12 @@ const QuantumWaveInterferenceFluent = {
   screen: {
     experiment: {
       nameStringProperty: _.get( QuantumWaveInterferenceStrings, 'screen.experiment.nameStringProperty' )
+    },
+    highIntensity: {
+      nameStringProperty: _.get( QuantumWaveInterferenceStrings, 'screen.highIntensity.nameStringProperty' )
+    },
+    singleParticles: {
+      nameStringProperty: _.get( QuantumWaveInterferenceStrings, 'screen.singleParticles.nameStringProperty' )
     }
   },
   photonsStringProperty: _.get( QuantumWaveInterferenceStrings, 'photonsStringProperty' ),

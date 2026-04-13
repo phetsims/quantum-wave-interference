@@ -1,5 +1,7 @@
 quantum-wave-interference.title:    'Quantum Wave Interference'
 screen.experiment.name:             Experiment
+screen.highIntensity.name:          'High Intensity'
+screen.singleParticles.name:        'Single Particles'
 photons:                            Photons
 electrons:                          Electrons
 neutrons:                           Neutrons
