@@ -12,7 +12,7 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, PERCEPTUAL_VISIBILITY_THRESHOLD } from '../../common/view/ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
@@ -49,66 +49,13 @@ type SceneTextureCache = {
   // Cached hit sprite (small offscreen canvas with glow + core pre-rendered). Invalidated when brightness or color
   // changes.
   hitSprite: HTMLCanvasElement | null;
-  hitSpriteParams: HitSpriteParams | null;
-};
-
-type HitSpriteParams = {
-  r: number;
-  g: number;
-  b: number;
-  coreAlpha: number;
-  glowAlpha: number;
-  glowRadius: number;
+  hitSpriteParams: { r: number; g: number; b: number; coreAlpha: number; glowAlpha: number; glowRadius: number } | null;
 };
 
 const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
 
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
-
-const hitSpriteParamsMatch = (
-  params: HitSpriteParams | null,
-  rgb: { r: number; g: number; b: number },
-  coreAlpha: number,
-  glowAlpha: number,
-  glowRadius: number
-): params is HitSpriteParams => {
-  return !!params &&
-         params.r === rgb.r &&
-         params.g === rgb.g &&
-         params.b === rgb.b &&
-         params.coreAlpha === coreAlpha &&
-         params.glowAlpha === glowAlpha &&
-         params.glowRadius === glowRadius;
-};
-
-const rgbToRGBA = ( rgb: { r: number; g: number; b: number }, alpha: number ): string => {
-  return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;
-};
-
-const fillCircle = (
-  context: CanvasRenderingContext2D,
-  rgb: { r: number; g: number; b: number },
-  alpha: number,
-  center: number,
-  radius: number
-): void => {
-  context.fillStyle = rgbToRGBA( rgb, alpha );
-  context.beginPath();
-  context.arc( center, center, radius, 0, Math.PI * 2 );
-  context.fill();
-};
-
-const getScaledRGBFillStyle = ( rgb: { r: number; g: number; b: number }, scale: number ): string | null => {
-  if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
-    return null;
-  }
-
-  const r = clamp( roundSymmetric( rgb.r * scale ), 0, 255 );
-  const g = clamp( roundSymmetric( rgb.g * scale ), 0, 255 );
-  const b = clamp( roundSymmetric( rgb.b * scale ), 0, 255 );
-  return `rgb(${r},${g},${b})`;
-};
 
 /**
  * Creates (or returns a cached) hit sprite — a small offscreen canvas with the glow ring and solid core pre-rendered.
@@ -123,7 +70,13 @@ const getHitSprite = (
 ): HTMLCanvasElement => {
 
   // Return cached sprite if parameters haven't changed.
-  if ( cache.hitSprite && hitSpriteParamsMatch( cache.hitSpriteParams, rgb, coreAlpha, glowAlpha, glowRadius ) ) {
+  if ( cache.hitSprite && cache.hitSpriteParams &&
+       cache.hitSpriteParams.r === rgb.r &&
+       cache.hitSpriteParams.g === rgb.g &&
+       cache.hitSpriteParams.b === rgb.b &&
+       cache.hitSpriteParams.coreAlpha === coreAlpha &&
+       cache.hitSpriteParams.glowAlpha === glowAlpha &&
+       cache.hitSpriteParams.glowRadius === glowRadius ) {
     return cache.hitSprite;
   }
 
@@ -139,11 +92,17 @@ const getHitSprite = (
 
   // Draw glow circle first (larger, semi-transparent).
   if ( glowAlpha > 0 ) {
-    fillCircle( ctx, rgb, glowAlpha, center, glowRadius );
+    ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${glowAlpha})`;
+    ctx.beginPath();
+    ctx.arc( center, center, glowRadius, 0, Math.PI * 2 );
+    ctx.fill();
   }
 
   // Draw core circle on top (smaller, more opaque).
-  fillCircle( ctx, rgb, coreAlpha, center, HIT_CORE_RADIUS );
+  ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${coreAlpha})`;
+  ctx.beginPath();
+  ctx.arc( center, center, HIT_CORE_RADIUS, 0, Math.PI * 2 );
+  ctx.fill();
 
   cache.hitSprite = spriteCanvas;
   cache.hitSpriteParams = { r: rgb.r, g: rgb.g, b: rgb.b, coreAlpha: coreAlpha, glowAlpha: glowAlpha, glowRadius: glowRadius };
@@ -231,14 +190,17 @@ const paintIntensity = (
     const fraction = ( x + 0.5 ) / TEXTURE_WIDTH;
     const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
     const intensity = sceneModel.getIntensityAtPosition( physicalX );
-    const fillStyle = getScaledRGBFillStyle( rgb, intensity * displayGain );
+    const scale = intensity * displayGain;
 
     // Skip bands below perceptual visibility to avoid painting nearly-black pixels
-    if ( !fillStyle ) {
+    if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
       continue;
     }
 
-    context.fillStyle = fillStyle;
+    const r = clamp( roundSymmetric( rgb.r * scale ), 0, 255 );
+    const g = clamp( roundSymmetric( rgb.g * scale ), 0, 255 );
+    const b = clamp( roundSymmetric( rgb.b * scale ), 0, 255 );
+    context.fillStyle = `rgb(${r},${g},${b})`;
     context.fillRect( x, 0, 1, TEXTURE_HEIGHT );
   }
 };
@@ -326,9 +288,7 @@ const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache =>
   sceneModel.detectionModeProperty.link( markDirty );
   sceneModel.screenBrightnessProperty.link( markDirty );
   sceneModel.intensityProperty.link( markDirty );
-  sceneModel.detectorScreenScaleIndexProperty.link( markDirty );
   sceneModel.wavelengthProperty.link( markDirty );
-  sceneModel.velocityProperty.link( markDirty );
 
   return cache;
 };

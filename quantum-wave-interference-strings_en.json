@@ -170,12 +170,6 @@
   "positionPlot": {
     "value": "Position Plot"
   },
-  "time": {
-    "value": "Time"
-  },
-  "position": {
-    "value": "Position"
-  },
   "obstacle": {
     "value": "Obstacle"
   },
@@ -209,23 +203,11 @@
   "bottomCovered": {
     "value": "Bottom Covered"
   },
-  "topClosed": {
-    "value": "Top Closed"
-  },
-  "bottomClosed": {
-    "value": "Bottom Closed"
-  },
   "topDetector": {
     "value": "Top Detector"
   },
   "bottomDetector": {
     "value": "Bottom Detector"
-  },
-  "autoRepeat": {
-    "value": "Auto-repeat"
-  },
-  "timeScaleLabel": {
-    "value": "1 fs = 10⁻¹⁵ s"
   },
   "erase": {
     "value": "Erase"
@@ -233,31 +215,13 @@
   "snapshots": {
     "value": "Snapshots"
   },
-  "detectorSize": {
-    "value": "Detector Size"
-  },
-  "detect": {
-    "value": "Detect"
-  },
-  "resetDetector": {
-    "value": "Reset"
-  },
-  "particleDetected": {
-    "value": "Particle detected"
-  },
-  "notDetected": {
-    "value": "Not detected"
-  },
-  "detectorPercentPattern": {
-    "value": "{{value}}%"
-  },
   "a11y": {
     "screenSummary": {
       "playArea": {
         "value": "A double-slit experiment features a source emitting particles toward a barrier with two narrow slits. Particles that pass through the slits land on a detector screen, building up a pattern. You can adjust the source and slits, observe the resulting pattern, and save snapshots of the detector screen."
       },
       "controlArea": {
-        "value": "A ruler and stopwatch can be shown or hidden. In hits mode, there are controls to play, pause, or adjust experiment speed. Reset sim to start over."
+        "value": "A ruler and stopwatch can be shown or hidden. There are controls to play, pause, or adjust experiment speed. Reset sim to start over."
       },
       "maxHitsReachedHint": {
         "value": "Clear the detector screen to collect more hits."

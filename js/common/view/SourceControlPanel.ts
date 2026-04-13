@@ -2,11 +2,10 @@
 
 /**
  * SourceControlPanel is a panel containing source controls for a scene. It contains:
- * - For photons: a WavelengthNumberControl (and an Intensity slider when the scene supplies `intensityProperty`)
- * - For particles (electrons, neutrons, helium atoms): a Velocity NumberControl (plus Intensity slider when present)
+ * - For photons: a WavelengthNumberControl and an Intensity slider
+ * - For particles (electrons, neutrons, helium atoms): a Velocity NumberControl and an Intensity slider
  *
- * The panel swaps its content when the active scene changes. The Single Particles screen omits the intensity
- * slider by using scenes without an `intensityProperty`; the Experiment and High Intensity screens include it.
+ * The panel swaps its content when the active scene changes.
  *
  * Generic over any scene type that has the required source properties.
  *
@@ -15,11 +14,10 @@
 
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import optionize from '../../../../phet-core/js/optionize.js';
+import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
@@ -44,7 +42,7 @@ import linkSceneVisibility from './linkSceneVisibility.js';
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
 const DEFAULT_SLIDER_TRACK_WIDTH = 130;
-const SOURCE_CONTROL_SLIDER_TRACK_WIDTH = DEFAULT_SLIDER_TRACK_WIDTH * 1.15;
+const SOURCE_CONTROL_SLIDER_TRACK_WIDTH = DEFAULT_SLIDER_TRACK_WIDTH * 0.96;
 const SLIDER_TRACK_HEIGHT = 3;
 const PHOTON_INTENSITY_LABEL_SPACING = 4;
 const PARTICLE_INTENSITY_LABEL_SPACING = 2;
@@ -53,20 +51,13 @@ const CONTROL_ROW_VERTICAL_MARGIN = 4;
 
 export type SourceControlScene = {
   readonly sourceType: SourceType;
+  readonly intensityProperty: NumberProperty;
   readonly wavelengthProperty: NumberProperty;
   readonly velocityProperty: NumberProperty;
   readonly velocityRange: Range;
-
-  // Only scenes that drive a continuous beam (Experiment, High Intensity) supply an intensity property.
-  // Single Particles scenes omit it, which in turn hides the intensity slider.
-  readonly intensityProperty?: NumberProperty;
 };
 
-type SelfOptions = {
-  photonIntensityLabelStringProperty?: TReadOnlyProperty<string>;
-  particleIntensityLabelStringProperty?: TReadOnlyProperty<string>;
-  additionalContent?: Node | null;
-};
+type SelfOptions = EmptySelfOptions;
 
 type SourceControlPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tandem'>;
 
@@ -83,32 +74,21 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
         yMargin: 10,
         fill: QuantumWaveInterferenceColors.panelFillProperty,
         stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-        minWidth: 160,
-        photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.sourceIntensityStringProperty,
-        particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty,
-        additionalContent: null
+        minWidth: 160
       },
       providedOptions
     );
 
     const sceneControlContents = scenes.map( scene =>
-      SourceControlPanel.createSceneControlContent(
-        scene,
-        options.tandem,
-        scene.sourceType === 'photons'
-          ? options.photonIntensityLabelStringProperty
-          : options.particleIntensityLabelStringProperty
-      )
+      SourceControlPanel.createSceneControlContent( scene, options.tandem )
     );
 
     const maxTopControlWidth = Math.max( ...sceneControlContents.map( content => content.topControl.width ) );
     const maxTopControlHeight = Math.max( ...sceneControlContents.map( content => content.topControl.height ) );
-
-    const bottomControls = sceneControlContents
-      .map( content => content.bottomControl )
-      .filter( control => control !== null );
-    const maxBottomControlWidth = bottomControls.length > 0 ? Math.max( ...bottomControls.map( n => n.width ) ) : 0;
-    const maxBottomControlHeight = bottomControls.length > 0 ? Math.max( ...bottomControls.map( n => n.height ) ) : 0;
+    const maxBottomControlWidth = Math.max( ...sceneControlContents.map( content => content.bottomControl.width ) );
+    const maxBottomControlHeight = Math.max(
+      ...sceneControlContents.map( content => content.bottomControl.height )
+    );
 
     const sceneContentNodes = sceneControlContents.map( sceneControls =>
       SourceControlPanel.createSceneContent( sceneControls.topControl, sceneControls.bottomControl, maxTopControlWidth,
@@ -133,30 +113,57 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
       excludeInvisibleChildrenFromBounds: false
     } );
 
-    let panelContent: Node = contentNode;
-    if ( options.additionalContent ) {
-      panelContent = new VBox( {
-        spacing: CONTROL_SECTION_SPACING,
-        align: 'left',
-        children: [ contentNode, options.additionalContent ]
-      } );
-    }
-
-    super( panelContent, options );
+    super( contentNode, options );
 
     linkSceneVisibility( sceneProperty, scenes, sceneNodes );
   }
 
   private static createSceneControlContent(
     scene: SourceControlScene,
-    tandem: PickRequired<PanelOptions, 'tandem'>['tandem'],
-    intensityLabelStringProperty: TReadOnlyProperty<string>
+    tandem: PickRequired<PanelOptions, 'tandem'>['tandem']
   ): {
     topControl: Node;
-    bottomControl: Node | null;
+    bottomControl: Node;
   } {
-    const intensityControl = scene.intensityProperty ? SourceControlPanel.createIntensityControl(
-      scene.intensityProperty, scene.sourceType, intensityLabelStringProperty, tandem ) : null;
+    const intensityLabelStringProperty = scene.sourceType === 'photons'
+                                         ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
+                                         : QuantumWaveInterferenceFluent.emissionRateStringProperty;
+
+    const intensitySlider = new HSlider( scene.intensityProperty, scene.intensityProperty.range, {
+      trackSize: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SLIDER_TRACK_HEIGHT ),
+      thumbSize: new Dimension2( 13, 22 ),
+      majorTickLength: 12,
+      tickLabelSpacing: scene.sourceType === 'photons' ? 2 : 6,
+      createAriaValueText: value => percentUnit.getAccessibleString( value * 100, {
+        decimalPlaces: 0,
+        showTrailingZeros: false,
+        showIntegersAsIntegers: true
+      } ),
+      accessibleName: intensityLabelStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleHelpText.createProperty( {
+        sourceType: scene.sourceType
+      } ),
+      tandem: tandem.createTandem( `${scene.sourceType}IntensitySlider` )
+    } );
+
+    intensitySlider.addMajorTick( 0, new Text( '0', { font: TICK_LABEL_FONT } ) );
+    intensitySlider.addMajorTick(
+      1,
+      new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
+        font: TICK_LABEL_FONT,
+        maxWidth: 40
+      } )
+    );
+
+    const intensityLabel = new Text( intensityLabelStringProperty, {
+      font: TITLE_FONT,
+      maxWidth: 120
+    } );
+
+    const intensityControl = new VBox( {
+      spacing: scene.sourceType === 'photons' ? PHOTON_INTENSITY_LABEL_SPACING : PARTICLE_INTENSITY_LABEL_SPACING,
+      children: [ intensityLabel, intensitySlider ]
+    } );
 
     let topControl: Node;
 
@@ -185,10 +192,12 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
           },
           maxWidth: 80
         },
-        layoutFunction: NumberControl.createLayoutFunction4( {
-          verticalSpacing: 8
+        layoutFunction: NumberControl.createLayoutFunction1( {
+          titleXSpacing: 4,
+          arrowButtonsXSpacing: 8,
+          ySpacing: 8
         } ),
-        includeArrowButtons: false,
+        includeArrowButtons: true,
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.wavelengthSlider.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( 'wavelengthControl' )
       } );
@@ -261,14 +270,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
           },
           numberDisplayOptions: {
             numberFormatter: formatSpeed,
-
-            // Retrigger the formatter when the unit Properties or the locale-dependent pattern strings change,
-            // since formatSpeed reads both.
-            numberFormatterDependencies: [
-              ...speedUnit.getDependentProperties(),
-              QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty,
-              QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty
-            ],
+            numberFormatterDependencies: speedUnit.getDependentProperties(),
             textOptions: {
               font: new PhetFont( 14 )
             },
@@ -313,7 +315,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
 
   private static createSceneContent(
     topControl: Node,
-    bottomControl: Node | null,
+    bottomControl: Node,
     topControlWidth: number,
     topControlHeight: number,
     bottomControlWidth: number,
@@ -327,69 +329,18 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
       yMargin: CONTROL_ROW_VERTICAL_MARGIN
     } );
 
-    const children: Node[] = [ topControlRow ];
-    if ( bottomControl ) {
-      children.push( new AlignBox( bottomControl, {
-        xAlign: 'center',
-        yAlign: 'center',
-        preferredWidth: bottomControlWidth,
-        preferredHeight: bottomControlHeight,
-        yMargin: CONTROL_ROW_VERTICAL_MARGIN
-      } ) );
-    }
+    const bottomControlRow = new AlignBox( bottomControl, {
+      xAlign: 'center',
+      yAlign: 'center',
+      preferredWidth: bottomControlWidth,
+      preferredHeight: bottomControlHeight,
+      yMargin: CONTROL_ROW_VERTICAL_MARGIN
+    } );
 
     return new VBox( {
       spacing: CONTROL_SECTION_SPACING,
       align: 'center',
-      children: children
-    } );
-  }
-
-  private static createIntensityControl(
-    intensityProperty: NumberProperty,
-    sourceType: SourceType,
-    intensityLabelStringProperty: TReadOnlyProperty<string>,
-    tandem: PickRequired<PanelOptions, 'tandem'>['tandem']
-  ): Node {
-    const intensitySlider = new HSlider( intensityProperty, intensityProperty.range, {
-      trackSize: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SLIDER_TRACK_HEIGHT ),
-      thumbSize: new Dimension2( 13, 22 ),
-      majorTickLength: 12,
-      tickLabelSpacing: sourceType === 'photons' ? 2 : 6,
-      createAriaValueText: value => percentUnit.getAccessibleString( value * 100, {
-        decimalPlaces: 0,
-        showTrailingZeros: false,
-        showIntegersAsIntegers: true
-      } ),
-      accessibleName: intensityLabelStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleHelpText.createProperty( {
-        sourceType: sourceType
-      } ),
-      tandem: tandem.createTandem( `${sourceType}IntensitySlider` )
-    } );
-
-    intensitySlider.addMajorTick( 0, new Text( '0', { font: TICK_LABEL_FONT } ) );
-    intensitySlider.addMajorTick( 0.5 );
-    intensitySlider.addMajorTick(
-      1,
-      new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
-        font: TICK_LABEL_FONT,
-        maxWidth: 40
-      } )
-    );
-    for ( let i = 1; i <= 4; i++ ) {
-      intensitySlider.addMinorTick( i * 0.1 );
-      intensitySlider.addMinorTick( 0.5 + i * 0.1 );
-    }
-
-    const intensityLabel = new Text( intensityLabelStringProperty, {
-      font: TITLE_FONT,
-      maxWidth: 120
-    } );
-
-    return new VBox( {
-      spacing: sourceType === 'photons' ? PHOTON_INTENSITY_LABEL_SPACING : PARTICLE_INTENSITY_LABEL_SPACING,
-      children: [ intensityLabel, intensitySlider ]
+      children: [ topControlRow, bottomControlRow ]
     } );
   }
 }

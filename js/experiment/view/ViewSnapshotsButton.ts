@@ -17,7 +17,7 @@ import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushBut
 import nullSoundPlayer from '../../../../tambo/js/nullSoundPlayer.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 
@@ -34,6 +34,7 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
     tandem: Tandem
   ) {
 
+    // If the sim was playing when the snapshots dialog opened, resume when it closes.
     let shouldResumeOnDialogClose = false;
     snapshotsDialog.isShowingProperty.link( isShowing => {
       if ( !isShowing && shouldResumeOnDialogClose ) {

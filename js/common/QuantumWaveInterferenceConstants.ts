@@ -6,8 +6,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { numberOfDecimalPlaces } from '../../../dot/js/util/numberOfDecimalPlaces.js';
-
 export default class QuantumWaveInterferenceConstants {
 
   private constructor() {
@@ -27,24 +25,4 @@ export default class QuantumWaveInterferenceConstants {
 
   // Maximum value for the screen brightness slider, shared across all screens
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
-
-  // Maximum number of snapshots that can be saved per scene
-  public static readonly MAX_SNAPSHOTS = 4;
-
-  // Shared layout dimensions for the wave visualization region and detector screen
-  public static readonly WAVE_REGION_WIDTH = 420;
-  public static readonly WAVE_REGION_HEIGHT = 350;
-  public static readonly DETECTOR_SCREEN_WIDTH = 55;
-  public static readonly DETECTOR_SCREEN_OVERLAP = 15;
-
-  // Angle of the detector screen's top/bottom edges above horizontal (degrees). The left and right
-  // edges are vertical; adjusting this single value changes the perspective skew.
-  public static readonly DETECTOR_SCREEN_ANGLE_DEGREES = 20;
-  public static readonly DETECTOR_SCREEN_SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH *
-    Math.tan( QuantumWaveInterferenceConstants.DETECTOR_SCREEN_ANGLE_DEGREES * Math.PI / 180 );
-  public static readonly RIGHT_PANEL_WIDTH = 180;
-
-  public static getRangeDecimalPlaces( min: number, max: number ): number {
-    return Math.max( numberOfDecimalPlaces( min ), numberOfDecimalPlaces( max ) );
-  }
 }

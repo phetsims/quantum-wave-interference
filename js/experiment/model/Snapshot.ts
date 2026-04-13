@@ -25,20 +25,11 @@ type SnapshotData = {
   wavelength: number;
   slitSeparation: number;
   screenDistance: number;
-  screenHalfWidth: number;
   effectiveWavelength: number;
   slitSetting: SlitConfiguration;
   isEmitting: boolean;
   brightness: number;
   intensity: number;
-  slitWidth: number;
-
-  // 1D probability distribution along the detector screen at capture time. Populated only for snapshots
-  // taken in averageIntensity mode from solver-driven scenes (High Intensity screen); empty otherwise.
-  // Consumers that render an intensity-mode snapshot should prefer this captured distribution so the
-  // snapshot image matches the live detector screen; if empty, callers must fall back to a closed-form
-  // pattern computed from the other snapshot metadata (used by the Experiment screen).
-  intensityDistribution: number[];
 };
 
 type SnapshotStateObject = SnapshotData & {
@@ -66,16 +57,11 @@ export default class Snapshot {
   // Physics parameters captured for display in the snapshot dialog labels
   public readonly slitSeparation: number; // mm
   public readonly screenDistance: number; // m
-  public readonly screenHalfWidth: number; // m
   public readonly effectiveWavelength: number; // m
   public readonly slitSetting: SlitConfiguration;
   public readonly isEmitting: boolean;
   public readonly brightness: number;
   public readonly intensity: number;
-  public readonly slitWidth: number; // mm
-
-  // See SnapshotData.intensityDistribution. Empty array means "not captured" (fall back to closed-form).
-  public readonly intensityDistribution: number[];
 
   public constructor( snapshotNumber: number, hits: Vector2[], data: SnapshotData ) {
     this.snapshotNumber = snapshotNumber;
@@ -85,14 +71,11 @@ export default class Snapshot {
     this.wavelength = data.wavelength;
     this.slitSeparation = data.slitSeparation;
     this.screenDistance = data.screenDistance;
-    this.screenHalfWidth = data.screenHalfWidth;
     this.effectiveWavelength = data.effectiveWavelength;
     this.slitSetting = data.slitSetting;
     this.isEmitting = data.isEmitting;
     this.brightness = data.brightness;
     this.intensity = data.intensity;
-    this.slitWidth = data.slitWidth;
-    this.intensityDistribution = data.intensityDistribution;
   }
 
   public static readonly SnapshotIO = new IOType<Snapshot, SnapshotStateObject>( 'SnapshotIO', {
@@ -106,14 +89,11 @@ export default class Snapshot {
       wavelength: NumberIO,
       slitSeparation: NumberIO,
       screenDistance: NumberIO,
-      screenHalfWidth: NumberIO,
       effectiveWavelength: NumberIO,
       slitSetting: StringIO,
       isEmitting: BooleanIO,
       brightness: NumberIO,
-      intensity: NumberIO,
-      slitWidth: NumberIO,
-      intensityDistribution: ArrayIO( NumberIO )
+      intensity: NumberIO
     },
 
     // toStateObject is auto-generated from stateSchema (composite schema with matching field names).

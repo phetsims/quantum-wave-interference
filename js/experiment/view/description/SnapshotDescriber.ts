@@ -9,7 +9,7 @@
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
-import Snapshot from '../../../common/model/Snapshot.js';
+import Snapshot from '../../model/Snapshot.js';
 import BandAnalysis from './BandAnalysis.js';
 
 export default class SnapshotDescriber {

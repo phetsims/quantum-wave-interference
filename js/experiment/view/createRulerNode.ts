@@ -15,17 +15,20 @@ import AccessibleDraggableOptions from '../../../../scenery-phet/js/accessibilit
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import RulerNode from '../../../../scenery-phet/js/RulerNode.js';
 import InteractiveHighlightingNode from '../../../../scenery/js/accessibility/voicing/nodes/InteractiveHighlightingNode.js';
-import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import SceneModel from '../model/SceneModel.js';
+import { type SourceType } from '../model/SourceType.js';
 
-const RULER_LABELED_TICK_INTERVAL_MM = 5;
+const RULER_INTERVAL_COUNT = 8;
+const RULER_CENTER_TICK_INDEX = RULER_INTERVAL_COUNT / 2;
 const RULER_MINOR_TICKS_PER_MAJOR = 4;
 const RULER_HEIGHT = 40;
 
-const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number ): number => {
+const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number, sourceType: SourceType ): number => {
+  if ( sourceType === 'neutrons' || sourceType === 'heliumAtoms' ) {
+    return 1;
+  }
   if ( halfDetectorWidthMM >= 10 ) {
     return 0;
   }
@@ -36,52 +39,36 @@ const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number ): number => {
 };
 
 const createRulerNode = (
-  sceneModel: SceneModel,
+  detectorWidthMM: number,
+  sourceType: SourceType,
   tandem: Tandem
 ): InteractiveHighlightingNode => {
-  const rulerContainer = new Node();
-  let rulerNode: RulerNode | null = null;
+  const majorTickWidth = ExperimentConstants.DETECTOR_SCREEN_WIDTH / RULER_INTERVAL_COUNT;
+  const halfDetectorWidthMM = detectorWidthMM / 2;
+  const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM, sourceType );
+  const majorTickLabels = rangeInclusive( 0, RULER_INTERVAL_COUNT ).map( i => {
+    const signedNormalizedOffset = ( i - RULER_CENTER_TICK_INDEX ) / RULER_CENTER_TICK_INDEX;
+    const labelValue = i === RULER_CENTER_TICK_INDEX ? 0 : halfDetectorWidthMM * signedNormalizedOffset;
+    return toFixed( labelValue, labelDecimalPlaces );
+  } );
 
-  const rebuildRuler = () => {
-    if ( rulerNode ) {
-      rulerContainer.removeChild( rulerNode );
-      rulerNode.dispose();
+  const rulerNode = new RulerNode(
+    ExperimentConstants.DETECTOR_SCREEN_WIDTH,
+    RULER_HEIGHT,
+    majorTickWidth,
+    majorTickLabels,
+    QuantumWaveInterferenceFluent.rulerUnitsStringProperty.value,
+    {
+      minorTicksPerMajorTick: RULER_MINOR_TICKS_PER_MAJOR,
+      unitsMajorTickIndex: RULER_CENTER_TICK_INDEX,
+      majorTickFont: new PhetFont( 12 ),
+      unitsFont: new PhetFont( 12 ),
+      tandem: tandem
     }
-
-    const { minMM, maxMM } = sceneModel.detectorScreenScale;
-    const detectorWidthMM = maxMM - minMM;
-    const halfDetectorWidthMM = detectorWidthMM / 2;
-    const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM );
-    const labeledIntervalCount = detectorWidthMM / RULER_LABELED_TICK_INTERVAL_MM;
-    const centerLabeledTickIndex = labeledIntervalCount / 2;
-    const majorTickWidth = ExperimentConstants.DETECTOR_SCREEN_WIDTH / labeledIntervalCount;
-    const majorTickLabels = rangeInclusive( 0, labeledIntervalCount ).map( i => {
-      const labelValue = minMM + i * RULER_LABELED_TICK_INTERVAL_MM;
-      return toFixed( labelValue, labelDecimalPlaces );
-    } );
-
-    rulerNode = new RulerNode(
-      ExperimentConstants.DETECTOR_SCREEN_WIDTH,
-      RULER_HEIGHT,
-      majorTickWidth,
-      majorTickLabels,
-      QuantumWaveInterferenceFluent.rulerUnitsStringProperty,
-      {
-        minorTicksPerMajorTick: RULER_MINOR_TICKS_PER_MAJOR,
-        unitsMajorTickIndex: centerLabeledTickIndex,
-        majorTickFont: new PhetFont( 12 ),
-        unitsFont: new PhetFont( 12 ),
-        instrumentUnitsLabelText: false,
-        tandem: Tandem.OPT_OUT
-      }
-    );
-    rulerContainer.addChild( rulerNode );
-  };
-
-  sceneModel.detectorScreenScaleIndexProperty.link( rebuildRuler );
+  );
 
   return new InteractiveHighlightingNode( {
-    children: [ rulerContainer ],
+    children: [ rulerNode ],
     cursor: 'pointer',
     opacity: 0.8,
     accessibleName: QuantumWaveInterferenceFluent.rulerStringProperty,
@@ -90,8 +77,7 @@ const createRulerNode = (
     focusable: AccessibleDraggableOptions.focusable,
     ariaRole: AccessibleDraggableOptions.ariaRole,
     accessibleNameBehavior: AccessibleDraggableOptions.accessibleNameBehavior,
-    accessibleRoleDescription: AccessibleDraggableOptions.accessibleRoleDescription,
-    tandem: tandem
+    accessibleRoleDescription: AccessibleDraggableOptions.accessibleRoleDescription
   } );
 };
 

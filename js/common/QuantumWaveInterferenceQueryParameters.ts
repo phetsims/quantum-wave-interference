@@ -13,22 +13,13 @@ import { QueryStringMachine } from '../../../query-string-machine/js/QueryString
 const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
 
   // Selects the wave solver back-end for the High Intensity and Single Particles screens.
-  // 'default' uses analytical on High Intensity and GPU on Single Particles.
-  // 'analytical', 'lattice', or 'gpu' forces that solver on all screens (where available).
+  // 'analytical' uses closed-form Fraunhofer diffraction expressions.
+  // 'lattice' uses a finite-difference time-domain (FDTD) approach.
   waveModel: {
     type: 'string' as const,
-    defaultValue: 'default',
+    defaultValue: 'analytical',
     public: true,
-    isValidValue: ( value: string | null ) => value === 'default' || value === 'analytical' || value === 'lattice' || value === 'gpu'
-  },
-
-  // Visible lattice size (always square) for the GPU Richardson solver, used when ?waveModel=gpu.
-  // The simulation grid is extended slightly beyond this so damping layers live offscreen.
-  gpuLatticeSize: {
-    type: 'number' as const,
-    defaultValue: 256,
-    public: false,
-    isValidValue: ( value: number ) => Number.isInteger( value ) && value >= 64 && value <= 1024
+    isValidValue: ( value: string | null ) => value === 'analytical' || value === 'lattice'
   }
 } );
 

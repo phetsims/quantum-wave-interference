@@ -98,7 +98,6 @@ export default class GraphDescriber {
     sceneModel.screenDistanceProperty.lazyLink( fullUpdate );
     sceneModel.wavelengthProperty.lazyLink( fullUpdate );
     sceneModel.velocityProperty.lazyLink( fullUpdate );
-    sceneModel.detectorScreenScaleIndexProperty.lazyLink( fullUpdate );
     isRulerVisibleProperty.lazyLink( fullUpdate );
 
     // Re-render whenever the Fluent bundle changes (e.g. locale change,

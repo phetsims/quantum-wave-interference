@@ -3,7 +3,7 @@
 /**
  * SnapshotButton is the camera button used to capture the current detector screen pattern as a snapshot.
  * It is disabled once the maximum number of snapshots has been reached, plays a capture sound,
- * and invokes a caller-supplied callback when a snapshot is successfully taken (used to trigger
+ * and invokes a caller-supplied callback when a snapshot is successfully taken (used by DetectorScreenNode to trigger
  * the flash overlay effect).
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -20,11 +20,11 @@ import soundManager from '../../../../tambo/js/soundManager.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import snapshotCaptured_mp3 from '../../../sounds/snapshotCaptured_mp3.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import SceneModel from '../model/SceneModel.js';
 
-const BUTTON_MIN_WIDTH = 36;
+const DETECTOR_ACTION_BUTTON_MIN_WIDTH = 36;
 
 const snapshotCapturedSoundClip = new SoundClip( snapshotCaptured_mp3, {
   initialOutputLevel: 0.4
@@ -33,15 +33,10 @@ soundManager.addSoundGenerator( snapshotCapturedSoundClip );
 
 export default class SnapshotButton extends RectangularPushButton {
 
-  public constructor(
-    numberOfSnapshotsProperty: TReadOnlyProperty<number>,
-    takeSnapshot: () => void,
-    onSnapshotCaptured: () => void,
-    tandem: Tandem
-  ) {
+  public constructor( numberOfSnapshotsProperty: TReadOnlyProperty<number>, takeSnapshot: () => void, onSnapshotCaptured: () => void, tandem: Tandem ) {
 
     const accessibleHelpTextProperty = QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleHelpText.createProperty( {
-      maxSnapshots: QuantumWaveInterferenceConstants.MAX_SNAPSHOTS
+      maxSnapshots: SceneModel.MAX_SNAPSHOTS
     } );
     const accessibleContextResponseProperty = QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleContextResponse.createProperty( {
       snapshotNumber: numberOfSnapshotsProperty
@@ -62,10 +57,10 @@ export default class SnapshotButton extends RectangularPushButton {
         fill: 'black',
         scale: 0.04
       } ),
-      minWidth: BUTTON_MIN_WIDTH,
+      minWidth: DETECTOR_ACTION_BUTTON_MIN_WIDTH,
       enabledProperty: new DerivedProperty(
         [ numberOfSnapshotsProperty ],
-        numberOfSnapshots => numberOfSnapshots < QuantumWaveInterferenceConstants.MAX_SNAPSHOTS,
+        numberOfSnapshots => numberOfSnapshots < SceneModel.MAX_SNAPSHOTS,
         {
           tandem: tandem.createTandem( 'enabledProperty' ),
           phetioValueType: BooleanIO

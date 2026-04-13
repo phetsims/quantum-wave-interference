@@ -1,10 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Keyboard-help dialog content shared by all screens of the Quantum Wave Interference simulation.
+ * Keyboard-help dialog content for the Experiment screen.
  *
  * @author Matthew Blackman (PhET Interactive Simulations)
- * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import BasicActionsKeyboardHelpSection from '../../../../scenery-phet/js/keyboard/help/BasicActionsKeyboardHelpSection.js';
@@ -13,7 +12,7 @@ import SliderControlsKeyboardHelpSection from '../../../../scenery-phet/js/keybo
 import TimeControlsKeyboardHelpSection from '../../../../scenery-phet/js/keyboard/help/TimeControlsKeyboardHelpSection.js';
 import TwoColumnKeyboardHelpContent from '../../../../scenery-phet/js/keyboard/help/TwoColumnKeyboardHelpContent.js';
 
-export default class QWIKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
+export default class ExperimentKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
 
   public constructor() {
     super(

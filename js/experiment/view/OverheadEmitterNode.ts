@@ -36,7 +36,6 @@ const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const LABEL_FONT = new PhetFont( 16 );
 const LABEL_Y = 30;
 const MASS_LABEL_FONT = new PhetFont( 12 );
-const MASS_LABEL_TOP_MARGIN = 8;
 
 const BASE_BODY_WIDTH = 88;
 const BASE_BODY_HEIGHT = 40;
@@ -162,6 +161,7 @@ export default class OverheadEmitterNode extends Node {
 
     const particleMassLabel = new RichText( particleMassLabelStringProperty, {
       font: MASS_LABEL_FONT,
+      left: sourceLabel.left,
       maxWidth: 200
     } );
     this.addChild( particleMassLabel );
@@ -268,7 +268,7 @@ export default class OverheadEmitterNode extends Node {
 
       // Re-color the emitter body and glass highlights to match the new particle type's palette.
       // Uses instanceof to distinguish the body rectangles from the glass sphere overlays.
-      this.particleEmitterNode.children.forEach( child => {
+      this.particleEmitterNode.children.forEach( ( child: Rectangle | ShadedSphereNode | Node ) => {
         if ( child instanceof Rectangle ) {
           child.fill = createEmitterGradient( child.height, palette );
         }
@@ -289,14 +289,15 @@ export default class OverheadEmitterNode extends Node {
 
       const activeEmitter = isPhoton ? this.laserPointerNode : this.particleEmitterNode;
       activeEmitter.top = emitterTop;
-      sourceLabel.centerX = activeEmitter.centerX;
-      particleMassLabel.centerX = activeEmitter.centerX;
-      particleMassLabel.top = activeEmitter.bottom + MASS_LABEL_TOP_MARGIN * OVERHEAD_SCALE;
+      const activeButton = activeEmitter.onOffButton;
+      sourceLabel.centerX = activeButton ?
+                            activeEmitter.localToParentPoint( activeButton.center ).x :
+                            activeEmitter.centerX;
+      particleMassLabel.top = activeEmitter.bottom + 4 * OVERHEAD_SCALE;
       this.maxHitsReachedPanel.centerY = activeEmitter.centerY;
     };
 
     sourceLabel.localBoundsProperty.link( updateEmitterLayout );
-    particleMassLabel.localBoundsProperty.link( updateEmitterLayout );
     model.sceneProperty.link( updateEmitterLayout );
   }
 }

@@ -167,7 +167,7 @@ export default class OverheadBeamNode extends Node {
     const patternProperties = [
       'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'velocityProperty',
       'slitSeparationProperty', 'screenDistanceProperty', 'slitSettingProperty',
-      'detectionModeProperty', 'screenBrightnessProperty', 'detectorScreenScaleIndexProperty'
+      'detectionModeProperty', 'screenBrightnessProperty'
     ] as const;
 
     sceneProperty.link( ( newScene, oldScene ) => {
