@@ -85,6 +85,7 @@ addToMapIfDefined( 'topCovered', 'topCoveredStringProperty' );
 addToMapIfDefined( 'bottomCovered', 'bottomCoveredStringProperty' );
 addToMapIfDefined( 'topDetector', 'topDetectorStringProperty' );
 addToMapIfDefined( 'bottomDetector', 'bottomDetectorStringProperty' );
+addToMapIfDefined( 'autoRepeat', 'autoRepeatStringProperty' );
 addToMapIfDefined( 'erase', 'eraseStringProperty' );
 addToMapIfDefined( 'snapshots', 'snapshotsStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playArea', 'a11y.screenSummary.playAreaStringProperty' );
@@ -265,6 +266,7 @@ const QuantumWaveInterferenceFluent = {
   bottomCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomCoveredStringProperty' ),
   topDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'topDetectorStringProperty' ),
   bottomDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomDetectorStringProperty' ),
+  autoRepeatStringProperty: _.get( QuantumWaveInterferenceStrings, 'autoRepeatStringProperty' ),
   eraseStringProperty: _.get( QuantumWaveInterferenceStrings, 'eraseStringProperty' ),
   snapshotsStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotsStringProperty' ),
   _comment_0: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
