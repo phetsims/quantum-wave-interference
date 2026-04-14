@@ -200,8 +200,11 @@ export default class DetectorScreenTextureRenderer {
 
     for ( let i = incrementalStart; i < hitCount; i++ ) {
       const hit = hits[ i ];
-      const viewX = ( ( hit.x + 1 ) / 2 ) * this.textureWidth;
-      const viewY = ( ( hit.y + 1 ) / 2 ) * this.textureHeight;
+
+      // hit.x is the interference-pattern-dependent position (maps to detector screen height/vertical).
+      // hit.y is the random spread (maps to detector screen width/horizontal).
+      const viewX = ( ( hit.y + 1 ) / 2 ) * this.textureWidth;
+      const viewY = ( ( hit.x + 1 ) / 2 ) * this.textureHeight;
       context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
     }
 
@@ -220,10 +223,11 @@ export default class DetectorScreenTextureRenderer {
     const screenHalfWidth = scene.screenHalfWidth;
     const rgb = getSceneRGB( scene.sourceType, scene.wavelengthProperty.value );
 
-    for ( let x = 0; x < this.textureWidth; x++ ) {
-      const fraction = ( x + 0.5 ) / this.textureWidth;
-      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
-      const intensity = scene.getIntensityAtPosition( physicalX );
+    // Interference pattern varies along the detector screen height, not width.
+    for ( let y = 0; y < this.textureHeight; y++ ) {
+      const fraction = ( y + 0.5 ) / this.textureHeight;
+      const physicalPosition = ( fraction - 0.5 ) * 2 * screenHalfWidth;
+      const intensity = scene.getIntensityAtPosition( physicalPosition );
       const scale = intensity * displayGain;
 
       if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
@@ -234,7 +238,7 @@ export default class DetectorScreenTextureRenderer {
       const g = clamp( roundSymmetric( rgb.g * scale ), 0, 255 );
       const b = clamp( roundSymmetric( rgb.b * scale ), 0, 255 );
       context.fillStyle = `rgb(${r},${g},${b})`;
-      context.fillRect( x, 0, 1, this.textureHeight );
+      context.fillRect( 0, y, this.textureWidth, 1 );
     }
   }
 

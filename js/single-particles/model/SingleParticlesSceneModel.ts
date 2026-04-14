@@ -54,6 +54,8 @@ const MAX_REJECTION_ITERATIONS = 1000;
 const HIT_VERTICAL_EXTENT = 0.95;
 const MAX_HITS = 25000;
 const MAX_SNAPSHOTS = 4;
+const TARGET_VISIBLE_FRINGES = 5;
+const DEFAULT_PHOTON_WAVELENGTH_NM = 650;
 
 // Minimum time between packet emissions (seconds of sim time)
 const MIN_EMISSION_INTERVAL = 0.3;
@@ -122,6 +124,9 @@ export default class SingleParticlesSceneModel extends PhetioObject {
   private readonly regionWidth: number;
   private readonly regionHeight: number;
 
+  // Effective slit-to-screen distance (meters) for interference calculations at the default slit position.
+  private readonly baseEffectiveScreenDistance: number;
+
   // Time since the last packet was emitted, used to enforce minimum emission interval
   private timeSinceLastEmission: number;
 
@@ -182,6 +187,13 @@ export default class SingleParticlesSceneModel extends PhetioObject {
       this.regionHeight = 8e-4;
     }
 
+    // L = screenHalfWidth * d / ( targetFringes * λ ), so ~TARGET_VISIBLE_FRINGES fringes fit per half-screen.
+    const defaultLambda = options.sourceType === 'photons'
+      ? DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9
+      : QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * defaultVelocity );
+    this.baseEffectiveScreenDistance = this.screenHalfWidth * ( defaultSlitSeparation * 1e-3 ) /
+                                      ( TARGET_VISIBLE_FRINGES * defaultLambda );
+
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
@@ -202,7 +214,7 @@ export default class SingleParticlesSceneModel extends PhetioObject {
 
     this.isWaveVisibleProperty = this.isPacketActiveProperty;
 
-    this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? 650 : 0, {
+    this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? DEFAULT_PHOTON_WAVELENGTH_NM : 0, {
       range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),
       units: 'nm',
       tandem: tandem.createTandem( 'wavelengthProperty' )
@@ -371,6 +383,13 @@ export default class SingleParticlesSceneModel extends PhetioObject {
   }
 
   /**
+   * Returns the effective slit-to-detector-screen distance for interference calculations.
+   */
+  private getEffectiveScreenDistance(): number {
+    return ( 1 - this.slitPositionFractionProperty.value ) * 2 * this.baseEffectiveScreenDistance;
+  }
+
+  /**
    * Computes the intensity at a given position on the detector screen.
    */
   public getIntensityAtPosition( positionOnScreen: number ): number {
@@ -385,7 +404,7 @@ export default class SingleParticlesSceneModel extends PhetioObject {
 
     const slitSeparationMeters = this.slitSeparationProperty.value * 1e-3;
     const slitWidthMeters = this.slitWidth * 1e-3;
-    const screenDistanceMeters = this.slitPositionFractionProperty.value * this.regionWidth;
+    const screenDistanceMeters = this.getEffectiveScreenDistance();
 
     const sinTheta = positionOnScreen / Math.sqrt( positionOnScreen * positionOnScreen + screenDistanceMeters * screenDistanceMeters );
 
