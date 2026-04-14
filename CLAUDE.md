@@ -2,14 +2,21 @@
 
 ## Verification
 
-After making changes, run **both** of the following from the totality root:
+After making changes, always run from the totality root:
 
 ```bash
 npm run check
+```
+
+This runs type checking and linting and must pass.
+
+For runtime verification, the default is the headless smoke test:
+
+```bash
 npm run sim-test -- --sim=quantum-wave-interference
 ```
 
-The first runs type checking and linting. The second launches the sim in a headless browser and verifies it starts without errors. Both must pass.
+**Exception:** when you are running under `claude --chrome` (a live browser session), visual verification in that live Chrome session substitutes for the headless `sim-test` smoke test. In that mode, load the sim in the live browser, confirm it starts without console errors, and exercise the changed feature directly instead of running `sim-test`.
 
 ## Using sim-test to Inspect Runtime State
 
@@ -91,8 +98,12 @@ See `doc/implementation-notes.md` for architecture details, component nickname/s
 
 ## Sim Structure
 
-- **Screens**: Experiment (single screen sim when built with `--screens=1`)
-- **Common code**: `js/common/` -- colors, constants, query parameters
+- **Screens**: Experiment, High Intensity, Single Particles (in that order). Use `--screens=N` (1-indexed) to load a specific screen, e.g. `?screens=2` for High Intensity.
+- **Common code**: `js/common/` -- colors, constants, query parameters, and any code shared across two or more screens
 - **Experiment screen**: `js/experiment/` -- model and view
-- **Entry point**: `js/quantum-wave-interference-main.ts`
+- **High Intensity screen**: `js/high-intensity/` -- model and view
+- **Single Particles screen**: `js/single-particles/` -- model and view
+- **Entry point**: `js/quantum-wave-interference-main.ts` -- registers all three screens
 - **Strings**: `quantum-wave-interference-strings_en.yaml`
+
+When refactoring to share code between screens, move the shared code into `js/common/` rather than importing across sibling screen directories. Never modify the Experiment screen's observable behavior when doing so.
