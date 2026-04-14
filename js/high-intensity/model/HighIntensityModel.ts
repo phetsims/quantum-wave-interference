@@ -52,6 +52,7 @@ export default class HighIntensityModel implements TModel {
   public readonly currentScreenBrightnessProperty: DynamicProperty<number, number, HighIntensitySceneModel>;
   public readonly currentWaveDisplayModeProperty: DynamicProperty<WaveDisplayMode, WaveDisplayMode, HighIntensitySceneModel>;
   public readonly currentSlitSeparationProperty: DynamicProperty<number, number, HighIntensitySceneModel>;
+  public readonly currentSlitPositionFractionProperty: DynamicProperty<number, number, HighIntensitySceneModel>;
   public readonly currentPhotonWaveDisplayModeProperty: DynamicProperty<PhotonWaveDisplayMode, PhotonWaveDisplayMode, HighIntensitySceneModel>;
   public readonly currentMatterWaveDisplayModeProperty: DynamicProperty<MatterWaveDisplayMode, MatterWaveDisplayMode, HighIntensitySceneModel>;
 
@@ -143,6 +144,11 @@ export default class HighIntensityModel implements TModel {
 
     this.currentSlitSeparationProperty = new DynamicProperty<number, number, HighIntensitySceneModel>( this.sceneProperty, {
       derive: 'slitSeparationProperty',
+      bidirectional: true
+    } );
+
+    this.currentSlitPositionFractionProperty = new DynamicProperty<number, number, HighIntensitySceneModel>( this.sceneProperty, {
+      derive: 'slitPositionFractionProperty',
       bidirectional: true
     } );
 
