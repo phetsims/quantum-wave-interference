@@ -92,6 +92,7 @@ type StringsType = {
   'bottomCoveredStringProperty': LocalizedStringProperty;
   'topDetectorStringProperty': LocalizedStringProperty;
   'bottomDetectorStringProperty': LocalizedStringProperty;
+  'autoRepeatStringProperty': LocalizedStringProperty;
   'eraseStringProperty': LocalizedStringProperty;
   'snapshotsStringProperty': LocalizedStringProperty;
   'a11y': {

@@ -209,6 +209,9 @@
   "bottomDetector": {
     "value": "Bottom Detector"
   },
+  "autoRepeat": {
+    "value": "Auto-repeat"
+  },
   "erase": {
     "value": "Erase"
   },
