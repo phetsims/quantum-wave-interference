@@ -245,6 +245,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   protected abstract isBottomSlitOpen(): boolean;
 
+  protected isTopSlitDecoherent(): boolean { return false; }
+
+  protected isBottomSlitDecoherent(): boolean { return false; }
+
   public abstract getIntensityAtPosition( positionOnScreen: number ): number;
 
   protected computeDoubleSlitIntensity( positionOnScreen: number ): number {
@@ -292,6 +296,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       barrierFractionX: this.slitPositionFractionProperty.value,
       isTopSlitOpen: this.isTopSlitOpen(),
       isBottomSlitOpen: this.isBottomSlitOpen(),
+      isTopSlitDecoherent: this.isTopSlitDecoherent(),
+      isBottomSlitDecoherent: this.isBottomSlitDecoherent(),
       isSourceOn: this.isEmittingProperty.value,
       regionWidth: this.regionWidth,
       regionHeight: this.regionHeight

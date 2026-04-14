@@ -32,6 +32,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private barrierFractionX = 0.5;
   private isTopSlitOpen = true;
   private isBottomSlitOpen = true;
+  private isTopSlitDecoherent = false;
+  private isBottomSlitDecoherent = false;
   private isSourceOn = false;
   private regionWidth = 1.0;
   private regionHeight = 1.0;
@@ -61,6 +63,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     if ( params.barrierFractionX !== undefined ) { this.barrierFractionX = params.barrierFractionX; }
     if ( params.isTopSlitOpen !== undefined ) { this.isTopSlitOpen = params.isTopSlitOpen; }
     if ( params.isBottomSlitOpen !== undefined ) { this.isBottomSlitOpen = params.isBottomSlitOpen; }
+    if ( params.isTopSlitDecoherent !== undefined ) { this.isTopSlitDecoherent = params.isTopSlitDecoherent; }
+    if ( params.isBottomSlitDecoherent !== undefined ) { this.isBottomSlitDecoherent = params.isBottomSlitDecoherent; }
     if ( params.isSourceOn !== undefined ) { this.isSourceOn = params.isSourceOn; }
     if ( params.regionWidth !== undefined ) { this.regionWidth = params.regionWidth; }
     if ( params.regionHeight !== undefined ) { this.regionHeight = params.regionHeight; }
@@ -206,23 +210,48 @@ export default class AnalyticalWaveSolver implements WaveSolver {
               amplitudeField[ idx + 1 ] = 0;
             }
             else {
-              let totalRe = 0;
-              let totalIm = 0;
+              let coherentRe = 0;
+              let coherentIm = 0;
+              let decoherentIntensity = 0;
 
               if ( this.isTopSlitOpen ) {
                 this.computeSlitContribution( k, omega, barrierX, topSlitY, slitWidth, x, y );
-                totalRe += this.scratchRe;
-                totalIm += this.scratchIm;
+                if ( this.isTopSlitDecoherent ) {
+                  decoherentIntensity += this.scratchRe * this.scratchRe + this.scratchIm * this.scratchIm;
+                }
+                else {
+                  coherentRe += this.scratchRe;
+                  coherentIm += this.scratchIm;
+                }
               }
 
               if ( this.isBottomSlitOpen ) {
                 this.computeSlitContribution( k, omega, barrierX, bottomSlitY, slitWidth, x, y );
-                totalRe += this.scratchRe;
-                totalIm += this.scratchIm;
+                if ( this.isBottomSlitDecoherent ) {
+                  decoherentIntensity += this.scratchRe * this.scratchRe + this.scratchIm * this.scratchIm;
+                }
+                else {
+                  coherentRe += this.scratchRe;
+                  coherentIm += this.scratchIm;
+                }
               }
 
-              amplitudeField[ idx ] = totalRe;
-              amplitudeField[ idx + 1 ] = totalIm;
+              const coherentIntensity = coherentRe * coherentRe + coherentIm * coherentIm;
+              const totalIntensity = coherentIntensity + decoherentIntensity;
+
+              // Scale coherent phasor so |ψ|² = totalIntensity, preserving phase direction
+              if ( coherentIntensity > 1e-20 ) {
+                const scale = Math.sqrt( totalIntensity / coherentIntensity );
+                amplitudeField[ idx ] = coherentRe * scale;
+                amplitudeField[ idx + 1 ] = coherentIm * scale;
+              }
+              else {
+                const mag = Math.sqrt( totalIntensity );
+                const r = Math.sqrt( ( x - barrierX ) * ( x - barrierX ) + y * y );
+                const phase = k * r - omega * this.time;
+                amplitudeField[ idx ] = mag * Math.cos( phase );
+                amplitudeField[ idx + 1 ] = mag * Math.sin( phase );
+              }
             }
           }
         }

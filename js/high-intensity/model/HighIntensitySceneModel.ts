@@ -112,6 +112,14 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     return this.slitConfigurationProperty.value !== 'rightCovered';
   }
 
+  protected override isTopSlitDecoherent(): boolean {
+    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'left' );
+  }
+
+  protected override isBottomSlitDecoherent(): boolean {
+    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'right' );
+  }
+
   public override getIntensityAtPosition( positionOnScreen: number ): number {
     const lambda = this.getEffectiveWavelength();
     if ( lambda === 0 ) {
