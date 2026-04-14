@@ -68,6 +68,7 @@ topCovered:                         Top Covered
 bottomCovered:                      Bottom Covered
 topDetector:                        Top Detector
 bottomDetector:                     Bottom Detector
+autoRepeat:                         Auto-repeat
 erase:                              Erase
 snapshots:                          Snapshots
 
