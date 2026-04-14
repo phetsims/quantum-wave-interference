@@ -39,6 +39,8 @@ import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
 import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
 import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
+import PositionPlotNode from '../../common/view/PositionPlotNode.js';
+import TimePlotNode from '../../common/view/TimePlotNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
@@ -64,6 +66,8 @@ export default class SingleParticlesScreenView extends ScreenView {
 
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: SingleParticlesDetectorScreenNode;
+  private readonly timePlotNode: TimePlotNode;
+  private readonly positionPlotNode: PositionPlotNode;
 
   public constructor( model: SingleParticlesModel, providedOptions: SingleParticlesScreenViewOptions ) {
     const options = optionize<SingleParticlesScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
@@ -375,12 +379,32 @@ export default class SingleParticlesScreenView extends ScreenView {
       tandem: tandem.createTandem( 'stopwatchNode' )
     } );
     this.addChild( stopwatchNode );
+
+    // Time plot tool
+    this.timePlotNode = new TimePlotNode(
+      model.sceneProperty,
+      waveRegionLeft,
+      waveRegionTop,
+      model.isTimePlotVisibleProperty
+    );
+    this.addChild( this.timePlotNode );
+
+    // Position plot tool
+    this.positionPlotNode = new PositionPlotNode(
+      model.sceneProperty,
+      waveRegionLeft,
+      waveRegionTop,
+      model.isPositionPlotVisibleProperty
+    );
+    this.addChild( this.positionPlotNode );
   }
 
   public override step( dt: number ): void {
     super.step( dt );
     this.waveVisualizationNode.step();
     this.detectorScreenNode.step();
+    this.timePlotNode.step( dt );
+    this.positionPlotNode.step();
   }
 
   private createSlitControls( model: SingleParticlesModel, tandem: Tandem ): Node {

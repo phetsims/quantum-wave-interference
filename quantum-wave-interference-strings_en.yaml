@@ -55,6 +55,8 @@ detector:                           Detector
 tapeMeasure:                        Tape Measure
 timePlot:                           Time Plot
 positionPlot:                       Position Plot
+time:                               Time
+position:                           Position
 obstacle:                           Obstacle
 none:                               None
 waveDisplay:                        Wave Display
