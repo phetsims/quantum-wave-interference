@@ -11,8 +11,8 @@
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { linear } from '../../../../dot/js/util/linear.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import { type SourceType } from '../../common/model/SourceType.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import { type SourceType } from '../model/SourceType.js';
 
 // Below this intensity threshold, a band is considered perceptually invisible and is skipped during rendering.
 export const PERCEPTUAL_VISIBILITY_THRESHOLD = 0.004;
