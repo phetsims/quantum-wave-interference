@@ -22,6 +22,8 @@ export type WaveSolverParameters = {
   barrierFractionX?: number;
   isTopSlitOpen?: boolean;
   isBottomSlitOpen?: boolean;
+  isTopSlitDecoherent?: boolean;
+  isBottomSlitDecoherent?: boolean;
   isSourceOn?: boolean;
   regionWidth?: number;
   regionHeight?: number;
