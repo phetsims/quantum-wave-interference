@@ -46,6 +46,8 @@ const SINGLE_OPEN_SLIT_INTENSITY_SCALE = 0.5;
 const HIT_VERTICAL_EXTENT = 0.95;
 const MAX_HITS = 25000;
 const MAX_SNAPSHOTS = 4;
+const TARGET_VISIBLE_FRINGES = 5;
+const DEFAULT_PHOTON_WAVELENGTH_NM = 650;
 
 type SelfOptions = {
   sourceType: SourceType;
@@ -108,6 +110,10 @@ export default class HighIntensitySceneModel extends PhetioObject {
   private readonly regionWidth: number;
   private readonly regionHeight: number;
 
+  // Effective slit-to-screen distance (meters) for interference calculations at the default slit position.
+  // Chosen per source type so that ~5 fringes are visible on the detector screen at default parameters.
+  private readonly baseEffectiveScreenDistance: number;
+
   public constructor( providedOptions: HighIntensitySceneModelOptions ) {
 
     const options = optionize<HighIntensitySceneModelOptions, SelfOptions, PhetioObjectOptions>()( {
@@ -163,6 +169,13 @@ export default class HighIntensitySceneModel extends PhetioObject {
       this.regionHeight = 8e-4;
     }
 
+    // L = screenHalfWidth * d / ( targetFringes * λ ), so ~TARGET_VISIBLE_FRINGES fringes fit per half-screen.
+    const defaultLambda = options.sourceType === 'photons'
+      ? DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9
+      : QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * defaultVelocity );
+    this.baseEffectiveScreenDistance = this.screenHalfWidth * ( defaultSlitSeparation * 1e-3 ) /
+                                      ( TARGET_VISIBLE_FRINGES * defaultLambda );
+
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
     this.hitAccumulator = 0;
@@ -173,7 +186,7 @@ export default class HighIntensitySceneModel extends PhetioObject {
 
     this.isWaveVisibleProperty = this.isEmittingProperty;
 
-    this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? 650 : 0, {
+    this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? DEFAULT_PHOTON_WAVELENGTH_NM : 0, {
       range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),
       units: 'nm',
       tandem: tandem.createTandem( 'wavelengthProperty' )
@@ -344,8 +357,12 @@ export default class HighIntensitySceneModel extends PhetioObject {
     } );
   }
 
+  private getEffectiveScreenDistance(): number {
+    return ( 1 - this.slitPositionFractionProperty.value ) * 2 * this.baseEffectiveScreenDistance;
+  }
+
   /**
-   * Computes the intensity at a given position on the detector screen using the same formula as the Experiment screen.
+   * Computes the intensity at a given position on the detector screen.
    */
   public getIntensityAtPosition( positionOnScreen: number ): number {
     const lambda = this.getEffectiveWavelength();
@@ -359,7 +376,7 @@ export default class HighIntensitySceneModel extends PhetioObject {
 
     const slitSeparationMeters = this.slitSeparationProperty.value * 1e-3;
     const slitWidthMeters = this.slitWidth * 1e-3;
-    const screenDistanceMeters = this.slitPositionFractionProperty.value * this.regionWidth;
+    const screenDistanceMeters = this.getEffectiveScreenDistance();
 
     const sinTheta = positionOnScreen / Math.sqrt( positionOnScreen * positionOnScreen + screenDistanceMeters * screenDistanceMeters );
 
