@@ -3,7 +3,7 @@
 /**
  * HighIntensityScreenView is the top-level view for the High Intensity screen. It contains:
  * - Left controls: source controls panel, scene radio buttons, obstacle combo box, slit controls
- * - Center: wave visualization region (black rectangle) and detector screen (skewed parallelogram)
+ * - Center: emitter source, wave visualization region (black rectangle), detector screen (skewed parallelogram)
  * - Right controls: screen controls (erase/camera/snapshots), detection mode, brightness,
  *   tools checkboxes, wave display combo box, time controls, reset all
  *
@@ -12,6 +12,7 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
@@ -19,6 +20,7 @@ import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.j
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
+import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
@@ -46,6 +48,7 @@ import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityConstants from '../HighIntensityConstants.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
+import HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityDetectorScreenNode from './HighIntensityDetectorScreenNode.js';
 import WaveVisualizationNode from './WaveVisualizationNode.js';
 
@@ -60,7 +63,15 @@ const COMBO_BOX_FONT = new PhetFont( 14 );
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
 
+const EMITTER_BODY_WIDTH = 70;
+const EMITTER_BODY_HEIGHT = 32;
+const EMITTER_NOZZLE_WIDTH = 14;
+const EMITTER_NOZZLE_HEIGHT = 26;
+const EMITTER_BUTTON_RADIUS = 12;
+
 export default class HighIntensityScreenView extends ScreenView {
+
+  private readonly waveVisualizationNode: WaveVisualizationNode;
 
   public constructor( model: HighIntensityModel, providedOptions: HighIntensityScreenViewOptions ) {
     const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
@@ -119,11 +130,62 @@ export default class HighIntensityScreenView extends ScreenView {
     const waveRegionLeft = leftControlsVBox.right + 20;
     const waveRegionTop = Y_MARGIN + 30;
 
-    const waveVisualizationNode = new WaveVisualizationNode( model, {
+    // Emitter source with toggle button
+    const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, HighIntensitySceneModel>( model.sceneProperty, {
+      derive: scene => scene.isEmitterEnabledProperty
+    } );
+
+    const photonEmitterNode = new LaserPointerNode( model.currentIsEmittingProperty, {
+      bodySize: new Dimension2( EMITTER_BODY_WIDTH, EMITTER_BODY_HEIGHT ),
+      nozzleSize: new Dimension2( EMITTER_NOZZLE_WIDTH, EMITTER_NOZZLE_HEIGHT ),
+      buttonOptions: {
+        baseColor: 'red',
+        radius: EMITTER_BUTTON_RADIUS
+      },
+      tandem: tandem.createTandem( 'photonEmitterNode' )
+    } );
+
+    const particleEmitterNode = new LaserPointerNode( model.currentIsEmittingProperty, {
+      bodySize: new Dimension2( EMITTER_BODY_WIDTH, EMITTER_BODY_HEIGHT ),
+      nozzleSize: new Dimension2( EMITTER_NOZZLE_WIDTH, EMITTER_NOZZLE_HEIGHT ),
+      topColor: 'rgb(100, 120, 180)',
+      bottomColor: 'rgb(30, 40, 80)',
+      highlightColor: 'rgb(160, 180, 230)',
+      buttonOptions: {
+        baseColor: 'red',
+        radius: EMITTER_BUTTON_RADIUS
+      },
+      hasGlass: true,
+      visible: false,
+      tandem: tandem.createTandem( 'particleEmitterNode' )
+    } );
+
+    const emitterContainer = new Node( {
+      children: [ photonEmitterNode, particleEmitterNode ]
+    } );
+
+    this.waveVisualizationNode = new WaveVisualizationNode( model, {
       x: waveRegionLeft,
       y: waveRegionTop
     } );
-    this.addChild( waveVisualizationNode );
+    this.addChild( this.waveVisualizationNode );
+
+    // Position the emitter so its nozzle overlaps the left edge of the wave region (added after so it renders on top)
+    emitterContainer.right = waveRegionLeft + 4;
+    emitterContainer.centerY = waveRegionTop + HighIntensityConstants.WAVE_REGION_HEIGHT / 2;
+    this.addChild( emitterContainer );
+
+    // Toggle emitter visibility based on scene, and wire enabled state
+    model.sceneProperty.link( scene => {
+      const isPhoton = scene.sourceType === 'photons';
+      photonEmitterNode.visible = isPhoton;
+      particleEmitterNode.visible = !isPhoton;
+    } );
+
+    isEmitterEnabledProperty.link( isEnabled => {
+      photonEmitterNode.enabled = isEnabled;
+      particleEmitterNode.enabled = isEnabled;
+    } );
 
     const detectorScreenNode = new HighIntensityDetectorScreenNode( model, {
       x: waveRegionLeft + HighIntensityConstants.WAVE_REGION_WIDTH - HighIntensityConstants.DETECTOR_SCREEN_SKEW / 2,
@@ -292,6 +354,11 @@ export default class HighIntensityScreenView extends ScreenView {
       tandem: tandem.createTandem( 'stopwatchNode' )
     } );
     this.addChild( stopwatchNode );
+  }
+
+  public override step( dt: number ): void {
+    super.step( dt );
+    this.waveVisualizationNode.step();
   }
 
   /**
