@@ -18,16 +18,13 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import HighIntensityModel from '../model/HighIntensityModel.js';
-import HighIntensityConstants from '../HighIntensityConstants.js';
-
-const WAVE_REGION_WIDTH = HighIntensityConstants.WAVE_REGION_WIDTH;
-const WAVE_REGION_HEIGHT = HighIntensityConstants.WAVE_REGION_HEIGHT;
+import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
+import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 const MATTER_BASE_R = 200;
 const MATTER_BASE_G = 200;
@@ -50,7 +47,9 @@ const scaleRGB = ( out: number[], baseR: number, baseG: number, baseB: number, b
 
 export default class WaveVisualizationCanvasNode extends CanvasNode {
 
-  private readonly model: HighIntensityModel;
+  private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
+  private readonly viewWidth: number;
+  private readonly viewHeight: number;
   private offscreenCanvas: HTMLCanvasElement | null = null;
   private offscreenContext: CanvasRenderingContext2D | null = null;
   private imageData: ImageData | null = null;
@@ -64,18 +63,20 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
   // Scratch array for scaleRGB output
   private readonly rgb = [ 0, 0, 0 ];
 
-  public constructor( model: HighIntensityModel ) {
+  public constructor( sceneProperty: TReadOnlyProperty<WaveVisualizableScene>, viewWidth: number, viewHeight: number ) {
     super( {
-      canvasBounds: new Bounds2( 0, 0, WAVE_REGION_WIDTH, WAVE_REGION_HEIGHT )
+      canvasBounds: new Bounds2( 0, 0, viewWidth, viewHeight )
     } );
 
-    this.model = model;
+    this.sceneProperty = sceneProperty;
+    this.viewWidth = viewWidth;
+    this.viewHeight = viewHeight;
   }
 
   public paintCanvas( context: CanvasRenderingContext2D ): void {
-    const scene = this.model.sceneProperty.value;
+    const scene = this.sceneProperty.value;
 
-    if ( !scene.isEmittingProperty.value ) {
+    if ( !scene.isWaveVisibleProperty.value ) {
       return;
     }
 
@@ -125,6 +126,11 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
 
     const rgb = this.rgb;
 
+    // Pre-compute negative-phase base colors outside the inner loop
+    const negR = isPhotons ? ( 255 - baseR ) * NEGATIVE_PHOTON_SCALE : NEGATIVE_MATTER_R;
+    const negG = isPhotons ? ( 255 - baseG ) * NEGATIVE_PHOTON_SCALE : NEGATIVE_MATTER_G;
+    const negB = isPhotons ? ( 255 - baseB ) * NEGATIVE_PHOTON_SCALE : NEGATIVE_MATTER_B;
+
     for ( let gy = 0; gy < gridHeight; gy++ ) {
       const rowOffset = gy * gridWidth * 2;
 
@@ -144,7 +150,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
               scaleRGB( rgb, baseR, baseG, baseB, brightness );
             }
             else {
-              scaleRGB( rgb, ( 255 - baseR ) * NEGATIVE_PHOTON_SCALE, ( 255 - baseG ) * NEGATIVE_PHOTON_SCALE, ( 255 - baseB ) * NEGATIVE_PHOTON_SCALE, brightness );
+              scaleRGB( rgb, negR, negG, negB, brightness );
             }
           }
         }
@@ -160,7 +166,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
               scaleRGB( rgb, baseR, baseG, baseB, brightness );
             }
             else {
-              scaleRGB( rgb, NEGATIVE_MATTER_R, NEGATIVE_MATTER_G, NEGATIVE_MATTER_B, brightness );
+              scaleRGB( rgb, negR, negG, negB, brightness );
             }
           }
         }
@@ -175,8 +181,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
 
     this.offscreenContext!.putImageData( this.imageData, 0, 0 );
 
-    // Scale the grid-resolution image up to view dimensions; imageSmoothingEnabled provides bilinear interpolation
     context.imageSmoothingEnabled = true;
-    context.drawImage( this.offscreenCanvas, 0, 0, WAVE_REGION_WIDTH, WAVE_REGION_HEIGHT );
+    context.drawImage( this.offscreenCanvas, 0, 0, this.viewWidth, this.viewHeight );
   }
 }

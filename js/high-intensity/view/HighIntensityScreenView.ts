@@ -56,7 +56,7 @@ import HighIntensityConstants from '../HighIntensityConstants.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
 import HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityDetectorScreenNode from './HighIntensityDetectorScreenNode.js';
-import WaveVisualizationNode from './WaveVisualizationNode.js';
+import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -171,7 +171,7 @@ export default class HighIntensityScreenView extends ScreenView {
       children: [ photonEmitterNode, particleEmitterNode ]
     } );
 
-    this.waveVisualizationNode = new WaveVisualizationNode( model, {
+    this.waveVisualizationNode = new WaveVisualizationNode( model.sceneProperty, {
       x: waveRegionLeft,
       y: waveRegionTop
     } );

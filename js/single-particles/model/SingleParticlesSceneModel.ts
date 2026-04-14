@@ -83,6 +83,9 @@ export default class SingleParticlesSceneModel extends PhetioObject {
   // Whether a wave packet is currently propagating through the visualization region
   public readonly isPacketActiveProperty: BooleanProperty;
 
+  // Whether the wave field should be rendered in the visualization region (satisfies WaveVisualizableScene)
+  public readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
+
   // Detector tool state
   public readonly detectorToolPositionProperty: Vector2Property;
   public readonly detectorToolRadiusProperty: NumberProperty;
@@ -191,6 +194,8 @@ export default class SingleParticlesSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'isPacketActiveProperty' ),
       phetioReadOnly: true
     } );
+
+    this.isWaveVisibleProperty = this.isPacketActiveProperty;
 
     this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? 650 : 0, {
       range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),

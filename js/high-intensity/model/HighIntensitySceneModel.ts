@@ -93,6 +93,9 @@ export default class HighIntensitySceneModel extends PhetioObject {
   // The active wave display mode for this scene, derived from source type
   public readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
 
+  // Whether the wave field should be rendered in the visualization region (satisfies WaveVisualizableScene)
+  public readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
+
   // Snapshots
   public readonly snapshotsProperty: Property<Snapshot[]>;
   public readonly numberOfSnapshotsProperty: TReadOnlyProperty<number>;
@@ -167,6 +170,8 @@ export default class HighIntensitySceneModel extends PhetioObject {
     this.isEmittingProperty = new BooleanProperty( false, {
       tandem: tandem.createTandem( 'isEmittingProperty' )
     } );
+
+    this.isWaveVisibleProperty = this.isEmittingProperty;
 
     this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? 650 : 0, {
       range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),

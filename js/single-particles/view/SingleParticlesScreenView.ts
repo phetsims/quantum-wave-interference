@@ -23,7 +23,6 @@ import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
-import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
@@ -40,6 +39,7 @@ import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
 import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
 import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
+import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import { type SingleParticlesSlitConfiguration } from '../model/SingleParticlesSceneModel.js';
@@ -58,12 +58,11 @@ const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
 const RIGHT_PANEL_WIDTH = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH;
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
-const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const DETECTOR_SCREEN_SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW;
-const CORNER_RADIUS = 10;
 
 export default class SingleParticlesScreenView extends ScreenView {
 
+  private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: SingleParticlesDetectorScreenNode;
 
   public constructor( model: SingleParticlesModel, providedOptions: SingleParticlesScreenViewOptions ) {
@@ -136,13 +135,11 @@ export default class SingleParticlesScreenView extends ScreenView {
     const waveRegionLeft = leftControlsVBox.right + 20;
     const waveRegionTop = Y_MARGIN + 30;
 
-    const waveVisualizationNode = new Rectangle( 0, 0, WAVE_REGION_WIDTH, WAVE_REGION_HEIGHT, {
-      cornerRadius: CORNER_RADIUS,
-      fill: 'black',
+    this.waveVisualizationNode = new WaveVisualizationNode( model.sceneProperty, {
       x: waveRegionLeft,
       y: waveRegionTop
     } );
-    this.addChild( waveVisualizationNode );
+    this.addChild( this.waveVisualizationNode );
 
     // Double slit obstacle visualization overlaid on the wave region
     const slitSeparationRangeProperty = new DerivedProperty(
@@ -382,6 +379,7 @@ export default class SingleParticlesScreenView extends ScreenView {
 
   public override step( dt: number ): void {
     super.step( dt );
+    this.waveVisualizationNode.step();
     this.detectorScreenNode.step();
   }
 
