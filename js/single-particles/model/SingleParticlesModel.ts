@@ -277,7 +277,7 @@ export default class SingleParticlesModel implements TModel {
   }
 
   public takeSnapshot(): void {
-    this.sceneProperty.value.takeSnapshot();
+    this.sceneProperty.value.takeSingleParticlesSnapshot();
   }
 
   public deleteSnapshot( snapshot: Snapshot ): void {
