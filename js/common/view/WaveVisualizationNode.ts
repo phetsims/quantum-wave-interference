@@ -10,8 +10,13 @@
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
+import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import Text from '../../../../scenery/js/nodes/Text.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
@@ -21,6 +26,7 @@ type SelfOptions = EmptySelfOptions;
 type WaveVisualizationNodeOptions = SelfOptions & NodeOptions;
 
 const CORNER_RADIUS = 10;
+const SCALE_MARGIN = 8;
 
 export default class WaveVisualizationNode extends Node {
 
@@ -44,6 +50,43 @@ export default class WaveVisualizationNode extends Node {
     this.waveCanvas = new WaveVisualizationCanvasNode( sceneProperty, width, height );
     this.waveCanvas.clipArea = backgroundRect.getShape()!;
     this.addChild( this.waveCanvas );
+
+    // Distance scale label with bar in the top-left corner (e.g., "1 μm")
+    const scaleFont = new PhetFont( 11 );
+    const scaleLabelColor = 'white';
+    const scaleBarLength = 50;
+    const tickHeight = 6;
+
+    const leftTick = new Line( 0, 0, 0, tickHeight, { stroke: scaleLabelColor, lineWidth: 1 } );
+    const bar = new Line( 0, tickHeight / 2, scaleBarLength, tickHeight / 2, { stroke: scaleLabelColor, lineWidth: 1 } );
+    const rightTick = new Line( 0, 0, 0, tickHeight, { stroke: scaleLabelColor, lineWidth: 1 } );
+    rightTick.left = bar.right;
+
+    const scaleBarNode = new Node( { children: [ leftTick, bar, rightTick ] } );
+
+    const distanceLabel = new Text( QuantumWaveInterferenceFluent.distanceScaleLabelStringProperty, {
+      font: scaleFont,
+      fill: scaleLabelColor,
+      maxWidth: 60
+    } );
+
+    const distanceScaleNode = new HBox( {
+      spacing: 4,
+      children: [ scaleBarNode, distanceLabel ],
+      left: SCALE_MARGIN,
+      top: SCALE_MARGIN
+    } );
+    this.addChild( distanceScaleNode );
+
+    // Time scale label in the bottom-left corner (e.g., "1 fs = 10⁻¹⁵ s")
+    const timeLabel = new Text( QuantumWaveInterferenceFluent.timeScaleLabelStringProperty, {
+      font: scaleFont,
+      fill: scaleLabelColor,
+      maxWidth: 120
+    } );
+    timeLabel.left = SCALE_MARGIN;
+    timeLabel.bottom = height - SCALE_MARGIN;
+    this.addChild( timeLabel );
   }
 
   public step(): void {

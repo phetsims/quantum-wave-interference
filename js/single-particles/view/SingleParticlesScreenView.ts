@@ -8,6 +8,7 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
@@ -44,8 +45,9 @@ import TimePlotNode from '../../common/view/TimePlotNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
-import { type SingleParticlesSlitConfiguration } from '../model/SingleParticlesSceneModel.js';
+import SingleParticlesSceneModel, { type SingleParticlesSlitConfiguration } from '../model/SingleParticlesSceneModel.js';
 import DetectorToolNode from './DetectorToolNode.js';
+import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 import SingleParticlesDetectorScreenNode from './SingleParticlesDetectorScreenNode.js';
 import SingleParticlesSourceControlPanel from './SingleParticlesSourceControlPanel.js';
 
@@ -145,6 +147,24 @@ export default class SingleParticlesScreenView extends ScreenView {
       y: waveRegionTop
     } );
     this.addChild( this.waveVisualizationNode );
+
+    // Emitter source with SingleParticleEmitter.svg image and red toggle button
+    const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SingleParticlesSceneModel>( model.sceneProperty, {
+      derive: scene => scene.isEmitterEnabledProperty
+    } );
+
+    const emitterNode = new SingleParticleEmitterNode(
+      model.currentIsEmittingProperty,
+      isEmitterEnabledProperty,
+      {
+        tandem: tandem.createTandem( 'emitterNode' )
+      }
+    );
+
+    // Position emitter so its right (nozzle) side overlaps the left edge of the wave region
+    emitterNode.right = waveRegionLeft + 4;
+    emitterNode.centerY = waveRegionTop + QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT / 2;
+    this.addChild( emitterNode );
 
     // Double slit obstacle visualization overlaid on the wave region
     const slitSeparationRangeProperty = new DerivedProperty(
