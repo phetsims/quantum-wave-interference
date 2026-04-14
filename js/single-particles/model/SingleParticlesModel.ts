@@ -31,6 +31,7 @@ import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
 import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
+import Snapshot from '../../experiment/model/Snapshot.js';
 import SingleParticlesSceneModel, { type SingleParticlesSlitConfiguration } from './SingleParticlesSceneModel.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -60,6 +61,8 @@ export default class SingleParticlesModel implements TModel {
   public readonly currentPhotonWaveDisplayModeProperty: DynamicProperty<PhotonWaveDisplayMode, PhotonWaveDisplayMode, SingleParticlesSceneModel>;
   public readonly currentMatterWaveDisplayModeProperty: DynamicProperty<MatterWaveDisplayMode, MatterWaveDisplayMode, SingleParticlesSceneModel>;
   public readonly currentIsPacketActiveProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
+  public readonly currentSnapshotsProperty: DynamicProperty<Snapshot[], Snapshot[], SingleParticlesSceneModel>;
+  public readonly currentNumberOfSnapshotsProperty: TReadOnlyProperty<number>;
 
   // Whether the detector tool checkbox is available (only when obstacle is None)
   public readonly isDetectorToolAvailableProperty: TReadOnlyProperty<boolean>;
@@ -175,6 +178,15 @@ export default class SingleParticlesModel implements TModel {
       derive: 'isPacketActiveProperty'
     } );
 
+    this.currentSnapshotsProperty = new DynamicProperty<Snapshot[], Snapshot[], SingleParticlesSceneModel>( this.sceneProperty, {
+      derive: 'snapshotsProperty',
+      bidirectional: true
+    } );
+
+    this.currentNumberOfSnapshotsProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( this.sceneProperty, {
+      derive: 'numberOfSnapshotsProperty'
+    } );
+
     this.isDetectorToolAvailableProperty = new DerivedProperty(
       [ this.currentObstacleTypeProperty ],
       obstacleType => obstacleType === 'none'
@@ -234,6 +246,14 @@ export default class SingleParticlesModel implements TModel {
         range: Stopwatch.ZERO_TO_ALMOST_SIXTY
       }
     } );
+  }
+
+  public takeSnapshot(): void {
+    this.sceneProperty.value.takeSnapshot();
+  }
+
+  public deleteSnapshot( snapshot: Snapshot ): void {
+    this.sceneProperty.value.deleteSnapshot( snapshot );
   }
 
   public reset(): void {
