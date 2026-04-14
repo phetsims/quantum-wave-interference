@@ -47,6 +47,9 @@ import Snapshot from '../../experiment/model/Snapshot.js';
 export const SingleParticlesSlitConfigurationValues = [ 'bothOpen', 'leftCovered', 'rightCovered' ] as const;
 export type SingleParticlesSlitConfiguration = typeof SingleParticlesSlitConfigurationValues[number];
 
+export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as const;
+export type DetectorToolState = typeof DetectorToolStateValues[number];
+
 const MAX_REJECTION_ITERATIONS = 1000;
 const HIT_VERTICAL_EXTENT = 0.95;
 const MAX_HITS = 25000;
@@ -86,9 +89,11 @@ export default class SingleParticlesSceneModel extends PhetioObject {
   // Whether the wave field should be rendered in the visualization region (satisfies WaveVisualizableScene)
   public readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
 
-  // Detector tool state
+  // Detector tool state — position/radius are in normalized coordinates (0–1) within the wave region
   public readonly detectorToolPositionProperty: Vector2Property;
   public readonly detectorToolRadiusProperty: NumberProperty;
+  public readonly detectorToolStateProperty: StringUnionProperty<DetectorToolState>;
+  public readonly detectorToolProbabilityProperty: NumberProperty;
 
   public readonly slitWidth: number;
   public readonly velocityRange: Range;
@@ -277,6 +282,17 @@ export default class SingleParticlesSceneModel extends PhetioObject {
     this.detectorToolRadiusProperty = new NumberProperty( 0.1, {
       range: new Range( 0.03, 0.3 ),
       tandem: tandem.createTandem( 'detectorToolRadiusProperty' )
+    } );
+
+    this.detectorToolStateProperty = new StringUnionProperty<DetectorToolState>( 'ready', {
+      validValues: DetectorToolStateValues,
+      tandem: tandem.createTandem( 'detectorToolStateProperty' )
+    } );
+
+    this.detectorToolProbabilityProperty = new NumberProperty( 0, {
+      range: new Range( 0, 1 ),
+      tandem: tandem.createTandem( 'detectorToolProbabilityProperty' ),
+      phetioReadOnly: true
     } );
 
     this.snapshotsProperty = new Property<Snapshot[]>( [], {
@@ -487,6 +503,14 @@ export default class SingleParticlesSceneModel extends PhetioObject {
       if ( dotRandom.nextDouble() < detectionProbabilityPerStep || this.packetProgress >= 1.0 ) {
         this.detectPacket();
       }
+
+      // Update detector tool probability while packet is active
+      if ( this.isPacketActiveProperty.value && this.detectorToolStateProperty.value === 'ready' ) {
+        this.detectorToolProbabilityProperty.value = this.computeDetectorProbability();
+      }
+    }
+    else {
+      this.detectorToolProbabilityProperty.value = 0;
     }
 
     // Auto-repeat: emit a new packet if conditions are met
@@ -523,6 +547,126 @@ export default class SingleParticlesSceneModel extends PhetioObject {
     }
   }
 
+  /**
+   * Returns the detector circle parameters in grid coordinates.
+   */
+  private getDetectorCircleParams(): { cx: number; cy: number; rSq: number } {
+    const gw = this.waveSolver.gridWidth;
+    const gh = this.waveSolver.gridHeight;
+    return {
+      cx: this.detectorToolPositionProperty.value.x * gw,
+      cy: this.detectorToolPositionProperty.value.y * gh,
+      rSq: ( this.detectorToolRadiusProperty.value * gw ) ** 2
+    };
+  }
+
+  /**
+   * Computes the fraction of total probability density |ψ|² inside the detector tool circle.
+   */
+  public computeDetectorProbability(): number {
+    if ( !this.isPacketActiveProperty.value ) {
+      return 0;
+    }
+
+    const field = this.waveSolver.getAmplitudeField();
+    const gw = this.waveSolver.gridWidth;
+    const gh = this.waveSolver.gridHeight;
+    const { cx, cy, rSq } = this.getDetectorCircleParams();
+
+    let insideSum = 0;
+    let totalSum = 0;
+
+    for ( let iy = 0; iy < gh; iy++ ) {
+      for ( let ix = 0; ix < gw; ix++ ) {
+        const idx = ( iy * gw + ix ) * 2;
+        const re = field[ idx ];
+        const im = field[ idx + 1 ];
+        const prob = re * re + im * im;
+        totalSum += prob;
+
+        const dxGrid = ix - cx;
+        const dyGrid = iy - cy;
+        if ( dxGrid * dxGrid + dyGrid * dyGrid <= rSq ) {
+          insideSum += prob;
+        }
+      }
+    }
+
+    return totalSum > 0 ? insideSum / totalSum : 0;
+  }
+
+  /**
+   * Performs a measurement with the detector tool. The particle is detected with probability
+   * equal to the fraction of |ψ|² inside the circle. If detected, a hit is placed at the
+   * detector position. If not detected, the wave inside the circle is zeroed and renormalized.
+   */
+  public performDetectorMeasurement(): void {
+    if ( !this.isPacketActiveProperty.value || this.detectorToolStateProperty.value !== 'ready' ) {
+      return;
+    }
+
+    const probability = this.computeDetectorProbability();
+    const detected = dotRandom.nextDouble() < probability;
+
+    if ( detected ) {
+      this.detectorToolStateProperty.value = 'detected';
+      this.isPacketActiveProperty.value = false;
+      this.packetProgress = 0;
+    }
+    else {
+      this.detectorToolStateProperty.value = 'notDetected';
+      this.zeroWaveInsideDetector();
+    }
+  }
+
+  /**
+   * Zeros the wave function inside the detector circle and renormalizes the remainder,
+   * implementing the "not detected" measurement projection.
+   */
+  private zeroWaveInsideDetector(): void {
+    const field = this.waveSolver.getAmplitudeField();
+    const gw = this.waveSolver.gridWidth;
+    const gh = this.waveSolver.gridHeight;
+    const { cx, cy, rSq } = this.getDetectorCircleParams();
+
+    let outsideSum = 0;
+
+    for ( let iy = 0; iy < gh; iy++ ) {
+      for ( let ix = 0; ix < gw; ix++ ) {
+        const idx = ( iy * gw + ix ) * 2;
+        const dxGrid = ix - cx;
+        const dyGrid = iy - cy;
+
+        if ( dxGrid * dxGrid + dyGrid * dyGrid <= rSq ) {
+          field[ idx ] = 0;
+          field[ idx + 1 ] = 0;
+        }
+        else {
+          const re = field[ idx ];
+          const im = field[ idx + 1 ];
+          outsideSum += re * re + im * im;
+        }
+      }
+    }
+
+    if ( outsideSum > 0 ) {
+      const scale = 1 / Math.sqrt( outsideSum );
+      for ( let iy = 0; iy < gh; iy++ ) {
+        for ( let ix = 0; ix < gw; ix++ ) {
+          const idx = ( iy * gw + ix ) * 2;
+          field[ idx ] *= scale;
+          field[ idx + 1 ] *= scale;
+        }
+      }
+    }
+
+    this.waveSolver.invalidate();
+  }
+
+  public resetDetectorToolState(): void {
+    this.detectorToolStateProperty.value = 'ready';
+  }
+
   public reset(): void {
     this.isEmittingProperty.reset();
     this.autoRepeatProperty.reset();
@@ -538,6 +682,8 @@ export default class SingleParticlesSceneModel extends PhetioObject {
     this.isPacketActiveProperty.reset();
     this.detectorToolPositionProperty.reset();
     this.detectorToolRadiusProperty.reset();
+    this.detectorToolStateProperty.reset();
+    this.detectorToolProbabilityProperty.reset();
     this.hits.length = 0;
     this.totalHitsProperty.reset();
     this.packetProgress = 0;
