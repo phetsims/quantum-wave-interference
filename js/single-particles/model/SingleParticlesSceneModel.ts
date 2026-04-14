@@ -220,10 +220,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       this.detectorToolProbabilityProperty.value = 0;
     }
 
-    // Auto-repeat: emit a new packet if conditions are met
+    // In non-auto-repeat mode, detectPacket() sets isEmitting to false, preventing re-emission.
     if (
       this.isEmittingProperty.value &&
-      this.autoRepeatProperty.value &&
       !this.isPacketActiveProperty.value &&
       this.timeSinceLastEmission >= MIN_EMISSION_INTERVAL &&
       !this.isMaxHitsReachedProperty.value
