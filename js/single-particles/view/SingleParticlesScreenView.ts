@@ -9,12 +9,15 @@
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
+import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import Orientation from '../../../../phet-core/js/Orientation.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
+import MeasuringTapeNode from '../../../../scenery-phet/js/MeasuringTapeNode.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
@@ -28,6 +31,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import HSlider from '../../../../sun/js/HSlider.js';
+import Slider from '../../../../sun/js/Slider.js';
 import Panel from '../../../../sun/js/Panel.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
@@ -35,6 +39,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
 import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
+import getMeasuringTapeUnits from '../../common/view/getMeasuringTapeUnits.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
@@ -408,7 +413,27 @@ export default class SingleParticlesScreenView extends ScreenView {
       dragBoundsProperty: this.visibleBoundsProperty,
       tandem: tandem.createTandem( 'stopwatchNode' )
     } );
+    model.isStopwatchVisibleProperty.link( isVisible => {
+      model.stopwatch.isVisibleProperty.value = isVisible;
+    } );
     this.addChild( stopwatchNode );
+
+    const measuringTapeUnitsProperty = new Property( getMeasuringTapeUnits( model.sceneProperty.value.sourceType, model.sceneProperty.value.regionWidth ) );
+    model.sceneProperty.link( scene => {
+      measuringTapeUnitsProperty.value = getMeasuringTapeUnits( scene.sourceType, scene.regionWidth );
+    } );
+
+    const measuringTapeNode = new MeasuringTapeNode( measuringTapeUnitsProperty, {
+      textBackgroundColor: 'rgba( 255, 255, 255, 0.6 )',
+      textColor: 'black',
+      basePositionProperty: model.tapeMeasureBasePositionProperty,
+      tipPositionProperty: model.tapeMeasureTipPositionProperty,
+      significantFigures: 2,
+      tandem: tandem.createTandem( 'measuringTapeNode' )
+    } );
+    this.visibleBoundsProperty.link( visibleBounds => measuringTapeNode.setDragBounds( visibleBounds.eroded( 20 ) ) );
+    model.isTapeMeasureVisibleProperty.linkAttribute( measuringTapeNode, 'visible' );
+    this.addChild( measuringTapeNode );
 
     // Time plot tool
     this.timePlotNode = new TimePlotNode(
@@ -460,10 +485,16 @@ export default class SingleParticlesScreenView extends ScreenView {
       maxWidth: 150
     } );
 
-    const slitSeparationSlider = new HSlider(
+    const slitSeparationRangeProperty = new DerivedProperty(
+      [ model.sceneProperty ],
+      scene => scene.slitSeparationRange
+    );
+
+    const slitSeparationSlider = new Slider(
       model.currentSlitSeparationProperty,
-      model.photonsScene.slitSeparationRange,
+      slitSeparationRangeProperty,
       {
+        orientation: Orientation.HORIZONTAL,
         trackSize: new Dimension2( 130, 3 ),
         thumbSize: new Dimension2( 13, 22 ),
         tandem: tandem.createTandem( 'slitSeparationSlider' )
