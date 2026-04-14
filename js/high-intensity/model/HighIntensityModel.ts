@@ -226,7 +226,7 @@ export default class HighIntensityModel implements TModel {
   }
 
   public takeSnapshot(): void {
-    this.sceneProperty.value.takeSnapshot();
+    this.sceneProperty.value.takeHighIntensitySnapshot();
   }
 
   public deleteSnapshot( snapshot: Snapshot ): void {
