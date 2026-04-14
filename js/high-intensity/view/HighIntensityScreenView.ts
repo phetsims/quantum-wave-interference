@@ -40,9 +40,11 @@ import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceC
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { type ObstacleType } from '../../common/model/ObstacleType.js';
+import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import { type MatterWaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
 import { type PhotonWaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
+import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
@@ -171,6 +173,40 @@ export default class HighIntensityScreenView extends ScreenView {
       y: waveRegionTop
     } );
     this.addChild( this.waveVisualizationNode );
+
+    // Double slit obstacle visualization overlaid on the wave region
+    const slitSeparationRangeProperty = new DerivedProperty(
+      [ model.sceneProperty ],
+      scene => scene.slitSeparationRange
+    );
+
+    const doubleSlitNode = new DoubleSlitNode(
+      model.currentObstacleTypeProperty,
+      model.currentSlitPositionFractionProperty,
+      model.currentSlitSeparationProperty,
+      slitSeparationRangeProperty,
+      {
+        isTopSlitCoveredProperty: new DerivedProperty(
+          [ model.currentSlitConfigurationProperty ],
+          slitConfig => slitConfig === 'leftCovered'
+        ),
+        isBottomSlitCoveredProperty: new DerivedProperty(
+          [ model.currentSlitConfigurationProperty ],
+          slitConfig => slitConfig === 'rightCovered'
+        ),
+        isTopSlitDetectorProperty: new DerivedProperty(
+          [ model.currentSlitConfigurationProperty ],
+          slitConfig => hasDetectorOnSide( slitConfig, 'left' )
+        ),
+        isBottomSlitDetectorProperty: new DerivedProperty(
+          [ model.currentSlitConfigurationProperty ],
+          slitConfig => hasDetectorOnSide( slitConfig, 'right' )
+        ),
+        x: waveRegionLeft,
+        y: waveRegionTop
+      }
+    );
+    this.addChild( doubleSlitNode );
 
     // Position the emitter so its nozzle overlaps the left edge of the wave region (added after so it renders on top)
     emitterContainer.right = waveRegionLeft + 4;

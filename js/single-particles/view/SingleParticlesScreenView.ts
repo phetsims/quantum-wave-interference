@@ -34,6 +34,7 @@ import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceC
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
+import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -139,6 +140,32 @@ export default class SingleParticlesScreenView extends ScreenView {
       y: waveRegionTop
     } );
     this.addChild( waveVisualizationNode );
+
+    // Double slit obstacle visualization overlaid on the wave region
+    const slitSeparationRangeProperty = new DerivedProperty(
+      [ model.sceneProperty ],
+      scene => scene.slitSeparationRange
+    );
+
+    const doubleSlitNode = new DoubleSlitNode(
+      model.currentObstacleTypeProperty,
+      model.currentSlitPositionFractionProperty,
+      model.currentSlitSeparationProperty,
+      slitSeparationRangeProperty,
+      {
+        isTopSlitCoveredProperty: new DerivedProperty(
+          [ model.currentSlitConfigurationProperty ],
+          slitConfig => slitConfig === 'leftCovered'
+        ),
+        isBottomSlitCoveredProperty: new DerivedProperty(
+          [ model.currentSlitConfigurationProperty ],
+          slitConfig => slitConfig === 'rightCovered'
+        ),
+        x: waveRegionLeft,
+        y: waveRegionTop
+      }
+    );
+    this.addChild( doubleSlitNode );
 
     this.detectorScreenNode = new SingleParticlesDetectorScreenNode( model, {
       x: waveRegionLeft + WAVE_REGION_WIDTH - DETECTOR_SCREEN_SKEW / 2,

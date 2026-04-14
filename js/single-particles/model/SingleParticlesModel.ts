@@ -56,6 +56,7 @@ export default class SingleParticlesModel implements TModel {
   public readonly currentScreenBrightnessProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
   public readonly currentWaveDisplayModeProperty: DynamicProperty<WaveDisplayMode, WaveDisplayMode, SingleParticlesSceneModel>;
   public readonly currentSlitSeparationProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
+  public readonly currentSlitPositionFractionProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
   public readonly currentPhotonWaveDisplayModeProperty: DynamicProperty<PhotonWaveDisplayMode, PhotonWaveDisplayMode, SingleParticlesSceneModel>;
   public readonly currentMatterWaveDisplayModeProperty: DynamicProperty<MatterWaveDisplayMode, MatterWaveDisplayMode, SingleParticlesSceneModel>;
   public readonly currentIsPacketActiveProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
@@ -152,6 +153,11 @@ export default class SingleParticlesModel implements TModel {
 
     this.currentSlitSeparationProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( this.sceneProperty, {
       derive: 'slitSeparationProperty',
+      bidirectional: true
+    } );
+
+    this.currentSlitPositionFractionProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( this.sceneProperty, {
+      derive: 'slitPositionFractionProperty',
       bidirectional: true
     } );
 
