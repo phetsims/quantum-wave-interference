@@ -18,8 +18,8 @@ import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
-import AnalyticalWaveSolver from '../../common/model/AnalyticalWaveSolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
+import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import { type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
@@ -50,7 +50,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   public constructor( providedOptions: HighIntensitySceneModelOptions ) {
 
-    super( new AnalyticalWaveSolver(), providedOptions );
+    super( createContinuousWaveSolver(), providedOptions );
 
     const tandem = providedOptions.tandem;
 
