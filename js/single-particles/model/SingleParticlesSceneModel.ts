@@ -20,8 +20,9 @@ import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
-import AnalyticalWavePacketSolver, { PACKET_TRAVERSAL_TIME } from '../../common/model/AnalyticalWavePacketSolver.js';
+import { PACKET_TRAVERSAL_TIME } from '../../common/model/AnalyticalWavePacketSolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
+import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 
 export const SingleParticlesSlitConfigurationValues = [ 'bothOpen', 'leftCovered', 'rightCovered' ] as const;
 export type SingleParticlesSlitConfiguration = typeof SingleParticlesSlitConfigurationValues[number];
@@ -63,7 +64,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public constructor( providedOptions: SingleParticlesSceneModelOptions ) {
 
-    super( new AnalyticalWavePacketSolver(), combineOptions<BaseSceneModelOptions>( {
+    super( createWavePacketSolver(), combineOptions<BaseSceneModelOptions>( {
       defaultPhotonWaveDisplayMode: 'timeAveragedIntensity'
     }, providedOptions ) );
 
