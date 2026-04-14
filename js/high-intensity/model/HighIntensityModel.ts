@@ -72,7 +72,8 @@ export default class HighIntensityModel implements TModel {
   public readonly isPositionPlotVisibleProperty: BooleanProperty;
 
   // Tool positions
-  public readonly tapeMeasurePositionProperty: Vector2Property;
+  public readonly tapeMeasureBasePositionProperty: Vector2Property;
+  public readonly tapeMeasureTipPositionProperty: Vector2Property;
   public readonly stopwatch: Stopwatch;
 
   public constructor( providedOptions: HighIntensityModelOptions ) {
@@ -207,8 +208,12 @@ export default class HighIntensityModel implements TModel {
       tandem: toolsTandem.createTandem( 'isPositionPlotVisibleProperty' )
     } );
 
-    this.tapeMeasurePositionProperty = new Vector2Property( new Vector2( 300, 300 ), {
-      tandem: toolsTandem.createTandem( 'tapeMeasurePositionProperty' )
+    this.tapeMeasureBasePositionProperty = new Vector2Property( new Vector2( 300, 300 ), {
+      tandem: toolsTandem.createTandem( 'tapeMeasureBasePositionProperty' )
+    } );
+
+    this.tapeMeasureTipPositionProperty = new Vector2Property( new Vector2( 370, 300 ), {
+      tandem: toolsTandem.createTandem( 'tapeMeasureTipPositionProperty' )
     } );
 
     this.stopwatch = new Stopwatch( {
@@ -243,7 +248,8 @@ export default class HighIntensityModel implements TModel {
     this.isStopwatchVisibleProperty.reset();
     this.isTimePlotVisibleProperty.reset();
     this.isPositionPlotVisibleProperty.reset();
-    this.tapeMeasurePositionProperty.reset();
+    this.tapeMeasureBasePositionProperty.reset();
+    this.tapeMeasureTipPositionProperty.reset();
     this.stopwatch.reset();
 
     // Reset selected scene last so listeners see reset scenes

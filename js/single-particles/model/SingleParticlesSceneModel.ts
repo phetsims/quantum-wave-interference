@@ -121,8 +121,8 @@ export default class SingleParticlesSceneModel extends PhetioObject {
   private readonly particleMass: number;
 
   // Physical dimensions of the wave visualization region (meters), set per source type
-  private readonly regionWidth: number;
-  private readonly regionHeight: number;
+  public readonly regionWidth: number;
+  public readonly regionHeight: number;
 
   // Effective slit-to-screen distance (meters) for interference calculations at the default slit position.
   private readonly baseEffectiveScreenDistance: number;
