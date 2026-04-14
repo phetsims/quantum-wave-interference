@@ -72,6 +72,8 @@ addToMapIfDefined( 'detector', 'detectorStringProperty' );
 addToMapIfDefined( 'tapeMeasure', 'tapeMeasureStringProperty' );
 addToMapIfDefined( 'timePlot', 'timePlotStringProperty' );
 addToMapIfDefined( 'positionPlot', 'positionPlotStringProperty' );
+addToMapIfDefined( 'time', 'timeStringProperty' );
+addToMapIfDefined( 'position', 'positionStringProperty' );
 addToMapIfDefined( 'obstacle', 'obstacleStringProperty' );
 addToMapIfDefined( 'none', 'noneStringProperty' );
 addToMapIfDefined( 'waveDisplay', 'waveDisplayStringProperty' );
@@ -253,6 +255,8 @@ const QuantumWaveInterferenceFluent = {
   tapeMeasureStringProperty: _.get( QuantumWaveInterferenceStrings, 'tapeMeasureStringProperty' ),
   timePlotStringProperty: _.get( QuantumWaveInterferenceStrings, 'timePlotStringProperty' ),
   positionPlotStringProperty: _.get( QuantumWaveInterferenceStrings, 'positionPlotStringProperty' ),
+  timeStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeStringProperty' ),
+  positionStringProperty: _.get( QuantumWaveInterferenceStrings, 'positionStringProperty' ),
   obstacleStringProperty: _.get( QuantumWaveInterferenceStrings, 'obstacleStringProperty' ),
   noneStringProperty: _.get( QuantumWaveInterferenceStrings, 'noneStringProperty' ),
   waveDisplayStringProperty: _.get( QuantumWaveInterferenceStrings, 'waveDisplayStringProperty' ),

@@ -79,6 +79,8 @@ type StringsType = {
   'tapeMeasureStringProperty': LocalizedStringProperty;
   'timePlotStringProperty': LocalizedStringProperty;
   'positionPlotStringProperty': LocalizedStringProperty;
+  'timeStringProperty': LocalizedStringProperty;
+  'positionStringProperty': LocalizedStringProperty;
   'obstacleStringProperty': LocalizedStringProperty;
   'noneStringProperty': LocalizedStringProperty;
   'waveDisplayStringProperty': LocalizedStringProperty;

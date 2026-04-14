@@ -56,6 +56,8 @@ import HighIntensityConstants from '../HighIntensityConstants.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
 import HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityDetectorScreenNode from './HighIntensityDetectorScreenNode.js';
+import PositionPlotNode from '../../common/view/PositionPlotNode.js';
+import TimePlotNode from '../../common/view/TimePlotNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -79,6 +81,8 @@ export default class HighIntensityScreenView extends ScreenView {
 
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: HighIntensityDetectorScreenNode;
+  private readonly timePlotNode: TimePlotNode;
+  private readonly positionPlotNode: PositionPlotNode;
 
   public constructor( model: HighIntensityModel, providedOptions: HighIntensityScreenViewOptions ) {
     const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
@@ -448,12 +452,32 @@ export default class HighIntensityScreenView extends ScreenView {
       tandem: tandem.createTandem( 'stopwatchNode' )
     } );
     this.addChild( stopwatchNode );
+
+    // Time plot tool
+    this.timePlotNode = new TimePlotNode(
+      model.sceneProperty,
+      waveRegionLeft,
+      waveRegionTop,
+      model.isTimePlotVisibleProperty
+    );
+    this.addChild( this.timePlotNode );
+
+    // Position plot tool
+    this.positionPlotNode = new PositionPlotNode(
+      model.sceneProperty,
+      waveRegionLeft,
+      waveRegionTop,
+      model.isPositionPlotVisibleProperty
+    );
+    this.addChild( this.positionPlotNode );
   }
 
   public override step( dt: number ): void {
     super.step( dt );
     this.waveVisualizationNode.step();
     this.detectorScreenNode.step();
+    this.timePlotNode.step( dt );
+    this.positionPlotNode.step();
   }
 
   /**

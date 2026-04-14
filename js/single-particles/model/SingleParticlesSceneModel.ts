@@ -34,7 +34,7 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
-import AnalyticalWaveSolver from '../../common/model/AnalyticalWaveSolver.js';
+import AnalyticalWavePacketSolver, { PACKET_TRAVERSAL_TIME } from '../../common/model/AnalyticalWavePacketSolver.js';
 import { type ObstacleType, ObstacleTypeValues } from '../../common/model/ObstacleType.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues } from '../../common/model/WaveDisplayMode.js';
@@ -294,7 +294,7 @@ export default class SingleParticlesSceneModel extends PhetioObject {
 
     this.nextSnapshotNumber = 1;
 
-    this.waveSolver = new AnalyticalWaveSolver();
+    this.waveSolver = new AnalyticalWavePacketSolver();
     this.syncSolverParameters();
 
     // Clear accumulated data when any parameter that affects the interference pattern changes.
@@ -474,10 +474,8 @@ export default class SingleParticlesSceneModel extends PhetioObject {
     if ( this.isPacketActiveProperty.value ) {
       this.waveSolver.step( dt );
 
-      // Advance the packet across the visualization region
-      const waveSpeed = this.getEffectiveWaveSpeed();
-      const traversalTime = waveSpeed > 0 ? this.regionWidth / waveSpeed : 1;
-      this.packetProgress += dt / traversalTime;
+      // Advance the packet across the visualization region using the visual traversal time
+      this.packetProgress += dt / PACKET_TRAVERSAL_TIME;
 
       // Detection probability increases as the packet approaches the detector screen.
       // Use a probabilistic detection model: the packet is detected with probability proportional

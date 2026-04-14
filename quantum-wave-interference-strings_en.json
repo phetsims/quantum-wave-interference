@@ -170,6 +170,12 @@
   "positionPlot": {
     "value": "Position Plot"
   },
+  "time": {
+    "value": "Time"
+  },
+  "position": {
+    "value": "Position"
+  },
   "obstacle": {
     "value": "Obstacle"
   },
