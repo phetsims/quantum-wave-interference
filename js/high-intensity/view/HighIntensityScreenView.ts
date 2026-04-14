@@ -44,6 +44,7 @@ import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js'
 import { type MatterWaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
 import { type PhotonWaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
+import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityConstants from '../HighIntensityConstants.js';
@@ -193,6 +194,37 @@ export default class HighIntensityScreenView extends ScreenView {
       y: waveRegionTop
     } );
     this.addChild( this.detectorScreenNode );
+
+    // Axis label changes between "Intensity" and "Count" depending on detection mode
+    const graphAxisLabelProperty = new DerivedProperty(
+      [
+        model.currentDetectionModeProperty,
+        QuantumWaveInterferenceFluent.intensityStringProperty,
+        QuantumWaveInterferenceFluent.countStringProperty
+      ],
+      ( detectionMode, intensityString, countString ) =>
+        detectionMode === 'hits' ? countString : intensityString
+    );
+
+    const sidewaysGraphNode = new SidewaysGraphNode( model.sceneProperty, {
+      detectionModeProperty: model.currentDetectionModeProperty,
+      axisLabelStringProperty: graphAxisLabelProperty,
+      tandem: tandem.createTandem( 'sidewaysGraphNode' )
+    } );
+    this.addChild( sidewaysGraphNode );
+
+    // When the graph is visible, shrink the detector screen horizontally to 50% and position the graph beside it
+    model.isIntensityGraphVisibleProperty.link( isVisible => {
+      sidewaysGraphNode.visible = isVisible;
+      if ( isVisible ) {
+        this.detectorScreenNode.setScaleMagnitude( 0.5, 1 );
+        sidewaysGraphNode.left = this.detectorScreenNode.right + 2;
+        sidewaysGraphNode.top = waveRegionTop;
+      }
+      else {
+        this.detectorScreenNode.setScaleMagnitude( 1, 1 );
+      }
+    } );
 
     const eraseButton = new EraserButton( {
       listener: () => model.sceneProperty.value.clearScreen(),

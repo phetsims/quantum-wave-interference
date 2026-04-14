@@ -35,6 +35,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
+import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import { type SingleParticlesSlitConfiguration } from '../model/SingleParticlesSceneModel.js';
@@ -144,6 +145,25 @@ export default class SingleParticlesScreenView extends ScreenView {
       y: waveRegionTop
     } );
     this.addChild( this.detectorScreenNode );
+
+    // Hits graph (always in Hits mode on this screen)
+    const sidewaysGraphNode = new SidewaysGraphNode( model.sceneProperty, {
+      axisLabelStringProperty: QuantumWaveInterferenceFluent.countStringProperty,
+      tandem: tandem.createTandem( 'sidewaysGraphNode' )
+    } );
+    this.addChild( sidewaysGraphNode );
+
+    model.isHitsGraphVisibleProperty.link( isVisible => {
+      sidewaysGraphNode.visible = isVisible;
+      if ( isVisible ) {
+        this.detectorScreenNode.setScaleMagnitude( 0.5, 1 );
+        sidewaysGraphNode.left = this.detectorScreenNode.right + 2;
+        sidewaysGraphNode.top = waveRegionTop;
+      }
+      else {
+        this.detectorScreenNode.setScaleMagnitude( 1, 1 );
+      }
+    } );
 
     // --- Right controls ---
 
