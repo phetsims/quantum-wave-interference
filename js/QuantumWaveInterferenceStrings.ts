@@ -97,6 +97,12 @@ type StringsType = {
   'autoRepeatStringProperty': LocalizedStringProperty;
   'eraseStringProperty': LocalizedStringProperty;
   'snapshotsStringProperty': LocalizedStringProperty;
+  'detectorSizeStringProperty': LocalizedStringProperty;
+  'detectStringProperty': LocalizedStringProperty;
+  'resetDetectorStringProperty': LocalizedStringProperty;
+  'particleDetectedStringProperty': LocalizedStringProperty;
+  'notDetectedStringProperty': LocalizedStringProperty;
+  'detectorPercentPatternStringProperty': LocalizedStringProperty;
   'a11y': {
     'screenSummary': {
       'playAreaStringProperty': LocalizedStringProperty;

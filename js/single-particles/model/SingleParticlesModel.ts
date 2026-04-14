@@ -32,7 +32,7 @@ import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
 import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
 import Snapshot from '../../experiment/model/Snapshot.js';
-import SingleParticlesSceneModel, { type SingleParticlesSlitConfiguration } from './SingleParticlesSceneModel.js';
+import SingleParticlesSceneModel, { type DetectorToolState, type SingleParticlesSlitConfiguration } from './SingleParticlesSceneModel.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -63,6 +63,10 @@ export default class SingleParticlesModel implements TModel {
   public readonly currentIsPacketActiveProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
   public readonly currentSnapshotsProperty: DynamicProperty<Snapshot[], Snapshot[], SingleParticlesSceneModel>;
   public readonly currentNumberOfSnapshotsProperty: TReadOnlyProperty<number>;
+  public readonly currentDetectorToolPositionProperty: DynamicProperty<Vector2, Vector2, SingleParticlesSceneModel>;
+  public readonly currentDetectorToolRadiusProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
+  public readonly currentDetectorToolStateProperty: DynamicProperty<DetectorToolState, DetectorToolState, SingleParticlesSceneModel>;
+  public readonly currentDetectorToolProbabilityProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
 
   // Whether the detector tool checkbox is available (only when obstacle is None)
   public readonly isDetectorToolAvailableProperty: TReadOnlyProperty<boolean>;
@@ -185,6 +189,25 @@ export default class SingleParticlesModel implements TModel {
 
     this.currentNumberOfSnapshotsProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( this.sceneProperty, {
       derive: 'numberOfSnapshotsProperty'
+    } );
+
+    this.currentDetectorToolPositionProperty = new DynamicProperty<Vector2, Vector2, SingleParticlesSceneModel>( this.sceneProperty, {
+      derive: 'detectorToolPositionProperty',
+      bidirectional: true
+    } );
+
+    this.currentDetectorToolRadiusProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( this.sceneProperty, {
+      derive: 'detectorToolRadiusProperty',
+      bidirectional: true
+    } );
+
+    this.currentDetectorToolStateProperty = new DynamicProperty<DetectorToolState, DetectorToolState, SingleParticlesSceneModel>( this.sceneProperty, {
+      derive: 'detectorToolStateProperty',
+      bidirectional: true
+    } );
+
+    this.currentDetectorToolProbabilityProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( this.sceneProperty, {
+      derive: 'detectorToolProbabilityProperty'
     } );
 
     this.isDetectorToolAvailableProperty = new DerivedProperty(

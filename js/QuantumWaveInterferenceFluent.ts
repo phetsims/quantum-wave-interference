@@ -90,6 +90,11 @@ addToMapIfDefined( 'bottomDetector', 'bottomDetectorStringProperty' );
 addToMapIfDefined( 'autoRepeat', 'autoRepeatStringProperty' );
 addToMapIfDefined( 'erase', 'eraseStringProperty' );
 addToMapIfDefined( 'snapshots', 'snapshotsStringProperty' );
+addToMapIfDefined( 'detectorSize', 'detectorSizeStringProperty' );
+addToMapIfDefined( 'detect', 'detectStringProperty' );
+addToMapIfDefined( 'resetDetector', 'resetDetectorStringProperty' );
+addToMapIfDefined( 'particleDetected', 'particleDetectedStringProperty' );
+addToMapIfDefined( 'notDetected', 'notDetectedStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playArea', 'a11y.screenSummary.playAreaStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_controlArea', 'a11y.screenSummary.controlAreaStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_maxHitsReachedHint', 'a11y.screenSummary.maxHitsReachedHintStringProperty' );
@@ -273,6 +278,12 @@ const QuantumWaveInterferenceFluent = {
   autoRepeatStringProperty: _.get( QuantumWaveInterferenceStrings, 'autoRepeatStringProperty' ),
   eraseStringProperty: _.get( QuantumWaveInterferenceStrings, 'eraseStringProperty' ),
   snapshotsStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotsStringProperty' ),
+  detectorSizeStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorSizeStringProperty' ),
+  detectStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectStringProperty' ),
+  resetDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'resetDetectorStringProperty' ),
+  particleDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleDetectedStringProperty' ),
+  notDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'notDetectedStringProperty' ),
+  detectorPercentPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorPercentPatternStringProperty' ),
   _comment_0: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
   a11y: {
     screenSummary: {

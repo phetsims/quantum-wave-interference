@@ -45,6 +45,7 @@ import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import { type SingleParticlesSlitConfiguration } from '../model/SingleParticlesSceneModel.js';
+import DetectorToolNode from './DetectorToolNode.js';
 import SingleParticlesDetectorScreenNode from './SingleParticlesDetectorScreenNode.js';
 import SingleParticlesSourceControlPanel from './SingleParticlesSourceControlPanel.js';
 
@@ -195,6 +196,15 @@ export default class SingleParticlesScreenView extends ScreenView {
         this.detectorScreenNode.setScaleMagnitude( 1, 1 );
       }
     } );
+
+    // Detector tool (draggable circle + panel, Single Particles only)
+    const detectorToolNode = new DetectorToolNode(
+      model,
+      waveRegionLeft,
+      waveRegionTop,
+      tandem.createTandem( 'detectorToolNode' )
+    );
+    this.addChild( detectorToolNode );
 
     // --- Right controls ---
 
