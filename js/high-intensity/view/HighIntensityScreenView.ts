@@ -72,6 +72,7 @@ const EMITTER_BUTTON_RADIUS = 12;
 export default class HighIntensityScreenView extends ScreenView {
 
   private readonly waveVisualizationNode: WaveVisualizationNode;
+  private readonly detectorScreenNode: HighIntensityDetectorScreenNode;
 
   public constructor( model: HighIntensityModel, providedOptions: HighIntensityScreenViewOptions ) {
     const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
@@ -187,11 +188,11 @@ export default class HighIntensityScreenView extends ScreenView {
       particleEmitterNode.enabled = isEnabled;
     } );
 
-    const detectorScreenNode = new HighIntensityDetectorScreenNode( model, {
+    this.detectorScreenNode = new HighIntensityDetectorScreenNode( model, {
       x: waveRegionLeft + HighIntensityConstants.WAVE_REGION_WIDTH - HighIntensityConstants.DETECTOR_SCREEN_SKEW / 2,
       y: waveRegionTop
     } );
-    this.addChild( detectorScreenNode );
+    this.addChild( this.detectorScreenNode );
 
     const eraseButton = new EraserButton( {
       listener: () => model.sceneProperty.value.clearScreen(),
@@ -359,6 +360,7 @@ export default class HighIntensityScreenView extends ScreenView {
   public override step( dt: number ): void {
     super.step( dt );
     this.waveVisualizationNode.step();
+    this.detectorScreenNode.step();
   }
 
   /**

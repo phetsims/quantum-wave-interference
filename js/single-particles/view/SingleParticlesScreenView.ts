@@ -11,7 +11,6 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
-import Shape from '../../../../kite/js/Shape.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
@@ -24,7 +23,6 @@ import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
-import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
@@ -40,6 +38,7 @@ import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import { type SingleParticlesSlitConfiguration } from '../model/SingleParticlesSceneModel.js';
+import SingleParticlesDetectorScreenNode from './SingleParticlesDetectorScreenNode.js';
 import SingleParticlesSourceControlPanel from './SingleParticlesSourceControlPanel.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -56,10 +55,11 @@ const RIGHT_PANEL_WIDTH = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH;
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const DETECTOR_SCREEN_SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW;
-const DETECTOR_SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
 const CORNER_RADIUS = 10;
 
 export default class SingleParticlesScreenView extends ScreenView {
+
+  private readonly detectorScreenNode: SingleParticlesDetectorScreenNode;
 
   public constructor( model: SingleParticlesModel, providedOptions: SingleParticlesScreenViewOptions ) {
     const options = optionize<SingleParticlesScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
@@ -139,21 +139,11 @@ export default class SingleParticlesScreenView extends ScreenView {
     } );
     this.addChild( waveVisualizationNode );
 
-    const detectorScreenShape = new Shape()
-      .moveTo( DETECTOR_SCREEN_SKEW, 0 )
-      .lineTo( DETECTOR_SCREEN_SKEW + DETECTOR_SCREEN_WIDTH, 0 )
-      .lineTo( DETECTOR_SCREEN_WIDTH, WAVE_REGION_HEIGHT )
-      .lineTo( 0, WAVE_REGION_HEIGHT )
-      .close();
-
-    const detectorScreenNode = new Path( detectorScreenShape, {
-      fill: 'black',
-      stroke: '#333',
-      lineWidth: 1,
+    this.detectorScreenNode = new SingleParticlesDetectorScreenNode( model, {
       x: waveRegionLeft + WAVE_REGION_WIDTH - DETECTOR_SCREEN_SKEW / 2,
       y: waveRegionTop
     } );
-    this.addChild( detectorScreenNode );
+    this.addChild( this.detectorScreenNode );
 
     // --- Right controls ---
 
@@ -316,6 +306,11 @@ export default class SingleParticlesScreenView extends ScreenView {
       tandem: tandem.createTandem( 'stopwatchNode' )
     } );
     this.addChild( stopwatchNode );
+  }
+
+  public override step( dt: number ): void {
+    super.step( dt );
+    this.detectorScreenNode.step();
   }
 
   private createSlitControls( model: SingleParticlesModel, tandem: Tandem ): Node {
