@@ -25,4 +25,11 @@ export default class QuantumWaveInterferenceConstants {
 
   // Maximum value for the screen brightness slider, shared across all screens
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
+
+  // Shared layout dimensions for the wave visualization region and detector screen
+  public static readonly WAVE_REGION_WIDTH = 420;
+  public static readonly WAVE_REGION_HEIGHT = 350;
+  public static readonly DETECTOR_SCREEN_SKEW = 15;
+  public static readonly DETECTOR_SCREEN_WIDTH = 30;
+  public static readonly RIGHT_PANEL_WIDTH = 180;
 }
