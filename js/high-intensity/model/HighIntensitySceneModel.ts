@@ -132,11 +132,12 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }
 
     if ( hasAnyDetector( slitConfig ) ) {
-      const slitWidthMeters = this.slitWidth * 1e-3;
-      const screenDistanceMeters = this.getEffectiveScreenDistance();
-      const sinTheta = positionOnScreen / Math.sqrt( positionOnScreen * positionOnScreen + screenDistanceMeters * screenDistanceMeters );
-      const singleSlitArg = Math.PI * slitWidthMeters * sinTheta / lambda;
-      return singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
+      // Detectors destroy coherence: incoherent sum of two independent single-slit patterns
+      const topSlitOffset = -slitSeparationMeters / 2;
+      const bottomSlitOffset = slitSeparationMeters / 2;
+      const topIntensity = this.computeSingleSlitIntensity( positionOnScreen, topSlitOffset );
+      const bottomIntensity = this.computeSingleSlitIntensity( positionOnScreen, bottomSlitOffset );
+      return SINGLE_OPEN_SLIT_INTENSITY_SCALE * ( topIntensity + bottomIntensity );
     }
 
     return this.computeDoubleSlitIntensity( positionOnScreen );
