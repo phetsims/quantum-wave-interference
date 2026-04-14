@@ -97,6 +97,7 @@ export default class HighIntensityScreenView extends ScreenView {
     const tandem = options.tandem;
 
     const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
+      photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
       tandem: tandem.createTandem( 'sourceControlPanel' )
     } );
 
@@ -128,8 +129,13 @@ export default class HighIntensityScreenView extends ScreenView {
       children: [ obstacleTitle, obstacleComboBox ]
     } );
 
+    const slitSeparationRangeProperty = new DerivedProperty(
+      [ model.sceneProperty ],
+      scene => scene.slitSeparationRange
+    );
+
     // Slit controls (visible only when obstacle is double slit)
-    const slitControlsNode = this.createSlitControls( model, tandem );
+    const slitControlsNode = this.createSlitControls( model, slitSeparationRangeProperty, tandem );
     model.currentObstacleTypeProperty.link( obstacleType => {
       slitControlsNode.visible = obstacleType === 'doubleSlit';
     } );
@@ -185,12 +191,6 @@ export default class HighIntensityScreenView extends ScreenView {
       y: waveRegionTop
     } );
     this.addChild( this.waveVisualizationNode );
-
-    // Double slit obstacle visualization overlaid on the wave region
-    const slitSeparationRangeProperty = new DerivedProperty(
-      [ model.sceneProperty ],
-      scene => scene.slitSeparationRange
-    );
 
     const doubleSlitNode = new DoubleSlitNode(
       model.currentObstacleTypeProperty,
@@ -508,7 +508,7 @@ export default class HighIntensityScreenView extends ScreenView {
   /**
    * Creates the slit controls (slit configuration combo box + slit separation slider).
    */
-  private createSlitControls( model: HighIntensityModel, tandem: Tandem ): Node {
+  private createSlitControls( model: HighIntensityModel, slitSeparationRangeProperty: TReadOnlyProperty<Range>, tandem: Tandem ): Node {
     const slitConfigTitle = new Text( QuantumWaveInterferenceFluent.slitConfigurationStringProperty, {
       font: TITLE_FONT,
       maxWidth: 150
@@ -533,11 +533,6 @@ export default class HighIntensityScreenView extends ScreenView {
       font: LABEL_FONT,
       maxWidth: 150
     } );
-
-    const slitSeparationRangeProperty = new DerivedProperty(
-      [ model.sceneProperty ],
-      scene => scene.slitSeparationRange
-    );
 
     const slitSeparationSlider = new Slider(
       model.currentSlitSeparationProperty,

@@ -36,7 +36,6 @@ const LABEL_HEIGHT = 16;
 const GRID_COLUMNS = 2;
 const GRID_HORIZONTAL_SPACING = 12;
 const GRID_VERTICAL_SPACING = 12;
-const GRID_PREFERRED_WIDTH = GRID_COLUMNS * LABEL_WIDTH + ( GRID_COLUMNS - 1 ) * GRID_HORIZONTAL_SPACING + 1;
 const sceneButtonSelectedFillProperty = QuantumWaveInterferenceColors.sceneButtonSelectedFillProperty;
 
 const ICON_SCALE = {
@@ -113,9 +112,11 @@ export default class SceneRadioButtonGroup<T extends HasSourceType> extends Rect
     super( sceneProperty, items, {
       orientation: 'horizontal',
       wrap: true,
+      widthSizable: false,
+      stretch: false,
+      justify: 'center',
       labelAlign: 'bottom',
       labelSpacing: 4,
-      preferredWidth: GRID_PREFERRED_WIDTH,
       spacing: GRID_HORIZONTAL_SPACING,
       lineSpacing: GRID_VERTICAL_SPACING,
       radioButtonOptions: {
@@ -134,5 +135,8 @@ export default class SceneRadioButtonGroup<T extends HasSourceType> extends Rect
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleHelpTextStringProperty,
       tandem: tandem
     } );
+
+    const actualChildWidth = this.children[ 0 ].width;
+    this.preferredWidth = actualChildWidth * GRID_COLUMNS + GRID_HORIZONTAL_SPACING * ( GRID_COLUMNS - 1 );
   }
 }

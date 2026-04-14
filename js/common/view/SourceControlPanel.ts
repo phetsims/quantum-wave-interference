@@ -14,10 +14,11 @@
 
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
@@ -57,7 +58,10 @@ export type SourceControlScene = {
   readonly velocityRange: Range;
 };
 
-type SelfOptions = EmptySelfOptions;
+type SelfOptions = {
+  photonIntensityLabelStringProperty?: TReadOnlyProperty<string>;
+  particleIntensityLabelStringProperty?: TReadOnlyProperty<string>;
+};
 
 type SourceControlPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tandem'>;
 
@@ -74,13 +78,21 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
         yMargin: 10,
         fill: QuantumWaveInterferenceColors.panelFillProperty,
         stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-        minWidth: 160
+        minWidth: 160,
+        photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.sourceIntensityStringProperty,
+        particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty
       },
       providedOptions
     );
 
     const sceneControlContents = scenes.map( scene =>
-      SourceControlPanel.createSceneControlContent( scene, options.tandem )
+      SourceControlPanel.createSceneControlContent(
+        scene,
+        options.tandem,
+        scene.sourceType === 'photons'
+          ? options.photonIntensityLabelStringProperty
+          : options.particleIntensityLabelStringProperty
+      )
     );
 
     const maxTopControlWidth = Math.max( ...sceneControlContents.map( content => content.topControl.width ) );
@@ -120,15 +132,12 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
 
   private static createSceneControlContent(
     scene: SourceControlScene,
-    tandem: PickRequired<PanelOptions, 'tandem'>['tandem']
+    tandem: PickRequired<PanelOptions, 'tandem'>['tandem'],
+    intensityLabelStringProperty: TReadOnlyProperty<string>
   ): {
     topControl: Node;
     bottomControl: Node;
   } {
-    const intensityLabelStringProperty = scene.sourceType === 'photons'
-                                         ? QuantumWaveInterferenceFluent.sourceIntensityStringProperty
-                                         : QuantumWaveInterferenceFluent.emissionRateStringProperty;
-
     const intensitySlider = new HSlider( scene.intensityProperty, scene.intensityProperty.range, {
       trackSize: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SLIDER_TRACK_HEIGHT ),
       thumbSize: new Dimension2( 13, 22 ),
