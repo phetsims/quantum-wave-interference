@@ -10,6 +10,7 @@
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
@@ -25,6 +26,7 @@ import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
+import Snapshot from '../../experiment/model/Snapshot.js';
 import HighIntensitySceneModel from './HighIntensitySceneModel.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -55,6 +57,8 @@ export default class HighIntensityModel implements TModel {
   public readonly currentSlitPositionFractionProperty: DynamicProperty<number, number, HighIntensitySceneModel>;
   public readonly currentPhotonWaveDisplayModeProperty: DynamicProperty<PhotonWaveDisplayMode, PhotonWaveDisplayMode, HighIntensitySceneModel>;
   public readonly currentMatterWaveDisplayModeProperty: DynamicProperty<MatterWaveDisplayMode, MatterWaveDisplayMode, HighIntensitySceneModel>;
+  public readonly currentSnapshotsProperty: DynamicProperty<Snapshot[], Snapshot[], HighIntensitySceneModel>;
+  public readonly currentNumberOfSnapshotsProperty: TReadOnlyProperty<number>;
 
   // Shared state: time controls (global, not scene-specific)
   public readonly isPlayingProperty: BooleanProperty;
@@ -162,6 +166,15 @@ export default class HighIntensityModel implements TModel {
       bidirectional: true
     } );
 
+    this.currentSnapshotsProperty = new DynamicProperty<Snapshot[], Snapshot[], HighIntensitySceneModel>( this.sceneProperty, {
+      derive: 'snapshotsProperty',
+      bidirectional: true
+    } );
+
+    this.currentNumberOfSnapshotsProperty = new DynamicProperty<number, number, HighIntensitySceneModel>( this.sceneProperty, {
+      derive: 'numberOfSnapshotsProperty'
+    } );
+
     this.isPlayingProperty = new BooleanProperty( true, {
       tandem: tandem.createTandem( 'isPlayingProperty' )
     } );
@@ -207,9 +220,14 @@ export default class HighIntensityModel implements TModel {
     } );
   }
 
-  /**
-   * Resets the model.
-   */
+  public takeSnapshot(): void {
+    this.sceneProperty.value.takeSnapshot();
+  }
+
+  public deleteSnapshot( snapshot: Snapshot ): void {
+    this.sceneProperty.value.deleteSnapshot( snapshot );
+  }
+
   public reset(): void {
 
     // Reset all scenes

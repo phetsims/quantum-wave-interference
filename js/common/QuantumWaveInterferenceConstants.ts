@@ -26,6 +26,9 @@ export default class QuantumWaveInterferenceConstants {
   // Maximum value for the screen brightness slider, shared across all screens
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
 
+  // Maximum number of snapshots that can be saved per scene
+  public static readonly MAX_SNAPSHOTS = 4;
+
   // Shared layout dimensions for the wave visualization region and detector screen
   public static readonly WAVE_REGION_WIDTH = 420;
   public static readonly WAVE_REGION_HEIGHT = 350;

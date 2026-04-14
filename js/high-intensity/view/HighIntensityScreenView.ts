@@ -47,7 +47,10 @@ import { type PhotonWaveDisplayMode } from '../../common/model/WaveDisplayMode.j
 import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
+import SnapshotButton from '../../common/view/SnapshotButton.js';
+import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
+import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityConstants from '../HighIntensityConstants.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
@@ -268,9 +271,31 @@ export default class HighIntensityScreenView extends ScreenView {
       tandem: tandem.createTandem( 'eraseButton' )
     } );
 
+    const snapshotsDialog = new SnapshotsDialog(
+      model.currentSnapshotsProperty,
+      snapshot => model.deleteSnapshot( snapshot ),
+      tandem.createTandem( 'snapshotsDialog' )
+    );
+
+    const snapshotButton = new SnapshotButton(
+      model.currentNumberOfSnapshotsProperty,
+      () => model.takeSnapshot(),
+      () => { /* no-op */ },
+      tandem.createTandem( 'snapshotButton' )
+    );
+
+    const viewSnapshotsButton = new ViewSnapshotsButton(
+      model.currentNumberOfSnapshotsProperty,
+      model.isPlayingProperty,
+      snapshotsDialog,
+      snapshotButton.width,
+      eraseButton.height,
+      tandem.createTandem( 'viewSnapshotsButton' )
+    );
+
     const screenButtonsRow = new HBox( {
       spacing: 8,
-      children: [ eraseButton ]
+      children: [ eraseButton, snapshotButton, viewSnapshotsButton ]
     } );
 
     const detectionModeItems: AquaRadioButtonGroupItem<DetectionMode>[] = [

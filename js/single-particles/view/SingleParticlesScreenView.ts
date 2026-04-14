@@ -37,6 +37,9 @@ import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../../co
 import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
+import SnapshotButton from '../../common/view/SnapshotButton.js';
+import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
+import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import { type SingleParticlesSlitConfiguration } from '../model/SingleParticlesSceneModel.js';
@@ -200,9 +203,31 @@ export default class SingleParticlesScreenView extends ScreenView {
       tandem: tandem.createTandem( 'eraseButton' )
     } );
 
+    const snapshotsDialog = new SnapshotsDialog(
+      model.currentSnapshotsProperty,
+      snapshot => model.deleteSnapshot( snapshot ),
+      tandem.createTandem( 'snapshotsDialog' )
+    );
+
+    const snapshotButton = new SnapshotButton(
+      model.currentNumberOfSnapshotsProperty,
+      () => model.takeSnapshot(),
+      () => { /* no-op */ },
+      tandem.createTandem( 'snapshotButton' )
+    );
+
+    const viewSnapshotsButton = new ViewSnapshotsButton(
+      model.currentNumberOfSnapshotsProperty,
+      model.isPlayingProperty,
+      snapshotsDialog,
+      snapshotButton.width,
+      eraseButton.height,
+      tandem.createTandem( 'viewSnapshotsButton' )
+    );
+
     const screenButtonsRow = new HBox( {
       spacing: 8,
-      children: [ eraseButton ]
+      children: [ eraseButton, snapshotButton, viewSnapshotsButton ]
     } );
 
     const brightnessLabel = new Text( QuantumWaveInterferenceFluent.screenBrightnessStringProperty, {
