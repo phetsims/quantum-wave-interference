@@ -218,6 +218,12 @@
   "autoRepeat": {
     "value": "Auto-repeat"
   },
+  "distanceScaleLabel": {
+    "value": "1 μm"
+  },
+  "timeScaleLabel": {
+    "value": "1 fs = 10⁻¹⁵ s"
+  },
   "erase": {
     "value": "Erase"
   },

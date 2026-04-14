@@ -71,6 +71,8 @@ bottomCovered:                      Bottom Covered
 topDetector:                        Top Detector
 bottomDetector:                     Bottom Detector
 autoRepeat:                         Auto-repeat
+distanceScaleLabel:                 '1 μm'
+timeScaleLabel:                     '1 fs = 10⁻¹⁵ s'
 erase:                              Erase
 snapshots:                          Snapshots
 detectorSize:                       Detector Size

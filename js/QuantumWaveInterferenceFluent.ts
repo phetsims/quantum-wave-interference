@@ -88,6 +88,8 @@ addToMapIfDefined( 'bottomCovered', 'bottomCoveredStringProperty' );
 addToMapIfDefined( 'topDetector', 'topDetectorStringProperty' );
 addToMapIfDefined( 'bottomDetector', 'bottomDetectorStringProperty' );
 addToMapIfDefined( 'autoRepeat', 'autoRepeatStringProperty' );
+addToMapIfDefined( 'distanceScaleLabel', 'distanceScaleLabelStringProperty' );
+addToMapIfDefined( 'timeScaleLabel', 'timeScaleLabelStringProperty' );
 addToMapIfDefined( 'erase', 'eraseStringProperty' );
 addToMapIfDefined( 'snapshots', 'snapshotsStringProperty' );
 addToMapIfDefined( 'detectorSize', 'detectorSizeStringProperty' );
@@ -276,6 +278,8 @@ const QuantumWaveInterferenceFluent = {
   topDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'topDetectorStringProperty' ),
   bottomDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomDetectorStringProperty' ),
   autoRepeatStringProperty: _.get( QuantumWaveInterferenceStrings, 'autoRepeatStringProperty' ),
+  distanceScaleLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'distanceScaleLabelStringProperty' ),
+  timeScaleLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeScaleLabelStringProperty' ),
   eraseStringProperty: _.get( QuantumWaveInterferenceStrings, 'eraseStringProperty' ),
   snapshotsStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotsStringProperty' ),
   detectorSizeStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorSizeStringProperty' ),
