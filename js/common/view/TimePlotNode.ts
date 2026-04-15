@@ -73,14 +73,14 @@ export default class TimePlotNode extends Node {
     this.chartNode = new WavePlotChartNode( {
       yAxisLabelStringProperty: yAxisLabelStringProperty,
       xAxisLabelStringProperty: QuantumWaveInterferenceFluent.timeStringProperty,
-      x: waveRegionX + waveRegionWidth + 50,
-      y: waveRegionY + waveRegionHeight - WavePlotChartNode.CHART_HEIGHT - 50
+      x: waveRegionX + waveRegionWidth - WavePlotChartNode.CHART_WIDTH - 30,
+      y: waveRegionY + waveRegionHeight - WavePlotChartNode.CHART_HEIGHT - 40
     } );
     this.addChild( this.chartNode );
 
     this.probePositionProperty = new Vector2Property( new Vector2(
-      waveRegionX + waveRegionWidth / 2,
-      waveRegionY + waveRegionHeight / 2
+      waveRegionX + waveRegionWidth * 0.3,
+      waveRegionY + waveRegionHeight * 0.4
     ) );
 
     this.probeNode = this.createCrosshairProbe();
@@ -94,14 +94,10 @@ export default class TimePlotNode extends Node {
       [ this.chartNode.boundsProperty ],
       bounds => bounds.leftCenter
     );
-    const probeConnectionProperty = new DerivedProperty(
-      [ this.probePositionProperty ],
-      position => position
-    );
     const wireNormal1Property = new Vector2Property( new Vector2( -WIRE_NORMAL_DISTANCE, 0 ) );
     const wireNormal2Property = new Vector2Property( new Vector2( WIRE_NORMAL_DISTANCE, 0 ) );
 
-    const wireNode = new WireNode( chartConnectionProperty, wireNormal1Property, probeConnectionProperty, wireNormal2Property, {
+    const wireNode = new WireNode( chartConnectionProperty, wireNormal1Property, this.probePositionProperty, wireNormal2Property, {
       stroke: QuantumWaveInterferenceColors.graphGridLineColorProperty,
       lineWidth: WIRE_LINE_WIDTH
     } );
@@ -215,5 +211,6 @@ export default class TimePlotNode extends Node {
   public reset(): void {
     this.clearData();
     this.probePositionProperty.reset();
+    this.chartNode.resetPosition();
   }
 }

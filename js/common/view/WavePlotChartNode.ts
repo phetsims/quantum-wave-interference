@@ -10,6 +10,8 @@
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import Vector2 from '../../../../dot/js/Vector2.js';
+import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -39,14 +41,20 @@ type WavePlotChartNodeOptions = SelfOptions & NodeOptions;
 export default class WavePlotChartNode extends Node {
 
   public readonly dataPath: Path;
+  private readonly positionProperty: Vector2Property;
 
   public constructor( providedOptions: WavePlotChartNodeOptions ) {
 
+    const initialX = providedOptions.x ?? 0;
+    const initialY = providedOptions.y ?? 0;
+
     const options = optionize<WavePlotChartNodeOptions, SelfOptions, NodeOptions>()( {
-      cursor: 'pointer'
+      cursor: 'pointer',
+      x: undefined,
+      y: undefined
     }, providedOptions );
 
-    super();
+    super( options );
 
     const chartArea = new Rectangle( 0, 0, CHART_WIDTH, CHART_HEIGHT, {
       fill: 'white',
@@ -115,8 +123,18 @@ export default class WavePlotChartNode extends Node {
     );
 
     this.children = [ shadedBackground, chartPanel ];
-    this.addInputListener( new DragListener( { translateNode: true } ) );
-    this.mutate( options );
+
+    this.positionProperty = new Vector2Property( new Vector2( initialX, initialY ) );
+    this.positionProperty.link( position => {
+      this.x = position.x;
+      this.y = position.y;
+    } );
+
+    this.addInputListener( new DragListener( { positionProperty: this.positionProperty } ) );
+  }
+
+  public resetPosition(): void {
+    this.positionProperty.reset();
   }
 
   public static readonly CHART_WIDTH = CHART_WIDTH;
