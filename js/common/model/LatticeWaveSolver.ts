@@ -70,6 +70,7 @@ export default class LatticeWaveSolver implements WaveSolver {
   private readonly amplitudeField: Float64Array;
   private readonly detectorDistribution: Float64Array;
   private dirty = true;
+  private waveFieldActive = false;
 
   private latticeTime = 0;
 
@@ -108,7 +109,11 @@ export default class LatticeWaveSolver implements WaveSolver {
   }
 
   public step( dt: number ): void {
-    if ( !this.isSourceOn ) {
+    if ( this.isSourceOn ) {
+      this.waveFieldActive = true;
+    }
+
+    if ( !this.isSourceOn && !this.waveFieldActive ) {
       return;
     }
 
@@ -119,6 +124,19 @@ export default class LatticeWaveSolver implements WaveSolver {
 
     for ( let s = 0; s < STEPS_PER_FRAME; s++ ) {
       this.propagateOneStep();
+    }
+
+    // Check if the field has decayed to zero after the source turned off
+    if ( !this.isSourceOn && this.waveFieldActive ) {
+      let maxMag = 0;
+      for ( let i = 0; i < this.previous.length; i++ ) {
+        const v = Math.abs( this.previous[ i ] );
+        if ( v > maxMag ) { maxMag = v; }
+        if ( v > 1e-10 ) { break; }
+      }
+      if ( maxMag <= 1e-10 ) {
+        this.waveFieldActive = false;
+      }
     }
 
     this.dirty = true;
@@ -152,10 +170,15 @@ export default class LatticeWaveSolver implements WaveSolver {
     this.detectorDistribution.fill( 0 );
     this.barrierDirty = true;
     this.dirty = true;
+    this.waveFieldActive = false;
   }
 
   public invalidate(): void {
     this.dirty = true;
+  }
+
+  public hasWavesInRegion(): boolean {
+    return this.isSourceOn || this.waveFieldActive;
   }
 
   private propagateOneStep(): void {

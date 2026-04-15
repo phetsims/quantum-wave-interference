@@ -110,6 +110,10 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.dirty = true;
   }
 
+  public hasWavesInRegion(): boolean {
+    return this.isSourceOn;
+  }
+
   private computeField(): void {
     const { gridWidth, gridHeight, amplitudeField, regionWidth, regionHeight, envYCache } = this;
 

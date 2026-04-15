@@ -72,7 +72,9 @@ export default class DetectorScreenTextureRenderer {
       this.cacheMap.set( scene, cache );
     }
 
-    if ( cache.dirty ) {
+    // In intensity mode, the solver distribution updates every frame, so always re-render
+    const detectionMode = scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
+    if ( cache.dirty || detectionMode === 'averageIntensity' ) {
       this.renderTexture( cache, scene );
     }
 
@@ -216,10 +218,6 @@ export default class DetectorScreenTextureRenderer {
     scene: DetectorScreenSceneLike,
     displayGain: number
   ): void {
-    if ( !scene.isEmittingProperty.value ) {
-      return;
-    }
-
     const rgb = getSceneRGB( scene.sourceType, scene.wavelengthProperty.value );
     const distribution = scene.waveSolver.getDetectorProbabilityDistribution();
     const solverHeight = scene.waveSolver.gridHeight;

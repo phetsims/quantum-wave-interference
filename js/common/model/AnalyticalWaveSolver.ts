@@ -45,6 +45,9 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private regionHeight = 1.0;
   private time = 0;
 
+  // Tracks when the source was turned off so waves can continue propagating past the trailing edge
+  private sourceOffTime: number | null = null;
+
   private readonly amplitudeField: Float64Array;
   private readonly detectorDistribution: Float64Array;
   private dirty = true;
@@ -70,7 +73,15 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     if ( params.isBottomSlitOpen !== undefined ) { this.isBottomSlitOpen = params.isBottomSlitOpen; }
     if ( params.isTopSlitDecoherent !== undefined ) { this.isTopSlitDecoherent = params.isTopSlitDecoherent; }
     if ( params.isBottomSlitDecoherent !== undefined ) { this.isBottomSlitDecoherent = params.isBottomSlitDecoherent; }
-    if ( params.isSourceOn !== undefined ) { this.isSourceOn = params.isSourceOn; }
+    if ( params.isSourceOn !== undefined ) {
+      if ( this.isSourceOn && !params.isSourceOn ) {
+        this.sourceOffTime = this.time;
+      }
+      else if ( !this.isSourceOn && params.isSourceOn ) {
+        this.sourceOffTime = null;
+      }
+      this.isSourceOn = params.isSourceOn;
+    }
     if ( params.regionWidth !== undefined ) { this.regionWidth = params.regionWidth; }
     if ( params.regionHeight !== undefined ) { this.regionHeight = params.regionHeight; }
     this.dirty = true;
@@ -100,6 +111,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
   public reset(): void {
     this.time = 0;
+    this.sourceOffTime = null;
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
     this.dirty = true;
@@ -109,10 +121,26 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.dirty = true;
   }
 
+  /**
+   * Returns true when waves have fully exited the region after the source was turned off.
+   */
+  public hasWavesInRegion(): boolean {
+    if ( this.isSourceOn ) {
+      return true;
+    }
+    if ( this.sourceOffTime === null ) {
+      return false;
+    }
+    const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
+    const trailingEdge = displaySpeed * ( this.time - this.sourceOffTime );
+    return trailingEdge < this.regionWidth;
+  }
+
   private computeField(): void {
     const { amplitudeField } = this;
 
-    if ( !this.isSourceOn ) {
+    // If the source was never turned on, or all waves have exited the region, zero everything
+    if ( !this.isSourceOn && !this.hasWavesInRegion() ) {
       amplitudeField.fill( 0 );
       this.detectorDistribution.fill( 0 );
       return;
@@ -123,16 +151,22 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
     const displayOmega = displayK * displaySpeed;
     const displayWavefrontX = displaySpeed * this.time;
+
+    // Trailing edge: position of the last emitted wavefront's left boundary
+    const trailingEdgeX = this.sourceOffTime !== null
+                          ? displaySpeed * ( this.time - this.sourceOffTime )
+                          : 0;
+
     const dx = this.regionWidth / this.gridWidth;
     const dy = this.regionHeight / this.gridHeight;
 
     if ( this.obstacleType === 'none' ) {
-      this.computePlaneWaveField( displayK, displayOmega, displayWavefrontX, dx );
+      this.computePlaneWaveField( displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx );
     }
     else {
       const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, displayLambda );
       this.computeDoubleSlitField(
-        displayK, displayOmega, displayWavefrontX, dx, dy,
+        displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx, dy,
         displaySlitSep, displaySlitWidth, displayLambda
       );
     }
@@ -140,13 +174,13 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.computeDetectorDistribution( displayLambda, displaySpeed );
   }
 
-  private computePlaneWaveField( k: number, omega: number, wavefrontX: number, dx: number ): void {
+  private computePlaneWaveField( k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number ): void {
     const { gridWidth, gridHeight, amplitudeField } = this;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = ix * dx;
 
-      if ( x > wavefrontX ) {
+      if ( x > wavefrontX || x < trailingEdgeX ) {
         for ( let iy = 0; iy < gridHeight; iy++ ) {
           const idx = ( iy * gridWidth + ix ) * 2;
           amplitudeField[ idx ] = 0;
@@ -168,7 +202,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   }
 
   private computeDoubleSlitField(
-    k: number, omega: number, wavefrontX: number, dx: number, dy: number,
+    k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number, dy: number,
     displaySlitSep: number, displaySlitWidth: number, displayLambda: number
   ): void {
     const { gridWidth, gridHeight, amplitudeField } = this;
@@ -186,7 +220,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         const y = ( iy - gridHeight / 2 ) * dy;
 
         if ( ix < barrierIx ) {
-          if ( x > wavefrontX ) {
+          if ( x > wavefrontX || x < trailingEdgeX ) {
             amplitudeField[ idx ] = 0;
             amplitudeField[ idx + 1 ] = 0;
           }
@@ -200,7 +234,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
           const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitY ) < displaySlitWidth / 2;
           const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < displaySlitWidth / 2;
 
-          if ( ( inTopSlit || inBottomSlit ) && barrierX <= wavefrontX ) {
+          if ( ( inTopSlit || inBottomSlit ) && barrierX <= wavefrontX && trailingEdgeX <= barrierX ) {
             const phase = k * barrierX - omega * this.time;
             amplitudeField[ idx ] = Math.cos( phase );
             amplitudeField[ idx + 1 ] = Math.sin( phase );
@@ -219,7 +253,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             const distFromBarrier = x - barrierX;
             const sphericalFrontDist = wavefrontX - barrierX;
 
-            if ( sphericalFrontDist < distFromBarrier ) {
+            // Trailing spherical front: how far the trailing edge has propagated past the barrier
+            const trailingPastBarrier = trailingEdgeX > barrierX ? trailingEdgeX - barrierX : 0;
+
+            if ( sphericalFrontDist < distFromBarrier || distFromBarrier < trailingPastBarrier ) {
               amplitudeField[ idx ] = 0;
               amplitudeField[ idx + 1 ] = 0;
             }
@@ -305,10 +342,14 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
     const displayWavefrontX = displaySpeed * this.time;
 
+    const trailingEdgeX = this.sourceOffTime !== null
+                          ? displaySpeed * ( this.time - this.sourceOffTime )
+                          : 0;
+
     if ( this.obstacleType === 'none' ) {
 
-      // Plane wave: uniform illumination once the wavefront reaches the screen
-      const illuminated = displayWavefrontX >= this.regionWidth ? 1 : 0;
+      // Plane wave: uniform illumination while the wavefront is at the screen and trailing edge hasn't passed
+      const illuminated = displayWavefrontX >= this.regionWidth && trailingEdgeX < this.regionWidth ? 1 : 0;
       detectorDistribution.fill( illuminated );
       return;
     }
@@ -317,6 +358,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const barrierX = this.barrierFractionX * this.regionWidth;
     const L = this.regionWidth - barrierX;
     const wavefrontPastBarrier = displayWavefrontX - barrierX;
+    const trailingPastBarrier = trailingEdgeX > barrierX ? trailingEdgeX - barrierX : 0;
     const dy = this.regionHeight / gridHeight;
 
     let maxProb = 0;
@@ -326,7 +368,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
       // Check if the spherical wavefront from the nearest open slit has reached this screen position
       const distToScreen = Math.sqrt( L * L + posOnScreen * posOnScreen );
-      if ( wavefrontPastBarrier < distToScreen ) {
+      if ( wavefrontPastBarrier < distToScreen || trailingPastBarrier >= distToScreen ) {
         detectorDistribution[ iy ] = 0;
         continue;
       }
