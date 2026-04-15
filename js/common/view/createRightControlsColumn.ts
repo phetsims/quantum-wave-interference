@@ -64,6 +64,9 @@ type CreateRightControlsColumnOptions = {
 
   // Callback for the erase button
   clearScreen: () => void;
+
+  // Callback triggered after a snapshot is successfully captured (used to trigger the detector screen flash)
+  onSnapshotCaptured?: () => void;
 };
 
 type RightControlsColumnResult = {
@@ -96,7 +99,7 @@ const createRightControlsColumn = (
   const snapshotButton = new SnapshotButton(
     model.currentNumberOfSnapshotsProperty,
     () => model.takeSnapshot(),
-    () => { /* no-op */ },
+    () => { options.onSnapshotCaptured?.(); },
     tandem.createTandem( 'snapshotButton' )
   );
 

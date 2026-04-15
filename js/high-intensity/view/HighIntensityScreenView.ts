@@ -378,7 +378,8 @@ export default class HighIntensityScreenView extends ScreenView {
         timePlotCheckbox,
         positionPlotCheckbox
       ],
-      clearScreen: () => model.sceneProperty.value.clearScreen()
+      clearScreen: () => model.sceneProperty.value.clearScreen(),
+      onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash()
     } );
 
     rightControlsVBox.right = this.layoutBounds.maxX - X_MARGIN;
