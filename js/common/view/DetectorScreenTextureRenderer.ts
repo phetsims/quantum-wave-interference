@@ -23,6 +23,7 @@ import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, 
 
 const SUPERSAMPLE = 2;
 const MAX_RENDERED_HITS = 10000;
+const HIT_SIZE_SCALE = 1.4;
 
 export type DetectorScreenSceneLike = {
   hits: Vector2[];
@@ -61,8 +62,8 @@ export default class DetectorScreenTextureRenderer {
   public constructor( screenWidth: number, screenHeight: number ) {
     this.textureWidth = screenWidth * SUPERSAMPLE;
     this.textureHeight = screenHeight * SUPERSAMPLE;
-    this.hitCoreRadius = BASE_HIT_CORE_RADIUS * SUPERSAMPLE;
-    this.hitGlowRadius = BASE_HIT_GLOW_RADIUS * SUPERSAMPLE;
+    this.hitCoreRadius = BASE_HIT_CORE_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
+    this.hitGlowRadius = BASE_HIT_GLOW_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
   }
 
   public getTexture( scene: DetectorScreenSceneLike ): HTMLCanvasElement {
@@ -156,7 +157,8 @@ export default class DetectorScreenTextureRenderer {
     }
     else {
       context.clearRect( 0, 0, this.textureWidth, this.textureHeight );
-      const intensityDisplayGain = getIntensityDisplayGain( currentBrightness, currentIntensity );
+      const normalizedBrightness = currentBrightness / scene.screenBrightnessProperty.range.max;
+      const intensityDisplayGain = getIntensityDisplayGain( normalizedBrightness, currentIntensity );
       this.paintIntensity( context, scene, intensityDisplayGain );
     }
 

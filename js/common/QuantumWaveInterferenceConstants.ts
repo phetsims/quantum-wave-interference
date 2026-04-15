@@ -32,7 +32,7 @@ export default class QuantumWaveInterferenceConstants {
   // Shared layout dimensions for the wave visualization region and detector screen
   public static readonly WAVE_REGION_WIDTH = 420;
   public static readonly WAVE_REGION_HEIGHT = 350;
-  public static readonly DETECTOR_SCREEN_SKEW = 15;
-  public static readonly DETECTOR_SCREEN_WIDTH = 30;
+  public static readonly DETECTOR_SCREEN_SKEW = 18;
+  public static readonly DETECTOR_SCREEN_WIDTH = 40;
   public static readonly RIGHT_PANEL_WIDTH = 180;
 }
