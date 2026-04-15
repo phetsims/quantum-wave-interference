@@ -10,30 +10,19 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
-import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
-import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
-import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
-import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
-import Panel from '../../../../sun/js/Panel.js';
-import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import createBrightnessControl from '../../common/view/createBrightnessControl.js';
 import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
 import createObstacleControlsRow from '../../common/view/createObstacleControlsRow.js';
+import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
-import createWaveDisplaySection from '../../common/view/createWaveDisplaySection.js';
 import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
-import SnapshotButton from '../../common/view/SnapshotButton.js';
-import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
-import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
@@ -54,7 +43,6 @@ const COMBO_BOX_FONT = new PhetFont( 14 );
 
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
-const RIGHT_PANEL_WIDTH = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH;
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const DETECTOR_SCREEN_SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW;
 
@@ -206,54 +194,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     );
     this.addChild( detectorToolNode );
 
-
-    const eraseButton = new EraserButton( {
-      listener: () => model.sceneProperty.value.clearScreen(),
-      iconWidth: 20,
-      tandem: tandem.createTandem( 'eraseButton' )
-    } );
-
-    const snapshotsDialog = new SnapshotsDialog(
-      model.currentSnapshotsProperty,
-      snapshot => model.deleteSnapshot( snapshot ),
-      tandem.createTandem( 'snapshotsDialog' )
-    );
-
-    const snapshotButton = new SnapshotButton(
-      model.currentNumberOfSnapshotsProperty,
-      () => model.takeSnapshot(),
-      () => { /* no-op */ },
-      tandem.createTandem( 'snapshotButton' )
-    );
-
-    const viewSnapshotsButton = new ViewSnapshotsButton(
-      model.currentNumberOfSnapshotsProperty,
-      model.isPlayingProperty,
-      snapshotsDialog,
-      snapshotButton.width,
-      eraseButton.height,
-      tandem.createTandem( 'viewSnapshotsButton' )
-    );
-
-    const screenButtonsRow = new HBox( {
-      spacing: 8,
-      children: [ eraseButton, snapshotButton, viewSnapshotsButton ]
-    } );
-
-    const brightnessControl = createBrightnessControl( model.currentScreenBrightnessProperty, tandem );
-
-    const screenControlsPanel = new Panel( new VBox( {
-      spacing: 12,
-      align: 'left',
-      children: [ screenButtonsRow, brightnessControl ]
-    } ), {
-      fill: QuantumWaveInterferenceColors.panelFillProperty,
-      stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-      xMargin: 10,
-      yMargin: 10,
-      minWidth: RIGHT_PANEL_WIDTH
-    } );
-
+    // --- Right controls (shared factory) ---
 
     const hitsGraphCheckbox = createToolCheckbox( model.isHitsGraphVisibleProperty, QuantumWaveInterferenceFluent.hitsGraphStringProperty, tandem.createTandem( 'hitsGraphCheckbox' ) );
     const tapeMeasureCheckbox = createToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ) );
@@ -267,64 +208,22 @@ export default class SingleParticlesScreenView extends ScreenView {
       detectorCheckbox.enabled = isAvailable;
     } );
 
-    const toolsPanel = new Panel( new VBox( {
-      spacing: 8,
-      align: 'left',
-      children: [
+    const { rightControlsVBox } = createRightControlsColumn( model, this, tandem, {
+      additionalScreenControlChildren: [],
+      toolCheckboxes: [
         hitsGraphCheckbox,
         tapeMeasureCheckbox,
         stopwatchCheckbox,
         timePlotCheckbox,
         positionPlotCheckbox,
         detectorCheckbox
-      ]
-    } ), {
-      fill: QuantumWaveInterferenceColors.panelFillProperty,
-      stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-      xMargin: 10,
-      yMargin: 10,
-      minWidth: RIGHT_PANEL_WIDTH
+      ],
+      clearScreen: () => model.sceneProperty.value.clearScreen()
     } );
 
-
-    const waveDisplaySection = createWaveDisplaySection( model, this, tandem );
-
-
-    const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
-      timeSpeedProperty: model.timeSpeedProperty,
-      timeSpeeds: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
-      flowBoxSpacing: 15,
-      playPauseStepButtonOptions: {
-        includeStepForwardButton: false,
-        playPauseButtonOptions: { radius: 22 }
-      },
-      tandem: tandem.createTandem( 'timeControlNode' )
-    } );
-
-
-    const resetAllButton = new ResetAllButton( {
-      listener: () => {
-        model.reset();
-      },
-      tandem: tandem.createTandem( 'resetAllButton' )
-    } );
-
-
-    const rightControlsVBox = new VBox( {
-      spacing: 12,
-      align: 'center',
-      children: [
-        screenControlsPanel,
-        toolsPanel,
-        waveDisplaySection,
-        timeControlNode,
-        resetAllButton
-      ]
-    } );
     rightControlsVBox.right = this.layoutBounds.maxX - X_MARGIN;
     rightControlsVBox.top = Y_MARGIN;
     this.addChild( rightControlsVBox );
-
 
     const toolNodes = createMeasurementToolNodes( model, this, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
     this.timePlotNode = toolNodes.timePlotNode;
