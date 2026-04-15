@@ -35,7 +35,6 @@ const BARRIER_VIEW_WIDTH = 20;
 const CORNER_RADIUS = 2;
 const BARRIER_FILL = '#939393';
 const SLIT_VIEW_HEIGHT = 22;
-const ARROW_LENGTH = 56;
 
 const MIN_VIEW_SEPARATION = 40;
 const MAX_VIEW_SEPARATION = 220;
@@ -106,7 +105,7 @@ export default class DoubleSlitNode extends Node {
     } );
     this.addChild( barrierContainer );
 
-    const arrowNode = new ArrowNode( 0, 0, ARROW_LENGTH, 0, {
+    const arrowNode = new ArrowNode( 0, 0, 0, 0, {
       doubleHead: true,
       fill: '#74ad67',
       headHeight: 14,
@@ -194,8 +193,10 @@ export default class DoubleSlitNode extends Node {
         topDetector.visible = isTopDetectorOn;
         bottomDetector.visible = isBottomDetectorOn;
 
-        arrowNode.centerX = barrierX + BARRIER_VIEW_WIDTH / 2;
-        arrowNode.top = WAVE_REGION_HEIGHT + 4;
+        const arrowY = WAVE_REGION_HEIGHT + 12;
+        const arrowStartX = barrierX + BARRIER_VIEW_WIDTH / 2;
+        const arrowEndX = WAVE_REGION_WIDTH;
+        arrowNode.setTailAndTip( arrowStartX, arrowY, arrowEndX, arrowY );
       }
     );
   }

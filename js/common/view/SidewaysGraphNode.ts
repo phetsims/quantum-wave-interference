@@ -34,6 +34,7 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
+import type WaveSolver from '../model/WaveSolver.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
@@ -49,6 +50,7 @@ export type SidewaysGraphSceneLike = {
   screenHalfWidth: number;
   isEmittingProperty: TReadOnlyProperty<boolean>;
   hitsChangedEmitter: TEmitter;
+  waveSolver: WaveSolver;
   getIntensityAtPosition( position: number ): number;
   intensityProperty?: TReadOnlyProperty<number>;
 };
@@ -65,6 +67,8 @@ export default class SidewaysGraphNode extends Node {
   private readonly zoomLevelProperty: NumberProperty;
   private readonly chartBackground: Rectangle;
   private readonly dataPath: Path;
+  private readonly sceneProperty: TReadOnlyProperty<SidewaysGraphSceneLike>;
+  private readonly detectionModeProperty: TReadOnlyProperty<DetectionMode> | undefined;
 
   public constructor(
     sceneProperty: TReadOnlyProperty<SidewaysGraphSceneLike>,
@@ -153,23 +157,10 @@ export default class SidewaysGraphNode extends Node {
       axisLabel.top = chartAndZoom.bottom + 4;
     } );
 
-    const detectionModeProperty = options.detectionModeProperty;
+    this.sceneProperty = sceneProperty;
+    this.detectionModeProperty = options.detectionModeProperty;
 
-    const updateGraph = () => {
-      if ( !this.visible ) {
-        return;
-      }
-
-      const scene = sceneProperty.value;
-      const isHitsMode = !detectionModeProperty || detectionModeProperty.value === 'hits';
-
-      if ( isHitsMode ) {
-        this.paintHistogram( scene );
-      }
-      else {
-        this.paintIntensityCurve( scene );
-      }
-    };
+    const updateGraph = () => this.updateGraph();
 
     // Repaint when visibility changes so the graph is current when shown
     this.visibleProperty.link( updateGraph );
@@ -190,8 +181,24 @@ export default class SidewaysGraphNode extends Node {
     } );
 
     this.zoomLevelProperty.link( updateGraph );
-    if ( detectionModeProperty ) {
-      detectionModeProperty.link( updateGraph );
+    if ( this.detectionModeProperty ) {
+      this.detectionModeProperty.link( updateGraph );
+    }
+  }
+
+  private updateGraph(): void {
+    if ( !this.visible ) {
+      return;
+    }
+
+    const scene = this.sceneProperty.value;
+    const isHitsMode = !this.detectionModeProperty || this.detectionModeProperty.value === 'hits';
+
+    if ( isHitsMode ) {
+      this.paintHistogram( scene );
+    }
+    else {
+      this.paintIntensityCurve( scene );
     }
   }
 
@@ -249,9 +256,10 @@ export default class SidewaysGraphNode extends Node {
 
     const zoomScale = linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
     const sourceIntensity = scene.intensityProperty ? scene.intensityProperty.value : 1;
-    const screenHalfWidth = scene.screenHalfWidth;
 
-    const NUM_SAMPLES = 500;
+    const distribution = scene.waveSolver.getDetectorProbabilityDistribution();
+    const solverHeight = scene.waveSolver.gridHeight;
+    const NUM_SAMPLES = solverHeight;
     const shape = new Shape();
 
     const firstY = ( 0.5 / NUM_SAMPLES ) * GRAPH_HEIGHT;
@@ -259,8 +267,7 @@ export default class SidewaysGraphNode extends Node {
 
     for ( let i = 0; i < NUM_SAMPLES; i++ ) {
       const fraction = ( i + 0.5 ) / NUM_SAMPLES;
-      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
-      const intensity = scene.getIntensityAtPosition( physicalX );
+      const intensity = distribution[ i ];
 
       const viewY = fraction * GRAPH_HEIGHT;
       const viewX = intensity * sourceIntensity * GRAPH_WIDTH * zoomScale;
@@ -284,6 +291,10 @@ export default class SidewaysGraphNode extends Node {
       this.dataPath.fill = QuantumWaveInterferenceColors.particleHistogramFillProperty;
       this.dataPath.stroke = QuantumWaveInterferenceColors.particleHistogramStrokeProperty;
     }
+  }
+
+  public step(): void {
+    this.updateGraph();
   }
 
   public reset(): void {

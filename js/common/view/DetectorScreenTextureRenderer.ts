@@ -18,6 +18,7 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
+import type WaveSolver from '../model/WaveSolver.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 const SUPERSAMPLE = 2;
@@ -31,6 +32,7 @@ export type DetectorScreenSceneLike = {
   screenBrightnessProperty: TReadOnlyProperty<number> & { range: { max: number } };
   isEmittingProperty: TReadOnlyProperty<boolean>;
   hitsChangedEmitter: TEmitter;
+  waveSolver: WaveSolver;
   getIntensityAtPosition( position: number ): number;
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   intensityProperty?: TReadOnlyProperty<number>;
@@ -220,14 +222,13 @@ export default class DetectorScreenTextureRenderer {
       return;
     }
 
-    const screenHalfWidth = scene.screenHalfWidth;
     const rgb = getSceneRGB( scene.sourceType, scene.wavelengthProperty.value );
+    const distribution = scene.waveSolver.getDetectorProbabilityDistribution();
+    const solverHeight = scene.waveSolver.gridHeight;
 
-    // Interference pattern varies along the detector screen height, not width.
     for ( let y = 0; y < this.textureHeight; y++ ) {
-      const fraction = ( y + 0.5 ) / this.textureHeight;
-      const physicalPosition = ( fraction - 0.5 ) * 2 * screenHalfWidth;
-      const intensity = scene.getIntensityAtPosition( physicalPosition );
+      const solverY = clamp( Math.floor( ( y + 0.5 ) / this.textureHeight * solverHeight ), 0, solverHeight - 1 );
+      const intensity = distribution[ solverY ];
       const scale = intensity * displayGain;
 
       if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {

@@ -50,6 +50,7 @@ export default class SingleParticlesScreenView extends ScreenView {
 
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: SingleParticlesDetectorScreenNode;
+  private readonly sidewaysGraphNode: SidewaysGraphNode;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
 
@@ -167,18 +168,18 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( bottomRow );
 
     // Hits graph (always in Hits mode on this screen)
-    const sidewaysGraphNode = new SidewaysGraphNode( model.sceneProperty, {
+    this.sidewaysGraphNode = new SidewaysGraphNode( model.sceneProperty, {
       axisLabelStringProperty: QuantumWaveInterferenceFluent.countStringProperty,
       tandem: tandem.createTandem( 'sidewaysGraphNode' )
     } );
-    this.addChild( sidewaysGraphNode );
+    this.addChild( this.sidewaysGraphNode );
 
     model.isHitsGraphVisibleProperty.link( isVisible => {
-      sidewaysGraphNode.visible = isVisible;
+      this.sidewaysGraphNode.visible = isVisible;
       if ( isVisible ) {
         this.detectorScreenNode.setScaleMagnitude( 0.5, 1 );
-        sidewaysGraphNode.left = this.detectorScreenNode.right + 2;
-        sidewaysGraphNode.top = waveRegionTop;
+        this.sidewaysGraphNode.left = this.detectorScreenNode.right + 2;
+        this.sidewaysGraphNode.top = waveRegionTop;
       }
       else {
         this.detectorScreenNode.setScaleMagnitude( 1, 1 );
@@ -234,6 +235,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     super.step( dt );
     this.waveVisualizationNode.step();
     this.detectorScreenNode.step();
+    this.sidewaysGraphNode.step();
     this.timePlotNode.step( dt );
     this.positionPlotNode.step();
   }
