@@ -10,27 +10,19 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
-import Property from '../../../../axon/js/Property.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
-import Range from '../../../../dot/js/Range.js';
 import Shape from '../../../../kite/js/Shape.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
-import Orientation from '../../../../phet-core/js/Orientation.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
-import MeasuringTapeNode from '../../../../scenery-phet/js/MeasuringTapeNode.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -38,28 +30,26 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
-import Checkbox from '../../../../sun/js/Checkbox.js';
-import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
-import HSlider from '../../../../sun/js/HSlider.js';
-import Slider from '../../../../sun/js/Slider.js';
+import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Panel from '../../../../sun/js/Panel.js';
-import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
-import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
-import { type MatterWaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
-import { type PhotonWaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
+import createBrightnessControl from '../../common/view/createBrightnessControl.js';
+import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
+import createObstacleControlsRow from '../../common/view/createObstacleControlsRow.js';
+import createToolCheckbox from '../../common/view/createToolCheckbox.js';
+import createWaveDisplaySection from '../../common/view/createWaveDisplaySection.js';
 import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
-import getMeasuringTapeUnits from '../../common/view/getMeasuringTapeUnits.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
 import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
+import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityConstants from '../HighIntensityConstants.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
@@ -67,14 +57,12 @@ import HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityDetectorScreenNode from './HighIntensityDetectorScreenNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
-import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 
 type SelfOptions = EmptySelfOptions;
 
 type HighIntensityScreenViewOptions = SelfOptions & ScreenViewOptions;
 
 const LABEL_FONT = new PhetFont( 14 );
-const TITLE_FONT = new PhetFont( { size: 14, weight: 'bold' } );
 const COMBO_BOX_FONT = new PhetFont( 14 );
 
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
@@ -123,43 +111,10 @@ export default class HighIntensityScreenView extends ScreenView {
       tandem.createTandem( 'sceneRadioButtonGroup' )
     );
 
-    const obstacleComboBoxItems: ComboBoxItem<ObstacleType>[] = [
-      { value: 'none', createNode: () => new Text( QuantumWaveInterferenceFluent.noneStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'noneItem' },
-      { value: 'doubleSlit', createNode: () => new Text( QuantumWaveInterferenceFluent.doubleSlitStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'doubleSlitItem' }
-    ];
-
-    const obstacleTitle = new Text( QuantumWaveInterferenceFluent.obstacleStringProperty, {
-      font: TITLE_FONT,
-      maxWidth: 120
-    } );
-
-    const obstacleComboBox = new ComboBox( model.currentObstacleTypeProperty, obstacleComboBoxItems, this, {
-      tandem: tandem.createTandem( 'obstacleComboBox' ),
-      xMargin: 10,
-      yMargin: 6
-    } );
-
-    const obstacleSection = new VBox( {
-      spacing: 6,
-      align: 'left',
-      children: [ obstacleTitle, obstacleComboBox ]
-    } );
-
-    const slitSeparationRangeProperty = new DerivedProperty(
-      [ model.sceneProperty ],
-      scene => scene.slitSeparationRange
-    );
-
-    // Slit controls (visible only when obstacle is double slit)
-    const slitControlsNode = this.createSlitControls( model, slitSeparationRangeProperty, tandem );
-    model.currentObstacleTypeProperty.link( obstacleType => {
-      slitControlsNode.visible = obstacleType === 'doubleSlit';
-    } );
-
     const leftControlsVBox = new VBox( {
       spacing: 16,
       align: 'left',
-      children: [ sourceControlPanel, sceneRadioButtonGroup, obstacleSection, slitControlsNode ]
+      children: [ sourceControlPanel, sceneRadioButtonGroup ]
     } );
     leftControlsVBox.left = X_MARGIN;
     leftControlsVBox.top = TOP_ROW_CENTER_Y + EMITTER_BODY_HEIGHT / 2 + LEFT_CONTROLS_TOP_GAP;
@@ -207,6 +162,11 @@ export default class HighIntensityScreenView extends ScreenView {
       y: waveRegionTop
     } );
     this.addChild( this.waveVisualizationNode );
+
+    const slitSeparationRangeProperty = new DerivedProperty(
+      [ model.sceneProperty ],
+      scene => scene.slitSeparationRange
+    );
 
     const doubleSlitNode = new DoubleSlitNode(
       model.currentObstacleTypeProperty,
@@ -328,6 +288,28 @@ export default class HighIntensityScreenView extends ScreenView {
     } );
     this.addChild( this.detectorScreenNode );
 
+    // --- Bottom row: obstacle, slit configuration, slit separation ---
+    const slitConfigItems: ComboBoxItem<SlitConfiguration>[] = [
+      { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
+      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topCoveredItem' },
+      { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomCoveredItem' },
+      { value: 'leftDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.topDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topDetectorItem' },
+      { value: 'rightDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomDetectorItem' },
+      { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' }
+    ];
+
+    const bottomRow = createObstacleControlsRow(
+      model.currentObstacleTypeProperty,
+      model.currentSlitConfigurationProperty,
+      slitConfigItems,
+      model.sceneProperty,
+      model.scenes,
+      waveRegionTop,
+      this,
+      tandem
+    );
+    this.addChild( bottomRow );
+
     // Axis label changes between "Intensity" and "Count" depending on detection mode
     const graphAxisLabelProperty = new DerivedProperty(
       [
@@ -358,6 +340,8 @@ export default class HighIntensityScreenView extends ScreenView {
         this.detectorScreenNode.setScaleMagnitude( 1, 1 );
       }
     } );
+
+    // --- Right controls ---
 
     const eraseButton = new EraserButton( {
       listener: () => model.sceneProperty.value.clearScreen(),
@@ -417,25 +401,7 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     );
 
-    const brightnessLabel = new Text( QuantumWaveInterferenceFluent.screenBrightnessStringProperty, {
-      font: LABEL_FONT,
-      maxWidth: 140
-    } );
-    const brightnessRange = new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX );
-    const brightnessSlider = new HSlider( model.currentScreenBrightnessProperty, brightnessRange, {
-      trackSize: new Dimension2( 130, 3 ),
-      thumbSize: new Dimension2( 13, 22 ),
-      majorTickLength: 12,
-      createAriaValueText: value => percentUnit.getAccessibleString(
-        value / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100,
-        { decimalPlaces: 0, showTrailingZeros: false, showIntegersAsIntegers: true }
-      ),
-      tandem: tandem.createTandem( 'brightnessSlider' )
-    } );
-    const brightnessControl = new VBox( {
-      spacing: 2,
-      children: [ brightnessLabel, brightnessSlider ]
-    } );
+    const brightnessControl = createBrightnessControl( model.currentScreenBrightnessProperty, tandem );
 
     const screenControlsPanel = new Panel( new VBox( {
       spacing: 12,
@@ -449,40 +415,11 @@ export default class HighIntensityScreenView extends ScreenView {
       minWidth: HighIntensityConstants.RIGHT_PANEL_WIDTH
     } );
 
-    const createToolCheckbox = ( property: BooleanProperty, stringProperty: TReadOnlyProperty<string>, tandemName: string ) => {
-      const label = new Text( stringProperty, { font: LABEL_FONT, maxWidth: 120 } );
-      return new Checkbox( property, label, {
-        boxWidth: 16,
-        spacing: 6,
-        tandem: tandem.createTandem( tandemName )
-      } );
-    };
-
-    const intensityGraphCheckbox = createToolCheckbox(
-      model.isIntensityGraphVisibleProperty,
-      QuantumWaveInterferenceFluent.intensityGraphStringProperty,
-      'intensityGraphCheckbox'
-    );
-    const tapeMeasureCheckbox = createToolCheckbox(
-      model.isTapeMeasureVisibleProperty,
-      QuantumWaveInterferenceFluent.tapeMeasureStringProperty,
-      'tapeMeasureCheckbox'
-    );
-    const stopwatchCheckbox = createToolCheckbox(
-      model.isStopwatchVisibleProperty,
-      QuantumWaveInterferenceFluent.stopwatchStringProperty,
-      'stopwatchCheckbox'
-    );
-    const timePlotCheckbox = createToolCheckbox(
-      model.isTimePlotVisibleProperty,
-      QuantumWaveInterferenceFluent.timePlotStringProperty,
-      'timePlotCheckbox'
-    );
-    const positionPlotCheckbox = createToolCheckbox(
-      model.isPositionPlotVisibleProperty,
-      QuantumWaveInterferenceFluent.positionPlotStringProperty,
-      'positionPlotCheckbox'
-    );
+    const intensityGraphCheckbox = createToolCheckbox( model.isIntensityGraphVisibleProperty, QuantumWaveInterferenceFluent.intensityGraphStringProperty, tandem.createTandem( 'intensityGraphCheckbox' ) );
+    const tapeMeasureCheckbox = createToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ) );
+    const stopwatchCheckbox = createToolCheckbox( model.isStopwatchVisibleProperty, QuantumWaveInterferenceFluent.stopwatchStringProperty, tandem.createTandem( 'stopwatchCheckbox' ) );
+    const timePlotCheckbox = createToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ) );
+    const positionPlotCheckbox = createToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ) );
 
     const toolsPanel = new Panel( new VBox( {
       spacing: 8,
@@ -502,7 +439,7 @@ export default class HighIntensityScreenView extends ScreenView {
       minWidth: HighIntensityConstants.RIGHT_PANEL_WIDTH
     } );
 
-    const waveDisplaySection = this.createWaveDisplaySection( model, tandem );
+    const waveDisplaySection = createWaveDisplaySection( model, this, tandem );
 
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
@@ -537,49 +474,9 @@ export default class HighIntensityScreenView extends ScreenView {
     rightControlsVBox.top = Y_MARGIN;
     this.addChild( rightControlsVBox );
 
-    const stopwatchNode = new StopwatchNode( model.stopwatch, {
-      dragBoundsProperty: this.visibleBoundsProperty,
-      tandem: tandem.createTandem( 'stopwatchNode' )
-    } );
-    model.isStopwatchVisibleProperty.link( isVisible => {
-      model.stopwatch.isVisibleProperty.value = isVisible;
-    } );
-    this.addChild( stopwatchNode );
-
-    const measuringTapeUnitsProperty = new Property( getMeasuringTapeUnits( model.sceneProperty.value.sourceType, model.sceneProperty.value.regionWidth ) );
-    model.sceneProperty.link( scene => {
-      measuringTapeUnitsProperty.value = getMeasuringTapeUnits( scene.sourceType, scene.regionWidth );
-    } );
-
-    const measuringTapeNode = new MeasuringTapeNode( measuringTapeUnitsProperty, {
-      textBackgroundColor: 'rgba( 255, 255, 255, 0.6 )',
-      textColor: 'black',
-      basePositionProperty: model.tapeMeasureBasePositionProperty,
-      tipPositionProperty: model.tapeMeasureTipPositionProperty,
-      significantFigures: 2,
-      tandem: tandem.createTandem( 'measuringTapeNode' )
-    } );
-    this.visibleBoundsProperty.link( visibleBounds => measuringTapeNode.setDragBounds( visibleBounds.eroded( 20 ) ) );
-    model.isTapeMeasureVisibleProperty.linkAttribute( measuringTapeNode, 'visible' );
-    this.addChild( measuringTapeNode );
-
-    // Time plot tool
-    this.timePlotNode = new TimePlotNode(
-      model.sceneProperty,
-      waveRegionLeft,
-      waveRegionTop,
-      model.isTimePlotVisibleProperty
-    );
-    this.addChild( this.timePlotNode );
-
-    // Position plot tool
-    this.positionPlotNode = new PositionPlotNode(
-      model.sceneProperty,
-      waveRegionLeft,
-      waveRegionTop,
-      model.isPositionPlotVisibleProperty
-    );
-    this.addChild( this.positionPlotNode );
+    const toolNodes = createMeasurementToolNodes( model, this, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
+    this.timePlotNode = toolNodes.timePlotNode;
+    this.positionPlotNode = toolNodes.positionPlotNode;
   }
 
   public override step( dt: number ): void {
@@ -588,114 +485,5 @@ export default class HighIntensityScreenView extends ScreenView {
     this.detectorScreenNode.step();
     this.timePlotNode.step( dt );
     this.positionPlotNode.step();
-  }
-
-  /**
-   * Creates the slit controls (slit configuration combo box + slit separation slider).
-   */
-  private createSlitControls( model: HighIntensityModel, slitSeparationRangeProperty: TReadOnlyProperty<Range>, tandem: Tandem ): Node {
-    const slitConfigTitle = new Text( QuantumWaveInterferenceFluent.slitConfigurationStringProperty, {
-      font: TITLE_FONT,
-      maxWidth: 150
-    } );
-
-    const slitConfigItems: ComboBoxItem<SlitConfiguration>[] = [
-      { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
-      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topCoveredItem' },
-      { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomCoveredItem' },
-      { value: 'leftDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.topDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topDetectorItem' },
-      { value: 'rightDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomDetectorItem' },
-      { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' }
-    ];
-
-    const slitConfigurationComboBox = new ComboBox( model.currentSlitConfigurationProperty, slitConfigItems, this, {
-      tandem: tandem.createTandem( 'slitConfigurationComboBox' ),
-      xMargin: 10,
-      yMargin: 6
-    } );
-
-    const slitSeparationTitle = new Text( QuantumWaveInterferenceFluent.slitSeparationStringProperty, {
-      font: LABEL_FONT,
-      maxWidth: 150
-    } );
-
-    const slitSeparationSlider = new Slider(
-      model.currentSlitSeparationProperty,
-      slitSeparationRangeProperty,
-      {
-        orientation: Orientation.HORIZONTAL,
-        trackSize: new Dimension2( 130, 3 ),
-        thumbSize: new Dimension2( 13, 22 ),
-        tandem: tandem.createTandem( 'slitSeparationSlider' )
-      }
-    );
-
-    return new VBox( {
-      spacing: 10,
-      align: 'left',
-      children: [ slitConfigTitle, slitConfigurationComboBox, slitSeparationTitle, slitSeparationSlider ]
-    } );
-  }
-
-  /**
-   * Creates the wave display combo box section.
-   */
-  private createWaveDisplaySection( model: HighIntensityModel, tandem: Tandem ): Node {
-    const isPhotonsProperty = new DerivedProperty(
-      [ model.sceneProperty ],
-      scene => scene.sourceType === 'photons'
-    );
-
-    const waveDisplayTitleProperty = new DerivedProperty(
-      [ isPhotonsProperty, QuantumWaveInterferenceFluent.waveDisplayStringProperty, QuantumWaveInterferenceFluent.waveFunctionDisplayStringProperty ],
-      ( isPhotons, waveDisplay, waveFunctionDisplay ) =>
-        isPhotons ? waveDisplay : waveFunctionDisplay
-    );
-
-    const waveDisplayTitle = new Text( waveDisplayTitleProperty, {
-      font: TITLE_FONT,
-      maxWidth: 170
-    } );
-
-    const photonWaveDisplayItems: ComboBoxItem<PhotonWaveDisplayMode>[] = [
-      { value: 'timeAveragedIntensity', createNode: () => new Text( QuantumWaveInterferenceFluent.timeAveragedIntensityStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'timeAveragedIntensityItem' },
-      { value: 'electricField', createNode: () => new Text( QuantumWaveInterferenceFluent.electricFieldStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'electricFieldItem' }
-    ];
-
-    const photonWaveDisplayComboBox = new ComboBox(
-      model.currentPhotonWaveDisplayModeProperty,
-      photonWaveDisplayItems,
-      this,
-      { tandem: tandem.createTandem( 'photonWaveDisplayComboBox' ), xMargin: 10, yMargin: 6 }
-    );
-
-    const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
-      { value: 'magnitude', createNode: () => new Text( QuantumWaveInterferenceFluent.magnitudeStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'magnitudeItem' },
-      { value: 'realPart', createNode: () => new Text( QuantumWaveInterferenceFluent.realPartStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'realPartItem' },
-      { value: 'imaginaryPart', createNode: () => new Text( QuantumWaveInterferenceFluent.imaginaryPartStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'imaginaryPartItem' }
-    ];
-
-    const matterWaveDisplayComboBox = new ComboBox(
-      model.currentMatterWaveDisplayModeProperty,
-      matterWaveDisplayItems,
-      this,
-      { tandem: tandem.createTandem( 'matterWaveDisplayComboBox' ), xMargin: 10, yMargin: 6 }
-    );
-
-    isPhotonsProperty.link( isPhotons => {
-      photonWaveDisplayComboBox.visible = isPhotons;
-      matterWaveDisplayComboBox.visible = !isPhotons;
-    } );
-
-    const comboBoxContainer = new Node( {
-      children: [ photonWaveDisplayComboBox, matterWaveDisplayComboBox ],
-      excludeInvisibleChildrenFromBounds: false
-    } );
-
-    return new VBox( {
-      spacing: 6,
-      align: 'left',
-      children: [ waveDisplayTitle, comboBoxContainer ]
-    } );
   }
 }
