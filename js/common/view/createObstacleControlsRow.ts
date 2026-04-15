@@ -31,6 +31,10 @@ const TITLE_FONT = new PhetFont( { size: 14, weight: 'bold' } );
 const COMBO_BOX_FONT = new PhetFont( 14 );
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 
+type CreateObstacleControlsRowOptions = {
+  additionalTopConstraintNode?: Node;
+};
+
 const createObstacleControlsRow = <T extends string>(
   obstacleTypeProperty: PhetioProperty<ObstacleType>,
   slitConfigurationProperty: PhetioProperty<T>,
@@ -39,7 +43,8 @@ const createObstacleControlsRow = <T extends string>(
   scenes: BaseSceneModel[],
   waveRegionTop: number,
   listParent: Node,
-  tandem: Tandem
+  tandem: Tandem,
+  options?: CreateObstacleControlsRowOptions
 ): Node => {
 
   const obstacleTitle = new Text( QuantumWaveInterferenceFluent.obstacleStringProperty, {
@@ -107,7 +112,18 @@ const createObstacleControlsRow = <T extends string>(
     children: [ obstacleSection, slitSection ]
   } );
   bottomRow.left = X_MARGIN;
-  bottomRow.top = waveRegionTop + QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT + 8;
+
+  const waveRegionBottom = waveRegionTop + QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT + 8;
+  const additionalNode = options?.additionalTopConstraintNode;
+  if ( additionalNode ) {
+    const updateTop = () => {
+      bottomRow.top = Math.max( waveRegionBottom, additionalNode.bottom + 8 );
+    };
+    additionalNode.boundsProperty.link( updateTop );
+  }
+  else {
+    bottomRow.top = waveRegionBottom;
+  }
 
   return bottomRow;
 };
