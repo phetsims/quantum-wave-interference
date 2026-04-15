@@ -28,6 +28,7 @@ import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import SingleParticlesSceneModel, { type SingleParticlesSlitConfiguration } from '../model/SingleParticlesSceneModel.js';
 import DetectorToolNode from './DetectorToolNode.js';
@@ -82,10 +83,12 @@ export default class SingleParticlesScreenView extends ScreenView {
       tandem.createTandem( 'sceneRadioButtonGroup' )
     );
 
+    const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
+
     const leftControlsVBox = new VBox( {
       spacing: 16,
       align: 'left',
-      children: [ sourceControlPanel, autoRepeatCheckbox, sceneRadioButtonGroup ]
+      children: [ sourceControlPanel, autoRepeatCheckbox, sceneRadioButtonGroup, particleMassAnnotation ]
     } );
     leftControlsVBox.left = X_MARGIN;
     leftControlsVBox.top = Y_MARGIN;

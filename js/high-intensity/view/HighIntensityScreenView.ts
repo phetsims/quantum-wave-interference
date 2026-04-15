@@ -45,6 +45,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import HighIntensityModel from '../model/HighIntensityModel.js';
 import HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityDetectorScreenNode from './HighIntensityDetectorScreenNode.js';
+import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 
@@ -102,10 +103,12 @@ export default class HighIntensityScreenView extends ScreenView {
       tandem.createTandem( 'sceneRadioButtonGroup' )
     );
 
+    const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
+
     const leftControlsVBox = new VBox( {
       spacing: 16,
       align: 'left',
-      children: [ sourceControlPanel, sceneRadioButtonGroup ]
+      children: [ sourceControlPanel, sceneRadioButtonGroup, particleMassAnnotation ]
     } );
     leftControlsVBox.left = X_MARGIN;
     leftControlsVBox.top = TOP_ROW_CENTER_Y + EMITTER_BODY_HEIGHT / 2 + LEFT_CONTROLS_TOP_GAP;
@@ -297,7 +300,8 @@ export default class HighIntensityScreenView extends ScreenView {
       model.scenes,
       waveRegionTop,
       this,
-      tandem
+      tandem,
+      { additionalTopConstraintNode: leftControlsVBox }
     );
     this.addChild( bottomRow );
 
