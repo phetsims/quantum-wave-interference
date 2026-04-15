@@ -10,6 +10,8 @@
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
+import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
@@ -19,10 +21,14 @@ const LABEL_FONT = new PhetFont( 14 );
 const createToolCheckbox = (
   property: BooleanProperty,
   stringProperty: TReadOnlyProperty<string>,
-  tandem: Tandem
+  tandem: Tandem,
+  icon?: Node
 ): Checkbox => {
   const label = new Text( stringProperty, { font: LABEL_FONT, maxWidth: 120 } );
-  return new Checkbox( property, label, {
+  const content = icon ?
+                  new HBox( { children: [ label, icon ], spacing: 6 } ) :
+                  label;
+  return new Checkbox( property, content, {
     boxWidth: 16,
     spacing: 6,
     tandem: tandem
