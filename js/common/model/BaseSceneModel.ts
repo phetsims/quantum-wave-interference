@@ -304,6 +304,20 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
   }
 
+  private wavefrontReached = false;
+
+  public hasWavefrontReachedScreen(): boolean {
+    if ( this.wavefrontReached ) {
+      return true;
+    }
+    const distribution = this.waveSolver.getDetectorProbabilityDistribution();
+    if ( distribution.some( v => v > 1e-6 ) ) {
+      this.wavefrontReached = true;
+      return true;
+    }
+    return false;
+  }
+
   protected generateHitPosition(): number {
     for ( let i = 0; i < MAX_REJECTION_ITERATIONS; i++ ) {
       const physicalX = ( dotRandom.nextDouble() - 0.5 ) * 2 * this.screenHalfWidth;
@@ -321,6 +335,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     }
     this.hits.length = 0;
     this.totalHitsProperty.value = 0;
+    this.wavefrontReached = false;
     this.waveSolver.reset();
     this.syncSolverParameters();
     this.hitsChangedEmitter.emit();
@@ -379,6 +394,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.matterWaveDisplayModeProperty.reset();
     this.hits.length = 0;
     this.totalHitsProperty.reset();
+    this.wavefrontReached = false;
     this.waveSolver.reset();
     this.snapshotsProperty.value = [];
     this.nextSnapshotNumber = 1;

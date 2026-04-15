@@ -182,6 +182,11 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       return;
     }
 
+    // Only accumulate hits after the wavefront has reached the detector screen
+    if ( !this.hasWavefrontReachedScreen() ) {
+      return;
+    }
+
     const rate = MAX_EMISSION_RATE * this.intensityProperty.value;
     this.hitAccumulator += rate * dt;
     const numHits = Math.floor( this.hitAccumulator );
