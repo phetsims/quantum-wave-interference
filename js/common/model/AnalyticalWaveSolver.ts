@@ -4,20 +4,26 @@
  * AnalyticalWaveSolver computes the 2D complex amplitude field and detector-screen probability
  * distribution using closed-form Fraunhofer diffraction expressions.
  *
- * The field before the barrier (or everywhere when obstacle is 'none') is a plane wave propagating
- * in the +x direction. After the barrier, the field is the superposition of contributions from the
- * slit openings using far-field (Fraunhofer) diffraction.
+ * The solver operates in display-scale coordinates so that wave oscillations and interference
+ * fringes are visible on the 200x200 grid. Physical parameters (wavelength, slit separation)
+ * are mapped to display equivalents that preserve qualitative behavior while keeping patterns
+ * resolvable. The detector probability distribution uses the same display-scale Fraunhofer
+ * formula for consistency with the wave field.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { type ObstacleType } from './ObstacleType.js';
+import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters } from './WaveSolver.js';
 
 const DEFAULT_GRID_WIDTH = 200;
 const DEFAULT_GRID_HEIGHT = 200;
+
+const DISPLAY_WAVELENGTHS = 15;
+const DISPLAY_TRAVERSAL_TIME = 2.0;
 
 export default class AnalyticalWaveSolver implements WaveSolver {
 
@@ -43,7 +49,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private readonly detectorDistribution: Float64Array;
   private dirty = true;
 
-  // Scratch space for slit contribution to avoid per-pixel allocation
   private scratchRe = 0;
   private scratchIm = 0;
 
@@ -105,12 +110,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   }
 
   private computeField(): void {
-    const { gridWidth, gridHeight, wavelength, waveSpeed, time, amplitudeField } = this;
-    const k = 2 * Math.PI / wavelength;
-    const omega = k * waveSpeed;
-    const wavefrontX = waveSpeed * time;
-    const dx = this.regionWidth / gridWidth;
-    const dy = this.regionHeight / gridHeight;
+    const { amplitudeField } = this;
 
     if ( !this.isSourceOn ) {
       amplitudeField.fill( 0 );
@@ -118,14 +118,26 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       return;
     }
 
+    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const displayK = 2 * Math.PI / displayLambda;
+    const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
+    const displayOmega = displayK * displaySpeed;
+    const displayWavefrontX = displaySpeed * this.time;
+    const dx = this.regionWidth / this.gridWidth;
+    const dy = this.regionHeight / this.gridHeight;
+
     if ( this.obstacleType === 'none' ) {
-      this.computePlaneWaveField( k, omega, wavefrontX, dx );
+      this.computePlaneWaveField( displayK, displayOmega, displayWavefrontX, dx );
     }
     else {
-      this.computeDoubleSlitField( k, omega, wavefrontX, dx, dy );
+      const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, displayLambda );
+      this.computeDoubleSlitField(
+        displayK, displayOmega, displayWavefrontX, dx, dy,
+        displaySlitSep, displaySlitWidth, displayLambda
+      );
     }
 
-    this.computeDetectorDistribution();
+    this.computeDetectorDistribution( displayLambda, displaySpeed );
   }
 
   private computePlaneWaveField( k: number, omega: number, wavefrontX: number, dx: number ): void {
@@ -155,13 +167,16 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     }
   }
 
-  private computeDoubleSlitField( k: number, omega: number, wavefrontX: number, dx: number, dy: number ): void {
-    const { gridWidth, gridHeight, amplitudeField, slitSeparation, slitWidth } = this;
+  private computeDoubleSlitField(
+    k: number, omega: number, wavefrontX: number, dx: number, dy: number,
+    displaySlitSep: number, displaySlitWidth: number, displayLambda: number
+  ): void {
+    const { gridWidth, gridHeight, amplitudeField } = this;
     const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
     const barrierX = barrierIx * dx;
 
-    const topSlitY = slitSeparation / 2;
-    const bottomSlitY = -slitSeparation / 2;
+    const topSlitY = displaySlitSep / 2;
+    const bottomSlitY = -displaySlitSep / 2;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = ix * dx;
@@ -182,8 +197,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
           }
         }
         else if ( ix === barrierIx ) {
-          const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitY ) < slitWidth / 2;
-          const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < slitWidth / 2;
+          const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitY ) < displaySlitWidth / 2;
+          const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < displaySlitWidth / 2;
 
           if ( ( inTopSlit || inBottomSlit ) && barrierX <= wavefrontX ) {
             const phase = k * barrierX - omega * this.time;
@@ -202,8 +217,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
           }
           else {
             const distFromBarrier = x - barrierX;
-            const timeAfterBarrier = ( wavefrontX - barrierX ) / this.waveSpeed;
-            const sphericalFrontDist = this.waveSpeed * timeAfterBarrier;
+            const sphericalFrontDist = wavefrontX - barrierX;
 
             if ( sphericalFrontDist < distFromBarrier ) {
               amplitudeField[ idx ] = 0;
@@ -215,7 +229,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
               let decoherentIntensity = 0;
 
               if ( this.isTopSlitOpen ) {
-                this.computeSlitContribution( k, omega, barrierX, topSlitY, slitWidth, x, y );
+                this.computeSlitContribution( k, omega, barrierX, topSlitY, displaySlitWidth, x, y, displayLambda );
                 if ( this.isTopSlitDecoherent ) {
                   decoherentIntensity += this.scratchRe * this.scratchRe + this.scratchIm * this.scratchIm;
                 }
@@ -226,7 +240,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
               }
 
               if ( this.isBottomSlitOpen ) {
-                this.computeSlitContribution( k, omega, barrierX, bottomSlitY, slitWidth, x, y );
+                this.computeSlitContribution( k, omega, barrierX, bottomSlitY, displaySlitWidth, x, y, displayLambda );
                 if ( this.isBottomSlitDecoherent ) {
                   decoherentIntensity += this.scratchRe * this.scratchRe + this.scratchIm * this.scratchIm;
                 }
@@ -239,7 +253,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
               const coherentIntensity = coherentRe * coherentRe + coherentIm * coherentIm;
               const totalIntensity = coherentIntensity + decoherentIntensity;
 
-              // Scale coherent phasor so |ψ|² = totalIntensity, preserving phase direction
               if ( coherentIntensity > 1e-20 ) {
                 const scale = Math.sqrt( totalIntensity / coherentIntensity );
                 amplitudeField[ idx ] = coherentRe * scale;
@@ -265,17 +278,17 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private computeSlitContribution(
     k: number, omega: number,
     barrierX: number, slitCenterY: number, slitWidth: number,
-    fieldX: number, fieldY: number
+    fieldX: number, fieldY: number,
+    displayLambda: number
   ): void {
     const dx = fieldX - barrierX;
     const dy = fieldY - slitCenterY;
     const r = Math.sqrt( dx * dx + dy * dy );
 
     const sinTheta = dy / r;
-    const alpha = Math.PI * slitWidth * sinTheta / this.wavelength;
+    const alpha = Math.PI * slitWidth * sinTheta / displayLambda;
     const envelope = alpha === 0 ? 1 : Math.sin( alpha ) / alpha;
 
-    // 1/sqrt(r) falloff for cylindrical waves in 2D
     const amplitude = envelope / Math.sqrt( Math.max( r, 1e-10 ) );
     const phase = k * r - omega * this.time;
 
@@ -283,18 +296,65 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.scratchIm = amplitude * Math.sin( phase );
   }
 
-  private computeDetectorDistribution(): void {
-    const { gridWidth, gridHeight, amplitudeField, detectorDistribution } = this;
-    const ix = gridWidth - 1;
+  /**
+   * Computes the detector-screen probability distribution using the Fraunhofer formula
+   * with display-scale parameters, with time-gated illumination based on wavefront propagation.
+   */
+  private computeDetectorDistribution( displayLambda: number, displaySpeed: number ): void {
+    const { gridHeight, detectorDistribution } = this;
+
+    const displayWavefrontX = displaySpeed * this.time;
+
+    if ( this.obstacleType === 'none' ) {
+
+      // Plane wave: uniform illumination once the wavefront reaches the screen
+      const illuminated = displayWavefrontX >= this.regionWidth ? 1 : 0;
+      detectorDistribution.fill( illuminated );
+      return;
+    }
+
+    const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, displayLambda );
+    const barrierX = this.barrierFractionX * this.regionWidth;
+    const L = this.regionWidth - barrierX;
+    const wavefrontPastBarrier = displayWavefrontX - barrierX;
+    const dy = this.regionHeight / gridHeight;
+
     let maxProb = 0;
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
-      const idx = ( iy * gridWidth + ix ) * 2;
-      const re = amplitudeField[ idx ];
-      const im = amplitudeField[ idx + 1 ];
-      const prob = re * re + im * im;
-      detectorDistribution[ iy ] = prob;
-      maxProb = Math.max( maxProb, prob );
+      const posOnScreen = ( iy - gridHeight / 2 + 0.5 ) * dy;
+
+      // Check if the spherical wavefront from the nearest open slit has reached this screen position
+      const distToScreen = Math.sqrt( L * L + posOnScreen * posOnScreen );
+      if ( wavefrontPastBarrier < distToScreen ) {
+        detectorDistribution[ iy ] = 0;
+        continue;
+      }
+
+      const sinTheta = posOnScreen / distToScreen;
+
+      // Single-slit diffraction envelope
+      const singleSlitArg = Math.PI * displaySlitWidth * sinTheta / displayLambda;
+      const envelope = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
+
+      if ( this.isTopSlitOpen && this.isBottomSlitOpen && !this.isTopSlitDecoherent && !this.isBottomSlitDecoherent ) {
+
+        // Both open, coherent: cos²(πd sinθ/λ) × sinc²(πa sinθ/λ)
+        const doubleSlitArg = Math.PI * displaySlitSep * sinTheta / displayLambda;
+        detectorDistribution[ iy ] = Math.pow( Math.cos( doubleSlitArg ), 2 ) * envelope;
+      }
+      else if ( this.isTopSlitOpen && this.isBottomSlitOpen ) {
+
+        // Decoherent: incoherent sum (no interference cross-term)
+        detectorDistribution[ iy ] = envelope;
+      }
+      else {
+
+        // Single slit open
+        detectorDistribution[ iy ] = 0.5 * envelope;
+      }
+
+      maxProb = Math.max( maxProb, detectorDistribution[ iy ] );
     }
 
     if ( maxProb > 0 ) {

@@ -21,6 +21,7 @@
 
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { type ObstacleType } from './ObstacleType.js';
+import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters } from './WaveSolver.js';
 
@@ -37,6 +38,7 @@ const DISPLAY_WAVELENGTHS = 10;
 
 // Fixed number of lattice sub-steps per frame call, independent of physical time scale
 const STEPS_PER_FRAME = 4;
+
 
 export default class LatticeWaveSolver implements WaveSolver {
 
@@ -275,9 +277,12 @@ export default class LatticeWaveSolver implements WaveSolver {
 
     const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
     const dy = this.regionHeight / gridHeight;
-    const topSlitCenterY = this.slitSeparation / 2;
-    const bottomSlitCenterY = -this.slitSeparation / 2;
-    const halfSlitWidth = this.slitWidth / 2;
+    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, displayLambda );
+
+    const topSlitCenterY = displaySlitSep / 2;
+    const bottomSlitCenterY = -displaySlitSep / 2;
+    const halfSlitWidth = displaySlitWidth / 2;
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
       const y = ( iy - gridHeight / 2 ) * dy;

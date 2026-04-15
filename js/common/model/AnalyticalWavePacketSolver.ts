@@ -12,6 +12,7 @@
 
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { type ObstacleType } from './ObstacleType.js';
+import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters } from './WaveSolver.js';
 
@@ -183,16 +184,18 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     kDisplay: number, omegaDisplay: number, xCenter: number,
     dx: number, dy: number, invTwoSigmaXSq: number, sigmaY: number
   ): void {
-    const { gridWidth, gridHeight, amplitudeField, slitSeparation, slitWidth, time, envYCache } = this;
+    const { gridWidth, gridHeight, amplitudeField, time, envYCache } = this;
     const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
     const barrierX = barrierIx * dx;
 
-    const topSlitY = slitSeparation / 2;
-    const bottomSlitY = -slitSeparation / 2;
+    const lambdaDisplay = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, lambdaDisplay );
+
+    const topSlitY = displaySlitSep / 2;
+    const bottomSlitY = -displaySlitSep / 2;
 
     const deltaBarrier = barrierX - xCenter;
     const packetAtBarrier = Math.exp( -deltaBarrier * deltaBarrier * invTwoSigmaXSq );
-    const lambdaDisplay = this.regionWidth / DISPLAY_WAVELENGTHS;
     const wavefrontDist = Math.max( xCenter - barrierX, 0 );
 
     // Precompute slit-center vertical envelope factors (constant per slit)
@@ -237,8 +240,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         for ( let iy = 0; iy < gridHeight; iy++ ) {
           const idx = ( iy * gridWidth + ix ) * 2;
           const y = ( iy - gridHeight / 2 ) * dy;
-          const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitY ) < slitWidth / 2;
-          const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < slitWidth / 2;
+          const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitY ) < displaySlitWidth / 2;
+          const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < displaySlitWidth / 2;
 
           if ( ( inTopSlit || inBottomSlit ) && packetAtBarrier > 1e-6 ) {
             const envelope = packetAtBarrier * envYCache[ iy ];
@@ -272,7 +275,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
             if ( this.isTopSlitOpen ) {
               this.computeSlitContribution(
                 kDisplay, omegaDisplay, lambdaDisplay, barrierX, topSlitY,
-                slitWidth, x, y, topSlitEnvY
+                displaySlitWidth, x, y, topSlitEnvY
               );
               totalRe += this.scratchRe;
               totalIm += this.scratchIm;
@@ -281,7 +284,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
             if ( this.isBottomSlitOpen ) {
               this.computeSlitContribution(
                 kDisplay, omegaDisplay, lambdaDisplay, barrierX, bottomSlitY,
-                slitWidth, x, y, bottomSlitEnvY
+                displaySlitWidth, x, y, bottomSlitEnvY
               );
               totalRe += this.scratchRe;
               totalIm += this.scratchIm;
