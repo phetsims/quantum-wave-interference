@@ -390,7 +390,8 @@ class SnapshotCanvasNode extends CanvasNode {
       return;
     }
 
-    const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
+    const normalizedBrightness = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
+    const displayGain = getIntensityDisplayGain( normalizedBrightness, snapshot.intensity );
     const screenHalfWidth = SCREEN_HALF_WIDTH_FOR_SOURCE_TYPE[ snapshot.sourceType ];
     const slitWidthMeters = SLIT_WIDTH_FOR_SOURCE_TYPE[ snapshot.sourceType ] * 1e-3;
     const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
