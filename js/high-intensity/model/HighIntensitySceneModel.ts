@@ -166,6 +166,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
     const slitConfig = this.slitConfigurationProperty.value;
     const isDetectorActive = hasAnyDetector( slitConfig );
+    const distribution = this.waveSolver.getDetectorProbabilityDistribution();
     let actualHits = 0;
     let leftHits = 0;
     let rightHits = 0;
@@ -175,7 +176,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
         break;
       }
 
-      const x = this.generateHitPosition();
+      const x = this.generateHitPosition( distribution );
       const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * HIT_VERTICAL_EXTENT;
       this.hits.push( new Vector2( x, y ) );
       actualHits++;

@@ -266,8 +266,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return false;
   }
 
-  protected generateHitPosition(): number {
-    const distribution = this.waveSolver.getDetectorProbabilityDistribution();
+  protected generateHitPosition( distribution?: Float64Array ): number {
+    if ( !distribution ) {
+      distribution = this.waveSolver.getDetectorProbabilityDistribution();
+    }
     const n = distribution.length;
 
     let totalSum = 0;

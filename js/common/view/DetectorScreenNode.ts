@@ -15,6 +15,9 @@ import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
+import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import Animation from '../../../../twixt/js/Animation.js';
+import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type DetectorScreenSceneLike } from './DetectorScreenTextureRenderer.js';
 import DetectorScreenTextureRenderer from './DetectorScreenTextureRenderer.js';
@@ -26,10 +29,14 @@ export type DetectorScreenNodeOptions = SelfOptions & NodeOptions;
 const SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW;
+const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
+const SNAPSHOT_FLASH_DURATION = 0.6;
 
 export default class DetectorScreenNode extends Node {
 
   private readonly canvasNode: CanvasNode;
+  private readonly snapshotFlashRect: Rectangle;
+  private snapshotFlashAnimation: Animation | null = null;
 
   public constructor( sceneProperty: TReadOnlyProperty<DetectorScreenSceneLike>, providedOptions?: DetectorScreenNodeOptions ) {
 
@@ -55,6 +62,50 @@ export default class DetectorScreenNode extends Node {
     this.canvasNode = new DetectorScreenCanvasNode( sceneProperty, textureRenderer, SCREEN_WIDTH + SKEW, SCREEN_HEIGHT );
     this.canvasNode.clipArea = shape;
     this.addChild( this.canvasNode );
+
+    this.snapshotFlashRect = new Rectangle( 0, 0, SCREEN_WIDTH + SKEW, SCREEN_HEIGHT, {
+      fill: 'white',
+      opacity: 0,
+      visible: false,
+      pickable: false
+    } );
+    this.snapshotFlashRect.clipArea = shape;
+    this.addChild( this.snapshotFlashRect );
+  }
+
+  public startSnapshotFlash(): void {
+    this.clearSnapshotFlash();
+    this.snapshotFlashRect.opacity = SNAPSHOT_FLASH_INITIAL_OPACITY;
+    this.snapshotFlashRect.visible = true;
+
+    const flashAnimation = new Animation( {
+      object: this.snapshotFlashRect,
+      attribute: 'opacity',
+      from: SNAPSHOT_FLASH_INITIAL_OPACITY,
+      to: 0,
+      duration: SNAPSHOT_FLASH_DURATION,
+      easing: Easing.LINEAR
+    } );
+
+    this.snapshotFlashAnimation = flashAnimation;
+
+    flashAnimation.endedEmitter.addListener( () => {
+      if ( this.snapshotFlashAnimation === flashAnimation ) {
+        this.snapshotFlashAnimation = null;
+      }
+      this.snapshotFlashRect.visible = false;
+      flashAnimation.dispose();
+    } );
+
+    flashAnimation.start();
+  }
+
+  private clearSnapshotFlash(): void {
+    if ( this.snapshotFlashAnimation ) {
+      this.snapshotFlashAnimation.stop();
+    }
+    this.snapshotFlashRect.opacity = 0;
+    this.snapshotFlashRect.visible = false;
   }
 
   public step(): void {

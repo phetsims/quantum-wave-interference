@@ -223,7 +223,8 @@ export default class SingleParticlesScreenView extends ScreenView {
         positionPlotCheckbox,
         detectorCheckbox
       ],
-      clearScreen: () => model.sceneProperty.value.clearScreen()
+      clearScreen: () => model.sceneProperty.value.clearScreen(),
+      onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash()
     } );
 
     rightControlsVBox.right = this.layoutBounds.maxX - X_MARGIN;
