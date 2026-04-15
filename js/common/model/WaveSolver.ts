@@ -46,6 +46,9 @@ type WaveSolver = {
   reset(): void;
 
   invalidate(): void;
+
+  // Returns true if there are still waves in the visualization region (used for post-emitter-off propagation)
+  hasWavesInRegion(): boolean;
 };
 
 export default WaveSolver;

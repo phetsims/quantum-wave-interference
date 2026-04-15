@@ -11,6 +11,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
@@ -44,6 +45,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   // Whether the wave field should be rendered in the visualization region
   public readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
+  private readonly _isWaveVisibleProperty: BooleanProperty;
 
   private hitAccumulator: number;
 
@@ -70,7 +72,8 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       tandem: tandem.createTandem( 'detectionModeProperty' )
     } );
 
-    this.isWaveVisibleProperty = this.isEmittingProperty;
+    this._isWaveVisibleProperty = new BooleanProperty( false );
+    this.isWaveVisibleProperty = this._isWaveVisibleProperty;
 
     this.leftDetectorHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'leftDetectorHitsProperty' ),
@@ -135,10 +138,12 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
    */
   public step( dt: number ): void {
 
-    // Always step the wave solver so animation continues
-    if ( this.isEmittingProperty.value ) {
-      this.waveSolver.step( dt );
-    }
+    // Always step the wave solver so existing waves continue to propagate after the emitter is turned off
+    this.waveSolver.step( dt );
+
+    // Update wave visibility: show waves while emitting or while existing waves are still in the region
+    this._isWaveVisibleProperty.value =
+      this.isEmittingProperty.value || this.waveSolver.hasWavesInRegion();
 
     // Accumulate hits when emitting in hits mode
     if (
@@ -208,6 +213,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.hitAccumulator = 0;
     this.leftDetectorHitsProperty.reset();
     this.rightDetectorHitsProperty.reset();
+    this._isWaveVisibleProperty.reset();
     this.syncSolverParameters();
   }
 }
