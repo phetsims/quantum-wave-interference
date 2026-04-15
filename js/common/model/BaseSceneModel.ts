@@ -37,11 +37,9 @@ import type WaveSolver from './WaveSolver.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import Snapshot from '../../experiment/model/Snapshot.js';
 
-export const MAX_REJECTION_ITERATIONS = 1000;
 export const HIT_VERTICAL_EXTENT = 0.95;
 export const MAX_HITS = 25000;
 const MAX_SNAPSHOTS = 4;
-const TARGET_VISIBLE_FRINGES = 5;
 const DEFAULT_PHOTON_WAVELENGTH_NM = 650;
 
 type SelfOptions = {
@@ -56,12 +54,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly sourceType: SourceType;
   protected readonly particleMass: number;
   public readonly slitWidth: number;
-  public readonly screenHalfWidth: number;
   public readonly velocityRange: Range;
   public readonly slitSeparationRange: Range;
   public readonly regionWidth: number;
   public readonly regionHeight: number;
-  protected readonly baseEffectiveScreenDistance: number;
 
   public readonly isEmittingProperty: BooleanProperty;
   public readonly wavelengthProperty: NumberProperty;
@@ -98,7 +94,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     const tandem = options.tandem;
 
     this.slitWidth = getSlitWidthForSourceType( this.sourceType );
-    this.screenHalfWidth = getScreenHalfWidthForSourceType( this.sourceType );
     this.waveSolver = waveSolver;
 
     let defaultVelocity: number;
@@ -140,12 +135,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
       this.regionWidth = 8e-4;
       this.regionHeight = 8e-4;
     }
-
-    const defaultLambda = options.sourceType === 'photons'
-      ? DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9
-      : QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * defaultVelocity );
-    this.baseEffectiveScreenDistance = this.screenHalfWidth * ( defaultSlitSeparation * 1e-3 ) /
-                                      ( TARGET_VISIBLE_FRINGES * defaultLambda );
 
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
@@ -237,10 +226,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return this.sourceType === 'photons' ? 3e8 : this.velocityProperty.value;
   }
 
-  protected getEffectiveScreenDistance(): number {
-    return ( 1 - this.slitPositionFractionProperty.value ) * 2 * this.baseEffectiveScreenDistance;
-  }
-
   protected abstract isTopSlitOpen(): boolean;
 
   protected abstract isBottomSlitOpen(): boolean;
@@ -248,43 +233,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
   protected isTopSlitDecoherent(): boolean { return false; }
 
   protected isBottomSlitDecoherent(): boolean { return false; }
-
-  public abstract getIntensityAtPosition( positionOnScreen: number ): number;
-
-  protected computeDoubleSlitIntensity( positionOnScreen: number ): number {
-    const lambda = this.getEffectiveWavelength();
-    if ( lambda === 0 ) {
-      return 0;
-    }
-
-    const slitSeparationMeters = this.slitSeparationProperty.value * 1e-3;
-    const slitWidthMeters = this.slitWidth * 1e-3;
-    const screenDistanceMeters = this.getEffectiveScreenDistance();
-
-    const sinTheta = positionOnScreen / Math.sqrt( positionOnScreen * positionOnScreen + screenDistanceMeters * screenDistanceMeters );
-
-    const singleSlitArg = Math.PI * slitWidthMeters * sinTheta / lambda;
-    const singleSlitFactor = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
-
-    const doubleSlitArg = Math.PI * slitSeparationMeters * sinTheta / lambda;
-    const doubleSlitFactor = Math.pow( Math.cos( doubleSlitArg ), 2 );
-    return doubleSlitFactor * singleSlitFactor;
-  }
-
-  protected computeSingleSlitIntensity( positionOnScreen: number, slitOffsetMeters: number ): number {
-    const lambda = this.getEffectiveWavelength();
-    if ( lambda === 0 ) {
-      return 0;
-    }
-
-    const slitWidthMeters = this.slitWidth * 1e-3;
-    const screenDistanceMeters = this.getEffectiveScreenDistance();
-    const shiftedPosition = positionOnScreen - slitOffsetMeters;
-    const shiftedSinTheta = shiftedPosition /
-                            Math.sqrt( shiftedPosition * shiftedPosition + screenDistanceMeters * screenDistanceMeters );
-    const shiftedArg = Math.PI * slitWidthMeters * shiftedSinTheta / lambda;
-    return shiftedArg === 0 ? 1 : Math.pow( Math.sin( shiftedArg ) / shiftedArg, 2 );
-  }
 
   protected syncSolverParameters(): void {
     this.waveSolver.setParameters( {
@@ -319,14 +267,33 @@ export default abstract class BaseSceneModel extends PhetioObject {
   }
 
   protected generateHitPosition(): number {
-    for ( let i = 0; i < MAX_REJECTION_ITERATIONS; i++ ) {
-      const physicalX = ( dotRandom.nextDouble() - 0.5 ) * 2 * this.screenHalfWidth;
-      const probability = this.getIntensityAtPosition( physicalX );
-      if ( dotRandom.nextDouble() < probability ) {
-        return physicalX / this.screenHalfWidth;
+    const distribution = this.waveSolver.getDetectorProbabilityDistribution();
+    const n = distribution.length;
+
+    let totalSum = 0;
+    for ( let i = 0; i < n; i++ ) {
+      totalSum += distribution[ i ];
+    }
+
+    if ( totalSum <= 0 ) {
+      return ( dotRandom.nextDouble() - 0.5 ) * 2;
+    }
+
+    const threshold = dotRandom.nextDouble() * totalSum;
+    let runningSum = 0;
+    let selectedBin = n - 1;
+    for ( let i = 0; i < n; i++ ) {
+      runningSum += distribution[ i ];
+      if ( runningSum >= threshold ) {
+        selectedBin = i;
+        break;
       }
     }
-    return 0;
+
+    // Sub-bin jitter to avoid discrete banding in hit patterns
+    const binWidth = 2.0 / n;
+    const binCenter = ( ( selectedBin + 0.5 ) / n ) * 2 - 1;
+    return binCenter + ( dotRandom.nextDouble() - 0.5 ) * binWidth;
   }
 
   public clearScreen(): void {
@@ -412,6 +379,3 @@ function getSlitWidthForSourceType( sourceType: SourceType ): number {
          ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
 }
 
-function getScreenHalfWidthForSourceType( sourceType: SourceType ): number {
-  return sourceType === 'neutrons' || sourceType === 'heliumAtoms' ? 4e-4 : 0.02;
-}
