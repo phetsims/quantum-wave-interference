@@ -74,7 +74,7 @@ export default class DetectorScreenNode extends Node {
   }
 
   public startSnapshotFlash(): void {
-    this.clearSnapshotFlash();
+    this.clearFlash();
     this.snapshotFlashRect.opacity = SNAPSHOT_FLASH_INITIAL_OPACITY;
     this.snapshotFlashRect.visible = true;
 
@@ -100,7 +100,7 @@ export default class DetectorScreenNode extends Node {
     flashAnimation.start();
   }
 
-  private clearSnapshotFlash(): void {
+  public clearFlash(): void {
     if ( this.snapshotFlashAnimation ) {
       this.snapshotFlashAnimation.stop();
     }

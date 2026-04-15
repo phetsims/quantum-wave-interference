@@ -67,6 +67,9 @@ type CreateRightControlsColumnOptions = {
 
   // Callback triggered after a snapshot is successfully captured (used to trigger the detector screen flash)
   onSnapshotCaptured?: () => void;
+
+  // Callback to reset view-only state (zoom levels, plot positions) alongside model.reset()
+  resetView?: () => void;
 };
 
 type RightControlsColumnResult = {
@@ -171,7 +174,10 @@ const createRightControlsColumn = (
   // --- Reset All ---
 
   const resetAllButton = new ResetAllButton( {
-    listener: () => { model.reset(); },
+    listener: () => {
+      model.reset();
+      options.resetView?.();
+    },
     tandem: tandem.createTandem( 'resetAllButton' )
   } );
 
