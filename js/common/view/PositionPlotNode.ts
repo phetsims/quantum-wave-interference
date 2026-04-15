@@ -128,8 +128,8 @@ export default class PositionPlotNode extends Node {
     this.chartNode = new WavePlotChartNode( {
       yAxisLabelStringProperty: yAxisLabelStringProperty,
       xAxisLabelStringProperty: QuantumWaveInterferenceFluent.positionStringProperty,
-      x: waveRegionX + waveRegionWidth + 50,
-      y: waveRegionY + 20
+      x: waveRegionX,
+      y: waveRegionY + waveRegionHeight + 30
     } );
     this.addChild( this.chartNode );
 
@@ -137,14 +137,10 @@ export default class PositionPlotNode extends Node {
       [ this.chartNode.boundsProperty ],
       bounds => bounds.leftCenter
     );
-    const crosshairConnectionProperty = new DerivedProperty(
-      [ crosshairPositionProperty ],
-      position => position
-    );
     const wireNormal1Property = new Vector2Property( new Vector2( -WIRE_NORMAL_DISTANCE, 0 ) );
     const wireNormal2Property = new Vector2Property( new Vector2( WIRE_NORMAL_DISTANCE, 0 ) );
 
-    const wireNode = new WireNode( chartConnectionProperty, wireNormal1Property, crosshairConnectionProperty, wireNormal2Property, {
+    const wireNode = new WireNode( chartConnectionProperty, wireNormal1Property, crosshairPositionProperty, wireNormal2Property, {
       stroke: QuantumWaveInterferenceColors.graphGridLineColorProperty,
       lineWidth: WIRE_LINE_WIDTH
     } );
@@ -204,5 +200,6 @@ export default class PositionPlotNode extends Node {
   public reset(): void {
     this.lineYFractionProperty.reset();
     this.chartNode.dataPath.shape = null;
+    this.chartNode.resetPosition();
   }
 }
