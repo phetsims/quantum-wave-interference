@@ -25,7 +25,6 @@ import { hasAnyDetector, hasDetectorOnSide } from '../../common/model/SlitConfig
 import { type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
 
 const MAX_EMISSION_RATE = 100;
-const SINGLE_OPEN_SLIT_INTENSITY_SCALE = 0.5;
 
 export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 
@@ -118,37 +117,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   protected override isBottomSlitDecoherent(): boolean {
     return hasDetectorOnSide( this.slitConfigurationProperty.value, 'right' );
-  }
-
-  public override getIntensityAtPosition( positionOnScreen: number ): number {
-    const lambda = this.getEffectiveWavelength();
-    if ( lambda === 0 ) {
-      return 0;
-    }
-
-    if ( this.obstacleTypeProperty.value === 'none' ) {
-      return 1;
-    }
-
-    const slitConfig = this.slitConfigurationProperty.value;
-    const slitSeparationMeters = this.slitSeparationProperty.value * 1e-3;
-
-    if ( slitConfig === 'leftCovered' || slitConfig === 'rightCovered' ) {
-      const uncoveredSlitOffsetMeters = slitConfig === 'leftCovered' ? slitSeparationMeters / 2 :
-                                        -slitSeparationMeters / 2;
-      return SINGLE_OPEN_SLIT_INTENSITY_SCALE * this.computeSingleSlitIntensity( positionOnScreen, uncoveredSlitOffsetMeters );
-    }
-
-    if ( hasAnyDetector( slitConfig ) ) {
-      // Detectors destroy coherence: incoherent sum of two independent single-slit patterns
-      const topSlitOffset = -slitSeparationMeters / 2;
-      const bottomSlitOffset = slitSeparationMeters / 2;
-      const topIntensity = this.computeSingleSlitIntensity( positionOnScreen, topSlitOffset );
-      const bottomIntensity = this.computeSingleSlitIntensity( positionOnScreen, bottomSlitOffset );
-      return SINGLE_OPEN_SLIT_INTENSITY_SCALE * ( topIntensity + bottomIntensity );
-    }
-
-    return this.computeDoubleSlitIntensity( positionOnScreen );
   }
 
   public override clearScreen(): void {

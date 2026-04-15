@@ -47,11 +47,9 @@ export type SidewaysGraphSceneLike = {
   hits: Vector2[];
   sourceType: SourceType;
   wavelengthProperty: TReadOnlyProperty<number>;
-  screenHalfWidth: number;
   isEmittingProperty: TReadOnlyProperty<boolean>;
   hitsChangedEmitter: TEmitter;
   waveSolver: WaveSolver;
-  getIntensityAtPosition( position: number ): number;
   intensityProperty?: TReadOnlyProperty<number>;
 };
 

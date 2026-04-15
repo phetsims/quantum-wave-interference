@@ -28,12 +28,10 @@ export type DetectorScreenSceneLike = {
   hits: Vector2[];
   sourceType: SourceType;
   wavelengthProperty: TReadOnlyProperty<number>;
-  screenHalfWidth: number;
   screenBrightnessProperty: TReadOnlyProperty<number> & { range: { max: number } };
   isEmittingProperty: TReadOnlyProperty<boolean>;
   hitsChangedEmitter: TEmitter;
   waveSolver: WaveSolver;
-  getIntensityAtPosition( position: number ): number;
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   intensityProperty?: TReadOnlyProperty<number>;
 };

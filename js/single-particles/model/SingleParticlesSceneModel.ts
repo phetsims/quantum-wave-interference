@@ -145,28 +145,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     return this.slitConfigurationProperty.value !== 'rightCovered';
   }
 
-  public override getIntensityAtPosition( positionOnScreen: number ): number {
-    const lambda = this.getEffectiveWavelength();
-    if ( lambda === 0 ) {
-      return 0;
-    }
-
-    if ( this.obstacleTypeProperty.value === 'none' ) {
-      return 1;
-    }
-
-    const slitConfig = this.slitConfigurationProperty.value;
-    const slitSeparationMeters = this.slitSeparationProperty.value * 1e-3;
-
-    if ( slitConfig === 'leftCovered' || slitConfig === 'rightCovered' ) {
-      const uncoveredSlitOffsetMeters = slitConfig === 'leftCovered' ? slitSeparationMeters / 2 :
-                                        -slitSeparationMeters / 2;
-      return this.computeSingleSlitIntensity( positionOnScreen, uncoveredSlitOffsetMeters );
-    }
-
-    return this.computeDoubleSlitIntensity( positionOnScreen );
-  }
-
   public override clearScreen(): void {
     this.isPacketActiveProperty.value = false;
     this.packetProgress = 0;
