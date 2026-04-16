@@ -14,6 +14,10 @@
  * wavelength is mapped to a fixed number of display wavelengths across the grid, similar to the
  * approach used by AnalyticalWaveSolver. The Courant number is a fixed constant (0.5).
  *
+ * When decoherence is active (detector at a slit on the High Intensity screen), two independent
+ * lattice simulations are run — one per slit — and combined incoherently (sum of intensities) in
+ * the output fields, which suppresses interference fringes.
+ *
  * Based on the legacy Java ClassicalWavePropagator.java from the original PhET Wave Interference simulation.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -39,6 +43,11 @@ const DISPLAY_WAVELENGTHS = 10;
 // Fixed number of lattice sub-steps per frame call, independent of physical time scale
 const STEPS_PER_FRAME = 4;
 
+type WaveTriple = {
+  current: Float64Array;
+  previous: Float64Array;
+  twoStepsAgo: Float64Array;
+};
 
 export default class LatticeWaveSolver implements WaveSolver {
 
@@ -53,15 +62,22 @@ export default class LatticeWaveSolver implements WaveSolver {
   private barrierFractionX = 0.5;
   private isTopSlitOpen = true;
   private isBottomSlitOpen = true;
+  private isTopSlitDecoherent = false;
+  private isBottomSlitDecoherent = false;
   private isSourceOn = false;
   private regionWidth = 1.0;
   private regionHeight = 1.0;
 
-  // Three time levels for the leapfrog scheme, each storing interleaved [real, imaginary] pairs.
-  // After each step, `previous` holds the most recently computed state.
-  private current: Float64Array;
-  private previous: Float64Array;
-  private twoStepsAgo: Float64Array;
+  private mainTriple: WaveTriple;
+
+  // When decoherence is active, two independent lattices propagate waves from each slit in
+  // isolation. Their outputs are combined incoherently (sum of intensities) to suppress fringes.
+  private decoBuffers: {
+    tripleA: WaveTriple;
+    tripleB: WaveTriple;
+    maskA: Uint8Array;
+    maskB: Uint8Array;
+  } | null = null;
 
   private barrierMask: Uint8Array;
   private barrierDirty = true;
@@ -79,9 +95,11 @@ export default class LatticeWaveSolver implements WaveSolver {
     this.gridHeight = gridHeight;
 
     const totalCells = gridWidth * gridHeight;
-    this.current = new Float64Array( totalCells * 2 );
-    this.previous = new Float64Array( totalCells * 2 );
-    this.twoStepsAgo = new Float64Array( totalCells * 2 );
+    this.mainTriple = {
+      current: new Float64Array( totalCells * 2 ),
+      previous: new Float64Array( totalCells * 2 ),
+      twoStepsAgo: new Float64Array( totalCells * 2 )
+    };
 
     this.barrierMask = new Uint8Array( totalCells );
     this.dampingCoefficients = new Float64Array( totalCells );
@@ -101,6 +119,8 @@ export default class LatticeWaveSolver implements WaveSolver {
     if ( params.barrierFractionX !== undefined ) { this.barrierFractionX = params.barrierFractionX; }
     if ( params.isTopSlitOpen !== undefined ) { this.isTopSlitOpen = params.isTopSlitOpen; }
     if ( params.isBottomSlitOpen !== undefined ) { this.isBottomSlitOpen = params.isBottomSlitOpen; }
+    if ( params.isTopSlitDecoherent !== undefined ) { this.isTopSlitDecoherent = params.isTopSlitDecoherent; }
+    if ( params.isBottomSlitDecoherent !== undefined ) { this.isBottomSlitDecoherent = params.isBottomSlitDecoherent; }
     if ( params.isSourceOn !== undefined ) { this.isSourceOn = params.isSourceOn; }
     if ( params.regionWidth !== undefined ) { this.regionWidth = params.regionWidth; }
     if ( params.regionHeight !== undefined ) { this.regionHeight = params.regionHeight; }
@@ -118,34 +138,59 @@ export default class LatticeWaveSolver implements WaveSolver {
     }
 
     if ( this.barrierDirty ) {
-      this.computeBarrierMask();
+      this.computeBarrierMask( this.barrierMask, this.isTopSlitOpen, this.isBottomSlitOpen );
+      this.updateDecoherenceState();
       this.barrierDirty = false;
     }
 
-    for ( let s = 0; s < STEPS_PER_FRAME; s++ ) {
-      this.propagateOneStep();
+    if ( this.decoBuffers ) {
+      for ( let s = 0; s < STEPS_PER_FRAME; s++ ) {
+        this.latticeTime++;
+        this.propagateOneStep( this.decoBuffers.tripleA, this.decoBuffers.maskA );
+        this.propagateOneStep( this.decoBuffers.tripleB, this.decoBuffers.maskB );
+      }
+    }
+    else {
+      for ( let s = 0; s < STEPS_PER_FRAME; s++ ) {
+        this.latticeTime++;
+        this.propagateOneStep( this.mainTriple, this.barrierMask );
+      }
     }
 
-    // Check if the field has decayed to zero after the source turned off
     if ( !this.isSourceOn && this.waveFieldActive ) {
-      let maxMag = 0;
-      for ( let i = 0; i < this.previous.length; i++ ) {
-        const v = Math.abs( this.previous[ i ] );
-        if ( v > maxMag ) { maxMag = v; }
-        if ( v > 1e-10 ) { break; }
+      if ( this.decoBuffers ) {
+        if ( !this.hasEnergyInBuffer( this.decoBuffers.tripleA.previous ) &&
+             !this.hasEnergyInBuffer( this.decoBuffers.tripleB.previous ) ) {
+          this.waveFieldActive = false;
+        }
       }
-      if ( maxMag <= 1e-10 ) {
-        this.waveFieldActive = false;
+      else {
+        if ( !this.hasEnergyInBuffer( this.mainTriple.previous ) ) {
+          this.waveFieldActive = false;
+        }
       }
     }
 
     this.dirty = true;
   }
 
+  private hasEnergyInBuffer( buffer: Float64Array ): boolean {
+    for ( let i = 0; i < buffer.length; i++ ) {
+      if ( Math.abs( buffer[ i ] ) > 1e-10 ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private ensureComputed(): void {
     if ( this.dirty ) {
-      // `previous` holds the most recently computed state after buffer cycling
-      this.amplitudeField.set( this.previous );
+      if ( this.decoBuffers ) {
+        this.combineDecoherentFields();
+      }
+      else {
+        this.amplitudeField.set( this.mainTriple.previous );
+      }
       this.computeDetectorDistribution();
       this.dirty = false;
     }
@@ -163,14 +208,22 @@ export default class LatticeWaveSolver implements WaveSolver {
 
   public reset(): void {
     this.latticeTime = 0;
-    this.current.fill( 0 );
-    this.previous.fill( 0 );
-    this.twoStepsAgo.fill( 0 );
+    this.clearTriple( this.mainTriple );
+    if ( this.decoBuffers ) {
+      this.clearTriple( this.decoBuffers.tripleA );
+      this.clearTriple( this.decoBuffers.tripleB );
+    }
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
     this.barrierDirty = true;
     this.dirty = true;
     this.waveFieldActive = false;
+  }
+
+  private clearTriple( triple: WaveTriple ): void {
+    triple.current.fill( 0 );
+    triple.previous.fill( 0 );
+    triple.twoStepsAgo.fill( 0 );
   }
 
   public invalidate(): void {
@@ -185,18 +238,75 @@ export default class LatticeWaveSolver implements WaveSolver {
     return this.isSourceOn || this.waveFieldActive;
   }
 
-  private propagateOneStep(): void {
-    const { gridWidth, gridHeight, current, previous, twoStepsAgo, barrierMask, dampingCoefficients } = this;
-    const cSquared = COURANT_NUMBER * COURANT_NUMBER;
+  private updateDecoherenceState(): void {
+    const needDeco = this.obstacleType !== 'none' &&
+                     this.isTopSlitOpen && this.isBottomSlitOpen &&
+                     ( this.isTopSlitDecoherent || this.isBottomSlitDecoherent );
 
-    this.latticeTime++;
-    this.injectSource();
+    if ( needDeco && !this.decoBuffers ) {
+      const totalCells = this.gridWidth * this.gridHeight;
+      const size = totalCells * 2;
+      this.decoBuffers = {
+        tripleA: { current: new Float64Array( size ), previous: new Float64Array( size ), twoStepsAgo: new Float64Array( size ) },
+        tripleB: { current: new Float64Array( size ), previous: new Float64Array( size ), twoStepsAgo: new Float64Array( size ) },
+        maskA: new Uint8Array( totalCells ),
+        maskB: new Uint8Array( totalCells )
+      };
+    }
+    else if ( !needDeco && this.decoBuffers ) {
+      this.decoBuffers = null;
+    }
+
+    if ( this.decoBuffers ) {
+      this.computeBarrierMask( this.decoBuffers.maskA, true, false );
+      this.computeBarrierMask( this.decoBuffers.maskB, false, true );
+    }
+  }
+
+  private combineDecoherentFields(): void {
+    const prevA = this.decoBuffers!.tripleA.previous;
+    const prevB = this.decoBuffers!.tripleB.previous;
+    const { amplitudeField } = this;
+    const n = prevA.length;
+
+    for ( let i = 0; i < n; i += 2 ) {
+      const reA = prevA[ i ];
+      const imA = prevA[ i + 1 ];
+      const reB = prevB[ i ];
+      const imB = prevB[ i + 1 ];
+
+      const intensityA = reA * reA + imA * imA;
+      const intensityB = reB * reB + imB * imB;
+      const totalIntensity = intensityA + intensityB;
+
+      if ( intensityA > 1e-20 ) {
+        const scale = Math.sqrt( totalIntensity / intensityA );
+        amplitudeField[ i ] = reA * scale;
+        amplitudeField[ i + 1 ] = imA * scale;
+      }
+      else if ( totalIntensity > 1e-20 ) {
+        amplitudeField[ i ] = Math.sqrt( totalIntensity );
+        amplitudeField[ i + 1 ] = 0;
+      }
+      else {
+        amplitudeField[ i ] = 0;
+        amplitudeField[ i + 1 ] = 0;
+      }
+    }
+  }
+
+  private propagateOneStep( triple: WaveTriple, mask: Uint8Array ): void {
+    const { gridWidth, gridHeight, dampingCoefficients } = this;
+    const cSquared = COURANT_NUMBER * COURANT_NUMBER;
+    const { current, previous, twoStepsAgo } = triple;
+
+    this.injectSource( current, previous, twoStepsAgo );
 
     for ( let ix = 1; ix < gridWidth - 1; ix++ ) {
       for ( let iy = 1; iy < gridHeight - 1; iy++ ) {
         const cellIdx = iy * gridWidth + ix;
 
-        if ( barrierMask[ cellIdx ] ) {
+        if ( mask[ cellIdx ] ) {
           const idx = cellIdx * 2;
           current[ idx ] = 0;
           current[ idx + 1 ] = 0;
@@ -208,15 +318,14 @@ export default class LatticeWaveSolver implements WaveSolver {
         const prevRe = previous[ idx ];
         const prevIm = previous[ idx + 1 ];
 
-        // Use cellIdx arithmetic for barrier neighbor lookups
-        const rightRe = barrierMask[ cellIdx + 1 ] ? 0 : previous[ ( cellIdx + 1 ) * 2 ];
-        const rightIm = barrierMask[ cellIdx + 1 ] ? 0 : previous[ ( cellIdx + 1 ) * 2 + 1 ];
-        const leftRe = barrierMask[ cellIdx - 1 ] ? 0 : previous[ ( cellIdx - 1 ) * 2 ];
-        const leftIm = barrierMask[ cellIdx - 1 ] ? 0 : previous[ ( cellIdx - 1 ) * 2 + 1 ];
-        const upRe = barrierMask[ cellIdx - gridWidth ] ? 0 : previous[ ( cellIdx - gridWidth ) * 2 ];
-        const upIm = barrierMask[ cellIdx - gridWidth ] ? 0 : previous[ ( cellIdx - gridWidth ) * 2 + 1 ];
-        const downRe = barrierMask[ cellIdx + gridWidth ] ? 0 : previous[ ( cellIdx + gridWidth ) * 2 ];
-        const downIm = barrierMask[ cellIdx + gridWidth ] ? 0 : previous[ ( cellIdx + gridWidth ) * 2 + 1 ];
+        const rightRe = mask[ cellIdx + 1 ] ? 0 : previous[ ( cellIdx + 1 ) * 2 ];
+        const rightIm = mask[ cellIdx + 1 ] ? 0 : previous[ ( cellIdx + 1 ) * 2 + 1 ];
+        const leftRe = mask[ cellIdx - 1 ] ? 0 : previous[ ( cellIdx - 1 ) * 2 ];
+        const leftIm = mask[ cellIdx - 1 ] ? 0 : previous[ ( cellIdx - 1 ) * 2 + 1 ];
+        const upRe = mask[ cellIdx - gridWidth ] ? 0 : previous[ ( cellIdx - gridWidth ) * 2 ];
+        const upIm = mask[ cellIdx - gridWidth ] ? 0 : previous[ ( cellIdx - gridWidth ) * 2 + 1 ];
+        const downRe = mask[ cellIdx + gridWidth ] ? 0 : previous[ ( cellIdx + gridWidth ) * 2 ];
+        const downIm = mask[ cellIdx + gridWidth ] ? 0 : previous[ ( cellIdx + gridWidth ) * 2 + 1 ];
 
         const laplacianRe = rightRe + leftRe + upRe + downRe - 4 * prevRe;
         const laplacianIm = rightIm + leftIm + upIm + downIm - 4 * prevIm;
@@ -235,19 +344,18 @@ export default class LatticeWaveSolver implements WaveSolver {
       }
     }
 
-    this.applyAbsorbingBoundaries();
+    this.applyAbsorbingBoundaries( current, twoStepsAgo );
 
-    // Cycle buffers: after this, `previous` holds the just-computed state
-    const temp = this.twoStepsAgo;
-    this.twoStepsAgo = this.previous;
-    this.previous = this.current;
-    this.current = temp;
+    // Cycle buffers: after this, `previous` holds the just-computed state.
+    const temp = triple.twoStepsAgo;
+    triple.twoStepsAgo = triple.previous;
+    triple.previous = triple.current;
+    triple.current = temp;
   }
 
-  private injectSource(): void {
+  private injectSource( current: Float64Array, previous: Float64Array, twoStepsAgo: Float64Array ): void {
     const { gridWidth, gridHeight } = this;
 
-    // Map physical wavelength to display wavelengths in lattice units
     const latticeWavelength = gridWidth / DISPLAY_WAVELENGTHS;
     const latticeK = 2 * Math.PI / latticeWavelength;
     const latticeOmega = latticeK * COURANT_NUMBER;
@@ -259,18 +367,18 @@ export default class LatticeWaveSolver implements WaveSolver {
 
       for ( let iy = 0; iy < gridHeight; iy++ ) {
         const idx = ( iy * gridWidth + sourceCol ) * 2;
-        this.current[ idx ] = re;
-        this.current[ idx + 1 ] = im;
-        this.previous[ idx ] = re;
-        this.previous[ idx + 1 ] = im;
-        this.twoStepsAgo[ idx ] = re;
-        this.twoStepsAgo[ idx + 1 ] = im;
+        current[ idx ] = re;
+        current[ idx + 1 ] = im;
+        previous[ idx ] = re;
+        previous[ idx + 1 ] = im;
+        twoStepsAgo[ idx ] = re;
+        twoStepsAgo[ idx + 1 ] = im;
       }
     }
   }
 
-  private applyAbsorbingBoundaries(): void {
-    const { gridWidth, gridHeight, current, twoStepsAgo } = this;
+  private applyAbsorbingBoundaries( current: Float64Array, twoStepsAgo: Float64Array ): void {
+    const { gridWidth, gridHeight } = this;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const boundaryIdx = ix * 2;
@@ -294,9 +402,9 @@ export default class LatticeWaveSolver implements WaveSolver {
     }
   }
 
-  private computeBarrierMask(): void {
-    const { gridWidth, gridHeight, barrierMask } = this;
-    barrierMask.fill( 0 );
+  private computeBarrierMask( mask: Uint8Array, openTop: boolean, openBottom: boolean ): void {
+    const { gridWidth, gridHeight } = this;
+    mask.fill( 0 );
 
     if ( this.obstacleType === 'none' ) {
       return;
@@ -313,11 +421,11 @@ export default class LatticeWaveSolver implements WaveSolver {
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
       const y = ( iy - gridHeight / 2 ) * dy;
-      const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitCenterY ) < halfSlitWidth;
-      const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitCenterY ) < halfSlitWidth;
+      const inTopSlit = openTop && Math.abs( y - topSlitCenterY ) < halfSlitWidth;
+      const inBottomSlit = openBottom && Math.abs( y - bottomSlitCenterY ) < halfSlitWidth;
 
       if ( !inTopSlit && !inBottomSlit ) {
-        barrierMask[ iy * gridWidth + barrierIx ] = 1;
+        mask[ iy * gridWidth + barrierIx ] = 1;
       }
     }
   }
