@@ -209,6 +209,12 @@
   "bottomCovered": {
     "value": "Bottom Covered"
   },
+  "topClosed": {
+    "value": "Top Closed"
+  },
+  "bottomClosed": {
+    "value": "Bottom Closed"
+  },
   "topDetector": {
     "value": "Top Detector"
   },

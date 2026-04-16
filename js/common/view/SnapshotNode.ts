@@ -53,7 +53,7 @@ const SOURCE_TYPE_DISPLAY_MAP: Record<SourceType, TReadOnlyProperty<string>> = {
   heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomsStringProperty
 };
 
-const SLIT_SETTING_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyProperty<string>> = {
+const DEFAULT_SLIT_SETTING_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyProperty<string>> = {
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
   leftCovered: QuantumWaveInterferenceFluent.topCoveredStringProperty,
   rightCovered: QuantumWaveInterferenceFluent.bottomCoveredStringProperty,
@@ -65,10 +65,13 @@ const SLIT_SETTING_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyProperty<stri
 type SnapshotNodeOptions = {
   snapshotsProperty: TReadOnlyProperty<Snapshot[]>;
   deleteSnapshot: ( snapshot: Snapshot ) => void;
+  slitSettingDisplayMap?: Record<SlitConfiguration, TReadOnlyProperty<string>>;
 };
 
 export default class SnapshotNode extends Node {
   public constructor( index: number, options: SnapshotNodeOptions ) {
+
+    const slitSettingDisplayMap = options.slitSettingDisplayMap || DEFAULT_SLIT_SETTING_DISPLAY_MAP;
 
     const snapshotProperty: TReadOnlyProperty<Snapshot | null> = new DerivedProperty(
       [ options.snapshotsProperty ],
@@ -85,12 +88,12 @@ export default class SnapshotNode extends Node {
       SOURCE_TYPE_DISPLAY_MAP.heliumAtoms
     ] as const;
     const slitSettingDisplayDeps = [
-      SLIT_SETTING_DISPLAY_MAP.bothOpen,
-      SLIT_SETTING_DISPLAY_MAP.leftCovered,
-      SLIT_SETTING_DISPLAY_MAP.rightCovered,
-      SLIT_SETTING_DISPLAY_MAP.leftDetector,
-      SLIT_SETTING_DISPLAY_MAP.rightDetector,
-      SLIT_SETTING_DISPLAY_MAP.bothDetectors
+      slitSettingDisplayMap.bothOpen,
+      slitSettingDisplayMap.leftCovered,
+      slitSettingDisplayMap.rightCovered,
+      slitSettingDisplayMap.leftDetector,
+      slitSettingDisplayMap.rightDetector,
+      slitSettingDisplayMap.bothDetectors
     ] as const;
 
     const titleProperty = new DerivedProperty(
@@ -180,7 +183,7 @@ export default class SnapshotNode extends Node {
       ],
       ifSnapshot( snapshot => StringUtils.fillIn(
         QuantumWaveInterferenceFluent.slitsLabelPatternStringProperty.value,
-        { setting: SLIT_SETTING_DISPLAY_MAP[ snapshot.slitSetting ].value }
+        { setting: slitSettingDisplayMap[ snapshot.slitSetting ].value }
       ), '' )
     );
 

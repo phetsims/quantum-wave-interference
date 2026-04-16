@@ -92,6 +92,8 @@ type StringsType = {
   'imaginaryPartStringProperty': LocalizedStringProperty;
   'topCoveredStringProperty': LocalizedStringProperty;
   'bottomCoveredStringProperty': LocalizedStringProperty;
+  'topClosedStringProperty': LocalizedStringProperty;
+  'bottomClosedStringProperty': LocalizedStringProperty;
   'topDetectorStringProperty': LocalizedStringProperty;
   'bottomDetectorStringProperty': LocalizedStringProperty;
   'autoRepeatStringProperty': LocalizedStringProperty;
