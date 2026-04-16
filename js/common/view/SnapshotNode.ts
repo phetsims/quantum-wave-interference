@@ -55,10 +55,10 @@ const SOURCE_TYPE_DISPLAY_MAP: Record<SourceType, TReadOnlyProperty<string>> = {
 
 const SLIT_SETTING_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyProperty<string>> = {
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
-  leftCovered: QuantumWaveInterferenceFluent.leftCoveredStringProperty,
-  rightCovered: QuantumWaveInterferenceFluent.rightCoveredStringProperty,
-  leftDetector: QuantumWaveInterferenceFluent.leftDetectorStringProperty,
-  rightDetector: QuantumWaveInterferenceFluent.rightDetectorStringProperty,
+  leftCovered: QuantumWaveInterferenceFluent.topCoveredStringProperty,
+  rightCovered: QuantumWaveInterferenceFluent.bottomCoveredStringProperty,
+  leftDetector: QuantumWaveInterferenceFluent.topDetectorStringProperty,
+  rightDetector: QuantumWaveInterferenceFluent.bottomDetectorStringProperty,
   bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
 };
 
