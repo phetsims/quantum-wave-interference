@@ -27,6 +27,7 @@ import createSidewaysGraph from '../../common/view/createSidewaysGraph.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
+import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
@@ -35,7 +36,6 @@ import SingleParticlesSceneModel, { type SingleParticlesSlitConfiguration } from
 import DetectorToolNode from './DetectorToolNode.js';
 import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 import SingleParticlesDetectorScreenNode from './SingleParticlesDetectorScreenNode.js';
-import SingleParticlesSourceControlPanel from './SingleParticlesSourceControlPanel.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -64,7 +64,7 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const tandem = options.tandem;
 
-    const sourceControlPanel = new SingleParticlesSourceControlPanel( model.sceneProperty, model.scenes, {
+    const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
       tandem: tandem.createTandem( 'sourceControlPanel' )
     } );
 
