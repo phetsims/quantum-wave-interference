@@ -163,6 +163,10 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       return;
     }
     this.isPacketActiveProperty.value = true;
+
+    // A fresh packet gets a fresh detector reading; prevents the detector from staying stuck in
+    // 'detected' or 'notDetected' for subsequent packets in auto-repeat mode.
+    this.detectorToolStateProperty.value = 'ready';
     this.targetDetectionTime = this.sampleDetectionTime();
     this.timeSinceLastEmission = 0;
     this.waveSolver.reset();
@@ -226,8 +230,13 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * HIT_VERTICAL_EXTENT;
     this.hits.push( new Vector2( x, y ) );
     this.totalHitsProperty.value++;
-    this.isPacketActiveProperty.value = false;
+    this.endPacket();
     this.hitsChangedEmitter.emit();
+  }
+
+  // Shared so screen detection and detector-tool detection stop the emitter consistently.
+  private endPacket(): void {
+    this.isPacketActiveProperty.value = false;
 
     if ( !this.autoRepeatProperty.value ) {
       this.isEmittingProperty.value = false;
@@ -278,7 +287,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     if ( detected ) {
       this.detectorToolStateProperty.value = 'detected';
-      this.isPacketActiveProperty.value = false;
+      this.endPacket();
     }
     else {
       this.detectorToolStateProperty.value = 'notDetected';
