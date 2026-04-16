@@ -6,9 +6,10 @@
  * createContinuousWaveSolver() is used by the High Intensity screen (plane wave propagation).
  * createWavePacketSolver() is used by the Single Particles screen (Gaussian wave packet).
  *
- * When ?waveModel=lattice, the High Intensity screen uses LatticeWaveSolver (FDTD classical wave
- * equation). The Single Particles screen currently falls back to AnalyticalWavePacketSolver for
- * the lattice option since a lattice-based Schrödinger packet solver has not yet been implemented.
+ * When ?waveModel=lattice, the High Intensity screen uses LatticeWaveSolver (FDTD classical
+ * wave equation) and the Single Particles screen uses LatticeWavePacketSolver (Modified
+ * Richardson FDTD for the Schrödinger equation). The default analytical solvers compute from
+ * closed-form Fraunhofer / Gaussian-packet expressions.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -17,6 +18,7 @@ import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQu
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
 import LatticeWaveSolver from './LatticeWaveSolver.js';
+import LatticeWavePacketSolver from './LatticeWavePacketSolver.js';
 import type WaveSolver from './WaveSolver.js';
 
 export function createContinuousWaveSolver(): WaveSolver {
@@ -26,6 +28,7 @@ export function createContinuousWaveSolver(): WaveSolver {
 }
 
 export function createWavePacketSolver(): WaveSolver {
-  // Lattice-based Schrödinger packet solver is not yet implemented; fall back to analytical.
-  return new AnalyticalWavePacketSolver();
+  return QuantumWaveInterferenceQueryParameters.waveModel === 'lattice'
+    ? new LatticeWavePacketSolver()
+    : new AnalyticalWavePacketSolver();
 }
