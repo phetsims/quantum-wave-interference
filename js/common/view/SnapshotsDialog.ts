@@ -19,15 +19,21 @@ import Dialog from '../../../../sun/js/Dialog.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 import Snapshot from '../model/Snapshot.js';
 import SnapshotNode from './SnapshotNode.js';
+
+type SnapshotsDialogOptions = {
+  slitSettingDisplayMap?: Record<SlitConfiguration, TReadOnlyProperty<string>>;
+};
 
 export default class SnapshotsDialog extends Dialog {
 
   public constructor(
     snapshotsProperty: TReadOnlyProperty<Snapshot[]>,
     deleteSnapshot: ( snapshot: Snapshot ) => void,
-    tandem: Tandem
+    tandem: Tandem,
+    providedOptions?: SnapshotsDialogOptions
   ) {
     let suppressNextCloseSound = false;
 
@@ -35,7 +41,8 @@ export default class SnapshotsDialog extends Dialog {
     for ( let i = 0; i < QuantumWaveInterferenceConstants.MAX_SNAPSHOTS; i++ ) {
       snapshotNodes.push( new SnapshotNode( i, {
         snapshotsProperty: snapshotsProperty,
-        deleteSnapshot: deleteSnapshot
+        deleteSnapshot: deleteSnapshot,
+        slitSettingDisplayMap: providedOptions?.slitSettingDisplayMap
       } ) );
     }
 

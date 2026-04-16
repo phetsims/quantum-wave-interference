@@ -159,8 +159,8 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const slitConfigItems: ComboBoxItem<SingleParticlesSlitConfiguration>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
-      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topCoveredItem' },
-      { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomCoveredItem' }
+      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topClosedItem' },
+      { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomClosedItem' }
     ];
 
     const bottomRow = createObstacleControlsRow(
@@ -226,6 +226,14 @@ export default class SingleParticlesScreenView extends ScreenView {
         this.timePlotNode.reset();
         this.positionPlotNode.reset();
         this.detectorScreenNode.clearFlash();
+      },
+      slitSettingDisplayMap: {
+        bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
+        leftCovered: QuantumWaveInterferenceFluent.topClosedStringProperty,
+        rightCovered: QuantumWaveInterferenceFluent.bottomClosedStringProperty,
+        leftDetector: QuantumWaveInterferenceFluent.topDetectorStringProperty,
+        rightDetector: QuantumWaveInterferenceFluent.bottomDetectorStringProperty,
+        bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
       }
     } );
 

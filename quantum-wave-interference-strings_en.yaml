@@ -68,6 +68,8 @@ realPart:                           Real Part
 imaginaryPart:                      Imaginary Part
 topCovered:                         Top Covered
 bottomCovered:                      Bottom Covered
+topClosed:                          Top Closed
+bottomClosed:                       Bottom Closed
 topDetector:                        Top Detector
 bottomDetector:                     Bottom Detector
 autoRepeat:                         Auto-repeat

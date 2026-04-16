@@ -85,6 +85,8 @@ addToMapIfDefined( 'realPart', 'realPartStringProperty' );
 addToMapIfDefined( 'imaginaryPart', 'imaginaryPartStringProperty' );
 addToMapIfDefined( 'topCovered', 'topCoveredStringProperty' );
 addToMapIfDefined( 'bottomCovered', 'bottomCoveredStringProperty' );
+addToMapIfDefined( 'topClosed', 'topClosedStringProperty' );
+addToMapIfDefined( 'bottomClosed', 'bottomClosedStringProperty' );
 addToMapIfDefined( 'topDetector', 'topDetectorStringProperty' );
 addToMapIfDefined( 'bottomDetector', 'bottomDetectorStringProperty' );
 addToMapIfDefined( 'autoRepeat', 'autoRepeatStringProperty' );
@@ -275,6 +277,8 @@ const QuantumWaveInterferenceFluent = {
   imaginaryPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'imaginaryPartStringProperty' ),
   topCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'topCoveredStringProperty' ),
   bottomCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomCoveredStringProperty' ),
+  topClosedStringProperty: _.get( QuantumWaveInterferenceStrings, 'topClosedStringProperty' ),
+  bottomClosedStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomClosedStringProperty' ),
   topDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'topDetectorStringProperty' ),
   bottomDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomDetectorStringProperty' ),
   autoRepeatStringProperty: _.get( QuantumWaveInterferenceStrings, 'autoRepeatStringProperty' ),

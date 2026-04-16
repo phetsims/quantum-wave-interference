@@ -29,6 +29,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Panel from '../../../../sun/js/Panel.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../model/WaveDisplayMode.js';
+import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 import Snapshot from '../model/Snapshot.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
@@ -71,6 +72,8 @@ type CreateRightControlsColumnOptions = {
 
   // Callback to reset view-only state (zoom levels, plot positions) alongside model.reset()
   resetView?: () => void;
+
+  slitSettingDisplayMap?: Record<SlitConfiguration, TReadOnlyProperty<string>>;
 };
 
 type RightControlsColumnResult = {
@@ -97,7 +100,8 @@ const createRightControlsColumn = (
   const snapshotsDialog = new SnapshotsDialog(
     model.currentSnapshotsProperty,
     snapshot => model.deleteSnapshot( snapshot ),
-    tandem.createTandem( 'snapshotsDialog' )
+    tandem.createTandem( 'snapshotsDialog' ),
+    { slitSettingDisplayMap: options.slitSettingDisplayMap }
   );
 
   const snapshotButton = new SnapshotButton(
