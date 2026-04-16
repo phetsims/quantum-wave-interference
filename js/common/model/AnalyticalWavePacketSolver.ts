@@ -10,6 +10,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
@@ -50,6 +51,10 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
   // Precomputed vertical Gaussian envelope (reused across frames when grid height is constant)
   private readonly envYCache: Float64Array;
+
+  // Projections are replayed after each recomputation because the analytical solver rebuilds the field
+  // from t=0; the hole stays fixed at its absolute grid location rather than following the packet.
+  private readonly measurementProjections: Array<{ cxGrid: number; cyGrid: number; rSqGrid: number; scale: number }> = [];
 
   private scratchRe = 0;
   private scratchIm = 0;
@@ -103,10 +108,47 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.time = 0;
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
+    this.measurementProjections.length = 0;
     this.dirty = true;
   }
 
   public invalidate(): void {
+    this.dirty = true;
+  }
+
+  public applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void {
+
+    // Ensure stored projections are applied before computing the new scale — the scale must reflect
+    // the probability distribution as the user actually observed it when measuring.
+    this.ensureComputed();
+
+    const cxGrid = centerNorm.x * this.gridWidth;
+    const cyGrid = centerNorm.y * this.gridHeight;
+    const rGrid = radiusNorm * this.gridWidth;
+    const rSqGrid = rGrid * rGrid;
+
+    const { gridWidth, gridHeight, amplitudeField } = this;
+    let totalBefore = 0;
+    let totalOutsideNew = 0;
+
+    for ( let iy = 0; iy < gridHeight; iy++ ) {
+      for ( let ix = 0; ix < gridWidth; ix++ ) {
+        const idx = ( iy * gridWidth + ix ) * 2;
+        const re = amplitudeField[ idx ];
+        const im = amplitudeField[ idx + 1 ];
+        const prob = re * re + im * im;
+        totalBefore += prob;
+
+        const dxCell = ix - cxGrid;
+        const dyCell = iy - cyGrid;
+        if ( dxCell * dxCell + dyCell * dyCell > rSqGrid ) {
+          totalOutsideNew += prob;
+        }
+      }
+    }
+
+    const scale = totalOutsideNew > 0 ? Math.sqrt( totalBefore / totalOutsideNew ) : 0;
+    this.measurementProjections.push( { cxGrid: cxGrid, cyGrid: cyGrid, rSqGrid: rSqGrid, scale: scale } );
     this.dirty = true;
   }
 
@@ -148,7 +190,37 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       this.computeSlitPacket( kDisplay, omegaDisplay, xCenter, dx, dy, invTwoSigmaXSq, sigmaY );
     }
 
+    this.applyStoredProjections();
     this.computeDetectorDistribution();
+  }
+
+  private applyStoredProjections(): void {
+    if ( this.measurementProjections.length === 0 ) {
+      return;
+    }
+
+    const { gridWidth, gridHeight, amplitudeField, measurementProjections } = this;
+
+    for ( let p = 0; p < measurementProjections.length; p++ ) {
+      const { cxGrid, cyGrid, rSqGrid, scale } = measurementProjections[ p ];
+
+      for ( let iy = 0; iy < gridHeight; iy++ ) {
+        const dyCell = iy - cyGrid;
+        const dyCellSq = dyCell * dyCell;
+        for ( let ix = 0; ix < gridWidth; ix++ ) {
+          const dxCell = ix - cxGrid;
+          const idx = ( iy * gridWidth + ix ) * 2;
+          if ( dxCell * dxCell + dyCellSq <= rSqGrid ) {
+            amplitudeField[ idx ] = 0;
+            amplitudeField[ idx + 1 ] = 0;
+          }
+          else {
+            amplitudeField[ idx ] *= scale;
+            amplitudeField[ idx + 1 ] *= scale;
+          }
+        }
+      }
+    }
   }
 
   private computeFreePacket(

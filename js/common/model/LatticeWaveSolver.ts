@@ -177,6 +177,10 @@ export default class LatticeWaveSolver implements WaveSolver {
     this.dirty = true;
   }
 
+  public applyMeasurementProjection(): void {
+    // No-op: the detector tool is only present on the Single Particles screen.
+  }
+
   public hasWavesInRegion(): boolean {
     return this.isSourceOn || this.waveFieldActive;
   }
