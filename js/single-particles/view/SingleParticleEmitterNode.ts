@@ -7,6 +7,9 @@
  *   making the button pop back out automatically.
  * - When auto-repeat is on, the button stays toggled until the user clicks again.
  *
+ * The SVG image is flipped horizontally so the cylindrical handle (with red button) is on the left and
+ * the nozzle points right toward the wave visualization region, matching the design mockups.
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
@@ -23,12 +26,11 @@ type SelfOptions = EmptySelfOptions;
 
 export type SingleParticleEmitterNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
-// Target height for the emitter image in view coordinates
 const EMITTER_HEIGHT = 120;
 const BUTTON_RADIUS = 14;
 
-// Fraction of image width/height for positioning the button on the cylindrical nozzle section
-const BUTTON_CENTER_X_FRACTION = 0.88;
+// After flipping, the cylindrical handle is on the left; place the button ~12% from the left edge.
+const BUTTON_CENTER_X_FRACTION = 0.12;
 const BUTTON_CENTER_Y_FRACTION = 0.5;
 
 export default class SingleParticleEmitterNode extends Node {
@@ -43,9 +45,10 @@ export default class SingleParticleEmitterNode extends Node {
 
     super( options );
 
-    const imageNode = new Image( singleParticleEmitter_svg, {
-      scale: EMITTER_HEIGHT / singleParticleEmitter_svg.height
-    } );
+    const baseScale = EMITTER_HEIGHT / singleParticleEmitter_svg.height;
+    const imageNode = new Image( singleParticleEmitter_svg );
+    imageNode.setScaleMagnitude( -baseScale, baseScale );
+    imageNode.left = 0;
     this.addChild( imageNode );
 
     const emitButton = new RoundStickyToggleButton( isEmittingProperty, false, true, {
@@ -54,7 +57,6 @@ export default class SingleParticleEmitterNode extends Node {
       tandem: providedOptions.tandem.createTandem( 'emitButton' )
     } );
 
-    // Position button on the cylindrical section on the right side of the emitter body
     emitButton.centerX = imageNode.width * BUTTON_CENTER_X_FRACTION;
     emitButton.centerY = imageNode.height * BUTTON_CENTER_Y_FRACTION;
     this.addChild( emitButton );
