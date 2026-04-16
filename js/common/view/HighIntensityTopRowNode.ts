@@ -2,7 +2,9 @@
 
 /**
  * HighIntensityTopRowNode renders the High Intensity screen's top play-area row: a per-scene emitter
- * source on the left, beam graphics extending across to a mini wave-visualization symbol on the right.
+ * source on the far left, beam graphics extending rightward through a mini wave-visualization symbol,
+ * and a pair of callout lines that connect the mini symbol's bottom corners to the main wave region's
+ * top corners (a zoom-in "viewing frustum" effect, analogous to TinyBox → ZoomedInBox in MOTHA).
  *
  * The mini symbol is a stylized representation of the wave region and detector screen (a black square
  * + a skewed black detector rectangle) per the design mockups; it does not show live waves. The beam
@@ -31,7 +33,6 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type SourceType } from '../model/SourceType.js';
 import linkSceneVisibility from './linkSceneVisibility.js';
 
@@ -40,7 +41,6 @@ const EMITTER_BODY_HEIGHT = 32;
 const EMITTER_NOZZLE_WIDTH = 14;
 const EMITTER_NOZZLE_HEIGHT = 26;
 const EMITTER_BUTTON_RADIUS = 12;
-const EMITTER_NOZZLE_OVERLAP = 4;
 
 const MINI_SYMBOL_SQUARE_SIZE = 22;
 const MINI_SYMBOL_DETECTOR_WIDTH = 8;
@@ -50,7 +50,9 @@ const MINI_SYMBOL_GAP = 2;
 const BEAM_HEIGHT = EMITTER_NOZZLE_HEIGHT;
 const BEAM_MAIN_ALPHA_SCALE = 0.35;
 const BEAM_CUTOFF_ALPHA_SCALE = 0.12;
-const BEAM_CUTOFF_EXTENSION = 30;
+const BEAM_CUTOFF_EXTENSION = 70;
+
+const CALLOUT_LINE_WIDTH = 0.75;
 
 type ParticleEmitterPalette = {
   topColor: string;
@@ -83,19 +85,34 @@ type TopRowSceneLike = {
   isEmitterEnabledProperty: TReadOnlyProperty<boolean>;
 };
 
+export type HighIntensityTopRowLayout = {
+  emitterLeft: number;         // x of emitter body's left edge
+  topRowCenterY: number;       // vertical center of emitter + mini symbol + beam
+  waveRegionLeft: number;      // x of main wave region's left edge
+  waveRegionRight: number;     // x of main wave region's right edge (i.e. left + width)
+  detectorRight: number;       // x of main detector screen's right edge (target of right callout line)
+  waveRegionTop: number;       // y of main wave region's top edge (target for callout lines)
+};
+
 export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends Node {
+
+  // Bottom y of the emitter body, so callers can stack controls below it without being
+  // affected by the taller bounds of the callout lines that extend down to the wave region.
+  public readonly emitterBottom: number;
 
   public constructor(
     sceneProperty: Property<T>,
     scenes: T[],
     currentIsEmittingProperty: TProperty<boolean>,
-    waveRegionLeft: number,
-    topRowCenterY: number,
+    layout: HighIntensityTopRowLayout,
     tandem: Tandem
   ) {
     super( { isDisposable: false } );
 
-    // Mini wave-visualization symbol on the right: a small black square + a skewed black detector rectangle.
+    const { emitterLeft, topRowCenterY, waveRegionLeft, waveRegionRight, detectorRight, waveRegionTop } = layout;
+
+    // Mini wave-visualization symbol: a small black square + skewed detector, centered horizontally
+    // above the main wave region so the callout lines form a symmetric "zoom in" frustum.
     const miniSquare = new Rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE, {
       fill: 'black',
       cornerRadius: 2
@@ -110,20 +127,31 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     const miniDetector = new Path( detectorShape, { fill: 'black' } );
     miniDetector.left = miniSquare.right + MINI_SYMBOL_GAP;
 
-    const miniSymbol = new Node( {
-      children: [ miniSquare, miniDetector ],
-      centerY: topRowCenterY
+    const miniSymbol = new Node( { children: [ miniSquare, miniDetector ] } );
+    miniSymbol.centerX = ( waveRegionLeft + waveRegionRight ) / 2;
+    miniSymbol.centerY = topRowCenterY;
+
+    // Callout lines: connect the bottom corners of the mini symbol to the top corners of the
+    // main wave region / detector, creating a zoom-in viewing frustum similar to MOTHA's TinyBox.
+    const calloutLines = new Path( new Shape()
+      .moveTo( miniSymbol.left, miniSymbol.bottom )
+      .lineTo( waveRegionLeft, waveRegionTop )
+      .moveTo( miniSymbol.right, miniSymbol.bottom )
+      .lineTo( detectorRight, waveRegionTop ), {
+      stroke: QuantumWaveInterferenceColors.zoomCalloutStrokeProperty,
+      lineWidth: CALLOUT_LINE_WIDTH
     } );
-    miniSymbol.left = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH - MINI_SYMBOL_SKEW / 2;
 
-    // Beam graphics: main beam from emitter to the mini symbol, dimmer cutoff beam past it.
-    const beamLeft = waveRegionLeft + EMITTER_NOZZLE_OVERLAP;
+    // Beam graphics: main beam from emitter nozzle tip rightward through the mini symbol,
+    // plus a dimmer cutoff segment extending past the mini symbol to suggest light blocked by
+    // the detector-screen setup. Beam is hidden when the emitter is off.
     const beamTop = topRowCenterY - BEAM_HEIGHT / 2;
-
-    const mainBeam = new Rectangle( beamLeft, beamTop, miniSymbol.left - beamLeft, BEAM_HEIGHT );
+    const beamLeft = emitterLeft + EMITTER_BODY_WIDTH + EMITTER_NOZZLE_WIDTH;
+    const mainBeamRight = miniSymbol.right;
+    const mainBeam = new Rectangle( beamLeft, beamTop, mainBeamRight - beamLeft, BEAM_HEIGHT );
     const cutoffBeam = new Rectangle(
-      miniSymbol.left, beamTop,
-      miniSymbol.width + BEAM_CUTOFF_EXTENSION, BEAM_HEIGHT
+      mainBeamRight, beamTop,
+      BEAM_CUTOFF_EXTENSION, BEAM_HEIGHT
     );
     const beamContainer = new Node( {
       children: [ mainBeam, cutoffBeam ],
@@ -153,13 +181,16 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     } );
 
     const emitterContainer = new Node( { children: emitterChildren } );
-    emitterContainer.right = beamLeft;
+    emitterContainer.left = emitterLeft;
     emitterContainer.centerY = topRowCenterY;
 
-    // Z-order: beam behind emitter and mini symbol.
+    // Z-order: callout lines and beam behind the mini symbol and emitter so their geometry reads cleanly.
+    this.addChild( calloutLines );
     this.addChild( beamContainer );
-    this.addChild( emitterContainer );
     this.addChild( miniSymbol );
+    this.addChild( emitterContainer );
+
+    this.emitterBottom = emitterContainer.bottom;
 
     const currentWavelengthProperty = new DynamicProperty<number, number, T>( sceneProperty, {
       derive: scene => scene.wavelengthProperty
