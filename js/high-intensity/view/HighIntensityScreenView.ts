@@ -51,8 +51,11 @@ const COMBO_BOX_FONT = new PhetFont( 14 );
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
 
-const TOP_ROW_CENTER_Y = 30;
-const LEFT_CONTROLS_TOP_GAP = 12;
+const TOP_ROW_CENTER_Y = 40;
+
+// Extra vertical space below the top row to accommodate the zoom-callout lines between the
+// mini-symbol (at TOP_ROW_CENTER_Y) and the top of the main wave region.
+const CALLOUT_GAP = 55;
 
 export default class HighIntensityScreenView extends ScreenView {
 
@@ -91,19 +94,31 @@ export default class HighIntensityScreenView extends ScreenView {
     this.addChild( leftControlsVBox );
 
     const waveRegionLeft = leftControlsVBox.right + 20;
-    const waveRegionTop = Y_MARGIN + 50;
+    const waveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
+    const waveRegionRight = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
+    const detectorRight = waveRegionRight
+                          + QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH
+                          - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2;
 
     const topRowNode = new HighIntensityTopRowNode(
       model.sceneProperty,
       model.scenes,
       model.currentIsEmittingProperty,
-      waveRegionLeft,
-      TOP_ROW_CENTER_Y,
+      {
+        emitterLeft: X_MARGIN,
+        topRowCenterY: TOP_ROW_CENTER_Y,
+        waveRegionLeft: waveRegionLeft,
+        waveRegionRight: waveRegionRight,
+        detectorRight: detectorRight,
+        waveRegionTop: waveRegionTop
+      },
       tandem.createTandem( 'topRowNode' )
     );
     this.addChild( topRowNode );
 
-    leftControlsVBox.top = topRowNode.bottom + LEFT_CONTROLS_TOP_GAP;
+    // Align the left controls column with the top of the main wave region so the emitter
+    // sits above it with a visible gap that the callout lines can span.
+    leftControlsVBox.top = waveRegionTop;
 
     this.waveVisualizationNode = new WaveVisualizationNode( model.sceneProperty, {
       x: waveRegionLeft,
