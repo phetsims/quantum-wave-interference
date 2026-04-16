@@ -11,22 +11,13 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
-import Dimension2 from '../../../../dot/js/Dimension2.js';
-import Shape from '../../../../kite/js/Shape.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
-import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
-import Node from '../../../../scenery/js/nodes/Node.js';
-import Path from '../../../../scenery/js/nodes/Path.js';
-import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
-import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
@@ -35,6 +26,7 @@ import createMeasurementToolNodes from '../../common/view/createMeasurementToolN
 import createObstacleControlsRow from '../../common/view/createObstacleControlsRow.js';
 import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
+import HighIntensityTopRowNode from '../../common/view/HighIntensityTopRowNode.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
 import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
@@ -44,7 +36,6 @@ import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
-import HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityDetectorScreenNode from './HighIntensityDetectorScreenNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
@@ -60,22 +51,7 @@ const COMBO_BOX_FONT = new PhetFont( 14 );
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
 
-const EMITTER_BODY_WIDTH = 70;
-const EMITTER_BODY_HEIGHT = 32;
-const EMITTER_NOZZLE_WIDTH = 14;
-const EMITTER_NOZZLE_HEIGHT = 26;
-const EMITTER_BUTTON_RADIUS = 12;
-
 const TOP_ROW_CENTER_Y = 30;
-const BEAM_HEIGHT = EMITTER_NOZZLE_HEIGHT;
-const MINI_SYMBOL_SQUARE_SIZE = 22;
-const MINI_SYMBOL_DETECTOR_WIDTH = 8;
-const MINI_SYMBOL_SKEW = 3;
-const MINI_SYMBOL_GAP = 2;
-const BEAM_MAIN_ALPHA_SCALE = 0.35;
-const BEAM_CUTOFF_ALPHA_SCALE = 0.12;
-const BEAM_CUTOFF_EXTENSION = 30;
-const EMITTER_NOZZLE_OVERLAP = 4;
 const LEFT_CONTROLS_TOP_GAP = 12;
 
 export default class HighIntensityScreenView extends ScreenView {
@@ -112,45 +88,22 @@ export default class HighIntensityScreenView extends ScreenView {
       children: [ sourceControlPanel, sceneRadioButtonGroup, particleMassAnnotation ]
     } );
     leftControlsVBox.left = X_MARGIN;
-    leftControlsVBox.top = TOP_ROW_CENTER_Y + EMITTER_BODY_HEIGHT / 2 + LEFT_CONTROLS_TOP_GAP;
     this.addChild( leftControlsVBox );
 
     const waveRegionLeft = leftControlsVBox.right + 20;
     const waveRegionTop = Y_MARGIN + 50;
 
-    // Emitter source with toggle button
-    const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, HighIntensitySceneModel>( model.sceneProperty, {
-      derive: scene => scene.isEmitterEnabledProperty
-    } );
+    const topRowNode = new HighIntensityTopRowNode(
+      model.sceneProperty,
+      model.scenes,
+      model.currentIsEmittingProperty,
+      waveRegionLeft,
+      TOP_ROW_CENTER_Y,
+      tandem.createTandem( 'topRowNode' )
+    );
+    this.addChild( topRowNode );
 
-    const photonEmitterNode = new LaserPointerNode( model.currentIsEmittingProperty, {
-      bodySize: new Dimension2( EMITTER_BODY_WIDTH, EMITTER_BODY_HEIGHT ),
-      nozzleSize: new Dimension2( EMITTER_NOZZLE_WIDTH, EMITTER_NOZZLE_HEIGHT ),
-      buttonOptions: {
-        baseColor: 'red',
-        radius: EMITTER_BUTTON_RADIUS
-      },
-      tandem: tandem.createTandem( 'photonEmitterNode' )
-    } );
-
-    const particleEmitterNode = new LaserPointerNode( model.currentIsEmittingProperty, {
-      bodySize: new Dimension2( EMITTER_BODY_WIDTH, EMITTER_BODY_HEIGHT ),
-      nozzleSize: new Dimension2( EMITTER_NOZZLE_WIDTH, EMITTER_NOZZLE_HEIGHT ),
-      topColor: 'rgb(100, 120, 180)',
-      bottomColor: 'rgb(30, 40, 80)',
-      highlightColor: 'rgb(160, 180, 230)',
-      buttonOptions: {
-        baseColor: 'red',
-        radius: EMITTER_BUTTON_RADIUS
-      },
-      hasGlass: true,
-      visible: false,
-      tandem: tandem.createTandem( 'particleEmitterNode' )
-    } );
-
-    const emitterContainer = new Node( {
-      children: [ photonEmitterNode, particleEmitterNode ]
-    } );
+    leftControlsVBox.top = topRowNode.bottom + LEFT_CONTROLS_TOP_GAP;
 
     this.waveVisualizationNode = new WaveVisualizationNode( model.sceneProperty, {
       x: waveRegionLeft,
@@ -190,92 +143,6 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     );
     this.addChild( doubleSlitNode );
-
-    // Mini wave visualization symbol: a small black square + skewed detector-screen rectangle
-    const miniSquare = new Rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE, {
-      fill: 'black',
-      cornerRadius: 2
-    } );
-
-    const detectorShape = new Shape()
-      .moveTo( MINI_SYMBOL_SKEW, 0 )
-      .lineTo( MINI_SYMBOL_DETECTOR_WIDTH + MINI_SYMBOL_SKEW, 0 )
-      .lineTo( MINI_SYMBOL_DETECTOR_WIDTH, MINI_SYMBOL_SQUARE_SIZE )
-      .lineTo( 0, MINI_SYMBOL_SQUARE_SIZE )
-      .close();
-    const miniDetector = new Path( detectorShape, { fill: 'black' } );
-    miniDetector.left = miniSquare.right + MINI_SYMBOL_GAP;
-
-    const miniSymbol = new Node( {
-      children: [ miniSquare, miniDetector ],
-      centerY: TOP_ROW_CENTER_Y
-    } );
-    miniSymbol.left = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH - MINI_SYMBOL_SKEW / 2;
-
-    // Beam graphics: main beam (brighter) from emitter to mini symbol, cut-off beam (dimmer) past it
-    const beamLeft = waveRegionLeft + EMITTER_NOZZLE_OVERLAP;
-    const beamTop = TOP_ROW_CENTER_Y - BEAM_HEIGHT / 2;
-
-    const mainBeam = new Rectangle( beamLeft, beamTop, miniSymbol.left - beamLeft, BEAM_HEIGHT );
-
-    const cutoffBeam = new Rectangle(
-      miniSymbol.left, beamTop,
-      miniSymbol.width + BEAM_CUTOFF_EXTENSION, BEAM_HEIGHT
-    );
-
-    const beamContainer = new Node( {
-      children: [ mainBeam, cutoffBeam ],
-      visible: false
-    } );
-
-    // Z-order: beam behind everything, then emitter and mini symbol on top
-    this.addChild( beamContainer );
-
-    emitterContainer.right = beamLeft;
-    emitterContainer.centerY = TOP_ROW_CENTER_Y;
-    this.addChild( emitterContainer );
-    this.addChild( miniSymbol );
-
-    const updateBeam = () => {
-      const scene = model.sceneProperty.value;
-      const isEmitting = scene.isEmittingProperty.value;
-      beamContainer.visible = isEmitting;
-
-      if ( !isEmitting ) {
-        return;
-      }
-
-      const baseColor = scene.sourceType === 'photons'
-                         ? VisibleColor.wavelengthToColor( scene.wavelengthProperty.value )
-                         : QuantumWaveInterferenceColors.particleBeamColorProperty.value;
-      const intensity = scene.intensityProperty.value;
-
-      mainBeam.fill = baseColor.withAlpha( BEAM_MAIN_ALPHA_SCALE * intensity );
-      cutoffBeam.fill = baseColor.withAlpha( BEAM_CUTOFF_ALPHA_SCALE * intensity );
-    };
-
-    model.sceneProperty.link( ( newScene, oldScene ) => {
-      if ( oldScene ) {
-        oldScene.isEmittingProperty.unlink( updateBeam );
-        oldScene.wavelengthProperty.unlink( updateBeam );
-        oldScene.intensityProperty.unlink( updateBeam );
-      }
-      newScene.isEmittingProperty.link( updateBeam );
-      newScene.wavelengthProperty.link( updateBeam );
-      newScene.intensityProperty.link( updateBeam );
-    } );
-
-    // Toggle emitter visibility based on scene, and wire enabled state
-    model.sceneProperty.link( scene => {
-      const isPhoton = scene.sourceType === 'photons';
-      photonEmitterNode.visible = isPhoton;
-      particleEmitterNode.visible = !isPhoton;
-    } );
-
-    isEmitterEnabledProperty.link( isEnabled => {
-      photonEmitterNode.enabled = isEnabled;
-      particleEmitterNode.enabled = isEnabled;
-    } );
 
     this.detectorScreenNode = new HighIntensityDetectorScreenNode( model, {
       x: waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2,
