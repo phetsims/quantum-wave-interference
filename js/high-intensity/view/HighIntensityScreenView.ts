@@ -38,6 +38,7 @@ import createToolCheckbox from '../../common/view/createToolCheckbox.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
 import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
+import createSidewaysGraph from '../../common/view/createSidewaysGraph.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
@@ -305,36 +306,15 @@ export default class HighIntensityScreenView extends ScreenView {
     );
     this.addChild( bottomRow );
 
-    // Axis label changes between "Intensity" and "Count" depending on detection mode
-    const graphAxisLabelProperty = new DerivedProperty(
-      [
-        model.currentDetectionModeProperty,
-        QuantumWaveInterferenceFluent.intensityStringProperty,
-        QuantumWaveInterferenceFluent.countStringProperty
-      ],
-      ( detectionMode, intensityString, countString ) =>
-        detectionMode === 'hits' ? countString : intensityString
+    this.sidewaysGraphNode = createSidewaysGraph(
+      model.sceneProperty,
+      this.detectorScreenNode,
+      model.isIntensityGraphVisibleProperty,
+      waveRegionTop,
+      tandem.createTandem( 'sidewaysGraphNode' ),
+      { detectionModeProperty: model.currentDetectionModeProperty }
     );
-
-    this.sidewaysGraphNode = new SidewaysGraphNode( model.sceneProperty, {
-      detectionModeProperty: model.currentDetectionModeProperty,
-      axisLabelStringProperty: graphAxisLabelProperty,
-      tandem: tandem.createTandem( 'sidewaysGraphNode' )
-    } );
     this.addChild( this.sidewaysGraphNode );
-
-    // When the graph is visible, shrink the detector screen horizontally to 50% and position the graph beside it
-    model.isIntensityGraphVisibleProperty.link( isVisible => {
-      this.sidewaysGraphNode.visible = isVisible;
-      if ( isVisible ) {
-        this.detectorScreenNode.setScaleMagnitude( 0.5, 1 );
-        this.sidewaysGraphNode.left = this.detectorScreenNode.right + 2;
-        this.sidewaysGraphNode.top = waveRegionTop;
-      }
-      else {
-        this.detectorScreenNode.setScaleMagnitude( 1, 1 );
-      }
-    } );
 
     // --- Right controls (shared factory) ---
 
