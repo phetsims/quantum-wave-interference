@@ -30,8 +30,10 @@ import getDisplayedWaveValue from '../model/getDisplayedWaveValue.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import StickyMaxTracker from './StickyMaxTracker.js';
 import WavePlotChartNode from './WavePlotChartNode.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
+import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 
 const CROSSHAIR_RADIUS = 12;
 const WIRE_LINE_WIDTH = 3;
@@ -39,17 +41,20 @@ const WIRE_NORMAL_DISTANCE = 25;
 const DOTTED_LINE_DASH = [ 6, 4 ];
 const MIN_Y_FRACTION = 0.02;
 const MAX_Y_FRACTION = 0.98;
+const AMPLITUDE_DECAY_PER_STEP = 0.95;
+const MIN_AMPLITUDE_SCALE = 0.01;
 
 export default class PositionPlotNode extends Node {
 
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
   private readonly chartNode: WavePlotChartNode;
+  private readonly amplitudeScale: StickyMaxTracker;
+
+  // Reusable buffer for the sampled row. Resized lazily when gridWidth changes.
+  private sampleBuffer: Float64Array;
 
   // Normalized y-position of the horizontal line [0, 1] where 0 = top and 1 = bottom of the wave region
   private readonly lineYFractionProperty: NumberProperty;
-
-  private readonly waveRegionX: number;
-  private readonly waveRegionY: number;
 
   public constructor(
     sceneProperty: TReadOnlyProperty<WaveVisualizableScene>,
@@ -60,8 +65,8 @@ export default class PositionPlotNode extends Node {
     super( { visibleProperty: visibleProperty } );
 
     this.sceneProperty = sceneProperty;
-    this.waveRegionX = waveRegionX;
-    this.waveRegionY = waveRegionY;
+    this.amplitudeScale = new StickyMaxTracker( MIN_AMPLITUDE_SCALE );
+    this.sampleBuffer = new Float64Array( 0 );
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -124,14 +129,20 @@ export default class PositionPlotNode extends Node {
     } );
 
     const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( sceneProperty );
+    const polarityProperty = waveDisplayModePolarityProperty( sceneProperty );
 
     this.chartNode = new WavePlotChartNode( {
       yAxisLabelStringProperty: yAxisLabelStringProperty,
       xAxisLabelStringProperty: QuantumWaveInterferenceFluent.positionStringProperty,
+      polarityProperty: polarityProperty,
       x: waveRegionX,
       y: waveRegionY + waveRegionHeight + 30
     } );
     this.addChild( this.chartNode );
+
+    // Reset the amplitude scale when the display mode polarity changes so the old scale does not
+    // contaminate the new mode's range.
+    polarityProperty.link( () => this.amplitudeScale.reset() );
 
     const chartConnectionProperty = new DerivedProperty(
       [ this.chartNode.boundsProperty ],
@@ -162,29 +173,29 @@ export default class PositionPlotNode extends Node {
 
     const gy = clamp( Math.floor( this.lineYFractionProperty.value * gridHeight ), 0, gridHeight - 1 );
 
-    let maxAbsValue = 0;
-    const values: number[] = [];
+    if ( this.sampleBuffer.length !== gridWidth ) {
+      this.sampleBuffer = new Float64Array( gridWidth );
+    }
+    const samples = this.sampleBuffer;
 
+    let observedMax = 0;
     for ( let gx = 0; gx < gridWidth; gx++ ) {
       const idx = ( gy * gridWidth + gx ) * 2;
-      const re = field[ idx ];
-      const im = field[ idx + 1 ];
-      const value = getDisplayedWaveValue( re, im, displayMode );
-      values.push( value );
-      maxAbsValue = Math.max( maxAbsValue, Math.abs( value ) );
+      const value = getDisplayedWaveValue( field[ idx ], field[ idx + 1 ], displayMode );
+      samples[ gx ] = value;
+      const abs = Math.abs( value );
+      if ( abs > observedMax ) {
+        observedMax = abs;
+      }
     }
 
-    if ( maxAbsValue === 0 ) {
-      this.chartNode.dataPath.shape = null;
-      return;
-    }
+    const scale = this.amplitudeScale.update( observedMax, AMPLITUDE_DECAY_PER_STEP );
 
     const chartWidth = WavePlotChartNode.CHART_WIDTH;
-    const chartHeight = WavePlotChartNode.CHART_HEIGHT;
     const shape = new Shape();
-    for ( let i = 0; i < values.length; i++ ) {
-      const x = ( i / ( values.length - 1 ) ) * chartWidth;
-      const y = chartHeight / 2 - ( values[ i ] / maxAbsValue ) * ( chartHeight / 2 - 5 );
+    for ( let i = 0; i < gridWidth; i++ ) {
+      const x = ( i / ( gridWidth - 1 ) ) * chartWidth;
+      const y = this.chartNode.mapValueToY( samples[ i ], scale );
 
       if ( i === 0 ) {
         shape.moveTo( x, y );
@@ -199,6 +210,7 @@ export default class PositionPlotNode extends Node {
 
   public reset(): void {
     this.lineYFractionProperty.reset();
+    this.amplitudeScale.reset();
     this.chartNode.dataPath.shape = null;
     this.chartNode.resetPosition();
   }

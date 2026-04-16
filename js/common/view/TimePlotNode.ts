@@ -28,14 +28,18 @@ import getDisplayedWaveValue from '../model/getDisplayedWaveValue.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import StickyMaxTracker from './StickyMaxTracker.js';
 import WavePlotChartNode from './WavePlotChartNode.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
+import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 
 const CROSSHAIR_RADIUS = 15;
 const WIRE_LINE_WIDTH = 3;
 const WIRE_NORMAL_DISTANCE = 25;
 const MAX_TIME_WINDOW = 4; // seconds of data shown
 const MAX_SAMPLES = 300;
+const AMPLITUDE_DECAY_PER_SECOND = 0.5;
+const MIN_AMPLITUDE_SCALE = 0.01;
 
 type TimePlotDataPoint = {
   time: number;
@@ -48,6 +52,7 @@ export default class TimePlotNode extends Node {
   private readonly chartNode: WavePlotChartNode;
   private readonly timeSeries: TimePlotDataPoint[];
   private elapsedTime: number;
+  private readonly amplitudeScale: StickyMaxTracker;
   private readonly probeNode: Node;
   private readonly probePositionProperty: Vector2Property;
   private readonly waveRegionBounds: Bounds2;
@@ -63,16 +68,19 @@ export default class TimePlotNode extends Node {
     this.sceneProperty = sceneProperty;
     this.timeSeries = [];
     this.elapsedTime = 0;
+    this.amplitudeScale = new StickyMaxTracker( MIN_AMPLITUDE_SCALE );
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
     this.waveRegionBounds = new Bounds2( waveRegionX, waveRegionY, waveRegionX + waveRegionWidth, waveRegionY + waveRegionHeight );
 
     const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( sceneProperty );
+    const polarityProperty = waveDisplayModePolarityProperty( sceneProperty );
 
     this.chartNode = new WavePlotChartNode( {
       yAxisLabelStringProperty: yAxisLabelStringProperty,
       xAxisLabelStringProperty: QuantumWaveInterferenceFluent.timeStringProperty,
+      polarityProperty: polarityProperty,
       x: waveRegionX + waveRegionWidth - WavePlotChartNode.CHART_WIDTH - 30,
       y: waveRegionY + waveRegionHeight - WavePlotChartNode.CHART_HEIGHT - 40
     } );
@@ -105,6 +113,10 @@ export default class TimePlotNode extends Node {
     wireNode.moveToBack();
 
     sceneProperty.link( () => this.clearData() );
+
+    // Clear the accumulated time series and amplitude scale when display mode changes so the old
+    // values (potentially very different in magnitude) do not contaminate the scale.
+    polarityProperty.link( () => this.clearData() );
   }
 
   private createCrosshairProbe(): Node {
@@ -154,7 +166,6 @@ export default class TimePlotNode extends Node {
 
     this.timeSeries.push( { time: this.elapsedTime, value: value } );
 
-    // Trim old data
     const minTime = this.elapsedTime - MAX_TIME_WINDOW;
     while ( this.timeSeries.length > 0 && this.timeSeries[ 0 ].time < minTime ) {
       this.timeSeries.shift();
@@ -162,6 +173,15 @@ export default class TimePlotNode extends Node {
     while ( this.timeSeries.length > MAX_SAMPLES ) {
       this.timeSeries.shift();
     }
+
+    let observedMax = 0;
+    for ( let i = 0; i < this.timeSeries.length; i++ ) {
+      const abs = Math.abs( this.timeSeries[ i ].value );
+      if ( abs > observedMax ) {
+        observedMax = abs;
+      }
+    }
+    this.amplitudeScale.update( observedMax, Math.exp( -AMPLITUDE_DECAY_PER_SECOND * dt ) );
 
     this.updateChart();
   }
@@ -174,22 +194,14 @@ export default class TimePlotNode extends Node {
 
     const minTime = this.timeSeries[ 0 ].time;
     const maxTime = Math.max( this.timeSeries[ this.timeSeries.length - 1 ].time, minTime + MAX_TIME_WINDOW );
-
-    let maxAbsValue = 0;
-    for ( let i = 0; i < this.timeSeries.length; i++ ) {
-      maxAbsValue = Math.max( maxAbsValue, Math.abs( this.timeSeries[ i ].value ) );
-    }
-    if ( maxAbsValue === 0 ) {
-      maxAbsValue = 1;
-    }
-
     const chartWidth = WavePlotChartNode.CHART_WIDTH;
-    const chartHeight = WavePlotChartNode.CHART_HEIGHT;
+    const scale = this.amplitudeScale.getValue();
+
     const shape = new Shape();
     for ( let i = 0; i < this.timeSeries.length; i++ ) {
       const point = this.timeSeries[ i ];
       const x = ( ( point.time - minTime ) / ( maxTime - minTime ) ) * chartWidth;
-      const y = chartHeight / 2 - ( point.value / maxAbsValue ) * ( chartHeight / 2 - 5 );
+      const y = this.chartNode.mapValueToY( point.value, scale );
 
       if ( i === 0 ) {
         shape.moveTo( x, y );
@@ -205,6 +217,7 @@ export default class TimePlotNode extends Node {
   private clearData(): void {
     this.timeSeries.length = 0;
     this.elapsedTime = 0;
+    this.amplitudeScale.reset();
     this.chartNode.dataPath.shape = null;
   }
 
