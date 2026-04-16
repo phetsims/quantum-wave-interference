@@ -35,6 +35,7 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 import createBrightnessControl from './createBrightnessControl.js';
 import createWaveDisplaySection from './createWaveDisplaySection.js';
 import SnapshotButton from './SnapshotButton.js';
+import SnapshotIndicatorDotsNode from './SnapshotIndicatorDotsNode.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 import ViewSnapshotsButton from './ViewSnapshotsButton.js';
 
@@ -120,9 +121,12 @@ const createRightControlsColumn = (
     children: [ eraseButton, snapshotButton, viewSnapshotsButton ]
   } );
 
+  const indicatorDots = new SnapshotIndicatorDotsNode( model.currentNumberOfSnapshotsProperty );
+
   const brightnessControl = createBrightnessControl( model.currentScreenBrightnessProperty, tandem );
 
   const screenControlsChildren: Node[] = [
+    indicatorDots,
     screenButtonsRow,
     ...options.additionalScreenControlChildren,
     brightnessControl
