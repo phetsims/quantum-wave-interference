@@ -24,7 +24,7 @@ const SIGMA_X_FRACTION = 0.12;
 const SIGMA_Y_FRACTION = 0.35;
 const DISPLAY_WAVELENGTHS = 30;
 
-export { PACKET_TRAVERSAL_TIME };
+export { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION };
 
 export default class AnalyticalWavePacketSolver implements WaveSolver {
 
