@@ -30,11 +30,11 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import { type SourceType } from '../model/SourceType.js';
-import { type SlitConfiguration, hasAnyDetector } from '../model/SlitConfiguration.js';
+import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import Snapshot from '../../experiment/model/Snapshot.js';
+import Snapshot from '../model/Snapshot.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 const SNAPSHOT_WIDTH = 360;
@@ -60,20 +60,6 @@ const SLIT_SETTING_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyProperty<stri
   leftDetector: QuantumWaveInterferenceFluent.leftDetectorStringProperty,
   rightDetector: QuantumWaveInterferenceFluent.rightDetectorStringProperty,
   bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
-};
-
-const SLIT_WIDTH_FOR_SOURCE_TYPE: Record<SourceType, number> = {
-  photons: 0.02,
-  electrons: 0.00003,
-  neutrons: 0.003,
-  heliumAtoms: 0.0003
-};
-
-const SCREEN_HALF_WIDTH_FOR_SOURCE_TYPE: Record<SourceType, number> = {
-  photons: 0.02,
-  electrons: 0.02,
-  neutrons: 4e-4,
-  heliumAtoms: 4e-4
 };
 
 type SnapshotNodeOptions = {
@@ -381,49 +367,39 @@ class SnapshotCanvasNode extends CanvasNode {
   }
 
   private paintIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
-    if ( !snapshot.isEmitting ) {
-      return;
-    }
+    const distribution = snapshot.intensityDistribution;
 
-    const lambda = snapshot.effectiveWavelength;
-    if ( lambda === 0 ) {
+    // Snapshots from this common dialog are always produced by a solver-driven scene (High Intensity
+    // screen). If the distribution was not captured (e.g., snapshot taken before the solver produced any
+    // output, or mode was not averageIntensity at capture time) there is nothing to render.
+    if ( distribution.length === 0 ) {
       return;
     }
 
     const normalizedBrightness = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
     const displayGain = getIntensityDisplayGain( normalizedBrightness, snapshot.intensity );
-    const screenHalfWidth = SCREEN_HALF_WIDTH_FOR_SOURCE_TYPE[ snapshot.sourceType ];
-    const slitWidthMeters = SLIT_WIDTH_FOR_SOURCE_TYPE[ snapshot.sourceType ] * 1e-3;
-    const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
-    const screenDistanceMeters = snapshot.screenDistance;
-    const slitSetting = snapshot.slitSetting;
-    const isSingleSlit = slitSetting === 'leftCovered' || slitSetting === 'rightCovered' || hasAnyDetector( slitSetting );
 
-    const photonColor = snapshot.sourceType === 'photons'
-                        ? VisibleColor.wavelengthToColor( snapshot.wavelength )
-                        : null;
+    const baseColor = snapshot.sourceType === 'photons'
+                      ? VisibleColor.wavelengthToColor( snapshot.wavelength )
+                      : null;
 
+    // The live detector screen varies its interference pattern along its vertical axis; the snapshot is
+    // rendered in landscape (wide and short) so that same pattern maps to the snapshot's horizontal axis.
+    const distributionLength = distribution.length;
     for ( let x = 0; x < SNAPSHOT_WIDTH; x++ ) {
-      const fraction = ( x + 0.5 ) / SNAPSHOT_WIDTH;
-      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
-      const sinTheta = physicalX / Math.sqrt( physicalX * physicalX + screenDistanceMeters * screenDistanceMeters );
-
-      const singleSlitArg = Math.PI * slitWidthMeters * sinTheta / lambda;
-      const singleSlitFactor = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
-
-      const intensity = isSingleSlit
-                        ? singleSlitFactor
-                        : Math.pow( Math.cos( Math.PI * slitSeparationMeters * sinTheta / lambda ), 2 ) * singleSlitFactor;
-
-      const intensityScale = intensity * displayGain;
+      const solverIndex = clamp(
+        Math.floor( ( x + 0.5 ) / SNAPSHOT_WIDTH * distributionLength ),
+        0, distributionLength - 1
+      );
+      const intensityScale = distribution[ solverIndex ] * displayGain;
       if ( intensityScale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
         continue;
       }
 
-      if ( photonColor ) {
-        const r = clamp( roundSymmetric( photonColor.red * intensityScale ), 0, 255 );
-        const g = clamp( roundSymmetric( photonColor.green * intensityScale ), 0, 255 );
-        const b = clamp( roundSymmetric( photonColor.blue * intensityScale ), 0, 255 );
+      if ( baseColor ) {
+        const r = clamp( roundSymmetric( baseColor.red * intensityScale ), 0, 255 );
+        const g = clamp( roundSymmetric( baseColor.green * intensityScale ), 0, 255 );
+        const b = clamp( roundSymmetric( baseColor.blue * intensityScale ), 0, 255 );
         context.fillStyle = `rgb(${r},${g},${b})`;
       }
       else {

@@ -19,7 +19,7 @@ import Dialog from '../../../../sun/js/Dialog.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import Snapshot from '../../experiment/model/Snapshot.js';
+import Snapshot from '../model/Snapshot.js';
 import SnapshotNode from './SnapshotNode.js';
 
 export default class SnapshotsDialog extends Dialog {
