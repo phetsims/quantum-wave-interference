@@ -77,32 +77,6 @@ export default class SingleParticlesScreenView extends ScreenView {
       }
     );
 
-    const sceneRadioButtonGroup = new SceneRadioButtonGroup(
-      model.sceneProperty,
-      model.scenes,
-      tandem.createTandem( 'sceneRadioButtonGroup' )
-    );
-
-    const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
-
-    const leftControlsVBox = new VBox( {
-      spacing: 16,
-      align: 'left',
-      children: [ sourceControlPanel, autoRepeatCheckbox, sceneRadioButtonGroup, particleMassAnnotation ]
-    } );
-    leftControlsVBox.left = X_MARGIN;
-    leftControlsVBox.top = Y_MARGIN;
-    this.addChild( leftControlsVBox );
-
-    const waveRegionLeft = leftControlsVBox.right + 20;
-    const waveRegionTop = Y_MARGIN + 30;
-
-    this.waveVisualizationNode = new WaveVisualizationNode( model.sceneProperty, {
-      x: waveRegionLeft,
-      y: waveRegionTop
-    } );
-    this.addChild( this.waveVisualizationNode );
-
     // Emitter source with SingleParticleEmitter.svg image and red toggle button
     const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SingleParticlesSceneModel>( model.sceneProperty, {
       derive: scene => scene.isEmitterEnabledProperty
@@ -116,10 +90,39 @@ export default class SingleParticlesScreenView extends ScreenView {
       }
     );
 
-    // Position emitter so its right (nozzle) side overlaps the left edge of the wave region
-    emitterNode.right = waveRegionLeft + 4;
-    emitterNode.centerY = waveRegionTop + QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT / 2;
-    this.addChild( emitterNode );
+    const sceneRadioButtonGroup = new SceneRadioButtonGroup(
+      model.sceneProperty,
+      model.scenes,
+      tandem.createTandem( 'sceneRadioButtonGroup' )
+    );
+
+    const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
+
+    // Stretch column to widest child; right-align the emitter so its nozzle reaches the wave region
+    // edge, center the scene buttons, and leave panels/checkbox/mass annotation at default left.
+    emitterNode.layoutOptions = { align: 'right' };
+    sceneRadioButtonGroup.layoutOptions = { align: 'center' };
+
+    const leftControlsVBox = new VBox( {
+      spacing: 12,
+      stretch: true,
+      align: 'left',
+      children: [ sourceControlPanel, autoRepeatCheckbox, emitterNode, sceneRadioButtonGroup, particleMassAnnotation ]
+    } );
+    leftControlsVBox.left = X_MARGIN;
+    leftControlsVBox.top = Y_MARGIN;
+    this.addChild( leftControlsVBox );
+
+    // The emitter's right edge sits at the column right edge; the wave region begins immediately
+    // adjacent so the rendered nozzle visually meets the left edge of the wave visualization region.
+    const waveRegionLeft = leftControlsVBox.right + 4;
+    const waveRegionTop = Y_MARGIN;
+
+    this.waveVisualizationNode = new WaveVisualizationNode( model.sceneProperty, {
+      x: waveRegionLeft,
+      y: waveRegionTop
+    } );
+    this.addChild( this.waveVisualizationNode );
 
     // Double slit obstacle visualization overlaid on the wave region
     const slitSeparationRangeProperty = new DerivedProperty(
@@ -167,7 +170,8 @@ export default class SingleParticlesScreenView extends ScreenView {
       model.scenes,
       waveRegionTop,
       this,
-      tandem
+      tandem,
+      { additionalTopConstraintNode: leftControlsVBox }
     );
     this.addChild( bottomRow );
 
