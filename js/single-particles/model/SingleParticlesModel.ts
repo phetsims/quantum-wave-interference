@@ -31,7 +31,7 @@ import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
 import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
-import Snapshot from '../../experiment/model/Snapshot.js';
+import Snapshot from '../../common/model/Snapshot.js';
 import SingleParticlesSceneModel, { type DetectorToolState, type SingleParticlesSlitConfiguration } from './SingleParticlesSceneModel.js';
 
 type SelfOptions = EmptySelfOptions;

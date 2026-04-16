@@ -26,7 +26,7 @@ import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from '../../common/model/WaveDisplayMode.js';
-import Snapshot from '../../experiment/model/Snapshot.js';
+import Snapshot from '../../common/model/Snapshot.js';
 import HighIntensitySceneModel from './HighIntensitySceneModel.js';
 
 type SelfOptions = EmptySelfOptions;

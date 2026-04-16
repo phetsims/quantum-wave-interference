@@ -35,7 +35,7 @@ import { type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues } from './WaveD
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 import type WaveSolver from './WaveSolver.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import Snapshot from '../../experiment/model/Snapshot.js';
+import Snapshot from './Snapshot.js';
 
 export const HIT_VERTICAL_EXTENT = 0.95;
 export const MAX_HITS = 25000;
@@ -325,6 +325,12 @@ export default abstract class BaseSceneModel extends PhetioObject {
       return;
     }
 
+    // Capture the solver's detector-screen probability distribution so an intensity-mode snapshot renders
+    // the same pattern the user was looking at; for hits-mode there is no distribution to render.
+    const intensityDistribution = detectionMode === 'averageIntensity'
+                                  ? Array.from( this.waveSolver.getDetectorProbabilityDistribution() )
+                                  : [];
+
     const snapshot = new Snapshot( this.nextSnapshotNumber++, [ ...this.hits ], {
       detectionMode: detectionMode,
       sourceType: this.sourceType,
@@ -335,7 +341,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       slitSetting: slitSetting,
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
-      intensity: intensity
+      intensity: intensity,
+      intensityDistribution: intensityDistribution
     } );
 
     this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];

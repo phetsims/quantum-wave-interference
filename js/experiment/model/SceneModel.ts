@@ -30,7 +30,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
-import Snapshot from './Snapshot.js';
+import Snapshot from '../../common/model/Snapshot.js';
 import { type SourceType } from './SourceType.js';
 
 // Maximum emission rate in hits per second at full intensity
@@ -452,7 +452,11 @@ export default class SceneModel extends PhetioObject {
       slitSetting: this.slitSettingProperty.value,
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
-      intensity: this.intensityProperty.value
+      intensity: this.intensityProperty.value,
+
+      // Experiment screen renders its own intensity snapshots from closed-form Fraunhofer formulas via
+      // its private SnapshotNode — no solver distribution to capture.
+      intensityDistribution: []
     } );
 
     this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];
