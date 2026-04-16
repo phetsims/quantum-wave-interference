@@ -102,9 +102,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
     if ( options.sourceType === 'photons' ) {
       this.particleMass = 0;
       this.velocityRange = new Range( 0, 0 );
-      this.slitSeparationRange = new Range( 0.05, 0.5 );
+      this.slitSeparationRange = new Range( 0.0002, 0.003 );
       defaultVelocity = 0;
-      defaultSlitSeparation = 0.25;
+      defaultSlitSeparation = 0.003;
       this.regionWidth = 0.04;
       this.regionHeight = 0.04;
     }
