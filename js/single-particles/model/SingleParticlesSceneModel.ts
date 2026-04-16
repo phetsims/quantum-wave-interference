@@ -20,7 +20,7 @@ import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
-import { PACKET_TRAVERSAL_TIME } from '../../common/model/AnalyticalWavePacketSolver.js';
+import { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION } from '../../common/model/AnalyticalWavePacketSolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 
@@ -59,8 +59,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   // Time since the last packet was emitted
   private timeSinceLastEmission: number;
 
-  // Progress of the current packet as fraction of traversal (0 = just emitted, 1 = at detector screen)
-  private packetProgress: number;
+  // Sampled detection time (from truncated Gaussian) for the active packet
+  private targetDetectionTime: number;
 
   public constructor( providedOptions: SingleParticlesSceneModelOptions ) {
 
@@ -71,7 +71,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const tandem = providedOptions.tandem;
 
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
-    this.packetProgress = 0;
+    this.targetDetectionTime = PACKET_TRAVERSAL_TIME;
 
     this.autoRepeatProperty = new BooleanProperty( false, {
       tandem: tandem.createTandem( 'autoRepeatProperty' )
@@ -147,7 +147,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public override clearScreen(): void {
     this.isPacketActiveProperty.value = false;
-    this.packetProgress = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     super.clearScreen();
   }
@@ -164,10 +163,25 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       return;
     }
     this.isPacketActiveProperty.value = true;
-    this.packetProgress = 0;
+    this.targetDetectionTime = this.sampleDetectionTime();
     this.timeSinceLastEmission = 0;
     this.waveSolver.reset();
     this.syncSolverParameters();
+  }
+
+  /**
+   * Detection times follow the packet's horizontal probability density: Gaussian around
+   * PACKET_TRAVERSAL_TIME (packet center arrives at screen), width matches the packet's spatial
+   * spread. Truncated at ±3σ to avoid non-physical negative times.
+   */
+  private sampleDetectionTime(): number {
+    const sigma = SIGMA_X_FRACTION * PACKET_TRAVERSAL_TIME;
+    const maxDeviation = 3 * sigma;
+    let deviation: number;
+    do {
+      deviation = dotRandom.nextGaussian() * sigma;
+    } while ( Math.abs( deviation ) > maxDeviation );
+    return PACKET_TRAVERSAL_TIME + deviation;
   }
 
   /**
@@ -179,13 +193,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     if ( this.isPacketActiveProperty.value ) {
       this.waveSolver.step( dt );
 
-      this.packetProgress += dt / PACKET_TRAVERSAL_TIME;
-
-      const detectionProbabilityPerStep = this.packetProgress > 0.8 ?
-                                          ( this.packetProgress - 0.8 ) / 0.2 * dt * 5 :
-                                          0;
-
-      if ( dotRandom.nextDouble() < detectionProbabilityPerStep || this.packetProgress >= 1.0 ) {
+      if ( this.timeSinceLastEmission >= this.targetDetectionTime ) {
         this.detectPacket();
       }
 
@@ -219,7 +227,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.hits.push( new Vector2( x, y ) );
     this.totalHitsProperty.value++;
     this.isPacketActiveProperty.value = false;
-    this.packetProgress = 0;
     this.hitsChangedEmitter.emit();
 
     if ( !this.autoRepeatProperty.value ) {
@@ -280,7 +287,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     if ( detected ) {
       this.detectorToolStateProperty.value = 'detected';
       this.isPacketActiveProperty.value = false;
-      this.packetProgress = 0;
     }
     else {
       this.detectorToolStateProperty.value = 'notDetected';
@@ -341,7 +347,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.detectorToolRadiusProperty.reset();
     this.detectorToolStateProperty.reset();
     this.detectorToolProbabilityProperty.reset();
-    this.packetProgress = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.syncSolverParameters();
   }
