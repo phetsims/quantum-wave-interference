@@ -23,6 +23,7 @@ import createToolCheckbox from '../../common/view/createToolCheckbox.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
 import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
+import createSidewaysGraph from '../../common/view/createSidewaysGraph.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
@@ -176,23 +177,14 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( bottomRow );
 
     // Hits graph (always in Hits mode on this screen)
-    this.sidewaysGraphNode = new SidewaysGraphNode( model.sceneProperty, {
-      axisLabelStringProperty: QuantumWaveInterferenceFluent.countStringProperty,
-      tandem: tandem.createTandem( 'sidewaysGraphNode' )
-    } );
+    this.sidewaysGraphNode = createSidewaysGraph(
+      model.sceneProperty,
+      this.detectorScreenNode,
+      model.isHitsGraphVisibleProperty,
+      waveRegionTop,
+      tandem.createTandem( 'sidewaysGraphNode' )
+    );
     this.addChild( this.sidewaysGraphNode );
-
-    model.isHitsGraphVisibleProperty.link( isVisible => {
-      this.sidewaysGraphNode.visible = isVisible;
-      if ( isVisible ) {
-        this.detectorScreenNode.setScaleMagnitude( 0.5, 1 );
-        this.sidewaysGraphNode.left = this.detectorScreenNode.right + 2;
-        this.sidewaysGraphNode.top = waveRegionTop;
-      }
-      else {
-        this.detectorScreenNode.setScaleMagnitude( 1, 1 );
-      }
-    } );
 
     // Detector tool (draggable circle + panel, Single Particles only)
     const detectorToolNode = new DetectorToolNode(

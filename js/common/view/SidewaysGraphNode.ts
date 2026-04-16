@@ -47,7 +47,6 @@ export type SidewaysGraphSceneLike = {
   hits: Vector2[];
   sourceType: SourceType;
   wavelengthProperty: TReadOnlyProperty<number>;
-  isEmittingProperty: TReadOnlyProperty<boolean>;
   hitsChangedEmitter: TEmitter;
   waveSolver: WaveSolver;
   intensityProperty?: TReadOnlyProperty<number>;
@@ -168,11 +167,9 @@ export default class SidewaysGraphNode extends Node {
     sceneProperty.link( scene => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( updateGraph );
-        previousScene.isEmittingProperty.unlink( updateGraph );
         previousScene.wavelengthProperty.unlink( updateGraph );
       }
       scene.hitsChangedEmitter.addListener( updateGraph );
-      scene.isEmittingProperty.link( updateGraph );
       scene.wavelengthProperty.link( updateGraph );
       previousScene = scene;
       updateGraph();
@@ -247,11 +244,8 @@ export default class SidewaysGraphNode extends Node {
   }
 
   private paintIntensityCurve( scene: SidewaysGraphSceneLike ): void {
-    if ( !scene.isEmittingProperty.value ) {
-      this.dataPath.shape = null;
-      return;
-    }
 
+    // Always read the live solver distribution so trailing waves still draw after the source is off.
     const zoomScale = linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
     const sourceIntensity = scene.intensityProperty ? scene.intensityProperty.value : 1;
 
