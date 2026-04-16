@@ -121,6 +121,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.dirty = true;
   }
 
+  public applyMeasurementProjection(): void {
+    // No-op: the detector tool is only present on the Single Particles screen.
+  }
+
   /**
    * Returns true when waves have fully exited the region after the source was turned off.
    */

@@ -11,6 +11,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import Vector2 from '../../../../dot/js/Vector2.js';
 import { type ObstacleType } from './ObstacleType.js';
 
 export type WaveSolverParameters = {
@@ -49,6 +50,14 @@ type WaveSolver = {
 
   // Returns true if there are still waves in the visualization region (used for post-emitter-off propagation)
   hasWavesInRegion(): boolean;
+
+  /**
+   * Applies a measurement projection to the wavefunction: zero the amplitude inside the circular region
+   * and renormalize the remainder so the total probability is preserved. The projection persists across
+   * subsequent step() calls. Center is normalized (0..1) within the visualization region; radius is a
+   * fraction of the grid width. Continuous-wave solvers may treat this as a no-op.
+   */
+  applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void;
 };
 
 export default WaveSolver;

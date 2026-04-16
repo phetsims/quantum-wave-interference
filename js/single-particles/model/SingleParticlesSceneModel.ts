@@ -234,16 +234,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     }
   }
 
-  private getDetectorCircleParams(): { cx: number; cy: number; rSq: number } {
-    const gw = this.waveSolver.gridWidth;
-    const gh = this.waveSolver.gridHeight;
-    return {
-      cx: this.detectorToolPositionProperty.value.x * gw,
-      cy: this.detectorToolPositionProperty.value.y * gh,
-      rSq: ( this.detectorToolRadiusProperty.value * gw ) ** 2
-    };
-  }
-
   public computeDetectorProbability(): number {
     if ( !this.isPacketActiveProperty.value ) {
       return 0;
@@ -252,7 +242,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const field = this.waveSolver.getAmplitudeField();
     const gw = this.waveSolver.gridWidth;
     const gh = this.waveSolver.gridHeight;
-    const { cx, cy, rSq } = this.getDetectorCircleParams();
+    const cx = this.detectorToolPositionProperty.value.x * gw;
+    const cy = this.detectorToolPositionProperty.value.y * gh;
+    const rSq = ( this.detectorToolRadiusProperty.value * gw ) ** 2;
 
     let insideSum = 0;
     let totalSum = 0;
@@ -290,48 +282,11 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     }
     else {
       this.detectorToolStateProperty.value = 'notDetected';
-      this.zeroWaveInsideDetector();
+      this.waveSolver.applyMeasurementProjection(
+        this.detectorToolPositionProperty.value,
+        this.detectorToolRadiusProperty.value
+      );
     }
-  }
-
-  private zeroWaveInsideDetector(): void {
-    const field = this.waveSolver.getAmplitudeField();
-    const gw = this.waveSolver.gridWidth;
-    const gh = this.waveSolver.gridHeight;
-    const { cx, cy, rSq } = this.getDetectorCircleParams();
-
-    let outsideSum = 0;
-
-    for ( let iy = 0; iy < gh; iy++ ) {
-      for ( let ix = 0; ix < gw; ix++ ) {
-        const idx = ( iy * gw + ix ) * 2;
-        const dxGrid = ix - cx;
-        const dyGrid = iy - cy;
-
-        if ( dxGrid * dxGrid + dyGrid * dyGrid <= rSq ) {
-          field[ idx ] = 0;
-          field[ idx + 1 ] = 0;
-        }
-        else {
-          const re = field[ idx ];
-          const im = field[ idx + 1 ];
-          outsideSum += re * re + im * im;
-        }
-      }
-    }
-
-    if ( outsideSum > 0 ) {
-      const scale = 1 / Math.sqrt( outsideSum );
-      for ( let iy = 0; iy < gh; iy++ ) {
-        for ( let ix = 0; ix < gw; ix++ ) {
-          const idx = ( iy * gw + ix ) * 2;
-          field[ idx ] *= scale;
-          field[ idx + 1 ] *= scale;
-        }
-      }
-    }
-
-    this.waveSolver.invalidate();
   }
 
   public resetDetectorToolState(): void {

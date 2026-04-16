@@ -30,6 +30,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
@@ -164,6 +165,49 @@ export default class LatticeWavePacketSolver implements WaveSolver {
   }
 
   public invalidate(): void {
+    this.dirty = true;
+  }
+
+  public applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void {
+    const { gridWidth, gridHeight, psi } = this;
+    const cxGrid = centerNorm.x * gridWidth;
+    const cyGrid = centerNorm.y * gridHeight;
+    const rGrid = radiusNorm * gridWidth;
+    const rSqGrid = rGrid * rGrid;
+
+    let totalBefore = 0;
+    let totalOutside = 0;
+
+    for ( let iy = 0; iy < gridHeight; iy++ ) {
+      const dyCell = iy - cyGrid;
+      const dyCellSq = dyCell * dyCell;
+      for ( let ix = 0; ix < gridWidth; ix++ ) {
+        const dxCell = ix - cxGrid;
+        const idx = ( iy * gridWidth + ix ) * 2;
+        const re = psi[ idx ];
+        const im = psi[ idx + 1 ];
+        const prob = re * re + im * im;
+        totalBefore += prob;
+
+        if ( dxCell * dxCell + dyCellSq <= rSqGrid ) {
+          psi[ idx ] = 0;
+          psi[ idx + 1 ] = 0;
+        }
+        else {
+          totalOutside += prob;
+        }
+      }
+    }
+
+    // Renormalize the surviving wavefunction in place; subsequent Schrödinger evolution naturally
+    // diffuses the hole, so no projection state needs to be stored beyond this call.
+    if ( totalOutside > 0 ) {
+      const scale = Math.sqrt( totalBefore / totalOutside );
+      for ( let i = 0; i < psi.length; i++ ) {
+        psi[ i ] *= scale;
+      }
+    }
+
     this.dirty = true;
   }
 
