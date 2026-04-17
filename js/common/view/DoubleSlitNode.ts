@@ -13,6 +13,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
 import TProperty from '../../../../axon/js/TProperty.js';
 import TinyProperty from '../../../../axon/js/TinyProperty.js';
@@ -88,15 +89,20 @@ export default class DoubleSlitNode extends Node {
       fill: QuantumWaveInterferenceColors.slitCoverFillProperty
     } );
 
+    const detectorOverlayFillWithAlphaProperty = new DerivedProperty(
+      [ QuantumWaveInterferenceColors.detectorOverlayFillProperty ],
+      color => color.withAlpha( DETECTOR_OVERLAY_ALPHA )
+    );
+
     const topDetector = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
       SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2, CORNER_RADIUS, CORNER_RADIUS, {
-        fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_ALPHA ),
+        fill: detectorOverlayFillWithAlphaProperty,
         stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
         lineWidth: 2
       } );
     const bottomDetector = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
       SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2, CORNER_RADIUS, CORNER_RADIUS, {
-        fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_ALPHA ),
+        fill: detectorOverlayFillWithAlphaProperty,
         stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
         lineWidth: 2
       } );

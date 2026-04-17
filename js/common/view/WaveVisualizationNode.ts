@@ -8,6 +8,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import Multilink from '../../../../axon/js/Multilink.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
@@ -136,13 +137,20 @@ export default class WaveVisualizationNode extends Node {
     } );
     this.addChild( distanceScaleNode );
 
-    // Update scale bar and label when scene changes
-    sceneProperty.link( scene => {
-      const { distanceMeters, barPixels } = computeNiceScale( scene.regionWidth, width );
-      bar.setX2( barPixels );
-      rightTick.left = bar.right;
-      distanceLabel.string = formatDistance( distanceMeters );
-    } );
+    // Update scale bar and label when the scene or locale changes. formatDistance reads from
+    // valueMillimetersPatternStringProperty and valueMicrometersPatternStringProperty, so both
+    // must be dependencies to re-render on locale change.
+    Multilink.multilink(
+      [ sceneProperty,
+        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty,
+        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty ],
+      scene => {
+        const { distanceMeters, barPixels } = computeNiceScale( scene.regionWidth, width );
+        bar.setX2( barPixels );
+        rightTick.left = bar.right;
+        distanceLabel.string = formatDistance( distanceMeters );
+      }
+    );
 
     // Time scale label in the bottom-left corner (e.g., "1 fs = 10⁻¹⁵ s")
     const timeLabel = new Text( QuantumWaveInterferenceFluent.timeScaleLabelStringProperty, {
