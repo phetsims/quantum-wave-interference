@@ -6,6 +6,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { numberOfDecimalPlaces } from '../../../dot/js/util/numberOfDecimalPlaces.js';
+
 export default class QuantumWaveInterferenceConstants {
 
   private constructor() {
@@ -22,4 +24,21 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly ELECTRON_MASS = 9.109e-31;
   public static readonly NEUTRON_MASS = 1.675e-27;
   public static readonly HELIUM_ATOM_MASS = 6.646e-27;
+
+  // Maximum value for the screen brightness slider, shared across all screens
+  public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
+
+  // Maximum number of snapshots that can be saved per scene
+  public static readonly MAX_SNAPSHOTS = 4;
+
+  // Shared layout dimensions for the wave visualization region and detector screen
+  public static readonly WAVE_REGION_WIDTH = 420;
+  public static readonly WAVE_REGION_HEIGHT = 350;
+  public static readonly DETECTOR_SCREEN_SKEW = 18;
+  public static readonly DETECTOR_SCREEN_WIDTH = 40;
+  public static readonly RIGHT_PANEL_WIDTH = 180;
+
+  public static getRangeDecimalPlaces( min: number, max: number ): number {
+    return Math.max( numberOfDecimalPlaces( min ), numberOfDecimalPlaces( max ) );
+  }
 }

@@ -25,7 +25,10 @@ const RULER_CENTER_TICK_INDEX = RULER_INTERVAL_COUNT / 2;
 const RULER_MINOR_TICKS_PER_MAJOR = 4;
 const RULER_HEIGHT = 40;
 
-const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number, _sourceType: SourceType ): number => {
+const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number, sourceType: SourceType ): number => {
+  if ( sourceType === 'neutrons' || sourceType === 'heliumAtoms' ) {
+    return 1;
+  }
   if ( halfDetectorWidthMM >= 10 ) {
     return 0;
   }

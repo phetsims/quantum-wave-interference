@@ -41,10 +41,10 @@ import OverheadBeamNode from './OverheadBeamNode.js';
 import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
-import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
+import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
-import SourceControlPanel from './SourceControlPanel.js';
+import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
 
 type SelfOptions = EmptySelfOptions;

@@ -21,9 +21,9 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import { type DetectionMode } from '../model/DetectionMode.js';
-import SceneModel from '../model/SceneModel.js';
+import { type DetectionMode } from '../../common/model/DetectionMode.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const LABEL_FONT = new PhetFont( 14 );
@@ -93,13 +93,13 @@ export default class ScreenSettingsPanel extends Panel {
       maxWidth: 140
     } );
 
-    const brightnessRange = new Range( 0, SceneModel.SCREEN_BRIGHTNESS_MAX );
+    const brightnessRange = new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX );
     const brightnessSlider = new HSlider( screenBrightnessProperty, brightnessRange, {
       trackSize: new Dimension2( 130, 3 ),
       thumbSize: new Dimension2( 13, 22 ),
       majorTickLength: 12,
       createAriaValueText: value => percentUnit.getAccessibleString(
-        value / SceneModel.SCREEN_BRIGHTNESS_MAX * 100,
+        value / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100,
         {
           decimalPlaces: 0,
           showTrailingZeros: false,

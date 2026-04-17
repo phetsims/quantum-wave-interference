@@ -52,6 +52,36 @@ snapshotNumberPattern:              'Snapshot {{number}}'
 ruler:                              Ruler
 stopwatch:                          Stopwatch
 detector:                           Detector
+tapeMeasure:                        Tape Measure
+timePlot:                           Time Plot
+positionPlot:                       Position Plot
+time:                               Time
+position:                           Position
+obstacle:                           Obstacle
+none:                               None
+waveDisplay:                        Wave Display
+waveFunctionDisplay:                Wave Function Display
+electricField:                      Electric Field
+timeAveragedIntensity:              Time-averaged Intensity
+magnitude:                          Magnitude
+realPart:                           Real Part
+imaginaryPart:                      Imaginary Part
+topCovered:                         Top Covered
+bottomCovered:                      Bottom Covered
+topClosed:                          Top Closed
+bottomClosed:                       Bottom Closed
+topDetector:                        Top Detector
+bottomDetector:                     Bottom Detector
+autoRepeat:                         Auto-repeat
+timeScaleLabel:                     '1 fs = 10⁻¹⁵ s'
+erase:                              Erase
+snapshots:                          Snapshots
+detectorSize:                       Detector Size
+detect:                             Detect
+resetDetector:                      Reset
+particleDetected:                   Particle detected
+notDetected:                        Not detected
+detectorPercentPattern:             '{{value}}%'
 
 # Accessibility strings
 a11y:
