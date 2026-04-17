@@ -395,10 +395,8 @@ export default class ExperimentScreenView extends ScreenView {
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
     const rulerNodes = model.scenes.map( ( scene, index ) => {
-      const detectorWidthMM = scene.screenHalfWidth * 2 * 1e3;
       const rulerNode = createRulerNode(
-        detectorWidthMM,
-        scene.sourceType,
+        scene,
         rulerNodesTandem.createTandem( `rulerNode${index}` )
       );
       this.addChild( rulerNode );

@@ -60,7 +60,7 @@ export default class BandAnalysis {
     return BandAnalysis.computeTheoreticalPattern(
       snapshot.effectiveWavelength,
       snapshot.screenDistance,
-      SceneModel.getScreenHalfWidth( snapshot.sourceType ),
+      snapshot.screenHalfWidth,
       SceneModel.getSlitWidth( snapshot.sourceType ) * 1e-3,
       snapshot.slitSetting,
       snapshot.slitSeparation * 1e-3

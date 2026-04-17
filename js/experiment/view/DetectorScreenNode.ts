@@ -18,6 +18,7 @@ import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
@@ -44,6 +45,7 @@ const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 0;
 const BUTTON_COLUMN_GAP = 6;
 const TARGET_SCALE_WIDTH_MM = 5;
+const HORIZONTAL_ZOOM_BUTTON_MARGIN = 6;
 const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
 const SNAPSHOT_FLASH_DURATION = 0.6;
 const DETECTOR_ACTION_BUTTON_MIN_WIDTH = 36;
@@ -156,6 +158,36 @@ export default class DetectorScreenNode extends Node {
       flashAnimation.start();
     };
 
+    const horizontalZoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
+      level: new DerivedProperty(
+        [ sceneModel.detectorScreenScaleIndexProperty ],
+        detectorScreenScaleIndex => detectorScreenScaleIndex + 1
+      ),
+      max: sceneModel.detectorScreenScaleIndexProperty.range.max + 1
+    } );
+
+    const horizontalZoomButtonGroup = new PlusMinusZoomButtonGroup( sceneModel.detectorScreenScaleIndexProperty, {
+      orientation: 'horizontal',
+      spacing: 0,
+      iconOptions: {
+        scale: 1.2
+      },
+      touchAreaXDilation: 5,
+      touchAreaYDilation: 5,
+      left: HORIZONTAL_ZOOM_BUTTON_MARGIN,
+      top: HORIZONTAL_ZOOM_BUTTON_MARGIN,
+      zoomInButtonOptions: {
+        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
+        accessibleContextResponse: horizontalZoomLevelResponseProperty
+      },
+      zoomOutButtonOptions: {
+        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
+        accessibleContextResponse: horizontalZoomLevelResponseProperty
+      },
+      tandem: providedOptions.tandem.createTandem( 'horizontalZoomButtonGroup' )
+    } );
+    this.addChild( horizontalZoomButtonGroup );
+
     // Hit count text - only visible in Hits mode, positioned above the screen on the right side (per design:
     // "Above the screen... on the right, there is a readout displaying the total number of detected hits (only if
     // 'Hits' selected)")
@@ -176,21 +208,22 @@ export default class DetectorScreenNode extends Node {
     // so the visual measurement is consistent with the interference pattern scale.
     // Use 5 mm when that fits on the detector screen. For scenes with sub-mm detector widths,
     // use 1/4 of the detector width so the scale bar remains readable.
-    const halfWidth = sceneModel.screenHalfWidth;
-    const fullPhysicalWidth = halfWidth * 2; // full physical width in meters
-    const metersPerPixel = fullPhysicalWidth / SCREEN_WIDTH;
-    const fullPhysicalWidthMM = fullPhysicalWidth * 1e3;
-    const scalePhysicalWidthMM = fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
-    const scaleArrowWidth = ( scalePhysicalWidthMM * 1e-3 ) / metersPerPixel;
-
-    const scaleLabelStringProperty = QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.derived(
-      pattern => StringUtils.fillIn( pattern, {
-        value: toFixed( scalePhysicalWidthMM, getScaleLabelDecimalPlaces( scalePhysicalWidthMM ) )
-      } )
+    const scaleLabelStringProperty = new DerivedProperty(
+      [
+        sceneModel.detectorScreenScaleIndexProperty,
+        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty
+      ],
+      ( _detectorScreenScaleIndex, pattern ) => {
+        const fullPhysicalWidthMM = sceneModel.screenHalfWidth * 2 * 1e3;
+        const scalePhysicalWidthMM = fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
+        return StringUtils.fillIn( pattern, {
+          value: toFixed( scalePhysicalWidthMM, getScaleLabelDecimalPlaces( scalePhysicalWidthMM ) )
+        } );
+      }
     );
 
     // Future cleanup: the scale indicator (arrow + ticks + label) could be extracted to a reusable ScaleIndicatorNode.
-    const scaleArrow = new ArrowNode( 0, SPAN_ARROW_Y, scaleArrowWidth, SPAN_ARROW_Y, {
+    const scaleArrow = new ArrowNode( 0, SPAN_ARROW_Y, 1, SPAN_ARROW_Y, {
       headHeight: 5,
       headWidth: 5,
       tailWidth: 1,
@@ -210,9 +243,9 @@ export default class DetectorScreenNode extends Node {
     this.addChild( scaleLeftTick );
 
     const scaleRightTick = new Line(
-      scaleArrowWidth,
+      0,
       SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2,
-      scaleArrowWidth,
+      0,
       SPAN_ARROW_Y + SPAN_TICK_LENGTH / 2,
       { stroke: 'black', lineWidth: 1 }
     );
@@ -222,10 +255,22 @@ export default class DetectorScreenNode extends Node {
       font: new PhetFont( 12 ),
       fill: 'black',
       maxWidth: 100,
-      left: scaleArrowWidth + 4,
       centerY: SPAN_ARROW_Y
     } );
     this.addChild( scaleLabelText );
+
+    const updateScaleIndicator = () => {
+      const fullPhysicalWidth = sceneModel.screenHalfWidth * 2;
+      const metersPerPixel = fullPhysicalWidth / SCREEN_WIDTH;
+      const fullPhysicalWidthMM = fullPhysicalWidth * 1e3;
+      const scalePhysicalWidthMM = fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
+      const scaleArrowWidth = ( scalePhysicalWidthMM * 1e-3 ) / metersPerPixel;
+
+      scaleArrow.setTailAndTip( 0, SPAN_ARROW_Y, scaleArrowWidth, SPAN_ARROW_Y );
+      scaleRightTick.x = scaleArrowWidth;
+      scaleLabelText.left = scaleArrowWidth + 4;
+    };
+    sceneModel.detectorScreenScaleIndexProperty.link( updateScaleIndicator );
 
     // Update the hit count text and canvas when hits change or locale strings change
     const updateDisplay = () => {
@@ -252,10 +297,12 @@ export default class DetectorScreenNode extends Node {
     sceneModel.isEmittingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.screenBrightnessProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.intensityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.detectorScreenScaleIndexProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
     // The intensity pattern is derived from accumulated hits (which trigger hitsChangedEmitter),
     // but wavelength changes affect hit dot color for photons.
     sceneModel.wavelengthProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.velocityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
     // Eraser button to clear the screen
     const eraserButtonEnabledProperty = new DerivedProperty(
