@@ -65,6 +65,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
 
   public constructor( sceneProperty: TReadOnlyProperty<WaveVisualizableScene>, viewWidth: number, viewHeight: number ) {
     super( {
+      isDisposable: false,
       canvasBounds: new Bounds2( 0, 0, viewWidth, viewHeight )
     } );
 

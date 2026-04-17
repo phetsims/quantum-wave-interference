@@ -110,6 +110,7 @@ export default class SceneRadioButtonGroup<T extends HasSourceType> extends Rect
     } );
 
     super( sceneProperty, items, {
+      isDisposable: false,
       orientation: 'horizontal',
       wrap: true,
       widthSizable: false,

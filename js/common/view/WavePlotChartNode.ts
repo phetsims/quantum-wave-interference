@@ -61,6 +61,7 @@ export default class WavePlotChartNode extends Node {
     const initialY = providedOptions.y ?? 0;
 
     const options = optionize<WavePlotChartNodeOptions, SelfOptions, NodeOptions>()( {
+      isDisposable: false,
       cursor: 'pointer',
       x: undefined,
       y: undefined

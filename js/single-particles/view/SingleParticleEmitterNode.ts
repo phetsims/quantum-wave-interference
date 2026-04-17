@@ -41,7 +41,9 @@ export default class SingleParticleEmitterNode extends Node {
     providedOptions: SingleParticleEmitterNodeOptions
   ) {
 
-    const options = optionize<SingleParticleEmitterNodeOptions, SelfOptions, NodeOptions>()( {}, providedOptions );
+    const options = optionize<SingleParticleEmitterNodeOptions, SelfOptions, NodeOptions>()( {
+      isDisposable: false
+    }, providedOptions );
 
     super( options );
 

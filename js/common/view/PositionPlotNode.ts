@@ -62,7 +62,7 @@ export default class PositionPlotNode extends Node {
     waveRegionY: number,
     visibleProperty: TReadOnlyProperty<boolean>
   ) {
-    super( { visibleProperty: visibleProperty } );
+    super( { isDisposable: false, visibleProperty: visibleProperty } );
 
     this.sceneProperty = sceneProperty;
     this.amplitudeScale = new StickyMaxTracker( MIN_AMPLITUDE_SCALE );

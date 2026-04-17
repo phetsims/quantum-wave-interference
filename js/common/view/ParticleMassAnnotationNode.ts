@@ -43,6 +43,7 @@ export default class ParticleMassAnnotationNode extends RichText {
     );
 
     super( massLabelStringProperty, {
+      isDisposable: false,
       font: MASS_LABEL_FONT,
       fill: '#555',
       maxWidth: 200,
