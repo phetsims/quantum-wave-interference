@@ -6,6 +6,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { numberOfDecimalPlaces } from '../../../dot/js/util/numberOfDecimalPlaces.js';
+
 export default class QuantumWaveInterferenceConstants {
 
   private constructor() {
@@ -35,4 +37,8 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly DETECTOR_SCREEN_SKEW = 18;
   public static readonly DETECTOR_SCREEN_WIDTH = 40;
   public static readonly RIGHT_PANEL_WIDTH = 180;
+
+  public static getRangeDecimalPlaces( min: number, max: number ): number {
+    return Math.max( numberOfDecimalPlaces( min ), numberOfDecimalPlaces( max ) );
+  }
 }
