@@ -11,8 +11,7 @@
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { linear } from '../../../../dot/js/util/linear.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type SourceType } from '../model/SourceType.js';
+import SceneModel from '../model/SceneModel.js';
 
 // Below this intensity threshold, a band is considered perceptually invisible and is skipped during rendering.
 export const PERCEPTUAL_VISIBILITY_THRESHOLD = 0.004;
@@ -55,7 +54,7 @@ export const getIntensityScreenBrightnessMultiplier = ( sliderBrightness: number
 /**
  * Maps the hits-mode brightness slider to a display gain multiplier.
  */
-export const getHitsDisplayGain = ( brightness: number, sliderMax: number = QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ): number => {
+export const getHitsDisplayGain = ( brightness: number, sliderMax: number = SceneModel.SCREEN_BRIGHTNESS_MAX ): number => {
   const clampedBrightness = clamp( brightness, 0, sliderMax );
   return linear(
     0,
@@ -70,7 +69,7 @@ export const getHitsDisplayGain = ( brightness: number, sliderMax: number = Quan
  * Converts a raw brightness value to a 0–1 fraction of the maximum brightness.
  */
 export const getHitsBrightnessFraction = ( brightness: number ): number => {
-  return clamp( brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX, 0, 1 );
+  return clamp( brightness / SceneModel.SCREEN_BRIGHTNESS_MAX, 0, 1 );
 };
 
 /**
@@ -118,9 +117,9 @@ export const getIntensityDisplayGain = ( brightness: number, intensity: number )
 /**
  * Returns the RGB color for a scene's particles (wavelength-dependent for photons, white for matter).
  */
-export const getSceneRGB = ( sourceType: SourceType, wavelength: number ): { r: number; g: number; b: number } => {
-  if ( sourceType === 'photons' ) {
-    const color = VisibleColor.wavelengthToColor( wavelength );
+export const getSceneRGB = ( sceneModel: SceneModel ): { r: number; g: number; b: number } => {
+  if ( sceneModel.sourceType === 'photons' ) {
+    const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
     return { r: color.red, g: color.green, b: color.blue };
   }
   else {

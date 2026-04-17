@@ -32,7 +32,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import { type SlitConfiguration } from '../model/SlitConfiguration.js';
-import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
+import linkSceneVisibility from './linkSceneVisibility.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
@@ -109,11 +109,10 @@ export default class SlitControlPanel extends Panel {
   ): Node {
     const sceneTandemName = scene.sourceType;
 
-    // Slit separation NumberControl. For scenes with very small slit separations (max < 0.1 mm),
-    // display in μm instead of mm for readability. E.g., "10 μm" instead of "0.010 mm" for the electron/helium atom
-    // scenes.
+    // Slit separation NumberControl. Display in μm for all particle scenes and photons so the control readout uses
+    // the same units as the slit-view annotations.
     const slitSeparationRange = scene.slitSeparationRange;
-    const usesMicrometers = slitSeparationRange.max <= 0.1; // mm threshold for switching to μm
+    const usesMicrometers = scene.sourceType === 'photons' || slitSeparationRange.max <= 0.1;
 
     let slitSeparationNumberDisplayOptions;
     let slitSeparationTicks;
@@ -124,7 +123,7 @@ export default class SlitControlPanel extends Panel {
       const mmToMicrometerDecimalPlaces = ExperimentConstants.getRangeDecimalPlaces(
         slitSeparationRange.min * 1000, slitSeparationRange.max * 1000
       );
-      slitSeparationDelta = SlitControlPanel.getDelta( slitSeparationRange );
+      slitSeparationDelta = scene.sourceType === 'photons' ? SlitControlPanel.getDelta( slitSeparationRange ) : 0.0005;
       slitSeparationNumberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
           const valueUM = valueMM * 1000;

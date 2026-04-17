@@ -41,10 +41,10 @@ import OverheadBeamNode from './OverheadBeamNode.js';
 import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
-import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
+import SceneRadioButtonGroup from './SceneRadioButtonGroup.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
-import SourceControlPanel from '../../common/view/SourceControlPanel.js';
+import SourceControlPanel from './SourceControlPanel.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -364,6 +364,11 @@ export default class ExperimentScreenView extends ScreenView {
       },
       tandem: options.tandem.createTandem( 'timeControlNode' )
     } );
+    model.currentDetectionModeProperty.link( detectionMode => {
+      const isHitsMode = detectionMode === 'hits';
+      timeControlNode.visible = isHitsMode;
+      timeControlNode.enabled = isHitsMode;
+    } );
     this.addChild( timeControlNode );
 
     const bottomRowLeft = this.graphAccordionBoxes[ 0 ].left;
@@ -532,17 +537,10 @@ export default class ExperimentScreenView extends ScreenView {
     const slitSettingProperty = model.currentSlitSettingProperty;
     const slitWidthStringProperty = model.sceneProperty.derived( scene => {
       const slitWidthMM = scene.slitWidth;
-      if ( slitWidthMM >= 0.01 ) {
-        return QuantumWaveInterferenceFluent.a11y.slitWidthMillimetersPattern.format( {
-          value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )
-        } );
-      }
-      else {
-        const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
-        return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
-          value: toFixed( slitWidthUM, decimalPlaces )
-        } );
-      }
+      const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
+      return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
+        value: toFixed( slitWidthUM, decimalPlaces )
+      } );
     } );
     const slitViewDescriptionNode = new Node( {
       accessibleParagraph:

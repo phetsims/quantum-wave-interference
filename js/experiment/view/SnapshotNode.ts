@@ -37,10 +37,10 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import { hasAnyDetector, type SlitConfiguration } from '../model/SlitConfiguration.js';
-import Snapshot from '../../common/model/Snapshot.js';
+import Snapshot from '../model/Snapshot.js';
 import { type SourceType } from '../model/SourceType.js';
 import SnapshotDescriber from './description/SnapshotDescriber.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, PERCEPTUAL_VISIBILITY_THRESHOLD } from '../../common/view/ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 // Snapshot display dimensions (scaled down from the full detector screen)
 const SNAPSHOT_WIDTH = 360;
@@ -128,20 +128,14 @@ export default class SnapshotNode extends Node {
         snapshotProperty,
         QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
         QuantumWaveInterferenceFluent.slitSeparationStringProperty,
-        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty,
-        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty
+        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty
       ],
       ifSnapshot( snapshot => {
-        // Slit separation: use μm for small values (< 0.1 mm) for readability.
-        const slitSepValue = snapshot.slitSeparation < 0.1
-                             ? StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
-            { value: toFixed( snapshot.slitSeparation * 1000, 1 ) }
-          )
-                             : StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value,
-            { value: toFixed( snapshot.slitSeparation, 2 ) }
-          );
+        const slitSepUM = snapshot.slitSeparation * 1000;
+        const slitSepValue = StringUtils.fillIn(
+          QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
+          { value: toFixed( slitSepUM, ExperimentConstants.getDecimalPlacesForValue( slitSepUM ) ) }
+        );
         return formatLabelValue(
           QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
           slitSepValue
