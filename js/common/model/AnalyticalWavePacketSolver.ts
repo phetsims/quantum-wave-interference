@@ -404,7 +404,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     }
     const radialEnvelope = Math.exp( -radialDelta * radialDelta * invTwoSigmaXSq );
 
-    const amplitude = singleSlitEnvelope * slitEnvY * radialEnvelope / Math.sqrt( rSafe );
+    // 0.5 per slit keeps the coherent two-slit sum ≤ 1 for rendering (no 1/√r spreading).
+    const amplitude = 0.5 * singleSlitEnvelope * slitEnvY * radialEnvelope;
     const phase = kDisplay * r - omegaDisplay * this.time;
 
     this.scratchRe = amplitude * Math.cos( phase );

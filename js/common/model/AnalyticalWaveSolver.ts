@@ -330,7 +330,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const alpha = Math.PI * slitWidth * sinTheta / displayLambda;
     const envelope = alpha === 0 ? 1 : Math.sin( alpha ) / alpha;
 
-    const amplitude = envelope / Math.sqrt( Math.max( r, 1e-10 ) );
+    // 0.5 per slit keeps the coherent two-slit sum ≤ 1 for rendering (no 1/√r spreading).
+    const amplitude = 0.5 * envelope;
     const phase = k * r - omega * this.time;
 
     this.scratchRe = amplitude * Math.cos( phase );
