@@ -76,6 +76,36 @@ type StringsType = {
   'rulerStringProperty': LocalizedStringProperty;
   'stopwatchStringProperty': LocalizedStringProperty;
   'detectorStringProperty': LocalizedStringProperty;
+  'tapeMeasureStringProperty': LocalizedStringProperty;
+  'timePlotStringProperty': LocalizedStringProperty;
+  'positionPlotStringProperty': LocalizedStringProperty;
+  'timeStringProperty': LocalizedStringProperty;
+  'positionStringProperty': LocalizedStringProperty;
+  'obstacleStringProperty': LocalizedStringProperty;
+  'noneStringProperty': LocalizedStringProperty;
+  'waveDisplayStringProperty': LocalizedStringProperty;
+  'waveFunctionDisplayStringProperty': LocalizedStringProperty;
+  'electricFieldStringProperty': LocalizedStringProperty;
+  'timeAveragedIntensityStringProperty': LocalizedStringProperty;
+  'magnitudeStringProperty': LocalizedStringProperty;
+  'realPartStringProperty': LocalizedStringProperty;
+  'imaginaryPartStringProperty': LocalizedStringProperty;
+  'topCoveredStringProperty': LocalizedStringProperty;
+  'bottomCoveredStringProperty': LocalizedStringProperty;
+  'topClosedStringProperty': LocalizedStringProperty;
+  'bottomClosedStringProperty': LocalizedStringProperty;
+  'topDetectorStringProperty': LocalizedStringProperty;
+  'bottomDetectorStringProperty': LocalizedStringProperty;
+  'autoRepeatStringProperty': LocalizedStringProperty;
+  'timeScaleLabelStringProperty': LocalizedStringProperty;
+  'eraseStringProperty': LocalizedStringProperty;
+  'snapshotsStringProperty': LocalizedStringProperty;
+  'detectorSizeStringProperty': LocalizedStringProperty;
+  'detectStringProperty': LocalizedStringProperty;
+  'resetDetectorStringProperty': LocalizedStringProperty;
+  'particleDetectedStringProperty': LocalizedStringProperty;
+  'notDetectedStringProperty': LocalizedStringProperty;
+  'detectorPercentPatternStringProperty': LocalizedStringProperty;
   'a11y': {
     'screenSummary': {
       'playAreaStringProperty': LocalizedStringProperty;

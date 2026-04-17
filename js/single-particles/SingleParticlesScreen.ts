@@ -9,6 +9,7 @@
 import Screen, { ScreenOptions } from '../../../joist/js/Screen.js';
 import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js';
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
+import { createSingleParticlesScreenIcon } from '../common/view/createScreenIcons.js';
 import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from './model/SingleParticlesModel.js';
 import SingleParticlesScreenView from './view/SingleParticlesScreenView.js';
@@ -23,7 +24,8 @@ export default class SingleParticlesScreen extends Screen<SingleParticlesModel, 
 
     const options = optionize<SingleParticlesScreenOptions, SelfOptions, ScreenOptions>()( {
       name: QuantumWaveInterferenceFluent.screen.singleParticles.nameStringProperty,
-      backgroundColorProperty: QuantumWaveInterferenceColors.screenBackgroundColorProperty
+      backgroundColorProperty: QuantumWaveInterferenceColors.screenBackgroundColorProperty,
+      homeScreenIcon: createSingleParticlesScreenIcon()
     }, providedOptions );
 
     super(
