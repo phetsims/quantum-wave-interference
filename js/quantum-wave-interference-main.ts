@@ -31,7 +31,7 @@ simLauncher.launch( () => {
     credits: {
       leadDesign: 'Amy Rouinfar',
       softwareDevelopment: 'Sam Reid',
-      team: 'Wendy Adams, Diana L\u00f3pez Tavares, Ariel Paul, Kathy Perkins',
+      team: 'Wendy Adams, Diana López Tavares, Ariel Paul, Kathy Perkins',
       qualityAssurance: '',
       graphicArts: '',
       thanks: ''
