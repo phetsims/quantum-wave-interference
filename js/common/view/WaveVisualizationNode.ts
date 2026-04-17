@@ -9,6 +9,8 @@
  */
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
@@ -27,6 +29,62 @@ type WaveVisualizationNodeOptions = SelfOptions & NodeOptions;
 
 const CORNER_RADIUS = 10;
 const SCALE_MARGIN = 8;
+
+// "Nice" multipliers within each power of 10 for human-friendly scale labels
+const NICE_MULTIPLIERS = [ 1, 2, 5 ];
+const TARGET_BAR_PX = 50;
+const MIN_BAR_PX = 25;
+const MAX_BAR_PX = 100;
+
+/**
+ * Finds a "nice" round physical distance (in meters) whose scale bar is close to the target pixel width.
+ */
+const computeNiceScale = ( regionWidthMeters: number, regionWidthPixels: number ): { distanceMeters: number; barPixels: number } => {
+  const metersPerPixel = regionWidthMeters / regionWidthPixels;
+  const targetMeters = TARGET_BAR_PX * metersPerPixel;
+
+  // Find the power of 10 just below targetMeters
+  const exponent = Math.floor( Math.log10( targetMeters ) );
+
+  let bestDistance = targetMeters;
+  let bestPixels = TARGET_BAR_PX;
+  let bestError = Infinity;
+
+  for ( let e = exponent - 1; e <= exponent + 1; e++ ) {
+    for ( const m of NICE_MULTIPLIERS ) {
+      const candidate = m * Math.pow( 10, e );
+      const pixels = candidate / metersPerPixel;
+      if ( pixels >= MIN_BAR_PX && pixels <= MAX_BAR_PX ) {
+        const error = Math.abs( pixels - TARGET_BAR_PX );
+        if ( error < bestError ) {
+          bestError = error;
+          bestDistance = candidate;
+          bestPixels = pixels;
+        }
+      }
+    }
+  }
+
+  return { distanceMeters: bestDistance, barPixels: bestPixels };
+};
+
+/**
+ * Formats a distance in meters into a human-readable string with appropriate units.
+ */
+const formatDistance = ( meters: number ): string => {
+  if ( meters >= 1e-3 ) {
+    const mm = meters * 1e3;
+    return StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value, {
+      value: mm >= 10 ? roundSymmetric( mm ) : parseFloat( mm.toPrecision( 2 ) )
+    } );
+  }
+  else {
+    const um = meters * 1e6;
+    return StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value, {
+      value: um >= 10 ? roundSymmetric( um ) : parseFloat( um.toPrecision( 2 ) )
+    } );
+  }
+};
 
 export default class WaveVisualizationNode extends Node {
 
@@ -51,23 +109,21 @@ export default class WaveVisualizationNode extends Node {
     this.waveCanvas.clipArea = backgroundRect.getShape()!;
     this.addChild( this.waveCanvas );
 
-    // Distance scale label with bar in the top-left corner (e.g., "1 μm")
+    // Distance scale indicator with bar in the top-left corner
     const scaleFont = new PhetFont( 11 );
     const scaleLabelColor = 'white';
-    const scaleBarLength = 50;
     const tickHeight = 6;
 
     const leftTick = new Line( 0, 0, 0, tickHeight, { stroke: scaleLabelColor, lineWidth: 1 } );
-    const bar = new Line( 0, tickHeight / 2, scaleBarLength, tickHeight / 2, { stroke: scaleLabelColor, lineWidth: 1 } );
+    const bar = new Line( 0, tickHeight / 2, TARGET_BAR_PX, tickHeight / 2, { stroke: scaleLabelColor, lineWidth: 1 } );
     const rightTick = new Line( 0, 0, 0, tickHeight, { stroke: scaleLabelColor, lineWidth: 1 } );
-    rightTick.left = bar.right;
 
     const scaleBarNode = new Node( { children: [ leftTick, bar, rightTick ] } );
 
-    const distanceLabel = new Text( QuantumWaveInterferenceFluent.distanceScaleLabelStringProperty, {
+    const distanceLabel = new Text( '', {
       font: scaleFont,
       fill: scaleLabelColor,
-      maxWidth: 60
+      maxWidth: 80
     } );
 
     const distanceScaleNode = new HBox( {
@@ -77,6 +133,14 @@ export default class WaveVisualizationNode extends Node {
       top: SCALE_MARGIN
     } );
     this.addChild( distanceScaleNode );
+
+    // Update scale bar and label when scene changes
+    sceneProperty.link( scene => {
+      const { distanceMeters, barPixels } = computeNiceScale( scene.regionWidth, width );
+      bar.setX2( barPixels );
+      rightTick.left = bar.right;
+      distanceLabel.string = formatDistance( distanceMeters );
+    } );
 
     // Time scale label in the bottom-left corner (e.g., "1 fs = 10⁻¹⁵ s")
     const timeLabel = new Text( QuantumWaveInterferenceFluent.timeScaleLabelStringProperty, {
