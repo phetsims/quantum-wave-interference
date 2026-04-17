@@ -42,6 +42,9 @@ export const MAX_HITS = 25000;
 const MAX_SNAPSHOTS = 4;
 const DEFAULT_PHOTON_WAVELENGTH_NM = 650;
 
+// All scenes use an 8 μm physical region so the scale bar shows "1 μm".
+const REGION_SIZE = 8e-6;
+
 type SelfOptions = {
   sourceType: SourceType;
   defaultPhotonWaveDisplayMode?: PhotonWaveDisplayMode;
@@ -106,8 +109,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.0002, 0.003 );
       defaultVelocity = 0;
       defaultSlitSeparation = 0.003;
-      this.regionWidth = 0.04;
-      this.regionHeight = 0.04;
+      this.regionWidth = REGION_SIZE;
+      this.regionHeight = REGION_SIZE;
     }
     else if ( options.sourceType === 'electrons' ) {
       this.particleMass = QuantumWaveInterferenceConstants.ELECTRON_MASS;
@@ -115,26 +118,26 @@ export default abstract class BaseSceneModel extends PhetioObject {
       this.slitSeparationRange = new Range( 0.0001, 0.0009 );
       defaultVelocity = 1.1e6;
       defaultSlitSeparation = 0.0005;
-      this.regionWidth = 8e-4;
-      this.regionHeight = 8e-4;
+      this.regionWidth = REGION_SIZE;
+      this.regionHeight = REGION_SIZE;
     }
     else if ( options.sourceType === 'neutrons' ) {
       this.particleMass = QuantumWaveInterferenceConstants.NEUTRON_MASS;
       this.velocityRange = new Range( 200, 800 );
-      this.slitSeparationRange = new Range( 0.01, 0.07 );
+      this.slitSeparationRange = new Range( 0.00005, 0.002 );
       defaultVelocity = 500;
-      defaultSlitSeparation = 0.04;
-      this.regionWidth = 8e-4;
-      this.regionHeight = 8e-4;
+      defaultSlitSeparation = 0.001;
+      this.regionWidth = REGION_SIZE;
+      this.regionHeight = REGION_SIZE;
     }
     else {
       this.particleMass = QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
       this.velocityRange = new Range( 400, 2000 );
-      this.slitSeparationRange = new Range( 0.001, 0.007 );
+      this.slitSeparationRange = new Range( 0.00002, 0.0008 );
       defaultVelocity = 1200;
-      defaultSlitSeparation = 0.004;
-      this.regionWidth = 8e-4;
-      this.regionHeight = 8e-4;
+      defaultSlitSeparation = 0.0004;
+      this.regionWidth = REGION_SIZE;
+      this.regionHeight = REGION_SIZE;
     }
 
     this.hits = [];
@@ -384,10 +387,15 @@ export default abstract class BaseSceneModel extends PhetioObject {
 }
 
 function getSlitWidthForSourceType( sourceType: SourceType ): number {
-  return sourceType === 'photons' ? 0.02 :
+
+  // Values in mm (converted to meters via * 1e-3 in syncSolverParameters).
+  // Must be smaller than the minimum slit separation for each scene.
+  // The analytical solver overrides these with display-scale values via getDisplaySlitParameters;
+  // these physical values are used only by the lattice solver.
+  return sourceType === 'photons' ? 0.0001 :
          sourceType === 'electrons' ? 0.00003 :
-         sourceType === 'neutrons' ? 0.003 :
-         sourceType === 'heliumAtoms' ? 0.0003 :
+         sourceType === 'neutrons' ? 0.00002 :
+         sourceType === 'heliumAtoms' ? 0.000008 :
          ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
 }
 

@@ -8,17 +8,13 @@
  */
 
 import { type MeasuringTapeUnits } from '../../../../scenery-phet/js/MeasuringTapeNode.js';
-import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
 const WAVE_REGION_VIEW_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 
-export default function getMeasuringTapeUnits( sourceType: SourceType, regionWidth: number ): MeasuringTapeUnits {
-  const isPhotons = sourceType === 'photons';
+export default function getMeasuringTapeUnits( regionWidth: number ): MeasuringTapeUnits {
   return {
-    name: isPhotons ? 'mm' : 'μm',
-    multiplier: isPhotons
-      ? regionWidth / WAVE_REGION_VIEW_WIDTH * 1000
-      : regionWidth / WAVE_REGION_VIEW_WIDTH * 1e6
+    name: 'μm',
+    multiplier: regionWidth / WAVE_REGION_VIEW_WIDTH * 1e6
   };
 }

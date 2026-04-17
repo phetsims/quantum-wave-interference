@@ -62,7 +62,7 @@ const createMeasurementToolNodes = (
 
   const measuringTapeUnitsProperty = new DerivedProperty(
     [ model.sceneProperty ],
-    scene => getMeasuringTapeUnits( scene.sourceType, scene.regionWidth )
+    scene => getMeasuringTapeUnits( scene.regionWidth )
   );
 
   const measuringTapeNode = new MeasuringTapeNode( measuringTapeUnitsProperty, {
