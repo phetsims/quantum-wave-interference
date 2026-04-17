@@ -2,108 +2,167 @@
 
 ## Overview
 
-This is a single-screen simulation with four independent scenes (Photons, Electrons, Neutrons, Helium atoms).
-The architecture follows PhET conventions: a top-level model (`ExperimentModel`) owns four
-`SceneModel` instances, and the view (`ExperimentScreenView`) creates per-scene UI components
-whose visibility is toggled by the selected scene.
+This is a three-screen simulation: Experiment, High Intensity, and Single Particles. All three
+screens share four independent scenes (Photons, Electrons, Neutrons, Helium atoms). The Experiment
+screen was built first; the High Intensity and Single Particles screens share substantial
+infrastructure in `js/common/` but have importantly different underlying models.
 
-## Model
+## Shared Architecture
 
-### ExperimentModel
+### BaseSceneModel
 
-The top-level model manages shared state (play/pause, time speed, ruler visibility, stopwatch) and an array
-of four `SceneModel` instances. A `sceneProperty` tracks which scene is currently selected.
+`BaseSceneModel` is the abstract base for scene models used by the High Intensity and Single
+Particles screens. It stores per-scene state: emitter properties (wavelength/velocity, intensity,
+isEmitting), slit geometry (separation, position fraction, slit setting), detection mode, screen
+brightness, wave display mode, accumulated hits, and snapshots. It owns a `WaveSolver` for wave
+computation and delegates to subclass-specific solver construction.
 
-### SceneModel
+### BaseScreenModel
 
-Each `SceneModel` stores the complete physics state for one source type:
-- Emitter properties (wavelength/velocity, intensity, isEmitting)
-- Slit geometry (separation, screen distance, slit setting)
-- Detection mode (Average Intensity vs Hits) and screen brightness
-- Accumulated data: `hits[]` (Vector2 array, capped at 25,000 in Hits mode)
+`BaseScreenModel<T extends BaseSceneModel>` manages an array of four scene instances and a
+`sceneProperty` that tracks which scene is active. It creates `DynamicProperty` instances that
+follow the active scene's properties, enabling shared UI components to react to scene changes
+without manual re-linking. Subclasses (`HighIntensityModel`, `SingleParticlesModel`) add
+screen-specific DynamicProperties (e.g., detection mode for High Intensity, auto-repeat for
+Single Particles).
 
-**Interference calculation**: `getIntensityAtPosition(y)` computes the double-slit interference pattern
-using the Fraunhofer formula. It handles three cases: both slits open (full interference), one slit
-covered (single-slit diffraction), and which-path detector active (no interference, returns single-slit
-envelope).
+### Dual-Solver Architecture
 
-**Hit generation**: The `step(dt)` method uses rejection sampling to generate detection events at a rate
-proportional to intensity and time speed. Candidate positions are tested against the theoretical intensity
-curve and accepted probabilistically.
+Both the High Intensity and Single Particles screens support two independent solver back-ends,
+selected at startup by the query parameter `?waveModel=analytical|lattice` (default: analytical).
+Both solvers implement a common `WaveSolver` interface with `step()`, `getAmplitudeField()`,
+`getDetectorProbabilityDistribution()`, and `reset()`. All model and view code interacts only through this
+interface.
 
-**Hit limit behavior**: In Hits mode, each scene is capped at 25,000 hits
-(`ExperimentConstants.MAX_HITS`). When the cap is reached, the emitter turns off automatically,
-its button is disabled, and a message appears next to the source. Clearing the detector screen
-removes the message and re-enables the emitter button.
+- **Analytical solvers** (`AnalyticalWaveSolver`, `AnalyticalWavePacketSolver`) compute wave fields
+  from closed-form Fraunhofer diffraction expressions.
+- **Lattice solvers** (`LatticeWaveSolver`, `LatticeWavePacketSolver`) evolve the wave on a discrete
+  2D grid using finite-difference time-domain (FDTD) methods with absorbing boundary conditions.
 
-**Parameter changes**: Changing slit separation, screen distance, velocity/wavelength, or slit setting
-calls `clearScreen()`, which resets all accumulated data. This ensures the displayed pattern always
-reflects the current physics parameters.
+### Shared View Components
 
-### Snapshot
+View components in `js/common/view/` are shared between the High Intensity and Single Particles
+screens:
 
-`Snapshot` captures the detector screen state (hits array, detection mode, physics parameters) for later
-viewing in the snapshots dialog. Each scene supports up to 4 snapshots.
+- **WaveVisualizationNode / WaveVisualizationCanvasNode**: CanvasNode rendering the 2D wave field
+  as a color-mapped image, updated each frame. The canvas uses an offscreen buffer and ImageData
+  for efficient pixel manipulation.
+- **DetectorScreenNode**: Skewed parallelogram showing hits or intensity. Contains a snapshot flash
+  animation, erase button, camera button, and snapshots dialog button.
+- **DoubleSlitNode**: Gray barrier rectangles with slit openings, including optional cover and
+  detector overlays (High Intensity only). Draggable horizontally to change slit-to-screen distance.
+- **SidewaysGraphNode**: Rotated histogram or intensity curve aligned with the detector screen axis.
+  Scales the detector screen to half width when visible to make room.
+- **SnapshotNode / SnapshotsDialog**: Canvas-based miniature detector screen captures with a
+  vertical list dialog. Up to 4 snapshots per scene.
+- **TimePlotNode / PositionPlotNode**: Draggable chart panels with crosshairs constrained to the
+  wave region, plotting the selected wave display quantity vs time or horizontal position.
+- **WavePlotChartNode**: Shared chart infrastructure for time and position plots with auto-scaling
+  amplitude tracking.
+- **SourceControlPanel**: Wavelength (photons) or particle speed (matter) control with intensity
+  slider, shared across screens.
+- **SceneRadioButtonGroup**: 2x2 grid of source-type icons with labels.
+- **ParticleMassAnnotationNode**: Shows mass label for matter particles, hidden for photons.
+- **SnapshotIndicatorDotsNode**: Row of indicator dots showing how many snapshot slots are used.
 
-## View
+Factory functions in `js/common/view/` assemble shared UI patterns:
+- `createWaveRegionNodes()`: Wave visualization + double slit for any screen.
+- `createRightControlsColumn()`: Right-side control panel with screen controls, tools, wave
+  display, time controls, and reset.
+- `createObstacleControlsRow()`: Obstacle combo box + slit controls, positioned below the wave
+  region.
+- `createMeasurementToolNodes()`: Tape measure, stopwatch, time plot, and position plot.
+- `createSidewaysGraph()`: Intensity/hits graph alongside the detector screen.
 
-### ExperimentScreenView
+## Screen 1: Experiment
 
-The main view creates a three-row layout:
-1. **Top row** (overhead perspective): Emitter, beam, double slit parallelogram, fan beam, detector
-   screen parallelogram with interference pattern overlay
-2. **Middle row** (front-facing views): Source controls panel, front-facing slit view, front-facing
-   detector screen with graph below
-3. **Bottom row** (controls): Scene radio buttons, slit controls, screen settings, time controls
+The Experiment screen uses a separate model (`ExperimentModel`) and view (`ExperimentScreenView`)
+in `js/experiment/`. It has a three-row overhead layout: emitter + beam + overhead double slit +
+overhead detector screen (top), front-facing slit + front-facing detector screen with graph
+(middle), and controls (bottom).
 
-Per-scene components (front-facing slits, detector screens, graphs, panels) are created for all four
-scenes, with visibility toggled by `sceneProperty`. Shared state (graph expanded, time speed) is managed
-by the model or the ScreenView and not duplicated per scene.
+The Experiment screen's `SceneModel` computes interference patterns using an inline Fraunhofer
+formula (not the dual-solver architecture) and generates hits via rejection sampling. This screen
+predates the High Intensity and Single Particles screens and does not use `BaseSceneModel` or
+`BaseScreenModel`.
 
-**DynamicProperty pattern**: Several `DynamicProperty` instances in `ExperimentModel` follow the active
-scene's properties (e.g., `currentIsEmittingProperty`, `currentSlitSettingProperty`,
-`currentDetectionModeProperty`, `currentScreenBrightnessProperty`), allowing the overhead view and other
-shared UI to react to the currently selected scene without manual re-linking.
+### Key Differences from Screens 2/3
 
-**Manual linking**: The overhead beam and pattern updates use explicit `link`/`unlink` on scene properties
-when the scene changes, because they need to update from multiple properties simultaneously and the
-`DynamicProperty` pattern doesn't cover multi-property dependencies.
+- Own `SceneModel` class with built-in interference calculation (no solver interface)
+- Own `ExperimentScreenView` layout with overhead perspective row
+- Hit cap at 25,000 with automatic emitter disable
+- Two time speeds (Normal, Fast) — no Slow option
+- Slit settings include "one slit" option not available on the other screens
 
-### Canvas-based Rendering
+## Screen 2: High Intensity
 
-A shared texture system (`getDetectorScreenTexture`) renders the detector screen content once per scene
-per frame, then multiple views draw from the same cached canvas. Three CanvasNode subclasses consume
-this texture:
+The High Intensity screen (`js/high-intensity/`) shows continuous-wave plane-wave interference. The
+emitter produces a steady beam; waves propagate across the visualization region and strike the
+detector screen, which can display either intensity bands or accumulated hits.
 
-- **DetectorScreenCanvasNode**: Front-facing detector screen. In Hits mode, renders hit dots as
-  pre-rendered sprites (core + glow circle) with incremental blitting — only new hits are drawn each
-  frame, keeping per-frame cost proportional to new hits rather than total hits. In Average Intensity
-  mode, renders per-pixel vertical bands whose color is proportional to the theoretical intensity.
-  Hit dot glow intensity is controlled by the screen brightness slider, not by hit count.
+### Model
 
-- **OverheadDetectorPatternNode**: Renders the interference pattern on the overhead parallelogram by
-  drawing the same shared texture with an affine transform that skews it into the parallelogram shape.
+`HighIntensityModel` extends `BaseScreenModel<HighIntensitySceneModel>`. Each scene adds
+a `currentDetectionModeProperty` (averageIntensity or hits) and a `currentSlitConfigurationProperty`
+with six options: bothOpen, leftCovered, rightCovered, leftDetector, rightDetector, bothDetectors.
 
-- **SnapshotNode**: Renders a miniature version of the detector screen for the snapshots dialog,
-  using its own canvas rendering with the same core+glow hit sprite approach.
+Slit detector configurations cause decoherence: waves through a detector-equipped slit lose phase
+coherence with the other slit, eliminating interference from that slit's contribution.
 
-### Key View Components
+### View
 
-- **FrontFacingSlitNode**: Zoomed-in view showing two white slit rectangles on a black background, with
-  beam overlay, slit width span, slit separation span, and cover/detector overlays.
+`HighIntensityScreenView` has:
+- **Top row** (`HighIntensityTopRowNode`): Per-scene LaserPointerNode emitters with particle-specific
+  palettes, a mini wave-visualization symbol, beam graphics, and callout lines forming a "zoom in"
+  frustum connecting the mini symbol to the main wave region.
+- **Main area**: Wave visualization region, double slit (when obstacle is "Double slit"), detector
+  screen with intensity/hits rendering.
+- **Left controls**: Source control panel, scene radio buttons, particle mass annotation.
+- **Right controls**: Detection mode radio buttons, screen controls, tool checkboxes (intensity
+  graph, tape measure, stopwatch, time plot, position plot), wave display combo box, time controls
+  (Slow/Normal/Fast), reset all.
 
-- **GraphAccordionBox**: Shows either a smooth theoretical intensity curve (Average Intensity mode) or
-  a 100-bin histogram (Hits mode). The intensity curve uses `getIntensityAtPosition()` for immediate
-  feedback; opacity scales with accumulated hits so the curve "builds up" over time.
+### Display Modes
 
-- **SourceControlPanel**: Switches between wavelength control (photons) and particle speed control
-  (particles), with an intensity/emission rate slider for all source types.
+- Photons: Time-averaged intensity, Electric field
+- Matter particles: Magnitude, Real part, Imaginary part
 
-- **SlitControlPanel**: Slit separation and screen distance NumberControls with ranges that vary per
-  source type, plus a slit settings ComboBox.
+## Screen 3: Single Particles
 
-- **SnapshotsDialog**: Vertical list of snapshot captures, following the pattern from
-  `models-of-the-hydrogen-atom/js/common/view/SpectrometerSnapshotsDialog.ts`.
+The Single Particles screen (`js/single-particles/`) shows one-particle-at-a-time quantum wave
+packets. Each emission produces a visible wave packet that propagates, spreads, and eventually
+collapses to a single hit on the detector screen. The detector screen always operates in Hits mode.
+
+### Model
+
+`SingleParticlesModel` extends `BaseScreenModel<SingleParticlesSceneModel>`. Each scene adds
+auto-repeat support (toggle vs one-shot emission), a `DetectorToolModel` for the unique circular
+detector tool, and simplified slit configurations (bothOpen, leftCovered, rightCovered — no
+detector variants).
+
+The analytical solver uses a 2D Gaussian wave packet with known spreading solutions; the lattice
+solver evolves the packet on a discrete grid using a Schrodinger FDTD scheme.
+
+### Detection
+
+Detection times are sampled from the packet's horizontal probability density at the detector screen
+column. The most likely detection time is when the packet center is near the screen, with small
+early/late probabilities. On detection, the packet disappears and exactly one hit appears.
+
+### Detector Tool
+
+Unique to this screen, the detector tool (`DetectorToolNode`) is a draggable
+circular region that displays the integrated probability density as a percentage. Pressing "Detect"
+either detects the particle (packet disappears, circle lights up) or fails (probability inside
+the circle is zeroed, remaining wave function is renormalized). Only available when obstacle is
+"None."
+
+### View
+
+`SingleParticlesScreenView` has no overhead row. The source uses a custom SVG image
+(`SingleParticleEmitter.svg`) with a sticky toggle button. Layout is: source directly left of the
+wave region, source controls and auto-repeat checkbox above, scene buttons and obstacle controls
+below, right control column similar to High Intensity but without detection mode radio buttons.
 
 ## Component Nicknames
 
@@ -112,28 +171,30 @@ This table maps those nicknames to the actual class or property name in code:
 
 | Nickname | Code Reference | Description |
 |----------|---------------|-------------|
-| Emitter button | `OverheadEmitterNode.laserPointerNode` / `.particleEmitterNode` | The red push-button on the laser pointer (photons) or particle emitter |
-| Emitter controls | `SourceControlPanel` | Wavelength/speed and intensity/emission-rate controls beneath the emitter |
-| Scene selection radio buttons | `SceneRadioButtonGroup` | 2x2 grid of source type icons (photons, electrons, neutrons, helium) |
-| Slit controls | `SlitControlPanel` | Slit separation, screen distance, and slit setting combo box |
-| Clear button | `DetectorScreenNode.eraserButton` | Eraser icon that clears accumulated hits/intensity from the detector screen |
-| Camera | `DetectorScreenNode.snapshotButton` | Camera icon button that takes a snapshot of the current detector screen |
-| Eye | `DetectorScreenNode.viewSnapshotsButton` | Eye icon button that opens the snapshots dialog |
-| Hits graph / Intensity graph | `GraphAccordionBox` | Accordion box below the detector screen showing histogram or intensity curve |
-| Zoom in / Zoom out buttons | `GraphAccordionBox.zoomButtonGroup` | Magnifying glass buttons to the right of the graph accordion box |
-| Intensity/hits/brightness panel | `ScreenSettingsPanel` | Detection mode radio buttons (Average Intensity vs Hits) and brightness slider |
-| Ruler checkbox | `rulerCheckbox` (local in `ExperimentScreenView`) | Toggles ruler visibility |
-| Stopwatch checkbox | `stopwatchCheckbox` (local in `ExperimentScreenView`) | Toggles stopwatch visibility |
-| Time controls | `TimeControlNode` | Play/pause button and speed radio buttons |
+| Emitter button | `LaserPointerNode` (HI) / `SingleParticleEmitterNode` (SP) | The red push-button on the source |
+| Emitter controls | `SourceControlPanel` | Wavelength/speed and intensity/emission-rate controls |
+| Scene selection radio buttons | `SceneRadioButtonGroup` | 2x2 grid of source type icons |
+| Slit controls | `createObstacleControlsRow` | Obstacle combo box, slit configuration, slit separation |
+| Clear button | eraser button in `DetectorScreenNode` | Clears accumulated hits/intensity from the detector screen |
+| Camera | snapshot button in `DetectorScreenNode` | Takes a snapshot of the current detector screen |
+| Eye | view snapshots button in `DetectorScreenNode` | Opens the snapshots dialog |
+| Intensity graph / Hits graph | `SidewaysGraphNode` | Sideways graph aligned with detector screen |
+| Time plot | `TimePlotNode` | Draggable chart plotting wave quantity vs time at crosshair location |
+| Position plot | `PositionPlotNode` | Draggable chart plotting wave quantity vs horizontal position |
+| Detector tool | `DetectorToolNode` | Circular probability detector (Single Particles only) |
+| Mini symbol | `HighIntensityTopRowNode` | Stylized wave region + detector in the top row (High Intensity only) |
+| Callout lines | `HighIntensityTopRowNode` | Lines connecting mini symbol to main wave region |
 
 ## Disposal
 
 No components in this simulation require disposal. All UI elements persist for the lifetime of the
-simulation. `SceneModel` instances are never removed. Listeners registered by per-scene components
-remain active but are effectively no-ops when the component is not visible.
+simulation. Scene model instances are never removed. View components use `isDisposable: false` to
+make this contract explicit and prevent accidental disposal attempts.
 
 ## Time Controls
 
-The `TimeControlNode` in the view exposes two time speeds: Normal and Fast. The model additionally
-supports Slow speed (via `timeSpeedProperty`), but the Slow option is not shown in the UI. Speed
-multipliers in `ExperimentModel.step`: Slow = 0.25×, Normal = 1×, Fast = 4×.
+- Experiment screen: Normal and Fast (no Slow option in the UI)
+- High Intensity screen: Slow, Normal, and Fast
+- Single Particles screen: Slow, Normal, and Fast
+
+Speed multipliers: Slow = 0.25x, Normal = 1x, Fast = 4x.

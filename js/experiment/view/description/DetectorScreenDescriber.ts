@@ -104,7 +104,6 @@ export default class DetectorScreenDescriber {
         previousScene.screenDistanceProperty.unlink( fullUpdate );
         previousScene.wavelengthProperty.unlink( fullUpdate );
         previousScene.velocityProperty.unlink( fullUpdate );
-        previousScene.detectorScreenScaleIndexProperty.unlink( fullUpdate );
       }
       scene.hitsChangedEmitter.addListener( update );
       scene.detectionModeProperty.lazyLink( fullUpdate );
@@ -114,7 +113,6 @@ export default class DetectorScreenDescriber {
       scene.screenDistanceProperty.lazyLink( fullUpdate );
       scene.wavelengthProperty.lazyLink( fullUpdate );
       scene.velocityProperty.lazyLink( fullUpdate );
-      scene.detectorScreenScaleIndexProperty.lazyLink( fullUpdate );
       previousScene = scene;
       fullUpdate();
     } );
