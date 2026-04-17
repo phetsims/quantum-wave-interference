@@ -11,6 +11,8 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import GatedEnabledProperty from '../../../../axon/js/GatedEnabledProperty.js';
+import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -255,7 +257,7 @@ export default class ExperimentScreenView extends ScreenView {
     const rightColumnLeft = detectorScreenNodes[ 0 ].left;
     const middleColumnCenterX = ( leftColumnRight + rightColumnLeft ) / 2 - MIDDLE_COLUMN_LEFT_SHIFT;
     frontFacingSlitNodes.forEach( node => {
-      node.centerX = middleColumnCenterX;
+      node.setViewCenterX( middleColumnCenterX );
     } );
     overheadDoubleSlitNode.setParallelogramCenterX( middleColumnCenterX );
     whichPathDetectorNode.updateLayout();
@@ -348,10 +350,14 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( checkboxGroup );
 
     // Time controls: play/pause button with speed radio buttons.
+    const timeControlNodeTandem = options.tandem.createTandem( 'timeControlNode' );
+    const timeControlsHitsModeProperty = model.currentDetectionModeProperty.derived( detectionMode => detectionMode === 'hits' );
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
       timeSpeeds: [ TimeSpeed.NORMAL, TimeSpeed.FAST ],
       flowBoxSpacing: 15,
+      visibleProperty: new GatedVisibleProperty( timeControlsHitsModeProperty, timeControlNodeTandem ),
+      enabledProperty: new GatedEnabledProperty( timeControlsHitsModeProperty, timeControlNodeTandem ),
       speedRadioButtonGroupOptions: {
         accessibleHelpText:
         QuantumWaveInterferenceFluent.a11y.timeControlNode.simSpeedDescriptionStringProperty
@@ -362,7 +368,7 @@ export default class ExperimentScreenView extends ScreenView {
           radius: 22
         }
       },
-      tandem: options.tandem.createTandem( 'timeControlNode' )
+      tandem: timeControlNodeTandem
     } );
     this.addChild( timeControlNode );
 
@@ -390,10 +396,8 @@ export default class ExperimentScreenView extends ScreenView {
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
     const rulerNodes = model.scenes.map( ( scene, index ) => {
-      const detectorWidthMM = scene.screenHalfWidth * 2 * 1e3;
       const rulerNode = createRulerNode(
-        detectorWidthMM,
-        scene.sourceType,
+        scene,
         rulerNodesTandem.createTandem( `rulerNode${index}` )
       );
       this.addChild( rulerNode );
@@ -532,17 +536,10 @@ export default class ExperimentScreenView extends ScreenView {
     const slitSettingProperty = model.currentSlitSettingProperty;
     const slitWidthStringProperty = model.sceneProperty.derived( scene => {
       const slitWidthMM = scene.slitWidth;
-      if ( slitWidthMM >= 0.01 ) {
-        return QuantumWaveInterferenceFluent.a11y.slitWidthMillimetersPattern.format( {
-          value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )
-        } );
-      }
-      else {
-        const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
-        return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
-          value: toFixed( slitWidthUM, decimalPlaces )
-        } );
-      }
+      const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
+      return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
+        value: toFixed( slitWidthUM, decimalPlaces )
+      } );
     } );
     const slitViewDescriptionNode = new Node( {
       accessibleParagraph:
