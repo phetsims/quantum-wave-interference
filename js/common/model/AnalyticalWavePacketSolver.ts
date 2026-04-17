@@ -48,6 +48,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   private readonly amplitudeField: Float64Array;
   private readonly detectorDistribution: Float64Array;
   private dirty = true;
+  private detectorDistributionDirty = true;
 
   // Precomputed vertical Gaussian envelope (reused across frames when grid height is constant)
   private readonly envYCache: Float64Array;
@@ -80,6 +81,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     if ( params.regionWidth !== undefined ) { this.regionWidth = params.regionWidth; }
     if ( params.regionHeight !== undefined ) { this.regionHeight = params.regionHeight; }
     this.dirty = true;
+    this.detectorDistributionDirty = true;
   }
 
   public step( dt: number ): void {
@@ -110,6 +112,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.detectorDistribution.fill( 0 );
     this.measurementProjections.length = 0;
     this.dirty = true;
+    this.detectorDistributionDirty = true;
   }
 
   public invalidate(): void {
@@ -332,9 +335,13 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       }
       else {
 
+        // After the barrier: diffracted wavelets from slits. The Gaussian envelope
+        // is centered on the expanding spherical wavefront (radial distance = wavefrontDist
+        // from the slit), not on the original packet center. This ensures the diffracted
+        // pulse continues to propagate with correct amplitude after passing through the slits.
         const distFromBarrier = x - barrierX;
 
-        if ( packetAtBarrier < 1e-6 || wavefrontDist < distFromBarrier ) {
+        if ( wavefrontDist < distFromBarrier ) {
           for ( let iy = 0; iy < gridHeight; iy++ ) {
             const idx = ( iy * gridWidth + ix ) * 2;
             amplitudeField[ idx ] = 0;
@@ -351,7 +358,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
             if ( this.isTopSlitOpen ) {
               this.computeSlitContribution(
                 kDisplay, omegaDisplay, lambdaDisplay, barrierX, topSlitY,
-                displaySlitWidth, x, y, topSlitEnvY
+                displaySlitWidth, x, y, topSlitEnvY, wavefrontDist, invTwoSigmaXSq
               );
               totalRe += this.scratchRe;
               totalIm += this.scratchIm;
@@ -360,14 +367,14 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
             if ( this.isBottomSlitOpen ) {
               this.computeSlitContribution(
                 kDisplay, omegaDisplay, lambdaDisplay, barrierX, bottomSlitY,
-                displaySlitWidth, x, y, bottomSlitEnvY
+                displaySlitWidth, x, y, bottomSlitEnvY, wavefrontDist, invTwoSigmaXSq
               );
               totalRe += this.scratchRe;
               totalIm += this.scratchIm;
             }
 
-            amplitudeField[ idx ] = packetAtBarrier * totalRe;
-            amplitudeField[ idx + 1 ] = packetAtBarrier * totalIm;
+            amplitudeField[ idx ] = totalRe;
+            amplitudeField[ idx + 1 ] = totalIm;
           }
         }
       }
@@ -377,7 +384,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   private computeSlitContribution(
     kDisplay: number, omegaDisplay: number, lambdaDisplay: number,
     barrierX: number, slitCenterY: number, slitWidth: number,
-    fieldX: number, fieldY: number, slitEnvY: number
+    fieldX: number, fieldY: number, slitEnvY: number,
+    wavefrontDist: number, invTwoSigmaXSq: number
   ): void {
     const dxSlit = fieldX - barrierX;
     const dySlit = fieldY - slitCenterY;
@@ -388,7 +396,15 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     const alpha = Math.PI * slitWidth * sinTheta / lambdaDisplay;
     const singleSlitEnvelope = alpha === 0 ? 1 : Math.sin( alpha ) / alpha;
 
-    const amplitude = singleSlitEnvelope * slitEnvY / Math.sqrt( rSafe );
+    const radialDelta = r - wavefrontDist;
+    if ( radialDelta * radialDelta * invTwoSigmaXSq > 16 ) {
+      this.scratchRe = 0;
+      this.scratchIm = 0;
+      return;
+    }
+    const radialEnvelope = Math.exp( -radialDelta * radialDelta * invTwoSigmaXSq );
+
+    const amplitude = singleSlitEnvelope * slitEnvY * radialEnvelope / Math.sqrt( rSafe );
     const phase = kDisplay * r - omegaDisplay * this.time;
 
     this.scratchRe = amplitude * Math.cos( phase );
@@ -396,17 +412,45 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   }
 
   private computeDetectorDistribution(): void {
-    const { gridWidth, gridHeight, amplitudeField, detectorDistribution } = this;
-    const ix = gridWidth - 1;
+    if ( !this.detectorDistributionDirty ) {
+      return;
+    }
+    this.detectorDistributionDirty = false;
+
+    const { gridHeight, detectorDistribution } = this;
+
+    if ( this.obstacleType === 'none' ) {
+      detectorDistribution.fill( 1 );
+      return;
+    }
+
+    // Independent of the packet's current position — the probability distribution
+    // at the screen depends only on the slit geometry and wavelength.
+    const lambdaDisplay = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, lambdaDisplay );
+    const barrierX = this.barrierFractionX * this.regionWidth;
+    const L = this.regionWidth - barrierX;
+    const dy = this.regionHeight / gridHeight;
+
     let maxProb = 0;
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
-      const fieldIdx = ( iy * gridWidth + ix ) * 2;
-      const re = amplitudeField[ fieldIdx ];
-      const im = amplitudeField[ fieldIdx + 1 ];
-      const prob = re * re + im * im;
-      detectorDistribution[ iy ] = prob;
-      maxProb = Math.max( maxProb, prob );
+      const posOnScreen = ( iy - gridHeight / 2 + 0.5 ) * dy;
+      const distToScreen = Math.sqrt( L * L + posOnScreen * posOnScreen );
+      const sinTheta = posOnScreen / distToScreen;
+
+      const singleSlitArg = Math.PI * displaySlitWidth * sinTheta / lambdaDisplay;
+      const envelope = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
+
+      if ( this.isTopSlitOpen && this.isBottomSlitOpen ) {
+        const doubleSlitArg = Math.PI * displaySlitSep * sinTheta / lambdaDisplay;
+        detectorDistribution[ iy ] = Math.pow( Math.cos( doubleSlitArg ), 2 ) * envelope;
+      }
+      else {
+        detectorDistribution[ iy ] = 0.5 * envelope;
+      }
+
+      maxProb = Math.max( maxProb, detectorDistribution[ iy ] );
     }
 
     if ( maxProb > 0 ) {
