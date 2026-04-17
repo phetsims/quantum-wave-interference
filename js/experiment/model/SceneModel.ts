@@ -70,9 +70,9 @@ export default class SceneModel extends PhetioObject {
    */
   public static getSlitWidth( sourceType: SourceType ): number {
     return sourceType === 'photons' ? 0.02 :    // 20 μm
-           sourceType === 'electrons' ? 0.0002 : // 0.2 μm
-           sourceType === 'neutrons' ? 0.0002 :  // 0.2 μm
-           sourceType === 'heliumAtoms' ? 0.0002 : // 0.2 μm
+           sourceType === 'electrons' ? 0.00006 : // 0.06 μm
+           sourceType === 'neutrons' ? 0.00006 :  // 0.06 μm
+           sourceType === 'heliumAtoms' ? 0.00006 : // 0.06 μm
            ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
   }
 
@@ -192,24 +192,24 @@ export default class SceneModel extends PhetioObject {
     else if ( options.sourceType === 'electrons' ) {
       this.particleMass = QuantumWaveInterferenceConstants.ELECTRON_MASS;
       this.velocityRange = new Range( 2e5, 1e6 ); // m/s (200–1000 km/s)
-      this.slitSeparationRange = new Range( 0.0005, 0.005 ); // mm (0.5–5 μm)
+      this.slitSeparationRange = new Range( 0.0001, 0.002 ); // mm (0.1–2.0 μm)
       defaultVelocity = 6e5; // 600 km/s
-      defaultSlitSeparation = 0.002; // 2 μm
+      defaultSlitSeparation = 0.001; // 1 μm
     }
     else if ( options.sourceType === 'neutrons' ) {
       this.particleMass = QuantumWaveInterferenceConstants.NEUTRON_MASS;
       this.velocityRange = new Range( 200, 1000 ); // m/s
-      this.slitSeparationRange = new Range( 0.0005, 0.005 ); // mm (0.5–5 μm)
+      this.slitSeparationRange = new Range( 0.0001, 0.002 ); // mm (0.1–2.0 μm)
       defaultVelocity = 600;
-      defaultSlitSeparation = 0.002; // mm (2 μm)
+      defaultSlitSeparation = 0.001; // mm (1 μm)
     }
     else {
       // Helium atoms
       this.particleMass = QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
       this.velocityRange = new Range( 200, 1000 ); // m/s
-      this.slitSeparationRange = new Range( 0.0005, 0.005 ); // mm (0.5–5 μm)
+      this.slitSeparationRange = new Range( 0.0001, 0.002 ); // mm (0.1–2.0 μm)
       defaultVelocity = 600;
-      defaultSlitSeparation = 0.002; // mm (2 μm)
+      defaultSlitSeparation = 0.001; // mm (1 μm)
     }
 
     this.hits = [];

@@ -432,4 +432,12 @@ export default class FrontFacingSlitNode extends Node {
       }
     );
   }
+
+  /**
+   * Align based on the fixed black slit-view rectangle instead of this node's full bounds, which vary by scene
+   * because annotation labels extend different amounts to the right.
+   */
+  public setViewCenterX( centerX: number ): void {
+    this.x = centerX - VIEW_WIDTH / 2;
+  }
 }

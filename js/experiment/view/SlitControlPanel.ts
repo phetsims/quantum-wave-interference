@@ -123,7 +123,7 @@ export default class SlitControlPanel extends Panel {
       const mmToMicrometerDecimalPlaces = ExperimentConstants.getRangeDecimalPlaces(
         slitSeparationRange.min * 1000, slitSeparationRange.max * 1000
       );
-      slitSeparationDelta = scene.sourceType === 'photons' ? SlitControlPanel.getDelta( slitSeparationRange ) : 0.0005;
+      slitSeparationDelta = scene.sourceType === 'photons' ? SlitControlPanel.getDelta( slitSeparationRange ) : 0.0001;
       slitSeparationNumberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
           const valueUM = valueMM * 1000;

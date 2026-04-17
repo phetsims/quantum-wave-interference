@@ -255,7 +255,7 @@ export default class ExperimentScreenView extends ScreenView {
     const rightColumnLeft = detectorScreenNodes[ 0 ].left;
     const middleColumnCenterX = ( leftColumnRight + rightColumnLeft ) / 2 - MIDDLE_COLUMN_LEFT_SHIFT;
     frontFacingSlitNodes.forEach( node => {
-      node.centerX = middleColumnCenterX;
+      node.setViewCenterX( middleColumnCenterX );
     } );
     overheadDoubleSlitNode.setParallelogramCenterX( middleColumnCenterX );
     whichPathDetectorNode.updateLayout();
