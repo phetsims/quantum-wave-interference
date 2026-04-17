@@ -92,6 +92,8 @@ export default class LatticeWavePacketSolver implements WaveSolver {
 
   private readonly amplitudeField: Float64Array;
   private readonly detectorDistribution: Float64Array;
+  private readonly detectorAccumulator: Float64Array;
+  private detectorAccumulatorCount = 0;
   private dirty = true;
 
   // Modified Richardson alpha/beta — scalar complex constants; sublattice parity chooses sign.
@@ -113,6 +115,7 @@ export default class LatticeWavePacketSolver implements WaveSolver {
 
     this.amplitudeField = new Float64Array( totalCells * 2 );
     this.detectorDistribution = new Float64Array( gridHeight );
+    this.detectorAccumulator = new Float64Array( gridHeight );
 
     this.alphaRe = 0.5 + 0.5 * Math.cos( EPSILON / 2 );
     this.alphaIm = -0.5 * Math.sin( EPSILON / 2 );
@@ -147,8 +150,10 @@ export default class LatticeWavePacketSolver implements WaveSolver {
     }
 
     const numSubsteps = Math.max( 1, roundSymmetric( dt * SUBSTEPS_PER_SECOND ) );
+    const ix = this.gridWidth - 1 - DAMPING_THICKNESS;
     for ( let s = 0; s < numSubsteps; s++ ) {
       this.propagateOneStep();
+      this.accumulateDetectorIntensity( ix );
     }
 
     this.dirty = true;
@@ -159,6 +164,8 @@ export default class LatticeWavePacketSolver implements WaveSolver {
     this.psiCopy.fill( 0 );
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
+    this.detectorAccumulator.fill( 0 );
+    this.detectorAccumulatorCount = 0;
     this.barrierDirty = true;
     this.initializePacket();
     this.dirty = true;
@@ -375,21 +382,31 @@ export default class LatticeWavePacketSolver implements WaveSolver {
     }
   }
 
-  private computeDetectorDistribution(): void {
-    const { gridWidth, gridHeight, amplitudeField, detectorDistribution } = this;
-
-    // Sample from the last undamped column, not the grid edge which sits inside the
-    // absorbing boundary layer where the damping coefficient is near zero.
-    const ix = gridWidth - 1 - DAMPING_THICKNESS;
-    let maxProb = 0;
+  private accumulateDetectorIntensity( ix: number ): void {
+    const { gridWidth, gridHeight, psi, detectorAccumulator } = this;
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
       const idx = ( iy * gridWidth + ix ) * 2;
-      const re = amplitudeField[ idx ];
-      const im = amplitudeField[ idx + 1 ];
-      const prob = re * re + im * im;
-      detectorDistribution[ iy ] = prob;
-      maxProb = Math.max( maxProb, prob );
+      const re = psi[ idx ];
+      const im = psi[ idx + 1 ];
+      detectorAccumulator[ iy ] += re * re + im * im;
+    }
+    this.detectorAccumulatorCount++;
+  }
+
+  private computeDetectorDistribution(): void {
+    const { gridHeight, detectorDistribution, detectorAccumulator, detectorAccumulatorCount } = this;
+
+    if ( detectorAccumulatorCount === 0 ) {
+      detectorDistribution.fill( 0 );
+      return;
+    }
+
+    let maxProb = 0;
+    for ( let iy = 0; iy < gridHeight; iy++ ) {
+      const avg = detectorAccumulator[ iy ] / detectorAccumulatorCount;
+      detectorDistribution[ iy ] = avg;
+      maxProb = Math.max( maxProb, avg );
     }
 
     if ( maxProb > 0 ) {
