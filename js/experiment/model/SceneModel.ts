@@ -30,7 +30,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
-import Snapshot from '../../common/model/Snapshot.js';
+import Snapshot from './Snapshot.js';
 import { type SourceType } from './SourceType.js';
 
 // Maximum emission rate in hits per second at full intensity
@@ -55,13 +55,14 @@ export type SceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 
 export default class SceneModel extends PhetioObject {
 
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
+  public static readonly DETECTOR_SCREEN_HALF_WIDTH = 0.01;
 
   /**
-   * Physical half-width of the detector screen in meters for a given source type.
-   * Chosen so that approximately 10 fringes are visible at default settings.
+   * Physical half-width of the detector screen in meters.
+   * Shared across all scenes so the detector screen horizontal extent is consistent when switching source types.
    */
-  public static getScreenHalfWidth( sourceType: SourceType ): number {
-    return sourceType === 'neutrons' || sourceType === 'heliumAtoms' ? 4e-4 : 0.02;
+  public static getScreenHalfWidth( _sourceType: SourceType ): number {
+    return SceneModel.DETECTOR_SCREEN_HALF_WIDTH;
   }
 
   /**
@@ -69,9 +70,9 @@ export default class SceneModel extends PhetioObject {
    */
   public static getSlitWidth( sourceType: SourceType ): number {
     return sourceType === 'photons' ? 0.02 :    // 20 μm
-           sourceType === 'electrons' ? 0.00003 : // 0.03 μm
-           sourceType === 'neutrons' ? 0.003 :   // 3 μm
-           sourceType === 'heliumAtoms' ? 0.0003 : // 0.3 μm
+           sourceType === 'electrons' ? 0.001 : // 1 μm
+           sourceType === 'neutrons' ? 0.001 :  // 1 μm
+           sourceType === 'heliumAtoms' ? 0.001 : // 1 μm
            ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
   }
 
@@ -132,8 +133,7 @@ export default class SceneModel extends PhetioObject {
   public readonly slitSeparationRange: Range;
   public readonly screenDistanceRange: Range;
 
-  // Physical half-width of the detector screen in meters, chosen per source type so that ~10 interference fringes are
-  // visible at default settings
+  // Physical half-width of the detector screen in meters, shared across all source types
   public readonly screenHalfWidth: number;
 
   // Accumulated hit positions on the detector screen. Each Vector2 has x in [-1,1] (horizontal,
@@ -169,9 +169,9 @@ export default class SceneModel extends PhetioObject {
 
     this.sourceType = options.sourceType;
 
-    // Set per-source-type constants. screenHalfWidth is the physical half-width of the detector screen in meters,
-    // chosen so that approximately 10 fringes are visible at default settings.
-    // defaultVelocity and defaultSlitSeparation are set per source type to match the design mockup.
+    // Set per-source-type constants. screenHalfWidth is shared across scenes so the detector screen uses the same
+    // horizontal extent regardless of source type.
+    // defaultVelocity and defaultSlitSeparation are set per source type.
     let defaultVelocity: number;
     let defaultSlitSeparation: number;
 
@@ -191,25 +191,25 @@ export default class SceneModel extends PhetioObject {
     }
     else if ( options.sourceType === 'electrons' ) {
       this.particleMass = QuantumWaveInterferenceConstants.ELECTRON_MASS;
-      this.velocityRange = new Range( 7e5, 1.5e6 ); // m/s (700–1500 km/s per design mockup)
-      this.slitSeparationRange = new Range( 0.0001, 0.0009 ); // mm (0.1–0.9 μm)
-      defaultVelocity = 1.1e6; // 1100 km/s
-      defaultSlitSeparation = 0.0005; // 0.5 μm
+      this.velocityRange = new Range( 5e5, 1e6 ); // m/s (500–1000 km/s)
+      this.slitSeparationRange = new Range( 0.001, 0.01 ); // mm (1–10 μm)
+      defaultVelocity = 1e6; // 1000 km/s
+      defaultSlitSeparation = 0.005; // 5 μm
     }
     else if ( options.sourceType === 'neutrons' ) {
       this.particleMass = QuantumWaveInterferenceConstants.NEUTRON_MASS;
-      this.velocityRange = new Range( 200, 800 ); // m/s
-      this.slitSeparationRange = new Range( 0.01, 0.07 ); // mm (10–70 μm)
+      this.velocityRange = new Range( 200, 1000 ); // m/s
+      this.slitSeparationRange = new Range( 0.001, 0.01 ); // mm (1–10 μm)
       defaultVelocity = 500;
-      defaultSlitSeparation = 0.04; // mm (40 μm)
+      defaultSlitSeparation = 0.005; // mm (5 μm)
     }
     else {
       // Helium atoms
       this.particleMass = QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
-      this.velocityRange = new Range( 400, 2000 ); // m/s
-      this.slitSeparationRange = new Range( 0.001, 0.007 ); // mm (1–7 μm)
-      defaultVelocity = 1200;
-      defaultSlitSeparation = 0.004; // mm (4 μm)
+      this.velocityRange = new Range( 200, 1000 ); // m/s
+      this.slitSeparationRange = new Range( 0.001, 0.01 ); // mm (1–10 μm)
+      defaultVelocity = 600;
+      defaultSlitSeparation = 0.005; // mm (5 μm)
     }
 
     this.hits = [];
@@ -452,11 +452,7 @@ export default class SceneModel extends PhetioObject {
       slitSetting: this.slitSettingProperty.value,
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
-      intensity: this.intensityProperty.value,
-
-      // Experiment screen renders its own intensity snapshots from closed-form Fraunhofer formulas via
-      // its private SnapshotNode — no solver distribution to capture.
-      intensityDistribution: []
+      intensity: this.intensityProperty.value
     } );
 
     this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];
