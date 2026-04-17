@@ -32,7 +32,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import { type SlitConfiguration } from '../model/SlitConfiguration.js';
-import linkSceneVisibility from './linkSceneVisibility.js';
+import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );

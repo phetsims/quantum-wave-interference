@@ -30,6 +30,13 @@ type SnapshotData = {
   isEmitting: boolean;
   brightness: number;
   intensity: number;
+
+  // 1D probability distribution along the detector screen at capture time. Populated only for snapshots
+  // taken in averageIntensity mode from solver-driven scenes (High Intensity screen); empty otherwise.
+  // Consumers that render an intensity-mode snapshot should prefer this captured distribution so the
+  // snapshot image matches the live detector screen; if empty, callers must fall back to a closed-form
+  // pattern computed from the other snapshot metadata (used by the Experiment screen).
+  intensityDistribution: number[];
 };
 
 type SnapshotStateObject = SnapshotData & {
@@ -63,6 +70,9 @@ export default class Snapshot {
   public readonly brightness: number;
   public readonly intensity: number;
 
+  // See SnapshotData.intensityDistribution. Empty array means "not captured" (fall back to closed-form).
+  public readonly intensityDistribution: number[];
+
   public constructor( snapshotNumber: number, hits: Vector2[], data: SnapshotData ) {
     this.snapshotNumber = snapshotNumber;
     this.hits = hits;
@@ -76,6 +86,7 @@ export default class Snapshot {
     this.isEmitting = data.isEmitting;
     this.brightness = data.brightness;
     this.intensity = data.intensity;
+    this.intensityDistribution = data.intensityDistribution;
   }
 
   public static readonly SnapshotIO = new IOType<Snapshot, SnapshotStateObject>( 'SnapshotIO', {
@@ -93,7 +104,8 @@ export default class Snapshot {
       slitSetting: StringIO,
       isEmitting: BooleanIO,
       brightness: NumberIO,
-      intensity: NumberIO
+      intensity: NumberIO,
+      intensityDistribution: ArrayIO( NumberIO )
     },
 
     // toStateObject is auto-generated from stateSchema (composite schema with matching field names).

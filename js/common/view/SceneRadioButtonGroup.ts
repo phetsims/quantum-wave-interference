@@ -5,6 +5,8 @@
  * (Photons, Electrons, Neutrons, Helium atoms). Each button displays a source-type-specific icon with the source name
  * as a label beneath it.
  *
+ * Generic over any scene type that has a sourceType property.
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
@@ -20,9 +22,9 @@ import electron_svg from '../../../images/electron_svg.js';
 import heliumAtom_svg from '../../../images/heliumAtom_svg.js';
 import neutron_svg from '../../../images/neutron_svg.js';
 import photon_svg from '../../../images/photon_svg.js';
-import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
+import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import SceneModel from '../model/SceneModel.js';
+import { type SourceType } from '../model/SourceType.js';
 
 const LABEL_FONT = new PhetFont( 12 );
 const ICON_MAX_WIDTH = 24;
@@ -34,10 +36,8 @@ const LABEL_HEIGHT = 16;
 const GRID_COLUMNS = 2;
 const GRID_HORIZONTAL_SPACING = 12;
 const GRID_VERTICAL_SPACING = 12;
-const GRID_PREFERRED_WIDTH = GRID_COLUMNS * LABEL_WIDTH + ( GRID_COLUMNS - 1 ) * GRID_HORIZONTAL_SPACING + 1;
 const sceneButtonSelectedFillProperty = QuantumWaveInterferenceColors.sceneButtonSelectedFillProperty;
 
-// Per-icon scaling keeps the imported SVG artwork visually balanced in the 2x2 scene button grid.
 const ICON_SCALE = {
   photons: 1.15,
   electrons: 1,
@@ -52,7 +52,6 @@ const SOURCE_TYPE_IMAGE_MAP = {
   heliumAtoms: heliumAtom_svg
 } as const;
 
-// String properties for each source type
 const SOURCE_TYPE_STRING_PROPERTIES = {
   photons: QuantumWaveInterferenceFluent.photonsStringProperty,
   electrons: QuantumWaveInterferenceFluent.electronsStringProperty,
@@ -60,7 +59,6 @@ const SOURCE_TYPE_STRING_PROPERTIES = {
   heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomsStringProperty
 } as const;
 
-// Context response string properties for each scene radio button, confirming the particle type change.
 const SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES = {
   photons: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.photonsRadioButton.accessibleContextResponseStringProperty,
   electrons: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.electronsRadioButton.accessibleContextResponseStringProperty,
@@ -68,11 +66,13 @@ const SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES = {
   heliumAtoms: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.heliumAtomsRadioButton.accessibleContextResponseStringProperty
 } as const;
 
-export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<SceneModel> {
+type HasSourceType = { readonly sourceType: SourceType };
 
-  public constructor( sceneProperty: Property<SceneModel>, scenes: SceneModel[], tandem: Tandem ) {
+export default class SceneRadioButtonGroup<T extends HasSourceType> extends RectangularRadioButtonGroup<T> {
 
-    const items: RectangularRadioButtonGroupItem<SceneModel>[] = scenes.map( scene => {
+  public constructor( sceneProperty: Property<T>, scenes: T[], tandem: Tandem ) {
+
+    const items: RectangularRadioButtonGroupItem<T>[] = scenes.map( scene => {
       const sourceType = scene.sourceType;
       const stringProperty = SOURCE_TYPE_STRING_PROPERTIES[ sourceType ];
 
@@ -112,9 +112,11 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
     super( sceneProperty, items, {
       orientation: 'horizontal',
       wrap: true,
+      widthSizable: false,
+      stretch: false,
+      justify: 'center',
       labelAlign: 'bottom',
       labelSpacing: 4,
-      preferredWidth: GRID_PREFERRED_WIDTH,
       spacing: GRID_HORIZONTAL_SPACING,
       lineSpacing: GRID_VERTICAL_SPACING,
       radioButtonOptions: {
@@ -133,5 +135,8 @@ export default class SceneRadioButtonGroup extends RectangularRadioButtonGroup<S
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleHelpTextStringProperty,
       tandem: tandem
     } );
+
+    const actualChildWidth = this.children[ 0 ].width;
+    this.preferredWidth = actualChildWidth * GRID_COLUMNS + GRID_HORIZONTAL_SPACING * ( GRID_COLUMNS - 1 );
   }
 }

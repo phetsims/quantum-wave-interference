@@ -18,9 +18,7 @@ import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
-import Circle from '../../../../scenery/js/nodes/Circle.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -30,6 +28,7 @@ import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
+import SnapshotIndicatorDotsNode from '../../common/view/SnapshotIndicatorDotsNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
@@ -43,7 +42,7 @@ const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 0;
 const BUTTON_COLUMN_GAP = 6;
-const TARGET_SCALE_WIDTH_MM = 5;
+const TARGET_SCALE_WIDTH_MM = 10;
 const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
 const SNAPSHOT_FLASH_DURATION = 0.6;
 const DETECTOR_ACTION_BUTTON_MIN_WIDTH = 36;
@@ -174,7 +173,7 @@ export default class DetectorScreenNode extends Node {
 
     // Scale indicator: the span arrow length is computed directly from the scene's physical detector width,
     // so the visual measurement is consistent with the interference pattern scale.
-    // Use 5 mm when that fits on the detector screen. For scenes with sub-mm detector widths,
+    // Use 10 mm when that fits on the detector screen. For scenes with sub-mm detector widths,
     // use 1/4 of the detector width so the scale bar remains readable.
     const halfWidth = sceneModel.screenHalfWidth;
     const fullPhysicalWidth = halfWidth * 2; // full physical width in meters
@@ -300,9 +299,6 @@ export default class DetectorScreenNode extends Node {
       accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleContextResponseStringProperty,
       tandem: providedOptions.tandem.createTandem( 'eraserButton' )
     } );
-    sceneModel.detectionModeProperty.link( detectionMode => {
-      this.eraserButton.visible = detectionMode === 'hits';
-    } );
 
     // Eye button to view snapshots
     this.viewSnapshotsButton = new ViewSnapshotsButton(
@@ -314,32 +310,7 @@ export default class DetectorScreenNode extends Node {
       providedOptions.tandem.createTandem( 'viewSnapshotsButton' )
     );
 
-    // Snapshot indicator circles (4 small circles that fill as snapshots are taken)
-    const DOT_RADIUS = 3;
-    const indicatorDots: Circle[] = [];
-    for ( let i = 0; i < SceneModel.MAX_SNAPSHOTS; i++ ) {
-      indicatorDots.push(
-        new Circle( DOT_RADIUS, {
-          stroke: QuantumWaveInterferenceColors.indicatorDotStrokeProperty,
-          lineWidth: 0.5,
-          fill: QuantumWaveInterferenceColors.indicatorDotInactiveFillProperty
-        } )
-      );
-    }
-
-    const indicatorDotsBox = new HBox( {
-      spacing: 3,
-      children: indicatorDots
-    } );
-
-    // Update indicator dot fills when snapshots change
-    sceneModel.numberOfSnapshotsProperty.link( count => {
-      for ( let i = 0; i < SceneModel.MAX_SNAPSHOTS; i++ ) {
-        indicatorDots[ i ].fill = i < count
-                                  ? QuantumWaveInterferenceColors.indicatorDotActiveFillProperty
-                                  : QuantumWaveInterferenceColors.indicatorDotInactiveFillProperty;
-      }
-    } );
+    const indicatorDotsBox = new SnapshotIndicatorDotsNode( sceneModel.numberOfSnapshotsProperty );
 
     // Close the snapshots dialog when this DetectorScreenNode becomes invisible (i.e.,
     // when the user switches to a different scene). Without this,

@@ -69,6 +69,35 @@ addToMapIfDefined( 'count', 'countStringProperty' );
 addToMapIfDefined( 'ruler', 'rulerStringProperty' );
 addToMapIfDefined( 'stopwatch', 'stopwatchStringProperty' );
 addToMapIfDefined( 'detector', 'detectorStringProperty' );
+addToMapIfDefined( 'tapeMeasure', 'tapeMeasureStringProperty' );
+addToMapIfDefined( 'timePlot', 'timePlotStringProperty' );
+addToMapIfDefined( 'positionPlot', 'positionPlotStringProperty' );
+addToMapIfDefined( 'time', 'timeStringProperty' );
+addToMapIfDefined( 'position', 'positionStringProperty' );
+addToMapIfDefined( 'obstacle', 'obstacleStringProperty' );
+addToMapIfDefined( 'none', 'noneStringProperty' );
+addToMapIfDefined( 'waveDisplay', 'waveDisplayStringProperty' );
+addToMapIfDefined( 'waveFunctionDisplay', 'waveFunctionDisplayStringProperty' );
+addToMapIfDefined( 'electricField', 'electricFieldStringProperty' );
+addToMapIfDefined( 'timeAveragedIntensity', 'timeAveragedIntensityStringProperty' );
+addToMapIfDefined( 'magnitude', 'magnitudeStringProperty' );
+addToMapIfDefined( 'realPart', 'realPartStringProperty' );
+addToMapIfDefined( 'imaginaryPart', 'imaginaryPartStringProperty' );
+addToMapIfDefined( 'topCovered', 'topCoveredStringProperty' );
+addToMapIfDefined( 'bottomCovered', 'bottomCoveredStringProperty' );
+addToMapIfDefined( 'topClosed', 'topClosedStringProperty' );
+addToMapIfDefined( 'bottomClosed', 'bottomClosedStringProperty' );
+addToMapIfDefined( 'topDetector', 'topDetectorStringProperty' );
+addToMapIfDefined( 'bottomDetector', 'bottomDetectorStringProperty' );
+addToMapIfDefined( 'autoRepeat', 'autoRepeatStringProperty' );
+addToMapIfDefined( 'timeScaleLabel', 'timeScaleLabelStringProperty' );
+addToMapIfDefined( 'erase', 'eraseStringProperty' );
+addToMapIfDefined( 'snapshots', 'snapshotsStringProperty' );
+addToMapIfDefined( 'detectorSize', 'detectorSizeStringProperty' );
+addToMapIfDefined( 'detect', 'detectStringProperty' );
+addToMapIfDefined( 'resetDetector', 'resetDetectorStringProperty' );
+addToMapIfDefined( 'particleDetected', 'particleDetectedStringProperty' );
+addToMapIfDefined( 'notDetected', 'notDetectedStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playArea', 'a11y.screenSummary.playAreaStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_controlArea', 'a11y.screenSummary.controlAreaStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_maxHitsReachedHint', 'a11y.screenSummary.maxHitsReachedHintStringProperty' );
@@ -231,6 +260,36 @@ const QuantumWaveInterferenceFluent = {
   rulerStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerStringProperty' ),
   stopwatchStringProperty: _.get( QuantumWaveInterferenceStrings, 'stopwatchStringProperty' ),
   detectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorStringProperty' ),
+  tapeMeasureStringProperty: _.get( QuantumWaveInterferenceStrings, 'tapeMeasureStringProperty' ),
+  timePlotStringProperty: _.get( QuantumWaveInterferenceStrings, 'timePlotStringProperty' ),
+  positionPlotStringProperty: _.get( QuantumWaveInterferenceStrings, 'positionPlotStringProperty' ),
+  timeStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeStringProperty' ),
+  positionStringProperty: _.get( QuantumWaveInterferenceStrings, 'positionStringProperty' ),
+  obstacleStringProperty: _.get( QuantumWaveInterferenceStrings, 'obstacleStringProperty' ),
+  noneStringProperty: _.get( QuantumWaveInterferenceStrings, 'noneStringProperty' ),
+  waveDisplayStringProperty: _.get( QuantumWaveInterferenceStrings, 'waveDisplayStringProperty' ),
+  waveFunctionDisplayStringProperty: _.get( QuantumWaveInterferenceStrings, 'waveFunctionDisplayStringProperty' ),
+  electricFieldStringProperty: _.get( QuantumWaveInterferenceStrings, 'electricFieldStringProperty' ),
+  timeAveragedIntensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeAveragedIntensityStringProperty' ),
+  magnitudeStringProperty: _.get( QuantumWaveInterferenceStrings, 'magnitudeStringProperty' ),
+  realPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'realPartStringProperty' ),
+  imaginaryPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'imaginaryPartStringProperty' ),
+  topCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'topCoveredStringProperty' ),
+  bottomCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomCoveredStringProperty' ),
+  topClosedStringProperty: _.get( QuantumWaveInterferenceStrings, 'topClosedStringProperty' ),
+  bottomClosedStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomClosedStringProperty' ),
+  topDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'topDetectorStringProperty' ),
+  bottomDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomDetectorStringProperty' ),
+  autoRepeatStringProperty: _.get( QuantumWaveInterferenceStrings, 'autoRepeatStringProperty' ),
+  timeScaleLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeScaleLabelStringProperty' ),
+  eraseStringProperty: _.get( QuantumWaveInterferenceStrings, 'eraseStringProperty' ),
+  snapshotsStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotsStringProperty' ),
+  detectorSizeStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorSizeStringProperty' ),
+  detectStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectStringProperty' ),
+  resetDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'resetDetectorStringProperty' ),
+  particleDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleDetectedStringProperty' ),
+  notDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'notDetectedStringProperty' ),
+  detectorPercentPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorPercentPatternStringProperty' ),
   _comment_0: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
   a11y: {
     screenSummary: {
