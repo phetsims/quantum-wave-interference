@@ -194,9 +194,9 @@ export default class DoubleSlitNode extends Node {
         bottomDetector.visible = isBottomDetectorOn;
 
         const arrowY = WAVE_REGION_HEIGHT + 12;
-        const arrowCenterX = barrierX + BARRIER_VIEW_WIDTH / 2;
-        const arrowHalfWidth = 25;
-        arrowNode.setTailAndTip( arrowCenterX - arrowHalfWidth, arrowY, arrowCenterX + arrowHalfWidth, arrowY );
+        const arrowLeftX = barrierX + BARRIER_VIEW_WIDTH / 2;
+        const arrowRightX = WAVE_REGION_WIDTH;
+        arrowNode.setTailAndTip( arrowLeftX, arrowY, arrowRightX, arrowY );
       }
     );
   }
