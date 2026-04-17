@@ -55,13 +55,17 @@ export default class DetectorScreenTextureRenderer {
 
   private readonly textureWidth: number;
   private readonly textureHeight: number;
+  private readonly skewOffset: number;
+  private readonly faceWidth: number;
   private readonly hitCoreRadius: number;
   private readonly hitGlowRadius: number;
   private readonly cacheMap = new WeakMap<DetectorScreenSceneLike, TextureCache>();
 
-  public constructor( screenWidth: number, screenHeight: number ) {
+  public constructor( screenWidth: number, screenHeight: number, skew = 0 ) {
     this.textureWidth = screenWidth * SUPERSAMPLE;
     this.textureHeight = screenHeight * SUPERSAMPLE;
+    this.skewOffset = skew * SUPERSAMPLE;
+    this.faceWidth = ( screenWidth - skew ) * SUPERSAMPLE;
     this.hitCoreRadius = BASE_HIT_CORE_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
     this.hitGlowRadius = BASE_HIT_GLOW_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
   }
@@ -205,10 +209,9 @@ export default class DetectorScreenTextureRenderer {
     for ( let i = incrementalStart; i < hitCount; i++ ) {
       const hit = hits[ i ];
 
-      // hit.x is the interference-pattern-dependent position (maps to detector screen height/vertical).
-      // hit.y is the random spread (maps to detector screen width/horizontal).
-      const viewX = ( ( hit.y + 1 ) / 2 ) * this.textureWidth;
       const viewY = ( ( hit.x + 1 ) / 2 ) * this.textureHeight;
+      const leftEdge = this.skewOffset * ( 1 - viewY / this.textureHeight );
+      const viewX = leftEdge + ( ( hit.y + 1 ) / 2 ) * this.faceWidth;
       context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
     }
 

@@ -44,7 +44,7 @@ export default class DetectorScreenNode extends Node {
 
     super( options );
 
-    const textureRenderer = new DetectorScreenTextureRenderer( SCREEN_WIDTH + SKEW, SCREEN_HEIGHT );
+    const textureRenderer = new DetectorScreenTextureRenderer( SCREEN_WIDTH + SKEW, SCREEN_HEIGHT, SKEW );
 
     const shape = new Shape()
       .moveTo( SKEW, 0 )
