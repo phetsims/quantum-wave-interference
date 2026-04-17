@@ -43,7 +43,7 @@ const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 0;
 const BUTTON_COLUMN_GAP = 6;
-const TARGET_SCALE_WIDTH_MM = 10;
+const TARGET_SCALE_WIDTH_MM = 5;
 const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
 const SNAPSHOT_FLASH_DURATION = 0.6;
 const DETECTOR_ACTION_BUTTON_MIN_WIDTH = 36;
@@ -174,7 +174,7 @@ export default class DetectorScreenNode extends Node {
 
     // Scale indicator: the span arrow length is computed directly from the scene's physical detector width,
     // so the visual measurement is consistent with the interference pattern scale.
-    // Use 10 mm when that fits on the detector screen. For scenes with sub-mm detector widths,
+    // Use 5 mm when that fits on the detector screen. For scenes with sub-mm detector widths,
     // use 1/4 of the detector width so the scale bar remains readable.
     const halfWidth = sceneModel.screenHalfWidth;
     const fullPhysicalWidth = halfWidth * 2; // full physical width in meters

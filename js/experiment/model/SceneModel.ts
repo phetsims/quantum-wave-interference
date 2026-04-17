@@ -55,7 +55,7 @@ export type SceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 
 export default class SceneModel extends PhetioObject {
 
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
-  public static readonly DETECTOR_SCREEN_HALF_WIDTH = 0.02;
+  public static readonly DETECTOR_SCREEN_HALF_WIDTH = 0.01;
 
   /**
    * Physical half-width of the detector screen in meters.
