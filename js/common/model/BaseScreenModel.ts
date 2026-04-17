@@ -26,6 +26,8 @@ import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDispla
 import Snapshot from './Snapshot.js';
 import type BaseSceneModel from './BaseSceneModel.js';
 
+const NOMINAL_DT = 1 / 60;
+
 type BaseScreenModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default abstract class BaseScreenModel<T extends BaseSceneModel> implements TModel {
@@ -193,6 +195,11 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   }
 
   protected abstract resetToolVisibility(): void;
+
+  public stepOnce(): void {
+    this.sceneProperty.value.step( NOMINAL_DT );
+    this.stopwatch.step( NOMINAL_DT );
+  }
 
   public step( dt: number ): void {
     if ( !this.isPlayingProperty.value ) {

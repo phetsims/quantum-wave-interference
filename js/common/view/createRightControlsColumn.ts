@@ -50,6 +50,7 @@ type RightControlsModel = {
   isPlayingProperty: BooleanProperty;
   timeSpeedProperty: EnumerationProperty<TimeSpeed>;
   reset(): void;
+  stepOnce(): void;
   takeSnapshot(): void;
   deleteSnapshot( snapshot: Snapshot ): void;
 };
@@ -173,7 +174,10 @@ const createRightControlsColumn = (
     timeSpeeds: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
     flowBoxSpacing: 15,
     playPauseStepButtonOptions: {
-      includeStepForwardButton: false,
+      includeStepForwardButton: true,
+      stepForwardButtonOptions: {
+        listener: () => model.stepOnce()
+      },
       playPauseButtonOptions: { radius: 22 }
     },
     tandem: tandem.createTandem( 'timeControlNode' )
