@@ -55,7 +55,7 @@ export default class DetectorToolNode extends Node {
     waveRegionTop: number,
     tandem: Tandem
   ) {
-    super();
+    super( { isDisposable: false } );
 
     const circleNode = new Circle( 1, {
       fill: CIRCLE_FILL_READY,

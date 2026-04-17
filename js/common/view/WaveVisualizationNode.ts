@@ -92,7 +92,9 @@ export default class WaveVisualizationNode extends Node {
 
   public constructor( sceneProperty: TReadOnlyProperty<WaveVisualizableScene>, providedOptions?: WaveVisualizationNodeOptions ) {
 
-    const options = optionize<WaveVisualizationNodeOptions, SelfOptions, NodeOptions>()( {}, providedOptions );
+    const options = optionize<WaveVisualizationNodeOptions, SelfOptions, NodeOptions>()( {
+      isDisposable: false
+    }, providedOptions );
 
     super( options );
 

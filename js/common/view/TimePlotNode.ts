@@ -63,7 +63,7 @@ export default class TimePlotNode extends Node {
     waveRegionY: number,
     visibleProperty: TReadOnlyProperty<boolean>
   ) {
-    super( { visibleProperty: visibleProperty } );
+    super( { isDisposable: false, visibleProperty: visibleProperty } );
 
     this.sceneProperty = sceneProperty;
     this.timeSeries = [];

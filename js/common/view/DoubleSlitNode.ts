@@ -64,6 +64,7 @@ export default class DoubleSlitNode extends Node {
   ) {
 
     const options = optionize<DoubleSlitNodeOptions, SelfOptions, NodeOptions>()( {
+      isDisposable: false,
       isTopSlitDetectorProperty: new TinyProperty( false ),
       isBottomSlitDetectorProperty: new TinyProperty( false )
     }, providedOptions );

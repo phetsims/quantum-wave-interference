@@ -33,6 +33,7 @@ export default class SnapshotIndicatorDotsNode extends HBox {
     }
 
     super( {
+      isDisposable: false,
       spacing: DOT_SPACING,
       children: dots
     } );
