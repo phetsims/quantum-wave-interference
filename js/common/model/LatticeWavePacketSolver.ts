@@ -377,7 +377,10 @@ export default class LatticeWavePacketSolver implements WaveSolver {
 
   private computeDetectorDistribution(): void {
     const { gridWidth, gridHeight, amplitudeField, detectorDistribution } = this;
-    const ix = gridWidth - 1;
+
+    // Sample from the last undamped column, not the grid edge which sits inside the
+    // absorbing boundary layer where the damping coefficient is near zero.
+    const ix = gridWidth - 1 - DAMPING_THICKNESS;
     let maxProb = 0;
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
