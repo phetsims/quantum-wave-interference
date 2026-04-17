@@ -55,13 +55,14 @@ export type SceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 
 export default class SceneModel extends PhetioObject {
 
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
+  public static readonly DETECTOR_SCREEN_HALF_WIDTH = 0.02;
 
   /**
-   * Physical half-width of the detector screen in meters for a given source type.
-   * Chosen so that approximately 10 fringes are visible at default settings.
+   * Physical half-width of the detector screen in meters.
+   * Shared across all scenes so the detector screen horizontal extent is consistent when switching source types.
    */
-  public static getScreenHalfWidth( sourceType: SourceType ): number {
-    return sourceType === 'neutrons' || sourceType === 'heliumAtoms' ? 4e-4 : 0.02;
+  public static getScreenHalfWidth( _sourceType: SourceType ): number {
+    return SceneModel.DETECTOR_SCREEN_HALF_WIDTH;
   }
 
   /**
@@ -132,8 +133,7 @@ export default class SceneModel extends PhetioObject {
   public readonly slitSeparationRange: Range;
   public readonly screenDistanceRange: Range;
 
-  // Physical half-width of the detector screen in meters, chosen per source type so that ~10 interference fringes are
-  // visible at default settings
+  // Physical half-width of the detector screen in meters, shared across all source types
   public readonly screenHalfWidth: number;
 
   // Accumulated hit positions on the detector screen. Each Vector2 has x in [-1,1] (horizontal,
@@ -169,8 +169,8 @@ export default class SceneModel extends PhetioObject {
 
     this.sourceType = options.sourceType;
 
-    // Set per-source-type constants. screenHalfWidth is the physical half-width of the detector screen in meters,
-    // chosen so that approximately 10 fringes are visible at default settings.
+    // Set per-source-type constants. screenHalfWidth is shared across scenes so the detector screen uses the same
+    // horizontal extent regardless of source type.
     // defaultVelocity and defaultSlitSeparation are set per source type to match the design mockup.
     let defaultVelocity: number;
     let defaultSlitSeparation: number;
