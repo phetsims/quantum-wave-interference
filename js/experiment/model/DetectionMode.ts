@@ -1,9 +1,11 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Re-exports DetectionMode from common for backwards compatibility.
+ * DetectionMode enumerates the display modes for the detector screen.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-export { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
+export const DetectionModeValues = [ 'averageIntensity', 'hits' ] as const;
+
+export type DetectionMode = typeof DetectionModeValues[number];

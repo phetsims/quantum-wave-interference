@@ -7,10 +7,11 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import Property from '../../../../axon/js/Property.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
+import SceneModel from '../model/SceneModel.js';
 
-const linkSceneVisibility = <T>( sceneProperty: TReadOnlyProperty<T>, scenes: T[], sceneNodes: Node[] ): void => {
+const linkSceneVisibility = ( sceneProperty: Property<SceneModel>, scenes: SceneModel[], sceneNodes: Node[] ): void => {
   sceneProperty.link( activeScene => {
     for ( let i = 0; i < scenes.length; i++ ) {
       sceneNodes[ i ].visible = scenes[ i ] === activeScene;
