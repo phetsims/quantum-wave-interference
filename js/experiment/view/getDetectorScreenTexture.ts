@@ -288,7 +288,9 @@ const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache =>
   sceneModel.detectionModeProperty.link( markDirty );
   sceneModel.screenBrightnessProperty.link( markDirty );
   sceneModel.intensityProperty.link( markDirty );
+  sceneModel.detectorScreenScaleIndexProperty.link( markDirty );
   sceneModel.wavelengthProperty.link( markDirty );
+  sceneModel.velocityProperty.link( markDirty );
 
   return cache;
 };

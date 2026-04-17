@@ -25,6 +25,7 @@ type SnapshotData = {
   wavelength: number;
   slitSeparation: number;
   screenDistance: number;
+  screenHalfWidth: number;
   effectiveWavelength: number;
   slitSetting: SlitConfiguration;
   isEmitting: boolean;
@@ -57,6 +58,7 @@ export default class Snapshot {
   // Physics parameters captured for display in the snapshot dialog labels
   public readonly slitSeparation: number; // mm
   public readonly screenDistance: number; // m
+  public readonly screenHalfWidth: number; // m
   public readonly effectiveWavelength: number; // m
   public readonly slitSetting: SlitConfiguration;
   public readonly isEmitting: boolean;
@@ -71,6 +73,7 @@ export default class Snapshot {
     this.wavelength = data.wavelength;
     this.slitSeparation = data.slitSeparation;
     this.screenDistance = data.screenDistance;
+    this.screenHalfWidth = data.screenHalfWidth;
     this.effectiveWavelength = data.effectiveWavelength;
     this.slitSetting = data.slitSetting;
     this.isEmitting = data.isEmitting;
@@ -89,6 +92,7 @@ export default class Snapshot {
       wavelength: NumberIO,
       slitSeparation: NumberIO,
       screenDistance: NumberIO,
+      screenHalfWidth: NumberIO,
       effectiveWavelength: NumberIO,
       slitSetting: StringIO,
       isEmitting: BooleanIO,

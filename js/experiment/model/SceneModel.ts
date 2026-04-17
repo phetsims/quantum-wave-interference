@@ -55,14 +55,22 @@ export type SceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 
 export default class SceneModel extends PhetioObject {
 
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
-  public static readonly DETECTOR_SCREEN_HALF_WIDTH = 0.01;
+
+  // Horizontal detector screen scale options, in millimeters, shared by all scenes.
+  public static readonly DETECTOR_SCREEN_SCALE_OPTIONS = [
+    { minMM: -20, maxMM: 20 },
+    { minMM: -15, maxMM: 15 },
+    { minMM: -10, maxMM: 10 },
+    { minMM: -5, maxMM: 5 }
+  ] as const;
+  public static readonly DEFAULT_DETECTOR_SCREEN_SCALE_INDEX = 2;
 
   /**
-   * Physical half-width of the detector screen in meters.
-   * Shared across all scenes so the detector screen horizontal extent is consistent when switching source types.
+   * Physical half-width of the detector screen in meters for a given horizontal scale level.
    */
-  public static getScreenHalfWidth( _sourceType: SourceType ): number {
-    return SceneModel.DETECTOR_SCREEN_HALF_WIDTH;
+  public static getScreenHalfWidthForScaleIndex( scaleIndex: number ): number {
+    const scaleOption = SceneModel.DETECTOR_SCREEN_SCALE_OPTIONS[ scaleIndex ];
+    return ( scaleOption.maxMM - scaleOption.minMM ) * 0.5 * 1e-3;
   }
 
   /**
@@ -105,6 +113,9 @@ export default class SceneModel extends PhetioObject {
   // Screen brightness: 0 to SCREEN_BRIGHTNESS_MAX
   public readonly screenBrightnessProperty: NumberProperty;
 
+  // Horizontal detector-screen scale level. Smaller values show a wider physical span.
+  public readonly detectorScreenScaleIndexProperty: NumberProperty;
+
   // Slit width in mm (constant per source type, determined by the physics)
   public readonly slitWidth: number;
 
@@ -132,9 +143,6 @@ export default class SceneModel extends PhetioObject {
   // Ranges for slit separation (mm) and screen distance (m)
   public readonly slitSeparationRange: Range;
   public readonly screenDistanceRange: Range;
-
-  // Physical half-width of the detector screen in meters, shared across all source types
-  public readonly screenHalfWidth: number;
 
   // Accumulated hit positions on the detector screen. Each Vector2 has x in [-1,1] (horizontal,
   // determined by interference pattern probability) and y in [-1,1] (vertical, uniformly random).
@@ -169,14 +177,11 @@ export default class SceneModel extends PhetioObject {
 
     this.sourceType = options.sourceType;
 
-    // Set per-source-type constants. screenHalfWidth is shared across scenes so the detector screen uses the same
-    // horizontal extent regardless of source type.
-    // defaultVelocity and defaultSlitSeparation are set per source type.
+    // Set per-source-type constants. defaultVelocity and defaultSlitSeparation are set per source type.
     let defaultVelocity: number;
     let defaultSlitSeparation: number;
 
     this.slitWidth = SceneModel.getSlitWidth( options.sourceType );
-    this.screenHalfWidth = SceneModel.getScreenHalfWidth( options.sourceType );
 
     // Screen distance range is the same for all source types.
     this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
@@ -270,6 +275,12 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'screenBrightnessProperty' )
     } );
 
+    this.detectorScreenScaleIndexProperty = new NumberProperty( SceneModel.DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, {
+      range: new Range( 0, SceneModel.DETECTOR_SCREEN_SCALE_OPTIONS.length - 1 ),
+      numberType: 'Integer',
+      tandem: tandem.createTandem( 'detectorScreenScaleIndexProperty' )
+    } );
+
     this.totalHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'totalHitsProperty' ),
       phetioReadOnly: true
@@ -334,6 +345,7 @@ export default class SceneModel extends PhetioObject {
 
     // Detection mode changes should not clear accumulated hits.
     // Hits mode preserves its accumulated screen data when the user temporarily switches to intensity mode and back.
+    this.detectorScreenScaleIndexProperty.lazyLink( () => this.clearScreen() );
 
     // When the hit cap is reached in Hits mode, stop the source and require the user to clear the screen.
     this.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
@@ -448,6 +460,7 @@ export default class SceneModel extends PhetioObject {
       wavelength: this.wavelengthProperty.value,
       slitSeparation: this.slitSeparationProperty.value,
       screenDistance: this.screenDistanceProperty.value,
+      screenHalfWidth: this.screenHalfWidth,
       effectiveWavelength: this.getEffectiveWavelength(),
       slitSetting: this.slitSettingProperty.value,
       isEmitting: this.isEmittingProperty.value,
@@ -629,6 +642,20 @@ export default class SceneModel extends PhetioObject {
       model.hitsChangedEmitter.emit();
     }
   } );
+
+  /**
+   * The current detector screen scale option.
+   */
+  public get detectorScreenScale(): ( typeof SceneModel.DETECTOR_SCREEN_SCALE_OPTIONS )[ number ] {
+    return SceneModel.DETECTOR_SCREEN_SCALE_OPTIONS[ this.detectorScreenScaleIndexProperty.value ];
+  }
+
+  /**
+   * Physical half-width of the detector screen in meters for the current horizontal scale.
+   */
+  public get screenHalfWidth(): number {
+    return SceneModel.getScreenHalfWidthForScaleIndex( this.detectorScreenScaleIndexProperty.value );
+  }
 }
 
 type SceneModelStateObject = {

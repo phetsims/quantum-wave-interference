@@ -526,7 +526,7 @@ class SnapshotCanvasNode extends CanvasNode {
     }
 
     const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
-    const screenHalfWidth = this.sceneModel.screenHalfWidth;
+    const screenHalfWidth = snapshot.screenHalfWidth;
     const slitWidthMeters = this.sceneModel.slitWidth * 1e-3;
     const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
     const screenDistanceMeters = snapshot.screenDistance;
