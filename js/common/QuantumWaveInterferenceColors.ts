@@ -128,10 +128,4 @@ export default class QuantumWaveInterferenceColors {
     quantumWaveInterference, 'snapshotStroke', {
       default: '#555'
     } );
-
-  // Zoom-callout lines between the mini symbol and the main wave region on the High Intensity screen
-  public static readonly zoomCalloutStrokeProperty = new ProfileColorProperty(
-    quantumWaveInterference, 'zoomCalloutStroke', {
-      default: 'rgb(150,150,150)'
-    } );
 }

@@ -12,7 +12,7 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, PERCEPTUAL_VISIBILITY_THRESHOLD } from '../../common/view/ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
@@ -130,7 +130,7 @@ const paintHits = (
     return;
   }
 
-  const rgb = getSceneRGB( sceneModel.sourceType, sceneModel.wavelengthProperty.value );
+  const rgb = getSceneRGB( sceneModel );
   const coreAlpha = getHitsCoreAlpha( brightnessFraction );
   const glowAlpha = getHitsGlowAlpha( brightnessFraction );
   const glowRadius = HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
@@ -184,7 +184,7 @@ const paintIntensity = (
   }
 
   const screenHalfWidth = sceneModel.screenHalfWidth;
-  const rgb = getSceneRGB( sceneModel.sourceType, sceneModel.wavelengthProperty.value );
+  const rgb = getSceneRGB( sceneModel );
 
   for ( let x = 0; x < TEXTURE_WIDTH; x++ ) {
     const fraction = ( x + 0.5 ) / TEXTURE_WIDTH;
