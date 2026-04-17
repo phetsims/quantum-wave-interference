@@ -32,9 +32,9 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
-import { type SourceType } from '../model/SourceType.js';
-import linkSceneVisibility from './linkSceneVisibility.js';
+import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
+import { type SourceType } from '../../common/model/SourceType.js';
+import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 
 const EMITTER_BODY_WIDTH = 70;
 const EMITTER_BODY_HEIGHT = 32;

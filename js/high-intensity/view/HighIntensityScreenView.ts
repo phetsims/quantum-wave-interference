@@ -27,7 +27,7 @@ import createObstacleControlsRow from '../../common/view/createObstacleControlsR
 import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
 import createWaveRegionNodes from '../../common/view/createWaveRegionNodes.js';
-import HighIntensityTopRowNode from '../../common/view/HighIntensityTopRowNode.js';
+import HighIntensityTopRowNode from './HighIntensityTopRowNode.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import createSidewaysGraph from '../../common/view/createSidewaysGraph.js';
@@ -36,8 +36,8 @@ import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
-import HighIntensityDetectorScreenNode from './HighIntensityDetectorScreenNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
+import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 
@@ -60,7 +60,7 @@ const CALLOUT_GAP = 55;
 export default class HighIntensityScreenView extends ScreenView {
 
   private readonly waveVisualizationNode: WaveVisualizationNode;
-  private readonly detectorScreenNode: HighIntensityDetectorScreenNode;
+  private readonly detectorScreenNode: DetectorScreenNode;
   private readonly sidewaysGraphNode: SidewaysGraphNode;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
@@ -139,7 +139,7 @@ export default class HighIntensityScreenView extends ScreenView {
     this.addChild( this.waveVisualizationNode );
     this.addChild( doubleSlitNode );
 
-    this.detectorScreenNode = new HighIntensityDetectorScreenNode( model, {
+    this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
       x: waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2,
       y: waveRegionTop
     } );

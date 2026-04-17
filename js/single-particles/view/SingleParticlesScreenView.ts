@@ -34,7 +34,7 @@ import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import SingleParticlesSceneModel, { type SingleParticlesSlitConfiguration } from '../model/SingleParticlesSceneModel.js';
 import DetectorToolNode from './DetectorToolNode.js';
 import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
-import SingleParticlesDetectorScreenNode from './SingleParticlesDetectorScreenNode.js';
+import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -51,7 +51,7 @@ const DETECTOR_SCREEN_SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SK
 export default class SingleParticlesScreenView extends ScreenView {
 
   private readonly waveVisualizationNode: WaveVisualizationNode;
-  private readonly detectorScreenNode: SingleParticlesDetectorScreenNode;
+  private readonly detectorScreenNode: DetectorScreenNode;
   private readonly sidewaysGraphNode: SidewaysGraphNode;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
@@ -126,7 +126,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( this.waveVisualizationNode );
     this.addChild( doubleSlitNode );
 
-    this.detectorScreenNode = new SingleParticlesDetectorScreenNode( model, {
+    this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
       x: waveRegionLeft + WAVE_REGION_WIDTH - DETECTOR_SCREEN_SKEW / 2,
       y: waveRegionTop
     } );

@@ -2,7 +2,7 @@
 
 /**
  * Returns the MeasuringTapeUnits for a given scene, converting from physical region width to
- * view-pixel multiplier with appropriate unit label (mm for photons, μm for matter particles).
+ * view-pixel multiplier with μm unit label.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
