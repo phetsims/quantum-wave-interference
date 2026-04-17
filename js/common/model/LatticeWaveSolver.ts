@@ -87,6 +87,8 @@ export default class LatticeWaveSolver implements WaveSolver {
 
   private readonly amplitudeField: Float64Array;
   private readonly detectorDistribution: Float64Array;
+  private readonly detectorAccumulator: Float64Array;
+  private detectorAccumulatorCount = 0;
   private dirty = true;
   private waveFieldActive = false;
 
@@ -108,6 +110,7 @@ export default class LatticeWaveSolver implements WaveSolver {
 
     this.amplitudeField = new Float64Array( totalCells * 2 );
     this.detectorDistribution = new Float64Array( gridHeight );
+    this.detectorAccumulator = new Float64Array( gridHeight );
 
     this.computeDampingCoefficients();
   }
@@ -147,17 +150,21 @@ export default class LatticeWaveSolver implements WaveSolver {
 
     const numSubsteps = Math.min( 50, Math.max( 1, roundSymmetric( dt * SUBSTEPS_PER_SECOND ) ) );
 
+    const ix = this.gridWidth - 1 - DAMPING_THICKNESS;
+
     if ( this.decoBuffers ) {
       for ( let s = 0; s < numSubsteps; s++ ) {
         this.latticeTime++;
         this.propagateOneStep( this.decoBuffers.tripleA, this.decoBuffers.maskA );
         this.propagateOneStep( this.decoBuffers.tripleB, this.decoBuffers.maskB );
+        this.accumulateDetectorIntensity( ix, this.decoBuffers.tripleA.previous, this.decoBuffers.tripleB.previous );
       }
     }
     else {
       for ( let s = 0; s < numSubsteps; s++ ) {
         this.latticeTime++;
         this.propagateOneStep( this.mainTriple, this.barrierMask );
+        this.accumulateDetectorIntensity( ix, this.mainTriple.previous, null );
       }
     }
 
@@ -219,6 +226,8 @@ export default class LatticeWaveSolver implements WaveSolver {
     }
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
+    this.detectorAccumulator.fill( 0 );
+    this.detectorAccumulatorCount = 0;
     this.barrierDirty = true;
     this.dirty = true;
     this.waveFieldActive = false;
@@ -449,21 +458,39 @@ export default class LatticeWaveSolver implements WaveSolver {
     }
   }
 
-  private computeDetectorDistribution(): void {
-    const { gridWidth, gridHeight, amplitudeField, detectorDistribution } = this;
-
-    // Sample from the last undamped column, not the grid edge which sits inside the
-    // absorbing boundary layer where the damping coefficient is near zero.
-    const ix = gridWidth - 1 - DAMPING_THICKNESS;
-    let maxProb = 0;
+  private accumulateDetectorIntensity( ix: number, bufferA: Float64Array, bufferB: Float64Array | null ): void {
+    const { gridWidth, gridHeight, detectorAccumulator } = this;
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
       const idx = ( iy * gridWidth + ix ) * 2;
-      const re = amplitudeField[ idx ];
-      const im = amplitudeField[ idx + 1 ];
-      const prob = re * re + im * im;
-      detectorDistribution[ iy ] = prob;
-      maxProb = Math.max( maxProb, prob );
+      const reA = bufferA[ idx ];
+      const imA = bufferA[ idx + 1 ];
+      let prob = reA * reA + imA * imA;
+
+      if ( bufferB ) {
+        const reB = bufferB[ idx ];
+        const imB = bufferB[ idx + 1 ];
+        prob += reB * reB + imB * imB;
+      }
+
+      detectorAccumulator[ iy ] += prob;
+    }
+    this.detectorAccumulatorCount++;
+  }
+
+  private computeDetectorDistribution(): void {
+    const { gridHeight, detectorDistribution, detectorAccumulator, detectorAccumulatorCount } = this;
+
+    if ( detectorAccumulatorCount === 0 ) {
+      detectorDistribution.fill( 0 );
+      return;
+    }
+
+    let maxProb = 0;
+    for ( let iy = 0; iy < gridHeight; iy++ ) {
+      const avg = detectorAccumulator[ iy ] / detectorAccumulatorCount;
+      detectorDistribution[ iy ] = avg;
+      maxProb = Math.max( maxProb, avg );
     }
 
     if ( maxProb > 0 ) {
