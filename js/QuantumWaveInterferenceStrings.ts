@@ -97,7 +97,6 @@ type StringsType = {
   'topDetectorStringProperty': LocalizedStringProperty;
   'bottomDetectorStringProperty': LocalizedStringProperty;
   'autoRepeatStringProperty': LocalizedStringProperty;
-  'distanceScaleLabelStringProperty': LocalizedStringProperty;
   'timeScaleLabelStringProperty': LocalizedStringProperty;
   'eraseStringProperty': LocalizedStringProperty;
   'snapshotsStringProperty': LocalizedStringProperty;
