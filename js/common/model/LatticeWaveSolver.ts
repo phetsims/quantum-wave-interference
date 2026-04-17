@@ -40,8 +40,10 @@ const DAMPING_THICKNESS = 20;
 // Number of visible wavelengths across the grid, matching the analytical solver's visual density
 const DISPLAY_WAVELENGTHS = 10;
 
-// Fixed number of lattice sub-steps per frame call, independent of physical time scale
-const STEPS_PER_FRAME = 4;
+// Number of lattice sub-steps executed per second of simulated time. Calibrated so that the
+// wavefront traverses the grid in roughly the same time as the analytical solver (2.0 s):
+//   grid_width / COURANT_NUMBER / DISPLAY_TRAVERSAL_TIME = 200 / 0.5 / 2.0 = 200
+const SUBSTEPS_PER_SECOND = 200;
 
 type WaveTriple = {
   current: Float64Array;
@@ -143,15 +145,17 @@ export default class LatticeWaveSolver implements WaveSolver {
       this.barrierDirty = false;
     }
 
+    const numSubsteps = Math.min( 50, Math.max( 1, roundSymmetric( dt * SUBSTEPS_PER_SECOND ) ) );
+
     if ( this.decoBuffers ) {
-      for ( let s = 0; s < STEPS_PER_FRAME; s++ ) {
+      for ( let s = 0; s < numSubsteps; s++ ) {
         this.latticeTime++;
         this.propagateOneStep( this.decoBuffers.tripleA, this.decoBuffers.maskA );
         this.propagateOneStep( this.decoBuffers.tripleB, this.decoBuffers.maskB );
       }
     }
     else {
-      for ( let s = 0; s < STEPS_PER_FRAME; s++ ) {
+      for ( let s = 0; s < numSubsteps; s++ ) {
         this.latticeTime++;
         this.propagateOneStep( this.mainTriple, this.barrierMask );
       }
@@ -305,42 +309,38 @@ export default class LatticeWaveSolver implements WaveSolver {
     for ( let ix = 1; ix < gridWidth - 1; ix++ ) {
       for ( let iy = 1; iy < gridHeight - 1; iy++ ) {
         const cellIdx = iy * gridWidth + ix;
-
-        if ( mask[ cellIdx ] ) {
-          const idx = cellIdx * 2;
-          current[ idx ] = 0;
-          current[ idx + 1 ] = 0;
-          continue;
-        }
-
+        const open = 1 - mask[ cellIdx ];
         const idx = cellIdx * 2;
 
         const prevRe = previous[ idx ];
         const prevIm = previous[ idx + 1 ];
 
-        const rightRe = mask[ cellIdx + 1 ] ? 0 : previous[ ( cellIdx + 1 ) * 2 ];
-        const rightIm = mask[ cellIdx + 1 ] ? 0 : previous[ ( cellIdx + 1 ) * 2 + 1 ];
-        const leftRe = mask[ cellIdx - 1 ] ? 0 : previous[ ( cellIdx - 1 ) * 2 ];
-        const leftIm = mask[ cellIdx - 1 ] ? 0 : previous[ ( cellIdx - 1 ) * 2 + 1 ];
-        const upRe = mask[ cellIdx - gridWidth ] ? 0 : previous[ ( cellIdx - gridWidth ) * 2 ];
-        const upIm = mask[ cellIdx - gridWidth ] ? 0 : previous[ ( cellIdx - gridWidth ) * 2 + 1 ];
-        const downRe = mask[ cellIdx + gridWidth ] ? 0 : previous[ ( cellIdx + gridWidth ) * 2 ];
-        const downIm = mask[ cellIdx + gridWidth ] ? 0 : previous[ ( cellIdx + gridWidth ) * 2 + 1 ];
+        const openR = 1 - mask[ cellIdx + 1 ];
+        const openL = 1 - mask[ cellIdx - 1 ];
+        const openU = 1 - mask[ cellIdx - gridWidth ];
+        const openD = 1 - mask[ cellIdx + gridWidth ];
 
-        const laplacianRe = rightRe + leftRe + upRe + downRe - 4 * prevRe;
-        const laplacianIm = rightIm + leftIm + upIm + downIm - 4 * prevIm;
+        const idxR = ( cellIdx + 1 ) * 2;
+        const idxL = ( cellIdx - 1 ) * 2;
+        const idxU = ( cellIdx - gridWidth ) * 2;
+        const idxD = ( cellIdx + gridWidth ) * 2;
 
-        let newRe = 2 * prevRe - twoStepsAgo[ idx ] + cSquared * laplacianRe;
-        let newIm = 2 * prevIm - twoStepsAgo[ idx + 1 ] + cSquared * laplacianIm;
+        const laplacianRe =
+          openR * previous[ idxR ] +
+          openL * previous[ idxL ] +
+          openU * previous[ idxU ] +
+          openD * previous[ idxD ] -
+          4 * prevRe;
+        const laplacianIm =
+          openR * previous[ idxR + 1 ] +
+          openL * previous[ idxL + 1 ] +
+          openU * previous[ idxU + 1 ] +
+          openD * previous[ idxD + 1 ] -
+          4 * prevIm;
 
-        const damping = dampingCoefficients[ cellIdx ];
-        if ( damping < 1 ) {
-          newRe *= damping;
-          newIm *= damping;
-        }
-
-        current[ idx ] = newRe;
-        current[ idx + 1 ] = newIm;
+        const damping = dampingCoefficients[ cellIdx ] * open;
+        current[ idx ] = ( 2 * prevRe - twoStepsAgo[ idx ] + cSquared * laplacianRe ) * damping;
+        current[ idx + 1 ] = ( 2 * prevIm - twoStepsAgo[ idx + 1 ] + cSquared * laplacianIm ) * damping;
       }
     }
 
