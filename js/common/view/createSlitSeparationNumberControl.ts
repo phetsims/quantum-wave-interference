@@ -17,7 +17,7 @@ import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUn
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import ExperimentConstants from '../../experiment/ExperimentConstants.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
@@ -38,7 +38,7 @@ const createSlitSeparationNumberControl = ( scene: BaseSceneModel, tandem: Tande
   if ( usesMicrometers ) {
     const minUM = range.min * 1000;
     const maxUM = range.max * 1000;
-    const dp = ExperimentConstants.getRangeDecimalPlaces( minUM, maxUM );
+    const dp = QuantumWaveInterferenceConstants.getRangeDecimalPlaces( minUM, maxUM );
     numberDisplayOptions = {
       numberFormatter: ( valueMM: number ) => {
         const valueUM = valueMM * 1000;
@@ -62,7 +62,7 @@ const createSlitSeparationNumberControl = ( scene: BaseSceneModel, tandem: Tande
     ];
   }
   else {
-    const dp = ExperimentConstants.getRangeDecimalPlaces( range.min, range.max );
+    const dp = QuantumWaveInterferenceConstants.getRangeDecimalPlaces( range.min, range.max );
     numberDisplayOptions = {
       decimalPlaces: dp,
       valuePattern: {
@@ -105,7 +105,7 @@ const createSlitSeparationNumberControl = ( scene: BaseSceneModel, tandem: Tande
 };
 
 function getDelta( range: { min: number; max: number } ): number {
-  const decimalPlaces = ExperimentConstants.getRangeDecimalPlaces( range.min, range.max );
+  const decimalPlaces = QuantumWaveInterferenceConstants.getRangeDecimalPlaces( range.min, range.max );
   return Math.pow( 10, -decimalPlaces );
 }
 

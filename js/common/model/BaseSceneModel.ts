@@ -70,6 +70,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly matterWaveDisplayModeProperty: StringUnionProperty<MatterWaveDisplayMode>;
   public readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   public readonly waveSolver: WaveSolver;
+  public abstract readonly isMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
   public readonly hits: Vector2[];
   public readonly totalHitsProperty: NumberProperty;
   public readonly hitsChangedEmitter: TEmitter;
@@ -356,6 +357,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
    * Resets base properties with a guard to prevent cascading clearScreen calls from property listeners.
    * Subclasses should override reset() and call super.reset() at the start.
    */
+  public abstract step( dt: number ): void;
+
   public reset(): void {
     this.isResetting = true;
 
