@@ -300,6 +300,9 @@ export default class DetectorScreenNode extends Node {
       accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleContextResponseStringProperty,
       tandem: providedOptions.tandem.createTandem( 'eraserButton' )
     } );
+    sceneModel.detectionModeProperty.link( detectionMode => {
+      this.eraserButton.visible = detectionMode === 'hits';
+    } );
 
     // Eye button to view snapshots
     this.viewSnapshotsButton = new ViewSnapshotsButton(

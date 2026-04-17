@@ -364,6 +364,11 @@ export default class ExperimentScreenView extends ScreenView {
       },
       tandem: options.tandem.createTandem( 'timeControlNode' )
     } );
+    model.currentDetectionModeProperty.link( detectionMode => {
+      const isHitsMode = detectionMode === 'hits';
+      timeControlNode.visible = isHitsMode;
+      timeControlNode.enabled = isHitsMode;
+    } );
     this.addChild( timeControlNode );
 
     const bottomRowLeft = this.graphAccordionBoxes[ 0 ].left;
