@@ -214,43 +214,26 @@ export default class FrontFacingSlitNode extends Node {
     sceneModel.intensityProperty.link( updateBeamOverlay );
     sceneModel.wavelengthProperty.link( updateBeamOverlay );
 
-    // Format slit width label: use μm for values < 0.01 mm, mm otherwise. Slit width is constant per scene;
-    // the label is a DerivedProperty so it re-renders on locale change.
+    // Format slit width label in μm for all scenes. Slit width is constant per scene; the label is a DerivedProperty
+    // so it re-renders on locale change.
     const slitWidthMM = sceneModel.slitWidth;
-    let slitWidthLabelStringProperty: TReadOnlyProperty<string>;
-    if ( slitWidthMM >= 0.01 ) {
-      slitWidthLabelStringProperty = QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.derived(
-        pattern => StringUtils.fillIn( pattern, { value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 ) } )
-      );
-    }
-    else {
-      const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
-      slitWidthLabelStringProperty = QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.derived(
-        pattern => StringUtils.fillIn( pattern, { value: toFixed( slitWidthUM, decimalPlaces ) } )
-      );
-    }
+    const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
+    const slitWidthLabelStringProperty = QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.derived(
+      pattern => StringUtils.fillIn( pattern, { value: toFixed( slitWidthUM, decimalPlaces ) } )
+    );
 
-    // Slit-separation label: matches the slit-separation control readout formatting (unit and decimal precision
-    // determined by the slider range for this scene). Reactive on both the separation value and the locale-dependent
-    // pattern strings.
+    // Slit-separation label: display in μm for all scenes to match the slit-separation control readout. Reactive on
+    // both the separation value and the locale-dependent pattern string.
     const slitSeparationRange = sceneModel.slitSeparationRange;
-    const usesMicrometers = slitSeparationRange.max <= 0.1;
     const separationLabelStringProperty = new DerivedProperty(
       [
         sceneModel.slitSeparationProperty,
-        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty,
-        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty
+        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty
       ],
-      ( separationMM, umPattern, mmPattern ) => {
-        if ( usesMicrometers ) {
-          const valueUM = separationMM * 1000;
-          const decimalPlaces = ExperimentConstants.getRangeDecimalPlaces( slitSeparationRange.min * 1000, slitSeparationRange.max * 1000 );
-          return StringUtils.fillIn( umPattern, { value: toFixed( valueUM, decimalPlaces ) } );
-        }
-        else {
-          const decimalPlaces = ExperimentConstants.getRangeDecimalPlaces( slitSeparationRange.min, slitSeparationRange.max );
-          return StringUtils.fillIn( mmPattern, { value: toFixed( separationMM, decimalPlaces ) } );
-        }
+      ( separationMM, umPattern ) => {
+        const valueUM = separationMM * 1000;
+        const decimalPlaces = ExperimentConstants.getRangeDecimalPlaces( slitSeparationRange.min * 1000, slitSeparationRange.max * 1000 );
+        return StringUtils.fillIn( umPattern, { value: toFixed( valueUM, decimalPlaces ) } );
       }
     );
 

@@ -537,17 +537,10 @@ export default class ExperimentScreenView extends ScreenView {
     const slitSettingProperty = model.currentSlitSettingProperty;
     const slitWidthStringProperty = model.sceneProperty.derived( scene => {
       const slitWidthMM = scene.slitWidth;
-      if ( slitWidthMM >= 0.01 ) {
-        return QuantumWaveInterferenceFluent.a11y.slitWidthMillimetersPattern.format( {
-          value: toFixed( slitWidthMM, slitWidthMM >= 0.1 ? 1 : 2 )
-        } );
-      }
-      else {
-        const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
-        return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
-          value: toFixed( slitWidthUM, decimalPlaces )
-        } );
-      }
+      const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
+      return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
+        value: toFixed( slitWidthUM, decimalPlaces )
+      } );
     } );
     const slitViewDescriptionNode = new Node( {
       accessibleParagraph:
