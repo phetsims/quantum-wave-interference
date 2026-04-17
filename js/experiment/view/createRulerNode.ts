@@ -20,8 +20,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import { type SourceType } from '../model/SourceType.js';
 
-const RULER_INTERVAL_COUNT = 8;
-const RULER_CENTER_TICK_INDEX = RULER_INTERVAL_COUNT / 2;
+const RULER_LABELED_TICK_INTERVAL_MM = 5;
 const RULER_MINOR_TICKS_PER_MAJOR = 4;
 const RULER_HEIGHT = 40;
 
@@ -40,12 +39,13 @@ const createRulerNode = (
   sourceType: SourceType,
   tandem: Tandem
 ): InteractiveHighlightingNode => {
-  const majorTickWidth = ExperimentConstants.DETECTOR_SCREEN_WIDTH / RULER_INTERVAL_COUNT;
   const halfDetectorWidthMM = detectorWidthMM / 2;
   const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM, sourceType );
-  const majorTickLabels = rangeInclusive( 0, RULER_INTERVAL_COUNT ).map( i => {
-    const signedNormalizedOffset = ( i - RULER_CENTER_TICK_INDEX ) / RULER_CENTER_TICK_INDEX;
-    const labelValue = i === RULER_CENTER_TICK_INDEX ? 0 : halfDetectorWidthMM * signedNormalizedOffset;
+  const labeledIntervalCount = detectorWidthMM / RULER_LABELED_TICK_INTERVAL_MM;
+  const centerLabeledTickIndex = labeledIntervalCount / 2;
+  const majorTickWidth = ExperimentConstants.DETECTOR_SCREEN_WIDTH / labeledIntervalCount;
+  const majorTickLabels = rangeInclusive( 0, labeledIntervalCount ).map( i => {
+    const labelValue = -halfDetectorWidthMM + i * RULER_LABELED_TICK_INTERVAL_MM;
     return toFixed( labelValue, labelDecimalPlaces );
   } );
 
@@ -57,7 +57,7 @@ const createRulerNode = (
     QuantumWaveInterferenceFluent.rulerUnitsStringProperty.value,
     {
       minorTicksPerMajorTick: RULER_MINOR_TICKS_PER_MAJOR,
-      unitsMajorTickIndex: RULER_CENTER_TICK_INDEX,
+      unitsMajorTickIndex: centerLabeledTickIndex,
       majorTickFont: new PhetFont( 12 ),
       unitsFont: new PhetFont( 12 ),
       tandem: tandem
