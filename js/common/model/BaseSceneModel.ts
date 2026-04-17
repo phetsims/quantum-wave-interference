@@ -341,6 +341,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       wavelength: this.wavelengthProperty.value,
       slitSeparation: this.slitSeparationProperty.value,
       screenDistance: this.slitPositionFractionProperty.value * this.regionWidth,
+      screenHalfWidth: this.regionWidth / 2,
       effectiveWavelength: this.getEffectiveWavelength(),
       slitSetting: slitSetting,
       isEmitting: this.isEmittingProperty.value,

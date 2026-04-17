@@ -275,6 +275,7 @@ export default class GraphAccordionBox extends Node {
     sceneModel.screenDistanceProperty.link( () => updateGraph() );
     sceneModel.slitSettingProperty.link( () => updateGraph() );
     sceneModel.intensityProperty.link( () => updateGraph() );
+    sceneModel.detectorScreenScaleIndexProperty.link( () => updateGraph() );
 
     // For photons, wavelength changes affect the intensity curve
     if ( sceneModel.sourceType === 'photons' ) {

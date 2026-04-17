@@ -92,7 +92,7 @@ a11y:
                         You can adjust the source and slits, observe the resulting pattern, and save snapshots of the detector screen.
     controlArea:        >-
                         A ruler and stopwatch can be shown or hidden.
-                        There are controls to play, pause, or adjust experiment speed.
+                        In hits mode, there are controls to play, pause, or adjust experiment speed.
                         Reset sim to start over.
     maxHitsReachedHint: Clear the detector screen to collect more hits.
     currentDetails:     >-

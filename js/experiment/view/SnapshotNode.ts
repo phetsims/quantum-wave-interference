@@ -128,20 +128,14 @@ export default class SnapshotNode extends Node {
         snapshotProperty,
         QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
         QuantumWaveInterferenceFluent.slitSeparationStringProperty,
-        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty,
-        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty
+        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty
       ],
       ifSnapshot( snapshot => {
-        // Slit separation: use μm for small values (< 0.1 mm) for readability.
-        const slitSepValue = snapshot.slitSeparation < 0.1
-                             ? StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
-            { value: toFixed( snapshot.slitSeparation * 1000, 1 ) }
-          )
-                             : StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value,
-            { value: toFixed( snapshot.slitSeparation, 2 ) }
-          );
+        const slitSepUM = snapshot.slitSeparation * 1000;
+        const slitSepValue = StringUtils.fillIn(
+          QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
+          { value: toFixed( slitSepUM, ExperimentConstants.getDecimalPlacesForValue( slitSepUM ) ) }
+        );
         return formatLabelValue(
           QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
           slitSepValue
@@ -532,7 +526,7 @@ class SnapshotCanvasNode extends CanvasNode {
     }
 
     const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
-    const screenHalfWidth = this.sceneModel.screenHalfWidth;
+    const screenHalfWidth = snapshot.screenHalfWidth;
     const slitWidthMeters = this.sceneModel.slitWidth * 1e-3;
     const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
     const screenDistanceMeters = snapshot.screenDistance;
