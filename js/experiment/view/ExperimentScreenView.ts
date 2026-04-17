@@ -11,6 +11,8 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import GatedEnabledProperty from '../../../../axon/js/GatedEnabledProperty.js';
+import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -348,10 +350,14 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( checkboxGroup );
 
     // Time controls: play/pause button with speed radio buttons.
+    const timeControlNodeTandem = options.tandem.createTandem( 'timeControlNode' );
+    const timeControlsHitsModeProperty = model.currentDetectionModeProperty.derived( detectionMode => detectionMode === 'hits' );
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
       timeSpeeds: [ TimeSpeed.NORMAL, TimeSpeed.FAST ],
       flowBoxSpacing: 15,
+      visibleProperty: new GatedVisibleProperty( timeControlsHitsModeProperty, timeControlNodeTandem ),
+      enabledProperty: new GatedEnabledProperty( timeControlsHitsModeProperty, timeControlNodeTandem ),
       speedRadioButtonGroupOptions: {
         accessibleHelpText:
         QuantumWaveInterferenceFluent.a11y.timeControlNode.simSpeedDescriptionStringProperty
@@ -362,12 +368,7 @@ export default class ExperimentScreenView extends ScreenView {
           radius: 22
         }
       },
-      tandem: options.tandem.createTandem( 'timeControlNode' )
-    } );
-    model.currentDetectionModeProperty.link( detectionMode => {
-      const isHitsMode = detectionMode === 'hits';
-      timeControlNode.visible = isHitsMode;
-      timeControlNode.enabled = isHitsMode;
+      tandem: timeControlNodeTandem
     } );
     this.addChild( timeControlNode );
 

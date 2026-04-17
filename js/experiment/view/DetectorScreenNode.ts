@@ -9,6 +9,7 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
@@ -331,6 +332,11 @@ export default class DetectorScreenNode extends Node {
     // Match detector-side action button dimensions to the camera button without scaling icons.
     const detectorActionButtonMinHeight = this.snapshotButton.height;
     const detectorActionButtonMinWidth = DETECTOR_ACTION_BUTTON_MIN_WIDTH;
+    const eraserButtonTandem = providedOptions.tandem.createTandem( 'eraserButton' );
+    const eraserButtonVisibleProperty = new GatedVisibleProperty(
+      sceneModel.detectionModeProperty.derived( detectionMode => detectionMode === 'hits' ),
+      eraserButtonTandem
+    );
 
     // Eraser button to clear the screen
     this.eraserButton = new EraserButton( {
@@ -345,10 +351,8 @@ export default class DetectorScreenNode extends Node {
       accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty,
       accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleContextResponseStringProperty,
-      tandem: providedOptions.tandem.createTandem( 'eraserButton' )
-    } );
-    sceneModel.detectionModeProperty.link( detectionMode => {
-      this.eraserButton.visible = detectionMode === 'hits';
+      tandem: eraserButtonTandem,
+      visibleProperty: eraserButtonVisibleProperty
     } );
 
     // Eye button to view snapshots
