@@ -26,9 +26,9 @@ import createMeasurementToolNodes from '../../common/view/createMeasurementToolN
 import createObstacleControlsRow from '../../common/view/createObstacleControlsRow.js';
 import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
+import createWaveRegionNodes from '../../common/view/createWaveRegionNodes.js';
 import HighIntensityTopRowNode from '../../common/view/HighIntensityTopRowNode.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
-import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import createSidewaysGraph from '../../common/view/createSidewaysGraph.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
@@ -74,6 +74,7 @@ export default class HighIntensityScreenView extends ScreenView {
 
     const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
       photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
+      particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
       tandem: tandem.createTandem( 'sourceControlPanel' )
     } );
 
@@ -120,31 +121,10 @@ export default class HighIntensityScreenView extends ScreenView {
     // sits above it with a visible gap that the callout lines can span.
     leftControlsVBox.top = waveRegionTop;
 
-    this.waveVisualizationNode = new WaveVisualizationNode( model.sceneProperty, {
-      x: waveRegionLeft,
-      y: waveRegionTop
-    } );
-    this.addChild( this.waveVisualizationNode );
-
-    const slitSeparationRangeProperty = new DerivedProperty(
-      [ model.sceneProperty ],
-      scene => scene.slitSeparationRange
-    );
-
-    const doubleSlitNode = new DoubleSlitNode(
-      model.currentObstacleTypeProperty,
-      model.currentSlitPositionFractionProperty,
-      model.currentSlitSeparationProperty,
-      slitSeparationRangeProperty,
-      {
-        isTopSlitCoveredProperty: new DerivedProperty(
-          [ model.currentSlitConfigurationProperty ],
-          slitConfig => slitConfig === 'leftCovered'
-        ),
-        isBottomSlitCoveredProperty: new DerivedProperty(
-          [ model.currentSlitConfigurationProperty ],
-          slitConfig => slitConfig === 'rightCovered'
-        ),
+    const { waveVisualizationNode, doubleSlitNode } = createWaveRegionNodes( model, {
+      waveRegionLeft: waveRegionLeft,
+      waveRegionTop: waveRegionTop,
+      additionalDoubleSlitOptions: {
         isTopSlitDetectorProperty: new DerivedProperty(
           [ model.currentSlitConfigurationProperty ],
           slitConfig => hasDetectorOnSide( slitConfig, 'left' )
@@ -152,11 +132,11 @@ export default class HighIntensityScreenView extends ScreenView {
         isBottomSlitDetectorProperty: new DerivedProperty(
           [ model.currentSlitConfigurationProperty ],
           slitConfig => hasDetectorOnSide( slitConfig, 'right' )
-        ),
-        x: waveRegionLeft,
-        y: waveRegionTop
+        )
       }
-    );
+    } );
+    this.waveVisualizationNode = waveVisualizationNode;
+    this.addChild( this.waveVisualizationNode );
     this.addChild( doubleSlitNode );
 
     this.detectorScreenNode = new HighIntensityDetectorScreenNode( model, {

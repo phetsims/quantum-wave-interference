@@ -6,7 +6,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -20,8 +19,8 @@ import createMeasurementToolNodes from '../../common/view/createMeasurementToolN
 import createObstacleControlsRow from '../../common/view/createObstacleControlsRow.js';
 import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
+import createWaveRegionNodes from '../../common/view/createWaveRegionNodes.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
-import DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import createSidewaysGraph from '../../common/view/createSidewaysGraph.js';
 import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
@@ -119,36 +118,12 @@ export default class SingleParticlesScreenView extends ScreenView {
     const waveRegionLeft = leftControlsVBox.right + 4;
     const waveRegionTop = Y_MARGIN;
 
-    this.waveVisualizationNode = new WaveVisualizationNode( model.sceneProperty, {
-      x: waveRegionLeft,
-      y: waveRegionTop
+    const { waveVisualizationNode, doubleSlitNode } = createWaveRegionNodes( model, {
+      waveRegionLeft: waveRegionLeft,
+      waveRegionTop: waveRegionTop
     } );
+    this.waveVisualizationNode = waveVisualizationNode;
     this.addChild( this.waveVisualizationNode );
-
-    // Double slit obstacle visualization overlaid on the wave region
-    const slitSeparationRangeProperty = new DerivedProperty(
-      [ model.sceneProperty ],
-      scene => scene.slitSeparationRange
-    );
-
-    const doubleSlitNode = new DoubleSlitNode(
-      model.currentObstacleTypeProperty,
-      model.currentSlitPositionFractionProperty,
-      model.currentSlitSeparationProperty,
-      slitSeparationRangeProperty,
-      {
-        isTopSlitCoveredProperty: new DerivedProperty(
-          [ model.currentSlitConfigurationProperty ],
-          slitConfig => slitConfig === 'leftCovered'
-        ),
-        isBottomSlitCoveredProperty: new DerivedProperty(
-          [ model.currentSlitConfigurationProperty ],
-          slitConfig => slitConfig === 'rightCovered'
-        ),
-        x: waveRegionLeft,
-        y: waveRegionTop
-      }
-    );
     this.addChild( doubleSlitNode );
 
     this.detectorScreenNode = new SingleParticlesDetectorScreenNode( model, {

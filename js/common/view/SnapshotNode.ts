@@ -99,7 +99,7 @@ export default class SnapshotNode extends Node {
     const titleProperty = new DerivedProperty(
       [ snapshotProperty, QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty ],
       ( snapshot, pattern ) => snapshot
-                               ? StringUtils.fillIn( pattern, { number: index + 1 } )
+                               ? StringUtils.fillIn( pattern, { number: snapshot.snapshotNumber } )
                                : ''
     );
 
