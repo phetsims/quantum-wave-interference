@@ -147,7 +147,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       waveRegionTop,
       this,
       tandem,
-      { additionalTopConstraintNode: leftControlsVBox }
+      { layoutBoundsBottom: this.layoutBounds.maxY }
     );
     this.addChild( bottomRow );
 

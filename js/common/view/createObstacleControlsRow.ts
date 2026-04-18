@@ -14,6 +14,7 @@
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -32,7 +33,7 @@ const COMBO_BOX_FONT = new PhetFont( 14 );
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 
 type CreateObstacleControlsRowOptions = {
-  additionalTopConstraintNode?: Node;
+  layoutBoundsBottom?: number;
 };
 
 const createObstacleControlsRow = <T extends string>(
@@ -60,7 +61,8 @@ const createObstacleControlsRow = <T extends string>(
   const obstacleComboBox = new ComboBox( obstacleTypeProperty, obstacleComboBoxItems, listParent, {
     tandem: tandem.createTandem( 'obstacleComboBox' ),
     xMargin: 10,
-    yMargin: 6
+    yMargin: 6,
+    listPosition: 'above'
   } );
 
   const obstacleSection = new VBox( {
@@ -77,7 +79,8 @@ const createObstacleControlsRow = <T extends string>(
   const slitConfigurationComboBox = new ComboBox( slitConfigurationProperty, slitConfigItems, listParent, {
     tandem: tandem.createTandem( 'slitConfigurationComboBox' ),
     xMargin: 10,
-    yMargin: 6
+    yMargin: 6,
+    listPosition: 'above'
   } );
 
   const slitConfigSection = new VBox( {
@@ -113,16 +116,15 @@ const createObstacleControlsRow = <T extends string>(
   } );
   bottomRow.left = X_MARGIN;
 
-  const waveRegionBottom = waveRegionTop + QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT + 8;
-  const additionalNode = options?.additionalTopConstraintNode;
-  if ( additionalNode ) {
-    const updateTop = () => {
-      bottomRow.top = Math.max( waveRegionBottom, additionalNode.bottom + 8 );
-    };
-    additionalNode.boundsProperty.link( updateTop );
+  const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+  if ( options?.layoutBoundsBottom !== undefined ) {
+    const targetBottom = options.layoutBoundsBottom - Y_MARGIN;
+    ManualConstraint.create( listParent, [ bottomRow ], proxy => {
+      proxy.bottom = targetBottom;
+    } );
   }
   else {
-    bottomRow.top = waveRegionBottom;
+    bottomRow.top = waveRegionTop + QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT + 8;
   }
 
   return bottomRow;
