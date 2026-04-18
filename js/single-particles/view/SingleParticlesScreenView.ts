@@ -46,7 +46,7 @@ const COMBO_BOX_FONT = new PhetFont( 14 );
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
-const DETECTOR_SCREEN_SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW;
+
 
 export default class SingleParticlesScreenView extends ScreenView {
 
@@ -127,7 +127,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( doubleSlitNode );
 
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
-      x: waveRegionLeft + WAVE_REGION_WIDTH - DETECTOR_SCREEN_SKEW / 2,
+      x: waveRegionLeft + WAVE_REGION_WIDTH,
       y: waveRegionTop
     } );
     this.addChild( this.detectorScreenNode );

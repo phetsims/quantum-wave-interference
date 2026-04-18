@@ -56,7 +56,7 @@ export default class DetectorScreenTextureRenderer {
   private readonly textureWidth: number;
   private readonly textureHeight: number;
   private readonly skewOffset: number;
-  private readonly faceWidth: number;
+  private readonly faceHeight: number;
   private readonly hitCoreRadius: number;
   private readonly hitGlowRadius: number;
   private readonly cacheMap = new WeakMap<DetectorScreenSceneLike, TextureCache>();
@@ -65,7 +65,7 @@ export default class DetectorScreenTextureRenderer {
     this.textureWidth = screenWidth * SUPERSAMPLE;
     this.textureHeight = screenHeight * SUPERSAMPLE;
     this.skewOffset = skew * SUPERSAMPLE;
-    this.faceWidth = ( screenWidth - skew ) * SUPERSAMPLE;
+    this.faceHeight = ( screenHeight - skew ) * SUPERSAMPLE;
     this.hitCoreRadius = BASE_HIT_CORE_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
     this.hitGlowRadius = BASE_HIT_GLOW_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
   }
@@ -209,9 +209,9 @@ export default class DetectorScreenTextureRenderer {
     for ( let i = incrementalStart; i < hitCount; i++ ) {
       const hit = hits[ i ];
 
-      const viewY = ( ( hit.x + 1 ) / 2 ) * this.textureHeight;
-      const leftEdge = this.skewOffset * ( 1 - viewY / this.textureHeight );
-      const viewX = leftEdge + ( ( hit.y + 1 ) / 2 ) * this.faceWidth;
+      const viewX = ( ( hit.y + 1 ) / 2 ) * this.textureWidth;
+      const topEdge = this.skewOffset * ( 1 - viewX / this.textureWidth );
+      const viewY = topEdge + ( ( hit.x + 1 ) / 2 ) * this.faceHeight;
       context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
     }
 
@@ -228,7 +228,8 @@ export default class DetectorScreenTextureRenderer {
     const solverHeight = scene.waveSolver.gridHeight;
 
     for ( let y = 0; y < this.textureHeight; y++ ) {
-      const solverY = clamp( Math.floor( ( y + 0.5 ) / this.textureHeight * solverHeight ), 0, solverHeight - 1 );
+      const detectorY = y - this.skewOffset / 2;
+      const solverY = clamp( Math.floor( ( detectorY + 0.5 ) / this.faceHeight * solverHeight ), 0, solverHeight - 1 );
       const intensity = distribution[ solverY ];
       const scale = intensity * displayGain;
 

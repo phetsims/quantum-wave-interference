@@ -119,10 +119,10 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     } );
 
     const detectorShape = new Shape()
-      .moveTo( MINI_SYMBOL_SKEW, 0 )
-      .lineTo( MINI_SYMBOL_DETECTOR_WIDTH + MINI_SYMBOL_SKEW, 0 )
+      .moveTo( 0, MINI_SYMBOL_SKEW )
+      .lineTo( MINI_SYMBOL_DETECTOR_WIDTH, 0 )
       .lineTo( MINI_SYMBOL_DETECTOR_WIDTH, MINI_SYMBOL_SQUARE_SIZE )
-      .lineTo( 0, MINI_SYMBOL_SQUARE_SIZE )
+      .lineTo( 0, MINI_SYMBOL_SQUARE_SIZE + MINI_SYMBOL_SKEW )
       .close();
     const miniDetector = new Path( detectorShape, { fill: 'black' } );
     miniDetector.left = miniSquare.right + MINI_SYMBOL_GAP;
