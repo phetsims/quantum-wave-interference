@@ -65,6 +65,7 @@ export type SourceControlScene = {
 type SelfOptions = {
   photonIntensityLabelStringProperty?: TReadOnlyProperty<string>;
   particleIntensityLabelStringProperty?: TReadOnlyProperty<string>;
+  additionalContent?: Node | null;
 };
 
 type SourceControlPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tandem'>;
@@ -84,7 +85,8 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
         stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
         minWidth: 160,
         photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.sourceIntensityStringProperty,
-        particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty
+        particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty,
+        additionalContent: null
       },
       providedOptions
     );
@@ -131,7 +133,16 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
       excludeInvisibleChildrenFromBounds: false
     } );
 
-    super( contentNode, options );
+    let panelContent: Node = contentNode;
+    if ( options.additionalContent ) {
+      panelContent = new VBox( {
+        spacing: CONTROL_SECTION_SPACING,
+        align: 'left',
+        children: [ contentNode, options.additionalContent ]
+      } );
+    }
+
+    super( panelContent, options );
 
     linkSceneVisibility( sceneProperty, scenes, sceneNodes );
   }

@@ -63,10 +63,6 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const tandem = options.tandem;
 
-    const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
-      tandem: tandem.createTandem( 'sourceControlPanel' )
-    } );
-
     const autoRepeatCheckbox = new Checkbox(
       model.currentAutoRepeatProperty,
       new Text( QuantumWaveInterferenceFluent.autoRepeatStringProperty, { font: LABEL_FONT, maxWidth: 120 } ),
@@ -76,6 +72,11 @@ export default class SingleParticlesScreenView extends ScreenView {
         tandem: tandem.createTandem( 'autoRepeatCheckbox' )
       }
     );
+
+    const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
+      tandem: tandem.createTandem( 'sourceControlPanel' ),
+      additionalContent: autoRepeatCheckbox
+    } );
 
     // Emitter source with SingleParticleEmitter.svg image and red toggle button
     const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SingleParticlesSceneModel>( model.sceneProperty, {
@@ -107,7 +108,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       spacing: 12,
       stretch: true,
       align: 'left',
-      children: [ sourceControlPanel, autoRepeatCheckbox, emitterNode, sceneRadioButtonGroup, particleMassAnnotation ]
+      children: [ sourceControlPanel, emitterNode, sceneRadioButtonGroup, particleMassAnnotation ]
     } );
     leftControlsVBox.left = X_MARGIN;
     leftControlsVBox.top = Y_MARGIN;
