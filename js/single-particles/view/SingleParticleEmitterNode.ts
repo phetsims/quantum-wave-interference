@@ -26,11 +26,10 @@ type SelfOptions = EmptySelfOptions;
 
 export type SingleParticleEmitterNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
-const EMITTER_HEIGHT = 120;
-const BUTTON_RADIUS = 14;
+const EMITTER_HEIGHT = 153;
+const BUTTON_RADIUS = 23;
 
-// After rotating, the cylindrical handle is on the left; place the button ~12% from the left edge.
-const BUTTON_CENTER_X_FRACTION = 0.12;
+const BUTTON_CENTER_X_FRACTION = 0.32;
 const BUTTON_CENTER_Y_FRACTION = 0.5;
 
 export default class SingleParticleEmitterNode extends Node {
