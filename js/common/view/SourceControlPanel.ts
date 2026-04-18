@@ -174,12 +174,10 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
           },
           maxWidth: 80
         },
-        layoutFunction: NumberControl.createLayoutFunction1( {
-          titleXSpacing: 4,
-          arrowButtonsXSpacing: 8,
-          ySpacing: 8
+        layoutFunction: NumberControl.createLayoutFunction4( {
+          verticalSpacing: 8
         } ),
-        includeArrowButtons: true,
+        includeArrowButtons: false,
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.wavelengthSlider.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( 'wavelengthControl' )
       } );
@@ -360,6 +358,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
     } );
 
     intensitySlider.addMajorTick( 0, new Text( '0', { font: TICK_LABEL_FONT } ) );
+    intensitySlider.addMajorTick( 0.5 );
     intensitySlider.addMajorTick(
       1,
       new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
@@ -367,6 +366,10 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
         maxWidth: 40
       } )
     );
+    for ( let i = 1; i <= 4; i++ ) {
+      intensitySlider.addMinorTick( i * 0.1 );
+      intensitySlider.addMinorTick( 0.5 + i * 0.1 );
+    }
 
     const intensityLabel = new Text( intensityLabelStringProperty, {
       font: TITLE_FONT,

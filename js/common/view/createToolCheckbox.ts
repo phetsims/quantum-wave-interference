@@ -24,13 +24,14 @@ const createToolCheckbox = (
   tandem: Tandem,
   icon?: Node
 ): Checkbox => {
-  const label = new Text( stringProperty, { font: LABEL_FONT, maxWidth: 120 } );
+  const label = new Text( stringProperty, { font: LABEL_FONT, maxWidth: 120, layoutOptions: { grow: 1 } } );
   const content = icon ?
                   new HBox( { children: [ label, icon ], spacing: 6 } ) :
                   label;
   return new Checkbox( property, content, {
     boxWidth: 16,
     spacing: 6,
+    layoutOptions: { stretch: true },
     tandem: tandem
   } );
 };

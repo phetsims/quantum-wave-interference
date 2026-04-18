@@ -86,6 +86,9 @@ export default class HighIntensityScreenView extends ScreenView {
 
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
 
+    sceneRadioButtonGroup.layoutOptions = { align: 'center' };
+    particleMassAnnotation.layoutOptions = { align: 'center' };
+
     const leftControlsVBox = new VBox( {
       spacing: 16,
       align: 'left',
@@ -130,15 +133,15 @@ export default class HighIntensityScreenView extends ScreenView {
         )
       }
     } );
-    this.waveVisualizationNode = waveVisualizationNode;
-    this.addChild( this.waveVisualizationNode );
-    this.addChild( doubleSlitNode );
-
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
       x: waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP,
       y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
     this.addChild( this.detectorScreenNode );
+
+    this.waveVisualizationNode = waveVisualizationNode;
+    this.addChild( this.waveVisualizationNode );
+    this.addChild( doubleSlitNode );
 
     // --- Bottom row: obstacle, slit configuration, slit separation ---
     const slitConfigItems: ComboBoxItem<SlitConfiguration>[] = [

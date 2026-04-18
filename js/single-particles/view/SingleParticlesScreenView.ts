@@ -122,15 +122,15 @@ export default class SingleParticlesScreenView extends ScreenView {
       waveRegionLeft: waveRegionLeft,
       waveRegionTop: waveRegionTop
     } );
-    this.waveVisualizationNode = waveVisualizationNode;
-    this.addChild( this.waveVisualizationNode );
-    this.addChild( doubleSlitNode );
-
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
       x: waveRegionLeft + WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP,
       y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
     this.addChild( this.detectorScreenNode );
+
+    this.waveVisualizationNode = waveVisualizationNode;
+    this.addChild( this.waveVisualizationNode );
+    this.addChild( doubleSlitNode );
 
     const slitConfigItems: ComboBoxItem<SingleParticlesSlitConfiguration>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },

@@ -121,17 +121,22 @@ const createRightControlsColumn = (
     tandem.createTandem( 'viewSnapshotsButton' )
   );
 
-  const screenButtonsRow = new HBox( {
-    spacing: 8,
-    children: [ eraseButton, snapshotButton, viewSnapshotsButton ]
+  const indicatorDots = new SnapshotIndicatorDotsNode( model.currentNumberOfSnapshotsProperty );
+
+  const snapshotButtonWithDots = new VBox( {
+    spacing: 4,
+    children: [ indicatorDots, snapshotButton ]
   } );
 
-  const indicatorDots = new SnapshotIndicatorDotsNode( model.currentNumberOfSnapshotsProperty );
+  const screenButtonsRow = new HBox( {
+    spacing: 8,
+    align: 'bottom',
+    children: [ eraseButton, snapshotButtonWithDots, viewSnapshotsButton ]
+  } );
 
   const brightnessControl = createBrightnessControl( model.currentScreenBrightnessProperty, tandem );
 
   const screenControlsChildren: Node[] = [
-    indicatorDots,
     screenButtonsRow,
     ...options.additionalScreenControlChildren,
     brightnessControl
@@ -153,7 +158,7 @@ const createRightControlsColumn = (
 
   const toolsPanel = new Panel( new VBox( {
     spacing: 8,
-    align: 'left',
+    stretch: true,
     children: options.toolCheckboxes
   } ), {
     fill: QuantumWaveInterferenceColors.panelFillProperty,
@@ -193,6 +198,14 @@ const createRightControlsColumn = (
     tandem: tandem.createTandem( 'resetAllButton' )
   } );
 
+  // --- Bottom row: time controls to the left of reset all ---
+
+  const bottomRow = new HBox( {
+    spacing: 15,
+    align: 'center',
+    children: [ timeControlNode, resetAllButton ]
+  } );
+
   // --- Assemble column ---
 
   const rightControlsVBox = new VBox( {
@@ -202,8 +215,7 @@ const createRightControlsColumn = (
       screenControlsPanel,
       toolsPanel,
       waveDisplaySection,
-      timeControlNode,
-      resetAllButton
+      bottomRow
     ]
   } );
 
