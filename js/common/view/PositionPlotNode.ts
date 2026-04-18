@@ -12,9 +12,7 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
-import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
@@ -98,35 +96,30 @@ export default class PositionPlotNode extends Node {
     crosshairNode.x = waveRegionX + waveRegionWidth / 2;
     this.addChild( crosshairNode );
 
-    const crosshairPositionProperty = new Vector2Property( new Vector2(
-      waveRegionX + waveRegionWidth / 2,
-      waveRegionY + waveRegionHeight * 0.5
-    ) );
+    const crosshairX = waveRegionX + waveRegionWidth / 2;
 
-    const crosshairDragBounds = new Bounds2(
-      waveRegionX + waveRegionWidth / 2,
-      waveRegionY + waveRegionHeight * MIN_Y_FRACTION,
-      waveRegionX + waveRegionWidth / 2,
-      waveRegionY + waveRegionHeight * MAX_Y_FRACTION
+    const crosshairPositionProperty = new DerivedProperty(
+      [ this.lineYFractionProperty ],
+      fraction => new Vector2( crosshairX, waveRegionY + fraction * waveRegionHeight )
     );
-
-    crosshairNode.addInputListener( new DragListener( {
-      positionProperty: crosshairPositionProperty,
-      dragBoundsProperty: new Property( crosshairDragBounds )
-    } ) );
-
-    crosshairPositionProperty.link( position => {
-      const fraction = clamp( ( position.y - waveRegionY ) / waveRegionHeight, MIN_Y_FRACTION, MAX_Y_FRACTION );
-      this.lineYFractionProperty.value = fraction;
-    } );
 
     this.lineYFractionProperty.link( fraction => {
       const viewY = waveRegionY + fraction * waveRegionHeight;
       dottedLine.y1 = viewY;
       dottedLine.y2 = viewY;
       crosshairNode.y = viewY;
-      crosshairPositionProperty.value = new Vector2( crosshairPositionProperty.value.x, viewY );
     } );
+
+    let pressYOffset = 0;
+    crosshairNode.addInputListener( new DragListener( {
+      start: ( event, listener ) => {
+        pressYOffset = listener.parentPoint.y - crosshairNode.y;
+      },
+      drag: ( event, listener ) => {
+        const targetY = listener.parentPoint.y - pressYOffset;
+        this.lineYFractionProperty.value = clamp( ( targetY - waveRegionY ) / waveRegionHeight, MIN_Y_FRACTION, MAX_Y_FRACTION );
+      }
+    } ) );
 
     const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( sceneProperty );
     const polarityProperty = waveDisplayModePolarityProperty( sceneProperty );
