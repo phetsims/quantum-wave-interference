@@ -99,19 +99,11 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
 
-    sceneRadioButtonGroup.layoutOptions = { align: 'center' };
+    sourceControlPanel.left = X_MARGIN;
+    sourceControlPanel.top = Y_MARGIN;
+    this.addChild( sourceControlPanel );
 
-    const leftControlsVBox = new VBox( {
-      spacing: 12,
-      stretch: true,
-      align: 'left',
-      children: [ sourceControlPanel, sceneRadioButtonGroup, particleMassAnnotation ]
-    } );
-    leftControlsVBox.left = X_MARGIN;
-    leftControlsVBox.top = Y_MARGIN;
-    this.addChild( leftControlsVBox );
-
-    const waveRegionLeft = leftControlsVBox.right + 4;
+    const waveRegionLeft = sourceControlPanel.right + 4;
     const waveRegionTop = Y_MARGIN;
 
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -132,6 +124,15 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( this.waveVisualizationNode );
     this.addChild( doubleSlitNode );
     this.addChild( emitterNode );
+
+    const belowEmitterVBox = new VBox( {
+      spacing: 12,
+      align: 'center',
+      children: [ sceneRadioButtonGroup, particleMassAnnotation ]
+    } );
+    belowEmitterVBox.centerX = sourceControlPanel.centerX;
+    belowEmitterVBox.top = emitterNode.bottom + 12;
+    this.addChild( belowEmitterVBox );
 
     const slitConfigItems: ComboBoxItem<SingleParticlesSlitConfiguration>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
