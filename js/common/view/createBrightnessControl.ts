@@ -30,29 +30,15 @@ const createBrightnessControl = (
     maxWidth: 140
   } );
   const brightnessRange = new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX );
-  const brightnessMax = QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
   const brightnessSlider = new HSlider( screenBrightnessProperty, brightnessRange, {
     trackSize: new Dimension2( 130, 3 ),
     thumbSize: new Dimension2( 13, 22 ),
-    majorTickLength: 12,
-    minorTickLength: 8,
     createAriaValueText: value => percentUnit.getAccessibleString(
-      value / brightnessMax * 100,
+      value / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100,
       { decimalPlaces: 0, showTrailingZeros: false, showIntegersAsIntegers: true }
     ),
     tandem: tandem.createTandem( 'brightnessSlider' )
   } );
-
-  const MINOR_TICKS_PER_SECTION = 4;
-  const majorValues = [ 0, brightnessMax / 2, brightnessMax ];
-  majorValues.forEach( value => brightnessSlider.addMajorTick( value ) );
-  for ( let section = 0; section < majorValues.length - 1; section++ ) {
-    const lo = majorValues[ section ];
-    const hi = majorValues[ section + 1 ];
-    for ( let i = 1; i <= MINOR_TICKS_PER_SECTION; i++ ) {
-      brightnessSlider.addMinorTick( lo + ( hi - lo ) * i / ( MINOR_TICKS_PER_SECTION + 1 ) );
-    }
-  }
   return new VBox( {
     spacing: 2,
     children: [ brightnessLabel, brightnessSlider ]
