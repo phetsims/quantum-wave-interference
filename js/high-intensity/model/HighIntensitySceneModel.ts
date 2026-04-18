@@ -141,13 +141,14 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     // Always step the wave solver so existing waves continue to propagate after the emitter is turned off
     this.waveSolver.step( dt );
 
-    // Update wave visibility: show waves while emitting or while existing waves are still in the region
-    this._isWaveVisibleProperty.value =
-      this.isEmittingProperty.value || this.waveSolver.hasWavesInRegion();
+    const hasWaves = this.waveSolver.hasWavesInRegion();
 
-    // Accumulate hits when emitting in hits mode
+    // Update wave visibility: show waves while emitting or while existing waves are still in the region
+    this._isWaveVisibleProperty.value = this.isEmittingProperty.value || hasWaves;
+
+    // Accumulate hits while waves are in the region (even after emitter is turned off)
     if (
-      !this.isEmittingProperty.value ||
+      ( !this.isEmittingProperty.value && !hasWaves ) ||
       this.detectionModeProperty.value !== 'hits' ||
       this.isMaxHitsReachedProperty.value ||
       dt > 0.5

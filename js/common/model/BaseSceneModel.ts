@@ -45,6 +45,54 @@ const DEFAULT_PHOTON_WAVELENGTH_NM = 650;
 // All scenes use an 8 μm physical region so the scale bar shows "1 μm".
 const REGION_SIZE = 8e-6;
 
+type SourceTypeConfig = {
+  particleMass: number;
+  velocityRange: [ number, number ];
+  slitSeparationRange: [ number, number ];
+  defaultVelocity: number;
+  defaultSlitSeparation: number;
+
+  // Must be smaller than the minimum slit separation for each scene.
+  // The analytical solver overrides these with display-scale values via getDisplaySlitParameters;
+  // these physical values are used only by the lattice solver.
+  slitWidth: number;
+};
+
+const SOURCE_TYPE_CONFIG: Record<SourceType, SourceTypeConfig> = {
+  photons: {
+    particleMass: 0,
+    velocityRange: [ 0, 0 ],
+    slitSeparationRange: [ 0.0002, 0.003 ],
+    defaultVelocity: 0,
+    defaultSlitSeparation: 0.003,
+    slitWidth: 0.0001
+  },
+  electrons: {
+    particleMass: QuantumWaveInterferenceConstants.ELECTRON_MASS,
+    velocityRange: [ 7e5, 1.5e6 ],
+    slitSeparationRange: [ 0.0001, 0.0009 ],
+    defaultVelocity: 1.1e6,
+    defaultSlitSeparation: 0.0005,
+    slitWidth: 0.00003
+  },
+  neutrons: {
+    particleMass: QuantumWaveInterferenceConstants.NEUTRON_MASS,
+    velocityRange: [ 200, 800 ],
+    slitSeparationRange: [ 0.00005, 0.002 ],
+    defaultVelocity: 500,
+    defaultSlitSeparation: 0.001,
+    slitWidth: 0.00002
+  },
+  heliumAtoms: {
+    particleMass: QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS,
+    velocityRange: [ 400, 2000 ],
+    slitSeparationRange: [ 0.00002, 0.0008 ],
+    defaultVelocity: 1200,
+    defaultSlitSeparation: 0.0004,
+    slitWidth: 0.000008
+  }
+};
+
 type SelfOptions = {
   sourceType: SourceType;
   defaultPhotonWaveDisplayMode?: PhotonWaveDisplayMode;
@@ -97,48 +145,14 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.isResetting = false;
     const tandem = options.tandem;
 
-    this.slitWidth = getSlitWidthForSourceType( this.sourceType );
+    const config = SOURCE_TYPE_CONFIG[ this.sourceType ];
+    this.slitWidth = config.slitWidth;
     this.waveSolver = waveSolver;
-
-    let defaultVelocity: number;
-    let defaultSlitSeparation: number;
-
-    if ( options.sourceType === 'photons' ) {
-      this.particleMass = 0;
-      this.velocityRange = new Range( 0, 0 );
-      this.slitSeparationRange = new Range( 0.0002, 0.003 );
-      defaultVelocity = 0;
-      defaultSlitSeparation = 0.003;
-      this.regionWidth = REGION_SIZE;
-      this.regionHeight = REGION_SIZE;
-    }
-    else if ( options.sourceType === 'electrons' ) {
-      this.particleMass = QuantumWaveInterferenceConstants.ELECTRON_MASS;
-      this.velocityRange = new Range( 7e5, 1.5e6 );
-      this.slitSeparationRange = new Range( 0.0001, 0.0009 );
-      defaultVelocity = 1.1e6;
-      defaultSlitSeparation = 0.0005;
-      this.regionWidth = REGION_SIZE;
-      this.regionHeight = REGION_SIZE;
-    }
-    else if ( options.sourceType === 'neutrons' ) {
-      this.particleMass = QuantumWaveInterferenceConstants.NEUTRON_MASS;
-      this.velocityRange = new Range( 200, 800 );
-      this.slitSeparationRange = new Range( 0.00005, 0.002 );
-      defaultVelocity = 500;
-      defaultSlitSeparation = 0.001;
-      this.regionWidth = REGION_SIZE;
-      this.regionHeight = REGION_SIZE;
-    }
-    else {
-      this.particleMass = QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
-      this.velocityRange = new Range( 400, 2000 );
-      this.slitSeparationRange = new Range( 0.00002, 0.0008 );
-      defaultVelocity = 1200;
-      defaultSlitSeparation = 0.0004;
-      this.regionWidth = REGION_SIZE;
-      this.regionHeight = REGION_SIZE;
-    }
+    this.particleMass = config.particleMass;
+    this.velocityRange = new Range( ...config.velocityRange );
+    this.slitSeparationRange = new Range( ...config.slitSeparationRange );
+    this.regionWidth = REGION_SIZE;
+    this.regionHeight = REGION_SIZE;
 
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
@@ -153,7 +167,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'wavelengthProperty' )
     } );
 
-    this.velocityProperty = new NumberProperty( defaultVelocity, {
+    this.velocityProperty = new NumberProperty( config.defaultVelocity, {
       range: this.velocityRange,
       units: 'm/s',
       tandem: tandem.createTandem( 'velocityProperty' )
@@ -164,7 +178,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'obstacleTypeProperty' )
     } );
 
-    this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
+    this.slitSeparationProperty = new NumberProperty( config.defaultSlitSeparation, {
       range: this.slitSeparationRange,
       units: 'mm',
       tandem: tandem.createTandem( 'slitSeparationProperty' )
@@ -357,12 +371,12 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.snapshotsProperty.value = this.snapshotsProperty.value.filter( s => s !== snapshot );
   }
 
+  public abstract step( dt: number ): void;
+
   /**
    * Resets base properties with a guard to prevent cascading clearScreen calls from property listeners.
    * Subclasses should override reset() and call super.reset() at the start.
    */
-  public abstract step( dt: number ): void;
-
   public reset(): void {
     this.isResetting = true;
 
@@ -385,18 +399,5 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.isResetting = false;
     this.hitsChangedEmitter.emit();
   }
-}
-
-function getSlitWidthForSourceType( sourceType: SourceType ): number {
-
-  // Values in mm (converted to meters via * 1e-3 in syncSolverParameters).
-  // Must be smaller than the minimum slit separation for each scene.
-  // The analytical solver overrides these with display-scale values via getDisplaySlitParameters;
-  // these physical values are used only by the lattice solver.
-  return sourceType === 'photons' ? 0.0001 :
-         sourceType === 'electrons' ? 0.00003 :
-         sourceType === 'neutrons' ? 0.00002 :
-         sourceType === 'heliumAtoms' ? 0.000008 :
-         ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
 }
 
