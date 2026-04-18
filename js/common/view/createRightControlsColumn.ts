@@ -129,8 +129,9 @@ const createRightControlsColumn = (
   } );
 
   const screenButtonsRow = new HBox( {
-    spacing: 8,
     align: 'bottom',
+    justify: 'spaceEvenly',
+    layoutOptions: { stretch: true },
     children: [ eraseButton, snapshotButtonWithDots, viewSnapshotsButton ]
   } );
 
@@ -144,6 +145,7 @@ const createRightControlsColumn = (
 
   const screenControlsPanel = new Panel( new VBox( {
     spacing: 12,
+    stretch: true,
     align: 'left',
     children: screenControlsChildren
   } ), {
