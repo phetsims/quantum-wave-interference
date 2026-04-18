@@ -117,7 +117,6 @@ export default class SingleParticlesScreenView extends ScreenView {
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
     emitterNode.right = waveRegionLeft + 2;
     emitterNode.centerY = waveRegionTop + waveRegionHeight / 2;
-    this.addChild( emitterNode );
 
     const { waveVisualizationNode, doubleSlitNode } = createWaveRegionNodes( model, {
       waveRegionLeft: waveRegionLeft,
@@ -132,6 +131,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.waveVisualizationNode = waveVisualizationNode;
     this.addChild( this.waveVisualizationNode );
     this.addChild( doubleSlitNode );
+    this.addChild( emitterNode );
 
     const slitConfigItems: ComboBoxItem<SingleParticlesSlitConfiguration>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
