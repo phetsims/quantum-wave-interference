@@ -257,7 +257,7 @@
         "value": "A double-slit experiment features a source emitting particles toward a barrier with two narrow slits. Particles that pass through the slits land on a detector screen, building up a pattern. You can adjust the source and slits, observe the resulting pattern, and save snapshots of the detector screen."
       },
       "controlArea": {
-        "value": "A ruler and stopwatch can be shown or hidden. There are controls to play, pause, or adjust experiment speed. Reset sim to start over."
+        "value": "A ruler and stopwatch can be shown or hidden. In hits mode, there are controls to play, pause, or adjust experiment speed. Reset sim to start over."
       },
       "maxHitsReachedHint": {
         "value": "Clear the detector screen to collect more hits."
