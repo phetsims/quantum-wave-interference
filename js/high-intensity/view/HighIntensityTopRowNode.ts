@@ -136,12 +136,15 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     miniSymbol.centerX = ( waveRegionLeft + waveRegionRight ) / 2;
     miniSymbol.centerY = topRowCenterY;
 
-    // Callout lines: connect the top corners of the mini symbol to the top corners of the
-    // main wave region, creating a zoom-in viewing frustum similar to MOTHA's TinyBox.
+    // Callout lines from the top corners of the mini wave area (not the detector) to the
+    // main wave region corners.
+    const squareLeft = miniSymbol.x + miniSquare.left;
+    const squareRight = miniSymbol.x + miniSquare.right;
+    const squareTop = miniSymbol.y + miniSquare.top;
     const calloutLines = new Path( new Shape()
-      .moveTo( miniSymbol.left, miniSymbol.top )
+      .moveTo( squareLeft, squareTop )
       .lineTo( waveRegionLeft, waveRegionTop )
-      .moveTo( miniSymbol.right, miniSymbol.top )
+      .moveTo( squareRight, squareTop )
       .lineTo( waveRegionRight, waveRegionTop ), {
       stroke: QuantumWaveInterferenceColors.zoomCalloutStrokeProperty,
       lineWidth: CALLOUT_LINE_WIDTH
