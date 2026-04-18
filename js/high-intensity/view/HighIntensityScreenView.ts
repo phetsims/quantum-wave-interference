@@ -209,7 +209,7 @@ export default class HighIntensityScreenView extends ScreenView {
     const timePlotCheckbox = createToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ), ToolIcons.createTimePlotIcon() );
     const positionPlotCheckbox = createToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ), ToolIcons.createPositionPlotIcon() );
 
-    const { rightControlsVBox } = createRightControlsColumn( model, this, tandem, {
+    const { rightControlsVBox, timeAndResetRow } = createRightControlsColumn( model, this, tandem, {
       additionalScreenControlChildren: [ detectionModeRadioButtonGroup ],
       toolCheckboxes: [
         intensityGraphCheckbox,
@@ -231,6 +231,10 @@ export default class HighIntensityScreenView extends ScreenView {
     rightControlsVBox.right = this.layoutBounds.maxX - X_MARGIN;
     rightControlsVBox.top = Y_MARGIN;
     this.addChild( rightControlsVBox );
+
+    timeAndResetRow.right = this.layoutBounds.maxX - X_MARGIN;
+    timeAndResetRow.bottom = this.layoutBounds.maxY - Y_MARGIN;
+    this.addChild( timeAndResetRow );
 
     const toolNodes = createMeasurementToolNodes( model, this, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
     this.timePlotNode = toolNodes.timePlotNode;

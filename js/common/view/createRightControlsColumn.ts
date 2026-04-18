@@ -79,6 +79,7 @@ type CreateRightControlsColumnOptions = {
 
 type RightControlsColumnResult = {
   rightControlsVBox: VBox;
+  timeAndResetRow: HBox;
 };
 
 const createRightControlsColumn = (
@@ -211,17 +212,16 @@ const createRightControlsColumn = (
   // --- Assemble column ---
 
   const rightControlsVBox = new VBox( {
-    spacing: 12,
+    spacing: 16,
     align: 'center',
     children: [
       screenControlsPanel,
       toolsPanel,
-      waveDisplaySection,
-      bottomRow
+      waveDisplaySection
     ]
   } );
 
-  return { rightControlsVBox: rightControlsVBox };
+  return { rightControlsVBox: rightControlsVBox, timeAndResetRow: bottomRow };
 };
 
 export default createRightControlsColumn;

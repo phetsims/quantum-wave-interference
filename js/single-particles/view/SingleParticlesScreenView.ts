@@ -184,7 +184,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       detectorCheckbox.enabled = isAvailable;
     } );
 
-    const { rightControlsVBox } = createRightControlsColumn( model, this, tandem, {
+    const { rightControlsVBox, timeAndResetRow } = createRightControlsColumn( model, this, tandem, {
       additionalScreenControlChildren: [],
       toolCheckboxes: [
         hitsGraphCheckbox,
@@ -215,6 +215,10 @@ export default class SingleParticlesScreenView extends ScreenView {
     rightControlsVBox.right = this.layoutBounds.maxX - X_MARGIN;
     rightControlsVBox.top = Y_MARGIN;
     this.addChild( rightControlsVBox );
+
+    timeAndResetRow.right = this.layoutBounds.maxX - X_MARGIN;
+    timeAndResetRow.bottom = this.layoutBounds.maxY - Y_MARGIN;
+    this.addChild( timeAndResetRow );
 
     const toolNodes = createMeasurementToolNodes( model, this, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
     this.timePlotNode = toolNodes.timePlotNode;
