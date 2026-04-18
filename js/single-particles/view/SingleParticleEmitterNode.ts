@@ -50,9 +50,6 @@ export default class SingleParticleEmitterNode extends Node {
     const baseScale = EMITTER_HEIGHT / singleParticleEmitter_svg.height;
     const imageNode = new Image( singleParticleEmitter_svg );
     imageNode.setScaleMagnitude( baseScale, baseScale );
-    imageNode.rotation = Math.PI;
-    imageNode.left = 0;
-    imageNode.top = 0;
     this.addChild( imageNode );
 
     const emitButton = new RoundStickyToggleButton( isEmittingProperty, false, true, {
