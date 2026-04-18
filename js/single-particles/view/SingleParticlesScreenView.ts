@@ -99,25 +99,25 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
 
-    // Stretch column to widest child; right-align the emitter so its nozzle reaches the wave region
-    // edge, center the scene buttons, and leave panels/checkbox/mass annotation at default left.
-    emitterNode.layoutOptions = { align: 'right' };
     sceneRadioButtonGroup.layoutOptions = { align: 'center' };
 
     const leftControlsVBox = new VBox( {
       spacing: 12,
       stretch: true,
       align: 'left',
-      children: [ sourceControlPanel, emitterNode, sceneRadioButtonGroup, particleMassAnnotation ]
+      children: [ sourceControlPanel, sceneRadioButtonGroup, particleMassAnnotation ]
     } );
     leftControlsVBox.left = X_MARGIN;
     leftControlsVBox.top = Y_MARGIN;
     this.addChild( leftControlsVBox );
 
-    // The emitter's right edge sits at the column right edge; the wave region begins immediately
-    // adjacent so the rendered nozzle visually meets the left edge of the wave visualization region.
     const waveRegionLeft = leftControlsVBox.right + 4;
     const waveRegionTop = Y_MARGIN;
+
+    const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
+    emitterNode.right = waveRegionLeft + 2;
+    emitterNode.centerY = waveRegionTop + waveRegionHeight / 2;
+    this.addChild( emitterNode );
 
     const { waveVisualizationNode, doubleSlitNode } = createWaveRegionNodes( model, {
       waveRegionLeft: waveRegionLeft,
