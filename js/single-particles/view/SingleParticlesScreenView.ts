@@ -127,7 +127,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( doubleSlitNode );
 
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
-      x: waveRegionLeft + WAVE_REGION_WIDTH,
+      x: waveRegionLeft + WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP,
       y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
     this.addChild( this.detectorScreenNode );
