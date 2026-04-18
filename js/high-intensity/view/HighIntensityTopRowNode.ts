@@ -90,7 +90,6 @@ export type HighIntensityTopRowLayout = {
   topRowCenterY: number;       // vertical center of emitter + mini symbol + beam
   waveRegionLeft: number;      // x of main wave region's left edge
   waveRegionRight: number;     // x of main wave region's right edge (i.e. left + width)
-  detectorRight: number;       // x of main detector screen's right edge (target of right callout line)
   waveRegionTop: number;       // y of main wave region's top edge (target for callout lines)
 };
 
@@ -109,7 +108,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
   ) {
     super( { isDisposable: false } );
 
-    const { emitterLeft, topRowCenterY, waveRegionLeft, waveRegionRight, detectorRight, waveRegionTop } = layout;
+    const { emitterLeft, topRowCenterY, waveRegionLeft, waveRegionRight, waveRegionTop } = layout;
 
     // Mini wave-visualization symbol: a small black square + skewed detector, centered horizontally
     // above the main wave region so the callout lines form a symmetric "zoom in" frustum.
@@ -137,7 +136,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
       .moveTo( miniSymbol.left, miniSymbol.bottom )
       .lineTo( waveRegionLeft, waveRegionTop )
       .moveTo( miniSymbol.right, miniSymbol.bottom )
-      .lineTo( detectorRight, waveRegionTop ), {
+      .lineTo( waveRegionRight, waveRegionTop ), {
       stroke: QuantumWaveInterferenceColors.zoomCalloutStrokeProperty,
       lineWidth: CALLOUT_LINE_WIDTH
     } );

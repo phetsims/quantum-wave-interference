@@ -106,7 +106,7 @@ export default class WaveVisualizationNode extends Node {
       cornerRadius: CORNER_RADIUS,
       fill: 'black',
       stroke: 'white',
-      lineWidth: 1
+      lineWidth: 2
     } );
     this.addChild( backgroundRect );
 

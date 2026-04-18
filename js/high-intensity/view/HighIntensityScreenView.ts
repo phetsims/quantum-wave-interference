@@ -97,8 +97,6 @@ export default class HighIntensityScreenView extends ScreenView {
     const waveRegionLeft = leftControlsVBox.right + 20;
     const waveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
     const waveRegionRight = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
-    const detectorRight = waveRegionRight + QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
-
     const topRowNode = new HighIntensityTopRowNode(
       model.sceneProperty,
       model.scenes,
@@ -108,7 +106,6 @@ export default class HighIntensityScreenView extends ScreenView {
         topRowCenterY: TOP_ROW_CENTER_Y,
         waveRegionLeft: waveRegionLeft,
         waveRegionRight: waveRegionRight,
-        detectorRight: detectorRight,
         waveRegionTop: waveRegionTop
       },
       tandem.createTandem( 'topRowNode' )
@@ -139,7 +136,7 @@ export default class HighIntensityScreenView extends ScreenView {
 
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
       x: waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH,
-      y: waveRegionTop
+      y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
     this.addChild( this.detectorScreenNode );
 

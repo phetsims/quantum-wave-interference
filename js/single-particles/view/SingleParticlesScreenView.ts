@@ -128,7 +128,7 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
       x: waveRegionLeft + WAVE_REGION_WIDTH,
-      y: waveRegionTop
+      y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
     this.addChild( this.detectorScreenNode );
 
