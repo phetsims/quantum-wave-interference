@@ -10,6 +10,7 @@ import Screen, { ScreenOptions } from '../../../joist/js/Screen.js';
 import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js';
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
 import { createHighIntensityScreenIcon } from '../common/view/createScreenIcons.js';
+import QWIKeyboardHelpContent from '../common/view/QWIKeyboardHelpContent.js';
 import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from './model/HighIntensityModel.js';
 import HighIntensityScreenView from './view/HighIntensityScreenView.js';
@@ -25,7 +26,8 @@ export default class HighIntensityScreen extends Screen<HighIntensityModel, High
     const options = optionize<HighIntensityScreenOptions, SelfOptions, ScreenOptions>()( {
       name: QuantumWaveInterferenceFluent.screen.highIntensity.nameStringProperty,
       backgroundColorProperty: QuantumWaveInterferenceColors.screenBackgroundColorProperty,
-      homeScreenIcon: createHighIntensityScreenIcon()
+      homeScreenIcon: createHighIntensityScreenIcon(),
+      createKeyboardHelpNode: () => new QWIKeyboardHelpContent()
     }, providedOptions );
 
     super(
