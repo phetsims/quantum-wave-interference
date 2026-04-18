@@ -46,13 +46,13 @@ export default class DetectorScreenNode extends Node {
 
     super( options );
 
-    const textureRenderer = new DetectorScreenTextureRenderer( SCREEN_WIDTH + SKEW, SCREEN_HEIGHT, SKEW );
+    const textureRenderer = new DetectorScreenTextureRenderer( SCREEN_WIDTH, SCREEN_HEIGHT + SKEW, SKEW );
 
     const shape = new Shape()
-      .moveTo( SKEW, 0 )
-      .lineTo( SKEW + SCREEN_WIDTH, 0 )
+      .moveTo( 0, SKEW )
+      .lineTo( SCREEN_WIDTH, 0 )
       .lineTo( SCREEN_WIDTH, SCREEN_HEIGHT )
-      .lineTo( 0, SCREEN_HEIGHT )
+      .lineTo( 0, SCREEN_HEIGHT + SKEW )
       .close();
 
     this.addChild( new Path( shape, {
@@ -61,11 +61,11 @@ export default class DetectorScreenNode extends Node {
       lineWidth: 1
     } ) );
 
-    this.canvasNode = new DetectorScreenCanvasNode( sceneProperty, textureRenderer, SCREEN_WIDTH + SKEW, SCREEN_HEIGHT );
+    this.canvasNode = new DetectorScreenCanvasNode( sceneProperty, textureRenderer, SCREEN_WIDTH, SCREEN_HEIGHT + SKEW );
     this.canvasNode.clipArea = shape;
     this.addChild( this.canvasNode );
 
-    this.snapshotFlashRect = new Rectangle( 0, 0, SCREEN_WIDTH + SKEW, SCREEN_HEIGHT, {
+    this.snapshotFlashRect = new Rectangle( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT + SKEW, {
       fill: 'white',
       opacity: 0,
       visible: false,

@@ -104,7 +104,9 @@ export default class WaveVisualizationNode extends Node {
 
     const backgroundRect = new Rectangle( 0, 0, width, height, {
       cornerRadius: CORNER_RADIUS,
-      fill: 'black'
+      fill: 'black',
+      stroke: 'white',
+      lineWidth: 1
     } );
     this.addChild( backgroundRect );
 
