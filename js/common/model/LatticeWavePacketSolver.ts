@@ -59,6 +59,10 @@ const PACKET_X0_FRACTION = 0.15;
 // Thickness of the absorbing damping layer at the top, bottom, and right edges.
 const DAMPING_THICKNESS = 18;
 
+// Barrier thickness in cells. The reference Java sim uses 3 cells at 100x100 grid;
+// scaled proportionally to our 200x200 grid.
+const BARRIER_THICKNESS = 6;
+
 // Number of Richardson substeps executed per second of simulated time. Calibrated so that the
 // packet center traverses the grid in roughly the analytical packet solver's traversal time.
 const SUBSTEPS_PER_SECOND = 320;
@@ -352,13 +356,19 @@ export default class LatticeWavePacketSolver implements WaveSolver {
     const bottomSlitCenterY = -displaySlitSep / 2;
     const halfSlitWidth = displaySlitWidth / 2;
 
+    const halfThickness = BARRIER_THICKNESS / 2;
+    const barrierStart = Math.max( 0, barrierIx - Math.floor( halfThickness ) );
+    const barrierEnd = Math.min( gridWidth - 1, barrierIx + Math.ceil( halfThickness ) - 1 );
+
     for ( let iy = 0; iy < gridHeight; iy++ ) {
       const y = ( iy - gridHeight / 2 ) * dy;
       const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitCenterY ) < halfSlitWidth;
       const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitCenterY ) < halfSlitWidth;
 
       if ( !inTopSlit && !inBottomSlit ) {
-        barrierMask[ iy * gridWidth + barrierIx ] = 1;
+        for ( let bx = barrierStart; bx <= barrierEnd; bx++ ) {
+          barrierMask[ iy * gridWidth + bx ] = 1;
+        }
       }
     }
   }

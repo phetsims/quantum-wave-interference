@@ -37,6 +37,10 @@ const COURANT_NUMBER = 0.5;
 
 const DAMPING_THICKNESS = 20;
 
+// Barrier thickness in cells. The reference Java sim uses 3 cells at 100x100 grid;
+// scaled proportionally to our 200x200 grid.
+const BARRIER_THICKNESS = 6;
+
 // Number of visible wavelengths across the grid, matching the analytical solver's visual density
 const DISPLAY_WAVELENGTHS = 10;
 
@@ -428,13 +432,19 @@ export default class LatticeWaveSolver implements WaveSolver {
     const bottomSlitCenterY = -displaySlitSep / 2;
     const halfSlitWidth = displaySlitWidth / 2;
 
+    const halfThickness = BARRIER_THICKNESS / 2;
+    const barrierStart = Math.max( 0, barrierIx - Math.floor( halfThickness ) );
+    const barrierEnd = Math.min( gridWidth - 1, barrierIx + Math.ceil( halfThickness ) - 1 );
+
     for ( let iy = 0; iy < gridHeight; iy++ ) {
       const y = ( iy - gridHeight / 2 ) * dy;
       const inTopSlit = openTop && Math.abs( y - topSlitCenterY ) < halfSlitWidth;
       const inBottomSlit = openBottom && Math.abs( y - bottomSlitCenterY ) < halfSlitWidth;
 
       if ( !inTopSlit && !inBottomSlit ) {
-        mask[ iy * gridWidth + barrierIx ] = 1;
+        for ( let bx = barrierStart; bx <= barrierEnd; bx++ ) {
+          mask[ iy * gridWidth + bx ] = 1;
+        }
       }
     }
   }
