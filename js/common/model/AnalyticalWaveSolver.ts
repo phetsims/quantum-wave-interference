@@ -187,9 +187,11 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx, dy,
         viewSlitSep, viewSlitWidth
       );
+      this.computeDetectorDistribution( displayLambda, displaySpeed, viewSlitSep );
+      return;
     }
 
-    this.computeDetectorDistribution( displayLambda, displaySpeed );
+    this.computeDetectorDistribution( displayLambda, displaySpeed, 0 );
   }
 
   private computePlaneWaveField( k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number ): void {
@@ -370,7 +372,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
    * Computes the detector-screen probability distribution using the Fraunhofer formula
    * with display-scale parameters, with time-gated illumination based on wavefront propagation.
    */
-  private computeDetectorDistribution( displayLambda: number, displaySpeed: number ): void {
+  private computeDetectorDistribution( displayLambda: number, displaySpeed: number, viewSlitSep: number ): void {
     const { gridHeight, detectorDistribution } = this;
 
     const displayWavefrontX = displaySpeed * this.time;
@@ -394,18 +396,31 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const trailingPastBarrier = trailingEdgeX > barrierX ? trailingEdgeX - barrierX : 0;
     const dy = this.regionHeight / gridHeight;
 
+    const topSlitY = viewSlitSep / 2;
+    const bottomSlitY = -viewSlitSep / 2;
+
     let maxProb = 0;
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
       const posOnScreen = ( iy - gridHeight / 2 + 0.5 ) * dy;
 
-      // Check if the spherical wavefront from the nearest open slit has reached this screen position
-      const distToScreen = Math.sqrt( L * L + posOnScreen * posOnScreen );
-      if ( wavefrontPastBarrier < distToScreen || trailingPastBarrier >= distToScreen ) {
+      // Minimum distance from any open slit to this screen position
+      let minDistFromSlit = Infinity;
+      if ( this.isTopSlitOpen ) {
+        const dyTop = posOnScreen - topSlitY;
+        minDistFromSlit = Math.min( minDistFromSlit, Math.sqrt( L * L + dyTop * dyTop ) );
+      }
+      if ( this.isBottomSlitOpen ) {
+        const dyBottom = posOnScreen - bottomSlitY;
+        minDistFromSlit = Math.min( minDistFromSlit, Math.sqrt( L * L + dyBottom * dyBottom ) );
+      }
+
+      if ( wavefrontPastBarrier < minDistFromSlit || trailingPastBarrier >= minDistFromSlit ) {
         detectorDistribution[ iy ] = 0;
         continue;
       }
 
+      const distToScreen = Math.sqrt( L * L + posOnScreen * posOnScreen );
       const sinTheta = posOnScreen / distToScreen;
 
       // Single-slit diffraction envelope
