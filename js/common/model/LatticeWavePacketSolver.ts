@@ -337,6 +337,17 @@ export default class LatticeWavePacketSolver implements WaveSolver {
         psi[ idx + 1 ] = env * Math.sin( phase );
       }
     }
+
+    let totalProb = 0;
+    for ( let i = 0; i < psi.length; i += 2 ) {
+      totalProb += psi[ i ] * psi[ i ] + psi[ i + 1 ] * psi[ i + 1 ];
+    }
+    if ( totalProb > 0 ) {
+      const scale = 1 / Math.sqrt( totalProb );
+      for ( let i = 0; i < psi.length; i++ ) {
+        psi[ i ] *= scale;
+      }
+    }
   }
 
   private computeBarrierMask(): void {
