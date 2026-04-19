@@ -31,9 +31,9 @@ void main() {
 
   int sign = ((pos.x + pos.y) & 1) == 0 ? 1 : -1;
   ivec2 neighborPos = pos + sign * u_direction;
-  neighborPos = (neighborPos + size) % size;
-
-  vec2 neighbor = texelFetch(u_psi, neighborPos, 0).rg;
+  bool oob = neighborPos.x < 0 || neighborPos.y < 0 ||
+             neighborPos.x >= size.x || neighborPos.y >= size.y;
+  vec2 neighbor = oob ? vec2(0.0) : texelFetch(u_psi, neighborPos, 0).rg;
 
   fragColor = vec2(
     u_alpha.x * self.x - u_alpha.y * self.y + u_beta.x * neighbor.x - u_beta.y * neighbor.y,
@@ -69,6 +69,29 @@ void main() {
   fragColor = texelFetch(u_psi, pos, 0).rg * d;
 }`;
 
+// Combined source-copy + damping pass for the "actual" wavefunction. Cells in the pre-barrier
+// (gun-side) region are overwritten with the clean source-wave values, suppressing back-reflections
+// from the barrier. All cells are multiplied by the damping coefficient to absorb outgoing waves
+// at the boundary.
+export const CLEANUP_FRAG = `#version 300 es
+precision highp float;
+
+uniform highp sampler2D u_actual;
+uniform highp sampler2D u_source;
+uniform highp sampler2D u_damping;
+uniform int u_barrierIx;
+
+out vec2 fragColor;
+
+void main() {
+  ivec2 pos = ivec2(gl_FragCoord.xy);
+  vec2 actual = texelFetch(u_actual, pos, 0).rg;
+  vec2 source = texelFetch(u_source, pos, 0).rg;
+  float d = texelFetch(u_damping, pos, 0).r;
+  vec2 chosen = pos.x < u_barrierIx ? source : actual;
+  fragColor = chosen * d;
+}`;
+
 export const DISPLAY_FRAG = `#version 300 es
 precision highp float;
 
@@ -77,11 +100,12 @@ uniform int u_displayMode;
 uniform vec3 u_baseColor;
 uniform vec3 u_negColor;
 uniform float u_amplitudeScale;
+uniform ivec2 u_sampleOffset;
 
 out vec4 fragColor;
 
 void main() {
-  ivec2 pos = ivec2(gl_FragCoord.xy);
+  ivec2 pos = ivec2(gl_FragCoord.xy) + u_sampleOffset;
   vec2 psi = texelFetch(u_psi, pos, 0).rg * u_amplitudeScale;
 
   float value;

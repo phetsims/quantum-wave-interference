@@ -3,12 +3,19 @@
 /**
  * GPUWavePacketSolver evolves a Gaussian wave packet on a 2D lattice using the Modified
  * Richardson scheme, accelerated with WebGL2 fragment shaders. Implements the WaveSolver
- * interface as a drop-in replacement for LatticeWavePacketSolver with higher resolution
- * (512x512 vs 200x200) and GPU-accelerated display rendering.
+ * interface as a drop-in replacement for LatticeWavePacketSolver with a configurable visible
+ * resolution (default 256x256) and GPU-accelerated display rendering.
  *
- * Each timestep runs multiple Richardson substeps on the GPU using ping-pong textures.
- * The wavefunction lives entirely on the GPU; CPU readback occurs only for the detector
- * column (per frame) and full field readback (for measurement projection, rare).
+ * Key techniques ported from the legacy Java QWI simulation:
+ *
+ * - Two-wave absorptive barrier: a second "source" wavefunction evolves without the barrier,
+ *   and after each substep the pre-barrier (gun-side) region of the actual wavefunction is
+ *   overwritten with the source values, suppressing back-reflections from the slit barrier.
+ *
+ * - Offscreen damping layer: the simulation grid is extended by a DAMPING_MARGIN on all four
+ *   sides beyond the visible region, so the boundary-absorbing layer is never rendered.
+ *
+ * - Per-frame (not per-substep) detector column readback, to avoid GPU-CPU sync stalls.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -17,6 +24,7 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import { type ObstacleType } from './ObstacleType.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters } from './WaveSolver.js';
@@ -24,24 +32,32 @@ import { type SourceType } from './SourceType.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 import GPUContext from './gpu/GPUContext.js';
 import { BARRIER_FRAG } from './gpu/RichardsonShaders.js';
+import { CLEANUP_FRAG } from './gpu/RichardsonShaders.js';
 import { DAMPING_FRAG } from './gpu/RichardsonShaders.js';
 import { DISPLAY_FRAG } from './gpu/RichardsonShaders.js';
 import { FULLSCREEN_VERT } from './gpu/RichardsonShaders.js';
 import { RICHARDSON_STEP_FRAG } from './gpu/RichardsonShaders.js';
 
-const GPU_GRID_SIZE = 512;
-const GPU_EPSILON = 1.0;
+// Richardson epsilon — matches CPU LatticeWavePacketSolver's value. Larger values propagate
+// faster per substep but amplify the Modified-Richardson dispersion error.
+const GPU_EPSILON = 0.5;
+
+// Visible wavelengths across the visible region, matching LatticeWavePacketSolver / analytical.
 const DISPLAY_WAVELENGTHS = 30;
+
+// Initial Gaussian packet parameters as fractions of the visible region.
 const PACKET_SIGMA_X_FRACTION = 0.1;
 const PACKET_SIGMA_Y_FRACTION = 0.18;
-const PACKET_X0_FRACTION = 0.15;
+const PACKET_X0_FRACTION = 0.25;
 
-// Substeps per second calibrated so the packet traversal time matches the analytical solver (~1.5s).
-// Derived from: SUBSTEPS = gridWidth^2 / (CPU_SUBSTEPS * CPU_gridWidth^2 / CPU_SUBSTEPS) scaled by epsilon ratio.
-const SUBSTEPS_PER_SECOND = 930;
+// Target wall-clock traversal time across the visible region, matching the analytical solver.
+const TRAVERSAL_TIME_SECONDS = 1.5;
 
-const BARRIER_THICKNESS = roundSymmetric( 6 * GPU_GRID_SIZE / 200 );
-const DAMPING_THICKNESS = roundSymmetric( 18 * GPU_GRID_SIZE / 200 );
+// Fraction of visible size used as the offscreen damping margin on each side (matches Java's
+// 10-cell damping at 100x100 = 10% margin).
+const DAMPING_MARGIN_FRACTION = 0.1;
+
+const NEGATIVE_PHOTON_SCALE = 0.3;
 
 // View-matching constants from DoubleSlitNode
 const MIN_VIEW_SEPARATION = 40;
@@ -49,30 +65,40 @@ const MAX_VIEW_SEPARATION = 220;
 const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const SLIT_VIEW_HEIGHT = 22;
 
-const NEGATIVE_PHOTON_SCALE = 0.3;
-
-const AMPLITUDE_SCALE = Math.sqrt(
-  2 * Math.PI * PACKET_SIGMA_X_FRACTION * GPU_GRID_SIZE * PACKET_SIGMA_Y_FRACTION * GPU_GRID_SIZE
-);
+const BARRIER_THICKNESS_AT_200 = 6;
 
 type UniformLocations = Record<string, WebGLUniformLocation | null>;
 
 export default class GPUWavePacketSolver implements WaveSolver {
 
-  public readonly gridWidth = GPU_GRID_SIZE;
-  public readonly gridHeight = GPU_GRID_SIZE;
+  public readonly gridWidth: number;
+  public readonly gridHeight: number;
+
+  private readonly totalSize: number;
+  private readonly dampingMargin: number;
+  private readonly barrierThickness: number;
+  private readonly substepsPerSecond: number;
+  private readonly amplitudeScale: number;
 
   private readonly gpu: GPUContext;
   public readonly canvas: HTMLCanvasElement;
 
-  // Ping-pong wavefunction textures and FBOs
-  private readonly psiTexA: WebGLTexture;
-  private readonly psiTexB: WebGLTexture;
-  private readonly fboA: WebGLFramebuffer;
-  private readonly fboB: WebGLFramebuffer;
-  private readFromA = true;
+  // Ping-pong wavefunction textures for the "actual" wave (with barrier).
+  private readonly actualTexA: WebGLTexture;
+  private readonly actualTexB: WebGLTexture;
+  private readonly actualFboA: WebGLFramebuffer;
+  private readonly actualFboB: WebGLFramebuffer;
+  private actualReadFromA = true;
 
-  // Static textures
+  // Ping-pong wavefunction textures for the "source" wave (propagates without the barrier).
+  // Used by the two-wave absorptive trick to suppress barrier back-reflections.
+  private readonly sourceTexA: WebGLTexture;
+  private readonly sourceTexB: WebGLTexture;
+  private readonly sourceFboA: WebGLFramebuffer;
+  private readonly sourceFboB: WebGLFramebuffer;
+  private sourceReadFromA = true;
+
+  // Static textures (one cell per grid point, covering the full TOTAL_SIZE grid including margin)
   private readonly barrierTex: WebGLTexture;
   private readonly dampingTex: WebGLTexture;
 
@@ -83,6 +109,8 @@ export default class GPUWavePacketSolver implements WaveSolver {
   private readonly barrierUniforms: UniformLocations;
   private readonly dampingProgram: WebGLProgram;
   private readonly dampingUniforms: UniformLocations;
+  private readonly cleanupProgram: WebGLProgram;
+  private readonly cleanupUniforms: UniformLocations;
   private readonly displayProgram: WebGLProgram;
   private readonly displayUniforms: UniformLocations;
 
@@ -105,22 +133,48 @@ export default class GPUWavePacketSolver implements WaveSolver {
   private regionWidth = 8e-6;
   private regionHeight = 8e-6;
 
+  // Current barrier x index in the extended grid (used for the cleanup shader's source-copy region)
+  private barrierIxTotal: number;
+
   // State flags
   private barrierDirty = true;
   private amplitudeFieldDirty = true;
 
-  // Detector distribution
+  // Detector distribution (sized to visible region)
   private readonly detectorDistribution: Float64Array;
   private readonly detectorAccumulator: Float64Array;
   private detectorAccumulatorCount = 0;
 
   // Readback buffers
   private readonly amplitudeFieldF64: Float64Array;
-  private readonly columnReadbackBuffer: Float32Array;
-  private readonly fullReadbackBuffer: Float32Array;
+  private readonly detectorColumnBuffer: Float32Array;
+  private readonly visibleReadbackBuffer: Float32Array;
+  private readonly fullGridScratch: Float32Array;
 
   public constructor() {
-    this.gpu = new GPUContext( GPU_GRID_SIZE, GPU_GRID_SIZE );
+    this.gridWidth = QuantumWaveInterferenceQueryParameters.gpuLatticeSize;
+    this.gridHeight = this.gridWidth;
+
+    this.dampingMargin = roundSymmetric( DAMPING_MARGIN_FRACTION * this.gridWidth );
+    this.totalSize = this.gridWidth + 2 * this.dampingMargin;
+
+    // Calibrate substeps per second so the visible traversal time matches the analytical solver.
+    // Group velocity per substep = ε * k, with k = 2π * DISPLAY_WAVELENGTHS / VISIBLE_SIZE.
+    // Time to traverse the visible region = VISIBLE_SIZE / (group velocity per substep * substepsPerSecond).
+    const k = 2 * Math.PI * DISPLAY_WAVELENGTHS / this.gridWidth;
+    this.substepsPerSecond = this.gridWidth / ( GPU_EPSILON * k * TRAVERSAL_TIME_SECONDS );
+
+    // Scale barrier thickness to match visible-cell scale of the CPU reference (6 cells at 200).
+    this.barrierThickness = Math.max( 1, roundSymmetric( BARRIER_THICKNESS_AT_200 * this.gridWidth / 200 ) );
+
+    // Amplitude scale for display — inverse of the peak of the initial normalized Gaussian.
+    // Peak |ψ|² ≈ 1/(2π σx σy), so scale = sqrt(2π σx σy) makes peak |ψ_scaled| ≈ 1.
+    const sigmaX = PACKET_SIGMA_X_FRACTION * this.gridWidth;
+    const sigmaY = PACKET_SIGMA_Y_FRACTION * this.gridWidth;
+    this.amplitudeScale = Math.sqrt( 2 * Math.PI * sigmaX * sigmaY );
+
+    // The WebGL canvas renders the visible region only; the extended grid lives in the textures.
+    this.gpu = new GPUContext( this.gridWidth, this.gridWidth );
     this.canvas = this.gpu.canvas;
     const { gl } = this.gpu;
 
@@ -128,6 +182,7 @@ export default class GPUWavePacketSolver implements WaveSolver {
     this.richardsonProgram = this.gpu.compileProgram( FULLSCREEN_VERT, RICHARDSON_STEP_FRAG );
     this.barrierProgram = this.gpu.compileProgram( FULLSCREEN_VERT, BARRIER_FRAG );
     this.dampingProgram = this.gpu.compileProgram( FULLSCREEN_VERT, DAMPING_FRAG );
+    this.cleanupProgram = this.gpu.compileProgram( FULLSCREEN_VERT, CLEANUP_FRAG );
     this.displayProgram = this.gpu.compileProgram( FULLSCREEN_VERT, DISPLAY_FRAG );
 
     // Cache uniform locations
@@ -135,8 +190,10 @@ export default class GPUWavePacketSolver implements WaveSolver {
       [ 'u_psi', 'u_direction', 'u_alpha', 'u_beta' ] );
     this.barrierUniforms = this.getUniforms( this.barrierProgram, [ 'u_psi', 'u_barrier' ] );
     this.dampingUniforms = this.getUniforms( this.dampingProgram, [ 'u_psi', 'u_damping' ] );
+    this.cleanupUniforms = this.getUniforms( this.cleanupProgram,
+      [ 'u_actual', 'u_source', 'u_damping', 'u_barrierIx' ] );
     this.displayUniforms = this.getUniforms( this.displayProgram,
-      [ 'u_psi', 'u_displayMode', 'u_baseColor', 'u_negColor', 'u_amplitudeScale' ] );
+      [ 'u_psi', 'u_displayMode', 'u_baseColor', 'u_negColor', 'u_amplitudeScale', 'u_sampleOffset' ] );
 
     // Set static sampler unit bindings
     gl.useProgram( this.richardsonProgram );
@@ -147,20 +204,29 @@ export default class GPUWavePacketSolver implements WaveSolver {
     gl.useProgram( this.dampingProgram );
     gl.uniform1i( this.dampingUniforms.u_psi, 0 );
     gl.uniform1i( this.dampingUniforms.u_damping, 1 );
+    gl.useProgram( this.cleanupProgram );
+    gl.uniform1i( this.cleanupUniforms.u_actual, 0 );
+    gl.uniform1i( this.cleanupUniforms.u_source, 1 );
+    gl.uniform1i( this.cleanupUniforms.u_damping, 2 );
     gl.useProgram( this.displayProgram );
     gl.uniform1i( this.displayUniforms.u_psi, 0 );
 
-    // Create psi textures and FBOs
-    this.psiTexA = this.gpu.createRG32FTexture( GPU_GRID_SIZE, GPU_GRID_SIZE );
-    this.psiTexB = this.gpu.createRG32FTexture( GPU_GRID_SIZE, GPU_GRID_SIZE );
-    this.fboA = this.gpu.createFBO( this.psiTexA );
-    this.fboB = this.gpu.createFBO( this.psiTexB );
+    // Create actual + source ping-pong textures and FBOs at TOTAL_SIZE.
+    this.actualTexA = this.gpu.createRG32FTexture( this.totalSize, this.totalSize );
+    this.actualTexB = this.gpu.createRG32FTexture( this.totalSize, this.totalSize );
+    this.actualFboA = this.gpu.createFBO( this.actualTexA );
+    this.actualFboB = this.gpu.createFBO( this.actualTexB );
 
-    // Create barrier and damping textures
-    this.barrierTex = this.gpu.createR8Texture( GPU_GRID_SIZE, GPU_GRID_SIZE );
-    this.dampingTex = this.gpu.createR32FTexture( GPU_GRID_SIZE, GPU_GRID_SIZE );
+    this.sourceTexA = this.gpu.createRG32FTexture( this.totalSize, this.totalSize );
+    this.sourceTexB = this.gpu.createRG32FTexture( this.totalSize, this.totalSize );
+    this.sourceFboA = this.gpu.createFBO( this.sourceTexA );
+    this.sourceFboB = this.gpu.createFBO( this.sourceTexB );
 
-    // Richardson constants
+    // Create barrier and damping textures at TOTAL_SIZE.
+    this.barrierTex = this.gpu.createR8Texture( this.totalSize, this.totalSize );
+    this.dampingTex = this.gpu.createR32FTexture( this.totalSize, this.totalSize );
+
+    // Modified Richardson constants
     this.alphaRe = 0.5 + 0.5 * Math.cos( GPU_EPSILON / 2 );
     this.alphaIm = -0.5 * Math.sin( GPU_EPSILON / 2 );
     const sinEps4 = Math.sin( GPU_EPSILON / 4 );
@@ -168,12 +234,15 @@ export default class GPUWavePacketSolver implements WaveSolver {
     this.betaIm = 0.5 * Math.sin( GPU_EPSILON / 2 );
 
     // Allocate readback buffers
-    const totalCells = GPU_GRID_SIZE * GPU_GRID_SIZE;
-    this.detectorDistribution = new Float64Array( GPU_GRID_SIZE );
-    this.detectorAccumulator = new Float64Array( GPU_GRID_SIZE );
-    this.amplitudeFieldF64 = new Float64Array( totalCells * 2 );
-    this.columnReadbackBuffer = new Float32Array( GPU_GRID_SIZE * 2 );
-    this.fullReadbackBuffer = new Float32Array( totalCells * 2 );
+    const visibleCells = this.gridWidth * this.gridWidth;
+    this.detectorDistribution = new Float64Array( this.gridWidth );
+    this.detectorAccumulator = new Float64Array( this.gridWidth );
+    this.amplitudeFieldF64 = new Float64Array( visibleCells * 2 );
+    this.detectorColumnBuffer = new Float32Array( this.gridWidth * 2 );
+    this.visibleReadbackBuffer = new Float32Array( visibleCells * 2 );
+    this.fullGridScratch = new Float32Array( this.totalSize * this.totalSize * 2 );
+
+    this.barrierIxTotal = this.dampingMargin + roundSymmetric( 0.5 * this.gridWidth );
 
     this.computeDampingTexture();
     this.initializePacket();
@@ -209,34 +278,59 @@ export default class GPUWavePacketSolver implements WaveSolver {
       this.barrierDirty = false;
     }
 
-    const numSubsteps = Math.max( 1, roundSymmetric( dt * SUBSTEPS_PER_SECOND ) );
-    const detectorIx = this.gridWidth - 1 - DAMPING_THICKNESS;
+    const numSubsteps = Math.max( 1, roundSymmetric( dt * this.substepsPerSecond ) );
 
     for ( let s = 0; s < numSubsteps; s++ ) {
       this.propagateOneStep();
-      this.accumulateDetectorIntensity( detectorIx );
     }
+
+    // One detector readback per frame (not per substep) — avoids GPU-CPU sync stalls.
+    this.accumulateDetectorIntensity( numSubsteps );
 
     this.amplitudeFieldDirty = true;
   }
 
+  /**
+   * Full two-wave Richardson substep:
+   *   - 8 Richardson sweeps + 1 damping pass on the source wave (no barrier).
+   *   - 8 Richardson sweeps with a barrier pass in the middle + 1 cleanup pass on the actual wave.
+   * The cleanup pass overwrites the gun-side region of the actual wave with the clean source
+   * values (killing back-reflections from the barrier) and applies damping in the same shader.
+   *
+   * Ping-pong accounting:
+   *   - Source: 8 Richardson (8 flips) + 1 damping (1 flip) = 9 flips per substep.
+   *   - Actual: 4 Richardson + 1 barrier + 4 Richardson (9 flips) + 1 cleanup (1 flip) = 10 flips per substep.
+   * The per-substep source-side flip is tracked by `sourceReadFromA` and toggles every call.
+   */
   private propagateOneStep(): void {
-    this.richardsonPass( 0, -1 );
-    this.richardsonPass( 0, 1 );
-    this.richardsonPass( 1, 0 );
-    this.richardsonPass( -1, 0 );
-    this.barrierPass();
-    this.richardsonPass( -1, 0 );
-    this.richardsonPass( 1, 0 );
-    this.richardsonPass( 0, -1 );
-    this.richardsonPass( 0, 1 );
-    this.dampingPass();
+    // Source wave: no barrier, just Richardson sweeps + damping.
+    this.sourceRichardsonPass( 0, -1 );
+    this.sourceRichardsonPass( 0, 1 );
+    this.sourceRichardsonPass( 1, 0 );
+    this.sourceRichardsonPass( -1, 0 );
+    this.sourceRichardsonPass( -1, 0 );
+    this.sourceRichardsonPass( 1, 0 );
+    this.sourceRichardsonPass( 0, -1 );
+    this.sourceRichardsonPass( 0, 1 );
+    this.sourceDampingPass();
+
+    // Actual wave: symmetric split with barrier in the middle.
+    this.actualRichardsonPass( 0, -1 );
+    this.actualRichardsonPass( 0, 1 );
+    this.actualRichardsonPass( 1, 0 );
+    this.actualRichardsonPass( -1, 0 );
+    this.actualBarrierPass();
+    this.actualRichardsonPass( -1, 0 );
+    this.actualRichardsonPass( 1, 0 );
+    this.actualRichardsonPass( 0, -1 );
+    this.actualRichardsonPass( 0, 1 );
+    this.actualCleanupPass();
   }
 
-  private richardsonPass( dx: number, dy: number ): void {
+  private actualRichardsonPass( dx: number, dy: number ): void {
     const { gl } = this.gpu;
-    const inputTex = this.readFromA ? this.psiTexA : this.psiTexB;
-    const outputFBO = this.readFromA ? this.fboB : this.fboA;
+    const inputTex = this.actualReadFromA ? this.actualTexA : this.actualTexB;
+    const outputFBO = this.actualReadFromA ? this.actualFboB : this.actualFboA;
 
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, inputTex );
@@ -246,56 +340,104 @@ export default class GPUWavePacketSolver implements WaveSolver {
     gl.uniform2f( this.richardsonUniforms.u_alpha, this.alphaRe, this.alphaIm );
     gl.uniform2f( this.richardsonUniforms.u_beta, this.betaRe, this.betaIm );
 
-    this.gpu.fullscreenPass( this.richardsonProgram, outputFBO, GPU_GRID_SIZE, GPU_GRID_SIZE );
-    this.readFromA = !this.readFromA;
+    this.gpu.fullscreenPass( this.richardsonProgram, outputFBO, this.totalSize, this.totalSize );
+    this.actualReadFromA = !this.actualReadFromA;
   }
 
-  private barrierPass(): void {
+  private sourceRichardsonPass( dx: number, dy: number ): void {
     const { gl } = this.gpu;
-    const inputTex = this.readFromA ? this.psiTexA : this.psiTexB;
-    const outputFBO = this.readFromA ? this.fboB : this.fboA;
+    const inputTex = this.sourceReadFromA ? this.sourceTexA : this.sourceTexB;
+    const outputFBO = this.sourceReadFromA ? this.sourceFboB : this.sourceFboA;
+
+    gl.activeTexture( gl.TEXTURE0 );
+    gl.bindTexture( gl.TEXTURE_2D, inputTex );
+
+    gl.useProgram( this.richardsonProgram );
+    gl.uniform2i( this.richardsonUniforms.u_direction, dx, dy );
+    gl.uniform2f( this.richardsonUniforms.u_alpha, this.alphaRe, this.alphaIm );
+    gl.uniform2f( this.richardsonUniforms.u_beta, this.betaRe, this.betaIm );
+
+    this.gpu.fullscreenPass( this.richardsonProgram, outputFBO, this.totalSize, this.totalSize );
+    this.sourceReadFromA = !this.sourceReadFromA;
+  }
+
+  private actualBarrierPass(): void {
+    const { gl } = this.gpu;
+    const inputTex = this.actualReadFromA ? this.actualTexA : this.actualTexB;
+    const outputFBO = this.actualReadFromA ? this.actualFboB : this.actualFboA;
 
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, inputTex );
     gl.activeTexture( gl.TEXTURE1 );
     gl.bindTexture( gl.TEXTURE_2D, this.barrierTex );
 
-    this.gpu.fullscreenPass( this.barrierProgram, outputFBO, GPU_GRID_SIZE, GPU_GRID_SIZE );
-    this.readFromA = !this.readFromA;
+    this.gpu.fullscreenPass( this.barrierProgram, outputFBO, this.totalSize, this.totalSize );
+    this.actualReadFromA = !this.actualReadFromA;
   }
 
-  private dampingPass(): void {
+  private sourceDampingPass(): void {
     const { gl } = this.gpu;
-    const inputTex = this.readFromA ? this.psiTexA : this.psiTexB;
-    const outputFBO = this.readFromA ? this.fboB : this.fboA;
+    const inputTex = this.sourceReadFromA ? this.sourceTexA : this.sourceTexB;
+    const outputFBO = this.sourceReadFromA ? this.sourceFboB : this.sourceFboA;
 
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, inputTex );
     gl.activeTexture( gl.TEXTURE1 );
     gl.bindTexture( gl.TEXTURE_2D, this.dampingTex );
 
-    this.gpu.fullscreenPass( this.dampingProgram, outputFBO, GPU_GRID_SIZE, GPU_GRID_SIZE );
-    this.readFromA = !this.readFromA;
+    this.gpu.fullscreenPass( this.dampingProgram, outputFBO, this.totalSize, this.totalSize );
+    this.sourceReadFromA = !this.sourceReadFromA;
   }
 
-  private accumulateDetectorIntensity( detectorIx: number ): void {
-    const currentFBO = this.readFromA ? this.fboA : this.fboB;
-    this.gpu.readPixelsRG( currentFBO, detectorIx, 0, 1, GPU_GRID_SIZE, this.columnReadbackBuffer );
+  private actualCleanupPass(): void {
+    const { gl } = this.gpu;
+    const actualInput = this.actualReadFromA ? this.actualTexA : this.actualTexB;
+    const actualOutputFBO = this.actualReadFromA ? this.actualFboB : this.actualFboA;
+    const sourceInput = this.sourceReadFromA ? this.sourceTexA : this.sourceTexB;
 
-    for ( let iy = 0; iy < GPU_GRID_SIZE; iy++ ) {
-      const re = this.columnReadbackBuffer[ iy * 2 ];
-      const im = this.columnReadbackBuffer[ iy * 2 + 1 ];
-      this.detectorAccumulator[ iy ] += re * re + im * im;
+    gl.activeTexture( gl.TEXTURE0 );
+    gl.bindTexture( gl.TEXTURE_2D, actualInput );
+    gl.activeTexture( gl.TEXTURE1 );
+    gl.bindTexture( gl.TEXTURE_2D, sourceInput );
+    gl.activeTexture( gl.TEXTURE2 );
+    gl.bindTexture( gl.TEXTURE_2D, this.dampingTex );
+
+    gl.useProgram( this.cleanupProgram );
+    gl.uniform1i( this.cleanupUniforms.u_barrierIx, this.barrierIxTotal );
+
+    this.gpu.fullscreenPass( this.cleanupProgram, actualOutputFBO, this.totalSize, this.totalSize );
+    this.actualReadFromA = !this.actualReadFromA;
+  }
+
+  /**
+   * Reads the detector column from the actual wavefunction once per frame. The column is sampled
+   * just inside the right edge of the visible region. Each cell contributes its |ψ|² weighted by
+   * the number of substeps that frame, so the running average approximates what a per-substep
+   * sampling would produce but without the per-substep GPU stall.
+   */
+  private accumulateDetectorIntensity( substepWeight: number ): void {
+    const currentFBO = this.actualReadFromA ? this.actualFboA : this.actualFboB;
+    const detectorIx = this.dampingMargin + this.gridWidth - 1;
+    const yStart = this.dampingMargin;
+
+    this.gpu.readPixelsRG( currentFBO, detectorIx, yStart, 1, this.gridWidth, this.detectorColumnBuffer );
+
+    for ( let iy = 0; iy < this.gridWidth; iy++ ) {
+      const re = this.detectorColumnBuffer[ iy * 2 ];
+      const im = this.detectorColumnBuffer[ iy * 2 + 1 ];
+      this.detectorAccumulator[ iy ] += ( re * re + im * im ) * substepWeight;
     }
-    this.detectorAccumulatorCount++;
+    this.detectorAccumulatorCount += substepWeight;
   }
 
   public getAmplitudeField(): Float64Array {
     if ( this.amplitudeFieldDirty ) {
-      const currentFBO = this.readFromA ? this.fboA : this.fboB;
-      this.gpu.readPixelsRG( currentFBO, 0, 0, GPU_GRID_SIZE, GPU_GRID_SIZE, this.fullReadbackBuffer );
-      for ( let i = 0; i < this.fullReadbackBuffer.length; i++ ) {
-        this.amplitudeFieldF64[ i ] = this.fullReadbackBuffer[ i ];
+      const currentFBO = this.actualReadFromA ? this.actualFboA : this.actualFboB;
+      // Read just the visible region (not the extended grid).
+      this.gpu.readPixelsRG( currentFBO, this.dampingMargin, this.dampingMargin,
+        this.gridWidth, this.gridWidth, this.visibleReadbackBuffer );
+      for ( let i = 0; i < this.visibleReadbackBuffer.length; i++ ) {
+        this.amplitudeFieldF64[ i ] = this.visibleReadbackBuffer[ i ];
       }
       this.amplitudeFieldDirty = false;
     }
@@ -314,14 +456,14 @@ export default class GPUWavePacketSolver implements WaveSolver {
     }
 
     let maxProb = 0;
-    for ( let iy = 0; iy < GPU_GRID_SIZE; iy++ ) {
+    for ( let iy = 0; iy < this.gridWidth; iy++ ) {
       const avg = this.detectorAccumulator[ iy ] / this.detectorAccumulatorCount;
       this.detectorDistribution[ iy ] = avg;
       maxProb = Math.max( maxProb, avg );
     }
 
     if ( maxProb > 0 ) {
-      for ( let iy = 0; iy < GPU_GRID_SIZE; iy++ ) {
+      for ( let iy = 0; iy < this.gridWidth; iy++ ) {
         this.detectorDistribution[ iy ] /= maxProb;
       }
     }
@@ -334,7 +476,8 @@ export default class GPUWavePacketSolver implements WaveSolver {
     this.amplitudeFieldF64.fill( 0 );
     this.barrierDirty = true;
     this.amplitudeFieldDirty = true;
-    this.readFromA = true;
+    this.actualReadFromA = true;
+    this.sourceReadFromA = true;
     this.initializePacket();
   }
 
@@ -346,32 +489,53 @@ export default class GPUWavePacketSolver implements WaveSolver {
     return true;
   }
 
+  /**
+   * Projects the actual and source wavefunctions onto the complement of a disk in normalized
+   * visible coordinates, then renormalizes — used when the detector tool measures position.
+   * Both wave textures are updated so the source wave stays consistent with the actual.
+   */
   public applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void {
-    const currentFBO = this.readFromA ? this.fboA : this.fboB;
-    this.gpu.readPixelsRG( currentFBO, 0, 0, GPU_GRID_SIZE, GPU_GRID_SIZE, this.fullReadbackBuffer );
+    this.applyMeasurementProjectionOnTexture(
+      this.actualReadFromA ? this.actualFboA : this.actualFboB,
+      this.actualReadFromA ? this.actualTexA : this.actualTexB,
+      centerNorm, radiusNorm
+    );
+    this.applyMeasurementProjectionOnTexture(
+      this.sourceReadFromA ? this.sourceFboA : this.sourceFboB,
+      this.sourceReadFromA ? this.sourceTexA : this.sourceTexB,
+      centerNorm, radiusNorm
+    );
+    this.amplitudeFieldDirty = true;
+  }
 
-    const cxGrid = centerNorm.x * GPU_GRID_SIZE;
-    const cyGrid = centerNorm.y * GPU_GRID_SIZE;
-    const rGrid = radiusNorm * GPU_GRID_SIZE;
+  private applyMeasurementProjectionOnTexture( fbo: WebGLFramebuffer, tex: WebGLTexture,
+                                               centerNorm: Vector2, radiusNorm: number ): void {
+    // Read the full extended grid, project, and upload back. Coordinates are normalized to the
+    // visible region, so offset into the extended grid by dampingMargin.
+    this.gpu.readPixelsRG( fbo, 0, 0, this.totalSize, this.totalSize, this.fullGridScratch );
+
+    const cxGrid = this.dampingMargin + centerNorm.x * this.gridWidth;
+    const cyGrid = this.dampingMargin + centerNorm.y * this.gridWidth;
+    const rGrid = radiusNorm * this.gridWidth;
     const rSqGrid = rGrid * rGrid;
 
     let totalBefore = 0;
     let totalOutside = 0;
 
-    for ( let iy = 0; iy < GPU_GRID_SIZE; iy++ ) {
+    for ( let iy = 0; iy < this.totalSize; iy++ ) {
       const dyCell = iy - cyGrid;
       const dyCellSq = dyCell * dyCell;
-      for ( let ix = 0; ix < GPU_GRID_SIZE; ix++ ) {
+      for ( let ix = 0; ix < this.totalSize; ix++ ) {
         const dxCell = ix - cxGrid;
-        const idx = ( iy * GPU_GRID_SIZE + ix ) * 2;
-        const re = this.fullReadbackBuffer[ idx ];
-        const im = this.fullReadbackBuffer[ idx + 1 ];
+        const idx = ( iy * this.totalSize + ix ) * 2;
+        const re = this.fullGridScratch[ idx ];
+        const im = this.fullGridScratch[ idx + 1 ];
         const prob = re * re + im * im;
         totalBefore += prob;
 
         if ( dxCell * dxCell + dyCellSq <= rSqGrid ) {
-          this.fullReadbackBuffer[ idx ] = 0;
-          this.fullReadbackBuffer[ idx + 1 ] = 0;
+          this.fullGridScratch[ idx ] = 0;
+          this.fullGridScratch[ idx + 1 ] = 0;
         }
         else {
           totalOutside += prob;
@@ -381,24 +545,21 @@ export default class GPUWavePacketSolver implements WaveSolver {
 
     if ( totalOutside > 0 ) {
       const scale = Math.sqrt( totalBefore / totalOutside );
-      for ( let i = 0; i < this.fullReadbackBuffer.length; i++ ) {
-        this.fullReadbackBuffer[ i ] *= scale;
+      for ( let i = 0; i < this.fullGridScratch.length; i++ ) {
+        this.fullGridScratch[ i ] *= scale;
       }
     }
 
-    // Upload modified wavefunction back to GPU
-    const currentTex = this.readFromA ? this.psiTexA : this.psiTexB;
-    this.gpu.uploadRG32F( currentTex, GPU_GRID_SIZE, GPU_GRID_SIZE, this.fullReadbackBuffer );
-    this.amplitudeFieldDirty = true;
+    this.gpu.uploadRG32F( tex, this.totalSize, this.totalSize, this.fullGridScratch );
   }
 
   /**
-   * Renders the wavefunction to the WebGL canvas using the display shader. Called by
-   * WaveVisualizationCanvasNode to get GPU-rendered output.
+   * Renders the wavefunction to the WebGL canvas (VISIBLE_SIZE × VISIBLE_SIZE) using the display
+   * shader, which samples psi with a margin offset so only the visible region is shown.
    */
   public renderDisplay( displayMode: WaveDisplayMode, sourceType: SourceType, wavelengthNm: number ): void {
     const { gl } = this.gpu;
-    const currentTex = this.readFromA ? this.psiTexA : this.psiTexB;
+    const currentTex = this.actualReadFromA ? this.actualTexA : this.actualTexB;
 
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, currentTex );
@@ -411,12 +572,15 @@ export default class GPUWavePacketSolver implements WaveSolver {
                       displayMode === 'electricField' ? 3 :
                       4; // timeAveragedIntensity
     gl.uniform1i( this.displayUniforms.u_displayMode, modeIndex );
-    gl.uniform1f( this.displayUniforms.u_amplitudeScale, AMPLITUDE_SCALE );
+    gl.uniform1f( this.displayUniforms.u_amplitudeScale, this.amplitudeScale );
+    gl.uniform2i( this.displayUniforms.u_sampleOffset, this.dampingMargin, this.dampingMargin );
 
-    let baseR: number; let baseG: number; let
-baseB: number;
-    let negR: number; let negG: number; let
-negB: number;
+    let baseR: number;
+    let baseG: number;
+    let baseB: number;
+    let negR: number;
+    let negG: number;
+    let negB: number;
 
     if ( sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( wavelengthNm );
@@ -439,35 +603,42 @@ negB: number;
     gl.uniform3f( this.displayUniforms.u_baseColor, baseR, baseG, baseB );
     gl.uniform3f( this.displayUniforms.u_negColor, negR, negG, negB );
 
-    this.gpu.fullscreenPass( this.displayProgram, null, GPU_GRID_SIZE, GPU_GRID_SIZE );
+    this.gpu.fullscreenPass( this.displayProgram, null, this.gridWidth, this.gridWidth );
   }
 
+  /**
+   * Initializes the Gaussian wave packet into both the actual and source wave textures on the
+   * extended grid. Packet coordinates are specified in visible-region units and offset by
+   * dampingMargin to land inside the visible window. Normalized so Σ|ψ|² = 1 over TOTAL_SIZE².
+   */
   private initializePacket(): void {
-    const data = new Float32Array( GPU_GRID_SIZE * GPU_GRID_SIZE * 2 );
+    const data = this.fullGridScratch;
+    data.fill( 0 );
 
-    const x0 = PACKET_X0_FRACTION * GPU_GRID_SIZE;
-    const y0 = 0.5 * GPU_GRID_SIZE;
-    const sigmaX = PACKET_SIGMA_X_FRACTION * GPU_GRID_SIZE;
-    const sigmaY = PACKET_SIGMA_Y_FRACTION * GPU_GRID_SIZE;
+    const x0 = this.dampingMargin + PACKET_X0_FRACTION * this.gridWidth;
+    const y0 = this.dampingMargin + 0.5 * this.gridWidth;
+    const sigmaX = PACKET_SIGMA_X_FRACTION * this.gridWidth;
+    const sigmaY = PACKET_SIGMA_Y_FRACTION * this.gridWidth;
     const invTwoSigmaXSq = 1 / ( 2 * sigmaX * sigmaX );
     const invTwoSigmaYSq = 1 / ( 2 * sigmaY * sigmaY );
-    const k = 2 * Math.PI * DISPLAY_WAVELENGTHS / GPU_GRID_SIZE;
+    const k = 2 * Math.PI * DISPLAY_WAVELENGTHS / this.gridWidth;
 
-    for ( let iy = 0; iy < GPU_GRID_SIZE; iy++ ) {
+    for ( let iy = 0; iy < this.totalSize; iy++ ) {
       const dy = iy - y0;
       const envY = Math.exp( -dy * dy * invTwoSigmaYSq );
-      for ( let ix = 0; ix < GPU_GRID_SIZE; ix++ ) {
+      if ( envY < 1e-8 ) { continue; }
+      for ( let ix = 0; ix < this.totalSize; ix++ ) {
         const dxx = ix - x0;
         const env = envY * Math.exp( -dxx * dxx * invTwoSigmaXSq );
         if ( env < 1e-8 ) { continue; }
-        const phase = k * ix;
-        const idx = ( iy * GPU_GRID_SIZE + ix ) * 2;
+        const phase = k * ( ix - this.dampingMargin );
+        const idx = ( iy * this.totalSize + ix ) * 2;
         data[ idx ] = env * Math.cos( phase );
         data[ idx + 1 ] = env * Math.sin( phase );
       }
     }
 
-    // Normalize
+    // Normalize over the whole extended grid.
     let totalProb = 0;
     for ( let i = 0; i < data.length; i += 2 ) {
       totalProb += data[ i ] * data[ i ] + data[ i + 1 ] * data[ i + 1 ];
@@ -479,75 +650,100 @@ negB: number;
       }
     }
 
-    // Upload to texture A
-    this.gpu.uploadRG32F( this.psiTexA, GPU_GRID_SIZE, GPU_GRID_SIZE, data );
+    // Upload to both actual and source texture A (the initial ping-pong "read" slot).
+    this.gpu.uploadRG32F( this.actualTexA, this.totalSize, this.totalSize, data );
+    this.gpu.uploadRG32F( this.sourceTexA, this.totalSize, this.totalSize, data );
 
-    // Clear texture B
-    const zeros = new Float32Array( GPU_GRID_SIZE * GPU_GRID_SIZE * 2 );
-    this.gpu.uploadRG32F( this.psiTexB, GPU_GRID_SIZE, GPU_GRID_SIZE, zeros );
-    this.readFromA = true;
+    // Clear texture B for both ping-pong pairs.
+    const zeros = new Float32Array( this.totalSize * this.totalSize * 2 );
+    this.gpu.uploadRG32F( this.actualTexB, this.totalSize, this.totalSize, zeros );
+    this.gpu.uploadRG32F( this.sourceTexB, this.totalSize, this.totalSize, zeros );
+
+    this.actualReadFromA = true;
+    this.sourceReadFromA = true;
   }
 
   private uploadBarrierTexture(): void {
-    const barrierData = new Uint8Array( GPU_GRID_SIZE * GPU_GRID_SIZE );
+    const barrierData = new Uint8Array( this.totalSize * this.totalSize );
+
+    // Store the current barrier x for the cleanup shader even when obstacle is 'none'.
+    const barrierIxVisible = roundSymmetric( this.barrierFractionX * this.gridWidth );
+    this.barrierIxTotal = this.dampingMargin + barrierIxVisible;
 
     if ( this.obstacleType === 'none' ) {
-      this.gpu.uploadR8( this.barrierTex, GPU_GRID_SIZE, GPU_GRID_SIZE, barrierData );
+      this.gpu.uploadR8( this.barrierTex, this.totalSize, this.totalSize, barrierData );
       return;
     }
 
-    // View-matching slit separation
+    // View-matching slit separation (matches LatticeWavePacketSolver / DoubleSlitNode).
     const sepRange = this.slitSeparationMax - this.slitSeparationMin;
     const sepFraction = sepRange > 0 ? ( this.slitSeparation - this.slitSeparationMin ) / sepRange : 0.5;
     const viewSlitSepPixels = MIN_VIEW_SEPARATION + sepFraction * ( MAX_VIEW_SEPARATION - MIN_VIEW_SEPARATION );
     const viewSlitSep = viewSlitSepPixels / WAVE_REGION_HEIGHT * this.regionHeight;
     const viewSlitWidth = SLIT_VIEW_HEIGHT / WAVE_REGION_HEIGHT * this.regionHeight;
 
-    const dy = this.regionHeight / GPU_GRID_SIZE;
+    const dy = this.regionHeight / this.gridWidth;
     const topSlitCenterY = -viewSlitSep / 2;
     const bottomSlitCenterY = viewSlitSep / 2;
     const halfSlitWidth = viewSlitWidth / 2;
 
-    const barrierIx = roundSymmetric( this.barrierFractionX * GPU_GRID_SIZE );
-    const halfThickness = BARRIER_THICKNESS / 2;
-    const barrierStart = Math.max( 0, barrierIx - Math.floor( halfThickness ) );
-    const barrierEnd = Math.min( GPU_GRID_SIZE - 1, barrierIx + Math.ceil( halfThickness ) - 1 );
+    const halfThickness = this.barrierThickness / 2;
+    const barrierStart = Math.max( 0, this.barrierIxTotal - Math.floor( halfThickness ) );
+    const barrierEnd = Math.min( this.totalSize - 1, this.barrierIxTotal + Math.ceil( halfThickness ) - 1 );
 
-    for ( let iy = 0; iy < GPU_GRID_SIZE; iy++ ) {
-      const y = ( iy - GPU_GRID_SIZE / 2 ) * dy;
+    // Iterate visible y rows and write into the extended grid, offset by dampingMargin.
+    for ( let iyVisible = 0; iyVisible < this.gridWidth; iyVisible++ ) {
+      const iyTotal = iyVisible + this.dampingMargin;
+      const y = ( iyVisible - this.gridWidth / 2 ) * dy;
       const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitCenterY ) < halfSlitWidth;
       const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitCenterY ) < halfSlitWidth;
 
       if ( !inTopSlit && !inBottomSlit ) {
         for ( let bx = barrierStart; bx <= barrierEnd; bx++ ) {
-          barrierData[ iy * GPU_GRID_SIZE + bx ] = 255;
+          barrierData[ iyTotal * this.totalSize + bx ] = 255;
         }
       }
     }
 
-    this.gpu.uploadR8( this.barrierTex, GPU_GRID_SIZE, GPU_GRID_SIZE, barrierData );
+    // Extend the barrier into the top and bottom damping margin so the wave can't sneak around it.
+    for ( let iy = 0; iy < this.dampingMargin; iy++ ) {
+      for ( let bx = barrierStart; bx <= barrierEnd; bx++ ) {
+        barrierData[ iy * this.totalSize + bx ] = 255;
+        barrierData[ ( this.totalSize - 1 - iy ) * this.totalSize + bx ] = 255;
+      }
+    }
+
+    this.gpu.uploadR8( this.barrierTex, this.totalSize, this.totalSize, barrierData );
   }
 
+  /**
+   * Damping coefficient = 1 inside the visible window, falling off quadratically to 0 at the
+   * outer edge of the extended grid. This absorbs both the forward-propagating wave leaving the
+   * right edge and any back-reflections that leak past the cleanup-shader mask.
+   */
   private computeDampingTexture(): void {
-    const data = new Float32Array( GPU_GRID_SIZE * GPU_GRID_SIZE );
-    data.fill( 1.0 );
+    const data = new Float32Array( this.totalSize * this.totalSize );
 
-    for ( let iy = 0; iy < GPU_GRID_SIZE; iy++ ) {
+    for ( let iy = 0; iy < this.totalSize; iy++ ) {
       const distFromTop = iy;
-      const distFromBottom = GPU_GRID_SIZE - 1 - iy;
-      for ( let ix = 0; ix < GPU_GRID_SIZE; ix++ ) {
-        const distFromRight = GPU_GRID_SIZE - 1 - ix;
-        const minDist = Math.min( distFromTop, distFromBottom, distFromRight );
+      const distFromBottom = this.totalSize - 1 - iy;
+      for ( let ix = 0; ix < this.totalSize; ix++ ) {
+        const distFromLeft = ix;
+        const distFromRight = this.totalSize - 1 - ix;
+        const minDist = Math.min( distFromTop, distFromBottom, distFromLeft, distFromRight );
 
-        if ( minDist < DAMPING_THICKNESS ) {
-          const fraction = minDist / DAMPING_THICKNESS;
-          data[ iy * GPU_GRID_SIZE + ix ] = fraction * fraction;
+        if ( minDist >= this.dampingMargin ) {
+          data[ iy * this.totalSize + ix ] = 1;
+        }
+        else {
+          const fraction = minDist / this.dampingMargin;
+          data[ iy * this.totalSize + ix ] = fraction * fraction;
         }
       }
     }
 
     const { gl } = this.gpu;
     gl.bindTexture( gl.TEXTURE_2D, this.dampingTex );
-    gl.texSubImage2D( gl.TEXTURE_2D, 0, 0, 0, GPU_GRID_SIZE, GPU_GRID_SIZE, gl.RED, gl.FLOAT, data );
+    gl.texSubImage2D( gl.TEXTURE_2D, 0, 0, 0, this.totalSize, this.totalSize, gl.RED, gl.FLOAT, data );
   }
 }

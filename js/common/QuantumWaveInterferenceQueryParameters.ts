@@ -20,6 +20,15 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
     defaultValue: 'analytical',
     public: true,
     isValidValue: ( value: string | null ) => value === 'analytical' || value === 'lattice' || value === 'gpu'
+  },
+
+  // Visible lattice size (always square) for the GPU Richardson solver, used when ?waveModel=gpu.
+  // The simulation grid is extended slightly beyond this so damping layers live offscreen.
+  gpuLatticeSize: {
+    type: 'number' as const,
+    defaultValue: 256,
+    public: false,
+    isValidValue: ( value: number ) => Number.isInteger( value ) && value >= 64 && value <= 1024
   }
 } );
 
