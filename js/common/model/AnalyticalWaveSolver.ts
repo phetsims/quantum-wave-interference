@@ -17,7 +17,6 @@ import { linear } from '../../../../dot/js/util/linear.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from './ObstacleType.js';
-import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters } from './WaveSolver.js';
 
@@ -187,11 +186,11 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx, dy,
         viewSlitSep, viewSlitWidth
       );
-      this.computeDetectorDistribution( displayLambda, displaySpeed, viewSlitSep );
+      this.computeDetectorDistribution( displayLambda, displaySpeed, viewSlitSep, viewSlitWidth );
       return;
     }
 
-    this.computeDetectorDistribution( displayLambda, displaySpeed, 0 );
+    this.computeDetectorDistribution( displayLambda, displaySpeed, 0, 0 );
   }
 
   private computePlaneWaveField( k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number ): void {
@@ -372,7 +371,9 @@ export default class AnalyticalWaveSolver implements WaveSolver {
    * Computes the detector-screen probability distribution using the Fraunhofer formula
    * with display-scale parameters, with time-gated illumination based on wavefront propagation.
    */
-  private computeDetectorDistribution( displayLambda: number, displaySpeed: number, viewSlitSep: number ): void {
+  private computeDetectorDistribution(
+    displayLambda: number, displaySpeed: number, viewSlitSep: number, viewSlitWidth: number
+  ): void {
     const { gridHeight, detectorDistribution } = this;
 
     const displayWavefrontX = displaySpeed * this.time;
@@ -389,7 +390,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       return;
     }
 
-    const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, displayLambda );
     const barrierX = this.barrierFractionX * this.regionWidth;
     const L = this.regionWidth - barrierX;
     const wavefrontPastBarrier = displayWavefrontX - barrierX;
@@ -423,14 +423,14 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       const distToScreen = Math.sqrt( L * L + posOnScreen * posOnScreen );
       const sinTheta = posOnScreen / distToScreen;
 
-      // Single-slit diffraction envelope
-      const singleSlitArg = Math.PI * displaySlitWidth * sinTheta / displayLambda;
+      // Single-slit diffraction envelope: sinc²(πa sinθ/λ)
+      const singleSlitArg = Math.PI * viewSlitWidth * sinTheta / displayLambda;
       const envelope = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
 
       if ( this.isTopSlitOpen && this.isBottomSlitOpen && !this.isTopSlitDecoherent && !this.isBottomSlitDecoherent ) {
 
         // Both open, coherent: cos²(πd sinθ/λ) × sinc²(πa sinθ/λ)
-        const doubleSlitArg = Math.PI * displaySlitSep * sinTheta / displayLambda;
+        const doubleSlitArg = Math.PI * viewSlitSep * sinTheta / displayLambda;
         detectorDistribution[ iy ] = Math.pow( Math.cos( doubleSlitArg ), 2 ) * envelope;
       }
       else if ( this.isTopSlitOpen && this.isBottomSlitOpen ) {
