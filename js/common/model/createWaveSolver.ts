@@ -6,10 +6,9 @@
  * createContinuousWaveSolver() is used by the High Intensity screen (plane wave propagation).
  * createWavePacketSolver() is used by the Single Particles screen (Gaussian wave packet).
  *
- * When ?waveModel=lattice, the High Intensity screen uses LatticeWaveSolver (FDTD classical
- * wave equation) and the Single Particles screen uses LatticeWavePacketSolver (Modified
- * Richardson FDTD for the Schrödinger equation). The default analytical solvers compute from
- * closed-form Fraunhofer / Gaussian-packet expressions.
+ * With ?waveModel=default (the default), High Intensity uses AnalyticalWaveSolver and
+ * Single Particles uses GPUWavePacketSolver. Explicit overrides ('analytical', 'lattice',
+ * 'gpu') force that solver on all screens where an implementation exists.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -30,7 +29,7 @@ export function createContinuousWaveSolver(): WaveSolver {
 
 export function createWavePacketSolver(): WaveSolver {
   const model = QuantumWaveInterferenceQueryParameters.waveModel;
-  return model === 'gpu' ? new GPUWavePacketSolver() :
+  return model === 'analytical' ? new AnalyticalWavePacketSolver() :
          model === 'lattice' ? new LatticeWavePacketSolver() :
-         new AnalyticalWavePacketSolver();
+         new GPUWavePacketSolver();
 }
