@@ -19,6 +19,8 @@ export type WaveSolverParameters = {
   waveSpeed?: number;
   obstacleType?: ObstacleType;
   slitSeparation?: number;
+  slitSeparationMin?: number;
+  slitSeparationMax?: number;
   slitWidth?: number;
   barrierFractionX?: number;
   isTopSlitOpen?: boolean;

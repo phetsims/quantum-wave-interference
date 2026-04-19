@@ -11,7 +11,9 @@
  */
 
 import Vector2 from '../../../../dot/js/Vector2.js';
+import { linear } from '../../../../dot/js/util/linear.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import type WaveSolver from './WaveSolver.js';
@@ -24,6 +26,7 @@ const PACKET_TRAVERSAL_TIME = 1.5;
 const SIGMA_X_FRACTION = 0.12;
 const SIGMA_Y_FRACTION = 0.35;
 const DISPLAY_WAVELENGTHS = 30;
+const N_HUYGENS_SOURCES = 28;
 
 export { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION };
 
@@ -36,6 +39,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   private waveSpeed = 3e8;
   private obstacleType: ObstacleType = 'none';
   private slitSeparation = 0.25e-3;
+  private slitSeparationMin = 0.25e-3;
+  private slitSeparationMax = 3e-3;
   private slitWidth = 0.02e-3;
   private barrierFractionX = 0.5;
   private isTopSlitOpen = true;
@@ -73,6 +78,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     if ( params.waveSpeed !== undefined ) { this.waveSpeed = params.waveSpeed; }
     if ( params.obstacleType !== undefined ) { this.obstacleType = params.obstacleType; }
     if ( params.slitSeparation !== undefined ) { this.slitSeparation = params.slitSeparation; }
+    if ( params.slitSeparationMin !== undefined ) { this.slitSeparationMin = params.slitSeparationMin; }
+    if ( params.slitSeparationMax !== undefined ) { this.slitSeparationMax = params.slitSeparationMax; }
     if ( params.slitWidth !== undefined ) { this.slitWidth = params.slitWidth; }
     if ( params.barrierFractionX !== undefined ) { this.barrierFractionX = params.barrierFractionX; }
     if ( params.isTopSlitOpen !== undefined ) { this.isTopSlitOpen = params.isTopSlitOpen; }
@@ -267,26 +274,32 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
     const barrierX = barrierIx * dx;
 
-    const lambdaDisplay = this.regionWidth / DISPLAY_WAVELENGTHS;
-    const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, lambdaDisplay );
+    // Match the view's linear mapping from physical separation to visual slit positions
+    const sepRange = this.slitSeparationMax - this.slitSeparationMin;
+    const sepFraction = sepRange > 0 ? ( this.slitSeparation - this.slitSeparationMin ) / sepRange : 0.5;
+    const viewSep = linear( 0, 1, 40, 220, sepFraction );
+    const viewSlitSep = viewSep / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * this.regionHeight;
+    const viewSlitWidth = 22 / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * this.regionHeight;
 
-    const topSlitY = displaySlitSep / 2;
-    const bottomSlitY = -displaySlitSep / 2;
+    const topSlitY = viewSlitSep / 2;
+    const bottomSlitY = -viewSlitSep / 2;
 
     const deltaBarrier = barrierX - xCenter;
     const packetAtBarrier = Math.exp( -deltaBarrier * deltaBarrier * invTwoSigmaXSq );
     const wavefrontDist = Math.max( xCenter - barrierX, 0 );
 
-    // Precompute slit-center vertical envelope factors (constant per slit)
-    const topSlitEnvY = Math.exp( -topSlitY * topSlitY / ( 2 * sigmaY * sigmaY ) );
-    const bottomSlitEnvY = Math.exp( -bottomSlitY * bottomSlitY / ( 2 * sigmaY * sigmaY ) );
+    // Huygens parameters
+    const invTwoSigmaYSq = 1 / ( 2 * sigmaY * sigmaY );
+    const sourceSpacing = viewSlitWidth / N_HUYGENS_SOURCES;
+    const L = this.regionWidth - barrierX;
+    const huygensNorm = 0.5 * Math.sqrt( L ) / N_HUYGENS_SOURCES;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = ix * dx;
 
       if ( ix < barrierIx ) {
 
-        // Before barrier: free-space Gaussian packet (hoist envX and column-skip)
+        // Before barrier: free-space Gaussian packet
         const deltaX = x - xCenter;
         const envX = Math.exp( -deltaX * deltaX * invTwoSigmaXSq );
 
@@ -319,8 +332,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         for ( let iy = 0; iy < gridHeight; iy++ ) {
           const idx = ( iy * gridWidth + ix ) * 2;
           const y = ( iy - gridHeight / 2 ) * dy;
-          const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitY ) < displaySlitWidth / 2;
-          const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < displaySlitWidth / 2;
+          const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitY ) < viewSlitWidth / 2;
+          const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < viewSlitWidth / 2;
 
           if ( ( inTopSlit || inBottomSlit ) && packetAtBarrier > 1e-6 ) {
             const envelope = packetAtBarrier * envYCache[ iy ];
@@ -335,10 +348,6 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       }
       else {
 
-        // After the barrier: diffracted wavelets from slits. The Gaussian envelope
-        // is centered on the expanding spherical wavefront (radial distance = wavefrontDist
-        // from the slit), not on the original packet center. This ensures the diffracted
-        // pulse continues to propagate with correct amplitude after passing through the slits.
         const distFromBarrier = x - barrierX;
 
         if ( wavefrontDist < distFromBarrier ) {
@@ -357,8 +366,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
             if ( this.isTopSlitOpen ) {
               this.computeSlitContribution(
-                kDisplay, omegaDisplay, lambdaDisplay, barrierX, topSlitY,
-                displaySlitWidth, x, y, topSlitEnvY, wavefrontDist, invTwoSigmaXSq
+                kDisplay, omegaDisplay, barrierX, topSlitY, sourceSpacing, huygensNorm,
+                x, y, wavefrontDist, invTwoSigmaXSq, invTwoSigmaYSq
               );
               totalRe += this.scratchRe;
               totalIm += this.scratchIm;
@@ -366,8 +375,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
             if ( this.isBottomSlitOpen ) {
               this.computeSlitContribution(
-                kDisplay, omegaDisplay, lambdaDisplay, barrierX, bottomSlitY,
-                displaySlitWidth, x, y, bottomSlitEnvY, wavefrontDist, invTwoSigmaXSq
+                kDisplay, omegaDisplay, barrierX, bottomSlitY, sourceSpacing, huygensNorm,
+                x, y, wavefrontDist, invTwoSigmaXSq, invTwoSigmaYSq
               );
               totalRe += this.scratchRe;
               totalIm += this.scratchIm;
@@ -381,35 +390,42 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     }
   }
 
+  /**
+   * Huygens summation: N point sources across the slit aperture, each with cylindrical
+   * spreading (1/sqrt(r)), radial Gaussian envelope centered on the expanding wavefront,
+   * and per-source vertical Gaussian beam profile.
+   */
   private computeSlitContribution(
-    kDisplay: number, omegaDisplay: number, lambdaDisplay: number,
-    barrierX: number, slitCenterY: number, slitWidth: number,
-    fieldX: number, fieldY: number, slitEnvY: number,
-    wavefrontDist: number, invTwoSigmaXSq: number
+    kDisplay: number, omegaDisplay: number,
+    barrierX: number, slitCenterY: number, sourceSpacing: number, huygensNorm: number,
+    fieldX: number, fieldY: number,
+    wavefrontDist: number, invTwoSigmaXSq: number, invTwoSigmaYSq: number
   ): void {
-    const dxSlit = fieldX - barrierX;
-    const dySlit = fieldY - slitCenterY;
-    const r = Math.sqrt( dxSlit * dxSlit + dySlit * dySlit );
-    const rSafe = Math.max( r, 1e-10 );
+    let sumRe = 0;
+    let sumIm = 0;
+    const dxField = fieldX - barrierX;
 
-    const sinTheta = dySlit / rSafe;
-    const alpha = Math.PI * slitWidth * sinTheta / lambdaDisplay;
-    const singleSlitEnvelope = alpha === 0 ? 1 : Math.sin( alpha ) / alpha;
+    for ( let s = 0; s < N_HUYGENS_SOURCES; s++ ) {
+      const ySource = slitCenterY + ( s - ( N_HUYGENS_SOURCES - 1 ) / 2 ) * sourceSpacing;
+      const dyField = fieldY - ySource;
+      const r = Math.sqrt( dxField * dxField + dyField * dyField );
 
-    const radialDelta = r - wavefrontDist;
-    if ( radialDelta * radialDelta * invTwoSigmaXSq > 16 ) {
-      this.scratchRe = 0;
-      this.scratchIm = 0;
-      return;
+      const radialDelta = r - wavefrontDist;
+      if ( radialDelta * radialDelta * invTwoSigmaXSq > 16 ) {
+        continue;
+      }
+
+      const rSafe = Math.max( r, 1e-6 );
+      const radialEnvelope = Math.exp( -radialDelta * radialDelta * invTwoSigmaXSq );
+      const verticalEnvelope = Math.exp( -ySource * ySource * invTwoSigmaYSq );
+      const amplitude = huygensNorm * verticalEnvelope * radialEnvelope / Math.sqrt( rSafe );
+      const phase = kDisplay * r - omegaDisplay * this.time;
+      sumRe += amplitude * Math.cos( phase );
+      sumIm += amplitude * Math.sin( phase );
     }
-    const radialEnvelope = Math.exp( -radialDelta * radialDelta * invTwoSigmaXSq );
 
-    // 0.5 per slit keeps the coherent two-slit sum ≤ 1 for rendering (no 1/√r spreading).
-    const amplitude = 0.5 * singleSlitEnvelope * slitEnvY * radialEnvelope;
-    const phase = kDisplay * r - omegaDisplay * this.time;
-
-    this.scratchRe = amplitude * Math.cos( phase );
-    this.scratchIm = amplitude * Math.sin( phase );
+    this.scratchRe = sumRe;
+    this.scratchIm = sumIm;
   }
 
   private computeDetectorDistribution(): void {

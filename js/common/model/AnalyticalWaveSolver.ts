@@ -13,7 +13,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { linear } from '../../../../dot/js/util/linear.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import type WaveSolver from './WaveSolver.js';
@@ -24,6 +26,7 @@ const DEFAULT_GRID_HEIGHT = 200;
 
 const DISPLAY_WAVELENGTHS = 15;
 const DISPLAY_TRAVERSAL_TIME = 2.0;
+const N_HUYGENS_SOURCES = 28;
 
 export default class AnalyticalWaveSolver implements WaveSolver {
 
@@ -34,6 +37,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private waveSpeed = 3e8;
   private obstacleType: ObstacleType = 'none';
   private slitSeparation = 0.25e-3;
+  private slitSeparationMin = 0.25e-3;
+  private slitSeparationMax = 3e-3;
   private slitWidth = 0.02e-3;
   private barrierFractionX = 0.5;
   private isTopSlitOpen = true;
@@ -67,6 +72,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     if ( params.waveSpeed !== undefined ) { this.waveSpeed = params.waveSpeed; }
     if ( params.obstacleType !== undefined ) { this.obstacleType = params.obstacleType; }
     if ( params.slitSeparation !== undefined ) { this.slitSeparation = params.slitSeparation; }
+    if ( params.slitSeparationMin !== undefined ) { this.slitSeparationMin = params.slitSeparationMin; }
+    if ( params.slitSeparationMax !== undefined ) { this.slitSeparationMax = params.slitSeparationMax; }
     if ( params.slitWidth !== undefined ) { this.slitWidth = params.slitWidth; }
     if ( params.barrierFractionX !== undefined ) { this.barrierFractionX = params.barrierFractionX; }
     if ( params.isTopSlitOpen !== undefined ) { this.isTopSlitOpen = params.isTopSlitOpen; }
@@ -168,10 +175,17 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       this.computePlaneWaveField( displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx );
     }
     else {
-      const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, displayLambda );
+
+      // Match the view's linear mapping from physical separation to visual slit positions
+      const sepRange = this.slitSeparationMax - this.slitSeparationMin;
+      const sepFraction = sepRange > 0 ? ( this.slitSeparation - this.slitSeparationMin ) / sepRange : 0.5;
+      const viewSep = linear( 0, 1, 40, 220, sepFraction );
+      const viewSlitSep = viewSep / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * this.regionHeight;
+      const viewSlitWidth = 22 / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * this.regionHeight;
+
       this.computeDoubleSlitField(
         displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx, dy,
-        displaySlitSep, displaySlitWidth, displayLambda
+        viewSlitSep, viewSlitWidth
       );
     }
 
@@ -207,7 +221,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
   private computeDoubleSlitField(
     k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number, dy: number,
-    displaySlitSep: number, displaySlitWidth: number, displayLambda: number
+    displaySlitSep: number, displaySlitWidth: number
   ): void {
     const { gridWidth, gridHeight, amplitudeField } = this;
     const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
@@ -215,6 +229,16 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
     const topSlitY = displaySlitSep / 2;
     const bottomSlitY = -displaySlitSep / 2;
+
+    const sphericalFrontDist = wavefrontX - barrierX;
+    const trailingPastBarrier = trailingEdgeX > barrierX ? trailingEdgeX - barrierX : 0;
+
+    // Huygens normalization: 0.5 * sqrt(L) / N so that each slit sums to ~0.5 at the far screen
+    const L = this.regionWidth - barrierX;
+    const huygensNorm = 0.5 * Math.sqrt( L ) / N_HUYGENS_SOURCES;
+
+    // Precompute source positions for each slit
+    const sourceSpacing = displaySlitWidth / N_HUYGENS_SOURCES;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = ix * dx;
@@ -254,58 +278,52 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             amplitudeField[ idx + 1 ] = 0;
           }
           else {
-            const distFromBarrier = x - barrierX;
-            const sphericalFrontDist = wavefrontX - barrierX;
+            let coherentRe = 0;
+            let coherentIm = 0;
+            let decoherentIntensity = 0;
 
-            // Trailing spherical front: how far the trailing edge has propagated past the barrier
-            const trailingPastBarrier = trailingEdgeX > barrierX ? trailingEdgeX - barrierX : 0;
-
-            if ( sphericalFrontDist < distFromBarrier || distFromBarrier < trailingPastBarrier ) {
-              amplitudeField[ idx ] = 0;
-              amplitudeField[ idx + 1 ] = 0;
-            }
-            else {
-              let coherentRe = 0;
-              let coherentIm = 0;
-              let decoherentIntensity = 0;
-
-              if ( this.isTopSlitOpen ) {
-                this.computeSlitContribution( k, omega, barrierX, topSlitY, displaySlitWidth, x, y, displayLambda );
-                if ( this.isTopSlitDecoherent ) {
-                  decoherentIntensity += this.scratchRe * this.scratchRe + this.scratchIm * this.scratchIm;
-                }
-                else {
-                  coherentRe += this.scratchRe;
-                  coherentIm += this.scratchIm;
-                }
-              }
-
-              if ( this.isBottomSlitOpen ) {
-                this.computeSlitContribution( k, omega, barrierX, bottomSlitY, displaySlitWidth, x, y, displayLambda );
-                if ( this.isBottomSlitDecoherent ) {
-                  decoherentIntensity += this.scratchRe * this.scratchRe + this.scratchIm * this.scratchIm;
-                }
-                else {
-                  coherentRe += this.scratchRe;
-                  coherentIm += this.scratchIm;
-                }
-              }
-
-              const coherentIntensity = coherentRe * coherentRe + coherentIm * coherentIm;
-              const totalIntensity = coherentIntensity + decoherentIntensity;
-
-              if ( coherentIntensity > 1e-20 ) {
-                const scale = Math.sqrt( totalIntensity / coherentIntensity );
-                amplitudeField[ idx ] = coherentRe * scale;
-                amplitudeField[ idx + 1 ] = coherentIm * scale;
+            if ( this.isTopSlitOpen ) {
+              this.computeSlitContribution(
+                k, omega, barrierX, topSlitY, sourceSpacing, huygensNorm,
+                x, y, sphericalFrontDist, trailingPastBarrier
+              );
+              if ( this.isTopSlitDecoherent ) {
+                decoherentIntensity += this.scratchRe * this.scratchRe + this.scratchIm * this.scratchIm;
               }
               else {
-                const mag = Math.sqrt( totalIntensity );
-                const r = Math.sqrt( ( x - barrierX ) * ( x - barrierX ) + y * y );
-                const phase = k * r - omega * this.time;
-                amplitudeField[ idx ] = mag * Math.cos( phase );
-                amplitudeField[ idx + 1 ] = mag * Math.sin( phase );
+                coherentRe += this.scratchRe;
+                coherentIm += this.scratchIm;
               }
+            }
+
+            if ( this.isBottomSlitOpen ) {
+              this.computeSlitContribution(
+                k, omega, barrierX, bottomSlitY, sourceSpacing, huygensNorm,
+                x, y, sphericalFrontDist, trailingPastBarrier
+              );
+              if ( this.isBottomSlitDecoherent ) {
+                decoherentIntensity += this.scratchRe * this.scratchRe + this.scratchIm * this.scratchIm;
+              }
+              else {
+                coherentRe += this.scratchRe;
+                coherentIm += this.scratchIm;
+              }
+            }
+
+            const coherentIntensity = coherentRe * coherentRe + coherentIm * coherentIm;
+            const totalIntensity = coherentIntensity + decoherentIntensity;
+
+            if ( coherentIntensity > 1e-20 ) {
+              const scale = Math.sqrt( totalIntensity / coherentIntensity );
+              amplitudeField[ idx ] = coherentRe * scale;
+              amplitudeField[ idx + 1 ] = coherentIm * scale;
+            }
+            else {
+              const mag = Math.sqrt( totalIntensity );
+              const r = Math.sqrt( ( x - barrierX ) * ( x - barrierX ) + y * y );
+              const phase = k * r - omega * this.time;
+              amplitudeField[ idx ] = mag * Math.cos( phase );
+              amplitudeField[ idx + 1 ] = mag * Math.sin( phase );
             }
           }
         }
@@ -314,28 +332,38 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   }
 
   /**
-   * Writes the complex amplitude contribution from a single slit into scratchRe/scratchIm.
+   * Huygens summation: N point sources uniformly distributed across the slit aperture.
+   * Each source emits a cylindrical wavelet e^{ikr}/sqrt(r). The sum automatically produces
+   * the sinc diffraction envelope in the far field and circular wavefronts in the near field.
    */
   private computeSlitContribution(
     k: number, omega: number,
-    barrierX: number, slitCenterY: number, slitWidth: number,
+    barrierX: number, slitCenterY: number, sourceSpacing: number, huygensNorm: number,
     fieldX: number, fieldY: number,
-    displayLambda: number
+    wavefrontDist: number, trailingDist: number
   ): void {
-    const dx = fieldX - barrierX;
-    const dy = fieldY - slitCenterY;
-    const r = Math.sqrt( dx * dx + dy * dy );
+    let sumRe = 0;
+    let sumIm = 0;
+    const dxField = fieldX - barrierX;
 
-    const sinTheta = dy / r;
-    const alpha = Math.PI * slitWidth * sinTheta / displayLambda;
-    const envelope = alpha === 0 ? 1 : Math.sin( alpha ) / alpha;
+    for ( let s = 0; s < N_HUYGENS_SOURCES; s++ ) {
+      const ySource = slitCenterY + ( s - ( N_HUYGENS_SOURCES - 1 ) / 2 ) * sourceSpacing;
+      const dyField = fieldY - ySource;
+      const r = Math.sqrt( dxField * dxField + dyField * dyField );
 
-    // 0.5 per slit keeps the coherent two-slit sum ≤ 1 for rendering (no 1/√r spreading).
-    const amplitude = 0.5 * envelope;
-    const phase = k * r - omega * this.time;
+      if ( r > wavefrontDist || r < trailingDist ) {
+        continue;
+      }
 
-    this.scratchRe = amplitude * Math.cos( phase );
-    this.scratchIm = amplitude * Math.sin( phase );
+      const rSafe = Math.max( r, 1e-6 );
+      const amplitude = huygensNorm / Math.sqrt( rSafe );
+      const phase = k * r - omega * this.time;
+      sumRe += amplitude * Math.cos( phase );
+      sumIm += amplitude * Math.sin( phase );
+    }
+
+    this.scratchRe = sumRe;
+    this.scratchIm = sumIm;
   }
 
   /**

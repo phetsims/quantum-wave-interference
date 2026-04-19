@@ -258,6 +258,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       waveSpeed: this.getEffectiveWaveSpeed(),
       obstacleType: this.obstacleTypeProperty.value,
       slitSeparation: this.slitSeparationProperty.value * 1e-3,
+      slitSeparationMin: this.slitSeparationRange.min * 1e-3,
+      slitSeparationMax: this.slitSeparationRange.max * 1e-3,
       slitWidth: this.slitWidth * 1e-3,
       barrierFractionX: this.slitPositionFractionProperty.value,
       isTopSlitOpen: this.isTopSlitOpen(),
