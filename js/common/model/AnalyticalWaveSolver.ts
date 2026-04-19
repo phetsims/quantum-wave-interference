@@ -228,8 +228,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
     const barrierX = barrierIx * dx;
 
-    const topSlitY = displaySlitSep / 2;
-    const bottomSlitY = -displaySlitSep / 2;
+    const topSlitY = -displaySlitSep / 2;
+    const bottomSlitY = displaySlitSep / 2;
 
     const sphericalFrontDist = wavefrontX - barrierX;
     const trailingPastBarrier = trailingEdgeX > barrierX ? trailingEdgeX - barrierX : 0;
@@ -410,10 +410,18 @@ bestIntensity = coherentIntensity;
     const trailingPastBarrier = trailingEdgeX > barrierX ? trailingEdgeX - barrierX : 0;
     const dy = this.regionHeight / gridHeight;
 
-    const topSlitY = viewSlitSep / 2;
-    const bottomSlitY = -viewSlitSep / 2;
+    const topSlitY = -viewSlitSep / 2;
+    const bottomSlitY = viewSlitSep / 2;
 
     let maxProb = 0;
+
+    const slitEnvelopeAt = ( posOnScreen: number, slitY: number ): number => {
+      const dySlit = posOnScreen - slitY;
+      const dist = Math.sqrt( L * L + dySlit * dySlit );
+      const sinThetaSlit = dySlit / dist;
+      const arg = Math.PI * viewSlitWidth * sinThetaSlit / displayLambda;
+      return arg === 0 ? 1 : Math.pow( Math.sin( arg ) / arg, 2 );
+    };
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
       const posOnScreen = ( iy - gridHeight / 2 + 0.5 ) * dy;
@@ -434,28 +442,27 @@ bestIntensity = coherentIntensity;
         continue;
       }
 
-      const distToScreen = Math.sqrt( L * L + posOnScreen * posOnScreen );
-      const sinTheta = posOnScreen / distToScreen;
-
-      // Single-slit diffraction envelope: sinc²(πa sinθ/λ)
-      const singleSlitArg = Math.PI * viewSlitWidth * sinTheta / displayLambda;
-      const envelope = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
-
       if ( this.isTopSlitOpen && this.isBottomSlitOpen && !this.isTopSlitDecoherent && !this.isBottomSlitDecoherent ) {
 
-        // Both open, coherent: cos²(πd sinθ/λ) × sinc²(πa sinθ/λ)
+        // Both open, coherent: sinTheta from the midpoint between slits
+        const distToScreen = Math.sqrt( L * L + posOnScreen * posOnScreen );
+        const sinTheta = posOnScreen / distToScreen;
+        const singleSlitArg = Math.PI * viewSlitWidth * sinTheta / displayLambda;
+        const envelope = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
         const doubleSlitArg = Math.PI * viewSlitSep * sinTheta / displayLambda;
         detectorDistribution[ iy ] = Math.pow( Math.cos( doubleSlitArg ), 2 ) * envelope;
       }
       else if ( this.isTopSlitOpen && this.isBottomSlitOpen ) {
 
-        // Decoherent: incoherent sum (no interference cross-term)
-        detectorDistribution[ iy ] = envelope;
+        // Decoherent: each slit's sinc² centered on its own position
+        detectorDistribution[ iy ] = 0.5 * ( slitEnvelopeAt( posOnScreen, topSlitY ) +
+                                              slitEnvelopeAt( posOnScreen, bottomSlitY ) );
       }
       else {
 
-        // Single slit open
-        detectorDistribution[ iy ] = 0.5 * envelope;
+        // Single slit: sinc² centered on the open slit
+        const openSlitY = this.isTopSlitOpen ? topSlitY : bottomSlitY;
+        detectorDistribution[ iy ] = 0.5 * slitEnvelopeAt( posOnScreen, openSlitY );
       }
 
       maxProb = Math.max( maxProb, detectorDistribution[ iy ] );

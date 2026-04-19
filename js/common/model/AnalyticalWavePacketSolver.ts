@@ -281,8 +281,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     const viewSlitSep = viewSep / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * this.regionHeight;
     const viewSlitWidth = 22 / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * this.regionHeight;
 
-    const topSlitY = viewSlitSep / 2;
-    const bottomSlitY = -viewSlitSep / 2;
+    const topSlitY = -viewSlitSep / 2;
+    const bottomSlitY = viewSlitSep / 2;
 
     const deltaBarrier = barrierX - xCenter;
     const packetAtBarrier = Math.exp( -deltaBarrier * deltaBarrier * invTwoSigmaXSq );
