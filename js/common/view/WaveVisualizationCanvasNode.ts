@@ -24,6 +24,7 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
+import GPUWavePacketSolver from '../model/GPUWavePacketSolver.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 const MATTER_BASE_R = 200;
@@ -82,6 +83,19 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
     }
 
     const solver = scene.waveSolver;
+
+    // GPU path: delegate rendering to the GPU solver's display shader
+    if ( solver instanceof GPUWavePacketSolver ) {
+      solver.renderDisplay(
+        scene.activeWaveDisplayModeProperty.value,
+        scene.sourceType,
+        scene.wavelengthProperty.value
+      );
+      context.imageSmoothingEnabled = true;
+      context.drawImage( solver.canvas, 0, 0, this.viewWidth, this.viewHeight );
+      return;
+    }
+
     const amplitudeField = solver.getAmplitudeField();
     const gridWidth = solver.gridWidth;
     const gridHeight = solver.gridHeight;

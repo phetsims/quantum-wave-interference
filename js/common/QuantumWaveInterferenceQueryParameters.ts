@@ -19,7 +19,7 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
     type: 'string' as const,
     defaultValue: 'analytical',
     public: true,
-    isValidValue: ( value: string | null ) => value === 'analytical' || value === 'lattice'
+    isValidValue: ( value: string | null ) => value === 'analytical' || value === 'lattice' || value === 'gpu'
   }
 } );
 

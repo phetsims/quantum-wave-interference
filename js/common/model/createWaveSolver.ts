@@ -17,6 +17,7 @@
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
+import GPUWavePacketSolver from './GPUWavePacketSolver.js';
 import LatticeWaveSolver from './LatticeWaveSolver.js';
 import LatticeWavePacketSolver from './LatticeWavePacketSolver.js';
 import type WaveSolver from './WaveSolver.js';
@@ -28,7 +29,8 @@ export function createContinuousWaveSolver(): WaveSolver {
 }
 
 export function createWavePacketSolver(): WaveSolver {
-  return QuantumWaveInterferenceQueryParameters.waveModel === 'lattice'
-    ? new LatticeWavePacketSolver()
-    : new AnalyticalWavePacketSolver();
+  const model = QuantumWaveInterferenceQueryParameters.waveModel;
+  return model === 'gpu' ? new GPUWavePacketSolver() :
+         model === 'lattice' ? new LatticeWavePacketSolver() :
+         new AnalyticalWavePacketSolver();
 }
