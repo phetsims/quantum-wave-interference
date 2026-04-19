@@ -279,22 +279,18 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             amplitudeField[ idx + 1 ] = 0;
           }
           else {
-            let coherentRe = 0;
-            let coherentIm = 0;
-            let decoherentIntensity = 0;
+
+            // Compute each slit's Huygens contribution separately to preserve phase
+            let topRe = 0; let topIm = 0; let bottomRe = 0; let
+bottomIm = 0;
 
             if ( this.isTopSlitOpen ) {
               this.computeSlitContribution(
                 k, omega, barrierX, topSlitY, sourceSpacing, huygensNorm,
                 x, y, sphericalFrontDist, trailingPastBarrier
               );
-              if ( this.isTopSlitDecoherent ) {
-                decoherentIntensity += this.scratchRe * this.scratchRe + this.scratchIm * this.scratchIm;
-              }
-              else {
-                coherentRe += this.scratchRe;
-                coherentIm += this.scratchIm;
-              }
+              topRe = this.scratchRe;
+              topIm = this.scratchIm;
             }
 
             if ( this.isBottomSlitOpen ) {
@@ -302,29 +298,47 @@ export default class AnalyticalWaveSolver implements WaveSolver {
                 k, omega, barrierX, bottomSlitY, sourceSpacing, huygensNorm,
                 x, y, sphericalFrontDist, trailingPastBarrier
               );
-              if ( this.isBottomSlitDecoherent ) {
-                decoherentIntensity += this.scratchRe * this.scratchRe + this.scratchIm * this.scratchIm;
-              }
-              else {
-                coherentRe += this.scratchRe;
-                coherentIm += this.scratchIm;
-              }
+              bottomRe = this.scratchRe;
+              bottomIm = this.scratchIm;
             }
 
+            // Build coherent sum from non-decoherent slits
+            let coherentRe = 0; let
+coherentIm = 0;
+            if ( this.isTopSlitOpen && !this.isTopSlitDecoherent ) { coherentRe += topRe; coherentIm += topIm; }
+            if ( this.isBottomSlitOpen && !this.isBottomSlitDecoherent ) { coherentRe += bottomRe; coherentIm += bottomIm; }
             const coherentIntensity = coherentRe * coherentRe + coherentIm * coherentIm;
+
+            // Decoherent slits add intensity without interference
+            let decoherentIntensity = 0;
+            if ( this.isTopSlitOpen && this.isTopSlitDecoherent ) { decoherentIntensity += topRe * topRe + topIm * topIm; }
+            if ( this.isBottomSlitOpen && this.isBottomSlitDecoherent ) { decoherentIntensity += bottomRe * bottomRe + bottomIm * bottomIm; }
+
             const totalIntensity = coherentIntensity + decoherentIntensity;
 
-            if ( coherentIntensity > 1e-20 ) {
-              const scale = Math.sqrt( totalIntensity / coherentIntensity );
-              amplitudeField[ idx ] = coherentRe * scale;
-              amplitudeField[ idx + 1 ] = coherentIm * scale;
+            // Pick phase from the strongest contribution at this pixel: the coherent
+            // sum or any individual decoherent slit. This shows circular wavefronts
+            // from each slit — decoherent slits just don't interfere with others.
+            let bestRe = coherentRe; let bestIm = coherentIm; let
+bestIntensity = coherentIntensity;
+
+            if ( this.isTopSlitOpen && this.isTopSlitDecoherent ) {
+              const topIntensity = topRe * topRe + topIm * topIm;
+              if ( topIntensity > bestIntensity ) { bestRe = topRe; bestIm = topIm; bestIntensity = topIntensity; }
+            }
+            if ( this.isBottomSlitOpen && this.isBottomSlitDecoherent ) {
+              const bottomIntensity = bottomRe * bottomRe + bottomIm * bottomIm;
+              if ( bottomIntensity > bestIntensity ) { bestRe = bottomRe; bestIm = bottomIm; bestIntensity = bottomIntensity; }
+            }
+
+            if ( bestIntensity > 1e-20 ) {
+              const scale = Math.sqrt( totalIntensity / bestIntensity );
+              amplitudeField[ idx ] = bestRe * scale;
+              amplitudeField[ idx + 1 ] = bestIm * scale;
             }
             else {
-              const mag = Math.sqrt( totalIntensity );
-              const r = Math.sqrt( ( x - barrierX ) * ( x - barrierX ) + y * y );
-              const phase = k * r - omega * this.time;
-              amplitudeField[ idx ] = mag * Math.cos( phase );
-              amplitudeField[ idx + 1 ] = mag * Math.sin( phase );
+              amplitudeField[ idx ] = 0;
+              amplitudeField[ idx + 1 ] = 0;
             }
           }
         }
