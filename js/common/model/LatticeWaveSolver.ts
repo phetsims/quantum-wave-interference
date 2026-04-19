@@ -76,6 +76,12 @@ export default class LatticeWaveSolver implements WaveSolver {
 
   private mainTriple: WaveTriple;
 
+  // Source wave propagated without the barrier, used to make the barrier appear absorptive.
+  // Behind the barrier (between the source and the barrier wall), the main wave is overwritten
+  // with the source wave each step, preventing reflected-wave buildup.
+  private sourceTriple: WaveTriple;
+  private readonly emptyMask: Uint8Array;
+
   // When decoherence is active, two independent lattices propagate waves from each slit in
   // isolation. Their outputs are combined incoherently (sum of intensities) to suppress fringes.
   private decoBuffers: {
@@ -103,13 +109,20 @@ export default class LatticeWaveSolver implements WaveSolver {
     this.gridHeight = gridHeight;
 
     const totalCells = gridWidth * gridHeight;
+    const size = totalCells * 2;
     this.mainTriple = {
-      current: new Float64Array( totalCells * 2 ),
-      previous: new Float64Array( totalCells * 2 ),
-      twoStepsAgo: new Float64Array( totalCells * 2 )
+      current: new Float64Array( size ),
+      previous: new Float64Array( size ),
+      twoStepsAgo: new Float64Array( size )
+    };
+    this.sourceTriple = {
+      current: new Float64Array( size ),
+      previous: new Float64Array( size ),
+      twoStepsAgo: new Float64Array( size )
     };
 
     this.barrierMask = new Uint8Array( totalCells );
+    this.emptyMask = new Uint8Array( totalCells );
     this.dampingCoefficients = new Float64Array( totalCells );
 
     this.amplitudeField = new Float64Array( totalCells * 2 );
@@ -155,19 +168,33 @@ export default class LatticeWaveSolver implements WaveSolver {
     const numSubsteps = Math.min( 50, Math.max( 1, roundSymmetric( dt * SUBSTEPS_PER_SECOND ) ) );
 
     const ix = this.gridWidth - 1 - DAMPING_THICKNESS;
+    const hasBarrier = this.obstacleType !== 'none';
 
     if ( this.decoBuffers ) {
       for ( let s = 0; s < numSubsteps; s++ ) {
         this.latticeTime++;
+        if ( hasBarrier ) {
+          this.propagateOneStep( this.sourceTriple, this.emptyMask );
+        }
         this.propagateOneStep( this.decoBuffers.tripleA, this.decoBuffers.maskA );
         this.propagateOneStep( this.decoBuffers.tripleB, this.decoBuffers.maskB );
+        if ( hasBarrier ) {
+          this.copySourceBehindBarrier( this.decoBuffers.tripleA );
+          this.copySourceBehindBarrier( this.decoBuffers.tripleB );
+        }
         this.accumulateDetectorIntensity( ix, this.decoBuffers.tripleA.previous, this.decoBuffers.tripleB.previous );
       }
     }
     else {
       for ( let s = 0; s < numSubsteps; s++ ) {
         this.latticeTime++;
+        if ( hasBarrier ) {
+          this.propagateOneStep( this.sourceTriple, this.emptyMask );
+        }
         this.propagateOneStep( this.mainTriple, this.barrierMask );
+        if ( hasBarrier ) {
+          this.copySourceBehindBarrier( this.mainTriple );
+        }
         this.accumulateDetectorIntensity( ix, this.mainTriple.previous, null );
       }
     }
@@ -224,6 +251,7 @@ export default class LatticeWaveSolver implements WaveSolver {
   public reset(): void {
     this.latticeTime = 0;
     this.clearTriple( this.mainTriple );
+    this.clearTriple( this.sourceTriple );
     if ( this.decoBuffers ) {
       this.clearTriple( this.decoBuffers.tripleA );
       this.clearTriple( this.decoBuffers.tripleB );
@@ -308,6 +336,26 @@ export default class LatticeWaveSolver implements WaveSolver {
       else {
         amplitudeField[ i ] = 0;
         amplitudeField[ i + 1 ] = 0;
+      }
+    }
+  }
+
+  private copySourceBehindBarrier( target: WaveTriple ): void {
+    const { gridWidth, gridHeight, sourceTriple } = this;
+    const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
+    const halfThickness = BARRIER_THICKNESS / 2;
+    const barrierStart = Math.max( 0, barrierIx - Math.floor( halfThickness ) );
+
+    for ( let iy = 0; iy < gridHeight; iy++ ) {
+      const rowOffset = iy * gridWidth;
+      for ( let ix = 2; ix < barrierStart; ix++ ) {
+        const idx = ( rowOffset + ix ) * 2;
+        target.previous[ idx ] = sourceTriple.previous[ idx ];
+        target.previous[ idx + 1 ] = sourceTriple.previous[ idx + 1 ];
+        target.twoStepsAgo[ idx ] = sourceTriple.twoStepsAgo[ idx ];
+        target.twoStepsAgo[ idx + 1 ] = sourceTriple.twoStepsAgo[ idx + 1 ];
+        target.current[ idx ] = sourceTriple.current[ idx ];
+        target.current[ idx + 1 ] = sourceTriple.current[ idx + 1 ];
       }
     }
   }
