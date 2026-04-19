@@ -264,6 +264,7 @@ export default class LatticeWavePacketSolver implements WaveSolver {
 
     psiCopy.set( psi );
 
+    // Interior cells: direct neighbor access (no bounds check needed).
     for ( let iy = 1; iy < gridHeight - 1; iy++ ) {
       for ( let ix = 1; ix < gridWidth - 1; ix++ ) {
         const cellIdx = iy * gridWidth + ix;
@@ -285,6 +286,40 @@ export default class LatticeWavePacketSolver implements WaveSolver {
         psi[ idx ] = aRe + bRe;
         psi[ idx + 1 ] = aIm + bIm;
       }
+    }
+
+    // Edge cells: periodic (wraparound) boundary conditions. Neighbor indices use modular
+    // arithmetic so the wave wraps around at edges, matching the reference Richardson propagator.
+    const updateEdge = ( ix: number, iy: number ): void => {
+      const cellIdx = iy * gridWidth + ix;
+      const idx = cellIdx * 2;
+
+      const selfRe = psiCopy[ idx ];
+      const selfIm = psiCopy[ idx + 1 ];
+
+      const sign = ( ix + iy ) % 2 === 0 ? 1 : -1;
+      const nx = ( ( ix + sign * dx ) % gridWidth + gridWidth ) % gridWidth;
+      const ny = ( ( iy + sign * dy ) % gridHeight + gridHeight ) % gridHeight;
+      const nIdx = ( ny * gridWidth + nx ) * 2;
+      const nRe = psiCopy[ nIdx ];
+      const nIm = psiCopy[ nIdx + 1 ];
+
+      const aRe = alphaRe * selfRe - alphaIm * selfIm;
+      const aIm = alphaRe * selfIm + alphaIm * selfRe;
+      const bRe = betaRe * nRe - betaIm * nIm;
+      const bIm = betaRe * nIm + betaIm * nRe;
+
+      psi[ idx ] = aRe + bRe;
+      psi[ idx + 1 ] = aIm + bIm;
+    };
+
+    for ( let ix = 0; ix < gridWidth; ix++ ) {
+      updateEdge( ix, 0 );
+      updateEdge( ix, gridHeight - 1 );
+    }
+    for ( let iy = 1; iy < gridHeight - 1; iy++ ) {
+      updateEdge( 0, iy );
+      updateEdge( gridWidth - 1, iy );
     }
   }
 
