@@ -29,6 +29,39 @@ const BARRIER_COLOR = '#939393';
 const WAVE_REGION_COLOR = 'black';
 const DEFAULT_WAVELENGTH_NM = 650;
 
+const createDoubleSlitBarrier = (
+  barrierX: number,
+  barrierWidth: number,
+  slitHeight: number,
+  slitSeparation: number
+): {
+  topSlitY: number;
+  bottomSlitY: number;
+  topBarrier: Rectangle;
+  centralBarrier: Rectangle;
+  bottomBarrier: Rectangle;
+} => {
+  const centerY = ICON_H / 2;
+  const topSlitY = centerY - slitSeparation / 2;
+  const bottomSlitY = centerY + slitSeparation / 2;
+
+  return {
+    topSlitY: topSlitY,
+    bottomSlitY: bottomSlitY,
+    topBarrier: new Rectangle( barrierX, 0, barrierWidth, topSlitY - slitHeight / 2, {
+      fill: BARRIER_COLOR
+    } ),
+    centralBarrier: new Rectangle( barrierX, topSlitY + slitHeight / 2, barrierWidth,
+      slitSeparation - slitHeight, {
+        fill: BARRIER_COLOR
+      } ),
+    bottomBarrier: new Rectangle( barrierX, bottomSlitY + slitHeight / 2, barrierWidth,
+      ICON_H - ( bottomSlitY + slitHeight / 2 ), {
+        fill: BARRIER_COLOR
+      } )
+  };
+};
+
 /**
  * Creates the Experiment screen icon: an overhead view of the double-slit experiment with
  * circular wavefront arcs emanating from the source point, a gray barrier with two slits,
@@ -43,21 +76,13 @@ export const createExperimentScreenIcon = (): ScreenIcon => {
   const slitHeight = 20;
   const slitSeparation = 70;
   const centerY = ICON_H / 2;
-
-  const topSlitY = centerY - slitSeparation / 2;
-  const bottomSlitY = centerY + slitSeparation / 2;
-
-  const topBarrier = new Rectangle( barrierX, 0, barrierWidth, topSlitY - slitHeight / 2, {
-    fill: BARRIER_COLOR
-  } );
-  const centralBarrier = new Rectangle( barrierX, topSlitY + slitHeight / 2, barrierWidth,
-    slitSeparation - slitHeight, {
-      fill: BARRIER_COLOR
-    } );
-  const bottomBarrier = new Rectangle( barrierX, bottomSlitY + slitHeight / 2, barrierWidth,
-    ICON_H - ( bottomSlitY + slitHeight / 2 ), {
-      fill: BARRIER_COLOR
-    } );
+  const {
+    topSlitY,
+    bottomSlitY,
+    topBarrier,
+    centralBarrier,
+    bottomBarrier
+  } = createDoubleSlitBarrier( barrierX, barrierWidth, slitHeight, slitSeparation );
 
   const waveColor = VisibleColor.wavelengthToColor( DEFAULT_WAVELENGTH_NM );
 
@@ -150,15 +175,12 @@ export const createHighIntensityScreenIcon = (): ScreenIcon => {
   const barrierWidth = 6;
   const slitHeight = 16;
   const slitSeparation = 60;
-  const centerY = ICON_H / 2;
-  const topSlitY = centerY - slitSeparation / 2;
-  const bottomSlitY = centerY + slitSeparation / 2;
-
-  const topBarrier = new Rectangle( barrierX, 0, barrierWidth, topSlitY - slitHeight / 2, { fill: BARRIER_COLOR } );
-  const centralBarrier = new Rectangle( barrierX, topSlitY + slitHeight / 2, barrierWidth,
-    slitSeparation - slitHeight, { fill: BARRIER_COLOR } );
-  const bottomBarrier = new Rectangle( barrierX, bottomSlitY + slitHeight / 2, barrierWidth,
-    ICON_H - ( bottomSlitY + slitHeight / 2 ), { fill: BARRIER_COLOR } );
+  const { topBarrier, centralBarrier, bottomBarrier } = createDoubleSlitBarrier(
+    barrierX,
+    barrierWidth,
+    slitHeight,
+    slitSeparation
+  );
 
   // Thin detector screen line on the right edge
   const screenLine = new Line( ICON_W * 0.98, 0, ICON_W * 0.98, ICON_H, {

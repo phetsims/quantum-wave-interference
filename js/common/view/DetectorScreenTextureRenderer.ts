@@ -48,7 +48,16 @@ type TextureCache = {
   lastIntensity: number;
   lastIsEmitting: boolean;
   hitSprite: HTMLCanvasElement | null;
-  hitSpriteParams: { r: number; g: number; b: number; coreAlpha: number; glowAlpha: number; glowRadius: number } | null;
+  hitSpriteParams: HitSpriteParams | null;
+};
+
+type HitSpriteParams = {
+  r: number;
+  g: number;
+  b: number;
+  coreAlpha: number;
+  glowAlpha: number;
+  glowRadius: number;
 };
 
 export default class DetectorScreenTextureRenderer {
@@ -234,20 +243,60 @@ export default class DetectorScreenTextureRenderer {
     for ( let y = 0; y < this.faceHeight; y++ ) {
       const solverY = clamp( Math.floor( ( y + 0.5 ) / this.faceHeight * solverHeight ), 0, solverHeight - 1 );
       const intensity = distribution[ solverY ];
-      const scale = intensity * displayGain;
-
-      if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
+      const fillStyle = this.getScaledRGBFillStyle( rgb, intensity * displayGain );
+      if ( !fillStyle ) {
         continue;
       }
 
-      const r = clamp( roundSymmetric( rgb.r * scale ), 0, 255 );
-      const g = clamp( roundSymmetric( rgb.g * scale ), 0, 255 );
-      const b = clamp( roundSymmetric( rgb.b * scale ), 0, 255 );
-      context.fillStyle = `rgb(${r},${g},${b})`;
+      context.fillStyle = fillStyle;
       context.fillRect( 0, y, this.textureWidth, 1 );
     }
 
     context.restore();
+  }
+
+  private getScaledRGBFillStyle( rgb: { r: number; g: number; b: number }, scale: number ): string | null {
+    if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
+      return null;
+    }
+
+    const r = clamp( roundSymmetric( rgb.r * scale ), 0, 255 );
+    const g = clamp( roundSymmetric( rgb.g * scale ), 0, 255 );
+    const b = clamp( roundSymmetric( rgb.b * scale ), 0, 255 );
+    return `rgb(${r},${g},${b})`;
+  }
+
+  private rgbToRGBA( rgb: { r: number; g: number; b: number }, alpha: number ): string {
+    return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;
+  }
+
+  private hitSpriteParamsMatch(
+    params: HitSpriteParams | null,
+    rgb: { r: number; g: number; b: number },
+    coreAlpha: number,
+    glowAlpha: number,
+    glowRadius: number
+  ): params is HitSpriteParams {
+    return !!params &&
+           params.r === rgb.r &&
+           params.g === rgb.g &&
+           params.b === rgb.b &&
+           params.coreAlpha === coreAlpha &&
+           params.glowAlpha === glowAlpha &&
+           params.glowRadius === glowRadius;
+  }
+
+  private fillCircle(
+    context: CanvasRenderingContext2D,
+    rgb: { r: number; g: number; b: number },
+    alpha: number,
+    center: number,
+    radius: number
+  ): void {
+    context.fillStyle = this.rgbToRGBA( rgb, alpha );
+    context.beginPath();
+    context.arc( center, center, radius, 0, Math.PI * 2 );
+    context.fill();
   }
 
   private getHitSprite(
@@ -258,13 +307,7 @@ export default class DetectorScreenTextureRenderer {
     glowRadius: number
   ): HTMLCanvasElement {
 
-    if ( cache.hitSprite && cache.hitSpriteParams &&
-         cache.hitSpriteParams.r === rgb.r &&
-         cache.hitSpriteParams.g === rgb.g &&
-         cache.hitSpriteParams.b === rgb.b &&
-         cache.hitSpriteParams.coreAlpha === coreAlpha &&
-         cache.hitSpriteParams.glowAlpha === glowAlpha &&
-         cache.hitSpriteParams.glowRadius === glowRadius ) {
+    if ( cache.hitSprite && this.hitSpriteParamsMatch( cache.hitSpriteParams, rgb, coreAlpha, glowAlpha, glowRadius ) ) {
       return cache.hitSprite;
     }
 
@@ -278,16 +321,10 @@ export default class DetectorScreenTextureRenderer {
     const ctx = spriteCanvas.getContext( '2d' )!;
 
     if ( glowAlpha > 0 ) {
-      ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${glowAlpha})`;
-      ctx.beginPath();
-      ctx.arc( center, center, glowRadius, 0, Math.PI * 2 );
-      ctx.fill();
+      this.fillCircle( ctx, rgb, glowAlpha, center, glowRadius );
     }
 
-    ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${coreAlpha})`;
-    ctx.beginPath();
-    ctx.arc( center, center, this.hitCoreRadius, 0, Math.PI * 2 );
-    ctx.fill();
+    this.fillCircle( ctx, rgb, coreAlpha, center, this.hitCoreRadius );
 
     cache.hitSprite = spriteCanvas;
     cache.hitSpriteParams = { r: rgb.r, g: rgb.g, b: rgb.b, coreAlpha: coreAlpha, glowAlpha: glowAlpha, glowRadius: glowRadius };

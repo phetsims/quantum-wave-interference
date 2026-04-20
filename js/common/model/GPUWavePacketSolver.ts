@@ -39,8 +39,8 @@
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
+import { getViewSlitLayout } from './getViewSlitLayout.js';
 import { type ObstacleType } from './ObstacleType.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
@@ -74,15 +74,13 @@ const DAMPING_MARGIN_FRACTION = 0.5;
 
 const NEGATIVE_PHOTON_SCALE = 0.3;
 
-// View-matching constants from DoubleSlitNode
-const MIN_VIEW_SEPARATION = 40;
-const MAX_VIEW_SEPARATION = 220;
-const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
-const SLIT_VIEW_HEIGHT = 22;
-
 const BARRIER_THICKNESS_AT_200 = 6;
 
 type UniformLocations = Record<string, WebGLUniformLocation | null>;
+type PingPongResources = {
+  inputTex: WebGLTexture;
+  outputFBO: WebGLFramebuffer;
+};
 
 export default class GPUWavePacketSolver implements WaveSolver {
 
@@ -273,18 +271,57 @@ export default class GPUWavePacketSolver implements WaveSolver {
     return result;
   }
 
+  private setIfDefined<T>( value: T | undefined, setter: ( value: T ) => void ): void {
+    if ( value !== undefined ) {
+      setter( value );
+    }
+  }
+
+  private getPingPongResources(
+    readFromA: boolean,
+    texA: WebGLTexture,
+    texB: WebGLTexture,
+    fboA: WebGLFramebuffer,
+    fboB: WebGLFramebuffer
+  ): PingPongResources {
+    return {
+      inputTex: readFromA ? texA : texB,
+      outputFBO: readFromA ? fboB : fboA
+    };
+  }
+
+  private getActualPingPongResources(): PingPongResources {
+    return this.getPingPongResources(
+      this.actualReadFromA,
+      this.actualTexA,
+      this.actualTexB,
+      this.actualFboA,
+      this.actualFboB
+    );
+  }
+
+  private getSourcePingPongResources(): PingPongResources {
+    return this.getPingPongResources(
+      this.sourceReadFromA,
+      this.sourceTexA,
+      this.sourceTexB,
+      this.sourceFboA,
+      this.sourceFboB
+    );
+  }
+
   public setParameters( params: WaveSolverParameters ): void {
-    if ( params.obstacleType !== undefined ) { this.obstacleType = params.obstacleType; }
-    if ( params.slitSeparation !== undefined ) { this.slitSeparation = params.slitSeparation; }
-    if ( params.slitSeparationMin !== undefined ) { this.slitSeparationMin = params.slitSeparationMin; }
-    if ( params.slitSeparationMax !== undefined ) { this.slitSeparationMax = params.slitSeparationMax; }
-    if ( params.slitWidth !== undefined ) { this.slitWidth = params.slitWidth; }
-    if ( params.barrierFractionX !== undefined ) { this.barrierFractionX = params.barrierFractionX; }
-    if ( params.isTopSlitOpen !== undefined ) { this.isTopSlitOpen = params.isTopSlitOpen; }
-    if ( params.isBottomSlitOpen !== undefined ) { this.isBottomSlitOpen = params.isBottomSlitOpen; }
-    if ( params.isSourceOn !== undefined ) { this.isSourceOn = params.isSourceOn; }
-    if ( params.regionWidth !== undefined ) { this.regionWidth = params.regionWidth; }
-    if ( params.regionHeight !== undefined ) { this.regionHeight = params.regionHeight; }
+    this.setIfDefined( params.obstacleType, value => { this.obstacleType = value; } );
+    this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
+    this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
+    this.setIfDefined( params.slitSeparationMax, value => { this.slitSeparationMax = value; } );
+    this.setIfDefined( params.slitWidth, value => { this.slitWidth = value; } );
+    this.setIfDefined( params.barrierFractionX, value => { this.barrierFractionX = value; } );
+    this.setIfDefined( params.isTopSlitOpen, value => { this.isTopSlitOpen = value; } );
+    this.setIfDefined( params.isBottomSlitOpen, value => { this.isBottomSlitOpen = value; } );
+    this.setIfDefined( params.isSourceOn, value => { this.isSourceOn = value; } );
+    this.setIfDefined( params.regionWidth, value => { this.regionWidth = value; } );
+    this.setIfDefined( params.regionHeight, value => { this.regionHeight = value; } );
     this.barrierDirty = true;
     this.amplitudeFieldDirty = true;
   }
@@ -346,8 +383,7 @@ export default class GPUWavePacketSolver implements WaveSolver {
 
   private actualRichardsonPass( dx: number, dy: number ): void {
     const { gl } = this.gpu;
-    const inputTex = this.actualReadFromA ? this.actualTexA : this.actualTexB;
-    const outputFBO = this.actualReadFromA ? this.actualFboB : this.actualFboA;
+    const { inputTex, outputFBO } = this.getActualPingPongResources();
 
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, inputTex );
@@ -363,8 +399,7 @@ export default class GPUWavePacketSolver implements WaveSolver {
 
   private sourceRichardsonPass( dx: number, dy: number ): void {
     const { gl } = this.gpu;
-    const inputTex = this.sourceReadFromA ? this.sourceTexA : this.sourceTexB;
-    const outputFBO = this.sourceReadFromA ? this.sourceFboB : this.sourceFboA;
+    const { inputTex, outputFBO } = this.getSourcePingPongResources();
 
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, inputTex );
@@ -380,8 +415,7 @@ export default class GPUWavePacketSolver implements WaveSolver {
 
   private actualBarrierPass(): void {
     const { gl } = this.gpu;
-    const inputTex = this.actualReadFromA ? this.actualTexA : this.actualTexB;
-    const outputFBO = this.actualReadFromA ? this.actualFboB : this.actualFboA;
+    const { inputTex, outputFBO } = this.getActualPingPongResources();
 
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, inputTex );
@@ -394,8 +428,7 @@ export default class GPUWavePacketSolver implements WaveSolver {
 
   private sourceDampingPass(): void {
     const { gl } = this.gpu;
-    const inputTex = this.sourceReadFromA ? this.sourceTexA : this.sourceTexB;
-    const outputFBO = this.sourceReadFromA ? this.sourceFboB : this.sourceFboA;
+    const { inputTex, outputFBO } = this.getSourcePingPongResources();
 
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, inputTex );
@@ -745,12 +778,9 @@ export default class GPUWavePacketSolver implements WaveSolver {
       return;
     }
 
-    // View-matching slit separation (matches LatticeWavePacketSolver / DoubleSlitNode).
-    const sepRange = this.slitSeparationMax - this.slitSeparationMin;
-    const sepFraction = sepRange > 0 ? ( this.slitSeparation - this.slitSeparationMin ) / sepRange : 0.5;
-    const viewSlitSepPixels = MIN_VIEW_SEPARATION + sepFraction * ( MAX_VIEW_SEPARATION - MIN_VIEW_SEPARATION );
-    const viewSlitSep = viewSlitSepPixels / WAVE_REGION_HEIGHT * this.regionHeight;
-    const viewSlitWidth = SLIT_VIEW_HEIGHT / WAVE_REGION_HEIGHT * this.regionHeight;
+    const { viewSlitSep, viewSlitWidth } = getViewSlitLayout(
+      this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight
+    );
 
     const dy = this.regionHeight / this.gridWidth;
     const topSlitCenterY = -viewSlitSep / 2;

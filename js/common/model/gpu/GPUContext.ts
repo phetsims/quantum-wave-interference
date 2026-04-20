@@ -34,34 +34,25 @@ export default class GPUContext {
   }
 
   public createRG32FTexture( width: number, height: number, data?: Float32Array ): WebGLTexture {
-    const { gl } = this;
-    const tex = gl.createTexture();
-    gl.bindTexture( gl.TEXTURE_2D, tex );
-    gl.texImage2D( gl.TEXTURE_2D, 0, gl.RG32F, width, height, 0, gl.RG, gl.FLOAT, data || null );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
-    return tex;
+    return this.createTexture( this.gl.RG32F, this.gl.RG, this.gl.FLOAT, width, height, data || null );
   }
 
   public createR8Texture( width: number, height: number, data?: Uint8Array ): WebGLTexture {
-    const { gl } = this;
-    const tex = gl.createTexture();
-    gl.bindTexture( gl.TEXTURE_2D, tex );
-    gl.texImage2D( gl.TEXTURE_2D, 0, gl.R8, width, height, 0, gl.RED, gl.UNSIGNED_BYTE, data || null );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
-    return tex;
+    return this.createTexture( this.gl.R8, this.gl.RED, this.gl.UNSIGNED_BYTE, width, height, data || null );
   }
 
   public createR32FTexture( width: number, height: number, data?: Float32Array ): WebGLTexture {
+    return this.createTexture( this.gl.R32F, this.gl.RED, this.gl.FLOAT, width, height, data || null );
+  }
+
+  private createTexture(
+    internalFormat: GLenum, format: GLenum, type: GLenum,
+    width: number, height: number, data: ArrayBufferView | null
+  ): WebGLTexture {
     const { gl } = this;
     const tex = gl.createTexture();
     gl.bindTexture( gl.TEXTURE_2D, tex );
-    gl.texImage2D( gl.TEXTURE_2D, 0, gl.R32F, width, height, 0, gl.RED, gl.FLOAT, data || null );
+    gl.texImage2D( gl.TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, data );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );

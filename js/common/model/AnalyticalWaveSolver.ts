@@ -13,10 +13,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { linear } from '../../../../dot/js/util/linear.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from './ObstacleType.js';
+import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
@@ -66,19 +65,25 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.detectorDistribution = new Float64Array( gridHeight );
   }
 
+  private setIfDefined<T>( value: T | undefined, setter: ( value: T ) => void ): void {
+    if ( value !== undefined ) {
+      setter( value );
+    }
+  }
+
   public setParameters( params: WaveSolverParameters ): void {
-    if ( params.wavelength !== undefined ) { this.wavelength = params.wavelength; }
-    if ( params.waveSpeed !== undefined ) { this.waveSpeed = params.waveSpeed; }
-    if ( params.obstacleType !== undefined ) { this.obstacleType = params.obstacleType; }
-    if ( params.slitSeparation !== undefined ) { this.slitSeparation = params.slitSeparation; }
-    if ( params.slitSeparationMin !== undefined ) { this.slitSeparationMin = params.slitSeparationMin; }
-    if ( params.slitSeparationMax !== undefined ) { this.slitSeparationMax = params.slitSeparationMax; }
-    if ( params.slitWidth !== undefined ) { this.slitWidth = params.slitWidth; }
-    if ( params.barrierFractionX !== undefined ) { this.barrierFractionX = params.barrierFractionX; }
-    if ( params.isTopSlitOpen !== undefined ) { this.isTopSlitOpen = params.isTopSlitOpen; }
-    if ( params.isBottomSlitOpen !== undefined ) { this.isBottomSlitOpen = params.isBottomSlitOpen; }
-    if ( params.isTopSlitDecoherent !== undefined ) { this.isTopSlitDecoherent = params.isTopSlitDecoherent; }
-    if ( params.isBottomSlitDecoherent !== undefined ) { this.isBottomSlitDecoherent = params.isBottomSlitDecoherent; }
+    this.setIfDefined( params.wavelength, value => { this.wavelength = value; } );
+    this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
+    this.setIfDefined( params.obstacleType, value => { this.obstacleType = value; } );
+    this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
+    this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
+    this.setIfDefined( params.slitSeparationMax, value => { this.slitSeparationMax = value; } );
+    this.setIfDefined( params.slitWidth, value => { this.slitWidth = value; } );
+    this.setIfDefined( params.barrierFractionX, value => { this.barrierFractionX = value; } );
+    this.setIfDefined( params.isTopSlitOpen, value => { this.isTopSlitOpen = value; } );
+    this.setIfDefined( params.isBottomSlitOpen, value => { this.isBottomSlitOpen = value; } );
+    this.setIfDefined( params.isTopSlitDecoherent, value => { this.isTopSlitDecoherent = value; } );
+    this.setIfDefined( params.isBottomSlitDecoherent, value => { this.isBottomSlitDecoherent = value; } );
     if ( params.isSourceOn !== undefined ) {
       if ( this.isSourceOn && !params.isSourceOn ) {
         this.sourceOffTime = this.time;
@@ -88,8 +93,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       }
       this.isSourceOn = params.isSourceOn;
     }
-    if ( params.regionWidth !== undefined ) { this.regionWidth = params.regionWidth; }
-    if ( params.regionHeight !== undefined ) { this.regionHeight = params.regionHeight; }
+    this.setIfDefined( params.regionWidth, value => { this.regionWidth = value; } );
+    this.setIfDefined( params.regionHeight, value => { this.regionHeight = value; } );
     this.dirty = true;
   }
 
@@ -159,6 +164,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     return trailingEdge < this.regionWidth;
   }
 
+  private getDisplaySlitGeometry(): { viewSlitSep: number; viewSlitWidth: number } {
+    return getViewSlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
+  }
+
   private computeField(): void {
     const { amplitudeField } = this;
 
@@ -187,13 +196,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       this.computePlaneWaveField( displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx );
     }
     else {
-
-      // Match the view's linear mapping from physical separation to visual slit positions
-      const sepRange = this.slitSeparationMax - this.slitSeparationMin;
-      const sepFraction = sepRange > 0 ? ( this.slitSeparation - this.slitSeparationMin ) / sepRange : 0.5;
-      const viewSep = linear( 0, 1, 40, 220, sepFraction );
-      const viewSlitSep = viewSep / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * this.regionHeight;
-      const viewSlitWidth = 22 / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * this.regionHeight;
+      const { viewSlitSep, viewSlitWidth } = this.getDisplaySlitGeometry();
 
       this.computeDoubleSlitField(
         displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx, dy,

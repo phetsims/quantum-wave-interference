@@ -11,11 +11,10 @@
  */
 
 import Vector2 from '../../../../dot/js/Vector2.js';
-import { linear } from '../../../../dot/js/util/linear.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
+import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
@@ -74,19 +73,11 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   }
 
   public setParameters( params: WaveSolverParameters ): void {
-    if ( params.wavelength !== undefined ) { this.wavelength = params.wavelength; }
-    if ( params.waveSpeed !== undefined ) { this.waveSpeed = params.waveSpeed; }
-    if ( params.obstacleType !== undefined ) { this.obstacleType = params.obstacleType; }
-    if ( params.slitSeparation !== undefined ) { this.slitSeparation = params.slitSeparation; }
-    if ( params.slitSeparationMin !== undefined ) { this.slitSeparationMin = params.slitSeparationMin; }
-    if ( params.slitSeparationMax !== undefined ) { this.slitSeparationMax = params.slitSeparationMax; }
-    if ( params.slitWidth !== undefined ) { this.slitWidth = params.slitWidth; }
-    if ( params.barrierFractionX !== undefined ) { this.barrierFractionX = params.barrierFractionX; }
-    if ( params.isTopSlitOpen !== undefined ) { this.isTopSlitOpen = params.isTopSlitOpen; }
-    if ( params.isBottomSlitOpen !== undefined ) { this.isBottomSlitOpen = params.isBottomSlitOpen; }
-    if ( params.isSourceOn !== undefined ) { this.isSourceOn = params.isSourceOn; }
-    if ( params.regionWidth !== undefined ) { this.regionWidth = params.regionWidth; }
-    if ( params.regionHeight !== undefined ) { this.regionHeight = params.regionHeight; }
+    for ( const [ key, value ] of Object.entries( params ) ) {
+      if ( value !== undefined && key in this ) {
+        ( this as Record<string, unknown> )[ key ] = value;
+      }
+    }
     this.dirty = true;
     this.detectorDistributionDirty = true;
   }
@@ -264,32 +255,37 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     kDisplay: number, omegaDisplay: number, xCenter: number,
     dx: number, invTwoSigmaXSq: number
   ): void {
+    for ( let ix = 0; ix < this.gridWidth; ix++ ) {
+      this.writeFreeColumn( ix, ix * dx, kDisplay, omegaDisplay, xCenter, invTwoSigmaXSq );
+    }
+  }
+
+  private writeFreeColumn(
+    ix: number, x: number, kDisplay: number, omegaDisplay: number,
+    xCenter: number, invTwoSigmaXSq: number
+  ): void {
     const { gridWidth, gridHeight, amplitudeField, envYCache, time } = this;
+    const deltaX = x - xCenter;
+    const envX = Math.exp( -deltaX * deltaX * invTwoSigmaXSq );
 
-    for ( let ix = 0; ix < gridWidth; ix++ ) {
-      const x = ix * dx;
-      const deltaX = x - xCenter;
-      const envX = Math.exp( -deltaX * deltaX * invTwoSigmaXSq );
-
-      if ( envX < 1e-6 ) {
-        for ( let iy = 0; iy < gridHeight; iy++ ) {
-          const idx = ( iy * gridWidth + ix ) * 2;
-          amplitudeField[ idx ] = 0;
-          amplitudeField[ idx + 1 ] = 0;
-        }
-        continue;
-      }
-
-      const phase = kDisplay * x - omegaDisplay * time;
-      const cosPhase = Math.cos( phase );
-      const sinPhase = Math.sin( phase );
-
+    if ( envX < 1e-6 ) {
       for ( let iy = 0; iy < gridHeight; iy++ ) {
-        const envelope = envX * envYCache[ iy ];
         const idx = ( iy * gridWidth + ix ) * 2;
-        amplitudeField[ idx ] = envelope * cosPhase;
-        amplitudeField[ idx + 1 ] = envelope * sinPhase;
+        amplitudeField[ idx ] = 0;
+        amplitudeField[ idx + 1 ] = 0;
       }
+      return;
+    }
+
+    const phase = kDisplay * x - omegaDisplay * time;
+    const cosPhase = Math.cos( phase );
+    const sinPhase = Math.sin( phase );
+
+    for ( let iy = 0; iy < gridHeight; iy++ ) {
+      const envelope = envX * envYCache[ iy ];
+      const idx = ( iy * gridWidth + ix ) * 2;
+      amplitudeField[ idx ] = envelope * cosPhase;
+      amplitudeField[ idx + 1 ] = envelope * sinPhase;
     }
   }
 
@@ -301,12 +297,9 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
     const barrierX = barrierIx * dx;
 
-    // Match the view's linear mapping from physical separation to visual slit positions
-    const sepRange = this.slitSeparationMax - this.slitSeparationMin;
-    const sepFraction = sepRange > 0 ? ( this.slitSeparation - this.slitSeparationMin ) / sepRange : 0.5;
-    const viewSep = linear( 0, 1, 40, 220, sepFraction );
-    const viewSlitSep = viewSep / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * this.regionHeight;
-    const viewSlitWidth = 22 / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * this.regionHeight;
+    const { viewSlitSep, viewSlitWidth } = getViewSlitLayout(
+      this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight
+    );
 
     const topSlitY = -viewSlitSep / 2;
     const bottomSlitY = viewSlitSep / 2;
@@ -325,30 +318,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       const x = ix * dx;
 
       if ( ix < barrierIx ) {
-
-        // Before barrier: free-space Gaussian packet
-        const deltaX = x - xCenter;
-        const envX = Math.exp( -deltaX * deltaX * invTwoSigmaXSq );
-
-        if ( envX < 1e-6 ) {
-          for ( let iy = 0; iy < gridHeight; iy++ ) {
-            const idx = ( iy * gridWidth + ix ) * 2;
-            amplitudeField[ idx ] = 0;
-            amplitudeField[ idx + 1 ] = 0;
-          }
-          continue;
-        }
-
-        const phase = kDisplay * x - omegaDisplay * time;
-        const cosPhase = Math.cos( phase );
-        const sinPhase = Math.sin( phase );
-
-        for ( let iy = 0; iy < gridHeight; iy++ ) {
-          const envelope = envX * envYCache[ iy ];
-          const idx = ( iy * gridWidth + ix ) * 2;
-          amplitudeField[ idx ] = envelope * cosPhase;
-          amplitudeField[ idx + 1 ] = envelope * sinPhase;
-        }
+        this.writeFreeColumn( ix, x, kDisplay, omegaDisplay, xCenter, invTwoSigmaXSq );
       }
       else if ( ix === barrierIx ) {
 
