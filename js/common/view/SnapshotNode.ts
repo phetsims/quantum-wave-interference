@@ -1,11 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SnapshotNode displays a single snapshot in the SnapshotsDialog for the High Intensity and Single Particles screens.
+ * SnapshotNode displays a single snapshot in the SnapshotsDialog.
  * It shows a miniature rendering of the detector screen state at the time the snapshot was taken, along with a title,
  * key physics parameters (source type, wavelength/speed, slit separation, slit configuration), and a delete button.
- *
- * Adapted from experiment/view/SnapshotNode.ts for use with common types.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -30,7 +28,7 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import { type SourceType } from '../model/SourceType.js';
-import { type SlitConfiguration } from '../model/SlitConfiguration.js';
+import { hasAnyDetector, type SlitConfiguration } from '../model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -42,6 +40,10 @@ const SNAPSHOT_HEIGHT = 132;
 const CORNER_RADIUS = 6;
 const METADATA_WIDTH = 165;
 const MAX_RENDERED_SNAPSHOT_HITS = 100000;
+
+// Resolution for the offscreen texture canvas used by the analytical intensity rendering path.
+const ANALYTICAL_TEXTURE_WIDTH = 376;
+const ANALYTICAL_TEXTURE_HEIGHT = 155;
 
 const PARAM_FONT = new PhetFont( 12 );
 const TITLE_FONT = new PhetFont( { size: 16, weight: 'bold' } );
@@ -62,16 +64,38 @@ const DEFAULT_SLIT_SETTING_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyPrope
   bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
 };
 
-type SnapshotNodeOptions = {
+export type SnapshotNodeOptions = {
   snapshotsProperty: TReadOnlyProperty<Snapshot[]>;
   deleteSnapshot: ( snapshot: Snapshot ) => void;
   slitSettingDisplayMap?: Record<SlitConfiguration, TReadOnlyProperty<string>>;
+
+  // Formats the slit separation value (in mm) for display. Default uses µm if < 0.1 mm, else mm.
+  formatSlitSeparation?: ( slitSepMM: number ) => string;
+
+  // When true, a screen distance row is included in the metadata labels.
+  showScreenDistance?: boolean;
+
+  // When provided, the full PDOM structure (section, heading, description paragraph, metadata list) is created.
+  getDescription?: ( snapshot: Snapshot ) => string;
 };
 
 export default class SnapshotNode extends Node {
   public constructor( index: number, options: SnapshotNodeOptions ) {
 
     const slitSettingDisplayMap = options.slitSettingDisplayMap || DEFAULT_SLIT_SETTING_DISPLAY_MAP;
+
+    const defaultFormatSlitSeparation = ( slitSepMM: number ): string => {
+      return slitSepMM < 0.1
+             ? StringUtils.fillIn(
+          QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
+          { value: toFixed( slitSepMM * 1000, 1 ) }
+        )
+             : StringUtils.fillIn(
+          QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value,
+          { value: toFixed( slitSepMM, 2 ) }
+        );
+    };
+    const formatSlitSeparation = options.formatSlitSeparation || defaultFormatSlitSeparation;
 
     const snapshotProperty: TReadOnlyProperty<Snapshot | null> = new DerivedProperty(
       [ options.snapshotsProperty ],
@@ -108,6 +132,11 @@ export default class SnapshotNode extends Node {
       ifSnapshot( snapshot => SOURCE_TYPE_DISPLAY_MAP[ snapshot.sourceType ].value, '' )
     );
 
+    const headingProperty = new DerivedProperty(
+      [ titleProperty, sceneNameProperty ],
+      ( title, sceneName ) => title ? `${title}: ${sceneName}` : ''
+    );
+
     const formatLabelValue = ( label: string, value: string ): string => StringUtils.fillIn(
       QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
       { label: label, value: value }
@@ -121,21 +150,10 @@ export default class SnapshotNode extends Node {
         QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty,
         QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty
       ],
-      ifSnapshot( snapshot => {
-        const slitSepValue = snapshot.slitSeparation < 0.1
-                             ? StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
-            { value: toFixed( snapshot.slitSeparation * 1000, 1 ) }
-          )
-                             : StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value,
-            { value: toFixed( snapshot.slitSeparation, 2 ) }
-          );
-        return formatLabelValue(
-          QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
-          slitSepValue
-        );
-      }, '' )
+      ifSnapshot( snapshot => formatLabelValue(
+        QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
+        formatSlitSeparation( snapshot.slitSeparation )
+      ), '' )
     );
 
     const wavelengthOrSpeedProperty = new DerivedProperty(
@@ -234,10 +252,42 @@ export default class SnapshotNode extends Node {
       maxWidth: METADATA_WIDTH
     } );
 
+    const parameterLabelsChildren: Node[] = [ sceneNameText, wavelengthOrSpeedText, slitSepText ];
+
+    // Conditionally include screen distance row (used by the Experiment screen).
+    let screenDistanceProperty: TReadOnlyProperty<string> | null = null;
+    if ( options.showScreenDistance ) {
+      screenDistanceProperty = new DerivedProperty(
+        [
+          snapshotProperty,
+          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+          QuantumWaveInterferenceFluent.screenDistanceStringProperty,
+          QuantumWaveInterferenceFluent.valueMetersPatternStringProperty
+        ],
+        ifSnapshot( snapshot => {
+          const screenDistValue = StringUtils.fillIn(
+            QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value,
+            { value: toFixed( snapshot.screenDistance, 2 ) }
+          );
+          return formatLabelValue(
+            QuantumWaveInterferenceFluent.screenDistanceStringProperty.value,
+            screenDistValue
+          );
+        }, '' )
+      );
+      parameterLabelsChildren.push( new Text( screenDistanceProperty, {
+        font: PARAM_FONT,
+        fill: 'black',
+        maxWidth: METADATA_WIDTH
+      } ) );
+    }
+
+    parameterLabelsChildren.push( slitSettingText );
+
     const parameterLabels = new VBox( {
       spacing: 2,
       align: 'left',
-      children: [ sceneNameText, wavelengthOrSpeedText, slitSepText, slitSettingText ]
+      children: parameterLabelsChildren
     } );
 
     snapshotProperty.link( () => canvasNode.invalidatePaint() );
@@ -289,16 +339,108 @@ export default class SnapshotNode extends Node {
     trashButton.left = SNAPSHOT_WIDTH + 10;
     trashButton.bottom = SNAPSHOT_HEIGHT;
 
-    super( {
+    const nodeChildren: Node[] = [ contentBox, trashButton ];
+
+    // Build PDOM structure when a description provider is supplied (Experiment screen).
+    if ( options.getDescription ) {
+      const getDescription = options.getDescription;
+
+      const descriptionProperty = snapshotProperty.derived(
+        snapshot => snapshot ? getDescription( snapshot ) : ''
+      );
+      const descriptionNode = new Node( {
+        accessibleParagraph: descriptionProperty
+      } );
+
+      const experimentTypeListItemProperty = new DerivedProperty(
+        [
+          snapshotProperty,
+          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+          QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleNameStringProperty,
+          ...sourceTypeDisplayDeps
+        ],
+        ifSnapshot( snapshot => formatLabelValue(
+          QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleNameStringProperty.value,
+          SOURCE_TYPE_DISPLAY_MAP[ snapshot.sourceType ].value
+        ), '' )
+      );
+
+      const detectionModeListItemProperty = new DerivedProperty(
+        [
+          snapshotProperty,
+          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+          QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty,
+          QuantumWaveInterferenceFluent.intensityStringProperty,
+          QuantumWaveInterferenceFluent.hitsStringProperty
+        ],
+        ifSnapshot( snapshot => formatLabelValue(
+          QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty.value,
+          snapshot.detectionMode === 'averageIntensity'
+          ? QuantumWaveInterferenceFluent.intensityStringProperty.value
+          : QuantumWaveInterferenceFluent.hitsStringProperty.value
+        ), '' )
+      );
+
+      const slitSettingListItemProperty = new DerivedProperty(
+        [
+          snapshotProperty,
+          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+          QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty,
+          ...slitSettingDisplayDeps
+        ],
+        ifSnapshot( snapshot => formatLabelValue(
+          QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty.value,
+          slitSettingDisplayMap[ snapshot.slitSetting ].value
+        ), '' )
+      );
+
+      const metadataListChildren: Node[] = [
+        new Node( { tagName: 'li', innerContent: experimentTypeListItemProperty } ),
+        new Node( { tagName: 'li', innerContent: detectionModeListItemProperty } ),
+        new Node( { tagName: 'li', innerContent: wavelengthOrSpeedProperty } ),
+        new Node( { tagName: 'li', innerContent: slitSeparationProperty } )
+      ];
+
+      if ( screenDistanceProperty ) {
+        metadataListChildren.push( new Node( { tagName: 'li', innerContent: screenDistanceProperty } ) );
+      }
+
+      metadataListChildren.push( new Node( { tagName: 'li', innerContent: slitSettingListItemProperty } ) );
+
+      const metadataListNode = new Node( {
+        tagName: 'ul',
+        children: metadataListChildren
+      } );
+
+      nodeChildren.push( descriptionNode, metadataListNode );
+    }
+
+    const superOptions: Record<string, unknown> = {
       isDisposable: false,
-      children: [ contentBox, trashButton ],
+      children: nodeChildren,
       visibleProperty: new DerivedProperty( [ snapshotProperty ], snapshot => snapshot !== null )
-    } );
+    };
+
+    if ( options.getDescription ) {
+      superOptions.tagName = 'div';
+      superOptions.containerTagName = 'section';
+      superOptions.accessibleHeading = headingProperty;
+    }
+
+    super( superOptions );
+
+    if ( options.getDescription ) {
+      const descriptionNode = nodeChildren[ 2 ];
+      const metadataListNode = nodeChildren[ 3 ];
+      this.pdomOrder = [ descriptionNode, metadataListNode, trashButton ];
+    }
   }
 }
 
 class SnapshotCanvasNode extends CanvasNode {
   private readonly snapshotProperty: TReadOnlyProperty<Snapshot | null>;
+  private readonly intensityTextureCanvas: HTMLCanvasElement;
+  private readonly intensityTextureContext: CanvasRenderingContext2D;
 
   public constructor(
     snapshotProperty: TReadOnlyProperty<Snapshot | null>,
@@ -309,6 +451,16 @@ class SnapshotCanvasNode extends CanvasNode {
       canvasBounds: new Bounds2( 0, 0, width, height )
     } );
     this.snapshotProperty = snapshotProperty;
+
+    this.intensityTextureCanvas = document.createElement( 'canvas' );
+    this.intensityTextureCanvas.width = ANALYTICAL_TEXTURE_WIDTH;
+    this.intensityTextureCanvas.height = ANALYTICAL_TEXTURE_HEIGHT;
+
+    const intensityTextureContext = this.intensityTextureCanvas.getContext( '2d' );
+    if ( !intensityTextureContext ) {
+      throw new Error( 'Could not create 2D context for snapshot intensity texture' );
+    }
+    this.intensityTextureContext = intensityTextureContext;
   }
 
   public paintCanvas( context: CanvasRenderingContext2D ): void {
@@ -370,14 +522,19 @@ class SnapshotCanvasNode extends CanvasNode {
   }
 
   private paintIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
-    const distribution = snapshot.intensityDistribution;
-
-    // Snapshots from this common dialog are always produced by a solver-driven scene (High Intensity
-    // screen). If the distribution was not captured (e.g., snapshot taken before the solver produced any
-    // output, or mode was not averageIntensity at capture time) there is nothing to render.
-    if ( distribution.length === 0 ) {
-      return;
+    if ( snapshot.intensityDistribution.length > 0 ) {
+      this.paintCapturedIntensity( context, snapshot );
     }
+    else {
+      this.paintAnalyticalIntensity( context, snapshot );
+    }
+  }
+
+  /**
+   * Renders from a captured solver probability distribution (High Intensity / Single Particles screens).
+   */
+  private paintCapturedIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
+    const distribution = snapshot.intensityDistribution;
 
     const normalizedBrightness = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
     const displayGain = getIntensityDisplayGain( normalizedBrightness, snapshot.intensity );
@@ -386,8 +543,6 @@ class SnapshotCanvasNode extends CanvasNode {
                       ? VisibleColor.wavelengthToColor( snapshot.wavelength )
                       : null;
 
-    // The live detector screen varies its interference pattern along its vertical axis; the snapshot is
-    // rendered in landscape (wide and short) so that same pattern maps to the snapshot's horizontal axis.
     const distributionLength = distribution.length;
     for ( let x = 0; x < SNAPSHOT_WIDTH; x++ ) {
       const solverIndex = clamp(
@@ -411,5 +566,69 @@ class SnapshotCanvasNode extends CanvasNode {
       }
       context.fillRect( x, 0, 1, SNAPSHOT_HEIGHT );
     }
+  }
+
+  /**
+   * Computes the analytical Fraunhofer diffraction pattern from snapshot metadata (Experiment screen).
+   */
+  private paintAnalyticalIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
+    if ( !snapshot.isEmitting ) {
+      return;
+    }
+
+    const lambda = snapshot.effectiveWavelength;
+    if ( lambda === 0 ) {
+      return;
+    }
+
+    const textureContext = this.intensityTextureContext;
+    textureContext.clearRect( 0, 0, ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
+
+    const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
+    const screenHalfWidth = snapshot.screenHalfWidth;
+    const slitWidthMeters = snapshot.slitWidth * 1e-3;
+    const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
+    const screenDistanceMeters = snapshot.screenDistance;
+    const slitSetting = snapshot.slitSetting;
+    const isSingleSlit = slitSetting === 'leftCovered' || slitSetting === 'rightCovered' || hasAnyDetector( slitSetting );
+
+    const photonColor = snapshot.sourceType === 'photons'
+                        ? VisibleColor.wavelengthToColor( snapshot.wavelength )
+                        : null;
+
+    for ( let x = 0; x < ANALYTICAL_TEXTURE_WIDTH; x++ ) {
+      const fraction = ( x + 0.5 ) / ANALYTICAL_TEXTURE_WIDTH;
+      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
+      const sinTheta = physicalX / Math.sqrt( physicalX * physicalX + screenDistanceMeters * screenDistanceMeters );
+
+      const singleSlitArg = Math.PI * slitWidthMeters * sinTheta / lambda;
+      const singleSlitFactor = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
+
+      const intensity = isSingleSlit
+                        ? singleSlitFactor
+                        : Math.pow( Math.cos( Math.PI * slitSeparationMeters * sinTheta / lambda ), 2 ) * singleSlitFactor;
+
+      const intensityScale = intensity * displayGain;
+      if ( intensityScale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
+        continue;
+      }
+
+      if ( photonColor ) {
+        const r = clamp( roundSymmetric( photonColor.red * intensityScale ), 0, 255 );
+        const g = clamp( roundSymmetric( photonColor.green * intensityScale ), 0, 255 );
+        const b = clamp( roundSymmetric( photonColor.blue * intensityScale ), 0, 255 );
+        textureContext.fillStyle = `rgb(${r},${g},${b})`;
+      }
+      else {
+        const value = clamp( roundSymmetric( 255 * intensityScale ), 0, 255 );
+        textureContext.fillStyle = `rgb(${value},${value},${value})`;
+      }
+      textureContext.fillRect( x, 0, 1, ANALYTICAL_TEXTURE_HEIGHT );
+    }
+
+    context.save();
+    context.imageSmoothingEnabled = true;
+    context.drawImage( this.intensityTextureCanvas, 0, 0, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT );
+    context.restore();
   }
 }

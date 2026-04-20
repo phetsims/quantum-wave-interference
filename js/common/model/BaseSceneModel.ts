@@ -374,6 +374,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
       intensity: intensity,
+      slitWidth: this.slitWidth,
       intensityDistribution: intensityDistribution
     } );
 

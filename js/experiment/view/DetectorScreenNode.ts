@@ -35,9 +35,29 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
-import SnapshotButton from './SnapshotButton.js';
-import SnapshotsDialog from './SnapshotsDialog.js';
-import ViewSnapshotsButton from './ViewSnapshotsButton.js';
+import SnapshotButton from '../../common/view/SnapshotButton.js';
+import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
+import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
+import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import SnapshotDescriber from './description/SnapshotDescriber.js';
+
+const EXPERIMENT_SLIT_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyProperty<string>> = {
+  bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
+  leftCovered: QuantumWaveInterferenceFluent.leftCoveredStringProperty,
+  rightCovered: QuantumWaveInterferenceFluent.rightCoveredStringProperty,
+  leftDetector: QuantumWaveInterferenceFluent.leftDetectorStringProperty,
+  rightDetector: QuantumWaveInterferenceFluent.rightDetectorStringProperty,
+  bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
+};
+
+const formatExperimentSlitSeparation = ( slitSepMM: number ): string => {
+  const slitSepUM = slitSepMM * 1000;
+  return StringUtils.fillIn(
+    QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
+    { value: toFixed( slitSepUM, ExperimentConstants.getDecimalPlacesForValue( slitSepUM ) ) }
+  );
+};
 
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
@@ -316,8 +336,15 @@ export default class DetectorScreenNode extends Node {
 
     // Snapshot dialog (one per scene)
     const snapshotsDialog = new SnapshotsDialog(
-      sceneModel,
-      providedOptions.tandem.createTandem( 'snapshotsDialog' )
+      sceneModel.snapshotsProperty,
+      snapshot => sceneModel.deleteSnapshot( snapshot ),
+      providedOptions.tandem.createTandem( 'snapshotsDialog' ),
+      {
+        slitSettingDisplayMap: EXPERIMENT_SLIT_DISPLAY_MAP,
+        formatSlitSeparation: formatExperimentSlitSeparation,
+        showScreenDistance: true,
+        getDescription: snapshot => SnapshotDescriber.getDescription( snapshot )
+      }
     );
 
     // Camera button to take a snapshot

@@ -31,6 +31,7 @@ type SnapshotData = {
   isEmitting: boolean;
   brightness: number;
   intensity: number;
+  slitWidth: number;
 
   // 1D probability distribution along the detector screen at capture time. Populated only for snapshots
   // taken in averageIntensity mode from solver-driven scenes (High Intensity screen); empty otherwise.
@@ -71,6 +72,7 @@ export default class Snapshot {
   public readonly isEmitting: boolean;
   public readonly brightness: number;
   public readonly intensity: number;
+  public readonly slitWidth: number; // mm
 
   // See SnapshotData.intensityDistribution. Empty array means "not captured" (fall back to closed-form).
   public readonly intensityDistribution: number[];
@@ -89,6 +91,7 @@ export default class Snapshot {
     this.isEmitting = data.isEmitting;
     this.brightness = data.brightness;
     this.intensity = data.intensity;
+    this.slitWidth = data.slitWidth;
     this.intensityDistribution = data.intensityDistribution;
   }
 
@@ -109,6 +112,7 @@ export default class Snapshot {
       isEmitting: BooleanIO,
       brightness: NumberIO,
       intensity: NumberIO,
+      slitWidth: NumberIO,
       intensityDistribution: ArrayIO( NumberIO )
     },
 

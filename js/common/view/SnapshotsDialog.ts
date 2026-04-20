@@ -1,14 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SnapshotsDialog displays detector screen snapshots in a vertical list for the High Intensity and
- * Single Particles screens. Adapts the pattern from experiment/view/SnapshotsDialog.ts and
- * models-of-the-hydrogen-atom SpectrometerSnapshotsDialog: pre-allocates a fixed number of SnapshotNode
- * instances and toggles their visibility based on how many snapshots exist.
- *
- * Unlike the Experiment screen's dialog (which binds to a single SceneModel), this dialog is driven
- * by DynamicProperties that follow the currently selected scene, so it automatically updates when
- * the user switches scenes.
+ * SnapshotsDialog displays detector screen snapshots in a vertical list.
+ * Adapts the pattern from models-of-the-hydrogen-atom SpectrometerSnapshotsDialog: pre-allocates a fixed number of
+ * SnapshotNode instances and toggles their visibility based on how many snapshots exist.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -25,6 +20,9 @@ import SnapshotNode from './SnapshotNode.js';
 
 type SnapshotsDialogOptions = {
   slitSettingDisplayMap?: Record<SlitConfiguration, TReadOnlyProperty<string>>;
+  formatSlitSeparation?: ( slitSepMM: number ) => string;
+  showScreenDistance?: boolean;
+  getDescription?: ( snapshot: Snapshot ) => string;
 };
 
 export default class SnapshotsDialog extends Dialog {
@@ -42,7 +40,10 @@ export default class SnapshotsDialog extends Dialog {
       snapshotNodes.push( new SnapshotNode( i, {
         snapshotsProperty: snapshotsProperty,
         deleteSnapshot: deleteSnapshot,
-        slitSettingDisplayMap: providedOptions?.slitSettingDisplayMap
+        slitSettingDisplayMap: providedOptions?.slitSettingDisplayMap,
+        formatSlitSeparation: providedOptions?.formatSlitSeparation,
+        showScreenDistance: providedOptions?.showScreenDistance,
+        getDescription: providedOptions?.getDescription
       } ) );
     }
 

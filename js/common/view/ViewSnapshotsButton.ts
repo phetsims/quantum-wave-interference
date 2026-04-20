@@ -5,8 +5,6 @@
  * patterns. It is disabled when no snapshots have been taken. Opening the dialog pauses the sim;
  * closing it resumes playback if the sim was playing when the dialog was opened.
  *
- * Adapted from experiment/view/ViewSnapshotsButton.ts for use on the High Intensity and Single Particles screens.
- *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
