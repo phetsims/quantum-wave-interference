@@ -299,8 +299,11 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const L = this.regionWidth - barrierX;
     const huygensNorm = 0.5 * Math.sqrt( L ) / N_HUYGENS_SOURCES;
 
-    // Precompute source positions for each slit
     const sourceSpacing = displaySlitWidth / N_HUYGENS_SOURCES;
+    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
+
+    // Fresnel distance: near the barrier, blend from geometric optics to full diffraction
+    const fresnelDistance = displaySlitWidth * displaySlitWidth / displayLambda;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = ix * dx;
@@ -340,10 +343,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             amplitudeField[ idx + 1 ] = 0;
           }
           else {
+            const dxField = x - barrierX;
 
             // Compute each slit's Huygens contribution separately to preserve phase
-            let topRe = 0; let topIm = 0; let bottomRe = 0; let
-bottomIm = 0;
+            let topRe = 0; let topIm = 0; let bottomRe = 0; let bottomIm = 0;
 
             if ( this.isTopSlitOpen ) {
               this.computeSlitContribution(
@@ -364,8 +367,7 @@ bottomIm = 0;
             }
 
             // Build coherent sum from non-decoherent slits
-            let coherentRe = 0; let
-coherentIm = 0;
+            let coherentRe = 0; let coherentIm = 0;
             if ( this.isTopSlitOpen && !this.isTopSlitDecoherent ) { coherentRe += topRe; coherentIm += topIm; }
             if ( this.isBottomSlitOpen && !this.isBottomSlitDecoherent ) { coherentRe += bottomRe; coherentIm += bottomIm; }
             const coherentIntensity = coherentRe * coherentRe + coherentIm * coherentIm;
@@ -377,11 +379,8 @@ coherentIm = 0;
 
             const totalIntensity = coherentIntensity + decoherentIntensity;
 
-            // Pick phase from the strongest contribution at this pixel: the coherent
-            // sum or any individual decoherent slit. This shows circular wavefronts
-            // from each slit — decoherent slits just don't interfere with others.
-            let bestRe = coherentRe; let bestIm = coherentIm; let
-bestIntensity = coherentIntensity;
+            // Pick phase from the strongest contribution
+            let bestRe = coherentRe; let bestIm = coherentIm; let bestIntensity = coherentIntensity;
 
             if ( this.isTopSlitOpen && this.isTopSlitDecoherent ) {
               const topIntensity = topRe * topRe + topIm * topIm;
@@ -392,14 +391,43 @@ bestIntensity = coherentIntensity;
               if ( bottomIntensity > bestIntensity ) { bestRe = bottomRe; bestIm = bottomIm; bestIntensity = bottomIntensity; }
             }
 
+            let huygensRe: number;
+            let huygensIm: number;
             if ( bestIntensity > 1e-20 ) {
               const scale = Math.sqrt( totalIntensity / bestIntensity );
-              amplitudeField[ idx ] = bestRe * scale;
-              amplitudeField[ idx + 1 ] = bestIm * scale;
+              huygensRe = bestRe * scale;
+              huygensIm = bestIm * scale;
             }
             else {
-              amplitudeField[ idx ] = 0;
-              amplitudeField[ idx + 1 ] = 0;
+              huygensRe = 0;
+              huygensIm = 0;
+            }
+
+            // Fresnel blend: near the barrier, smoothly transition from geometric optics
+            // (plane wave in slit projection) to full Huygens diffraction field.
+            const blendFactor = Math.min( 1.0, dxField / fresnelDistance );
+
+            if ( blendFactor >= 1.0 ) {
+              amplitudeField[ idx ] = huygensRe;
+              amplitudeField[ idx + 1 ] = huygensIm;
+            }
+            else {
+              // Geometric optics: plane wave within slit projection, zero in shadow
+              const inTopSlitProjection = this.isTopSlitOpen && Math.abs( y - topSlitY ) < displaySlitWidth / 2;
+              const inBottomSlitProjection = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < displaySlitWidth / 2;
+              const inProjection = inTopSlitProjection || inBottomSlitProjection;
+
+              if ( inProjection ) {
+                const geoPhase = k * x - omega * this.time;
+                const geoRe = Math.cos( geoPhase );
+                const geoIm = Math.sin( geoPhase );
+                amplitudeField[ idx ] = ( 1 - blendFactor ) * geoRe + blendFactor * huygensRe;
+                amplitudeField[ idx + 1 ] = ( 1 - blendFactor ) * geoIm + blendFactor * huygensIm;
+              }
+              else {
+                amplitudeField[ idx ] = blendFactor * huygensRe;
+                amplitudeField[ idx + 1 ] = blendFactor * huygensIm;
+              }
             }
           }
         }
@@ -408,9 +436,11 @@ bestIntensity = coherentIntensity;
   }
 
   /**
-   * Huygens summation: N point sources uniformly distributed across the slit aperture.
-   * Each source emits a cylindrical wavelet e^{ikr}/sqrt(r). The sum automatically produces
-   * the sinc diffraction envelope in the far field and circular wavefronts in the near field.
+   * Huygens-Kirchhoff summation: N sources uniformly distributed across the slit aperture,
+   * treated as a line-segment source. Each source contributes with bounded amplitude that
+   * equals 1/N near the slit (so the sum = 1, continuous with the incoming plane wave)
+   * and transitions to huygensNorm/sqrt(r) in the far field (proper cylindrical spreading).
+   * The phase includes k*barrierX for continuity with the pre-barrier plane wave.
    */
   private computeSlitContribution(
     k: number, omega: number,
@@ -421,6 +451,7 @@ bestIntensity = coherentIntensity;
     let sumRe = 0;
     let sumIm = 0;
     const dxField = fieldX - barrierX;
+    const nearFieldAmplitude = 1.0 / N_HUYGENS_SOURCES;
 
     for ( let s = 0; s < N_HUYGENS_SOURCES; s++ ) {
       const ySource = slitCenterY + ( s - ( N_HUYGENS_SOURCES - 1 ) / 2 ) * sourceSpacing;
@@ -431,9 +462,8 @@ bestIntensity = coherentIntensity;
         continue;
       }
 
-      const rSafe = Math.max( r, 1e-6 );
-      const amplitude = huygensNorm / Math.sqrt( rSafe );
-      const phase = k * r - omega * this.time;
+      const amplitude = Math.min( nearFieldAmplitude, huygensNorm / Math.sqrt( r ) );
+      const phase = k * ( barrierX + r ) - omega * this.time;
       sumRe += amplitude * Math.cos( phase );
       sumIm += amplitude * Math.sin( phase );
     }
