@@ -56,6 +56,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
   private readonly amplitudeField: Float64Array;
   private readonly detectorDistribution: Float64Array;
+  private readonly detectorAccumulator: Float64Array;
+  private detectorAccumulatorCount = 0;
   private dirty = true;
 
   private scratchRe = 0;
@@ -66,6 +68,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.gridHeight = gridHeight;
     this.amplitudeField = new Float64Array( gridWidth * gridHeight * 2 );
     this.detectorDistribution = new Float64Array( gridHeight );
+    this.detectorAccumulator = new Float64Array( gridHeight );
   }
 
   private setIfDefined<T>( value: T | undefined, setter: ( value: T ) => void ): void {
@@ -95,6 +98,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       else if ( !this.isSourceOn && params.isSourceOn ) {
         this.sourceOnTime = this.time;
         this.sourceOffTime = null;
+        this.detectorAccumulator.fill( 0 );
+        this.detectorAccumulatorCount = 0;
       }
       this.isSourceOn = params.isSourceOn;
     }
@@ -106,6 +111,16 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   public step( dt: number ): void {
     this.time += dt;
     this.dirty = true;
+
+    // Accumulate the instantaneous detector distribution each frame for time-averaging.
+    // Only accumulate while waves are actively illuminating the screen.
+    if ( this.isSourceOn || this.hasWavesInRegion() ) {
+      this.computeInstantaneousDetectorDistribution();
+      for ( let iy = 0; iy < this.gridHeight; iy++ ) {
+        this.detectorAccumulator[ iy ] += this.detectorDistribution[ iy ];
+      }
+      this.detectorAccumulatorCount++;
+    }
   }
 
   private ensureComputed(): void {
@@ -121,7 +136,24 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   }
 
   public getDetectorProbabilityDistribution(): Float64Array {
-    this.ensureComputed();
+    if ( this.detectorAccumulatorCount === 0 ) {
+      this.detectorDistribution.fill( 0 );
+      return this.detectorDistribution;
+    }
+
+    let maxProb = 0;
+    for ( let iy = 0; iy < this.gridHeight; iy++ ) {
+      const avg = this.detectorAccumulator[ iy ] / this.detectorAccumulatorCount;
+      this.detectorDistribution[ iy ] = avg;
+      maxProb = Math.max( maxProb, avg );
+    }
+
+    if ( maxProb > 0 ) {
+      for ( let iy = 0; iy < this.gridHeight; iy++ ) {
+        this.detectorDistribution[ iy ] /= maxProb;
+      }
+    }
+
     return this.detectorDistribution;
   }
 
@@ -131,6 +163,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.sourceOffTime = null;
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
+    this.detectorAccumulator.fill( 0 );
+    this.detectorAccumulatorCount = 0;
     this.dirty = true;
   }
 
@@ -138,7 +172,9 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     return {
       time: this.time,
       sourceOnTime: this.sourceOnTime,
-      sourceOffTime: this.sourceOffTime
+      sourceOffTime: this.sourceOffTime,
+      detectorAccumulator: Array.from( this.detectorAccumulator ),
+      detectorAccumulatorCount: this.detectorAccumulatorCount
     };
   }
 
@@ -146,6 +182,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.time = state.time;
     this.sourceOnTime = state.sourceOnTime;
     this.sourceOffTime = state.sourceOffTime;
+    if ( state.detectorAccumulator ) {
+      this.detectorAccumulator.set( state.detectorAccumulator );
+      this.detectorAccumulatorCount = state.detectorAccumulatorCount;
+    }
     this.dirty = true;
   }
 
@@ -182,12 +222,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     // If the source was never turned on, or all waves have exited the region, zero everything
     if ( !this.isSourceOn && !this.hasWavesInRegion() ) {
       amplitudeField.fill( 0 );
-      this.detectorDistribution.fill( 0 );
       return;
     }
 
-    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
-    const displayK = 2 * Math.PI / displayLambda;
+    const displayK = 2 * Math.PI * DISPLAY_WAVELENGTHS / this.regionWidth;
     const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
     const displayOmega = displayK * displaySpeed;
 
@@ -213,11 +251,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx, dy,
         viewSlitSep, viewSlitWidth
       );
-      this.computeDetectorDistribution( displayLambda, displaySpeed, viewSlitSep, viewSlitWidth );
-      return;
     }
-
-    this.computeDetectorDistribution( displayLambda, displaySpeed, 0, 0 );
   }
 
   private computePlaneWaveField( k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number ): void {
@@ -409,14 +443,15 @@ bestIntensity = coherentIntensity;
   }
 
   /**
-   * Computes the detector-screen probability distribution using the Fraunhofer formula
-   * with display-scale parameters, with time-gated illumination based on wavefront propagation.
+   * Computes the instantaneous (un-normalized) detector-screen probability distribution using
+   * the Fraunhofer formula with time-gated illumination based on wavefront propagation.
+   * Results are written into this.detectorDistribution for accumulation by step().
    */
-  private computeDetectorDistribution(
-    displayLambda: number, displaySpeed: number, viewSlitSep: number, viewSlitWidth: number
-  ): void {
+  private computeInstantaneousDetectorDistribution(): void {
     const { gridHeight, detectorDistribution } = this;
 
+    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
     const sourceOnTime = this.sourceOnTime ?? 0;
     const displayWavefrontX = displaySpeed * ( this.time - sourceOnTime );
 
@@ -432,6 +467,7 @@ bestIntensity = coherentIntensity;
       return;
     }
 
+    const { viewSlitSep, viewSlitWidth } = this.getDisplaySlitGeometry();
     const barrierX = this.barrierFractionX * this.regionWidth;
     const L = this.regionWidth - barrierX;
     const wavefrontPastBarrier = displayWavefrontX - barrierX;
@@ -440,8 +476,6 @@ bestIntensity = coherentIntensity;
 
     const topSlitY = -viewSlitSep / 2;
     const bottomSlitY = viewSlitSep / 2;
-
-    let maxProb = 0;
 
     const slitEnvelopeAt = ( posOnScreen: number, slitY: number ): number => {
       const dySlit = posOnScreen - slitY;
@@ -491,14 +525,6 @@ bestIntensity = coherentIntensity;
         // Single slit: sinc² centered on the open slit
         const openSlitY = this.isTopSlitOpen ? topSlitY : bottomSlitY;
         detectorDistribution[ iy ] = 0.5 * slitEnvelopeAt( posOnScreen, openSlitY );
-      }
-
-      maxProb = Math.max( maxProb, detectorDistribution[ iy ] );
-    }
-
-    if ( maxProb > 0 ) {
-      for ( let iy = 0; iy < gridHeight; iy++ ) {
-        detectorDistribution[ iy ] /= maxProb;
       }
     }
   }
