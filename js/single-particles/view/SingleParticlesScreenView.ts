@@ -182,7 +182,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     const detectorCheckbox = createToolCheckbox( model.isDetectorToolVisibleProperty, QuantumWaveInterferenceFluent.detectorStringProperty, tandem.createTandem( 'detectorCheckbox' ), ToolIcons.createDetectorIcon() );
 
     // Detector checkbox is only enabled when obstacle is None
-    model.isDetectorToolAvailableProperty.link( ( isAvailable: boolean ) => {
+    model.isDetectorToolAvailableProperty.link( isAvailable => {
       detectorCheckbox.enabled = isAvailable;
     } );
 

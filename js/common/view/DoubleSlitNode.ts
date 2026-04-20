@@ -145,8 +145,8 @@ export default class DoubleSlitNode extends Node {
       [ obstacleTypeProperty, slitPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
         options.isTopSlitCoveredProperty, options.isBottomSlitCoveredProperty,
         options.isTopSlitDetectorProperty, options.isBottomSlitDetectorProperty ],
-      ( obstacleType: ObstacleType, slitPositionFraction: number, slitSeparation: number, slitSeparationRange: Range,
-        isTopCovered: boolean, isBottomCovered: boolean, isTopDetectorOn: boolean, isBottomDetectorOn: boolean ) => {
+      ( obstacleType, slitPositionFraction, slitSeparation, slitSeparationRange,
+        isTopCovered, isBottomCovered, isTopDetectorOn, isBottomDetectorOn ) => {
 
         const isDoubleSlit = obstacleType === 'doubleSlit';
         barrierContainer.visible = isDoubleSlit;

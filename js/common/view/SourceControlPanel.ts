@@ -106,7 +106,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
 
     const bottomControls = sceneControlContents
       .map( content => content.bottomControl )
-      .filter( ( control ): control is Node => control !== null );
+      .filter( control => control !== null );
     const maxBottomControlWidth = bottomControls.length > 0 ? Math.max( ...bottomControls.map( n => n.width ) ) : 0;
     const maxBottomControlHeight = bottomControls.length > 0 ? Math.max( ...bottomControls.map( n => n.height ) ) : 0;
 
