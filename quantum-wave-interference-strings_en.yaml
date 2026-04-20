@@ -74,6 +74,8 @@ topDetector:                        Top Detector
 bottomDetector:                     Bottom Detector
 autoRepeat:                         Auto-repeat
 timeScaleLabel:                     '1 fs = 10⁻¹⁵ s'
+erase:                              Erase
+snapshots:                          Snapshots
 detectorSize:                       Detector Size
 detect:                             Detect
 resetDetector:                      Reset
@@ -208,6 +210,7 @@ a11y:
                                  [rightDetector] Right slit now monitored by a detector.
                                 *[bothDetectors] Both slits now monitored by detectors.
                                }
+  slitWidthMillimetersPattern: '{ $value } millimeters'
   slitWidthMicrometersPattern: '{ $value } micrometers'
   slitView:
     accessibleParagraph: >-

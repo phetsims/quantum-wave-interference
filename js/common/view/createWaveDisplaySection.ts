@@ -21,7 +21,7 @@ import Tandem from '../../../../tandem/js/Tandem.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../model/WaveDisplayMode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
-const TITLE_FONT = new PhetFont( 14 );
+const TITLE_FONT = new PhetFont( { size: 14, weight: 'bold' } );
 const COMBO_BOX_FONT = new PhetFont( 14 );
 
 type WaveDisplayModel = {

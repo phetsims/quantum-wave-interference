@@ -98,6 +98,8 @@ type StringsType = {
   'bottomDetectorStringProperty': LocalizedStringProperty;
   'autoRepeatStringProperty': LocalizedStringProperty;
   'timeScaleLabelStringProperty': LocalizedStringProperty;
+  'eraseStringProperty': LocalizedStringProperty;
+  'snapshotsStringProperty': LocalizedStringProperty;
   'detectorSizeStringProperty': LocalizedStringProperty;
   'detectStringProperty': LocalizedStringProperty;
   'resetDetectorStringProperty': LocalizedStringProperty;
@@ -188,6 +190,7 @@ type StringsType = {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleContextResponseStringProperty': LocalizedStringProperty;
     };
+    'slitWidthMillimetersPatternStringProperty': LocalizedStringProperty;
     'slitWidthMicrometersPatternStringProperty': LocalizedStringProperty;
     'slitView': {
       'accessibleParagraphStringProperty': LocalizedStringProperty;

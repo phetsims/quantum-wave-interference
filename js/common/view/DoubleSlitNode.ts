@@ -128,13 +128,13 @@ export default class DoubleSlitNode extends Node {
     let dragStartX = 0;
 
     const createDragListener = () => new DragListener( {
-      start: ( event, listener ) => {
+      start: event => {
         dragStartFraction = slitPositionFractionProperty.value;
-        dragStartX = listener.parentPoint.x;
+        dragStartX = event.pointer.point.x;
       },
-      drag: ( event, listener ) => {
-        const dx = listener.parentPoint.x - dragStartX;
-        const fractionDelta = dx / WAVE_REGION_WIDTH;
+      drag: event => {
+        const globalDx = event.pointer.point.x - dragStartX;
+        const fractionDelta = globalDx / WAVE_REGION_WIDTH;
         slitPositionFractionProperty.value = SLIT_POSITION_FRACTION_RANGE.constrainValue( dragStartFraction + fractionDelta );
       }
     } );

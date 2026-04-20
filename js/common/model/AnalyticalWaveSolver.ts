@@ -48,16 +48,11 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private regionHeight = 1.0;
   private time = 0;
 
-  // Tracks when the source was turned on so the wavefront grows from the left edge each time
-  private sourceOnTime: number | null = null;
-
   // Tracks when the source was turned off so waves can continue propagating past the trailing edge
   private sourceOffTime: number | null = null;
 
   private readonly amplitudeField: Float64Array;
   private readonly detectorDistribution: Float64Array;
-  private readonly detectorAccumulator: Float64Array;
-  private detectorAccumulatorCount = 0;
   private dirty = true;
 
   private scratchRe = 0;
@@ -68,7 +63,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.gridHeight = gridHeight;
     this.amplitudeField = new Float64Array( gridWidth * gridHeight * 2 );
     this.detectorDistribution = new Float64Array( gridHeight );
-    this.detectorAccumulator = new Float64Array( gridHeight );
   }
 
   private setIfDefined<T>( value: T | undefined, setter: ( value: T ) => void ): void {
@@ -96,10 +90,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         this.sourceOffTime = this.time;
       }
       else if ( !this.isSourceOn && params.isSourceOn ) {
-        this.sourceOnTime = this.time;
         this.sourceOffTime = null;
-        this.detectorAccumulator.fill( 0 );
-        this.detectorAccumulatorCount = 0;
       }
       this.isSourceOn = params.isSourceOn;
     }
@@ -111,16 +102,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   public step( dt: number ): void {
     this.time += dt;
     this.dirty = true;
-
-    // Accumulate the instantaneous detector distribution each frame for time-averaging.
-    // Only accumulate while waves are actively illuminating the screen.
-    if ( this.isSourceOn || this.hasWavesInRegion() ) {
-      this.computeInstantaneousDetectorDistribution();
-      for ( let iy = 0; iy < this.gridHeight; iy++ ) {
-        this.detectorAccumulator[ iy ] += this.detectorDistribution[ iy ];
-      }
-      this.detectorAccumulatorCount++;
-    }
   }
 
   private ensureComputed(): void {
@@ -136,56 +117,28 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   }
 
   public getDetectorProbabilityDistribution(): Float64Array {
-    if ( this.detectorAccumulatorCount === 0 ) {
-      this.detectorDistribution.fill( 0 );
-      return this.detectorDistribution;
-    }
-
-    let maxProb = 0;
-    for ( let iy = 0; iy < this.gridHeight; iy++ ) {
-      const avg = this.detectorAccumulator[ iy ] / this.detectorAccumulatorCount;
-      this.detectorDistribution[ iy ] = avg;
-      maxProb = Math.max( maxProb, avg );
-    }
-
-    if ( maxProb > 0 ) {
-      for ( let iy = 0; iy < this.gridHeight; iy++ ) {
-        this.detectorDistribution[ iy ] /= maxProb;
-      }
-    }
-
+    this.ensureComputed();
     return this.detectorDistribution;
   }
 
   public reset(): void {
     this.time = 0;
-    this.sourceOnTime = null;
     this.sourceOffTime = null;
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
-    this.detectorAccumulator.fill( 0 );
-    this.detectorAccumulatorCount = 0;
     this.dirty = true;
   }
 
   public getState(): WaveSolverState {
     return {
       time: this.time,
-      sourceOnTime: this.sourceOnTime,
-      sourceOffTime: this.sourceOffTime,
-      detectorAccumulator: Array.from( this.detectorAccumulator ),
-      detectorAccumulatorCount: this.detectorAccumulatorCount
+      sourceOffTime: this.sourceOffTime
     };
   }
 
   public setState( state: WaveSolverState ): void {
     this.time = state.time;
-    this.sourceOnTime = state.sourceOnTime;
     this.sourceOffTime = state.sourceOffTime;
-    if ( state.detectorAccumulator ) {
-      this.detectorAccumulator.set( state.detectorAccumulator );
-      this.detectorAccumulatorCount = state.detectorAccumulatorCount;
-    }
     this.dirty = true;
   }
 
@@ -222,16 +175,15 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     // If the source was never turned on, or all waves have exited the region, zero everything
     if ( !this.isSourceOn && !this.hasWavesInRegion() ) {
       amplitudeField.fill( 0 );
+      this.detectorDistribution.fill( 0 );
       return;
     }
 
-    const displayK = 2 * Math.PI * DISPLAY_WAVELENGTHS / this.regionWidth;
+    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const displayK = 2 * Math.PI / displayLambda;
     const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
     const displayOmega = displayK * displaySpeed;
-
-    // Wavefront position measured from when the source was last turned on
-    const sourceOnTime = this.sourceOnTime ?? 0;
-    const displayWavefrontX = displaySpeed * ( this.time - sourceOnTime );
+    const displayWavefrontX = displaySpeed * this.time;
 
     // Trailing edge: position of the last emitted wavefront's left boundary
     const trailingEdgeX = this.sourceOffTime !== null
@@ -251,7 +203,11 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx, dy,
         viewSlitSep, viewSlitWidth
       );
+      this.computeDetectorDistribution( displayLambda, displaySpeed, viewSlitSep, viewSlitWidth );
+      return;
     }
+
+    this.computeDetectorDistribution( displayLambda, displaySpeed, 0, 0 );
   }
 
   private computePlaneWaveField( k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number ): void {
@@ -299,11 +255,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const L = this.regionWidth - barrierX;
     const huygensNorm = 0.5 * Math.sqrt( L ) / N_HUYGENS_SOURCES;
 
+    // Precompute source positions for each slit
     const sourceSpacing = displaySlitWidth / N_HUYGENS_SOURCES;
-    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
-
-    // Fresnel distance: near the barrier, blend from geometric optics to full diffraction
-    const fresnelDistance = displaySlitWidth * displaySlitWidth / displayLambda;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = ix * dx;
@@ -343,10 +296,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             amplitudeField[ idx + 1 ] = 0;
           }
           else {
-            const dxField = x - barrierX;
 
             // Compute each slit's Huygens contribution separately to preserve phase
-            let topRe = 0; let topIm = 0; let bottomRe = 0; let bottomIm = 0;
+            let topRe = 0; let topIm = 0; let bottomRe = 0; let
+bottomIm = 0;
 
             if ( this.isTopSlitOpen ) {
               this.computeSlitContribution(
@@ -367,7 +320,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             }
 
             // Build coherent sum from non-decoherent slits
-            let coherentRe = 0; let coherentIm = 0;
+            let coherentRe = 0; let
+coherentIm = 0;
             if ( this.isTopSlitOpen && !this.isTopSlitDecoherent ) { coherentRe += topRe; coherentIm += topIm; }
             if ( this.isBottomSlitOpen && !this.isBottomSlitDecoherent ) { coherentRe += bottomRe; coherentIm += bottomIm; }
             const coherentIntensity = coherentRe * coherentRe + coherentIm * coherentIm;
@@ -379,8 +333,11 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
             const totalIntensity = coherentIntensity + decoherentIntensity;
 
-            // Pick phase from the strongest contribution
-            let bestRe = coherentRe; let bestIm = coherentIm; let bestIntensity = coherentIntensity;
+            // Pick phase from the strongest contribution at this pixel: the coherent
+            // sum or any individual decoherent slit. This shows circular wavefronts
+            // from each slit — decoherent slits just don't interfere with others.
+            let bestRe = coherentRe; let bestIm = coherentIm; let
+bestIntensity = coherentIntensity;
 
             if ( this.isTopSlitOpen && this.isTopSlitDecoherent ) {
               const topIntensity = topRe * topRe + topIm * topIm;
@@ -391,43 +348,14 @@ export default class AnalyticalWaveSolver implements WaveSolver {
               if ( bottomIntensity > bestIntensity ) { bestRe = bottomRe; bestIm = bottomIm; bestIntensity = bottomIntensity; }
             }
 
-            let huygensRe: number;
-            let huygensIm: number;
             if ( bestIntensity > 1e-20 ) {
               const scale = Math.sqrt( totalIntensity / bestIntensity );
-              huygensRe = bestRe * scale;
-              huygensIm = bestIm * scale;
+              amplitudeField[ idx ] = bestRe * scale;
+              amplitudeField[ idx + 1 ] = bestIm * scale;
             }
             else {
-              huygensRe = 0;
-              huygensIm = 0;
-            }
-
-            // Fresnel blend: near the barrier, smoothly transition from geometric optics
-            // (plane wave in slit projection) to full Huygens diffraction field.
-            const blendFactor = Math.min( 1.0, dxField / fresnelDistance );
-
-            if ( blendFactor >= 1.0 ) {
-              amplitudeField[ idx ] = huygensRe;
-              amplitudeField[ idx + 1 ] = huygensIm;
-            }
-            else {
-              // Geometric optics: plane wave within slit projection, zero in shadow
-              const inTopSlitProjection = this.isTopSlitOpen && Math.abs( y - topSlitY ) < displaySlitWidth / 2;
-              const inBottomSlitProjection = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < displaySlitWidth / 2;
-              const inProjection = inTopSlitProjection || inBottomSlitProjection;
-
-              if ( inProjection ) {
-                const geoPhase = k * x - omega * this.time;
-                const geoRe = Math.cos( geoPhase );
-                const geoIm = Math.sin( geoPhase );
-                amplitudeField[ idx ] = ( 1 - blendFactor ) * geoRe + blendFactor * huygensRe;
-                amplitudeField[ idx + 1 ] = ( 1 - blendFactor ) * geoIm + blendFactor * huygensIm;
-              }
-              else {
-                amplitudeField[ idx ] = blendFactor * huygensRe;
-                amplitudeField[ idx + 1 ] = blendFactor * huygensIm;
-              }
+              amplitudeField[ idx ] = 0;
+              amplitudeField[ idx + 1 ] = 0;
             }
           }
         }
@@ -436,11 +364,9 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   }
 
   /**
-   * Huygens-Kirchhoff summation: N sources uniformly distributed across the slit aperture,
-   * treated as a line-segment source. Each source contributes with bounded amplitude that
-   * equals 1/N near the slit (so the sum = 1, continuous with the incoming plane wave)
-   * and transitions to huygensNorm/sqrt(r) in the far field (proper cylindrical spreading).
-   * The phase includes k*barrierX for continuity with the pre-barrier plane wave.
+   * Huygens summation: N point sources uniformly distributed across the slit aperture.
+   * Each source emits a cylindrical wavelet e^{ikr}/sqrt(r). The sum automatically produces
+   * the sinc diffraction envelope in the far field and circular wavefronts in the near field.
    */
   private computeSlitContribution(
     k: number, omega: number,
@@ -451,7 +377,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     let sumRe = 0;
     let sumIm = 0;
     const dxField = fieldX - barrierX;
-    const nearFieldAmplitude = 1.0 / N_HUYGENS_SOURCES;
 
     for ( let s = 0; s < N_HUYGENS_SOURCES; s++ ) {
       const ySource = slitCenterY + ( s - ( N_HUYGENS_SOURCES - 1 ) / 2 ) * sourceSpacing;
@@ -462,8 +387,9 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         continue;
       }
 
-      const amplitude = Math.min( nearFieldAmplitude, huygensNorm / Math.sqrt( r ) );
-      const phase = k * ( barrierX + r ) - omega * this.time;
+      const rSafe = Math.max( r, 1e-6 );
+      const amplitude = huygensNorm / Math.sqrt( rSafe );
+      const phase = k * r - omega * this.time;
       sumRe += amplitude * Math.cos( phase );
       sumIm += amplitude * Math.sin( phase );
     }
@@ -473,17 +399,15 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   }
 
   /**
-   * Computes the instantaneous (un-normalized) detector-screen probability distribution using
-   * the Fraunhofer formula with time-gated illumination based on wavefront propagation.
-   * Results are written into this.detectorDistribution for accumulation by step().
+   * Computes the detector-screen probability distribution using the Fraunhofer formula
+   * with display-scale parameters, with time-gated illumination based on wavefront propagation.
    */
-  private computeInstantaneousDetectorDistribution(): void {
+  private computeDetectorDistribution(
+    displayLambda: number, displaySpeed: number, viewSlitSep: number, viewSlitWidth: number
+  ): void {
     const { gridHeight, detectorDistribution } = this;
 
-    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
-    const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
-    const sourceOnTime = this.sourceOnTime ?? 0;
-    const displayWavefrontX = displaySpeed * ( this.time - sourceOnTime );
+    const displayWavefrontX = displaySpeed * this.time;
 
     const trailingEdgeX = this.sourceOffTime !== null
                           ? displaySpeed * ( this.time - this.sourceOffTime )
@@ -497,7 +421,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       return;
     }
 
-    const { viewSlitSep, viewSlitWidth } = this.getDisplaySlitGeometry();
     const barrierX = this.barrierFractionX * this.regionWidth;
     const L = this.regionWidth - barrierX;
     const wavefrontPastBarrier = displayWavefrontX - barrierX;
@@ -506,6 +429,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
     const topSlitY = -viewSlitSep / 2;
     const bottomSlitY = viewSlitSep / 2;
+
+    let maxProb = 0;
 
     const slitEnvelopeAt = ( posOnScreen: number, slitY: number ): number => {
       const dySlit = posOnScreen - slitY;
@@ -555,6 +480,14 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         // Single slit: sinc² centered on the open slit
         const openSlitY = this.isTopSlitOpen ? topSlitY : bottomSlitY;
         detectorDistribution[ iy ] = 0.5 * slitEnvelopeAt( posOnScreen, openSlitY );
+      }
+
+      maxProb = Math.max( maxProb, detectorDistribution[ iy ] );
+    }
+
+    if ( maxProb > 0 ) {
+      for ( let iy = 0; iy < gridHeight; iy++ ) {
+        detectorDistribution[ iy ] /= maxProb;
       }
     }
   }

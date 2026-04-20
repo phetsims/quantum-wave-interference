@@ -21,7 +21,6 @@ import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
-import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
@@ -57,8 +56,6 @@ const TOP_ROW_BEAM_RIGHT_PANEL_GAP = 10;
 
 const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
 const TOP_ROW_TO_MASS_LABEL_SPACING = 12;
-const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
-const SCENE_TO_OBSTACLE_CONTROLS_SPACING = 36;
 
 // Extra vertical space below the top row to accommodate the zoom-callout lines between the
 // mini-symbol (at TOP_ROW_CENTER_Y) and the top of the main wave region.
@@ -95,61 +92,10 @@ export default class HighIntensityScreenView extends ScreenView {
 
     sceneRadioButtonGroup.layoutOptions = { align: 'center' };
 
-    const obstacleRadioButtonItems: AquaRadioButtonGroupItem<ObstacleType>[] = [
-      {
-        value: 'none',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.noneStringProperty, {
-          font: LABEL_FONT,
-          maxWidth: 120
-        } ),
-        tandemName: 'noneRadioButton'
-      },
-      {
-        value: 'doubleSlit',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.doubleSlitStringProperty, {
-          font: LABEL_FONT,
-          maxWidth: 120
-        } ),
-        tandemName: 'doubleSlitRadioButton'
-      }
-    ];
-
-    const obstacleHeading = new Text( QuantumWaveInterferenceFluent.obstacleStringProperty, {
-      font: new PhetFont( 14 ),
-      maxWidth: 120
-    } );
-
-    const obstacleRadioButtonGroup = new AquaRadioButtonGroup<ObstacleType>(
-      model.currentObstacleTypeProperty,
-      obstacleRadioButtonItems,
-      {
-        spacing: 8,
-        align: 'left',
-        orientation: 'vertical',
-        radioButtonOptions: { radius: 7 },
-        accessibleName: QuantumWaveInterferenceFluent.obstacleStringProperty,
-        tandem: tandem.createTandem( 'obstacleRadioButtonGroup' )
-      }
-    );
-
-    const obstacleControlsSection = new VBox( {
-      spacing: 6,
-      align: 'center',
-      layoutOptions: { align: 'center' },
-      children: [ obstacleHeading, obstacleRadioButtonGroup ]
-    } );
-
-    const sceneAndObstacleControlsVBox = new VBox( {
-      spacing: SCENE_TO_OBSTACLE_CONTROLS_SPACING,
-      align: 'center',
-      layoutOptions: { align: 'center' },
-      children: [ sceneRadioButtonGroup, obstacleControlsSection ]
-    } );
-
     const leftControlsVBox = new VBox( {
-      spacing: SOURCE_TO_SCENE_CONTROLS_SPACING,
+      spacing: 16,
       align: 'left',
-      children: [ sourceControlPanel, sceneAndObstacleControlsVBox ]
+      children: [ sourceControlPanel, sceneRadioButtonGroup ]
     } );
     leftControlsVBox.left = X_MARGIN;
     this.addChild( leftControlsVBox );
@@ -232,8 +178,7 @@ export default class HighIntensityScreenView extends ScreenView {
       tandem,
       {
         layoutBoundsBottom: this.layoutBounds.maxY,
-        layoutBoundsBottomOffset: CONTENT_VERTICAL_OFFSET,
-        includeObstacleSection: false
+        layoutBoundsBottomOffset: CONTENT_VERTICAL_OFFSET
       }
     );
     this.addChild( bottomRow );

@@ -91,6 +91,8 @@ addToMapIfDefined( 'topDetector', 'topDetectorStringProperty' );
 addToMapIfDefined( 'bottomDetector', 'bottomDetectorStringProperty' );
 addToMapIfDefined( 'autoRepeat', 'autoRepeatStringProperty' );
 addToMapIfDefined( 'timeScaleLabel', 'timeScaleLabelStringProperty' );
+addToMapIfDefined( 'erase', 'eraseStringProperty' );
+addToMapIfDefined( 'snapshots', 'snapshotsStringProperty' );
 addToMapIfDefined( 'detectorSize', 'detectorSizeStringProperty' );
 addToMapIfDefined( 'detect', 'detectStringProperty' );
 addToMapIfDefined( 'resetDetector', 'resetDetectorStringProperty' );
@@ -135,6 +137,7 @@ addToMapIfDefined( 'a11y_sceneRadioButtonGroup_heliumAtomsRadioButton_accessible
 addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleName', 'a11y.slitSettingsComboBox.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleHelpText', 'a11y.slitSettingsComboBox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleContextResponse', 'a11y.slitSettingsComboBox.accessibleContextResponseStringProperty' );
+addToMapIfDefined( 'a11y_slitWidthMillimetersPattern', 'a11y.slitWidthMillimetersPatternStringProperty' );
 addToMapIfDefined( 'a11y_slitWidthMicrometersPattern', 'a11y.slitWidthMicrometersPatternStringProperty' );
 addToMapIfDefined( 'a11y_slitView_accessibleParagraph', 'a11y.slitView.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_zoomInButton_accessibleName', 'a11y.zoomInButton.accessibleNameStringProperty' );
@@ -279,6 +282,8 @@ const QuantumWaveInterferenceFluent = {
   bottomDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomDetectorStringProperty' ),
   autoRepeatStringProperty: _.get( QuantumWaveInterferenceStrings, 'autoRepeatStringProperty' ),
   timeScaleLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeScaleLabelStringProperty' ),
+  eraseStringProperty: _.get( QuantumWaveInterferenceStrings, 'eraseStringProperty' ),
+  snapshotsStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotsStringProperty' ),
   detectorSizeStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorSizeStringProperty' ),
   detectStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectStringProperty' ),
   resetDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'resetDetectorStringProperty' ),
@@ -370,6 +375,7 @@ const QuantumWaveInterferenceFluent = {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSettingsComboBox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSettingsComboBox.accessibleHelpTextStringProperty' ) ),
       accessibleContextResponse: new FluentPattern<{ slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors'> }>( fluentSupport.bundleProperty, 'a11y_slitSettingsComboBox_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSettingsComboBox.accessibleContextResponseStringProperty' ), [{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","bothDetectors"]}] )
     },
+    slitWidthMillimetersPattern: new FluentPattern<{ value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitWidthMillimetersPattern', _.get( QuantumWaveInterferenceStrings, 'a11y.slitWidthMillimetersPatternStringProperty' ), [{"name":"value"}] ),
     slitWidthMicrometersPattern: new FluentPattern<{ value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitWidthMicrometersPattern', _.get( QuantumWaveInterferenceStrings, 'a11y.slitWidthMicrometersPatternStringProperty' ), [{"name":"value"}] ),
     slitView: {
       accessibleParagraph: new FluentPattern<{ slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors'>, slitWidth: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitView_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.slitView.accessibleParagraphStringProperty' ), [{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","bothDetectors"]},{"name":"slitWidth"}] )

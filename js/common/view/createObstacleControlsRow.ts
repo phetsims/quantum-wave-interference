@@ -35,7 +35,6 @@ const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 type CreateObstacleControlsRowOptions = {
   layoutBoundsBottom?: number;
   layoutBoundsBottomOffset?: number;
-  includeObstacleSection?: boolean;
 };
 
 const createObstacleControlsRow = <T extends string>(
@@ -49,7 +48,6 @@ const createObstacleControlsRow = <T extends string>(
   tandem: Tandem,
   options?: CreateObstacleControlsRowOptions
 ): Node => {
-  const includeObstacleSection = options?.includeObstacleSection !== false;
 
   const obstacleTitle = new Text( QuantumWaveInterferenceFluent.obstacleStringProperty, {
     font: TITLE_FONT,
@@ -112,21 +110,14 @@ const createObstacleControlsRow = <T extends string>(
     slitSection.visible = obstacleType === 'doubleSlit';
   } );
 
-  const bottomRowChildren = includeObstacleSection ? [ obstacleSection, slitSection ] : [ slitSection ];
-
   const bottomRow = new HBox( {
     spacing: 20,
     align: 'bottom',
-    children: bottomRowChildren
+    children: [ obstacleSection, slitSection ]
   } );
   bottomRow.left = X_MARGIN;
 
   const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
-  if ( !includeObstacleSection ) {
-    obstacleTypeProperty.link( obstacleType => {
-      bottomRow.visible = obstacleType === 'doubleSlit';
-    } );
-  }
   if ( options?.layoutBoundsBottom !== undefined ) {
     const targetBottom = options.layoutBoundsBottom - Y_MARGIN + ( options.layoutBoundsBottomOffset || 0 );
     ManualConstraint.create( listParent, [ bottomRow ], proxy => {
