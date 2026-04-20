@@ -227,12 +227,6 @@
   "timeScaleLabel": {
     "value": "1 fs = 10⁻¹⁵ s"
   },
-  "erase": {
-    "value": "Erase"
-  },
-  "snapshots": {
-    "value": "Snapshots"
-  },
   "detectorSize": {
     "value": "Detector Size"
   },
@@ -412,9 +406,6 @@
       "accessibleContextResponse": {
         "value": "{ $slitSetting ->\n  [bothOpen] Both slits now open.\n  [leftCovered] Left slit now covered.\n  [rightCovered] Right slit now covered.\n  [leftDetector] Left slit now monitored by a detector.\n  [rightDetector] Right slit now monitored by a detector.\n *[bothDetectors] Both slits now monitored by detectors.\n}"
       }
-    },
-    "slitWidthMillimetersPattern": {
-      "value": "{ $value } millimeters"
     },
     "slitWidthMicrometersPattern": {
       "value": "{ $value } micrometers"
