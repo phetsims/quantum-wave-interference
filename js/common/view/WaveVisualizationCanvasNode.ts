@@ -86,13 +86,54 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
 
     // GPU path: delegate rendering to the GPU solver's display shader
     if ( solver instanceof GPUWavePacketSolver ) {
-      solver.renderDisplay(
-        scene.activeWaveDisplayModeProperty.value,
-        scene.sourceType,
-        scene.wavelengthProperty.value
-      );
+      const displayMode = scene.activeWaveDisplayModeProperty.value;
+      const sourceType = scene.sourceType;
+      const wavelength = scene.wavelengthProperty.value;
+
+      solver.renderDisplay( displayMode, sourceType, wavelength );
       context.imageSmoothingEnabled = true;
-      context.drawImage( solver.canvas, 0, 0, this.viewWidth, this.viewHeight );
+
+      if ( phet.chipper.queryParameters.dev ) {
+
+        // Canvas is totalSize×totalSize in dev mode. renderDisplay wrote to the bottom gridWidth
+        // rows (WebGL origin is bottom-left), which are the bottom rows in Canvas2D coords.
+        const srcY = solver.totalSize - solver.gridWidth;
+        context.drawImage( solver.canvas,
+          0, srcY, solver.gridWidth, solver.gridWidth,
+          0, 0, this.viewWidth, this.viewHeight );
+
+        // Render the full grid (including damping margins) with damping overlay
+        solver.renderFullGrid( displayMode, sourceType, wavelength );
+
+        // Draw as a thumbnail occupying the bottom-right quarter of the view
+        const thumbW = this.viewWidth / 2;
+        const thumbH = this.viewHeight / 2;
+        const tx = this.viewWidth - thumbW;
+        const ty = this.viewHeight - thumbH;
+        context.drawImage( solver.canvas,
+          0, 0, solver.totalSize, solver.totalSize,
+          tx, ty, thumbW, thumbH );
+
+        // Solid border around the thumbnail
+        context.strokeStyle = 'white';
+        context.lineWidth = 2;
+        context.strokeRect( tx, ty, thumbW, thumbH );
+
+        // Dashed rectangle marking the visible region within the thumbnail
+        const scale = thumbW / solver.totalSize;
+        const visX = tx + solver.dampingMargin * scale;
+        const visY = ty + solver.dampingMargin * ( thumbH / solver.totalSize );
+        const visW = solver.gridWidth * scale;
+        const visH = solver.gridHeight * ( thumbH / solver.totalSize );
+        context.setLineDash( [ 5, 3 ] );
+        context.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        context.lineWidth = 1;
+        context.strokeRect( visX, visY, visW, visH );
+        context.setLineDash( [] );
+      }
+      else {
+        context.drawImage( solver.canvas, 0, 0, this.viewWidth, this.viewHeight );
+      }
       return;
     }
 

@@ -96,7 +96,9 @@ export const DISPLAY_FRAG = `#version 300 es
 precision highp float;
 
 uniform highp sampler2D u_psi;
+uniform highp sampler2D u_damping;
 uniform int u_displayMode;
+uniform int u_showDamping;
 uniform vec3 u_baseColor;
 uniform vec3 u_negColor;
 uniform float u_amplitudeScale;
@@ -134,5 +136,14 @@ void main() {
 
   value = clamp(value, 0.0, 1.0);
   vec3 color = isPositive ? u_baseColor : u_negColor;
-  fragColor = vec4(color * value, 1.0);
+  vec3 waveColor = color * value;
+
+  if (u_showDamping == 1) {
+    float dampingVal = texelFetch(u_damping, pos, 0).r;
+    float indicator = (1.0 - dampingVal) * 0.15;
+    vec3 dampingBg = vec3(0.3, 0.05, 0.0) * indicator;
+    waveColor = max(waveColor, dampingBg);
+  }
+
+  fragColor = vec4(waveColor, 1.0);
 }`;
