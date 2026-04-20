@@ -48,6 +48,9 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private regionHeight = 1.0;
   private time = 0;
 
+  // Tracks when the source was turned on so the wavefront grows from the left edge each time
+  private sourceOnTime: number | null = null;
+
   // Tracks when the source was turned off so waves can continue propagating past the trailing edge
   private sourceOffTime: number | null = null;
 
@@ -90,6 +93,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         this.sourceOffTime = this.time;
       }
       else if ( !this.isSourceOn && params.isSourceOn ) {
+        this.sourceOnTime = this.time;
         this.sourceOffTime = null;
       }
       this.isSourceOn = params.isSourceOn;
@@ -123,6 +127,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
   public reset(): void {
     this.time = 0;
+    this.sourceOnTime = null;
     this.sourceOffTime = null;
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
@@ -132,12 +137,14 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   public getState(): WaveSolverState {
     return {
       time: this.time,
+      sourceOnTime: this.sourceOnTime,
       sourceOffTime: this.sourceOffTime
     };
   }
 
   public setState( state: WaveSolverState ): void {
     this.time = state.time;
+    this.sourceOnTime = state.sourceOnTime;
     this.sourceOffTime = state.sourceOffTime;
     this.dirty = true;
   }
@@ -183,7 +190,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const displayK = 2 * Math.PI / displayLambda;
     const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
     const displayOmega = displayK * displaySpeed;
-    const displayWavefrontX = displaySpeed * this.time;
+
+    // Wavefront position measured from when the source was last turned on
+    const sourceOnTime = this.sourceOnTime ?? 0;
+    const displayWavefrontX = displaySpeed * ( this.time - sourceOnTime );
 
     // Trailing edge: position of the last emitted wavefront's left boundary
     const trailingEdgeX = this.sourceOffTime !== null
@@ -407,7 +417,8 @@ bestIntensity = coherentIntensity;
   ): void {
     const { gridHeight, detectorDistribution } = this;
 
-    const displayWavefrontX = displaySpeed * this.time;
+    const sourceOnTime = this.sourceOnTime ?? 0;
+    const displayWavefrontX = displaySpeed * ( this.time - sourceOnTime );
 
     const trailingEdgeX = this.sourceOffTime !== null
                           ? displaySpeed * ( this.time - this.sourceOffTime )
