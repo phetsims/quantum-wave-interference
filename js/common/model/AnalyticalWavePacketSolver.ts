@@ -57,9 +57,13 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   // Precomputed vertical Gaussian envelope (reused across frames when grid height is constant)
   private readonly envYCache: Float64Array;
 
-  // Projections are replayed after each recomputation because the analytical solver rebuilds the field
-  // from t=0; the hole stays fixed at its absolute grid location rather than following the packet.
-  private readonly measurementProjections: Array<{ cxGrid: number; cyGrid: number; rSqGrid: number; scale: number }> = [];
+  // Each bite is a Gaussian wave packet created at the detector position when a "not detected"
+  // measurement occurs. It propagates analytically at the same speed as the main packet, and is
+  // decoherently subtracted from the main field so the hole moves and softens naturally.
+  private readonly biteGaussians: {
+    worldX0: number; worldY: number; invSigmaSq: number;
+    peakProbDensity: number; measurementTime: number; renormScale: number;
+  }[] = [];
 
   private scratchRe = 0;
   private scratchIm = 0;
@@ -108,7 +112,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.time = 0;
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
-    this.measurementProjections.length = 0;
+    this.biteGaussians.length = 0;
     this.dirty = true;
     this.detectorDistributionDirty = true;
   }
@@ -116,24 +120,20 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   public getState(): WaveSolverState {
     return {
       time: this.time,
-      measurementProjections: this.measurementProjections.map( p => ( {
-        cxGrid: p.cxGrid,
-        cyGrid: p.cyGrid,
-        rSqGrid: p.rSqGrid,
-        scale: p.scale
+      biteGaussians: this.biteGaussians.map( b => ( {
+        worldX0: b.worldX0, worldY: b.worldY, invSigmaSq: b.invSigmaSq,
+        peakProbDensity: b.peakProbDensity, measurementTime: b.measurementTime, renormScale: b.renormScale
       } ) )
     };
   }
 
   public setState( state: WaveSolverState ): void {
     this.time = state.time;
-    this.measurementProjections.length = 0;
-    for ( const p of state.measurementProjections ) {
-      this.measurementProjections.push( {
-        cxGrid: p.cxGrid,
-        cyGrid: p.cyGrid,
-        rSqGrid: p.rSqGrid,
-        scale: p.scale
+    this.biteGaussians.length = 0;
+    for ( const b of state.biteGaussians ) {
+      this.biteGaussians.push( {
+        worldX0: b.worldX0, worldY: b.worldY, invSigmaSq: b.invSigmaSq,
+        peakProbDensity: b.peakProbDensity, measurementTime: b.measurementTime, renormScale: b.renormScale
       } );
     }
     this.dirty = true;
@@ -145,38 +145,43 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   }
 
   public applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void {
-
-    // Ensure stored projections are applied before computing the new scale — the scale must reflect
-    // the probability distribution as the user actually observed it when measuring.
     this.ensureComputed();
 
-    const cxGrid = centerNorm.x * this.gridWidth;
-    const cyGrid = centerNorm.y * this.gridHeight;
-    const rGrid = radiusNorm * this.gridWidth;
+    const { gridWidth, gridHeight, amplitudeField, regionWidth, regionHeight } = this;
+    const cxGrid = centerNorm.x * gridWidth;
+    const cyGrid = centerNorm.y * gridHeight;
+    const rGrid = radiusNorm * gridWidth;
     const rSqGrid = rGrid * rGrid;
 
-    const { gridWidth, gridHeight, amplitudeField } = this;
-    let totalBefore = 0;
-    let totalOutsideNew = 0;
+    let probInCircle = 0;
+    let totalProb = 0;
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
+      const dyCell = iy - cyGrid;
+      const dyCellSq = dyCell * dyCell;
       for ( let ix = 0; ix < gridWidth; ix++ ) {
+        const dxCell = ix - cxGrid;
         const idx = ( iy * gridWidth + ix ) * 2;
         const re = amplitudeField[ idx ];
         const im = amplitudeField[ idx + 1 ];
         const prob = re * re + im * im;
-        totalBefore += prob;
-
-        const dxCell = ix - cxGrid;
-        const dyCell = iy - cyGrid;
-        if ( dxCell * dxCell + dyCell * dyCell > rSqGrid ) {
-          totalOutsideNew += prob;
+        totalProb += prob;
+        if ( dxCell * dxCell + dyCellSq <= rSqGrid ) {
+          probInCircle += prob;
         }
       }
     }
 
-    const scale = totalOutsideNew > 0 ? Math.sqrt( totalBefore / totalOutsideNew ) : 0;
-    this.measurementProjections.push( { cxGrid: cxGrid, cyGrid: cyGrid, rSqGrid: rSqGrid, scale: scale } );
+    const worldX0 = centerNorm.x * regionWidth;
+    const worldY = ( centerNorm.y - 0.5 ) * regionHeight;
+    const sigmaWorld = radiusNorm * regionWidth;
+    const invSigmaSq = 1 / ( sigmaWorld * sigmaWorld );
+    const dxWorld = regionWidth / gridWidth;
+    const dyWorld = regionHeight / gridHeight;
+    const peakProbDensity = probInCircle * dxWorld * dyWorld / ( Math.PI * sigmaWorld * sigmaWorld );
+    const renormScale = totalProb > probInCircle ? Math.sqrt( totalProb / ( totalProb - probInCircle ) ) : 1;
+
+    this.biteGaussians.push( { worldX0: worldX0, worldY: worldY, invSigmaSq: invSigmaSq, peakProbDensity: peakProbDensity, measurementTime: this.time, renormScale: renormScale } );
     this.dirty = true;
   }
 
@@ -218,34 +223,62 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       this.computeSlitPacket( kDisplay, omegaDisplay, xCenter, dx, dy, invTwoSigmaXSq, sigmaY );
     }
 
-    this.applyStoredProjections();
+    this.subtractBiteGaussians();
     this.computeDetectorDistribution();
   }
 
-  private applyStoredProjections(): void {
-    if ( this.measurementProjections.length === 0 ) {
+  private subtractBiteGaussians(): void {
+    if ( this.biteGaussians.length === 0 ) {
       return;
     }
 
-    const { gridWidth, gridHeight, amplitudeField, measurementProjections } = this;
+    const { gridWidth, gridHeight, amplitudeField, biteGaussians, regionWidth, regionHeight, time } = this;
+    const dxWorld = regionWidth / gridWidth;
+    const dyWorld = regionHeight / gridHeight;
+    const displaySpeed = regionWidth / PACKET_TRAVERSAL_TIME;
 
-    for ( let p = 0; p < measurementProjections.length; p++ ) {
-      const { cxGrid, cyGrid, rSqGrid, scale } = measurementProjections[ p ];
+    const biteCurrentXs: number[] = [];
+    for ( let b = 0; b < biteGaussians.length; b++ ) {
+      biteCurrentXs.push( biteGaussians[ b ].worldX0 + displaySpeed * ( time - biteGaussians[ b ].measurementTime ) );
+    }
 
-      for ( let iy = 0; iy < gridHeight; iy++ ) {
-        const dyCell = iy - cyGrid;
-        const dyCellSq = dyCell * dyCell;
-        for ( let ix = 0; ix < gridWidth; ix++ ) {
-          const dxCell = ix - cxGrid;
-          const idx = ( iy * gridWidth + ix ) * 2;
-          if ( dxCell * dxCell + dyCellSq <= rSqGrid ) {
-            amplitudeField[ idx ] = 0;
-            amplitudeField[ idx + 1 ] = 0;
+    const renormScale = biteGaussians[ biteGaussians.length - 1 ].renormScale;
+
+    for ( let iy = 0; iy < gridHeight; iy++ ) {
+      const worldY = ( iy - gridHeight / 2 ) * dyWorld;
+
+      for ( let ix = 0; ix < gridWidth; ix++ ) {
+        const idx = ( iy * gridWidth + ix ) * 2;
+        const re = amplitudeField[ idx ];
+        const im = amplitudeField[ idx + 1 ];
+        const probMain = re * re + im * im;
+
+        if ( probMain < 1e-12 ) {
+          continue;
+        }
+
+        const worldX = ix * dxWorld;
+        let totalProbBite = 0;
+
+        for ( let b = 0; b < biteGaussians.length; b++ ) {
+          const bite = biteGaussians[ b ];
+          const dxBite = worldX - biteCurrentXs[ b ];
+          const dyBite = worldY - bite.worldY;
+          const rSqInvSigmaSq = ( dxBite * dxBite + dyBite * dyBite ) * bite.invSigmaSq;
+
+          if ( rSqInvSigmaSq < 16 ) {
+            totalProbBite += bite.peakProbDensity * Math.exp( -rSqInvSigmaSq );
           }
-          else {
-            amplitudeField[ idx ] *= scale;
-            amplitudeField[ idx + 1 ] *= scale;
-          }
+        }
+
+        if ( totalProbBite > 0 ) {
+          const scale = Math.sqrt( Math.max( 0, probMain - totalProbBite ) / probMain ) * renormScale;
+          amplitudeField[ idx ] = re * scale;
+          amplitudeField[ idx + 1 ] = im * scale;
+        }
+        else {
+          amplitudeField[ idx ] = re * renormScale;
+          amplitudeField[ idx + 1 ] = im * renormScale;
         }
       }
     }
