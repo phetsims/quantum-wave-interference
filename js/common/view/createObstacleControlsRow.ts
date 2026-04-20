@@ -34,6 +34,7 @@ const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 
 type CreateObstacleControlsRowOptions = {
   layoutBoundsBottom?: number;
+  layoutBoundsBottomOffset?: number;
 };
 
 const createObstacleControlsRow = <T extends string>(
@@ -118,7 +119,7 @@ const createObstacleControlsRow = <T extends string>(
 
   const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
   if ( options?.layoutBoundsBottom !== undefined ) {
-    const targetBottom = options.layoutBoundsBottom - Y_MARGIN;
+    const targetBottom = options.layoutBoundsBottom - Y_MARGIN + ( options.layoutBoundsBottomOffset || 0 );
     ManualConstraint.create( listParent, [ bottomRow ], proxy => {
       proxy.bottom = targetBottom;
     } );

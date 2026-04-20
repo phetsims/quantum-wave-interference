@@ -28,7 +28,6 @@ type SelfOptions = EmptySelfOptions;
 
 type WaveVisualizationNodeOptions = SelfOptions & NodeOptions;
 
-const CORNER_RADIUS = 10;
 const SCALE_MARGIN = 8;
 
 // "Nice" multipliers within each power of 10 for human-friendly scale labels
@@ -103,7 +102,6 @@ export default class WaveVisualizationNode extends Node {
     const height = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 
     const backgroundRect = new Rectangle( 0, 0, width, height, {
-      cornerRadius: CORNER_RADIUS,
       fill: 'black',
       stroke: 'white',
       lineWidth: 2

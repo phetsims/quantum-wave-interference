@@ -23,11 +23,14 @@ import Multilink from '../../../../axon/js/Multilink.js';
 import Property from '../../../../axon/js/Property.js';
 import TProperty from '../../../../axon/js/TProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import Shape from '../../../../kite/js/Shape.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import Color from '../../../../scenery/js/util/Color.js';
+import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -37,21 +40,25 @@ import { type SourceType } from '../../common/model/SourceType.js';
 import createRoundedPolygonShape from '../../common/view/createRoundedPolygonShape.js';
 import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 
-const EMITTER_BODY_WIDTH = 70;
-const EMITTER_BODY_HEIGHT = 32;
-const EMITTER_NOZZLE_WIDTH = 14;
-const EMITTER_NOZZLE_HEIGHT = 26;
-const EMITTER_BUTTON_RADIUS = 12;
+const EMITTER_SCALE = 1.5;
 
-const MINI_SYMBOL_SQUARE_SIZE = 22;
-const MINI_SYMBOL_DETECTOR_WIDTH = 8;
-const MINI_SYMBOL_SKEW = 3;
+const EMITTER_BODY_WIDTH = 70 * EMITTER_SCALE;
+const EMITTER_BODY_HEIGHT = 32 * EMITTER_SCALE;
+const EMITTER_NOZZLE_WIDTH = 14 * EMITTER_SCALE;
+const EMITTER_NOZZLE_HEIGHT = 26 * EMITTER_SCALE;
+const EMITTER_BUTTON_RADIUS = 12 * EMITTER_SCALE;
+
+const MINI_SYMBOL_SCALE = 0.5;
+const MINI_SYMBOL_SQUARE_SIZE = 22 * MINI_SYMBOL_SCALE;
+const MINI_SYMBOL_DETECTOR_WIDTH = 8 * MINI_SYMBOL_SCALE;
+const MINI_SYMBOL_SKEW = 3 * MINI_SYMBOL_SCALE;
 
 
-const BEAM_HEIGHT = EMITTER_NOZZLE_HEIGHT;
-const BEAM_MAIN_ALPHA_SCALE = 0.35;
-const BEAM_CUTOFF_ALPHA_SCALE = 0.12;
-const BEAM_CUTOFF_EXTENSION = 70;
+const HIGH_OPACITY_BEAM_STACK_HEIGHT = EMITTER_NOZZLE_HEIGHT * 0.85 * 0.9 * 0.85;
+const DIM_RIGHT_BEAM_HEIGHT = MINI_SYMBOL_SQUARE_SIZE;
+const HIGH_OPACITY_BEAM_ALPHA_SCALE = 0.6;
+const DIM_RIGHT_BEAM_ALPHA_SCALE = 0.3;
+const RIGHT_BEAM_FADE_WIDTH_SCALE = 0.25;
 
 const CALLOUT_LINE_WIDTH = 0.75;
 
@@ -87,7 +94,7 @@ type TopRowSceneLike = {
 };
 
 export type HighIntensityTopRowLayout = {
-  emitterLeft: number;         // x of emitter body's left edge
+  emitterCenterX: number;      // horizontal center of the emitter body + nozzle assembly
   topRowCenterY: number;       // vertical center of emitter + mini symbol + beam
   waveRegionLeft: number;      // x of main wave region's left edge
   waveRegionRight: number;     // x of main wave region's right edge (i.e. left + width)
@@ -99,26 +106,27 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
   // Bottom y of the emitter body, so callers can stack controls below it without being
   // affected by the taller bounds of the callout lines that extend down to the wave region.
   public readonly emitterBottom: number;
+  public readonly emitterCenterX: number;
 
   public constructor(
     sceneProperty: Property<T>,
     scenes: T[],
     currentIsEmittingProperty: TProperty<boolean>,
+    visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
+    beamRightLimitXProperty: TReadOnlyProperty<number>,
     layout: HighIntensityTopRowLayout,
     tandem: Tandem
   ) {
     super( { isDisposable: false } );
 
-    const { emitterLeft, topRowCenterY, waveRegionLeft, waveRegionRight, waveRegionTop } = layout;
+    const { emitterCenterX, topRowCenterY, waveRegionLeft, waveRegionRight, waveRegionTop } = layout;
+    const emitterLeft = emitterCenterX - ( EMITTER_BODY_WIDTH + EMITTER_NOZZLE_WIDTH ) / 2;
 
     // Mini wave-visualization symbol: a small black square + skewed detector, centered horizontally
     // above the main wave region so the callout lines form a symmetric "zoom in" frustum.
     // The detector is z-ordered behind the square and overlaps it, mirroring the main layout.
     const miniSquare = new Rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE, {
-      fill: 'black',
-      stroke: 'white',
-      lineWidth: 0.75,
-      cornerRadius: 2
+      fill: 'black'
     } );
 
     const miniDetectorOverlap = 2;
@@ -150,19 +158,37 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
       lineWidth: CALLOUT_LINE_WIDTH
     } );
 
-    // Beam graphics: main beam from emitter nozzle tip rightward through the mini symbol,
-    // plus a dimmer cutoff segment extending past the mini symbol to suggest light blocked by
-    // the detector-screen setup. Beam is hidden when the emitter is off.
-    const beamTop = topRowCenterY - BEAM_HEIGHT / 2;
-    const beamLeft = emitterLeft + EMITTER_BODY_WIDTH + EMITTER_NOZZLE_WIDTH;
-    const mainBeamRight = miniSymbol.right;
-    const mainBeam = new Rectangle( beamLeft, beamTop, mainBeamRight - beamLeft, BEAM_HEIGHT );
-    const cutoffBeam = new Rectangle(
-      mainBeamRight, beamTop,
-      BEAM_CUTOFF_EXTENSION, BEAM_HEIGHT
+    // Beam graphics: one full-height high-opacity beam coming out of the emitter, two high-opacity
+    // right-side branches above and below the mini wave square, and a dimmer right-side beam aligned
+    // with the square itself. Beam is hidden when the emitter is off.
+    const emitterBeamLeft = emitterLeft + EMITTER_BODY_WIDTH + EMITTER_NOZZLE_WIDTH;
+    const targetOuterRightBeamHeight = HIGH_OPACITY_BEAM_STACK_HEIGHT / 3 * 0.9;
+    const miniWaveBoxTop = squareTop;
+    const miniWaveBoxBottom = squareTop + MINI_SYMBOL_SQUARE_SIZE;
+    const emitterBeamTop = roundSymmetric( miniWaveBoxTop - targetOuterRightBeamHeight );
+    const emitterBeamBottom = roundSymmetric( miniWaveBoxBottom + targetOuterRightBeamHeight );
+    const emitterBeamHeight = emitterBeamBottom - emitterBeamTop;
+    const upperRightBeamTop = emitterBeamTop;
+    const upperRightBeamHeight = miniWaveBoxTop - upperRightBeamTop;
+    const lowerRightBeamTop = miniWaveBoxBottom;
+    const lowerRightBeamHeight = emitterBeamBottom - lowerRightBeamTop;
+    const emitterBeamRight = squareLeft;
+    const emitterBeam = new Rectangle(
+      emitterBeamLeft,
+      emitterBeamTop,
+      emitterBeamRight - emitterBeamLeft,
+      emitterBeamHeight
     );
+    const upperRightBeam = new Rectangle( emitterBeamRight, upperRightBeamTop, 0, upperRightBeamHeight );
+    const lowerRightBeam = new Rectangle( emitterBeamRight, lowerRightBeamTop, 0, lowerRightBeamHeight );
+    const dimRightBeamLeft = squareRight;
+    const dimRightBeam = new Rectangle( dimRightBeamLeft, miniWaveBoxTop, 0, DIM_RIGHT_BEAM_HEIGHT );
+    const rightBeamFadeOverlayHeight = emitterBeamBottom - emitterBeamTop;
+    const rightBeamFadeOverlay = new Rectangle( dimRightBeamLeft, emitterBeamTop, 0, rightBeamFadeOverlayHeight, {
+      pickable: false
+    } );
     const beamContainer = new Node( {
-      children: [ mainBeam, cutoffBeam ],
+      children: [ emitterBeam, upperRightBeam, lowerRightBeam, dimRightBeam, rightBeamFadeOverlay ],
       visible: false
     } );
 
@@ -199,6 +225,32 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     this.addChild( emitterContainer );
 
     this.emitterBottom = emitterContainer.bottom;
+    this.emitterCenterX = emitterCenterX;
+
+    Multilink.multilink( [ visibleBoundsProperty, beamRightLimitXProperty ], ( visibleBounds, beamRightLimitX ) => {
+      const rightBeamLimitX = Math.min( visibleBounds.maxX, beamRightLimitX );
+      const rightBranchWidth = Math.max( 0, rightBeamLimitX - emitterBeamRight );
+      const dimRightBeamWidth = Math.max( 0, rightBeamLimitX - dimRightBeamLeft );
+      const rightBeamFadeOverlayWidth = dimRightBeamWidth * RIGHT_BEAM_FADE_WIDTH_SCALE;
+      const rightBeamFadeOverlayLeft = rightBeamLimitX - rightBeamFadeOverlayWidth;
+      upperRightBeam.setRect( emitterBeamRight, upperRightBeamTop, rightBranchWidth, upperRightBeamHeight );
+      lowerRightBeam.setRect( emitterBeamRight, lowerRightBeamTop, rightBranchWidth, lowerRightBeamHeight );
+      dimRightBeam.setRect(
+        dimRightBeamLeft,
+        miniWaveBoxTop,
+        dimRightBeamWidth,
+        DIM_RIGHT_BEAM_HEIGHT
+      );
+      rightBeamFadeOverlay.setRect(
+        rightBeamFadeOverlayLeft,
+        emitterBeamTop,
+        rightBeamFadeOverlayWidth,
+        rightBeamFadeOverlayHeight
+      );
+      rightBeamFadeOverlay.fill = new LinearGradient( rightBeamFadeOverlayLeft, 0, rightBeamLimitX, 0 )
+        .addColorStop( 0, new Color( 255, 255, 255, 0 ) )
+        .addColorStop( 1, 'white' );
+    } );
 
     const currentWavelengthProperty = new DynamicProperty<number, number, T>( sceneProperty, {
       derive: scene => scene.wavelengthProperty
@@ -222,8 +274,10 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
       const baseColor: Color = scene.sourceType === 'photons'
                                ? VisibleColor.wavelengthToColor( wavelength )
                                : particleBeamColor;
-      mainBeam.fill = baseColor.withAlpha( BEAM_MAIN_ALPHA_SCALE * intensity );
-      cutoffBeam.fill = baseColor.withAlpha( BEAM_CUTOFF_ALPHA_SCALE * intensity );
+      emitterBeam.fill = baseColor.withAlpha( HIGH_OPACITY_BEAM_ALPHA_SCALE * intensity );
+      upperRightBeam.fill = baseColor.withAlpha( HIGH_OPACITY_BEAM_ALPHA_SCALE * intensity );
+      lowerRightBeam.fill = baseColor.withAlpha( HIGH_OPACITY_BEAM_ALPHA_SCALE * intensity );
+      dimRightBeam.fill = baseColor.withAlpha( DIM_RIGHT_BEAM_ALPHA_SCALE * intensity );
     } );
 
     linkSceneVisibility( sceneProperty, scenes, emitterChildren );

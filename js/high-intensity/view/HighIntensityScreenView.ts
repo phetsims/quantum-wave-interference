@@ -11,6 +11,7 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -50,8 +51,11 @@ const COMBO_BOX_FONT = new PhetFont( 14 );
 
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+const CONTENT_VERTICAL_OFFSET = 12;
+const TOP_ROW_BEAM_RIGHT_PANEL_GAP = 10;
 
-const TOP_ROW_CENTER_Y = 40;
+const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
+const TOP_ROW_TO_MASS_LABEL_SPACING = 12;
 
 // Extra vertical space below the top row to accommodate the zoom-callout lines between the
 // mini-symbol (at TOP_ROW_CENTER_Y) and the top of the main wave region.
@@ -87,12 +91,11 @@ export default class HighIntensityScreenView extends ScreenView {
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
 
     sceneRadioButtonGroup.layoutOptions = { align: 'center' };
-    particleMassAnnotation.layoutOptions = { align: 'center' };
 
     const leftControlsVBox = new VBox( {
       spacing: 16,
       align: 'left',
-      children: [ sourceControlPanel, sceneRadioButtonGroup, particleMassAnnotation ]
+      children: [ sourceControlPanel, sceneRadioButtonGroup ]
     } );
     leftControlsVBox.left = X_MARGIN;
     this.addChild( leftControlsVBox );
@@ -100,12 +103,15 @@ export default class HighIntensityScreenView extends ScreenView {
     const waveRegionLeft = leftControlsVBox.right + 20;
     const waveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
     const waveRegionRight = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
+    const topRowBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - X_MARGIN );
     const topRowNode = new HighIntensityTopRowNode(
       model.sceneProperty,
       model.scenes,
       model.currentIsEmittingProperty,
+      this.visibleBoundsProperty,
+      topRowBeamRightLimitXProperty,
       {
-        emitterLeft: X_MARGIN,
+        emitterCenterX: leftControlsVBox.centerX,
         topRowCenterY: TOP_ROW_CENTER_Y,
         waveRegionLeft: waveRegionLeft,
         waveRegionRight: waveRegionRight,
@@ -118,6 +124,14 @@ export default class HighIntensityScreenView extends ScreenView {
     // Align the left controls column with the top of the main wave region so the emitter
     // sits above it with a visible gap that the callout lines can span.
     leftControlsVBox.top = waveRegionTop;
+
+    const updateParticleMassAnnotationPosition = () => {
+      particleMassAnnotation.centerX = topRowNode.emitterCenterX;
+      particleMassAnnotation.top = topRowNode.emitterBottom + TOP_ROW_TO_MASS_LABEL_SPACING;
+    };
+    particleMassAnnotation.localBoundsProperty.link( updateParticleMassAnnotationPosition );
+    updateParticleMassAnnotationPosition();
+    this.addChild( particleMassAnnotation );
 
     const { waveVisualizationNode, doubleSlitNode } = createWaveRegionNodes( model, {
       waveRegionLeft: waveRegionLeft,
@@ -162,7 +176,10 @@ export default class HighIntensityScreenView extends ScreenView {
       waveRegionTop,
       this,
       tandem,
-      { layoutBoundsBottom: this.layoutBounds.maxY }
+      {
+        layoutBoundsBottom: this.layoutBounds.maxY,
+        layoutBoundsBottomOffset: CONTENT_VERTICAL_OFFSET
+      }
     );
     this.addChild( bottomRow );
 
@@ -230,6 +247,7 @@ export default class HighIntensityScreenView extends ScreenView {
 
     rightControlsVBox.right = this.layoutBounds.maxX - X_MARGIN;
     rightControlsVBox.top = Y_MARGIN;
+    topRowBeamRightLimitXProperty.value = rightControlsVBox.left - TOP_ROW_BEAM_RIGHT_PANEL_GAP;
     this.addChild( rightControlsVBox );
 
     timeAndResetRow.right = this.layoutBounds.maxX - X_MARGIN;
