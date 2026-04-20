@@ -1,10 +1,26 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * GPUWavePacketSolver evolves a Gaussian wave packet on a 2D lattice using the Modified
- * Richardson scheme, accelerated with WebGL2 fragment shaders. Implements the WaveSolver
- * interface as a drop-in replacement for LatticeWavePacketSolver with a configurable visible
- * resolution (default 256x256) and GPU-accelerated display rendering.
+ * GPUWavePacketSolver evolves a Gaussian wave packet on a 2D lattice using WebGL2 fragment
+ * shaders. Implements the WaveSolver interface as a drop-in replacement for
+ * LatticeWavePacketSolver with a configurable visible resolution (default 256x256) and
+ * GPU-accelerated display rendering.
+ *
+ * Two propagation schemes are used depending on particle type:
+ *
+ * - **Modified Richardson** (electrons, neutrons, helium): Solves the Schrödinger equation
+ *   using 8 directional sweeps per substep with complex-valued α/β coefficients. The
+ *   wavefunction is intrinsically complex (Re + Im), and the dispersion relation ω = ℏk²/2m
+ *   is dispersive — wave packets spread as they propagate, which is physically correct for
+ *   massive particles.
+ *
+ * - **Classical wave FDTD** (photons): Solves the classical wave equation
+ *   ψ(t+1) = 2ψ(t) − ψ(t−1) + c²∇²ψ(t) using a second-order central-difference scheme.
+ *   The wavefunction is real-valued (imaginary part stays zero), and the dispersion relation
+ *   ω = c|k| is non-dispersive — wave packets maintain their shape as they propagate, which
+ *   is physically correct for light in vacuum. Requires 3 time levels (current, previous,
+ *   output) instead of Richardson's 2 ping-pong textures. This matches the legacy Java QWI's
+ *   ClassicalWavePropagator and the CPU LatticeWaveSolver.
  *
  * Key techniques ported from the legacy Java QWI simulation:
  *
@@ -46,16 +62,15 @@ const GPU_EPSILON = 0.5;
 const DISPLAY_WAVELENGTHS = 30;
 
 // Initial Gaussian packet parameters as fractions of the visible region.
-const PACKET_SIGMA_X_FRACTION = 0.1;
-const PACKET_SIGMA_Y_FRACTION = 0.18;
-const PACKET_X0_FRACTION = 0.25;
+const PACKET_SIGMA_FRACTION = 0.1;
+const PACKET_X0_FRACTION = 0.1;
 
 // Target wall-clock traversal time across the visible region, matching the analytical solver.
 const TRAVERSAL_TIME_SECONDS = 1.5;
 
 // Fraction of visible size used as the offscreen damping margin on each side (matches Java's
 // 10-cell damping at 100x100 = 10% margin).
-const DAMPING_MARGIN_FRACTION = 0.1;
+const DAMPING_MARGIN_FRACTION = 0.5;
 
 const NEGATIVE_PHOTON_SCALE = 0.3;
 
@@ -74,8 +89,8 @@ export default class GPUWavePacketSolver implements WaveSolver {
   public readonly gridWidth: number;
   public readonly gridHeight: number;
 
-  private readonly totalSize: number;
-  private readonly dampingMargin: number;
+  public readonly totalSize: number;
+  public readonly dampingMargin: number;
   private readonly barrierThickness: number;
   private readonly substepsPerSecond: number;
   private readonly amplitudeScale: number;
@@ -168,13 +183,13 @@ export default class GPUWavePacketSolver implements WaveSolver {
     this.barrierThickness = Math.max( 1, roundSymmetric( BARRIER_THICKNESS_AT_200 * this.gridWidth / 200 ) );
 
     // Amplitude scale for display — inverse of the peak of the initial normalized Gaussian.
-    // Peak |ψ|² ≈ 1/(2π σx σy), so scale = sqrt(2π σx σy) makes peak |ψ_scaled| ≈ 1.
-    const sigmaX = PACKET_SIGMA_X_FRACTION * this.gridWidth;
-    const sigmaY = PACKET_SIGMA_Y_FRACTION * this.gridWidth;
-    this.amplitudeScale = Math.sqrt( 2 * Math.PI * sigmaX * sigmaY );
+    // Peak |ψ|² ≈ 1/(2π σ²), so scale = sqrt(2π σ²) = σ√(2π) makes peak |ψ_scaled| ≈ 1.
+    const sigma = PACKET_SIGMA_FRACTION * this.gridWidth;
+    this.amplitudeScale = Math.sqrt( 2 * Math.PI * sigma * sigma );
 
-    // The WebGL canvas renders the visible region only; the extended grid lives in the textures.
-    this.gpu = new GPUContext( this.gridWidth, this.gridWidth );
+    // In dev mode the canvas is sized to the full grid so renderFullGrid() can show damping margins.
+    const canvasSize = phet.chipper.queryParameters.dev ? this.totalSize : this.gridWidth;
+    this.gpu = new GPUContext( canvasSize, canvasSize );
     this.canvas = this.gpu.canvas;
     const { gl } = this.gpu;
 
@@ -193,7 +208,7 @@ export default class GPUWavePacketSolver implements WaveSolver {
     this.cleanupUniforms = this.getUniforms( this.cleanupProgram,
       [ 'u_actual', 'u_source', 'u_damping', 'u_barrierIx' ] );
     this.displayUniforms = this.getUniforms( this.displayProgram,
-      [ 'u_psi', 'u_displayMode', 'u_baseColor', 'u_negColor', 'u_amplitudeScale', 'u_sampleOffset' ] );
+      [ 'u_psi', 'u_damping', 'u_displayMode', 'u_showDamping', 'u_baseColor', 'u_negColor', 'u_amplitudeScale', 'u_sampleOffset' ] );
 
     // Set static sampler unit bindings
     gl.useProgram( this.richardsonProgram );
@@ -210,6 +225,8 @@ export default class GPUWavePacketSolver implements WaveSolver {
     gl.uniform1i( this.cleanupUniforms.u_damping, 2 );
     gl.useProgram( this.displayProgram );
     gl.uniform1i( this.displayUniforms.u_psi, 0 );
+    gl.uniform1i( this.displayUniforms.u_damping, 1 );
+    gl.uniform1i( this.displayUniforms.u_showDamping, 0 );
 
     // Create actual + source ping-pong textures and FBOs at TOTAL_SIZE.
     this.actualTexA = this.gpu.createRG32FTexture( this.totalSize, this.totalSize );
@@ -553,16 +570,11 @@ export default class GPUWavePacketSolver implements WaveSolver {
     this.gpu.uploadRG32F( tex, this.totalSize, this.totalSize, this.fullGridScratch );
   }
 
-  /**
-   * Renders the wavefunction to the WebGL canvas (VISIBLE_SIZE × VISIBLE_SIZE) using the display
-   * shader, which samples psi with a margin offset so only the visible region is shown.
-   */
-  public renderDisplay( displayMode: WaveDisplayMode, sourceType: SourceType, wavelengthNm: number ): void {
+  private setupDisplayUniforms( displayMode: WaveDisplayMode, sourceType: SourceType, wavelengthNm: number ): void {
     const { gl } = this.gpu;
-    const currentTex = this.actualReadFromA ? this.actualTexA : this.actualTexB;
 
     gl.activeTexture( gl.TEXTURE0 );
-    gl.bindTexture( gl.TEXTURE_2D, currentTex );
+    gl.bindTexture( gl.TEXTURE_2D, this.actualReadFromA ? this.actualTexA : this.actualTexB );
 
     gl.useProgram( this.displayProgram );
 
@@ -573,7 +585,6 @@ export default class GPUWavePacketSolver implements WaveSolver {
                       4; // timeAveragedIntensity
     gl.uniform1i( this.displayUniforms.u_displayMode, modeIndex );
     gl.uniform1f( this.displayUniforms.u_amplitudeScale, this.amplitudeScale );
-    gl.uniform2i( this.displayUniforms.u_sampleOffset, this.dampingMargin, this.dampingMargin );
 
     let baseR: number;
     let baseG: number;
@@ -602,8 +613,34 @@ export default class GPUWavePacketSolver implements WaveSolver {
 
     gl.uniform3f( this.displayUniforms.u_baseColor, baseR, baseG, baseB );
     gl.uniform3f( this.displayUniforms.u_negColor, negR, negG, negB );
+  }
 
+  /**
+   * Renders the wavefunction to the WebGL canvas using the display shader, sampling only the
+   * visible region (offset by dampingMargin).
+   */
+  public renderDisplay( displayMode: WaveDisplayMode, sourceType: SourceType, wavelengthNm: number ): void {
+    const { gl } = this.gpu;
+    this.setupDisplayUniforms( displayMode, sourceType, wavelengthNm );
+    gl.uniform2i( this.displayUniforms.u_sampleOffset, this.dampingMargin, this.dampingMargin );
+    gl.uniform1i( this.displayUniforms.u_showDamping, 0 );
     this.gpu.fullscreenPass( this.displayProgram, null, this.gridWidth, this.gridWidth );
+  }
+
+  /**
+   * Renders the entire simulation grid (including damping margins) to the WebGL canvas with a
+   * subtle overlay showing damping strength. Dev-mode only.
+   */
+  public renderFullGrid( displayMode: WaveDisplayMode, sourceType: SourceType, wavelengthNm: number ): void {
+    const { gl } = this.gpu;
+    this.setupDisplayUniforms( displayMode, sourceType, wavelengthNm );
+    gl.uniform2i( this.displayUniforms.u_sampleOffset, 0, 0 );
+    gl.uniform1i( this.displayUniforms.u_showDamping, 1 );
+
+    gl.activeTexture( gl.TEXTURE1 );
+    gl.bindTexture( gl.TEXTURE_2D, this.dampingTex );
+
+    this.gpu.fullscreenPass( this.displayProgram, null, this.totalSize, this.totalSize );
   }
 
   /**
@@ -617,19 +654,17 @@ export default class GPUWavePacketSolver implements WaveSolver {
 
     const x0 = this.dampingMargin + PACKET_X0_FRACTION * this.gridWidth;
     const y0 = this.dampingMargin + 0.5 * this.gridWidth;
-    const sigmaX = PACKET_SIGMA_X_FRACTION * this.gridWidth;
-    const sigmaY = PACKET_SIGMA_Y_FRACTION * this.gridWidth;
-    const invTwoSigmaXSq = 1 / ( 2 * sigmaX * sigmaX );
-    const invTwoSigmaYSq = 1 / ( 2 * sigmaY * sigmaY );
+    const sigma = PACKET_SIGMA_FRACTION * this.gridWidth;
+    const invTwoSigmaSq = 1 / ( 2 * sigma * sigma );
     const k = 2 * Math.PI * DISPLAY_WAVELENGTHS / this.gridWidth;
 
     for ( let iy = 0; iy < this.totalSize; iy++ ) {
       const dy = iy - y0;
-      const envY = Math.exp( -dy * dy * invTwoSigmaYSq );
+      const envY = Math.exp( -dy * dy * invTwoSigmaSq );
       if ( envY < 1e-8 ) { continue; }
       for ( let ix = 0; ix < this.totalSize; ix++ ) {
         const dxx = ix - x0;
-        const env = envY * Math.exp( -dxx * dxx * invTwoSigmaXSq );
+        const env = envY * Math.exp( -dxx * dxx * invTwoSigmaSq );
         if ( env < 1e-8 ) { continue; }
         const phase = k * ( ix - this.dampingMargin );
         const idx = ( iy * this.totalSize + ix ) * 2;
@@ -723,24 +758,7 @@ export default class GPUWavePacketSolver implements WaveSolver {
    */
   private computeDampingTexture(): void {
     const data = new Float32Array( this.totalSize * this.totalSize );
-
-    for ( let iy = 0; iy < this.totalSize; iy++ ) {
-      const distFromTop = iy;
-      const distFromBottom = this.totalSize - 1 - iy;
-      for ( let ix = 0; ix < this.totalSize; ix++ ) {
-        const distFromLeft = ix;
-        const distFromRight = this.totalSize - 1 - ix;
-        const minDist = Math.min( distFromTop, distFromBottom, distFromLeft, distFromRight );
-
-        if ( minDist >= this.dampingMargin ) {
-          data[ iy * this.totalSize + ix ] = 1;
-        }
-        else {
-          const fraction = minDist / this.dampingMargin;
-          data[ iy * this.totalSize + ix ] = fraction * fraction;
-        }
-      }
-    }
+    data.fill( 1 );
 
     const { gl } = this.gpu;
     gl.bindTexture( gl.TEXTURE_2D, this.dampingTex );
