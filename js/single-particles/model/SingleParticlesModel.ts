@@ -103,7 +103,7 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
       tandem: this.toolsTandem.createTandem( 'isDetectorToolVisibleProperty' )
     } );
 
-    this.isDetectorToolAvailableProperty.link( ( isAvailable: boolean ) => {
+    this.isDetectorToolAvailableProperty.link( isAvailable => {
       if ( !isAvailable ) {
         this.isDetectorToolVisibleProperty.value = false;
       }

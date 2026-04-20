@@ -49,13 +49,66 @@ type SceneTextureCache = {
   // Cached hit sprite (small offscreen canvas with glow + core pre-rendered). Invalidated when brightness or color
   // changes.
   hitSprite: HTMLCanvasElement | null;
-  hitSpriteParams: { r: number; g: number; b: number; coreAlpha: number; glowAlpha: number; glowRadius: number } | null;
+  hitSpriteParams: HitSpriteParams | null;
+};
+
+type HitSpriteParams = {
+  r: number;
+  g: number;
+  b: number;
+  coreAlpha: number;
+  glowAlpha: number;
+  glowRadius: number;
 };
 
 const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
 
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
+
+const hitSpriteParamsMatch = (
+  params: HitSpriteParams | null,
+  rgb: { r: number; g: number; b: number },
+  coreAlpha: number,
+  glowAlpha: number,
+  glowRadius: number
+): params is HitSpriteParams => {
+  return !!params &&
+         params.r === rgb.r &&
+         params.g === rgb.g &&
+         params.b === rgb.b &&
+         params.coreAlpha === coreAlpha &&
+         params.glowAlpha === glowAlpha &&
+         params.glowRadius === glowRadius;
+};
+
+const rgbToRGBA = ( rgb: { r: number; g: number; b: number }, alpha: number ): string => {
+  return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;
+};
+
+const fillCircle = (
+  context: CanvasRenderingContext2D,
+  rgb: { r: number; g: number; b: number },
+  alpha: number,
+  center: number,
+  radius: number
+): void => {
+  context.fillStyle = rgbToRGBA( rgb, alpha );
+  context.beginPath();
+  context.arc( center, center, radius, 0, Math.PI * 2 );
+  context.fill();
+};
+
+const getScaledRGBFillStyle = ( rgb: { r: number; g: number; b: number }, scale: number ): string | null => {
+  if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
+    return null;
+  }
+
+  const r = clamp( roundSymmetric( rgb.r * scale ), 0, 255 );
+  const g = clamp( roundSymmetric( rgb.g * scale ), 0, 255 );
+  const b = clamp( roundSymmetric( rgb.b * scale ), 0, 255 );
+  return `rgb(${r},${g},${b})`;
+};
 
 /**
  * Creates (or returns a cached) hit sprite — a small offscreen canvas with the glow ring and solid core pre-rendered.
@@ -70,13 +123,7 @@ const getHitSprite = (
 ): HTMLCanvasElement => {
 
   // Return cached sprite if parameters haven't changed.
-  if ( cache.hitSprite && cache.hitSpriteParams &&
-       cache.hitSpriteParams.r === rgb.r &&
-       cache.hitSpriteParams.g === rgb.g &&
-       cache.hitSpriteParams.b === rgb.b &&
-       cache.hitSpriteParams.coreAlpha === coreAlpha &&
-       cache.hitSpriteParams.glowAlpha === glowAlpha &&
-       cache.hitSpriteParams.glowRadius === glowRadius ) {
+  if ( cache.hitSprite && hitSpriteParamsMatch( cache.hitSpriteParams, rgb, coreAlpha, glowAlpha, glowRadius ) ) {
     return cache.hitSprite;
   }
 
@@ -92,17 +139,11 @@ const getHitSprite = (
 
   // Draw glow circle first (larger, semi-transparent).
   if ( glowAlpha > 0 ) {
-    ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${glowAlpha})`;
-    ctx.beginPath();
-    ctx.arc( center, center, glowRadius, 0, Math.PI * 2 );
-    ctx.fill();
+    fillCircle( ctx, rgb, glowAlpha, center, glowRadius );
   }
 
   // Draw core circle on top (smaller, more opaque).
-  ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${coreAlpha})`;
-  ctx.beginPath();
-  ctx.arc( center, center, HIT_CORE_RADIUS, 0, Math.PI * 2 );
-  ctx.fill();
+  fillCircle( ctx, rgb, coreAlpha, center, HIT_CORE_RADIUS );
 
   cache.hitSprite = spriteCanvas;
   cache.hitSpriteParams = { r: rgb.r, g: rgb.g, b: rgb.b, coreAlpha: coreAlpha, glowAlpha: glowAlpha, glowRadius: glowRadius };
@@ -190,17 +231,14 @@ const paintIntensity = (
     const fraction = ( x + 0.5 ) / TEXTURE_WIDTH;
     const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
     const intensity = sceneModel.getIntensityAtPosition( physicalX );
-    const scale = intensity * displayGain;
+    const fillStyle = getScaledRGBFillStyle( rgb, intensity * displayGain );
 
     // Skip bands below perceptual visibility to avoid painting nearly-black pixels
-    if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
+    if ( !fillStyle ) {
       continue;
     }
 
-    const r = clamp( roundSymmetric( rgb.r * scale ), 0, 255 );
-    const g = clamp( roundSymmetric( rgb.g * scale ), 0, 255 );
-    const b = clamp( roundSymmetric( rgb.b * scale ), 0, 255 );
-    context.fillStyle = `rgb(${r},${g},${b})`;
+    context.fillStyle = fillStyle;
     context.fillRect( x, 0, 1, TEXTURE_HEIGHT );
   }
 };

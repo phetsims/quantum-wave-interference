@@ -6,8 +6,6 @@
  * and invokes a caller-supplied callback when a snapshot is successfully taken (used to trigger
  * the flash overlay effect).
  *
- * Adapted from experiment/view/SnapshotButton.ts for use on the High Intensity and Single Particles screens.
- *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 

@@ -33,7 +33,6 @@ const createBrightnessControl = (
   const brightnessSlider = new HSlider( screenBrightnessProperty, brightnessRange, {
     trackSize: new Dimension2( 130, 3 ),
     thumbSize: new Dimension2( 13, 22 ),
-    majorTickLength: 12,
     createAriaValueText: value => percentUnit.getAccessibleString(
       value / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100,
       { decimalPlaces: 0, showTrailingZeros: false, showIntegersAsIntegers: true }

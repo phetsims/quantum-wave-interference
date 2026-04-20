@@ -24,7 +24,9 @@ import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
+import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
+import ObjectLiteralIO from '../../../../tandem/js/types/ObjectLiteralIO.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { type DetectionMode } from './DetectionMode.js';
 import { type ObstacleType, ObstacleTypeValues } from './ObstacleType.js';
@@ -34,6 +36,7 @@ import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues } from './WaveD
 import { type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues } from './WaveDisplayMode.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 import type WaveSolver from './WaveSolver.js';
+import { type WaveSolverState } from './WaveSolver.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import Snapshot from './Snapshot.js';
 
@@ -100,6 +103,13 @@ type SelfOptions = {
 
 export type BaseSceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
 
+type BaseSceneModelStateObject = {
+  waveSolverState: WaveSolverState;
+  hits: Array<{ x: number; y: number }>;
+  wavefrontReached: boolean;
+  nextSnapshotNumber: number;
+};
+
 export default abstract class BaseSceneModel extends PhetioObject {
 
   public readonly sourceType: SourceType;
@@ -136,7 +146,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     const options = optionize<BaseSceneModelOptions, SelfOptions, PhetioObjectOptions>()( {
       isDisposable: false,
-      defaultPhotonWaveDisplayMode: 'electricField'
+      defaultPhotonWaveDisplayMode: 'electricField',
+      phetioType: BaseSceneModel.BaseSceneModelIO
     }, providedOptions );
 
     super( options );
@@ -258,6 +269,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       waveSpeed: this.getEffectiveWaveSpeed(),
       obstacleType: this.obstacleTypeProperty.value,
       slitSeparation: this.slitSeparationProperty.value * 1e-3,
+      slitSeparationMin: this.slitSeparationRange.min * 1e-3,
+      slitSeparationMax: this.slitSeparationRange.max * 1e-3,
       slitWidth: this.slitWidth * 1e-3,
       barrierFractionX: this.slitPositionFractionProperty.value,
       isTopSlitOpen: this.isTopSlitOpen(),
@@ -361,6 +374,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
       intensity: intensity,
+      slitWidth: this.slitWidth,
       intensityDistribution: intensityDistribution
     } );
 
@@ -372,6 +386,33 @@ export default abstract class BaseSceneModel extends PhetioObject {
   }
 
   public abstract step( dt: number ): void;
+
+  public static readonly BaseSceneModelIO = new IOType<BaseSceneModel, BaseSceneModelStateObject>( 'BaseSceneModelIO', {
+    valueType: BaseSceneModel,
+    documentation: 'Serializes the wave solver state and hit positions for a scene',
+    toStateObject: ( model: BaseSceneModel ) => ( {
+      waveSolverState: model.waveSolver.getState(),
+      hits: model.hits.map( v => ( { x: v.x, y: v.y } ) ),
+      wavefrontReached: model.wavefrontReached,
+      nextSnapshotNumber: model.nextSnapshotNumber
+    } ),
+    stateSchema: {
+      waveSolverState: ObjectLiteralIO,
+      hits: ArrayIO( ObjectLiteralIO ),
+      wavefrontReached: IOType.ObjectIO,
+      nextSnapshotNumber: NumberIO
+    },
+    applyState: ( model: BaseSceneModel, stateObject: BaseSceneModelStateObject ) => {
+      model.waveSolver.setState( stateObject.waveSolverState );
+      model.hits.length = 0;
+      for ( const h of stateObject.hits ) {
+        model.hits.push( new Vector2( h.x, h.y ) );
+      }
+      model.wavefrontReached = stateObject.wavefrontReached;
+      model.nextSnapshotNumber = stateObject.nextSnapshotNumber;
+      model.hitsChangedEmitter.emit();
+    }
+  } );
 
   /**
    * Resets base properties with a guard to prevent cascading clearScreen calls from property listeners.

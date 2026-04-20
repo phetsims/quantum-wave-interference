@@ -7,7 +7,7 @@
  *   making the button pop back out automatically.
  * - When auto-repeat is on, the button stays toggled until the user clicks again.
  *
- * The SVG image is flipped horizontally so the cylindrical handle (with red button) is on the left and
+ * The SVG image is rotated 180° so the cylindrical handle (with red button) is on the left and
  * the nozzle points right toward the wave visualization region, matching the design mockups.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -26,11 +26,10 @@ type SelfOptions = EmptySelfOptions;
 
 export type SingleParticleEmitterNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
-const EMITTER_HEIGHT = 120;
-const BUTTON_RADIUS = 14;
+const EMITTER_HEIGHT = 153;
+const BUTTON_RADIUS = 23;
 
-// After flipping, the cylindrical handle is on the left; place the button ~12% from the left edge.
-const BUTTON_CENTER_X_FRACTION = 0.12;
+const BUTTON_CENTER_X_FRACTION = 0.32;
 const BUTTON_CENTER_Y_FRACTION = 0.5;
 
 export default class SingleParticleEmitterNode extends Node {
@@ -49,8 +48,7 @@ export default class SingleParticleEmitterNode extends Node {
 
     const baseScale = EMITTER_HEIGHT / singleParticleEmitter_svg.height;
     const imageNode = new Image( singleParticleEmitter_svg );
-    imageNode.setScaleMagnitude( -baseScale, baseScale );
-    imageNode.left = 0;
+    imageNode.setScaleMagnitude( baseScale, baseScale );
     this.addChild( imageNode );
 
     const emitButton = new RoundStickyToggleButton( isEmittingProperty, false, true, {

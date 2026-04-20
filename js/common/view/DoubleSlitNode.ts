@@ -145,8 +145,8 @@ export default class DoubleSlitNode extends Node {
       [ obstacleTypeProperty, slitPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
         options.isTopSlitCoveredProperty, options.isBottomSlitCoveredProperty,
         options.isTopSlitDetectorProperty, options.isBottomSlitDetectorProperty ],
-      ( obstacleType: ObstacleType, slitPositionFraction: number, slitSeparation: number, slitSeparationRange: Range,
-        isTopCovered: boolean, isBottomCovered: boolean, isTopDetectorOn: boolean, isBottomDetectorOn: boolean ) => {
+      ( obstacleType, slitPositionFraction, slitSeparation, slitSeparationRange,
+        isTopCovered, isBottomCovered, isTopDetectorOn, isBottomDetectorOn ) => {
 
         const isDoubleSlit = obstacleType === 'doubleSlit';
         barrierContainer.visible = isDoubleSlit;
@@ -201,9 +201,9 @@ export default class DoubleSlitNode extends Node {
         bottomDetector.visible = isBottomDetectorOn;
 
         const arrowY = WAVE_REGION_HEIGHT + 12;
-        const arrowLeftX = barrierX + BARRIER_VIEW_WIDTH / 2;
-        const arrowRightX = WAVE_REGION_WIDTH;
-        arrowNode.setTailAndTip( arrowLeftX, arrowY, arrowRightX, arrowY );
+        const arrowWidth = BARRIER_VIEW_WIDTH * 2;
+        const barrierCenterX = barrierX + BARRIER_VIEW_WIDTH / 2;
+        arrowNode.setTailAndTip( barrierCenterX - arrowWidth / 2, arrowY, barrierCenterX + arrowWidth / 2, arrowY );
       }
     );
   }

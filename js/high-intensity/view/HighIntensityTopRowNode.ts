@@ -34,6 +34,7 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import { type SourceType } from '../../common/model/SourceType.js';
+import createRoundedPolygonShape from '../../common/view/createRoundedPolygonShape.js';
 import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 
 const EMITTER_BODY_WIDTH = 70;
@@ -45,7 +46,7 @@ const EMITTER_BUTTON_RADIUS = 12;
 const MINI_SYMBOL_SQUARE_SIZE = 22;
 const MINI_SYMBOL_DETECTOR_WIDTH = 8;
 const MINI_SYMBOL_SKEW = 3;
-const MINI_SYMBOL_GAP = 2;
+
 
 const BEAM_HEIGHT = EMITTER_NOZZLE_HEIGHT;
 const BEAM_MAIN_ALPHA_SCALE = 0.35;
@@ -112,30 +113,38 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
 
     // Mini wave-visualization symbol: a small black square + skewed detector, centered horizontally
     // above the main wave region so the callout lines form a symmetric "zoom in" frustum.
+    // The detector is z-ordered behind the square and overlaps it, mirroring the main layout.
     const miniSquare = new Rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE, {
       fill: 'black',
+      stroke: 'white',
+      lineWidth: 0.75,
       cornerRadius: 2
     } );
 
-    const detectorShape = new Shape()
-      .moveTo( 0, MINI_SYMBOL_SKEW )
-      .lineTo( MINI_SYMBOL_DETECTOR_WIDTH, 0 )
-      .lineTo( MINI_SYMBOL_DETECTOR_WIDTH, MINI_SYMBOL_SQUARE_SIZE )
-      .lineTo( 0, MINI_SYMBOL_SQUARE_SIZE + MINI_SYMBOL_SKEW )
-      .close();
-    const miniDetector = new Path( detectorShape, { fill: 'black' } );
-    miniDetector.left = miniSquare.right + MINI_SYMBOL_GAP;
+    const miniDetectorOverlap = 2;
+    const miniDetectorShape = createRoundedPolygonShape( [
+      { x: 0, y: MINI_SYMBOL_SKEW },
+      { x: MINI_SYMBOL_DETECTOR_WIDTH, y: 0 },
+      { x: MINI_SYMBOL_DETECTOR_WIDTH, y: MINI_SYMBOL_SQUARE_SIZE },
+      { x: 0, y: MINI_SYMBOL_SQUARE_SIZE + MINI_SYMBOL_SKEW }
+    ], 1 );
+    const miniDetector = new Path( miniDetectorShape, { fill: 'gray' } );
+    miniDetector.left = miniSquare.right - miniDetectorOverlap;
+    miniDetector.centerY = miniSquare.centerY;
 
-    const miniSymbol = new Node( { children: [ miniSquare, miniDetector ] } );
+    const miniSymbol = new Node( { children: [ miniDetector, miniSquare ] } );
     miniSymbol.centerX = ( waveRegionLeft + waveRegionRight ) / 2;
     miniSymbol.centerY = topRowCenterY;
 
-    // Callout lines: connect the bottom corners of the mini symbol to the top corners of the
-    // main wave region / detector, creating a zoom-in viewing frustum similar to MOTHA's TinyBox.
+    // Callout lines from the top corners of the mini wave area (not the detector) to the
+    // main wave region corners.
+    const squareLeft = miniSymbol.x + miniSquare.left;
+    const squareRight = miniSymbol.x + miniSquare.right;
+    const squareTop = miniSymbol.y + miniSquare.top;
     const calloutLines = new Path( new Shape()
-      .moveTo( miniSymbol.left, miniSymbol.bottom )
+      .moveTo( squareLeft, squareTop )
       .lineTo( waveRegionLeft, waveRegionTop )
-      .moveTo( miniSymbol.right, miniSymbol.bottom )
+      .moveTo( squareRight, squareTop )
       .lineTo( waveRegionRight, waveRegionTop ), {
       stroke: QuantumWaveInterferenceColors.zoomCalloutStrokeProperty,
       lineWidth: CALLOUT_LINE_WIDTH

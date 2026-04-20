@@ -35,7 +35,7 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import type WaveSolver from './WaveSolver.js';
-import { type WaveSolverParameters } from './WaveSolver.js';
+import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
 const DEFAULT_GRID_WIDTH = 200;
 const DEFAULT_GRID_HEIGHT = 200;
@@ -58,6 +58,10 @@ const PACKET_X0_FRACTION = 0.15;
 
 // Thickness of the absorbing damping layer at the top, bottom, and right edges.
 const DAMPING_THICKNESS = 18;
+
+// Barrier thickness in cells. The reference Java sim uses 3 cells at 100x100 grid;
+// scaled proportionally to our 200x200 grid.
+const BARRIER_THICKNESS = 6;
 
 // Number of Richardson substeps executed per second of simulated time. Calibrated so that the
 // packet center traverses the grid in roughly the analytical packet solver's traversal time.
@@ -171,6 +175,23 @@ export default class LatticeWavePacketSolver implements WaveSolver {
     this.dirty = true;
   }
 
+  public getState(): WaveSolverState {
+    return {
+      psi: Array.from( this.psi ),
+      detectorAccumulatorCount: this.detectorAccumulatorCount,
+      detectorAccumulator: Array.from( this.detectorAccumulator )
+    };
+  }
+
+  public setState( state: WaveSolverState ): void {
+    this.psi.set( state.psi );
+    this.detectorAccumulatorCount = state.detectorAccumulatorCount;
+    this.detectorAccumulator.set( state.detectorAccumulator );
+    this.psiCopy.set( this.psi );
+    this.barrierDirty = true;
+    this.dirty = true;
+  }
+
   public invalidate(): void {
     this.dirty = true;
   }
@@ -260,6 +281,7 @@ export default class LatticeWavePacketSolver implements WaveSolver {
 
     psiCopy.set( psi );
 
+    // Interior cells: direct neighbor access (no bounds check needed).
     for ( let iy = 1; iy < gridHeight - 1; iy++ ) {
       for ( let ix = 1; ix < gridWidth - 1; ix++ ) {
         const cellIdx = iy * gridWidth + ix;
@@ -281,6 +303,40 @@ export default class LatticeWavePacketSolver implements WaveSolver {
         psi[ idx ] = aRe + bRe;
         psi[ idx + 1 ] = aIm + bIm;
       }
+    }
+
+    // Edge cells: periodic (wraparound) boundary conditions. Neighbor indices use modular
+    // arithmetic so the wave wraps around at edges, matching the reference Richardson propagator.
+    const updateEdge = ( ix: number, iy: number ): void => {
+      const cellIdx = iy * gridWidth + ix;
+      const idx = cellIdx * 2;
+
+      const selfRe = psiCopy[ idx ];
+      const selfIm = psiCopy[ idx + 1 ];
+
+      const sign = ( ix + iy ) % 2 === 0 ? 1 : -1;
+      const nx = ( ( ix + sign * dx ) % gridWidth + gridWidth ) % gridWidth;
+      const ny = ( ( iy + sign * dy ) % gridHeight + gridHeight ) % gridHeight;
+      const nIdx = ( ny * gridWidth + nx ) * 2;
+      const nRe = psiCopy[ nIdx ];
+      const nIm = psiCopy[ nIdx + 1 ];
+
+      const aRe = alphaRe * selfRe - alphaIm * selfIm;
+      const aIm = alphaRe * selfIm + alphaIm * selfRe;
+      const bRe = betaRe * nRe - betaIm * nIm;
+      const bIm = betaRe * nIm + betaIm * nRe;
+
+      psi[ idx ] = aRe + bRe;
+      psi[ idx + 1 ] = aIm + bIm;
+    };
+
+    for ( let ix = 0; ix < gridWidth; ix++ ) {
+      updateEdge( ix, 0 );
+      updateEdge( ix, gridHeight - 1 );
+    }
+    for ( let iy = 1; iy < gridHeight - 1; iy++ ) {
+      updateEdge( 0, iy );
+      updateEdge( gridWidth - 1, iy );
     }
   }
 
@@ -333,6 +389,17 @@ export default class LatticeWavePacketSolver implements WaveSolver {
         psi[ idx + 1 ] = env * Math.sin( phase );
       }
     }
+
+    let totalProb = 0;
+    for ( let i = 0; i < psi.length; i += 2 ) {
+      totalProb += psi[ i ] * psi[ i ] + psi[ i + 1 ] * psi[ i + 1 ];
+    }
+    if ( totalProb > 0 ) {
+      const scale = 1 / Math.sqrt( totalProb );
+      for ( let i = 0; i < psi.length; i++ ) {
+        psi[ i ] *= scale;
+      }
+    }
   }
 
   private computeBarrierMask(): void {
@@ -352,13 +419,19 @@ export default class LatticeWavePacketSolver implements WaveSolver {
     const bottomSlitCenterY = -displaySlitSep / 2;
     const halfSlitWidth = displaySlitWidth / 2;
 
+    const halfThickness = BARRIER_THICKNESS / 2;
+    const barrierStart = Math.max( 0, barrierIx - Math.floor( halfThickness ) );
+    const barrierEnd = Math.min( gridWidth - 1, barrierIx + Math.ceil( halfThickness ) - 1 );
+
     for ( let iy = 0; iy < gridHeight; iy++ ) {
       const y = ( iy - gridHeight / 2 ) * dy;
       const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitCenterY ) < halfSlitWidth;
       const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitCenterY ) < halfSlitWidth;
 
       if ( !inTopSlit && !inBottomSlit ) {
-        barrierMask[ iy * gridWidth + barrierIx ] = 1;
+        for ( let bx = barrierStart; bx <= barrierEnd; bx++ ) {
+          barrierMask[ iy * gridWidth + bx ] = 1;
+        }
       }
     }
   }

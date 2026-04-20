@@ -86,6 +86,9 @@ export default class HighIntensityScreenView extends ScreenView {
 
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
 
+    sceneRadioButtonGroup.layoutOptions = { align: 'center' };
+    particleMassAnnotation.layoutOptions = { align: 'center' };
+
     const leftControlsVBox = new VBox( {
       spacing: 16,
       align: 'left',
@@ -130,15 +133,15 @@ export default class HighIntensityScreenView extends ScreenView {
         )
       }
     } );
-    this.waveVisualizationNode = waveVisualizationNode;
-    this.addChild( this.waveVisualizationNode );
-    this.addChild( doubleSlitNode );
-
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
-      x: waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH,
+      x: waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP,
       y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
     this.addChild( this.detectorScreenNode );
+
+    this.waveVisualizationNode = waveVisualizationNode;
+    this.addChild( this.waveVisualizationNode );
+    this.addChild( doubleSlitNode );
 
     // --- Bottom row: obstacle, slit configuration, slit separation ---
     const slitConfigItems: ComboBoxItem<SlitConfiguration>[] = [
@@ -159,7 +162,7 @@ export default class HighIntensityScreenView extends ScreenView {
       waveRegionTop,
       this,
       tandem,
-      { additionalTopConstraintNode: leftControlsVBox }
+      { layoutBoundsBottom: this.layoutBounds.maxY }
     );
     this.addChild( bottomRow );
 
@@ -206,7 +209,7 @@ export default class HighIntensityScreenView extends ScreenView {
     const timePlotCheckbox = createToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ), ToolIcons.createTimePlotIcon() );
     const positionPlotCheckbox = createToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ), ToolIcons.createPositionPlotIcon() );
 
-    const { rightControlsVBox } = createRightControlsColumn( model, this, tandem, {
+    const { rightControlsVBox, timeAndResetRow } = createRightControlsColumn( model, this, tandem, {
       additionalScreenControlChildren: [ detectionModeRadioButtonGroup ],
       toolCheckboxes: [
         intensityGraphCheckbox,
@@ -228,6 +231,10 @@ export default class HighIntensityScreenView extends ScreenView {
     rightControlsVBox.right = this.layoutBounds.maxX - X_MARGIN;
     rightControlsVBox.top = Y_MARGIN;
     this.addChild( rightControlsVBox );
+
+    timeAndResetRow.right = this.layoutBounds.maxX - X_MARGIN;
+    timeAndResetRow.bottom = this.layoutBounds.maxY - Y_MARGIN;
+    this.addChild( timeAndResetRow );
 
     const toolNodes = createMeasurementToolNodes( model, this, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
     this.timePlotNode = toolNodes.timePlotNode;

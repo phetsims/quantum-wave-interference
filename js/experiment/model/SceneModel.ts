@@ -466,6 +466,7 @@ export default class SceneModel extends PhetioObject {
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
       intensity: this.intensityProperty.value,
+      slitWidth: this.slitWidth,
 
       // Experiment screen renders its own intensity snapshots from closed-form Fraunhofer formulas via
       // its private SnapshotNode — no solver distribution to capture.
