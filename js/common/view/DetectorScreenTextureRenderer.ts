@@ -227,9 +227,12 @@ export default class DetectorScreenTextureRenderer {
     const distribution = scene.waveSolver.getDetectorProbabilityDistribution();
     const solverHeight = scene.waveSolver.gridHeight;
 
-    for ( let y = 0; y < this.textureHeight; y++ ) {
-      const detectorY = y - this.skewOffset / 2;
-      const solverY = clamp( Math.floor( ( detectorY + 0.5 ) / this.faceHeight * solverHeight ), 0, solverHeight - 1 );
+    // Apply a shear transform so horizontal bands follow the parallelogram's axis.
+    context.save();
+    context.transform( 1, -this.skewOffset / this.textureWidth, 0, 1, 0, this.skewOffset );
+
+    for ( let y = 0; y < this.faceHeight; y++ ) {
+      const solverY = clamp( Math.floor( ( y + 0.5 ) / this.faceHeight * solverHeight ), 0, solverHeight - 1 );
       const intensity = distribution[ solverY ];
       const scale = intensity * displayGain;
 
@@ -243,6 +246,8 @@ export default class DetectorScreenTextureRenderer {
       context.fillStyle = `rgb(${r},${g},${b})`;
       context.fillRect( 0, y, this.textureWidth, 1 );
     }
+
+    context.restore();
   }
 
   private getHitSprite(

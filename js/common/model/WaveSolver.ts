@@ -12,7 +12,10 @@
  */
 
 import Vector2 from '../../../../dot/js/Vector2.js';
+import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
 import { type ObstacleType } from './ObstacleType.js';
+
+export type WaveSolverState = Record<string, IntentionalAny>;
 
 export type WaveSolverParameters = {
   wavelength?: number;
@@ -60,6 +63,10 @@ type WaveSolver = {
    * fraction of the grid width. Continuous-wave solvers may treat this as a no-op.
    */
   applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void;
+
+  getState(): WaveSolverState;
+
+  setState( state: WaveSolverState ): void;
 };
 
 export default WaveSolver;

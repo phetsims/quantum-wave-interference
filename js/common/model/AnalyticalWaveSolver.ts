@@ -18,7 +18,7 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from './ObstacleType.js';
 import type WaveSolver from './WaveSolver.js';
-import { type WaveSolverParameters } from './WaveSolver.js';
+import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
 const DEFAULT_GRID_WIDTH = 200;
 const DEFAULT_GRID_HEIGHT = 200;
@@ -120,6 +120,19 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.sourceOffTime = null;
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
+    this.dirty = true;
+  }
+
+  public getState(): WaveSolverState {
+    return {
+      time: this.time,
+      sourceOffTime: this.sourceOffTime
+    };
+  }
+
+  public setState( state: WaveSolverState ): void {
+    this.time = state.time;
+    this.sourceOffTime = state.sourceOffTime;
     this.dirty = true;
   }
 

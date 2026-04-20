@@ -43,7 +43,7 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import { type ObstacleType } from './ObstacleType.js';
 import type WaveSolver from './WaveSolver.js';
-import { type WaveSolverParameters } from './WaveSolver.js';
+import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 import { type SourceType } from './SourceType.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 import GPUContext from './gpu/GPUContext.js';
@@ -496,6 +496,41 @@ export default class GPUWavePacketSolver implements WaveSolver {
     this.actualReadFromA = true;
     this.sourceReadFromA = true;
     this.initializePacket();
+  }
+
+  public getState(): WaveSolverState {
+    const totalPixels = this.totalSize * this.totalSize;
+    const buf = new Float32Array( totalPixels * 2 );
+
+    const actualFbo = this.actualReadFromA ? this.actualFboA : this.actualFboB;
+    this.gpu.readPixelsRG( actualFbo, 0, 0, this.totalSize, this.totalSize, buf );
+    const actualData = Array.from( buf );
+
+    const sourceFbo = this.sourceReadFromA ? this.sourceFboA : this.sourceFboB;
+    this.gpu.readPixelsRG( sourceFbo, 0, 0, this.totalSize, this.totalSize, buf );
+    const sourceData = Array.from( buf );
+
+    return {
+      actualData: actualData,
+      sourceData: sourceData,
+      detectorAccumulatorCount: this.detectorAccumulatorCount,
+      detectorAccumulator: Array.from( this.detectorAccumulator )
+    };
+  }
+
+  public setState( state: WaveSolverState ): void {
+    const actualBuf = new Float32Array( state.actualData );
+    const actualTex = this.actualReadFromA ? this.actualTexA : this.actualTexB;
+    this.gpu.uploadRG32F( actualTex, this.totalSize, this.totalSize, actualBuf );
+
+    const sourceBuf = new Float32Array( state.sourceData );
+    const sourceTex = this.sourceReadFromA ? this.sourceTexA : this.sourceTexB;
+    this.gpu.uploadRG32F( sourceTex, this.totalSize, this.totalSize, sourceBuf );
+
+    this.detectorAccumulatorCount = state.detectorAccumulatorCount;
+    this.detectorAccumulator.set( state.detectorAccumulator );
+    this.barrierDirty = true;
+    this.amplitudeFieldDirty = true;
   }
 
   public invalidate(): void {

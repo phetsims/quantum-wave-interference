@@ -35,7 +35,7 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import type WaveSolver from './WaveSolver.js';
-import { type WaveSolverParameters } from './WaveSolver.js';
+import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
 const DEFAULT_GRID_WIDTH = 200;
 const DEFAULT_GRID_HEIGHT = 200;
@@ -172,6 +172,23 @@ export default class LatticeWavePacketSolver implements WaveSolver {
     this.detectorAccumulatorCount = 0;
     this.barrierDirty = true;
     this.initializePacket();
+    this.dirty = true;
+  }
+
+  public getState(): WaveSolverState {
+    return {
+      psi: Array.from( this.psi ),
+      detectorAccumulatorCount: this.detectorAccumulatorCount,
+      detectorAccumulator: Array.from( this.detectorAccumulator )
+    };
+  }
+
+  public setState( state: WaveSolverState ): void {
+    this.psi.set( state.psi );
+    this.detectorAccumulatorCount = state.detectorAccumulatorCount;
+    this.detectorAccumulator.set( state.detectorAccumulator );
+    this.psiCopy.set( this.psi );
+    this.barrierDirty = true;
     this.dirty = true;
   }
 

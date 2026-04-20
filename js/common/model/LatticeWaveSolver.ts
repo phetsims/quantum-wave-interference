@@ -27,7 +27,7 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import type WaveSolver from './WaveSolver.js';
-import { type WaveSolverParameters } from './WaveSolver.js';
+import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
 const DEFAULT_GRID_WIDTH = 200;
 const DEFAULT_GRID_HEIGHT = 200;
@@ -269,6 +269,36 @@ export default class LatticeWaveSolver implements WaveSolver {
     triple.current.fill( 0 );
     triple.previous.fill( 0 );
     triple.twoStepsAgo.fill( 0 );
+  }
+
+  public getState(): WaveSolverState {
+    return {
+      latticeTime: this.latticeTime,
+      waveFieldActive: this.waveFieldActive,
+      detectorAccumulatorCount: this.detectorAccumulatorCount,
+      mainCurrent: Array.from( this.mainTriple.current ),
+      mainPrevious: Array.from( this.mainTriple.previous ),
+      mainTwoStepsAgo: Array.from( this.mainTriple.twoStepsAgo ),
+      sourceCurrent: Array.from( this.sourceTriple.current ),
+      sourcePrevious: Array.from( this.sourceTriple.previous ),
+      sourceTwoStepsAgo: Array.from( this.sourceTriple.twoStepsAgo ),
+      detectorAccumulator: Array.from( this.detectorAccumulator )
+    };
+  }
+
+  public setState( state: WaveSolverState ): void {
+    this.latticeTime = state.latticeTime;
+    this.waveFieldActive = state.waveFieldActive;
+    this.detectorAccumulatorCount = state.detectorAccumulatorCount;
+    this.mainTriple.current.set( state.mainCurrent );
+    this.mainTriple.previous.set( state.mainPrevious );
+    this.mainTriple.twoStepsAgo.set( state.mainTwoStepsAgo );
+    this.sourceTriple.current.set( state.sourceCurrent );
+    this.sourceTriple.previous.set( state.sourcePrevious );
+    this.sourceTriple.twoStepsAgo.set( state.sourceTwoStepsAgo );
+    this.detectorAccumulator.set( state.detectorAccumulator );
+    this.barrierDirty = true;
+    this.dirty = true;
   }
 
   public invalidate(): void {

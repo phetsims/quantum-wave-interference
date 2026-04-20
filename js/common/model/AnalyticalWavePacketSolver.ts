@@ -17,7 +17,7 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import type WaveSolver from './WaveSolver.js';
-import { type WaveSolverParameters } from './WaveSolver.js';
+import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
 const DEFAULT_GRID_WIDTH = 200;
 const DEFAULT_GRID_HEIGHT = 200;
@@ -118,6 +118,33 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
     this.measurementProjections.length = 0;
+    this.dirty = true;
+    this.detectorDistributionDirty = true;
+  }
+
+  public getState(): WaveSolverState {
+    return {
+      time: this.time,
+      measurementProjections: this.measurementProjections.map( p => ( {
+        cxGrid: p.cxGrid,
+        cyGrid: p.cyGrid,
+        rSqGrid: p.rSqGrid,
+        scale: p.scale
+      } ) )
+    };
+  }
+
+  public setState( state: WaveSolverState ): void {
+    this.time = state.time;
+    this.measurementProjections.length = 0;
+    for ( const p of state.measurementProjections ) {
+      this.measurementProjections.push( {
+        cxGrid: p.cxGrid,
+        cyGrid: p.cyGrid,
+        rSqGrid: p.rSqGrid,
+        scale: p.scale
+      } );
+    }
     this.dirty = true;
     this.detectorDistributionDirty = true;
   }
