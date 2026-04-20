@@ -311,6 +311,7 @@ export default class GPUWavePacketSolver implements WaveSolver {
   }
 
   public setParameters( params: WaveSolverParameters ): void {
+    // NOTE: These 8 barrier/slit setIfDefined calls are duplicated in AnalyticalWaveSolver.setParameters
     this.setIfDefined( params.obstacleType, value => { this.obstacleType = value; } );
     this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
     this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
