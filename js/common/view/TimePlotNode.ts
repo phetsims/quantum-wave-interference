@@ -11,7 +11,6 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
@@ -25,12 +24,11 @@ import Circle from '../../../../scenery/js/nodes/Circle.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
-import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
 import getDisplayedWaveValue from '../model/getDisplayedWaveValue.js';
-import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import StickyMaxTracker from './StickyMaxTracker.js';
 import WavePlotChartNode from './WavePlotChartNode.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
 import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
@@ -38,14 +36,10 @@ import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.j
 const CROSSHAIR_RADIUS = 15;
 const WIRE_LINE_WIDTH = 3;
 const WIRE_NORMAL_DISTANCE = 25;
-const MAX_TIME_WINDOW = 1; // seconds of data shown
+const MAX_TIME_WINDOW = 4; // seconds of data shown
 const MAX_SAMPLES = 300;
-const TIME_PLOT_CHART_WIDTH = 190;
-const TIME_PLOT_CHART_HEIGHT = 135;
-const TIME_PLOT_PANEL_LEFT_PADDING = 8;
-const TIME_PLOT_PANEL_BOTTOM_PADDING = 8;
-const TIME_PLOT_PANEL_TOP_PADDING = 12;
-const TIME_PLOT_PANEL_RIGHT_PADDING = 12;
+const AMPLITUDE_DECAY_PER_SECOND = 0.5;
+const MIN_AMPLITUDE_SCALE = 0.01;
 
 type TimePlotDataPoint = {
   time: number;
@@ -58,7 +52,7 @@ export default class TimePlotNode extends Node {
   private readonly chartNode: WavePlotChartNode;
   private readonly timeSeries: TimePlotDataPoint[];
   private elapsedTime: number;
-  private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
+  private readonly amplitudeScale: StickyMaxTracker;
   private readonly probeNode: Node;
   private readonly probePositionProperty: Vector2Property;
   private readonly waveRegionBounds: Bounds2;
@@ -74,6 +68,7 @@ export default class TimePlotNode extends Node {
     this.sceneProperty = sceneProperty;
     this.timeSeries = [];
     this.elapsedTime = 0;
+    this.amplitudeScale = new StickyMaxTracker( MIN_AMPLITUDE_SCALE );
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -81,28 +76,13 @@ export default class TimePlotNode extends Node {
 
     const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( sceneProperty );
     const polarityProperty = waveDisplayModePolarityProperty( sceneProperty );
-    const activeDisplayModeProperty = new DynamicProperty<WaveDisplayMode, WaveDisplayMode, WaveVisualizableScene>( sceneProperty, {
-      derive: 'activeWaveDisplayModeProperty'
-    } );
-
-    this.maxDisplayValueProperty = new DerivedProperty(
-      [ activeDisplayModeProperty ],
-      displayMode => getMaxDisplayedWaveValue( displayMode )
-    );
 
     this.chartNode = new WavePlotChartNode( {
       yAxisLabelStringProperty: yAxisLabelStringProperty,
       xAxisLabelStringProperty: QuantumWaveInterferenceFluent.timeStringProperty,
       polarityProperty: polarityProperty,
-      chartWidth: TIME_PLOT_CHART_WIDTH,
-      chartHeight: TIME_PLOT_CHART_HEIGHT,
-      axisLabelFill: 'white',
-      panelLeftPadding: TIME_PLOT_PANEL_LEFT_PADDING,
-      panelBottomPadding: TIME_PLOT_PANEL_BOTTOM_PADDING,
-      panelTopPadding: TIME_PLOT_PANEL_TOP_PADDING,
-      panelRightPadding: TIME_PLOT_PANEL_RIGHT_PADDING,
-      x: waveRegionX + waveRegionWidth - TIME_PLOT_CHART_WIDTH - 30,
-      y: waveRegionY + waveRegionHeight - TIME_PLOT_CHART_HEIGHT - 40
+      x: waveRegionX + waveRegionWidth - WavePlotChartNode.CHART_WIDTH - 30,
+      y: waveRegionY + waveRegionHeight - WavePlotChartNode.CHART_HEIGHT - 40
     } );
     this.addChild( this.chartNode );
 
@@ -134,9 +114,9 @@ export default class TimePlotNode extends Node {
 
     sceneProperty.link( () => this.clearData() );
 
-    // Clear the accumulated time series when display mode changes so the trace restarts in the
-    // newly selected representation.
-    activeDisplayModeProperty.link( () => this.clearData() );
+    // Clear the accumulated time series and amplitude scale when display mode changes so the old
+    // values (potentially very different in magnitude) do not contaminate the scale.
+    polarityProperty.link( () => this.clearData() );
   }
 
   private createCrosshairProbe(): Node {
@@ -162,7 +142,7 @@ export default class TimePlotNode extends Node {
   }
 
   public step( dt: number ): void {
-    if ( !this.visible || dt <= 0 ) {
+    if ( !this.visible ) {
       return;
     }
 
@@ -194,6 +174,15 @@ export default class TimePlotNode extends Node {
       this.timeSeries.shift();
     }
 
+    let observedMax = 0;
+    for ( let i = 0; i < this.timeSeries.length; i++ ) {
+      const abs = Math.abs( this.timeSeries[ i ].value );
+      if ( abs > observedMax ) {
+        observedMax = abs;
+      }
+    }
+    this.amplitudeScale.update( observedMax, Math.exp( -AMPLITUDE_DECAY_PER_SECOND * dt ) );
+
     this.updateChart();
   }
 
@@ -203,16 +192,15 @@ export default class TimePlotNode extends Node {
       return;
     }
 
-    const maxTime = this.timeSeries[ this.timeSeries.length - 1 ].time;
-    const minTime = Math.max( 0, maxTime - MAX_TIME_WINDOW );
-    const axisMaxTime = minTime + MAX_TIME_WINDOW;
-    const chartWidth = this.chartNode.chartWidth;
-    const scale = this.maxDisplayValueProperty.value;
+    const minTime = this.timeSeries[ 0 ].time;
+    const maxTime = Math.max( this.timeSeries[ this.timeSeries.length - 1 ].time, minTime + MAX_TIME_WINDOW );
+    const chartWidth = WavePlotChartNode.CHART_WIDTH;
+    const scale = this.amplitudeScale.getValue();
 
     const shape = new Shape();
     for ( let i = 0; i < this.timeSeries.length; i++ ) {
       const point = this.timeSeries[ i ];
-      const x = ( ( point.time - minTime ) / ( axisMaxTime - minTime ) ) * chartWidth;
+      const x = ( ( point.time - minTime ) / ( maxTime - minTime ) ) * chartWidth;
       const y = this.chartNode.mapValueToY( point.value, scale );
 
       if ( i === 0 ) {
@@ -229,6 +217,7 @@ export default class TimePlotNode extends Node {
   private clearData(): void {
     this.timeSeries.length = 0;
     this.elapsedTime = 0;
+    this.amplitudeScale.reset();
     this.chartNode.dataPath.shape = null;
   }
 

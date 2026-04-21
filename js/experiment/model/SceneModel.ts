@@ -63,7 +63,7 @@ export default class SceneModel extends PhetioObject {
     { minMM: -10, maxMM: 10 },
     { minMM: -5, maxMM: 5 }
   ] as const;
-  public static readonly DEFAULT_DETECTOR_SCREEN_SCALE_INDEX = 0;
+  public static readonly DEFAULT_DETECTOR_SCREEN_SCALE_INDEX = 2;
 
   /**
    * Physical half-width of the detector screen in meters for a given horizontal scale level.
@@ -185,7 +185,7 @@ export default class SceneModel extends PhetioObject {
 
     // Screen distance range is the same for all source types.
     this.screenDistanceRange = new Range( 0.4, 0.8 ); // m
-    const defaultScreenDistance = 0.6;
+    const defaultScreenDistance = this.screenDistanceRange.max;
 
     if ( options.sourceType === 'photons' ) {
       this.particleMass = 0;

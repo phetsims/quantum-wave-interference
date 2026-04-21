@@ -188,6 +188,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
         layoutFunction: NumberControl.createLayoutFunction4( {
           verticalSpacing: 8
         } ),
+        includeArrowButtons: false,
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.wavelengthSlider.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( 'wavelengthControl' )
       } );

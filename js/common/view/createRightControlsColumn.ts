@@ -74,9 +74,6 @@ type CreateRightControlsColumnOptions = {
   // Callback to reset view-only state (zoom levels, plot positions) alongside model.reset()
   resetView?: () => void;
 
-  // Callback to step view-only state that should advance with the model's step-forward button.
-  onStepForward?: () => void;
-
   slitSettingDisplayMap?: Record<SlitConfiguration, TReadOnlyProperty<string>>;
 };
 
@@ -187,10 +184,7 @@ const createRightControlsColumn = (
     playPauseStepButtonOptions: {
       includeStepForwardButton: true,
       stepForwardButtonOptions: {
-        listener: () => {
-          model.stepOnce();
-          options.onStepForward?.();
-        }
+        listener: () => model.stepOnce()
       },
       playPauseButtonOptions: { radius: 22 }
     },

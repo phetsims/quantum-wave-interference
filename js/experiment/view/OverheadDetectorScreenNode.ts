@@ -10,7 +10,6 @@
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
-import Shape from '../../../../kite/js/Shape.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -27,14 +26,12 @@ import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const OVERHEAD_SKEW_SCALE = ExperimentConstants.OVERHEAD_SKEW_SCALE;
 const LABEL_FONT = new PhetFont( 16 );
-const LABEL_Y = 13;
-const BASE_DETECTOR_DX = 90;
-const BASE_DOUBLE_SLIT_SKEW_DX = 51;
-const BASE_DOUBLE_SLIT_SKEW_DY = 21;
+const LABEL_Y = 18;
+const BASE_DETECTOR_DX = 60;
 const DISTANCE_LABEL_FONT = new PhetFont( 12 );
 
 export const DETECTOR_DX = BASE_DETECTOR_DX * OVERHEAD_SCALE;
-export const DETECTOR_DY = BASE_DETECTOR_DX * ( BASE_DOUBLE_SLIT_SKEW_DY / BASE_DOUBLE_SLIT_SKEW_DX ) * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;
+export const DETECTOR_DY = 24 * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;
 export const DETECTOR_LEFT_HEIGHT = 48 * OVERHEAD_SCALE;
 
 export default class OverheadDetectorScreenNode extends Node {
@@ -42,26 +39,14 @@ export default class OverheadDetectorScreenNode extends Node {
   public readonly parallelogramNode: Path;
   public readonly overheadPatternNode: OverheadDetectorPatternNode;
 
-  private readonly sceneProperty: TReadOnlyProperty<SceneModel>;
   private frontFacingScreenLeft = 0;
   private frontFacingScreenRight = 0;
-  private currentScreenCenterX = 0;
   private readonly doubleSlitParallelogramNode: Node;
   private readonly updateDetectorScreenPosition: () => void;
-
-  private static createParallelogramShape( dx: number, dy: number, leftHeight: number ): Shape {
-    return new Shape()
-      .moveTo( 0, 0 )
-      .lineTo( 0, leftHeight )
-      .lineTo( dx, leftHeight + dy )
-      .lineTo( dx, dy )
-      .close();
-  }
 
   public constructor( sceneProperty: TReadOnlyProperty<SceneModel>, doubleSlitParallelogramNode: Node ) {
     super( { isDisposable: false } );
 
-    this.sceneProperty = sceneProperty;
     this.doubleSlitParallelogramNode = doubleSlitParallelogramNode;
 
     // Detector screen label
@@ -112,27 +97,18 @@ export default class OverheadDetectorScreenNode extends Node {
       const scene = sceneProperty.value;
       const distance = scene.screenDistanceProperty.value;
       const range = scene.screenDistanceRange;
-      const visibleWidthFraction = this.getVisibleDetectorWidthFraction();
-      const visibleDx = DETECTOR_DX * visibleWidthFraction;
-      const visibleDy = DETECTOR_DY * visibleWidthFraction;
+
+      // Keep the detector vertically aligned with the slit/beam centerline.
+      this.parallelogramNode.centerY = this.doubleSlitParallelogramNode.centerY;
 
       // Scene-dependent proportional mapping: center-to-center distance in view space is proportional to the model's
       // screen distance. For each scene, its max screenDistance maps to the current far-right max position.
       const slitCenterX = this.doubleSlitParallelogramNode.centerX;
-      const maxScreenCenterX = this.frontFacingScreenRight - DETECTOR_DX / 2;
+      const maxScreenCenterX = this.frontFacingScreenRight - BASE_DETECTOR_DX / 2;
       const maxCenterDistanceX = maxScreenCenterX - slitCenterX;
       const pixelsPerMeter = maxCenterDistanceX / range.max;
       const screenCenterX = slitCenterX + distance * pixelsPerMeter;
-      this.currentScreenCenterX = screenCenterX;
-
-      this.parallelogramNode.shape = OverheadDetectorScreenNode.createParallelogramShape(
-        visibleDx,
-        visibleDy,
-        DETECTOR_LEFT_HEIGHT
-      );
-      this.overheadPatternNode.setGeometry( visibleDx, visibleDy, DETECTOR_LEFT_HEIGHT );
       this.parallelogramNode.centerX = screenCenterX;
-      this.parallelogramNode.centerY = this.doubleSlitParallelogramNode.centerY;
 
       detectorScreenLabel.centerX = this.parallelogramNode.centerX;
       detectorScreenLabel.top = LABEL_Y;
@@ -159,42 +135,9 @@ export default class OverheadDetectorScreenNode extends Node {
     sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         oldScene.screenDistanceProperty.unlink( this.updateDetectorScreenPosition );
-        oldScene.detectorScreenScaleIndexProperty.unlink( this.updateDetectorScreenPosition );
       }
       newScene.screenDistanceProperty.link( this.updateDetectorScreenPosition );
-      newScene.detectorScreenScaleIndexProperty.link( this.updateDetectorScreenPosition );
     } );
-  }
-
-  public getVisibleDetectorWidthFraction(): number {
-    const fullScreenHalfWidth = SceneModel.getScreenHalfWidthForScaleIndex( 0 );
-    return this.sceneProperty.value.screenHalfWidth / fullScreenHalfWidth;
-  }
-
-  public getFullParallelogramHeight(): number {
-    return DETECTOR_LEFT_HEIGHT + DETECTOR_DY;
-  }
-
-  public getFullParallelogramTop(): number {
-    return this.parallelogramNode.centerY - this.getFullParallelogramHeight() / 2;
-  }
-
-  public getFullParallelogramBottom(): number {
-    return this.parallelogramNode.centerY + this.getFullParallelogramHeight() / 2;
-  }
-
-  public getFullParallelogramTopLeft(): { x: number; y: number } {
-    return {
-      x: this.currentScreenCenterX - DETECTOR_DX / 2,
-      y: this.getFullParallelogramTop()
-    };
-  }
-
-  public getFullParallelogramBottomRight(): { x: number; y: number } {
-    return {
-      x: this.currentScreenCenterX + DETECTOR_DX / 2,
-      y: this.getFullParallelogramBottom()
-    };
   }
 
   /**
@@ -214,19 +157,10 @@ export default class OverheadDetectorScreenNode extends Node {
    */
   public getMaxDistanceParallelogramLeft(): number {
     if ( this.frontFacingScreenRight <= this.frontFacingScreenLeft ) {
-      return this.currentScreenCenterX - DETECTOR_DX / 2;
+      return this.parallelogramNode.left;
     }
-    const maxScreenCenterX = this.frontFacingScreenRight - DETECTOR_DX / 2;
+    const maxScreenCenterX = this.frontFacingScreenRight - BASE_DETECTOR_DX / 2;
     return maxScreenCenterX - DETECTOR_DX / 2;
-  }
-
-  /**
-   * Returns the detector screen parallelogram right x-position corresponding to the maximum screen distance for the
-   * active scene. Used for keeping the overhead fan-beam graphic static in width while the detector screen itself
-   * moves.
-   */
-  public getMaxDistanceParallelogramRight(): number {
-    return this.getMaxDistanceParallelogramLeft() + DETECTOR_DX;
   }
 
   /**

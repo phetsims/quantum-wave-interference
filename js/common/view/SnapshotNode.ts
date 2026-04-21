@@ -33,7 +33,7 @@ import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import Snapshot from '../model/Snapshot.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 const SNAPSHOT_WIDTH = 360;
 const SNAPSHOT_HEIGHT = 132;
@@ -535,17 +535,13 @@ class SnapshotCanvasNode extends CanvasNode {
    */
   private paintCapturedIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
     const distribution = snapshot.intensityDistribution;
-    const backgroundRGB = { r: 0, g: 0, b: 0 };
 
     const normalizedBrightness = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
     const displayGain = getIntensityDisplayGain( normalizedBrightness, snapshot.intensity );
 
-    const sourceRGB = snapshot.sourceType === 'photons'
-                      ? ( () => {
-                        const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
-                        return { r: color.red, g: color.green, b: color.blue };
-                      } )()
-                      : { r: 255, g: 255, b: 255 };
+    const baseColor = snapshot.sourceType === 'photons'
+                      ? VisibleColor.wavelengthToColor( snapshot.wavelength )
+                      : null;
 
     const distributionLength = distribution.length;
     for ( let x = 0; x < SNAPSHOT_WIDTH; x++ ) {
@@ -554,11 +550,21 @@ class SnapshotCanvasNode extends CanvasNode {
         0, distributionLength - 1
       );
       const intensityScale = distribution[ solverIndex ] * displayGain;
-      const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, sourceRGB, intensityScale );
-      if ( fillStyle ) {
-        context.fillStyle = fillStyle;
-        context.fillRect( x, 0, 1, SNAPSHOT_HEIGHT );
+      if ( intensityScale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
+        continue;
       }
+
+      if ( baseColor ) {
+        const r = clamp( roundSymmetric( baseColor.red * intensityScale ), 0, 255 );
+        const g = clamp( roundSymmetric( baseColor.green * intensityScale ), 0, 255 );
+        const b = clamp( roundSymmetric( baseColor.blue * intensityScale ), 0, 255 );
+        context.fillStyle = `rgb(${r},${g},${b})`;
+      }
+      else {
+        const value = clamp( roundSymmetric( 255 * intensityScale ), 0, 255 );
+        context.fillStyle = `rgb(${value},${value},${value})`;
+      }
+      context.fillRect( x, 0, 1, SNAPSHOT_HEIGHT );
     }
   }
 
@@ -585,14 +591,10 @@ class SnapshotCanvasNode extends CanvasNode {
     const screenDistanceMeters = snapshot.screenDistance;
     const slitSetting = snapshot.slitSetting;
     const isSingleSlit = slitSetting === 'leftCovered' || slitSetting === 'rightCovered' || hasAnyDetector( slitSetting );
-    const backgroundRGB = { r: 0, g: 0, b: 0 };
 
-    const sourceRGB = snapshot.sourceType === 'photons'
-                      ? ( () => {
-                        const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
-                        return { r: color.red, g: color.green, b: color.blue };
-                      } )()
-                      : { r: 255, g: 255, b: 255 };
+    const photonColor = snapshot.sourceType === 'photons'
+                        ? VisibleColor.wavelengthToColor( snapshot.wavelength )
+                        : null;
 
     for ( let x = 0; x < ANALYTICAL_TEXTURE_WIDTH; x++ ) {
       const fraction = ( x + 0.5 ) / ANALYTICAL_TEXTURE_WIDTH;
@@ -607,11 +609,21 @@ class SnapshotCanvasNode extends CanvasNode {
                         : Math.pow( Math.cos( Math.PI * slitSeparationMeters * sinTheta / lambda ), 2 ) * singleSlitFactor;
 
       const intensityScale = intensity * displayGain;
-      const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, sourceRGB, intensityScale );
-      if ( fillStyle ) {
-        textureContext.fillStyle = fillStyle;
-        textureContext.fillRect( x, 0, 1, ANALYTICAL_TEXTURE_HEIGHT );
+      if ( intensityScale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
+        continue;
       }
+
+      if ( photonColor ) {
+        const r = clamp( roundSymmetric( photonColor.red * intensityScale ), 0, 255 );
+        const g = clamp( roundSymmetric( photonColor.green * intensityScale ), 0, 255 );
+        const b = clamp( roundSymmetric( photonColor.blue * intensityScale ), 0, 255 );
+        textureContext.fillStyle = `rgb(${r},${g},${b})`;
+      }
+      else {
+        const value = clamp( roundSymmetric( 255 * intensityScale ), 0, 255 );
+        textureContext.fillStyle = `rgb(${value},${value},${value})`;
+      }
+      textureContext.fillRect( x, 0, 1, ANALYTICAL_TEXTURE_HEIGHT );
     }
 
     context.save();

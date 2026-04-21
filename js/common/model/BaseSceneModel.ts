@@ -56,6 +56,8 @@ type SourceTypeConfig = {
   defaultSlitSeparation: number;
 
   // Must be smaller than the minimum slit separation for each scene.
+  // The analytical solver overrides these with display-scale values via getDisplaySlitParameters;
+  // these physical values are used only by the lattice solver.
   slitWidth: number;
 };
 
@@ -63,33 +65,33 @@ const SOURCE_TYPE_CONFIG: Record<SourceType, SourceTypeConfig> = {
   photons: {
     particleMass: 0,
     velocityRange: [ 0, 0 ],
-    slitSeparationRange: [ 0.1, 2.0 ],
+    slitSeparationRange: [ 0.0002, 0.003 ],
     defaultVelocity: 0,
-    defaultSlitSeparation: 1.0,
+    defaultSlitSeparation: 0.003,
     slitWidth: 0.0001
   },
   electrons: {
     particleMass: QuantumWaveInterferenceConstants.ELECTRON_MASS,
     velocityRange: [ 7e5, 1.5e6 ],
-    slitSeparationRange: [ 0.1, 2.0 ],
+    slitSeparationRange: [ 0.0001, 0.0009 ],
     defaultVelocity: 1.1e6,
-    defaultSlitSeparation: 1.0,
+    defaultSlitSeparation: 0.0005,
     slitWidth: 0.00003
   },
   neutrons: {
     particleMass: QuantumWaveInterferenceConstants.NEUTRON_MASS,
     velocityRange: [ 200, 800 ],
-    slitSeparationRange: [ 0.1, 2.0 ],
+    slitSeparationRange: [ 0.00005, 0.002 ],
     defaultVelocity: 500,
-    defaultSlitSeparation: 1.0,
+    defaultSlitSeparation: 0.001,
     slitWidth: 0.00002
   },
   heliumAtoms: {
     particleMass: QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS,
     velocityRange: [ 400, 2000 ],
-    slitSeparationRange: [ 0.1, 2.0 ],
+    slitSeparationRange: [ 0.00002, 0.0008 ],
     defaultVelocity: 1200,
-    defaultSlitSeparation: 1.0,
+    defaultSlitSeparation: 0.0004,
     slitWidth: 0.000008
   }
 };
@@ -117,8 +119,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly slitSeparationRange: Range;
   public readonly regionWidth: number;
   public readonly regionHeight: number;
-  private readonly defaultEffectiveWavelength: number;
-  protected readonly defaultWaveSpeed: number;
 
   public readonly isEmittingProperty: BooleanProperty;
   public readonly wavelengthProperty: NumberProperty;
@@ -165,11 +165,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.regionWidth = REGION_SIZE;
     this.regionHeight = REGION_SIZE;
 
-    this.defaultEffectiveWavelength = this.sourceType === 'photons' ?
-                                      DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
-                                      QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * config.defaultVelocity );
-    this.defaultWaveSpeed = this.sourceType === 'photons' ? 3e8 : config.defaultVelocity;
-
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
 
@@ -201,7 +196,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
 
     this.slitPositionFractionProperty = new NumberProperty( 0.5, {
-      range: new Range( 0.25, 0.75 ),
+      range: new Range( 0.2, 0.8 ),
       tandem: tandem.createTandem( 'slitPositionFractionProperty' )
     } );
 
@@ -269,16 +264,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
   protected isBottomSlitDecoherent(): boolean { return false; }
 
   protected syncSolverParameters(): void {
-    const effectiveWavelength = this.getEffectiveWavelength();
-    const baseDisplayWavelengths = this.waveSolver.defaultDisplayWavelengths;
-    const displayWavelengths = effectiveWavelength > 0 ?
-                               baseDisplayWavelengths * ( this.defaultEffectiveWavelength / effectiveWavelength ) :
-                               baseDisplayWavelengths;
     this.waveSolver.setParameters( {
-      wavelength: effectiveWavelength,
+      wavelength: this.getEffectiveWavelength(),
       waveSpeed: this.getEffectiveWaveSpeed(),
-      displaySpeedScale: this.getEffectiveWaveSpeed() / this.defaultWaveSpeed,
-      displayWavelengths: displayWavelengths,
       obstacleType: this.obstacleTypeProperty.value,
       slitSeparation: this.slitSeparationProperty.value * 1e-3,
       slitSeparationMin: this.slitSeparationRange.min * 1e-3,
@@ -348,7 +336,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.hits.length = 0;
     this.totalHitsProperty.value = 0;
     this.wavefrontReached = false;
-    this.syncSolverParameters();
     this.waveSolver.reset();
     this.syncSolverParameters();
     this.hitsChangedEmitter.emit();
@@ -454,3 +441,4 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.hitsChangedEmitter.emit();
   }
 }
+

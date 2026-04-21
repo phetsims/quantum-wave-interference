@@ -10,7 +10,6 @@
 
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import Shape from '../../../../kite/js/Shape.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -18,8 +17,8 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import createRoundedPolygonShape from './createRoundedPolygonShape.js';
 import { type DetectorScreenSceneLike } from './DetectorScreenTextureRenderer.js';
 import DetectorScreenTextureRenderer from './DetectorScreenTextureRenderer.js';
 
@@ -30,6 +29,7 @@ export type DetectorScreenNodeOptions = SelfOptions & NodeOptions;
 const SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW;
+const CORNER_RADIUS = 6;
 const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
 const SNAPSHOT_FLASH_DURATION = 0.6;
 
@@ -49,15 +49,17 @@ export default class DetectorScreenNode extends Node {
 
     const textureRenderer = new DetectorScreenTextureRenderer( SCREEN_WIDTH, SCREEN_HEIGHT + SKEW, SKEW );
 
-    const shape = new Shape()
-      .moveTo( 0, SKEW )
-      .lineTo( SCREEN_WIDTH, 0 )
-      .lineTo( SCREEN_WIDTH, SCREEN_HEIGHT )
-      .lineTo( 0, SCREEN_HEIGHT + SKEW )
-      .close();
+    const shape = createRoundedPolygonShape( [
+      { x: 0, y: SKEW },
+      { x: SCREEN_WIDTH, y: 0 },
+      { x: SCREEN_WIDTH, y: SCREEN_HEIGHT },
+      { x: 0, y: SCREEN_HEIGHT + SKEW }
+    ], CORNER_RADIUS );
 
     this.addChild( new Path( shape, {
-      fill: QuantumWaveInterferenceColors.detectorScreenBackgroundColorProperty
+      fill: 'black',
+      stroke: '#333',
+      lineWidth: 1
     } ) );
 
     this.canvasNode = new DetectorScreenCanvasNode( sceneProperty, textureRenderer, SCREEN_WIDTH, SCREEN_HEIGHT + SKEW );

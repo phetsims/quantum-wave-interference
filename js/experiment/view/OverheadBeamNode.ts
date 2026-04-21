@@ -25,12 +25,6 @@ const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const particleBeamColorProperty = QuantumWaveInterferenceColors.particleBeamColorProperty;
 const EMITTER_BEAM_HEIGHT = 32 * 0.73 * OVERHEAD_SCALE;
 const EMITTER_BEAM_LEFT_EXTENSION = 10 * OVERHEAD_SCALE;
-const FAN_BEAM_LEFT_OFFSET_FROM_SLIT_CENTER_FRACTION = 0.25;
-const FAN_BEAM_LEFT_HEIGHT_SCALE = 1.2;
-const FAN_BEAM_RIGHT_HEIGHT_SCALE = 2;
-const FAN_BEAM_TOP_RIGHT_Y_OFFSET = -6;
-const FAN_BEAM_BOTTOM_RIGHT_Y_OFFSET = -20;
-const DETECTOR_SCREEN_SHADOW_FILL = 'rgba(255,255,255,0.75)';
 
 export default class OverheadBeamNode extends Node {
 
@@ -39,7 +33,6 @@ export default class OverheadBeamNode extends Node {
   // The incident beam (emitter to slit) with a skewed half-oval cap on the right, exposed so it can be z-ordered
   // independently.
   public readonly emitterBeamNode: Path;
-  public readonly detectorScreenShadowNode: Path;
 
   public constructor(
     sceneProperty: TReadOnlyProperty<SceneModel>,
@@ -52,16 +45,11 @@ export default class OverheadBeamNode extends Node {
     this.emitterBeamNode = new Path( null, { visible: false } );
     // emitterBeamNode is NOT added as a child here — it is z-ordered separately in ExperimentScreenView.
 
-    this.detectorScreenShadowNode = new Path( null, {
-      fill: DETECTOR_SCREEN_SHADOW_FILL,
-      visible: false
-    } );
-    // detectorScreenShadowNode is NOT added as a child here — it is z-ordered separately in ExperimentScreenView.
-
     const fanBeamNode = new Path( null, { visible: false } );
     this.addChild( fanBeamNode );
 
     const doubleSlitParallelogram = doubleSlitNode.parallelogramNode;
+    const detectorScreenParallelogram = detectorScreenNode.parallelogramNode;
 
     this._updateBeam = () => {
       const scene = sceneProperty.value;
@@ -69,7 +57,6 @@ export default class OverheadBeamNode extends Node {
       const intensity = scene.intensityProperty.value;
 
       this.emitterBeamNode.visible = isEmitting;
-      this.detectorScreenShadowNode.visible = isEmitting;
       fanBeamNode.visible = isEmitting;
 
       if ( !isEmitting ) {
@@ -123,45 +110,34 @@ export default class OverheadBeamNode extends Node {
       this.emitterBeamNode.shape = beamShape;
       this.emitterBeamNode.fill = beamColor.withAlpha( 0.8 * intensity );
 
-      const visibleDoubleSlitLeft = doubleSlitNode.getVisibleBackgroundLeftX();
-      const visibleDoubleSlitRight = doubleSlitNode.getVisibleBackgroundRightX();
-      const visibleDoubleSlitCenterX = ( visibleDoubleSlitLeft + visibleDoubleSlitRight ) / 2;
-      const visibleDoubleSlitWidth = visibleDoubleSlitRight - visibleDoubleSlitLeft;
-      const fanLeft = visibleDoubleSlitCenterX + visibleDoubleSlitWidth * FAN_BEAM_LEFT_OFFSET_FROM_SLIT_CENTER_FRACTION;
-      const fanRight = detectorScreenNode.getMaxDistanceParallelogramRight();
-      const narrowHalfHeight = beamHeight * FAN_BEAM_LEFT_HEIGHT_SCALE / 2;
+      const fanLeft = doubleSlitNode.getVisibleBackgroundRightX();
+      const fanRight = detectorScreenNode.getMaxDistanceParallelogramLeft();
+      const narrowHalfHeight = beamHeight / 2;
 
       const slitCenterY = doubleSlitParallelogram.centerY;
-      const screenCenterY = detectorScreenNode.parallelogramNode.centerY;
-      const wideHalfHeight = detectorScreenNode.getFullParallelogramHeight() * FAN_BEAM_RIGHT_HEIGHT_SCALE / 2;
-      const fanTopLeftY = slitCenterY - narrowHalfHeight;
-      const fanBottomLeftY = slitCenterY + narrowHalfHeight;
-      const fanTopRightY = screenCenterY - wideHalfHeight + FAN_BEAM_TOP_RIGHT_Y_OFFSET;
-      const fanBottomRightY = screenCenterY + wideHalfHeight + FAN_BEAM_BOTTOM_RIGHT_Y_OFFSET;
+      const screenCenterY = detectorScreenParallelogram.centerY;
+      const wideHalfHeight = detectorScreenParallelogram.height / 2;
 
       const fanShape = new Shape()
-        .moveTo( fanLeft, fanTopLeftY )
-        .lineTo( fanRight, fanTopRightY )
-        .lineTo( fanRight, fanBottomRightY )
-        .lineTo( fanLeft, fanBottomLeftY )
+        .moveTo( fanLeft, slitCenterY - narrowHalfHeight )
+        .lineTo( fanRight, screenCenterY - wideHalfHeight )
+        .lineTo( fanRight, screenCenterY + wideHalfHeight )
+        .lineTo( fanLeft, slitCenterY + narrowHalfHeight )
         .close();
       fanBeamNode.shape = fanShape;
-      fanBeamNode.clipArea = null;
 
-      const detectorTopLeftX = detectorScreenNode.parallelogramNode.left;
-      const detectorTopLeftY = detectorScreenNode.parallelogramNode.top;
-      const detectorBottomRightX = detectorScreenNode.parallelogramNode.right;
-      const detectorBottomRightY = detectorScreenNode.parallelogramNode.bottom;
-      const topSlope = ( fanTopRightY - fanTopLeftY ) / ( fanRight - fanLeft );
-      const bottomSlope = ( fanBottomRightY - fanBottomLeftY ) / ( fanRight - fanLeft );
-      const shadowTopRightY = detectorTopLeftY + topSlope * ( fanRight - detectorTopLeftX );
-      const shadowBottomRightY = detectorBottomRightY + bottomSlope * ( fanRight - detectorBottomRightX );
-
-      this.detectorScreenShadowNode.shape = new Shape()
-        .moveTo( detectorTopLeftX, detectorTopLeftY )
-        .lineTo( fanRight, shadowTopRightY )
-        .lineTo( fanRight, shadowBottomRightY )
-        .lineTo( detectorBottomRightX, detectorBottomRightY )
+      // Clip the fan beam along a diagonal from the detector screen parallelogram's top-left corner to its
+      // bottom-right corner, so no light is visible past the screen.
+      const screenTopLeftX = detectorScreenParallelogram.left;
+      const screenTopLeftY = detectorScreenParallelogram.top;
+      const screenBottomRightX = detectorScreenParallelogram.right;
+      const screenBottomRightY = detectorScreenParallelogram.bottom;
+      const clipPadding = 200;
+      fanBeamNode.clipArea = new Shape()
+        .moveTo( fanLeft - clipPadding, screenTopLeftY - clipPadding )
+        .lineTo( screenTopLeftX, screenTopLeftY )
+        .lineTo( screenBottomRightX, screenBottomRightY )
+        .lineTo( fanLeft - clipPadding, screenBottomRightY + clipPadding )
         .close();
 
       const gradient = new LinearGradient( fanLeft, 0, fanRight, 0 )
@@ -171,7 +147,7 @@ export default class OverheadBeamNode extends Node {
     };
 
     // Wire up beam updates
-    const beamProperties = [ 'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'screenDistanceProperty', 'detectorScreenScaleIndexProperty' ] as const;
+    const beamProperties = [ 'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'screenDistanceProperty' ] as const;
     sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         for ( const propName of beamProperties ) {

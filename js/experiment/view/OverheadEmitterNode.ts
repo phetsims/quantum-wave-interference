@@ -23,7 +23,6 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import RadialGradient from '../../../../scenery/js/util/RadialGradient.js';
 import Panel from '../../../../sun/js/Panel.js';
-import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
@@ -107,8 +106,6 @@ export default class OverheadEmitterNode extends Node {
   public readonly laserPointerNode: LaserPointerNode;
   public readonly particleEmitterNode: LaserPointerNode;
   public readonly maxHitsReachedPanel: Panel;
-  private emitterCenterX: number | null = null;
-  private readonly updateEmitterLayout: () => void;
 
   public constructor( model: ExperimentModel, layoutBounds: Bounds2, tandem: Tandem ) {
     super( { isDisposable: false } );
@@ -207,19 +204,15 @@ export default class OverheadEmitterNode extends Node {
       sourceType: sourceTypeProperty
     } );
 
-    const buttonOptions = {
-      baseColor: 'red',
-      radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE,
-      valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
-      valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
-      accessibleName: emitterAccessibleNameProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpTextStringProperty
-    };
-
     this.laserPointerNode = new LaserPointerNode( isEmittingProperty, {
       bodySize: new Dimension2( BASE_BODY_WIDTH * OVERHEAD_SCALE, BASE_BODY_HEIGHT * OVERHEAD_SCALE ),
       nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * OVERHEAD_SCALE, BASE_NOZZLE_HEIGHT * OVERHEAD_SCALE ),
-      buttonOptions: buttonOptions,
+      buttonOptions: {
+        baseColor: 'red',
+        radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE,
+        accessibleName: emitterAccessibleNameProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpTextStringProperty
+      },
       left: emitterLeft,
       tandem: tandem.createTandem( 'laserPointerNode' )
     } );
@@ -231,7 +224,12 @@ export default class OverheadEmitterNode extends Node {
       topColor: PARTICLE_EMITTER_PALETTES.electrons.topColor,
       bottomColor: PARTICLE_EMITTER_PALETTES.electrons.bottomColor,
       highlightColor: PARTICLE_EMITTER_PALETTES.electrons.highlightColor,
-      buttonOptions: buttonOptions,
+      buttonOptions: {
+        baseColor: 'red',
+        radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE,
+        accessibleName: emitterAccessibleNameProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpTextStringProperty
+      },
       hasGlass: true,
       glassOptions: {
         mainColor: PARTICLE_EMITTER_PALETTES.electrons.glassMainColor,
@@ -281,7 +279,7 @@ export default class OverheadEmitterNode extends Node {
     };
 
     // Toggle visibility and position based on scene
-    this.updateEmitterLayout = () => {
+    const updateEmitterLayout = () => {
       const sourceType = model.sceneProperty.value.sourceType;
       const isPhoton = sourceType === 'photons';
       this.laserPointerNode.visible = isPhoton;
@@ -289,25 +287,16 @@ export default class OverheadEmitterNode extends Node {
 
       applyParticleEmitterPalette( sourceType );
 
-      const targetEmitterCenterX = this.emitterCenterX ?? this.laserPointerNode.centerX;
-      this.laserPointerNode.centerX = targetEmitterCenterX;
-      this.particleEmitterNode.centerX = targetEmitterCenterX;
-
       const activeEmitter = isPhoton ? this.laserPointerNode : this.particleEmitterNode;
       activeEmitter.top = emitterTop;
-      sourceLabel.centerX = targetEmitterCenterX;
-      particleMassLabel.centerX = targetEmitterCenterX;
+      sourceLabel.centerX = activeEmitter.centerX;
+      particleMassLabel.centerX = activeEmitter.centerX;
       particleMassLabel.top = activeEmitter.bottom + MASS_LABEL_TOP_MARGIN * OVERHEAD_SCALE;
       this.maxHitsReachedPanel.centerY = activeEmitter.centerY;
     };
 
-    sourceLabel.localBoundsProperty.link( this.updateEmitterLayout );
-    particleMassLabel.localBoundsProperty.link( this.updateEmitterLayout );
-    model.sceneProperty.link( this.updateEmitterLayout );
-  }
-
-  public setEmitterCenterX( emitterCenterX: number ): void {
-    this.emitterCenterX = emitterCenterX;
-    this.updateEmitterLayout();
+    sourceLabel.localBoundsProperty.link( updateEmitterLayout );
+    particleMassLabel.localBoundsProperty.link( updateEmitterLayout );
+    model.sceneProperty.link( updateEmitterLayout );
   }
 }

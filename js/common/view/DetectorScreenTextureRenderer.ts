@@ -14,11 +14,12 @@
 import TEmitter from '../../../../axon/js/TEmitter.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, getWaveAndDetectorBackgroundRGB } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 const SUPERSAMPLE = 2;
 const MAX_RENDERED_HITS = 10000;
@@ -231,7 +232,6 @@ export default class DetectorScreenTextureRenderer {
     scene: DetectorScreenSceneLike,
     displayGain: number
   ): void {
-    const backgroundRGB = getWaveAndDetectorBackgroundRGB();
     const rgb = getSceneRGB( scene.sourceType, scene.wavelengthProperty.value );
     const distribution = scene.waveSolver.getDetectorProbabilityDistribution();
     const solverHeight = scene.waveSolver.gridHeight;
@@ -243,7 +243,7 @@ export default class DetectorScreenTextureRenderer {
     for ( let y = 0; y < this.faceHeight; y++ ) {
       const solverY = clamp( Math.floor( ( y + 0.5 ) / this.faceHeight * solverHeight ), 0, solverHeight - 1 );
       const intensity = distribution[ solverY ];
-      const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, rgb, intensity * displayGain );
+      const fillStyle = this.getScaledRGBFillStyle( rgb, intensity * displayGain );
       if ( !fillStyle ) {
         continue;
       }
@@ -253,6 +253,17 @@ export default class DetectorScreenTextureRenderer {
     }
 
     context.restore();
+  }
+
+  private getScaledRGBFillStyle( rgb: { r: number; g: number; b: number }, scale: number ): string | null {
+    if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
+      return null;
+    }
+
+    const r = clamp( roundSymmetric( rgb.r * scale ), 0, 255 );
+    const g = clamp( roundSymmetric( rgb.g * scale ), 0, 255 );
+    const b = clamp( roundSymmetric( rgb.b * scale ), 0, 255 );
+    return `rgb(${r},${g},${b})`;
   }
 
   private rgbToRGBA( rgb: { r: number; g: number; b: number }, alpha: number ): string {

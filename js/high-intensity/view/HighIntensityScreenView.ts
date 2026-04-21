@@ -15,15 +15,16 @@ import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
+import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
-import createObstacleControlsSection from '../../common/view/createObstacleControlsSection.js';
 import createObstacleControlsRow from '../../common/view/createObstacleControlsRow.js';
 import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
@@ -58,10 +59,6 @@ const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
 const TOP_ROW_TO_MASS_LABEL_SPACING = 12;
 const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
 const SCENE_TO_OBSTACLE_CONTROLS_SPACING = 36;
-const SOURCE_CONTROL_Y_OFFSET = 20;
-const SCENE_AND_OBSTACLE_Y_OFFSET = 10;
-const SCENE_BUTTON_GROUP_Y_OFFSET = 10;
-const WAVE_REGION_Y_OFFSET = -30;
 
 // Extra vertical space below the top row to accommodate the zoom-callout lines between the
 // mini-symbol (at TOP_ROW_CENTER_Y) and the top of the main wave region.
@@ -69,7 +66,6 @@ const CALLOUT_GAP = 55;
 
 export default class HighIntensityScreenView extends ScreenView {
 
-  private readonly model: HighIntensityModel;
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
   private readonly sidewaysGraphNode: SidewaysGraphNode;
@@ -80,8 +76,6 @@ export default class HighIntensityScreenView extends ScreenView {
     const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
 
     super( options );
-
-    this.model = model;
 
     const tandem = options.tandem;
 
@@ -100,46 +94,78 @@ export default class HighIntensityScreenView extends ScreenView {
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
 
     sceneRadioButtonGroup.layoutOptions = { align: 'center' };
-    const { obstacleControlsSection } = createObstacleControlsSection(
+
+    const obstacleRadioButtonItems: AquaRadioButtonGroupItem<ObstacleType>[] = [
+      {
+        value: 'none',
+        createNode: () => new Text( QuantumWaveInterferenceFluent.noneStringProperty, {
+          font: LABEL_FONT,
+          maxWidth: 120
+        } ),
+        tandemName: 'noneRadioButton'
+      },
+      {
+        value: 'doubleSlit',
+        createNode: () => new Text( QuantumWaveInterferenceFluent.doubleSlitStringProperty, {
+          font: LABEL_FONT,
+          maxWidth: 120
+        } ),
+        tandemName: 'doubleSlitRadioButton'
+      }
+    ];
+
+    const obstacleHeading = new Text( QuantumWaveInterferenceFluent.obstacleStringProperty, {
+      font: new PhetFont( 14 ),
+      maxWidth: 120
+    } );
+
+    const obstacleRadioButtonGroup = new AquaRadioButtonGroup<ObstacleType>(
       model.currentObstacleTypeProperty,
-      tandem
+      obstacleRadioButtonItems,
+      {
+        spacing: 8,
+        align: 'left',
+        orientation: 'vertical',
+        radioButtonOptions: { radius: 7 },
+        accessibleName: QuantumWaveInterferenceFluent.obstacleStringProperty,
+        tandem: tandem.createTandem( 'obstacleRadioButtonGroup' )
+      }
     );
 
-    const leftColumnWidth = Math.max( sourceControlPanel.width, sceneRadioButtonGroup.width, obstacleControlsSection.width );
-    const leftColumnCenterX = X_MARGIN + leftColumnWidth / 2;
-    const waveRegionLeft = X_MARGIN + leftColumnWidth + 20;
-    const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
-    const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
+    const obstacleControlsSection = new VBox( {
+      spacing: 6,
+      align: 'center',
+      layoutOptions: { align: 'center' },
+      children: [ obstacleHeading, obstacleRadioButtonGroup ]
+    } );
+
+    const sceneAndObstacleControlsVBox = new VBox( {
+      spacing: SCENE_TO_OBSTACLE_CONTROLS_SPACING,
+      align: 'center',
+      layoutOptions: { align: 'center' },
+      children: [ sceneRadioButtonGroup, obstacleControlsSection ]
+    } );
+
+    const leftControlsVBox = new VBox( {
+      spacing: SOURCE_TO_SCENE_CONTROLS_SPACING,
+      align: 'left',
+      children: [ sourceControlPanel, sceneAndObstacleControlsVBox ]
+    } );
+    leftControlsVBox.left = X_MARGIN;
+    this.addChild( leftControlsVBox );
+
+    const waveRegionLeft = leftControlsVBox.right + 20;
+    const waveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
     const waveRegionRight = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
-
-    sourceControlPanel.left = X_MARGIN;
-    sourceControlPanel.top = baseWaveRegionTop + SOURCE_CONTROL_Y_OFFSET;
-    this.addChild( sourceControlPanel );
-
-    obstacleControlsSection.centerX = leftColumnCenterX;
-    obstacleControlsSection.top =
-      baseWaveRegionTop + sourceControlPanel.height + SOURCE_TO_SCENE_CONTROLS_SPACING +
-      SCENE_AND_OBSTACLE_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_OBSTACLE_CONTROLS_SPACING;
-    this.addChild( obstacleControlsSection );
-
-    sceneRadioButtonGroup.centerX = leftColumnCenterX;
-    sceneRadioButtonGroup.top =
-      obstacleControlsSection.top - SCENE_TO_OBSTACLE_CONTROLS_SPACING - sceneRadioButtonGroup.height +
-      SCENE_BUTTON_GROUP_Y_OFFSET;
-    this.addChild( sceneRadioButtonGroup );
-
     const topRowBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - X_MARGIN );
     const topRowNode = new HighIntensityTopRowNode(
       model.sceneProperty,
       model.scenes,
-      model.currentObstacleTypeProperty,
-      model.currentSlitPositionFractionProperty,
-      model.currentSlitSeparationProperty,
       model.currentIsEmittingProperty,
       this.visibleBoundsProperty,
       topRowBeamRightLimitXProperty,
       {
-        emitterCenterX: leftColumnCenterX,
+        emitterCenterX: leftControlsVBox.centerX,
         topRowCenterY: TOP_ROW_CENTER_Y,
         waveRegionLeft: waveRegionLeft,
         waveRegionRight: waveRegionRight,
@@ -148,6 +174,10 @@ export default class HighIntensityScreenView extends ScreenView {
       tandem.createTandem( 'topRowNode' )
     );
     this.addChild( topRowNode );
+
+    // Align the left controls column with the top of the main wave region so the emitter
+    // sits above it with a visible gap that the callout lines can span.
+    leftControlsVBox.top = waveRegionTop;
 
     const updateParticleMassAnnotationPosition = () => {
       particleMassAnnotation.centerX = topRowNode.emitterCenterX;
@@ -172,7 +202,7 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     } );
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
-      x: waveRegionRight - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
+      x: waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP,
       y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
     this.addChild( this.detectorScreenNode );
@@ -197,10 +227,14 @@ export default class HighIntensityScreenView extends ScreenView {
       slitConfigItems,
       model.sceneProperty,
       model.scenes,
-      waveRegionLeft,
-      obstacleControlsSection,
+      waveRegionTop,
       this,
-      tandem
+      tandem,
+      {
+        layoutBoundsBottom: this.layoutBounds.maxY,
+        layoutBoundsBottomOffset: CONTENT_VERTICAL_OFFSET,
+        includeObstacleSection: false
+      }
     );
     this.addChild( bottomRow );
 
@@ -258,7 +292,6 @@ export default class HighIntensityScreenView extends ScreenView {
       ],
       clearScreen: () => model.sceneProperty.value.clearScreen(),
       onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash(),
-      onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
       resetView: () => {
         this.sidewaysGraphNode.reset();
         this.timePlotNode.reset();
@@ -286,7 +319,7 @@ export default class HighIntensityScreenView extends ScreenView {
     this.waveVisualizationNode.step();
     this.detectorScreenNode.step();
     this.sidewaysGraphNode.step();
-    this.timePlotNode.step( this.model.getEffectiveDt( dt ) );
+    this.timePlotNode.step( dt );
     this.positionPlotNode.step();
   }
 }

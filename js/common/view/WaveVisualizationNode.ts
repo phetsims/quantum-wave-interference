@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * WaveVisualizationNode is the rectangular wave visualization region. It contains
+ * WaveVisualizationNode is the black rectangle representing the wave visualization region. It contains
  * a canvas-based wave field rendering that updates each frame. Used by both the High Intensity and
  * Single Particles screens.
  *
@@ -20,7 +20,6 @@ import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
@@ -103,9 +102,9 @@ export default class WaveVisualizationNode extends Node {
     const height = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 
     const backgroundRect = new Rectangle( 0, 0, width, height, {
-      fill: QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty,
+      fill: 'black',
       stroke: 'white',
-      lineWidth: 1
+      lineWidth: 2
     } );
     this.addChild( backgroundRect );
 

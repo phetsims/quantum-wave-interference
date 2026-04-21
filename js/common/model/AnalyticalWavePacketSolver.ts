@@ -12,7 +12,6 @@
 
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
@@ -25,24 +24,18 @@ const DEFAULT_GRID_HEIGHT = 200;
 const PACKET_TRAVERSAL_TIME = 1.5;
 const SIGMA_X_FRACTION = 0.12;
 const SIGMA_Y_FRACTION = 0.12;
-const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
+const DISPLAY_WAVELENGTHS = 30;
 const N_HUYGENS_SOURCES = 28;
 
-// The wave packet starts this many σ_x to the left of the visible region so it enters smoothly from off-screen.
-const PACKET_START_OFFSET_SIGMAS = 3;
-
-export { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION, PACKET_START_OFFSET_SIGMAS };
+export { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION };
 
 export default class AnalyticalWavePacketSolver implements WaveSolver {
 
   public readonly gridWidth: number;
   public readonly gridHeight: number;
-  public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
 
   private wavelength = 650e-9;
   private waveSpeed = 3e8;
-  private displaySpeedScale = 1;
-  private displayWavelengths = DISPLAY_WAVELENGTHS;
   private obstacleType: ObstacleType = 'none';
   private slitSeparation = 0.25e-3;
   private slitSeparationMin = 0.25e-3;
@@ -207,15 +200,15 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
     const dx = regionWidth / gridWidth;
     const dy = regionHeight / gridHeight;
-    const kDisplay = 2 * Math.PI * this.displayWavelengths / regionWidth;
-    const displaySpeed = ( regionWidth / PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
+    const kDisplay = 2 * Math.PI * DISPLAY_WAVELENGTHS / regionWidth;
+    const displaySpeed = regionWidth / PACKET_TRAVERSAL_TIME;
     const omegaDisplay = kDisplay * displaySpeed;
 
     const sigmaX = SIGMA_X_FRACTION * regionWidth;
     const sigmaY = SIGMA_Y_FRACTION * regionHeight;
     const invTwoSigmaXSq = 1 / ( 2 * sigmaX * sigmaX );
     const invTwoSigmaYSq = 1 / ( 2 * sigmaY * sigmaY );
-    const xCenter = displaySpeed * this.time - PACKET_START_OFFSET_SIGMAS * sigmaX;
+    const xCenter = displaySpeed * this.time;
 
     // Precompute vertical Gaussian envelope per row (saves ~39k redundant Math.exp calls)
     for ( let iy = 0; iy < gridHeight; iy++ ) {
@@ -242,7 +235,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     const { gridWidth, gridHeight, amplitudeField, biteGaussians, regionWidth, regionHeight, time } = this;
     const dxWorld = regionWidth / gridWidth;
     const dyWorld = regionHeight / gridHeight;
-    const displaySpeed = ( regionWidth / PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
+    const displaySpeed = regionWidth / PACKET_TRAVERSAL_TIME;
 
     const biteCurrentXs: number[] = [];
     for ( let b = 0; b < biteGaussians.length; b++ ) {
@@ -480,7 +473,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
     // Independent of the packet's current position — the probability distribution
     // at the screen depends only on the slit geometry and wavelength.
-    const lambdaDisplay = this.regionWidth / this.displayWavelengths;
+    const lambdaDisplay = this.regionWidth / DISPLAY_WAVELENGTHS;
     const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, lambdaDisplay );
     const barrierX = this.barrierFractionX * this.regionWidth;
     const L = this.regionWidth - barrierX;

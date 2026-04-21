@@ -21,7 +21,7 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
-const TITLE_FONT = new PhetFont( 14 );
+const TITLE_FONT = new PhetFont( { size: 14, weight: 'bold' } );
 const TICK_LABEL_FONT = new PhetFont( 12 );
 const SLIDER_TRACK_SIZE = new Dimension2( 120, 3 );
 const NUMBER_CONTROL_Y_SPACING = 8;
@@ -30,7 +30,7 @@ const ARROW_BUTTONS_X_SPACING = 6;
 const createSlitSeparationNumberControl = ( scene: BaseSceneModel, tandem: Tandem ): Node => {
   const range = scene.slitSeparationRange;
   const usesMicrometers = range.max <= 0.1;
-  const delta = 0.1;
+  const delta = getDelta( range );
 
   let numberDisplayOptions;
   let ticks: { value: number; label: Node }[];
@@ -103,5 +103,10 @@ const createSlitSeparationNumberControl = ( scene: BaseSceneModel, tandem: Tande
     }
   );
 };
+
+function getDelta( range: { min: number; max: number } ): number {
+  const decimalPlaces = QuantumWaveInterferenceConstants.getRangeDecimalPlaces( range.min, range.max );
+  return Math.pow( 10, -decimalPlaces );
+}
 
 export default createSlitSeparationNumberControl;

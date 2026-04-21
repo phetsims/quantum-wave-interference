@@ -2,7 +2,8 @@
 
 /**
  * WaveSolver defines the interface for wave propagation solvers used by both the High Intensity
- * and Single Particles screens.
+ * and Single Particles screens. Both the analytical solver and the lattice-based FDTD solver
+ * implement this interface, allowing all model and view code to be solver-agnostic.
  *
  * The solver manages a 2D complex amplitude field on a visualization grid and computes the
  * probability distribution at the detector screen.
@@ -19,8 +20,6 @@ export type WaveSolverState = Record<string, IntentionalAny>;
 export type WaveSolverParameters = {
   wavelength?: number;
   waveSpeed?: number;
-  displaySpeedScale?: number;
-  displayWavelengths?: number;
   obstacleType?: ObstacleType;
   slitSeparation?: number;
   slitSeparationMin?: number;
@@ -41,8 +40,6 @@ type WaveSolver = {
   readonly gridWidth: number;
 
   readonly gridHeight: number;
-
-  readonly defaultDisplayWavelengths: number;
 
   step( dt: number ): void;
 

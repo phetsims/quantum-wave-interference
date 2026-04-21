@@ -25,10 +25,6 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly NEUTRON_MASS = 1.675e-27;
   public static readonly HELIUM_ATOM_MASS = 6.646e-27;
 
-  // Number of display-scale wavelengths visible across the wave region at default settings.
-  // Shared between the continuous-wave and wave-packet solvers so both screens show matching wavelengths.
-  public static readonly DISPLAY_WAVELENGTHS = 15;
-
   // Maximum value for the screen brightness slider, shared across all screens
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
 
@@ -37,8 +33,8 @@ export default class QuantumWaveInterferenceConstants {
 
   // Shared layout dimensions for the wave visualization region and detector screen
   public static readonly WAVE_REGION_WIDTH = 420;
-  public static readonly WAVE_REGION_HEIGHT = 385;
-  public static readonly DETECTOR_SCREEN_WIDTH = 66;
+  public static readonly WAVE_REGION_HEIGHT = 350;
+  public static readonly DETECTOR_SCREEN_WIDTH = 55;
   public static readonly DETECTOR_SCREEN_OVERLAP = 15;
 
   // Angle of the detector screen's top/bottom edges above horizontal (degrees). The left and right

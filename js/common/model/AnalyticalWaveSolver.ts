@@ -14,7 +14,6 @@
  */
 
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -23,35 +22,17 @@ import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js
 const DEFAULT_GRID_WIDTH = 200;
 const DEFAULT_GRID_HEIGHT = 200;
 
-const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
+const DISPLAY_WAVELENGTHS = 15;
 const DISPLAY_TRAVERSAL_TIME = 2.0;
 const N_HUYGENS_SOURCES = 28;
-
-// Anti-aliasing taper at wavefront/trailing edges, in grid cells. Purely cosmetic — avoids a
-// hard 0→1 step that aliases in the view. Kept small and independent of wavelength.
-const EDGE_TAPER_CELLS = 4;
-
-const computeEdgeTaper = ( distFromFront: number, distFromTrailing: number, taperWidth: number ): number => {
-  let taper = 1;
-  if ( distFromFront < taperWidth ) {
-    taper *= 0.5 * ( 1 - Math.cos( Math.PI * distFromFront / taperWidth ) );
-  }
-  if ( distFromTrailing < taperWidth ) {
-    taper *= 0.5 * ( 1 - Math.cos( Math.PI * distFromTrailing / taperWidth ) );
-  }
-  return taper;
-};
 
 export default class AnalyticalWaveSolver implements WaveSolver {
 
   public readonly gridWidth: number;
   public readonly gridHeight: number;
-  public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
 
   private wavelength = 650e-9;
   private waveSpeed = 3e8;
-  private displaySpeedScale = 1;
-  private displayWavelengths = DISPLAY_WAVELENGTHS;
   private obstacleType: ObstacleType = 'none';
   private slitSeparation = 0.25e-3;
   private slitSeparationMin = 0.25e-3;
@@ -99,8 +80,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   public setParameters( params: WaveSolverParameters ): void {
     this.setIfDefined( params.wavelength, value => { this.wavelength = value; } );
     this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
-    this.setIfDefined( params.displaySpeedScale, value => { this.displaySpeedScale = value; } );
-    this.setIfDefined( params.displayWavelengths, value => { this.displayWavelengths = value; } );
+    // NOTE: These 8 barrier/slit setIfDefined calls are duplicated in GPUWavePacketSolver.setParameters
     this.setIfDefined( params.obstacleType, value => { this.obstacleType = value; } );
     this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
     this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
@@ -140,10 +120,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         this.detectorAccumulator[ iy ] += this.detectorDistribution[ iy ];
       }
       this.detectorAccumulatorCount++;
-    }
-    else if ( this.detectorAccumulatorCount > 0 ) {
-      this.detectorAccumulator.fill( 0 );
-      this.detectorAccumulatorCount = 0;
     }
   }
 
@@ -231,7 +207,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     if ( this.sourceOffTime === null ) {
       return false;
     }
-    const displaySpeed = ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
+    const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
     const trailingEdge = displaySpeed * ( this.time - this.sourceOffTime );
     return trailingEdge < this.regionWidth;
   }
@@ -249,8 +225,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       return;
     }
 
-    const displayK = 2 * Math.PI * this.displayWavelengths / this.regionWidth;
-    const displaySpeed = ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
+    const displayK = 2 * Math.PI * DISPLAY_WAVELENGTHS / this.regionWidth;
+    const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
     const displayOmega = displayK * displaySpeed;
 
     // Wavefront position measured from when the source was last turned on
@@ -280,7 +256,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
   private computePlaneWaveField( k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number ): void {
     const { gridWidth, gridHeight, amplitudeField } = this;
-    const taperWidth = EDGE_TAPER_CELLS * dx;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = ix * dx;
@@ -294,10 +269,9 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         continue;
       }
 
-      const taper = computeEdgeTaper( wavefrontX - x, x - trailingEdgeX, taperWidth );
       const phase = k * x - omega * this.time;
-      const re = taper * Math.cos( phase );
-      const im = taper * Math.sin( phase );
+      const re = Math.cos( phase );
+      const im = Math.sin( phase );
 
       for ( let iy = 0; iy < gridHeight; iy++ ) {
         const idx = ( iy * gridWidth + ix ) * 2;
@@ -326,12 +300,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const huygensNorm = 0.5 * Math.sqrt( L ) / N_HUYGENS_SOURCES;
 
     const sourceSpacing = displaySlitWidth / N_HUYGENS_SOURCES;
-    const displayLambda = this.regionWidth / this.displayWavelengths;
+    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
 
     // Fresnel distance: near the barrier, blend from geometric optics to full diffraction
     const fresnelDistance = displaySlitWidth * displaySlitWidth / displayLambda;
-
-    const taperWidth = EDGE_TAPER_CELLS * dx;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = ix * dx;
@@ -346,10 +318,9 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             amplitudeField[ idx + 1 ] = 0;
           }
           else {
-            const taper = computeEdgeTaper( wavefrontX - x, x - trailingEdgeX, taperWidth );
             const phase = k * x - omega * this.time;
-            amplitudeField[ idx ] = taper * Math.cos( phase );
-            amplitudeField[ idx + 1 ] = taper * Math.sin( phase );
+            amplitudeField[ idx ] = Math.cos( phase );
+            amplitudeField[ idx + 1 ] = Math.sin( phase );
           }
         }
         else if ( ix === barrierIx ) {
@@ -380,7 +351,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             if ( this.isTopSlitOpen ) {
               this.computeSlitContribution(
                 k, omega, barrierX, topSlitY, sourceSpacing, huygensNorm,
-                x, y, sphericalFrontDist, trailingPastBarrier, taperWidth
+                x, y, sphericalFrontDist, trailingPastBarrier
               );
               topRe = this.scratchRe;
               topIm = this.scratchIm;
@@ -389,7 +360,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             if ( this.isBottomSlitOpen ) {
               this.computeSlitContribution(
                 k, omega, barrierX, bottomSlitY, sourceSpacing, huygensNorm,
-                x, y, sphericalFrontDist, trailingPastBarrier, taperWidth
+                x, y, sphericalFrontDist, trailingPastBarrier
               );
               bottomRe = this.scratchRe;
               bottomIm = this.scratchIm;
@@ -475,8 +446,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     k: number, omega: number,
     barrierX: number, slitCenterY: number, sourceSpacing: number, huygensNorm: number,
     fieldX: number, fieldY: number,
-    wavefrontDist: number, trailingDist: number,
-    taperWidth: number
+    wavefrontDist: number, trailingDist: number
   ): void {
     let sumRe = 0;
     let sumIm = 0;
@@ -492,8 +462,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         continue;
       }
 
-      const taper = computeEdgeTaper( wavefrontDist - r, r - trailingDist, taperWidth );
-      const amplitude = Math.min( nearFieldAmplitude, huygensNorm / Math.sqrt( r ) ) * taper;
+      const amplitude = Math.min( nearFieldAmplitude, huygensNorm / Math.sqrt( r ) );
       const phase = k * ( barrierX + r ) - omega * this.time;
       sumRe += amplitude * Math.cos( phase );
       sumIm += amplitude * Math.sin( phase );
@@ -511,8 +480,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private computeInstantaneousDetectorDistribution(): void {
     const { gridHeight, detectorDistribution } = this;
 
-    const displayLambda = this.regionWidth / this.displayWavelengths;
-    const displaySpeed = ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
+    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
     const sourceOnTime = this.sourceOnTime ?? 0;
     const displayWavefrontX = displaySpeed * ( this.time - sourceOnTime );
 

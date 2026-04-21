@@ -3,11 +3,11 @@
 /**
  * HighIntensityTopRowNode renders the High Intensity screen's top play-area row: a per-scene emitter
  * source on the far left, beam graphics extending rightward through a mini wave-visualization symbol,
- * and a pair of callout lines that connect the mini symbol's top corners to the main wave region's
+ * and a pair of callout lines that connect the mini symbol's bottom corners to the main wave region's
  * top corners (a zoom-in "viewing frustum" effect, analogous to TinyBox → ZoomedInBox in MOTHA).
  *
- * The mini symbol is a stylized representation of the wave region and detector screen (a neutral square
- * + a skewed detector rectangle) per the design mockups; it does not show live waves. The beam
+ * The mini symbol is a stylized representation of the wave region and detector screen (a black square
+ * + a skewed black detector rectangle) per the design mockups; it does not show live waves. The beam
  * is shown only while emitting and is colored by the active scene's wavelength (photons) or by the
  * shared particle beam color (matter particles).
  *
@@ -25,7 +25,6 @@ import TProperty from '../../../../axon/js/TProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
-import Range from '../../../../dot/js/Range.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import Shape from '../../../../kite/js/Shape.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
@@ -37,10 +36,8 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
-import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { type SourceType } from '../../common/model/SourceType.js';
+import createRoundedPolygonShape from '../../common/view/createRoundedPolygonShape.js';
 import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 
 const EMITTER_SCALE = 1.5;
@@ -55,13 +52,6 @@ const MINI_SYMBOL_SCALE = 0.5;
 const MINI_SYMBOL_SQUARE_SIZE = 22 * MINI_SYMBOL_SCALE;
 const MINI_SYMBOL_DETECTOR_WIDTH = 8 * MINI_SYMBOL_SCALE;
 const MINI_SYMBOL_SKEW = 3 * MINI_SYMBOL_SCALE;
-const MINI_SYMBOL_STROKE_WIDTH = 0.5;
-const MINI_BARRIER_FILL = '#939393';
-const MINI_BARRIER_EDGE_INSET = 0.5;
-const MINI_BARRIER_WIDTH = Math.max(
-  1,
-  12 / QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH * MINI_SYMBOL_SQUARE_SIZE
-);
 
 
 const HIGH_OPACITY_BEAM_STACK_HEIGHT = EMITTER_NOZZLE_HEIGHT * 0.85 * 0.9 * 0.85;
@@ -71,7 +61,6 @@ const DIM_RIGHT_BEAM_ALPHA_SCALE = 0.3;
 const RIGHT_BEAM_FADE_WIDTH_SCALE = 0.25;
 
 const CALLOUT_LINE_WIDTH = 0.75;
-const CALLOUT_LINE_START_Y_OFFSET = 1;
 
 type ParticleEmitterPalette = {
   topColor: string;
@@ -102,7 +91,6 @@ type TopRowSceneLike = {
   wavelengthProperty: TReadOnlyProperty<number>;
   intensityProperty: TReadOnlyProperty<number>;
   isEmitterEnabledProperty: TReadOnlyProperty<boolean>;
-  slitSeparationRange: Range;
 };
 
 export type HighIntensityTopRowLayout = {
@@ -123,9 +111,6 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
   public constructor(
     sceneProperty: Property<T>,
     scenes: T[],
-    obstacleTypeProperty: TReadOnlyProperty<ObstacleType>,
-    slitPositionFractionProperty: TReadOnlyProperty<number>,
-    slitSeparationProperty: TReadOnlyProperty<number>,
     currentIsEmittingProperty: TProperty<boolean>,
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
     beamRightLimitXProperty: TReadOnlyProperty<number>,
@@ -137,43 +122,25 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     const { emitterCenterX, topRowCenterY, waveRegionLeft, waveRegionRight, waveRegionTop } = layout;
     const emitterLeft = emitterCenterX - ( EMITTER_BODY_WIDTH + EMITTER_NOZZLE_WIDTH ) / 2;
 
-    // Mini wave-visualization symbol: a small neutral square + skewed detector, centered horizontally
+    // Mini wave-visualization symbol: a small black square + skewed detector, centered horizontally
     // above the main wave region so the callout lines form a symmetric "zoom in" frustum.
     // The detector is z-ordered behind the square and overlaps it, mirroring the main layout.
     const miniSquare = new Rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE, {
-      fill: QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty,
-      stroke: 'white',
-      lineWidth: MINI_SYMBOL_STROKE_WIDTH
+      fill: 'black'
     } );
 
     const miniDetectorOverlap = 2;
-    const miniDetectorShape = new Shape()
-      .moveTo( 0, MINI_SYMBOL_SKEW )
-      .lineTo( MINI_SYMBOL_DETECTOR_WIDTH, 0 )
-      .lineTo( MINI_SYMBOL_DETECTOR_WIDTH, MINI_SYMBOL_SQUARE_SIZE )
-      .lineTo( 0, MINI_SYMBOL_SQUARE_SIZE + MINI_SYMBOL_SKEW )
-      .close();
-    const miniDetector = new Path( miniDetectorShape, {
-      fill: QuantumWaveInterferenceColors.detectorScreenBackgroundColorProperty
-    } );
+    const miniDetectorShape = createRoundedPolygonShape( [
+      { x: 0, y: MINI_SYMBOL_SKEW },
+      { x: MINI_SYMBOL_DETECTOR_WIDTH, y: 0 },
+      { x: MINI_SYMBOL_DETECTOR_WIDTH, y: MINI_SYMBOL_SQUARE_SIZE },
+      { x: 0, y: MINI_SYMBOL_SQUARE_SIZE + MINI_SYMBOL_SKEW }
+    ], 1 );
+    const miniDetector = new Path( miniDetectorShape, { fill: 'gray' } );
     miniDetector.left = miniSquare.right - miniDetectorOverlap;
     miniDetector.centerY = miniSquare.centerY;
 
-    const miniTopBarrier = new Rectangle( 0, 0, MINI_BARRIER_WIDTH, 0, {
-      fill: MINI_BARRIER_FILL
-    } );
-    const miniCentralBarrier = new Rectangle( 0, 0, MINI_BARRIER_WIDTH, 0, {
-      fill: MINI_BARRIER_FILL
-    } );
-    const miniBottomBarrier = new Rectangle( 0, 0, MINI_BARRIER_WIDTH, 0, {
-      fill: MINI_BARRIER_FILL
-    } );
-    const miniDoubleSlitNode = new Node( {
-      children: [ miniTopBarrier, miniCentralBarrier, miniBottomBarrier ],
-      clipArea: Shape.rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE )
-    } );
-
-    const miniSymbol = new Node( { children: [ miniDetector, miniSquare, miniDoubleSlitNode ] } );
+    const miniSymbol = new Node( { children: [ miniDetector, miniSquare ] } );
     miniSymbol.centerX = ( waveRegionLeft + waveRegionRight ) / 2;
     miniSymbol.centerY = topRowCenterY;
 
@@ -182,11 +149,10 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     const squareLeft = miniSymbol.x + miniSquare.left;
     const squareRight = miniSymbol.x + miniSquare.right;
     const squareTop = miniSymbol.y + miniSquare.top;
-    const calloutLineStartY = squareTop + CALLOUT_LINE_START_Y_OFFSET;
     const calloutLines = new Path( new Shape()
-      .moveTo( squareLeft, calloutLineStartY )
+      .moveTo( squareLeft, squareTop )
       .lineTo( waveRegionLeft, waveRegionTop )
-      .moveTo( squareRight, calloutLineStartY )
+      .moveTo( squareRight, squareTop )
       .lineTo( waveRegionRight, waveRegionTop ), {
       stroke: QuantumWaveInterferenceColors.zoomCalloutStrokeProperty,
       lineWidth: CALLOUT_LINE_WIDTH
@@ -292,53 +258,6 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     const currentIntensityProperty = new DynamicProperty<number, number, T>( sceneProperty, {
       derive: scene => scene.intensityProperty
     } );
-    Multilink.multilink(
-      [ sceneProperty, obstacleTypeProperty, slitPositionFractionProperty, slitSeparationProperty ],
-      ( scene, obstacleType, slitPositionFraction, slitSeparation ) => {
-        miniDoubleSlitNode.visible = obstacleType === 'doubleSlit';
-
-        if ( obstacleType !== 'doubleSlit' ) {
-          return;
-        }
-
-        const { viewSlitSep, viewSlitWidth } = getViewSlitLayout(
-          slitSeparation,
-          scene.slitSeparationRange.min,
-          scene.slitSeparationRange.max,
-          MINI_SYMBOL_SQUARE_SIZE
-        );
-
-        const barrierX = slitPositionFraction * MINI_SYMBOL_SQUARE_SIZE - MINI_BARRIER_WIDTH / 2;
-        const centerY = MINI_SYMBOL_SQUARE_SIZE / 2;
-        const slitHeight = Math.max( 1, viewSlitWidth );
-        const topSlitCenterY = centerY - viewSlitSep / 2;
-        const bottomSlitCenterY = centerY + viewSlitSep / 2;
-
-        const topBarrierBottom = topSlitCenterY - slitHeight / 2;
-        const centralBarrierTop = topSlitCenterY + slitHeight / 2;
-        const centralBarrierBottom = bottomSlitCenterY - slitHeight / 2;
-        const bottomBarrierTop = bottomSlitCenterY + slitHeight / 2;
-
-        miniTopBarrier.setRect(
-          barrierX,
-          MINI_BARRIER_EDGE_INSET,
-          MINI_BARRIER_WIDTH,
-          Math.max( 0, topBarrierBottom - MINI_BARRIER_EDGE_INSET )
-        );
-        miniCentralBarrier.setRect(
-          barrierX,
-          centralBarrierTop,
-          MINI_BARRIER_WIDTH,
-          Math.max( 0, centralBarrierBottom - centralBarrierTop )
-        );
-        miniBottomBarrier.setRect(
-          barrierX,
-          bottomBarrierTop,
-          MINI_BARRIER_WIDTH,
-          Math.max( 0, MINI_SYMBOL_SQUARE_SIZE - MINI_BARRIER_EDGE_INSET - bottomBarrierTop )
-        );
-      }
-    );
 
     Multilink.multilink( [
       currentIsEmittingProperty,

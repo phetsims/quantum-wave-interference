@@ -6,7 +6,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DerivedProperty from '../../../axon/js/DerivedProperty.js';
 import Color from '../../../scenery/js/util/Color.js';
 import ProfileColorProperty from '../../../scenery/js/util/ProfileColorProperty.js';
 import quantumWaveInterference from '../quantumWaveInterference.js';
@@ -32,19 +31,6 @@ export default class QuantumWaveInterferenceColors {
     quantumWaveInterference, 'panelStroke', {
       default: '#c1c1c1'
     } );
-
-  // Shared neutral bluish-gray background used by the wave region and detector screen.
-  public static readonly waveAndDetectorBackgroundColorProperty = new ProfileColorProperty(
-    quantumWaveInterference, 'waveAndDetectorBackgroundColor', {
-      default: new Color( 64, 78, 96 )
-    } );
-
-  // Darker companion to the wave-region background, used by the front-facing detector screens and
-  // the High Intensity top-row detector replica.
-  public static readonly detectorScreenBackgroundColorProperty = new DerivedProperty(
-    [ QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty ],
-    color => color.colorUtilsDarker( 0.45 )
-  );
 
   // Particle (non-photon) beam color, shared by OverheadBeamNode and FrontFacingSlitNode
   public static readonly particleBeamColorProperty = new ProfileColorProperty(
