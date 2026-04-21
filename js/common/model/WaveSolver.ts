@@ -19,6 +19,7 @@ export type WaveSolverState = Record<string, IntentionalAny>;
 export type WaveSolverParameters = {
   wavelength?: number;
   waveSpeed?: number;
+  displaySpeedScale?: number;
   displayWavelengths?: number;
   obstacleType?: ObstacleType;
   slitSeparation?: number;

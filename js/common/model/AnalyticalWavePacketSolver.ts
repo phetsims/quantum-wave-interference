@@ -37,6 +37,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
   private wavelength = 650e-9;
   private waveSpeed = 3e8;
+  private displaySpeedScale = 1;
   private displayWavelengths = DISPLAY_WAVELENGTHS;
   private obstacleType: ObstacleType = 'none';
   private slitSeparation = 0.25e-3;
@@ -203,7 +204,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     const dx = regionWidth / gridWidth;
     const dy = regionHeight / gridHeight;
     const kDisplay = 2 * Math.PI * this.displayWavelengths / regionWidth;
-    const displaySpeed = regionWidth / PACKET_TRAVERSAL_TIME;
+    const displaySpeed = ( regionWidth / PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
     const omegaDisplay = kDisplay * displaySpeed;
 
     const sigmaX = SIGMA_X_FRACTION * regionWidth;
@@ -237,7 +238,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     const { gridWidth, gridHeight, amplitudeField, biteGaussians, regionWidth, regionHeight, time } = this;
     const dxWorld = regionWidth / gridWidth;
     const dyWorld = regionHeight / gridHeight;
-    const displaySpeed = regionWidth / PACKET_TRAVERSAL_TIME;
+    const displaySpeed = ( regionWidth / PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
 
     const biteCurrentXs: number[] = [];
     for ( let b = 0; b < biteGaussians.length; b++ ) {
