@@ -55,9 +55,9 @@ const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
 const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
 const SCENE_TO_OBSTACLE_CONTROLS_SPACING = 36;
 const CALLOUT_GAP = 55;
-const SOURCE_CONTROL_Y_OFFSET = 20;
 const SCENE_AND_OBSTACLE_Y_OFFSET = 10;
 const SCENE_BUTTON_GROUP_Y_OFFSET = 10;
+const WAVE_REGION_Y_OFFSET = -15;
 
 type HighIntensityReferenceScene = {
   sourceType: SingleParticlesSceneModel[ 'sourceType' ];
@@ -147,18 +147,19 @@ export default class SingleParticlesScreenView extends ScreenView {
       tandem
     );
 
-    const waveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
+    const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
+    const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const highIntensityLeftColumnWidth = highIntensityReferenceSourceControlPanel.width;
     const highIntensitySourceControlPanelHeight = highIntensityReferenceSourceControlPanel.height;
     const waveRegionLeft = X_MARGIN + highIntensityLeftColumnWidth + 20;
 
     sourceControlPanel.left = X_MARGIN;
-    sourceControlPanel.top = waveRegionTop - sourceControlPanel.height / 2 + SOURCE_CONTROL_Y_OFFSET;
+    sourceControlPanel.top = Y_MARGIN;
     this.addChild( sourceControlPanel );
 
     obstacleControlsSection.centerX = X_MARGIN + highIntensityLeftColumnWidth / 2;
     obstacleControlsSection.top =
-      waveRegionTop + highIntensitySourceControlPanelHeight + SOURCE_TO_SCENE_CONTROLS_SPACING +
+      baseWaveRegionTop + highIntensitySourceControlPanelHeight + SOURCE_TO_SCENE_CONTROLS_SPACING +
       SCENE_AND_OBSTACLE_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_OBSTACLE_CONTROLS_SPACING;
     this.addChild( obstacleControlsSection );
 
@@ -177,7 +178,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       waveRegionTop: waveRegionTop
     } );
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
-      x: waveRegionLeft + WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP,
+      x: waveRegionLeft + WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
       y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
     this.addChild( this.detectorScreenNode );
