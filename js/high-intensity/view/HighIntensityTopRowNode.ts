@@ -6,8 +6,8 @@
  * and a pair of callout lines that connect the mini symbol's bottom corners to the main wave region's
  * top corners (a zoom-in "viewing frustum" effect, analogous to TinyBox → ZoomedInBox in MOTHA).
  *
- * The mini symbol is a stylized representation of the wave region and detector screen (a black square
- * + a skewed black detector rectangle) per the design mockups; it does not show live waves. The beam
+ * The mini symbol is a stylized representation of the wave region and detector screen (a neutral square
+ * + a skewed detector rectangle) per the design mockups; it does not show live waves. The beam
  * is shown only while emitting and is colored by the active scene's wavelength (photons) or by the
  * shared particle beam color (matter particles).
  *
@@ -122,11 +122,11 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     const { emitterCenterX, topRowCenterY, waveRegionLeft, waveRegionRight, waveRegionTop } = layout;
     const emitterLeft = emitterCenterX - ( EMITTER_BODY_WIDTH + EMITTER_NOZZLE_WIDTH ) / 2;
 
-    // Mini wave-visualization symbol: a small black square + skewed detector, centered horizontally
+    // Mini wave-visualization symbol: a small neutral square + skewed detector, centered horizontally
     // above the main wave region so the callout lines form a symmetric "zoom in" frustum.
     // The detector is z-ordered behind the square and overlaps it, mirroring the main layout.
     const miniSquare = new Rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE, {
-      fill: 'black'
+      fill: QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty
     } );
 
     const miniDetectorOverlap = 2;
@@ -136,7 +136,9 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
       { x: MINI_SYMBOL_DETECTOR_WIDTH, y: MINI_SYMBOL_SQUARE_SIZE },
       { x: 0, y: MINI_SYMBOL_SQUARE_SIZE + MINI_SYMBOL_SKEW }
     ], 1 );
-    const miniDetector = new Path( miniDetectorShape, { fill: 'gray' } );
+    const miniDetector = new Path( miniDetectorShape, {
+      fill: QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty
+    } );
     miniDetector.left = miniSquare.right - miniDetectorOverlap;
     miniDetector.centerY = miniSquare.centerY;
 
