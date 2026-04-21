@@ -2,8 +2,7 @@
 
 /**
  * WaveSolver defines the interface for wave propagation solvers used by both the High Intensity
- * and Single Particles screens. Both the analytical solver and the lattice-based FDTD solver
- * implement this interface, allowing all model and view code to be solver-agnostic.
+ * and Single Particles screens.
  *
  * The solver manages a 2D complex amplitude field on a visualization grid and computes the
  * probability distribution at the detector screen.

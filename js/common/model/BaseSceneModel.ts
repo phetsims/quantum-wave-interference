@@ -56,8 +56,6 @@ type SourceTypeConfig = {
   defaultSlitSeparation: number;
 
   // Must be smaller than the minimum slit separation for each scene.
-  // The analytical solver overrides these with display-scale values via getDisplaySlitParameters;
-  // these physical values are used only by the lattice solver.
   slitWidth: number;
 };
 
