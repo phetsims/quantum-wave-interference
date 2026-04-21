@@ -23,6 +23,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import RadialGradient from '../../../../scenery/js/util/RadialGradient.js';
 import Panel from '../../../../sun/js/Panel.js';
+import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
@@ -204,15 +205,19 @@ export default class OverheadEmitterNode extends Node {
       sourceType: sourceTypeProperty
     } );
 
+    const buttonOptions = {
+      baseColor: 'red',
+      radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE,
+      valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
+      valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
+      accessibleName: emitterAccessibleNameProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpTextStringProperty
+    };
+
     this.laserPointerNode = new LaserPointerNode( isEmittingProperty, {
       bodySize: new Dimension2( BASE_BODY_WIDTH * OVERHEAD_SCALE, BASE_BODY_HEIGHT * OVERHEAD_SCALE ),
       nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * OVERHEAD_SCALE, BASE_NOZZLE_HEIGHT * OVERHEAD_SCALE ),
-      buttonOptions: {
-        baseColor: 'red',
-        radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE,
-        accessibleName: emitterAccessibleNameProperty,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpTextStringProperty
-      },
+      buttonOptions: buttonOptions,
       left: emitterLeft,
       tandem: tandem.createTandem( 'laserPointerNode' )
     } );
@@ -224,12 +229,7 @@ export default class OverheadEmitterNode extends Node {
       topColor: PARTICLE_EMITTER_PALETTES.electrons.topColor,
       bottomColor: PARTICLE_EMITTER_PALETTES.electrons.bottomColor,
       highlightColor: PARTICLE_EMITTER_PALETTES.electrons.highlightColor,
-      buttonOptions: {
-        baseColor: 'red',
-        radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE,
-        accessibleName: emitterAccessibleNameProperty,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpTextStringProperty
-      },
+      buttonOptions: buttonOptions,
       hasGlass: true,
       glassOptions: {
         mainColor: PARTICLE_EMITTER_PALETTES.electrons.glassMainColor,
