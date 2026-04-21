@@ -2,8 +2,7 @@
 
 /**
  * Maps physical slit parameters to display-scale equivalents that produce visible interference
- * fringes on the solver grid. Shared by all three wave solvers (analytical continuous,
- * analytical wave packet, and lattice FDTD).
+ * fringes on the solver grid.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

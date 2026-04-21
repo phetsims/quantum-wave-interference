@@ -83,7 +83,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.setIfDefined( params.wavelength, value => { this.wavelength = value; } );
     this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
     this.setIfDefined( params.displayWavelengths, value => { this.displayWavelengths = value; } );
-    // NOTE: These 8 barrier/slit setIfDefined calls are duplicated in GPUWavePacketSolver.setParameters
     this.setIfDefined( params.obstacleType, value => { this.obstacleType = value; } );
     this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
     this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
