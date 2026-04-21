@@ -61,6 +61,7 @@ const SCENE_TO_OBSTACLE_CONTROLS_SPACING = 36;
 const SOURCE_CONTROL_Y_OFFSET = 20;
 const SCENE_AND_OBSTACLE_Y_OFFSET = 10;
 const SCENE_BUTTON_GROUP_Y_OFFSET = 10;
+const WAVE_REGION_Y_OFFSET = -15;
 
 // Extra vertical space below the top row to accommodate the zoom-callout lines between the
 // mini-symbol (at TOP_ROW_CENTER_Y) and the top of the main wave region.
@@ -104,16 +105,17 @@ export default class HighIntensityScreenView extends ScreenView {
     const leftColumnWidth = Math.max( sourceControlPanel.width, sceneRadioButtonGroup.width, obstacleControlsSection.width );
     const leftColumnCenterX = X_MARGIN + leftColumnWidth / 2;
     const waveRegionLeft = X_MARGIN + leftColumnWidth + 20;
-    const waveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
+    const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
+    const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const waveRegionRight = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 
     sourceControlPanel.left = X_MARGIN;
-    sourceControlPanel.top = waveRegionTop + SOURCE_CONTROL_Y_OFFSET;
+    sourceControlPanel.top = baseWaveRegionTop + SOURCE_CONTROL_Y_OFFSET;
     this.addChild( sourceControlPanel );
 
     obstacleControlsSection.centerX = leftColumnCenterX;
     obstacleControlsSection.top =
-      waveRegionTop + sourceControlPanel.height + SOURCE_TO_SCENE_CONTROLS_SPACING +
+      baseWaveRegionTop + sourceControlPanel.height + SOURCE_TO_SCENE_CONTROLS_SPACING +
       SCENE_AND_OBSTACLE_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_OBSTACLE_CONTROLS_SPACING;
     this.addChild( obstacleControlsSection );
 
@@ -164,7 +166,7 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     } );
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
-      x: waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP,
+      x: waveRegionRight - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
       y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
     this.addChild( this.detectorScreenNode );
