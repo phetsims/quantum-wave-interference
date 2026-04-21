@@ -5,12 +5,12 @@
  * region using a CanvasNode. It supports all five display modes:
  *
  * Photon modes:
- * - Time-averaged intensity: maps |amplitude|^2 to wavelength-colored brightness
- * - Electric field: positive real = wavelength color, negative = complementary dark, zero = black
+ * - Time-averaged intensity: maps |amplitude|^2 from the neutral background to wavelength color
+ * - Electric field: positive real = wavelength color, negative = black, zero = neutral background
  *
  * Matter-particle modes:
- * - Magnitude: maps |amplitude| to gray brightness
- * - Real/Imaginary part: positive = light gray, negative = blue-gray, zero = black
+ * - Magnitude: maps |amplitude| from the neutral background to light gray
+ * - Real/Imaginary part: positive = light gray, negative = black, zero = neutral background
  *
  * Renders at the solver grid resolution (typically 200x200) and scales up to the view dimensions
  * via drawImage for performance.
@@ -24,25 +24,30 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
+import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 const MATTER_BASE_R = 200;
 const MATTER_BASE_G = 200;
 const MATTER_BASE_B = 200;
 
-const NEGATIVE_MATTER_R = 80;
-const NEGATIVE_MATTER_G = 120;
-const NEGATIVE_MATTER_B = 200;
-
-const NEGATIVE_PHOTON_SCALE = 0.3;
-
 /**
- * Scales base RGB by a brightness factor and writes rounded values into the provided array at index 0, 1, 2.
+ * Interpolates between start and end RGB colors and writes rounded values into the provided array at index 0, 1, 2.
  */
-const scaleRGB = ( out: number[], baseR: number, baseG: number, baseB: number, brightness: number ): void => {
-  out[ 0 ] = roundSymmetric( baseR * brightness );
-  out[ 1 ] = roundSymmetric( baseG * brightness );
-  out[ 2 ] = roundSymmetric( baseB * brightness );
+const interpolateRGB = (
+  out: number[],
+  startR: number,
+  startG: number,
+  startB: number,
+  endR: number,
+  endG: number,
+  endB: number,
+  fraction: number
+): void => {
+  const clampedFraction = clamp( fraction, 0, 1 );
+  out[ 0 ] = roundSymmetric( startR + ( endR - startR ) * clampedFraction );
+  out[ 1 ] = roundSymmetric( startG + ( endG - startG ) * clampedFraction );
+  out[ 2 ] = roundSymmetric( startB + ( endB - startB ) * clampedFraction );
 };
 
 export default class WaveVisualizationCanvasNode extends CanvasNode {
@@ -101,6 +106,10 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
     const data = this.imageData.data;
     const isPhotons = scene.sourceType === 'photons';
     const displayMode = scene.activeWaveDisplayModeProperty.value;
+    const backgroundColor = QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty.value;
+    const backgroundR = backgroundColor.red;
+    const backgroundG = backgroundColor.green;
+    const backgroundB = backgroundColor.blue;
 
     let baseR: number;
     let baseG: number;
@@ -127,11 +136,6 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
 
     const rgb = this.rgb;
 
-    // Pre-compute negative-phase base colors outside the inner loop
-    const negR = isPhotons ? ( 255 - baseR ) * NEGATIVE_PHOTON_SCALE : NEGATIVE_MATTER_R;
-    const negG = isPhotons ? ( 255 - baseG ) * NEGATIVE_PHOTON_SCALE : NEGATIVE_MATTER_G;
-    const negB = isPhotons ? ( 255 - baseB ) * NEGATIVE_PHOTON_SCALE : NEGATIVE_MATTER_B;
-
     for ( let gy = 0; gy < gridHeight; gy++ ) {
       const rowOffset = gy * gridWidth * 2;
 
@@ -142,32 +146,30 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
 
         if ( isPhotons ) {
           if ( displayMode === 'timeAveragedIntensity' ) {
-            scaleRGB( rgb, baseR, baseG, baseB, clamp( re * re + im * im, 0, 1 ) );
+            interpolateRGB( rgb, backgroundR, backgroundG, backgroundB, baseR, baseG, baseB, re * re + im * im );
           }
           else {
             const value = clamp( re, -1, 1 );
-            const brightness = clamp( Math.abs( value ), 0, 1 );
             if ( value >= 0 ) {
-              scaleRGB( rgb, baseR, baseG, baseB, brightness );
+              interpolateRGB( rgb, backgroundR, backgroundG, backgroundB, baseR, baseG, baseB, value );
             }
             else {
-              scaleRGB( rgb, negR, negG, negB, brightness );
+              interpolateRGB( rgb, backgroundR, backgroundG, backgroundB, 0, 0, 0, -value );
             }
           }
         }
         else {
           if ( displayMode === 'magnitude' ) {
-            scaleRGB( rgb, baseR, baseG, baseB, clamp( Math.sqrt( re * re + im * im ), 0, 1 ) );
+            interpolateRGB( rgb, backgroundR, backgroundG, backgroundB, baseR, baseG, baseB, Math.sqrt( re * re + im * im ) );
           }
           else {
             const component = displayMode === 'realPart' ? re : im;
             const value = clamp( component, -1, 1 );
-            const brightness = clamp( Math.abs( value ), 0, 1 );
             if ( value >= 0 ) {
-              scaleRGB( rgb, baseR, baseG, baseB, brightness );
+              interpolateRGB( rgb, backgroundR, backgroundG, backgroundB, baseR, baseG, baseB, value );
             }
             else {
-              scaleRGB( rgb, negR, negG, negB, brightness );
+              interpolateRGB( rgb, backgroundR, backgroundG, backgroundB, 0, 0, 0, -value );
             }
           }
         }

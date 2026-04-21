@@ -32,6 +32,12 @@ export default class QuantumWaveInterferenceColors {
       default: '#c1c1c1'
     } );
 
+  // Shared neutral bluish-gray background used by the wave region and detector screen.
+  public static readonly waveAndDetectorBackgroundColorProperty = new ProfileColorProperty(
+    quantumWaveInterference, 'waveAndDetectorBackgroundColor', {
+      default: new Color( 64, 78, 96 )
+    } );
+
   // Particle (non-photon) beam color, shared by OverheadBeamNode and FrontFacingSlitNode
   public static readonly particleBeamColorProperty = new ProfileColorProperty(
     quantumWaveInterference, 'particleBeamColor', {
