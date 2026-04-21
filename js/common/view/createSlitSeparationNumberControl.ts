@@ -30,7 +30,7 @@ const ARROW_BUTTONS_X_SPACING = 6;
 const createSlitSeparationNumberControl = ( scene: BaseSceneModel, tandem: Tandem ): Node => {
   const range = scene.slitSeparationRange;
   const usesMicrometers = range.max <= 0.1;
-  const delta = getDelta( range );
+  const delta = 0.1;
 
   let numberDisplayOptions;
   let ticks: { value: number; label: Node }[];
@@ -103,10 +103,5 @@ const createSlitSeparationNumberControl = ( scene: BaseSceneModel, tandem: Tande
     }
   );
 };
-
-function getDelta( range: { min: number; max: number } ): number {
-  const decimalPlaces = QuantumWaveInterferenceConstants.getRangeDecimalPlaces( range.min, range.max );
-  return Math.pow( 10, -decimalPlaces );
-}
 
 export default createSlitSeparationNumberControl;
