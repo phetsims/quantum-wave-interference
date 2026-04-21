@@ -118,6 +118,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly regionWidth: number;
   public readonly regionHeight: number;
   private readonly defaultEffectiveWavelength: number;
+  protected readonly defaultWaveSpeed: number;
 
   public readonly isEmittingProperty: BooleanProperty;
   public readonly wavelengthProperty: NumberProperty;
@@ -167,6 +168,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.defaultEffectiveWavelength = this.sourceType === 'photons' ?
                                       DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
                                       QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * config.defaultVelocity );
+    this.defaultWaveSpeed = this.sourceType === 'photons' ? 3e8 : config.defaultVelocity;
 
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
@@ -275,6 +277,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.waveSolver.setParameters( {
       wavelength: effectiveWavelength,
       waveSpeed: this.getEffectiveWaveSpeed(),
+      displaySpeedScale: this.getEffectiveWaveSpeed() / this.defaultWaveSpeed,
       displayWavelengths: displayWavelengths,
       obstacleType: this.obstacleTypeProperty.value,
       slitSeparation: this.slitSeparationProperty.value * 1e-3,

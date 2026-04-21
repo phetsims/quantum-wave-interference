@@ -189,13 +189,14 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
    * spread. Truncated at ±3σ to avoid non-physical negative times.
    */
   private sampleDetectionTime(): number {
-    const sigma = SIGMA_X_FRACTION * PACKET_TRAVERSAL_TIME;
+    const effectiveTraversalTime = PACKET_TRAVERSAL_TIME * this.defaultWaveSpeed / this.getEffectiveWaveSpeed();
+    const sigma = SIGMA_X_FRACTION * effectiveTraversalTime;
     const maxDeviation = 3 * sigma;
     let deviation: number;
     do {
       deviation = dotRandom.nextGaussian() * sigma;
     } while ( Math.abs( deviation ) > maxDeviation );
-    return PACKET_TRAVERSAL_TIME + deviation;
+    return effectiveTraversalTime + deviation;
   }
 
   /**

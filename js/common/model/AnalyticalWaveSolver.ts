@@ -34,6 +34,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
   private wavelength = 650e-9;
   private waveSpeed = 3e8;
+  private displaySpeedScale = 1;
   private displayWavelengths = DISPLAY_WAVELENGTHS;
   private obstacleType: ObstacleType = 'none';
   private slitSeparation = 0.25e-3;
@@ -82,6 +83,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   public setParameters( params: WaveSolverParameters ): void {
     this.setIfDefined( params.wavelength, value => { this.wavelength = value; } );
     this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
+    this.setIfDefined( params.displaySpeedScale, value => { this.displaySpeedScale = value; } );
     this.setIfDefined( params.displayWavelengths, value => { this.displayWavelengths = value; } );
     this.setIfDefined( params.obstacleType, value => { this.obstacleType = value; } );
     this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
@@ -209,7 +211,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     if ( this.sourceOffTime === null ) {
       return false;
     }
-    const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
+    const displaySpeed = ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
     const trailingEdge = displaySpeed * ( this.time - this.sourceOffTime );
     return trailingEdge < this.regionWidth;
   }
@@ -228,7 +230,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     }
 
     const displayK = 2 * Math.PI * this.displayWavelengths / this.regionWidth;
-    const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
+    const displaySpeed = ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
     const displayOmega = displayK * displaySpeed;
 
     // Wavefront position measured from when the source was last turned on
@@ -483,7 +485,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const { gridHeight, detectorDistribution } = this;
 
     const displayLambda = this.regionWidth / this.displayWavelengths;
-    const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
+    const displaySpeed = ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
     const sourceOnTime = this.sourceOnTime ?? 0;
     const displayWavefrontX = displaySpeed * ( this.time - sourceOnTime );
 
