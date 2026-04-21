@@ -70,6 +70,7 @@ type HighIntensityReferenceScene = {
 
 export default class SingleParticlesScreenView extends ScreenView {
 
+  private readonly model: SingleParticlesModel;
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
   private readonly sidewaysGraphNode: SidewaysGraphNode;
@@ -80,6 +81,8 @@ export default class SingleParticlesScreenView extends ScreenView {
     const options = optionize<SingleParticlesScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
 
     super( options );
+
+    this.model = model;
 
     const tandem = options.tandem;
 
@@ -260,6 +263,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       ],
       clearScreen: () => model.sceneProperty.value.clearScreen(),
       onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash(),
+      onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
       resetView: () => {
         this.sidewaysGraphNode.reset();
         this.timePlotNode.reset();
@@ -294,7 +298,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.waveVisualizationNode.step();
     this.detectorScreenNode.step();
     this.sidewaysGraphNode.step();
-    this.timePlotNode.step( dt );
+    this.timePlotNode.step( this.model.getEffectiveDt( dt ) );
     this.positionPlotNode.step();
   }
 }

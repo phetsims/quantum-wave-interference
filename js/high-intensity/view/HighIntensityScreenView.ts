@@ -69,6 +69,7 @@ const CALLOUT_GAP = 55;
 
 export default class HighIntensityScreenView extends ScreenView {
 
+  private readonly model: HighIntensityModel;
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
   private readonly sidewaysGraphNode: SidewaysGraphNode;
@@ -79,6 +80,8 @@ export default class HighIntensityScreenView extends ScreenView {
     const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
 
     super( options );
+
+    this.model = model;
 
     const tandem = options.tandem;
 
@@ -252,6 +255,7 @@ export default class HighIntensityScreenView extends ScreenView {
       ],
       clearScreen: () => model.sceneProperty.value.clearScreen(),
       onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash(),
+      onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
       resetView: () => {
         this.sidewaysGraphNode.reset();
         this.timePlotNode.reset();
@@ -279,7 +283,7 @@ export default class HighIntensityScreenView extends ScreenView {
     this.waveVisualizationNode.step();
     this.detectorScreenNode.step();
     this.sidewaysGraphNode.step();
-    this.timePlotNode.step( dt );
+    this.timePlotNode.step( this.model.getEffectiveDt( dt ) );
     this.positionPlotNode.step();
   }
 }
