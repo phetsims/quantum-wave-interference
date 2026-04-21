@@ -226,6 +226,13 @@ export default class ExperimentScreenView extends ScreenView {
     };
     model.sceneProperty.link( updateSourceControlPanelPosition );
 
+    const updateEmitterAlignment = () => {
+      overheadEmitterNode.setEmitterCenterX( sourceControlPanel.centerX );
+      alignOverheadElements();
+    };
+    sourceControlPanel.localBoundsProperty.link( updateEmitterAlignment );
+    updateEmitterAlignment();
+
     // ==============================
     // Bottom Row
     // ==============================

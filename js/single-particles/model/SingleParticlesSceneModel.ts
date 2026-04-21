@@ -134,6 +134,16 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
         this.isEmittingProperty.value = false;
       }
     } );
+
+    // step() only recomputes probability while the sim is playing; also recompute when the detector
+    // is moved or resized so the value reflects the current state while paused or mid-drag.
+    const updateDetectorProbability = () => {
+      if ( this.isPacketActiveProperty.value && this.detectorToolStateProperty.value === 'ready' ) {
+        this.detectorToolProbabilityProperty.value = this.computeDetectorProbability();
+      }
+    };
+    this.detectorToolPositionProperty.lazyLink( updateDetectorProbability );
+    this.detectorToolRadiusProperty.lazyLink( updateDetectorProbability );
   }
 
 

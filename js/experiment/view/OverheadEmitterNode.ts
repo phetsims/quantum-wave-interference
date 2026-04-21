@@ -107,6 +107,8 @@ export default class OverheadEmitterNode extends Node {
   public readonly laserPointerNode: LaserPointerNode;
   public readonly particleEmitterNode: LaserPointerNode;
   public readonly maxHitsReachedPanel: Panel;
+  private emitterCenterX: number | null = null;
+  private readonly updateEmitterLayout: () => void;
 
   public constructor( model: ExperimentModel, layoutBounds: Bounds2, tandem: Tandem ) {
     super( { isDisposable: false } );
@@ -279,7 +281,7 @@ export default class OverheadEmitterNode extends Node {
     };
 
     // Toggle visibility and position based on scene
-    const updateEmitterLayout = () => {
+    this.updateEmitterLayout = () => {
       const sourceType = model.sceneProperty.value.sourceType;
       const isPhoton = sourceType === 'photons';
       this.laserPointerNode.visible = isPhoton;
@@ -287,16 +289,25 @@ export default class OverheadEmitterNode extends Node {
 
       applyParticleEmitterPalette( sourceType );
 
+      const targetEmitterCenterX = this.emitterCenterX ?? this.laserPointerNode.centerX;
+      this.laserPointerNode.centerX = targetEmitterCenterX;
+      this.particleEmitterNode.centerX = targetEmitterCenterX;
+
       const activeEmitter = isPhoton ? this.laserPointerNode : this.particleEmitterNode;
       activeEmitter.top = emitterTop;
-      sourceLabel.centerX = activeEmitter.centerX;
-      particleMassLabel.centerX = activeEmitter.centerX;
+      sourceLabel.centerX = targetEmitterCenterX;
+      particleMassLabel.centerX = targetEmitterCenterX;
       particleMassLabel.top = activeEmitter.bottom + MASS_LABEL_TOP_MARGIN * OVERHEAD_SCALE;
       this.maxHitsReachedPanel.centerY = activeEmitter.centerY;
     };
 
-    sourceLabel.localBoundsProperty.link( updateEmitterLayout );
-    particleMassLabel.localBoundsProperty.link( updateEmitterLayout );
-    model.sceneProperty.link( updateEmitterLayout );
+    sourceLabel.localBoundsProperty.link( this.updateEmitterLayout );
+    particleMassLabel.localBoundsProperty.link( this.updateEmitterLayout );
+    model.sceneProperty.link( this.updateEmitterLayout );
+  }
+
+  public setEmitterCenterX( emitterCenterX: number ): void {
+    this.emitterCenterX = emitterCenterX;
+    this.updateEmitterLayout();
   }
 }

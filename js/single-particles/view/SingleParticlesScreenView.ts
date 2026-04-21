@@ -7,15 +7,19 @@
  */
 
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
+import Property from '../../../../axon/js/Property.js';
+import Range from '../../../../dot/js/Range.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
+import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
+import createObstacleControlsSection from '../../common/view/createObstacleControlsSection.js';
 import createObstacleControlsRow from '../../common/view/createObstacleControlsRow.js';
 import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
@@ -46,6 +50,22 @@ const COMBO_BOX_FONT = new PhetFont( 14 );
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
+const CONTENT_VERTICAL_OFFSET = 12;
+const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
+const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
+const SCENE_TO_OBSTACLE_CONTROLS_SPACING = 36;
+const CALLOUT_GAP = 55;
+const SOURCE_CONTROL_Y_OFFSET = 20;
+const SCENE_AND_OBSTACLE_Y_OFFSET = 10;
+const SCENE_BUTTON_GROUP_Y_OFFSET = 10;
+
+type HighIntensityReferenceScene = {
+  sourceType: SingleParticlesSceneModel[ 'sourceType' ];
+  wavelengthProperty: SingleParticlesSceneModel[ 'wavelengthProperty' ];
+  velocityProperty: SingleParticlesSceneModel[ 'velocityProperty' ];
+  velocityRange: SingleParticlesSceneModel[ 'velocityRange' ];
+  intensityProperty: NumberProperty;
+};
 
 
 export default class SingleParticlesScreenView extends ScreenView {
@@ -78,6 +98,28 @@ export default class SingleParticlesScreenView extends ScreenView {
       additionalContent: autoRepeatCheckbox
     } );
 
+    // Match the left-column geometry used on High Intensity so the scene buttons, obstacle controls,
+    // wave region, detector screen, and graph land on the same coordinates.
+    const highIntensityReferenceScenes: HighIntensityReferenceScene[] = model.scenes.map( scene => ( {
+      sourceType: scene.sourceType,
+      wavelengthProperty: scene.wavelengthProperty,
+      velocityProperty: scene.velocityProperty,
+      velocityRange: scene.velocityRange,
+      intensityProperty: new NumberProperty( 0.5, {
+        range: new Range( 0, 1 )
+      } )
+    } ) );
+    const highIntensityReferenceSceneProperty = new Property( highIntensityReferenceScenes[ 0 ] );
+    const highIntensityReferenceSourceControlPanel = new SourceControlPanel(
+      highIntensityReferenceSceneProperty,
+      highIntensityReferenceScenes,
+      {
+        photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
+        particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
+        tandem: Tandem.OPT_OUT
+      }
+    );
+
     // Emitter source with SingleParticleEmitter.svg image and red toggle button
     const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SingleParticlesSceneModel>( model.sceneProperty, {
       derive: scene => scene.isEmitterEnabledProperty
@@ -98,13 +140,33 @@ export default class SingleParticlesScreenView extends ScreenView {
     );
 
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
+    sceneRadioButtonGroup.layoutOptions = { align: 'center' };
+
+    const { obstacleControlsSection } = createObstacleControlsSection(
+      model.currentObstacleTypeProperty,
+      tandem
+    );
+
+    const waveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
+    const highIntensityLeftColumnWidth = highIntensityReferenceSourceControlPanel.width;
+    const highIntensitySourceControlPanelHeight = highIntensityReferenceSourceControlPanel.height;
+    const waveRegionLeft = X_MARGIN + highIntensityLeftColumnWidth + 20;
 
     sourceControlPanel.left = X_MARGIN;
-    sourceControlPanel.top = Y_MARGIN;
+    sourceControlPanel.top = waveRegionTop - sourceControlPanel.height / 2 + SOURCE_CONTROL_Y_OFFSET;
     this.addChild( sourceControlPanel );
 
-    const waveRegionLeft = sourceControlPanel.right + 4;
-    const waveRegionTop = Y_MARGIN;
+    obstacleControlsSection.centerX = X_MARGIN + highIntensityLeftColumnWidth / 2;
+    obstacleControlsSection.top =
+      waveRegionTop + highIntensitySourceControlPanelHeight + SOURCE_TO_SCENE_CONTROLS_SPACING +
+      SCENE_AND_OBSTACLE_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_OBSTACLE_CONTROLS_SPACING;
+    this.addChild( obstacleControlsSection );
+
+    sceneRadioButtonGroup.centerX = obstacleControlsSection.centerX;
+    sceneRadioButtonGroup.top =
+      obstacleControlsSection.top - SCENE_TO_OBSTACLE_CONTROLS_SPACING - sceneRadioButtonGroup.height +
+      SCENE_BUTTON_GROUP_Y_OFFSET;
+    this.addChild( sceneRadioButtonGroup );
 
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
     emitterNode.right = waveRegionLeft + 2;
@@ -125,14 +187,13 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( doubleSlitNode );
     this.addChild( emitterNode );
 
-    const belowEmitterVBox = new VBox( {
-      spacing: 12,
-      align: 'center',
-      children: [ sceneRadioButtonGroup, particleMassAnnotation ]
-    } );
-    belowEmitterVBox.centerX = sourceControlPanel.centerX;
-    belowEmitterVBox.top = emitterNode.bottom + 12;
-    this.addChild( belowEmitterVBox );
+    const updateParticleMassAnnotationPosition = () => {
+      particleMassAnnotation.centerX = sourceControlPanel.centerX;
+      particleMassAnnotation.top = emitterNode.top;
+    };
+    particleMassAnnotation.localBoundsProperty.link( updateParticleMassAnnotationPosition );
+    updateParticleMassAnnotationPosition();
+    this.addChild( particleMassAnnotation );
 
     const slitConfigItems: ComboBoxItem<SingleParticlesSlitConfiguration>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
@@ -146,10 +207,10 @@ export default class SingleParticlesScreenView extends ScreenView {
       slitConfigItems,
       model.sceneProperty,
       model.scenes,
-      waveRegionTop,
+      waveRegionLeft,
+      obstacleControlsSection,
       this,
-      tandem,
-      { layoutBoundsBottom: this.layoutBounds.maxY }
+      tandem
     );
     this.addChild( bottomRow );
 
