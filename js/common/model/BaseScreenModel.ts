@@ -27,6 +27,9 @@ import Snapshot from './Snapshot.js';
 import type BaseSceneModel from './BaseSceneModel.js';
 
 const NOMINAL_DT = 1 / 60;
+const NORMAL_TIME_SPEED_FACTOR = 0.48;
+const SLOW_TIME_SPEED_FACTOR = NORMAL_TIME_SPEED_FACTOR * 0.5;
+const FAST_TIME_SPEED_FACTOR = NORMAL_TIME_SPEED_FACTOR * 2;
 
 type BaseScreenModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
@@ -196,21 +199,32 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
 
   protected abstract resetToolVisibility(): void;
 
+  public getNominalStepDt(): number {
+    return NOMINAL_DT;
+  }
+
+  public getEffectiveDt( dt: number ): number {
+    if ( !this.isPlayingProperty.value ) {
+      return 0;
+    }
+
+    const timeSpeed = this.timeSpeedProperty.value;
+    return timeSpeed === TimeSpeed.SLOW ? dt * SLOW_TIME_SPEED_FACTOR :
+           timeSpeed === TimeSpeed.FAST ? dt * FAST_TIME_SPEED_FACTOR :
+           timeSpeed === TimeSpeed.NORMAL ? dt * NORMAL_TIME_SPEED_FACTOR :
+           ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
+  }
+
   public stepOnce(): void {
     this.sceneProperty.value.step( NOMINAL_DT );
     this.stopwatch.step( NOMINAL_DT );
   }
 
   public step( dt: number ): void {
-    if ( !this.isPlayingProperty.value ) {
+    const effectiveDt = this.getEffectiveDt( dt );
+    if ( effectiveDt === 0 ) {
       return;
     }
-
-    const timeSpeed = this.timeSpeedProperty.value;
-    const effectiveDt = timeSpeed === TimeSpeed.SLOW ? dt * 0.25 :
-                        timeSpeed === TimeSpeed.FAST ? dt * 4 :
-                        timeSpeed === TimeSpeed.NORMAL ? dt :
-                        ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
 
     this.sceneProperty.value.step( effectiveDt );
     this.stopwatch.step( effectiveDt );
