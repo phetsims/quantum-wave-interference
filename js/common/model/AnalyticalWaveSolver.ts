@@ -30,9 +30,11 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
   public readonly gridWidth: number;
   public readonly gridHeight: number;
+  public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
 
   private wavelength = 650e-9;
   private waveSpeed = 3e8;
+  private displayWavelengths = DISPLAY_WAVELENGTHS;
   private obstacleType: ObstacleType = 'none';
   private slitSeparation = 0.25e-3;
   private slitSeparationMin = 0.25e-3;
@@ -80,6 +82,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   public setParameters( params: WaveSolverParameters ): void {
     this.setIfDefined( params.wavelength, value => { this.wavelength = value; } );
     this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
+    this.setIfDefined( params.displayWavelengths, value => { this.displayWavelengths = value; } );
     // NOTE: These 8 barrier/slit setIfDefined calls are duplicated in GPUWavePacketSolver.setParameters
     this.setIfDefined( params.obstacleType, value => { this.obstacleType = value; } );
     this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
@@ -225,7 +228,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       return;
     }
 
-    const displayK = 2 * Math.PI * DISPLAY_WAVELENGTHS / this.regionWidth;
+    const displayK = 2 * Math.PI * this.displayWavelengths / this.regionWidth;
     const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
     const displayOmega = displayK * displaySpeed;
 
@@ -300,7 +303,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const huygensNorm = 0.5 * Math.sqrt( L ) / N_HUYGENS_SOURCES;
 
     const sourceSpacing = displaySlitWidth / N_HUYGENS_SOURCES;
-    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const displayLambda = this.regionWidth / this.displayWavelengths;
 
     // Fresnel distance: near the barrier, blend from geometric optics to full diffraction
     const fresnelDistance = displaySlitWidth * displaySlitWidth / displayLambda;
@@ -480,7 +483,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private computeInstantaneousDetectorDistribution(): void {
     const { gridHeight, detectorDistribution } = this;
 
-    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const displayLambda = this.regionWidth / this.displayWavelengths;
     const displaySpeed = this.regionWidth / DISPLAY_TRAVERSAL_TIME;
     const sourceOnTime = this.sourceOnTime ?? 0;
     const displayWavefrontX = displaySpeed * ( this.time - sourceOnTime );

@@ -33,9 +33,11 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
   public readonly gridWidth: number;
   public readonly gridHeight: number;
+  public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
 
   private wavelength = 650e-9;
   private waveSpeed = 3e8;
+  private displayWavelengths = DISPLAY_WAVELENGTHS;
   private obstacleType: ObstacleType = 'none';
   private slitSeparation = 0.25e-3;
   private slitSeparationMin = 0.25e-3;
@@ -200,7 +202,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
     const dx = regionWidth / gridWidth;
     const dy = regionHeight / gridHeight;
-    const kDisplay = 2 * Math.PI * DISPLAY_WAVELENGTHS / regionWidth;
+    const kDisplay = 2 * Math.PI * this.displayWavelengths / regionWidth;
     const displaySpeed = regionWidth / PACKET_TRAVERSAL_TIME;
     const omegaDisplay = kDisplay * displaySpeed;
 
@@ -473,7 +475,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
     // Independent of the packet's current position — the probability distribution
     // at the screen depends only on the slit geometry and wavelength.
-    const lambdaDisplay = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const lambdaDisplay = this.regionWidth / this.displayWavelengths;
     const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, lambdaDisplay );
     const barrierX = this.barrierFractionX * this.regionWidth;
     const L = this.regionWidth - barrierX;

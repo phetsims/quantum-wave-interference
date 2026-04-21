@@ -86,11 +86,12 @@ export default class GPUWavePacketSolver implements WaveSolver {
 
   public readonly gridWidth: number;
   public readonly gridHeight: number;
+  public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
 
   public readonly totalSize: number;
   public readonly dampingMargin: number;
   private readonly barrierThickness: number;
-  private readonly substepsPerSecond: number;
+  private substepsPerSecond: number;
   private readonly amplitudeScale: number;
 
   private readonly gpu: GPUContext;
@@ -134,6 +135,7 @@ export default class GPUWavePacketSolver implements WaveSolver {
   private readonly betaIm: number;
 
   // Solver parameters
+  private displayWavelengths = DISPLAY_WAVELENGTHS;
   private obstacleType: ObstacleType = 'none';
   private slitSeparation = 0.25e-3;
   private slitSeparationMin = 0;
@@ -312,6 +314,11 @@ export default class GPUWavePacketSolver implements WaveSolver {
 
   public setParameters( params: WaveSolverParameters ): void {
     // NOTE: These 8 barrier/slit setIfDefined calls are duplicated in AnalyticalWaveSolver.setParameters
+    this.setIfDefined( params.displayWavelengths, value => {
+      this.displayWavelengths = value;
+      const k = 2 * Math.PI * value / this.gridWidth;
+      this.substepsPerSecond = this.gridWidth / ( GPU_EPSILON * k * TRAVERSAL_TIME_SECONDS );
+    } );
     this.setIfDefined( params.obstacleType, value => { this.obstacleType = value; } );
     this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
     this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
@@ -725,7 +732,7 @@ export default class GPUWavePacketSolver implements WaveSolver {
     const y0 = this.dampingMargin + 0.5 * this.gridWidth;
     const sigma = PACKET_SIGMA_FRACTION * this.gridWidth;
     const invTwoSigmaSq = 1 / ( 2 * sigma * sigma );
-    const k = 2 * Math.PI * DISPLAY_WAVELENGTHS / this.gridWidth;
+    const k = 2 * Math.PI * this.displayWavelengths / this.gridWidth;
 
     for ( let iy = 0; iy < this.totalSize; iy++ ) {
       const dy = iy - y0;
