@@ -52,7 +52,6 @@ const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const CONTENT_VERTICAL_OFFSET = 12;
 const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
-const TOP_ROW_TO_MASS_LABEL_SPACING = 12;
 const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
 const SCENE_TO_OBSTACLE_CONTROLS_SPACING = 36;
 const CALLOUT_GAP = 55;
@@ -188,8 +187,12 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( doubleSlitNode );
     this.addChild( emitterNode );
 
-    particleMassAnnotation.centerX = emitterNode.centerX;
-    particleMassAnnotation.top = emitterNode.bottom + TOP_ROW_TO_MASS_LABEL_SPACING;
+    const updateParticleMassAnnotationPosition = () => {
+      particleMassAnnotation.centerX = sourceControlPanel.centerX;
+      particleMassAnnotation.top = emitterNode.top;
+    };
+    particleMassAnnotation.localBoundsProperty.link( updateParticleMassAnnotationPosition );
+    updateParticleMassAnnotationPosition();
     this.addChild( particleMassAnnotation );
 
     const slitConfigItems: ComboBoxItem<SingleParticlesSlitConfiguration>[] = [
