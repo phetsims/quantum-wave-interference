@@ -57,7 +57,7 @@ const SCENE_TO_OBSTACLE_CONTROLS_SPACING = 36;
 const CALLOUT_GAP = 55;
 const SCENE_AND_OBSTACLE_Y_OFFSET = 10;
 const SCENE_BUTTON_GROUP_Y_OFFSET = 10;
-const WAVE_REGION_Y_OFFSET = -15;
+const WAVE_REGION_Y_OFFSET = -30;
 
 type HighIntensityReferenceScene = {
   sourceType: SingleParticlesSceneModel[ 'sourceType' ];
@@ -154,7 +154,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     const waveRegionLeft = X_MARGIN + highIntensityLeftColumnWidth + 20;
 
     sourceControlPanel.left = X_MARGIN;
-    sourceControlPanel.top = Y_MARGIN;
+    sourceControlPanel.top = Y_MARGIN + 20;
     this.addChild( sourceControlPanel );
 
     obstacleControlsSection.centerX = X_MARGIN + highIntensityLeftColumnWidth / 2;

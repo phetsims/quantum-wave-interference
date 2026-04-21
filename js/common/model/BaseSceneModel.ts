@@ -65,33 +65,33 @@ const SOURCE_TYPE_CONFIG: Record<SourceType, SourceTypeConfig> = {
   photons: {
     particleMass: 0,
     velocityRange: [ 0, 0 ],
-    slitSeparationRange: [ 0.0002, 0.003 ],
+    slitSeparationRange: [ 0.1, 2.0 ],
     defaultVelocity: 0,
-    defaultSlitSeparation: 0.003,
+    defaultSlitSeparation: 1.0,
     slitWidth: 0.0001
   },
   electrons: {
     particleMass: QuantumWaveInterferenceConstants.ELECTRON_MASS,
     velocityRange: [ 7e5, 1.5e6 ],
-    slitSeparationRange: [ 0.0001, 0.0009 ],
+    slitSeparationRange: [ 0.1, 2.0 ],
     defaultVelocity: 1.1e6,
-    defaultSlitSeparation: 0.0005,
+    defaultSlitSeparation: 1.0,
     slitWidth: 0.00003
   },
   neutrons: {
     particleMass: QuantumWaveInterferenceConstants.NEUTRON_MASS,
     velocityRange: [ 200, 800 ],
-    slitSeparationRange: [ 0.00005, 0.002 ],
+    slitSeparationRange: [ 0.1, 2.0 ],
     defaultVelocity: 500,
-    defaultSlitSeparation: 0.001,
+    defaultSlitSeparation: 1.0,
     slitWidth: 0.00002
   },
   heliumAtoms: {
     particleMass: QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS,
     velocityRange: [ 400, 2000 ],
-    slitSeparationRange: [ 0.00002, 0.0008 ],
+    slitSeparationRange: [ 0.1, 2.0 ],
     defaultVelocity: 1200,
-    defaultSlitSeparation: 0.0004,
+    defaultSlitSeparation: 1.0,
     slitWidth: 0.000008
   }
 };
@@ -196,7 +196,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
 
     this.slitPositionFractionProperty = new NumberProperty( 0.5, {
-      range: new Range( 0.2, 0.8 ),
+      range: new Range( 0.25, 0.75 ),
       tandem: tandem.createTandem( 'slitPositionFractionProperty' )
     } );
 
@@ -441,4 +441,3 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.hitsChangedEmitter.emit();
   }
 }
-

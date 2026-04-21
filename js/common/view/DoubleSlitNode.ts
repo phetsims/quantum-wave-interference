@@ -20,6 +20,7 @@ import TinyProperty from '../../../../axon/js/TinyProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
 import { linear } from '../../../../dot/js/util/linear.js';
+import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
@@ -32,10 +33,12 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 
-const BARRIER_VIEW_WIDTH = 20;
-const CORNER_RADIUS = 2;
+const BARRIER_VIEW_WIDTH = 12;
+const CORNER_RADIUS = 0;
 const BARRIER_FILL = '#939393';
 const SLIT_VIEW_HEIGHT = 22;
+const ARROW_WIDTH = 40;
+const WAVE_REGION_FILL_INSET = 0.5;
 
 const MIN_VIEW_SEPARATION = 40;
 const MAX_VIEW_SEPARATION = 220;
@@ -43,7 +46,7 @@ const MAX_VIEW_SEPARATION = 220;
 const DETECTOR_OVERLAY_PADDING = 4;
 const DETECTOR_OVERLAY_ALPHA = 0.4;
 
-const SLIT_POSITION_FRACTION_RANGE = new Range( 0.2, 0.8 );
+const SLIT_POSITION_FRACTION_RANGE = new Range( 0.25, 0.75 );
 
 type SelfOptions = {
   isTopSlitCoveredProperty: TReadOnlyProperty<boolean>;
@@ -110,6 +113,12 @@ export default class DoubleSlitNode extends Node {
     const barrierContainer = new Node( {
       children: [ topBarrier, centralBarrier, bottomBarrier, topCover, bottomCover, topDetector, bottomDetector ]
     } );
+    barrierContainer.clipArea = Shape.rectangle(
+      WAVE_REGION_FILL_INSET,
+      WAVE_REGION_FILL_INSET,
+      WAVE_REGION_WIDTH - WAVE_REGION_FILL_INSET * 2,
+      WAVE_REGION_HEIGHT - WAVE_REGION_FILL_INSET * 2
+    );
     this.addChild( barrierContainer );
 
     const arrowNode = new ArrowNode( 0, 0, 0, 0, {
@@ -167,7 +176,14 @@ export default class DoubleSlitNode extends Node {
         const bottomSlitCenterY = centerY + viewSeparation / 2;
 
         const topBarrierBottom = topSlitCenterY - SLIT_VIEW_HEIGHT / 2;
-        topBarrier.setRect( barrierX, 0, BARRIER_VIEW_WIDTH, Math.max( 0, topBarrierBottom ), CORNER_RADIUS, CORNER_RADIUS );
+        topBarrier.setRect(
+          barrierX,
+          0,
+          BARRIER_VIEW_WIDTH,
+          Math.max( 0, topBarrierBottom ),
+          CORNER_RADIUS,
+          CORNER_RADIUS
+        );
 
         const centralBarrierTop = topSlitCenterY + SLIT_VIEW_HEIGHT / 2;
         const centralBarrierBottom = bottomSlitCenterY - SLIT_VIEW_HEIGHT / 2;
@@ -175,8 +191,14 @@ export default class DoubleSlitNode extends Node {
           Math.max( 0, centralBarrierBottom - centralBarrierTop ), CORNER_RADIUS, CORNER_RADIUS );
 
         const bottomBarrierTop = bottomSlitCenterY + SLIT_VIEW_HEIGHT / 2;
-        bottomBarrier.setRect( barrierX, bottomBarrierTop, BARRIER_VIEW_WIDTH,
-          Math.max( 0, WAVE_REGION_HEIGHT - bottomBarrierTop ), CORNER_RADIUS, CORNER_RADIUS );
+        bottomBarrier.setRect(
+          barrierX,
+          bottomBarrierTop,
+          BARRIER_VIEW_WIDTH,
+          Math.max( 0, WAVE_REGION_HEIGHT - bottomBarrierTop ),
+          CORNER_RADIUS,
+          CORNER_RADIUS
+        );
 
         topCover.setRect( barrierX, topBarrierBottom, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS );
         bottomCover.setRect( barrierX, centralBarrierBottom, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS );
@@ -201,9 +223,8 @@ export default class DoubleSlitNode extends Node {
         bottomDetector.visible = isBottomDetectorOn;
 
         const arrowY = WAVE_REGION_HEIGHT + 12;
-        const arrowWidth = BARRIER_VIEW_WIDTH * 2;
         const barrierCenterX = barrierX + BARRIER_VIEW_WIDTH / 2;
-        arrowNode.setTailAndTip( barrierCenterX - arrowWidth / 2, arrowY, barrierCenterX + arrowWidth / 2, arrowY );
+        arrowNode.setTailAndTip( barrierCenterX - ARROW_WIDTH / 2, arrowY, barrierCenterX + ARROW_WIDTH / 2, arrowY );
       }
     );
   }

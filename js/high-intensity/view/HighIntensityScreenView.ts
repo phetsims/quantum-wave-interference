@@ -61,7 +61,7 @@ const SCENE_TO_OBSTACLE_CONTROLS_SPACING = 36;
 const SOURCE_CONTROL_Y_OFFSET = 20;
 const SCENE_AND_OBSTACLE_Y_OFFSET = 10;
 const SCENE_BUTTON_GROUP_Y_OFFSET = 10;
-const WAVE_REGION_Y_OFFSET = -15;
+const WAVE_REGION_Y_OFFSET = -30;
 
 // Extra vertical space below the top row to accommodate the zoom-callout lines between the
 // mini-symbol (at TOP_ROW_CENTER_Y) and the top of the main wave region.
