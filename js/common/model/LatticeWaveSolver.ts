@@ -59,6 +59,7 @@ export default class LatticeWaveSolver implements WaveSolver {
 
   public readonly gridWidth: number;
   public readonly gridHeight: number;
+  public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
 
   private wavelength = 650e-9;
   private waveSpeed = 3e8;

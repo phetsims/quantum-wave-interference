@@ -119,6 +119,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly slitSeparationRange: Range;
   public readonly regionWidth: number;
   public readonly regionHeight: number;
+  private readonly defaultEffectiveWavelength: number;
 
   public readonly isEmittingProperty: BooleanProperty;
   public readonly wavelengthProperty: NumberProperty;
@@ -164,6 +165,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.slitSeparationRange = new Range( ...config.slitSeparationRange );
     this.regionWidth = REGION_SIZE;
     this.regionHeight = REGION_SIZE;
+
+    this.defaultEffectiveWavelength = this.sourceType === 'photons' ?
+                                      DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
+                                      QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * config.defaultVelocity );
 
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
@@ -264,9 +269,15 @@ export default abstract class BaseSceneModel extends PhetioObject {
   protected isBottomSlitDecoherent(): boolean { return false; }
 
   protected syncSolverParameters(): void {
+    const effectiveWavelength = this.getEffectiveWavelength();
+    const baseDisplayWavelengths = this.waveSolver.defaultDisplayWavelengths;
+    const displayWavelengths = effectiveWavelength > 0 ?
+                               baseDisplayWavelengths * ( this.defaultEffectiveWavelength / effectiveWavelength ) :
+                               baseDisplayWavelengths;
     this.waveSolver.setParameters( {
-      wavelength: this.getEffectiveWavelength(),
+      wavelength: effectiveWavelength,
       waveSpeed: this.getEffectiveWaveSpeed(),
+      displayWavelengths: displayWavelengths,
       obstacleType: this.obstacleTypeProperty.value,
       slitSeparation: this.slitSeparationProperty.value * 1e-3,
       slitSeparationMin: this.slitSeparationRange.min * 1e-3,
@@ -336,6 +347,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.hits.length = 0;
     this.totalHitsProperty.value = 0;
     this.wavefrontReached = false;
+    this.syncSolverParameters();
     this.waveSolver.reset();
     this.syncSolverParameters();
     this.hitsChangedEmitter.emit();

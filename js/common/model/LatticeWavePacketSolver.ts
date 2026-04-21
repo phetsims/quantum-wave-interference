@@ -71,9 +71,11 @@ export default class LatticeWavePacketSolver implements WaveSolver {
 
   public readonly gridWidth: number;
   public readonly gridHeight: number;
+  public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
 
   private wavelength = 650e-9;
   private waveSpeed = 3e8;
+  private displayWavelengths = DISPLAY_WAVELENGTHS;
   private obstacleType: ObstacleType = 'none';
   private slitSeparation = 0.25e-3;
   private slitWidth = 0.02e-3;
@@ -134,6 +136,7 @@ export default class LatticeWavePacketSolver implements WaveSolver {
   public setParameters( params: WaveSolverParameters ): void {
     if ( params.wavelength !== undefined ) { this.wavelength = params.wavelength; }
     if ( params.waveSpeed !== undefined ) { this.waveSpeed = params.waveSpeed; }
+    if ( params.displayWavelengths !== undefined ) { this.displayWavelengths = params.displayWavelengths; }
     if ( params.obstacleType !== undefined ) { this.obstacleType = params.obstacleType; }
     if ( params.slitSeparation !== undefined ) { this.slitSeparation = params.slitSeparation; }
     if ( params.slitWidth !== undefined ) { this.slitWidth = params.slitWidth; }
@@ -374,7 +377,7 @@ export default class LatticeWavePacketSolver implements WaveSolver {
     const sigmaY = PACKET_SIGMA_Y_FRACTION * gridHeight;
     const invTwoSigmaXSq = 1 / ( 2 * sigmaX * sigmaX );
     const invTwoSigmaYSq = 1 / ( 2 * sigmaY * sigmaY );
-    const k = 2 * Math.PI * DISPLAY_WAVELENGTHS / gridWidth;
+    const k = 2 * Math.PI * this.displayWavelengths / gridWidth;
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
       const dy = iy - y0;
@@ -412,7 +415,7 @@ export default class LatticeWavePacketSolver implements WaveSolver {
 
     const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
     const dy = this.regionHeight / gridHeight;
-    const displayLambda = this.regionWidth / DISPLAY_WAVELENGTHS;
+    const displayLambda = this.regionWidth / this.displayWavelengths;
     const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, displayLambda );
 
     const topSlitCenterY = displaySlitSep / 2;

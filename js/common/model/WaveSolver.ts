@@ -20,6 +20,7 @@ export type WaveSolverState = Record<string, IntentionalAny>;
 export type WaveSolverParameters = {
   wavelength?: number;
   waveSpeed?: number;
+  displayWavelengths?: number;
   obstacleType?: ObstacleType;
   slitSeparation?: number;
   slitSeparationMin?: number;
@@ -40,6 +41,8 @@ type WaveSolver = {
   readonly gridWidth: number;
 
   readonly gridHeight: number;
+
+  readonly defaultDisplayWavelengths: number;
 
   step( dt: number ): void;
 
