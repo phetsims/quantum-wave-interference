@@ -13,6 +13,7 @@
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
+import Property from '../../../../axon/js/Property.js';
 import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
@@ -20,7 +21,7 @@ import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
-import { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION } from '../../common/model/AnalyticalWavePacketSolver.js';
+import { PACKET_START_OFFSET_SIGMAS, PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION } from '../../common/model/AnalyticalWavePacketSolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 
@@ -38,6 +39,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public readonly autoRepeatProperty: BooleanProperty;
   public readonly slitConfigurationProperty: StringUnionProperty<SingleParticlesSlitConfiguration>;
+
+  // Single particles always use full amplitude (no intensity slider on this screen)
+  public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( 1 );
 
   // Whether a wave packet is currently propagating through the visualization region
   public readonly isPacketActiveProperty: BooleanProperty;
@@ -189,7 +193,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
    * spread. Truncated at ±3σ to avoid non-physical negative times.
    */
   private sampleDetectionTime(): number {
-    const effectiveTraversalTime = PACKET_TRAVERSAL_TIME * this.defaultWaveSpeed / this.getEffectiveWaveSpeed();
+    const effectiveTraversalTime = PACKET_TRAVERSAL_TIME * ( 1 + PACKET_START_OFFSET_SIGMAS * SIGMA_X_FRACTION ) * this.defaultWaveSpeed / this.getEffectiveWaveSpeed();
     const sigma = SIGMA_X_FRACTION * effectiveTraversalTime;
     const maxDeviation = 3 * sigma;
     let deviation: number;

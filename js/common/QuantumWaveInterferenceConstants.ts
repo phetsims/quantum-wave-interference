@@ -25,6 +25,10 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly NEUTRON_MASS = 1.675e-27;
   public static readonly HELIUM_ATOM_MASS = 6.646e-27;
 
+  // Number of display-scale wavelengths visible across the wave region at default settings.
+  // Shared between the continuous-wave and wave-packet solvers so both screens show matching wavelengths.
+  public static readonly DISPLAY_WAVELENGTHS = 15;
+
   // Maximum value for the screen brightness slider, shared across all screens
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
 

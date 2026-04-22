@@ -12,6 +12,7 @@
 
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
@@ -24,10 +25,13 @@ const DEFAULT_GRID_HEIGHT = 200;
 const PACKET_TRAVERSAL_TIME = 1.5;
 const SIGMA_X_FRACTION = 0.12;
 const SIGMA_Y_FRACTION = 0.12;
-const DISPLAY_WAVELENGTHS = 30;
+const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
 const N_HUYGENS_SOURCES = 28;
 
-export { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION };
+// The wave packet starts this many σ_x to the left of the visible region so it enters smoothly from off-screen.
+const PACKET_START_OFFSET_SIGMAS = 3;
+
+export { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION, PACKET_START_OFFSET_SIGMAS };
 
 export default class AnalyticalWavePacketSolver implements WaveSolver {
 
@@ -211,7 +215,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     const sigmaY = SIGMA_Y_FRACTION * regionHeight;
     const invTwoSigmaXSq = 1 / ( 2 * sigmaX * sigmaX );
     const invTwoSigmaYSq = 1 / ( 2 * sigmaY * sigmaY );
-    const xCenter = displaySpeed * this.time;
+    const xCenter = displaySpeed * this.time - PACKET_START_OFFSET_SIGMAS * sigmaX;
 
     // Precompute vertical Gaussian envelope per row (saves ~39k redundant Math.exp calls)
     for ( let iy = 0; iy < gridHeight; iy++ ) {
