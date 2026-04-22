@@ -22,7 +22,7 @@ import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, 
 
 const SUPERSAMPLE = 2;
 const MAX_RENDERED_HITS = 10000;
-const HIT_SIZE_SCALE = 1.4;
+const HIT_SIZE_SCALE = 2;
 
 export type DetectorScreenSceneLike = {
   hits: Vector2[];
