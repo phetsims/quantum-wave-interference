@@ -18,9 +18,9 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type DetectorScreenSceneLike } from './DetectorScreenTextureRenderer.js';
+import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
 import DetectorScreenTextureRenderer from './DetectorScreenTextureRenderer.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -57,7 +57,9 @@ export default class DetectorScreenNode extends Node {
       .close();
 
     this.addChild( new Path( shape, {
-      fill: QuantumWaveInterferenceColors.detectorScreenBackgroundColorProperty
+      fill: WaveVisualizationCanvasNode.BACKGROUND_COLOR,
+      stroke: '#333',
+      lineWidth: 1
     } ) );
 
     this.canvasNode = new DetectorScreenCanvasNode( sceneProperty, textureRenderer, SCREEN_WIDTH, SCREEN_HEIGHT + SKEW );

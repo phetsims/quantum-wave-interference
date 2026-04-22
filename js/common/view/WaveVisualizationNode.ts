@@ -20,7 +20,6 @@ import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
@@ -103,7 +102,7 @@ export default class WaveVisualizationNode extends Node {
     const height = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 
     const backgroundRect = new Rectangle( 0, 0, width, height, {
-      fill: QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty,
+      fill: WaveVisualizationCanvasNode.BACKGROUND_COLOR,
       stroke: 'white',
       lineWidth: 1
     } );
