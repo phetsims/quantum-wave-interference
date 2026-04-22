@@ -33,7 +33,7 @@ import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import Snapshot from '../model/Snapshot.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getWaveAndDetectorBackgroundRGB } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle } from './ScreenBrightnessUtils.js';
 
 const SNAPSHOT_WIDTH = 360;
 const SNAPSHOT_HEIGHT = 132;
@@ -214,7 +214,7 @@ export default class SnapshotNode extends Node {
       0, 0, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT,
       CORNER_RADIUS, CORNER_RADIUS,
       {
-        fill: QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty,
+        fill: 'black',
         stroke: QuantumWaveInterferenceColors.snapshotStrokeProperty,
         lineWidth: 1
       }
@@ -535,7 +535,7 @@ class SnapshotCanvasNode extends CanvasNode {
    */
   private paintCapturedIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
     const distribution = snapshot.intensityDistribution;
-    const backgroundRGB = getWaveAndDetectorBackgroundRGB();
+    const backgroundRGB = { r: 0, g: 0, b: 0 };
 
     const normalizedBrightness = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
     const displayGain = getIntensityDisplayGain( normalizedBrightness, snapshot.intensity );
@@ -585,7 +585,7 @@ class SnapshotCanvasNode extends CanvasNode {
     const screenDistanceMeters = snapshot.screenDistance;
     const slitSetting = snapshot.slitSetting;
     const isSingleSlit = slitSetting === 'leftCovered' || slitSetting === 'rightCovered' || hasAnyDetector( slitSetting );
-    const backgroundRGB = getWaveAndDetectorBackgroundRGB();
+    const backgroundRGB = { r: 0, g: 0, b: 0 };
 
     const sourceRGB = snapshot.sourceType === 'photons'
                       ? ( () => {
