@@ -14,11 +14,13 @@ import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import SceneModel from '../model/SceneModel.js';
 import getDetectorScreenTexture from './getDetectorScreenTexture.js';
 
+const FULL_SCALE_INDEX = 0;
+
 export default class OverheadDetectorPatternNode extends CanvasNode {
 
-  private readonly dx: number;
-  private readonly dy: number;
-  private readonly leftHeight: number;
+  private dx: number;
+  private dy: number;
+  private leftHeight: number;
 
   private sceneModel: SceneModel | null = null;
 
@@ -31,13 +33,25 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
     this.dy = dy;
     this.leftHeight = leftHeight;
 
-    // Clip to the parallelogram shape
+    this.updateClipAndBounds();
+  }
+
+  private updateClipAndBounds(): void {
+    this.canvasBounds = new Bounds2( 0, 0, this.dx, this.leftHeight + this.dy );
     this.clipArea = new Shape()
       .moveTo( 0, 0 )
-      .lineTo( 0, leftHeight )
-      .lineTo( dx, leftHeight + dy )
-      .lineTo( dx, dy )
+      .lineTo( 0, this.leftHeight )
+      .lineTo( this.dx, this.leftHeight + this.dy )
+      .lineTo( this.dx, this.dy )
       .close();
+  }
+
+  public setGeometry( dx: number, dy: number, leftHeight: number ): void {
+    this.dx = dx;
+    this.dy = dy;
+    this.leftHeight = leftHeight;
+    this.updateClipAndBounds();
+    this.invalidatePaint();
   }
 
   /**
@@ -57,19 +71,23 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
       return;
     }
 
-    const texture = getDetectorScreenTexture( this.sceneModel );
+    const texture = getDetectorScreenTexture( this.sceneModel, FULL_SCALE_INDEX );
     const sourceWidth = texture.width;
     const sourceHeight = texture.height;
+    const fullScreenHalfWidth = SceneModel.getScreenHalfWidthForScaleIndex( FULL_SCALE_INDEX );
+    const visibleFraction = this.sceneModel.screenHalfWidth / fullScreenHalfWidth;
+    const sourceCropWidth = sourceWidth * visibleFraction;
+    const sourceCropX = ( sourceWidth - sourceCropWidth ) / 2;
 
     // Transform source rect -> overhead parallelogram:
     // x' = (dx / sourceWidth) * x
     // y' = (dy / sourceWidth) * x + (leftHeight / sourceHeight) * y
     context.save();
     context.transform(
-      this.dx / sourceWidth, this.dy / sourceWidth, 0,
+      this.dx / sourceCropWidth, this.dy / sourceCropWidth, 0,
       this.leftHeight / sourceHeight, 0, 0
     );
-    context.drawImage( texture, 0, 0 );
+    context.drawImage( texture, sourceCropX, 0, sourceCropWidth, sourceHeight, 0, 0, sourceCropWidth, sourceHeight );
     context.restore();
   }
 }

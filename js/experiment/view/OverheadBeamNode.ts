@@ -49,7 +49,6 @@ export default class OverheadBeamNode extends Node {
     this.addChild( fanBeamNode );
 
     const doubleSlitParallelogram = doubleSlitNode.parallelogramNode;
-    const detectorScreenParallelogram = detectorScreenNode.parallelogramNode;
 
     this._updateBeam = () => {
       const scene = sceneProperty.value;
@@ -115,8 +114,8 @@ export default class OverheadBeamNode extends Node {
       const narrowHalfHeight = beamHeight / 2;
 
       const slitCenterY = doubleSlitParallelogram.centerY;
-      const screenCenterY = detectorScreenParallelogram.centerY;
-      const wideHalfHeight = detectorScreenParallelogram.height / 2;
+      const screenCenterY = detectorScreenNode.parallelogramNode.centerY;
+      const wideHalfHeight = detectorScreenNode.getFullParallelogramHeight() / 2;
 
       const fanShape = new Shape()
         .moveTo( fanLeft, slitCenterY - narrowHalfHeight )
@@ -128,16 +127,14 @@ export default class OverheadBeamNode extends Node {
 
       // Clip the fan beam along a diagonal from the detector screen parallelogram's top-left corner to its
       // bottom-right corner, so no light is visible past the screen.
-      const screenTopLeftX = detectorScreenParallelogram.left;
-      const screenTopLeftY = detectorScreenParallelogram.top;
-      const screenBottomRightX = detectorScreenParallelogram.right;
-      const screenBottomRightY = detectorScreenParallelogram.bottom;
+      const screenTopLeft = detectorScreenNode.getFullParallelogramTopLeft();
+      const screenBottomRight = detectorScreenNode.getFullParallelogramBottomRight();
       const clipPadding = 200;
       fanBeamNode.clipArea = new Shape()
-        .moveTo( fanLeft - clipPadding, screenTopLeftY - clipPadding )
-        .lineTo( screenTopLeftX, screenTopLeftY )
-        .lineTo( screenBottomRightX, screenBottomRightY )
-        .lineTo( fanLeft - clipPadding, screenBottomRightY + clipPadding )
+        .moveTo( fanLeft - clipPadding, screenTopLeft.y - clipPadding )
+        .lineTo( screenTopLeft.x, screenTopLeft.y )
+        .lineTo( screenBottomRight.x, screenBottomRight.y )
+        .lineTo( fanLeft - clipPadding, screenBottomRight.y + clipPadding )
         .close();
 
       const gradient = new LinearGradient( fanLeft, 0, fanRight, 0 )

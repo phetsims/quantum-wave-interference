@@ -52,6 +52,8 @@ type SceneTextureCache = {
   hitSpriteParams: HitSpriteParams | null;
 };
 
+type SceneTextureCacheMap = Map<number, SceneTextureCache>;
+
 type HitSpriteParams = {
   r: number;
   g: number;
@@ -61,7 +63,7 @@ type HitSpriteParams = {
   glowRadius: number;
 };
 
-const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
+const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCacheMap>();
 
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
@@ -158,6 +160,7 @@ const paintHits = (
   cache: SceneTextureCache,
   context: CanvasRenderingContext2D,
   sceneModel: SceneModel,
+  targetScreenHalfWidth: number,
   displayGain: number,
   brightnessFraction: number
 ): void => {
@@ -204,9 +207,18 @@ const paintHits = (
     context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
   }
 
+  const currentScreenHalfWidth = sceneModel.screenHalfWidth;
+
   for ( let i = incrementalStart; i < hitCount; i++ ) {
     const hit = hits[ i ];
-    const viewX = ( ( hit.x + 1 ) / 2 ) * TEXTURE_WIDTH;
+    const physicalX = hit.x * currentScreenHalfWidth;
+    const normalizedTargetX = physicalX / targetScreenHalfWidth;
+
+    if ( Math.abs( normalizedTargetX ) > 1 ) {
+      continue;
+    }
+
+    const viewX = ( ( normalizedTargetX + 1 ) / 2 ) * TEXTURE_WIDTH;
     const viewY = ( ( hit.y + 1 ) / 2 ) * TEXTURE_HEIGHT;
     context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
   }
@@ -217,6 +229,7 @@ const paintHits = (
 const paintIntensity = (
   context: CanvasRenderingContext2D,
   sceneModel: SceneModel,
+  targetScreenHalfWidth: number,
   displayGain: number
 ): void => {
   // Intensity mode shows the instantaneous theoretical pattern whenever the source is emitting.
@@ -224,12 +237,11 @@ const paintIntensity = (
     return;
   }
 
-  const screenHalfWidth = sceneModel.screenHalfWidth;
   const rgb = getSceneRGB( sceneModel.sourceType, sceneModel.wavelengthProperty.value );
 
   for ( let x = 0; x < TEXTURE_WIDTH; x++ ) {
     const fraction = ( x + 0.5 ) / TEXTURE_WIDTH;
-    const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
+    const physicalX = ( fraction - 0.5 ) * 2 * targetScreenHalfWidth;
     const intensity = sceneModel.getIntensityAtPosition( physicalX );
     const fillStyle = getScaledRGBFillStyle( rgb, intensity * displayGain );
 
@@ -243,8 +255,9 @@ const paintIntensity = (
   }
 };
 
-const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ): void => {
+const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel, scaleIndex: number ): void => {
   const context = cache.context;
+  const targetScreenHalfWidth = SceneModel.getScreenHalfWidthForScaleIndex( scaleIndex );
 
   const currentBrightness = sceneModel.screenBrightnessProperty.value;
   const currentWavelength = sceneModel.wavelengthProperty.value;
@@ -282,12 +295,12 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
   const intensityDisplayGain = getIntensityDisplayGain( currentBrightness, currentIntensity );
 
   if ( currentDetectionMode === 'hits' ) {
-    paintHits( cache, context, sceneModel, hitsDisplayGain, hitsBrightnessFractionValue );
+    paintHits( cache, context, sceneModel, targetScreenHalfWidth, hitsDisplayGain, hitsBrightnessFractionValue );
   }
   else {
     // Intensity mode always redraws fully (it's O(TEXTURE_WIDTH) ≈ 560 iterations, already fast).
     context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
-    paintIntensity( context, sceneModel, intensityDisplayGain );
+    paintIntensity( context, sceneModel, targetScreenHalfWidth, intensityDisplayGain );
   }
 
   cache.dirty = false;
@@ -326,7 +339,6 @@ const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache =>
   sceneModel.detectionModeProperty.link( markDirty );
   sceneModel.screenBrightnessProperty.link( markDirty );
   sceneModel.intensityProperty.link( markDirty );
-  sceneModel.detectorScreenScaleIndexProperty.link( markDirty );
   sceneModel.wavelengthProperty.link( markDirty );
   sceneModel.velocityProperty.link( markDirty );
 
@@ -336,15 +348,24 @@ const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache =>
 /**
  * Gets the shared detector-screen texture for the specified scene, rendering it lazily on demand.
  */
-function getDetectorScreenTexture( sceneModel: SceneModel ): HTMLCanvasElement {
-  let cache = sceneTextureMap.get( sceneModel );
+function getDetectorScreenTexture(
+  sceneModel: SceneModel,
+  scaleIndex: number = sceneModel.detectorScreenScaleIndexProperty.value
+): HTMLCanvasElement {
+  let cacheMap = sceneTextureMap.get( sceneModel );
+  if ( !cacheMap ) {
+    cacheMap = new Map();
+    sceneTextureMap.set( sceneModel, cacheMap );
+  }
+
+  let cache = cacheMap.get( scaleIndex );
   if ( !cache ) {
     cache = createSceneTextureCache( sceneModel );
-    sceneTextureMap.set( sceneModel, cache );
+    cacheMap.set( scaleIndex, cache );
   }
 
   if ( cache.dirty ) {
-    renderSceneTexture( cache, sceneModel );
+    renderSceneTexture( cache, sceneModel, scaleIndex );
   }
 
   return cache.canvas;
