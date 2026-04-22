@@ -57,9 +57,7 @@ export default class DetectorScreenNode extends Node {
       .close();
 
     this.addChild( new Path( shape, {
-      fill: QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty,
-      stroke: '#333',
-      lineWidth: 1
+      fill: QuantumWaveInterferenceColors.detectorScreenBackgroundColorProperty
     } ) );
 
     this.canvasNode = new DetectorScreenCanvasNode( sceneProperty, textureRenderer, SCREEN_WIDTH, SCREEN_HEIGHT + SKEW );
