@@ -19,13 +19,13 @@ import TProperty from '../../../../axon/js/TProperty.js';
 import TinyProperty from '../../../../axon/js/TinyProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
-import { linear } from '../../../../dot/js/util/linear.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import { getViewSlitLayout, SLIT_VIEW_HEIGHT } from '../model/getViewSlitLayout.js';
 import { type ObstacleType } from '../model/ObstacleType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
@@ -36,12 +36,8 @@ const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const BARRIER_VIEW_WIDTH = 12;
 const CORNER_RADIUS = 0;
 const BARRIER_FILL = '#939393';
-const SLIT_VIEW_HEIGHT = 22;
 const ARROW_WIDTH = 40;
 const WAVE_REGION_FILL_INSET = 0.5;
-
-const MIN_VIEW_SEPARATION = 40;
-const MAX_VIEW_SEPARATION = 220;
 
 const DETECTOR_OVERLAY_PADDING = 4;
 const DETECTOR_OVERLAY_ALPHA = 0.4;
@@ -165,9 +161,12 @@ export default class DoubleSlitNode extends Node {
           return;
         }
 
-        const separationFraction = ( slitSeparation - slitSeparationRange.min ) /
-                                   ( slitSeparationRange.max - slitSeparationRange.min );
-        const viewSeparation = linear( 0, 1, MIN_VIEW_SEPARATION, MAX_VIEW_SEPARATION, separationFraction );
+        const { viewSlitSep: viewSeparation } = getViewSlitLayout(
+          slitSeparation,
+          slitSeparationRange.min,
+          slitSeparationRange.max,
+          WAVE_REGION_HEIGHT
+        );
 
         const barrierX = slitPositionFraction * WAVE_REGION_WIDTH - BARRIER_VIEW_WIDTH / 2;
         const centerY = WAVE_REGION_HEIGHT / 2;
