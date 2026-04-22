@@ -45,9 +45,8 @@ export const MAX_HITS = 25000;
 const MAX_SNAPSHOTS = 4;
 const DEFAULT_PHOTON_WAVELENGTH_NM = 650;
 
-// Number of wavelengths visible across the region at the default wavelength, used to size each
-// scene's physical region. Photons end up at ~10 μm, matter waves scale down to nm-scale regions.
-const DEFAULT_DISPLAY_WAVELENGTHS = 15;
+// All scenes use an 8 μm physical region so the scale bar shows "1 μm".
+const REGION_SIZE = 8e-6;
 
 type SourceTypeConfig = {
   particleMass: number;
@@ -163,16 +162,12 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.particleMass = config.particleMass;
     this.velocityRange = new Range( ...config.velocityRange );
     this.slitSeparationRange = new Range( ...config.slitSeparationRange );
+    this.regionWidth = REGION_SIZE;
+    this.regionHeight = REGION_SIZE;
 
     this.defaultEffectiveWavelength = this.sourceType === 'photons' ?
                                       DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
                                       QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * config.defaultVelocity );
-
-    // Size the region so that ~DEFAULT_DISPLAY_WAVELENGTHS wavelengths are visible at the default
-    // wavelength. For photons this is ~9.75 μm; for matter waves it auto-scales down to the nm range.
-    const regionSize = this.defaultEffectiveWavelength * DEFAULT_DISPLAY_WAVELENGTHS;
-    this.regionWidth = regionSize;
-    this.regionHeight = regionSize;
     this.defaultWaveSpeed = this.sourceType === 'photons' ? 3e8 : config.defaultVelocity;
 
     this.hits = [];
@@ -275,9 +270,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   protected syncSolverParameters(): void {
     const effectiveWavelength = this.getEffectiveWavelength();
+    const baseDisplayWavelengths = this.waveSolver.defaultDisplayWavelengths;
     const displayWavelengths = effectiveWavelength > 0 ?
-                               this.regionWidth / effectiveWavelength :
-                               this.waveSolver.defaultDisplayWavelengths;
+                               baseDisplayWavelengths * ( this.defaultEffectiveWavelength / effectiveWavelength ) :
+                               baseDisplayWavelengths;
     this.waveSolver.setParameters( {
       wavelength: effectiveWavelength,
       waveSpeed: this.getEffectiveWaveSpeed(),

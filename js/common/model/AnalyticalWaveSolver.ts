@@ -328,10 +328,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const sourceSpacing = displaySlitWidth / N_HUYGENS_SOURCES;
     const displayLambda = this.regionWidth / this.displayWavelengths;
 
-    // Phase coherence distance: over this distance, the per-source phase transitions from
-    // plane-wave (all sources share the same phase) to cylindrical (phase = k*r per source).
-    // This prevents a discontinuity at the barrier while allowing diffraction to develop.
-    const phaseCoherenceDistance = 2 * displayLambda;
+    // Fresnel distance: near the barrier, blend from geometric optics to full diffraction
+    const fresnelDistance = displaySlitWidth * displaySlitWidth / displayLambda;
 
     const taperWidth = EDGE_TAPER_CELLS * dx;
 
@@ -374,6 +372,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             amplitudeField[ idx + 1 ] = 0;
           }
           else {
+            const dxField = x - barrierX;
 
             // Compute each slit's Huygens contribution separately to preserve phase
             let topRe = 0; let topIm = 0; let bottomRe = 0; let bottomIm = 0;
@@ -381,8 +380,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             if ( this.isTopSlitOpen ) {
               this.computeSlitContribution(
                 k, omega, barrierX, topSlitY, sourceSpacing, huygensNorm,
-                x, y, sphericalFrontDist, trailingPastBarrier, taperWidth,
-                phaseCoherenceDistance
+                x, y, sphericalFrontDist, trailingPastBarrier, taperWidth
               );
               topRe = this.scratchRe;
               topIm = this.scratchIm;
@@ -391,8 +389,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             if ( this.isBottomSlitOpen ) {
               this.computeSlitContribution(
                 k, omega, barrierX, bottomSlitY, sourceSpacing, huygensNorm,
-                x, y, sphericalFrontDist, trailingPastBarrier, taperWidth,
-                phaseCoherenceDistance
+                x, y, sphericalFrontDist, trailingPastBarrier, taperWidth
               );
               bottomRe = this.scratchRe;
               bottomIm = this.scratchIm;
@@ -435,8 +432,32 @@ export default class AnalyticalWaveSolver implements WaveSolver {
               huygensIm = 0;
             }
 
-            amplitudeField[ idx ] = huygensRe;
-            amplitudeField[ idx + 1 ] = huygensIm;
+            // Fresnel blend: near the barrier, smoothly transition from geometric optics
+            // (plane wave in slit projection) to full Huygens diffraction field.
+            const blendFactor = Math.min( 1.0, dxField / fresnelDistance );
+
+            if ( blendFactor >= 1.0 ) {
+              amplitudeField[ idx ] = huygensRe;
+              amplitudeField[ idx + 1 ] = huygensIm;
+            }
+            else {
+              // Geometric optics: plane wave within slit projection, zero in shadow
+              const inTopSlitProjection = this.isTopSlitOpen && Math.abs( y - topSlitY ) < displaySlitWidth / 2;
+              const inBottomSlitProjection = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < displaySlitWidth / 2;
+              const inProjection = inTopSlitProjection || inBottomSlitProjection;
+
+              if ( inProjection ) {
+                const geoPhase = k * x - omega * this.time;
+                const geoRe = Math.cos( geoPhase );
+                const geoIm = Math.sin( geoPhase );
+                amplitudeField[ idx ] = ( 1 - blendFactor ) * geoRe + blendFactor * huygensRe;
+                amplitudeField[ idx + 1 ] = ( 1 - blendFactor ) * geoIm + blendFactor * huygensIm;
+              }
+              else {
+                amplitudeField[ idx ] = blendFactor * huygensRe;
+                amplitudeField[ idx + 1 ] = blendFactor * huygensIm;
+              }
+            }
           }
         }
       }
@@ -448,25 +469,19 @@ export default class AnalyticalWaveSolver implements WaveSolver {
    * treated as a line-segment source. Each source contributes with bounded amplitude that
    * equals 1/N near the slit (so the sum = 1, continuous with the incoming plane wave)
    * and transitions to huygensNorm/sqrt(r) in the far field (proper cylindrical spreading).
-   *
-   * Near the barrier, per-source phases are blended from the plane-wave phase (k*dxField,
-   * identical for all sources) toward the cylindrical phase (k*r, per-source path length).
-   * This maintains amplitude continuity with the incoming plane wave at the barrier face
-   * while allowing diffraction to develop over the phaseCoherenceDistance.
+   * The phase includes k*barrierX for continuity with the pre-barrier plane wave.
    */
   private computeSlitContribution(
     k: number, omega: number,
     barrierX: number, slitCenterY: number, sourceSpacing: number, huygensNorm: number,
     fieldX: number, fieldY: number,
     wavefrontDist: number, trailingDist: number,
-    taperWidth: number,
-    phaseCoherenceDistance: number
+    taperWidth: number
   ): void {
     let sumRe = 0;
     let sumIm = 0;
     const dxField = fieldX - barrierX;
     const nearFieldAmplitude = 1.0 / N_HUYGENS_SOURCES;
-    const phaseBlend = Math.min( 1.0, dxField / phaseCoherenceDistance );
 
     for ( let s = 0; s < N_HUYGENS_SOURCES; s++ ) {
       const ySource = slitCenterY + ( s - ( N_HUYGENS_SOURCES - 1 ) / 2 ) * sourceSpacing;
@@ -479,8 +494,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
       const taper = computeEdgeTaper( wavefrontDist - r, r - trailingDist, taperWidth );
       const amplitude = Math.min( nearFieldAmplitude, huygensNorm / Math.sqrt( r ) ) * taper;
-      const effectivePathLength = ( 1 - phaseBlend ) * dxField + phaseBlend * r;
-      const phase = k * ( barrierX + effectivePathLength ) - omega * this.time;
+      const phase = k * ( barrierX + r ) - omega * this.time;
       sumRe += amplitude * Math.cos( phase );
       sumIm += amplitude * Math.sin( phase );
     }

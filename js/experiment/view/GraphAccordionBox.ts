@@ -4,7 +4,7 @@
  * GraphAccordionBox shows a graph below the front-facing detector screen. In Average Intensity mode,
  * it displays a smooth intensity curve vs horizontal position. In Hits mode,
  * it displays a histogram of hit counts binned into 100 bins.
- * A vertical PlusMinusZoomButtonGroup to the right controls the y-axis zoom level.
+ * A MagnifyingGlassZoomButtonGroup to the right controls the y-axis zoom level.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -19,8 +19,8 @@ import { linear } from '../../../../dot/js/util/linear.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import MagnifyingGlassZoomButtonGroup from '../../../../scenery-phet/js/MagnifyingGlassZoomButtonGroup.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -39,7 +39,6 @@ const CHART_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const CHART_HEIGHT = 103;
 const CHART_Y_AXIS_GUTTER_WIDTH = 24;
 const ZOOM_BUTTON_GROUP_GAP = 4;
-const ZOOM_BUTTON_GROUP_RIGHT_PADDING = 1;
 const ACCORDION_CONTENT_X_MARGIN = 4;
 
 // Number of bins for the histogram in Hits mode
@@ -62,7 +61,7 @@ export default class GraphAccordionBox extends Node {
   private readonly zoomLevelProperty: NumberProperty;
 
   private readonly chartBackground: Rectangle;
-  private readonly zoomButtonGroup: PlusMinusZoomButtonGroup;
+  private readonly zoomButtonGroup: MagnifyingGlassZoomButtonGroup;
 
   public constructor( sceneModel: SceneModel, providedOptions: GraphAccordionBoxOptions ) {
     const options = optionize<GraphAccordionBoxOptions, SelfOptions, NodeOptions>()(
@@ -197,14 +196,12 @@ export default class GraphAccordionBox extends Node {
 
     // Zoom buttons are part of the accordion content so they remain under the accordion heading in the PDOM and are
     // only available when the accordion is expanded.
-    this.zoomButtonGroup = new PlusMinusZoomButtonGroup( this.zoomLevelProperty, {
+    this.zoomButtonGroup = new MagnifyingGlassZoomButtonGroup( this.zoomLevelProperty, {
       orientation: 'vertical',
-      spacing: 0,
-      iconOptions: {
-        scale: 1.2
+      spacing: 8,
+      buttonOptions: {
+        baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty
       },
-      touchAreaXDilation: 5,
-      touchAreaYDilation: 5,
       zoomInButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
         accessibleContextResponse: zoomLevelResponseProperty
@@ -213,21 +210,16 @@ export default class GraphAccordionBox extends Node {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
         accessibleContextResponse: zoomLevelResponseProperty
       },
+      magnifyingGlassNodeOptions: {
+        glassRadius: 8
+      },
       tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' )
     } );
     this.zoomButtonGroup.left = chartNode.right + ZOOM_BUTTON_GROUP_GAP;
     this.zoomButtonGroup.top = chartNode.top;
 
-    const zoomButtonRightSpacer = new Rectangle( 0, 0, ZOOM_BUTTON_GROUP_RIGHT_PADDING, this.zoomButtonGroup.height, {
-      fill: 'rgba( 0, 0, 0, 0 )',
-      stroke: null,
-      pickable: false,
-      left: this.zoomButtonGroup.right,
-      top: this.zoomButtonGroup.top
-    } );
-
     const chartAndZoomNode = new Node( {
-      children: [ chartNode, this.zoomButtonGroup, zoomButtonRightSpacer ]
+      children: [ chartNode, this.zoomButtonGroup ]
     } );
     chartAndZoomNode.pdomOrder = [ chartNode, this.zoomButtonGroup ];
 

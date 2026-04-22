@@ -1,9 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Returns the MeasuringTapeUnits for a given scene, converting from physical region width to a
- * view-pixel multiplier. Photon regions are μm-scale so the tape reads in μm; matter-wave regions
- * are nm-scale so the tape reads in nm.
+ * Returns the MeasuringTapeUnits for a given scene, converting from physical region width to
+ * view-pixel multiplier with μm unit label.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -14,9 +13,8 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 const WAVE_REGION_VIEW_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 
 export default function getMeasuringTapeUnits( regionWidth: number ): MeasuringTapeUnits {
-  const useNanometers = regionWidth < 1e-6;
   return {
-    name: useNanometers ? 'nm' : 'μm',
-    multiplier: regionWidth / WAVE_REGION_VIEW_WIDTH * ( useNanometers ? 1e9 : 1e6 )
+    name: 'μm',
+    multiplier: regionWidth / WAVE_REGION_VIEW_WIDTH * 1e6
   };
 }

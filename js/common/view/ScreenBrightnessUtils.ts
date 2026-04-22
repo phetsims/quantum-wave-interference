@@ -12,6 +12,7 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import { linear } from '../../../../dot/js/util/linear.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
+import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type SourceType } from '../model/SourceType.js';
 
@@ -130,11 +131,11 @@ export const getSceneRGB = ( sourceType: SourceType, wavelength: number ): { r: 
 };
 
 /**
- * Returns the detector screen background RGB. Black so that the intensity interpolation
- * goes from black to the wavelength color, matching the wave visualization's color scheme.
+ * Returns the shared neutral background RGB used by the wave region and detector screen.
  */
 export const getWaveAndDetectorBackgroundRGB = (): { r: number; g: number; b: number } => {
-  return { r: 0, g: 0, b: 0 };
+  const color = QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty.value;
+  return { r: color.red, g: color.green, b: color.blue };
 };
 
 /**
@@ -145,9 +146,9 @@ export const getInterpolatedRGBFillStyle = (
   startRGB: { r: number; g: number; b: number },
   endRGB: { r: number; g: number; b: number },
   fraction: number
-): string => {
+): string | null => {
   if ( fraction < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
-    return `rgb(${startRGB.r},${startRGB.g},${startRGB.b})`;
+    return null;
   }
 
   const clampedFraction = clamp( fraction, 0, 1 );

@@ -46,7 +46,6 @@ type StringsType = {
   'wavelengthNanometersPatternStringProperty': LocalizedStringProperty;
   'valueMillimetersPatternStringProperty': LocalizedStringProperty;
   'valueMicrometersPatternStringProperty': LocalizedStringProperty;
-  'valueNanometersPatternStringProperty': LocalizedStringProperty;
   'valueMetersPatternStringProperty': LocalizedStringProperty;
   'rulerUnitsStringProperty': LocalizedStringProperty;
   'slitsLabelPatternStringProperty': LocalizedStringProperty;

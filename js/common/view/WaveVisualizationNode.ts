@@ -20,6 +20,7 @@ import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
@@ -78,16 +79,10 @@ const formatDistance = ( meters: number ): string => {
       value: mm >= 10 ? roundSymmetric( mm ) : parseFloat( mm.toPrecision( 2 ) )
     } );
   }
-  else if ( meters >= 1e-6 ) {
+  else {
     const um = meters * 1e6;
     return StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value, {
       value: um >= 10 ? roundSymmetric( um ) : parseFloat( um.toPrecision( 2 ) )
-    } );
-  }
-  else {
-    const nm = meters * 1e9;
-    return StringUtils.fillIn( QuantumWaveInterferenceFluent.valueNanometersPatternStringProperty.value, {
-      value: nm >= 10 ? roundSymmetric( nm ) : parseFloat( nm.toPrecision( 2 ) )
     } );
   }
 };
@@ -108,7 +103,7 @@ export default class WaveVisualizationNode extends Node {
     const height = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 
     const backgroundRect = new Rectangle( 0, 0, width, height, {
-      fill: WaveVisualizationCanvasNode.BACKGROUND_COLOR,
+      fill: QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty,
       stroke: 'white',
       lineWidth: 1
     } );
@@ -149,8 +144,7 @@ export default class WaveVisualizationNode extends Node {
     Multilink.multilink(
       [ sceneProperty,
         QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty,
-        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty,
-        QuantumWaveInterferenceFluent.valueNanometersPatternStringProperty ],
+        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty ],
       scene => {
         const { distanceMeters, barPixels } = computeNiceScale( scene.regionWidth, width );
         bar.setX2( barPixels );

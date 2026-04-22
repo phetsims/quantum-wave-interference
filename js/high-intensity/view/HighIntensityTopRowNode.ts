@@ -41,7 +41,6 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
 import { type ObstacleType } from '../../common/model/ObstacleType.js';
 import { type SourceType } from '../../common/model/SourceType.js';
-import WaveVisualizationCanvasNode from '../../common/view/WaveVisualizationCanvasNode.js';
 import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 
 const EMITTER_SCALE = 1.5;
@@ -56,6 +55,7 @@ const MINI_SYMBOL_SCALE = 0.5;
 const MINI_SYMBOL_SQUARE_SIZE = 22 * MINI_SYMBOL_SCALE;
 const MINI_SYMBOL_DETECTOR_WIDTH = 8 * MINI_SYMBOL_SCALE;
 const MINI_SYMBOL_SKEW = 3 * MINI_SYMBOL_SCALE;
+const MINI_SYMBOL_STROKE_WIDTH = 0.5;
 const MINI_BARRIER_FILL = '#939393';
 const MINI_BARRIER_EDGE_INSET = 0.5;
 const MINI_BARRIER_WIDTH = Math.max(
@@ -141,7 +141,9 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     // above the main wave region so the callout lines form a symmetric "zoom in" frustum.
     // The detector is z-ordered behind the square and overlaps it, mirroring the main layout.
     const miniSquare = new Rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE, {
-      fill: WaveVisualizationCanvasNode.BACKGROUND_COLOR
+      fill: QuantumWaveInterferenceColors.waveAndDetectorBackgroundColorProperty,
+      stroke: 'white',
+      lineWidth: MINI_SYMBOL_STROKE_WIDTH
     } );
 
     const miniDetectorOverlap = 2;
@@ -152,7 +154,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
       .lineTo( 0, MINI_SYMBOL_SQUARE_SIZE + MINI_SYMBOL_SKEW )
       .close();
     const miniDetector = new Path( miniDetectorShape, {
-      fill: WaveVisualizationCanvasNode.BACKGROUND_COLOR
+      fill: QuantumWaveInterferenceColors.detectorScreenBackgroundColorProperty
     } );
     miniDetector.left = miniSquare.right - miniDetectorOverlap;
     miniDetector.centerY = miniSquare.centerY;

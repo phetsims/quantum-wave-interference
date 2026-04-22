@@ -227,7 +227,6 @@ const QuantumWaveInterferenceFluent = {
   wavelengthNanometersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'wavelengthNanometersPatternStringProperty' ),
   valueMillimetersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueMillimetersPatternStringProperty' ),
   valueMicrometersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueMicrometersPatternStringProperty' ),
-  valueNanometersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueNanometersPatternStringProperty' ),
   valueMetersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueMetersPatternStringProperty' ),
   rulerUnitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerUnitsStringProperty' ),
   slitsLabelPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitsLabelPatternStringProperty' ),
