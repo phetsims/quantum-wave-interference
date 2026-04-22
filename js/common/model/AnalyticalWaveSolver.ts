@@ -27,6 +27,21 @@ const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS
 const DISPLAY_TRAVERSAL_TIME = 2.0;
 const N_HUYGENS_SOURCES = 28;
 
+// Anti-aliasing taper at wavefront/trailing edges, in grid cells. Purely cosmetic — avoids a
+// hard 0→1 step that aliases in the view. Kept small and independent of wavelength.
+const EDGE_TAPER_CELLS = 4;
+
+const computeEdgeTaper = ( distFromFront: number, distFromTrailing: number, taperWidth: number ): number => {
+  let taper = 1;
+  if ( distFromFront < taperWidth ) {
+    taper *= 0.5 * ( 1 - Math.cos( Math.PI * distFromFront / taperWidth ) );
+  }
+  if ( distFromTrailing < taperWidth ) {
+    taper *= 0.5 * ( 1 - Math.cos( Math.PI * distFromTrailing / taperWidth ) );
+  }
+  return taper;
+};
+
 export default class AnalyticalWaveSolver implements WaveSolver {
 
   public readonly gridWidth: number;
@@ -265,6 +280,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
   private computePlaneWaveField( k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number ): void {
     const { gridWidth, gridHeight, amplitudeField } = this;
+    const taperWidth = EDGE_TAPER_CELLS * dx;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = ix * dx;
@@ -278,9 +294,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         continue;
       }
 
+      const taper = computeEdgeTaper( wavefrontX - x, x - trailingEdgeX, taperWidth );
       const phase = k * x - omega * this.time;
-      const re = Math.cos( phase );
-      const im = Math.sin( phase );
+      const re = taper * Math.cos( phase );
+      const im = taper * Math.sin( phase );
 
       for ( let iy = 0; iy < gridHeight; iy++ ) {
         const idx = ( iy * gridWidth + ix ) * 2;
@@ -314,6 +331,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     // Fresnel distance: near the barrier, blend from geometric optics to full diffraction
     const fresnelDistance = displaySlitWidth * displaySlitWidth / displayLambda;
 
+    const taperWidth = EDGE_TAPER_CELLS * dx;
+
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = ix * dx;
 
@@ -327,9 +346,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             amplitudeField[ idx + 1 ] = 0;
           }
           else {
+            const taper = computeEdgeTaper( wavefrontX - x, x - trailingEdgeX, taperWidth );
             const phase = k * x - omega * this.time;
-            amplitudeField[ idx ] = Math.cos( phase );
-            amplitudeField[ idx + 1 ] = Math.sin( phase );
+            amplitudeField[ idx ] = taper * Math.cos( phase );
+            amplitudeField[ idx + 1 ] = taper * Math.sin( phase );
           }
         }
         else if ( ix === barrierIx ) {
@@ -360,7 +380,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             if ( this.isTopSlitOpen ) {
               this.computeSlitContribution(
                 k, omega, barrierX, topSlitY, sourceSpacing, huygensNorm,
-                x, y, sphericalFrontDist, trailingPastBarrier
+                x, y, sphericalFrontDist, trailingPastBarrier, taperWidth
               );
               topRe = this.scratchRe;
               topIm = this.scratchIm;
@@ -369,7 +389,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             if ( this.isBottomSlitOpen ) {
               this.computeSlitContribution(
                 k, omega, barrierX, bottomSlitY, sourceSpacing, huygensNorm,
-                x, y, sphericalFrontDist, trailingPastBarrier
+                x, y, sphericalFrontDist, trailingPastBarrier, taperWidth
               );
               bottomRe = this.scratchRe;
               bottomIm = this.scratchIm;
@@ -455,7 +475,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     k: number, omega: number,
     barrierX: number, slitCenterY: number, sourceSpacing: number, huygensNorm: number,
     fieldX: number, fieldY: number,
-    wavefrontDist: number, trailingDist: number
+    wavefrontDist: number, trailingDist: number,
+    taperWidth: number
   ): void {
     let sumRe = 0;
     let sumIm = 0;
@@ -471,7 +492,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         continue;
       }
 
-      const amplitude = Math.min( nearFieldAmplitude, huygensNorm / Math.sqrt( r ) );
+      const taper = computeEdgeTaper( wavefrontDist - r, r - trailingDist, taperWidth );
+      const amplitude = Math.min( nearFieldAmplitude, huygensNorm / Math.sqrt( r ) ) * taper;
       const phase = k * ( barrierX + r ) - omega * this.time;
       sumRe += amplitude * Math.cos( phase );
       sumIm += amplitude * Math.sin( phase );
