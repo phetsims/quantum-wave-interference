@@ -27,9 +27,9 @@ import Snapshot from './Snapshot.js';
 import type BaseSceneModel from './BaseSceneModel.js';
 
 const NOMINAL_DT = 1 / 60;
-const NORMAL_TIME_SPEED_FACTOR = 0.48;
-const SLOW_TIME_SPEED_FACTOR = NORMAL_TIME_SPEED_FACTOR * 0.5;
-const FAST_TIME_SPEED_FACTOR = NORMAL_TIME_SPEED_FACTOR * 2;
+const SLOW_TIME_SPEED_FACTOR = 0.25;
+const NORMAL_TIME_SPEED_FACTOR = 0.5;
+const FAST_TIME_SPEED_FACTOR = 1.25;
 
 type BaseScreenModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 

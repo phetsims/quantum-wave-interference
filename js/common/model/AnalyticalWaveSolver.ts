@@ -14,6 +14,7 @@
  */
 
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -22,7 +23,7 @@ import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js
 const DEFAULT_GRID_WIDTH = 200;
 const DEFAULT_GRID_HEIGHT = 200;
 
-const DISPLAY_WAVELENGTHS = 15;
+const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
 const DISPLAY_TRAVERSAL_TIME = 2.0;
 const N_HUYGENS_SOURCES = 28;
 
@@ -124,6 +125,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         this.detectorAccumulator[ iy ] += this.detectorDistribution[ iy ];
       }
       this.detectorAccumulatorCount++;
+    }
+    else if ( this.detectorAccumulatorCount > 0 ) {
+      this.detectorAccumulator.fill( 0 );
+      this.detectorAccumulatorCount = 0;
     }
   }
 

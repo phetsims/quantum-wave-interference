@@ -47,6 +47,9 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   public readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
   private readonly _isWaveVisibleProperty: BooleanProperty;
 
+  // Scales the wave amplitude for visualization; sqrt(intensity) so that displayed |A|² ∝ intensity
+  public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number>;
+
   private hitAccumulator: number;
 
   public constructor( providedOptions: HighIntensitySceneModelOptions ) {
@@ -61,6 +64,8 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       range: new Range( 0, 1 ),
       tandem: tandem.createTandem( 'intensityProperty' )
     } );
+
+    this.waveAmplitudeScaleProperty = new DerivedProperty( [ this.intensityProperty ], intensity => Math.sqrt( intensity ) );
 
     this.slitConfigurationProperty = new StringUnionProperty<SlitConfiguration>( 'bothOpen', {
       validValues: SlitConfigurationValues,

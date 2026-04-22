@@ -20,6 +20,7 @@ type WaveVisualizableScene = {
   readonly waveSolver: WaveSolver;
   readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
+  readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number>;
 };
 
 export type { WaveVisualizableScene };

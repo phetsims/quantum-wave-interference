@@ -135,14 +135,15 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
     }
 
     const rgb = this.rgb;
+    const amplitudeScale = scene.waveAmplitudeScaleProperty.value;
 
     for ( let gy = 0; gy < gridHeight; gy++ ) {
       const rowOffset = gy * gridWidth * 2;
 
       for ( let gx = 0; gx < gridWidth; gx++ ) {
         const fieldIdx = rowOffset + gx * 2;
-        const re = amplitudeField[ fieldIdx ];
-        const im = amplitudeField[ fieldIdx + 1 ];
+        const re = amplitudeField[ fieldIdx ] * amplitudeScale;
+        const im = amplitudeField[ fieldIdx + 1 ] * amplitudeScale;
 
         if ( isPhotons ) {
           if ( displayMode === 'timeAveragedIntensity' ) {
