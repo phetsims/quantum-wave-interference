@@ -78,10 +78,16 @@ const formatDistance = ( meters: number ): string => {
       value: mm >= 10 ? roundSymmetric( mm ) : parseFloat( mm.toPrecision( 2 ) )
     } );
   }
-  else {
+  else if ( meters >= 1e-6 ) {
     const um = meters * 1e6;
     return StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value, {
       value: um >= 10 ? roundSymmetric( um ) : parseFloat( um.toPrecision( 2 ) )
+    } );
+  }
+  else {
+    const nm = meters * 1e9;
+    return StringUtils.fillIn( QuantumWaveInterferenceFluent.valueNanometersPatternStringProperty.value, {
+      value: nm >= 10 ? roundSymmetric( nm ) : parseFloat( nm.toPrecision( 2 ) )
     } );
   }
 };
@@ -143,7 +149,8 @@ export default class WaveVisualizationNode extends Node {
     Multilink.multilink(
       [ sceneProperty,
         QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty,
-        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty ],
+        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty,
+        QuantumWaveInterferenceFluent.valueNanometersPatternStringProperty ],
       scene => {
         const { distanceMeters, barPixels } = computeNiceScale( scene.regionWidth, width );
         bar.setX2( barPixels );

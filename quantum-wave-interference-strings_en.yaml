@@ -22,6 +22,7 @@ particleSpeedMeterPerSecondPattern: '{{value}} m/s'
 wavelengthNanometersPattern:        '{{value}} nm'
 valueMillimetersPattern:            '{{value}} mm'
 valueMicrometersPattern:            '{{value}} μm'
+valueNanometersPattern:             '{{value}} nm'
 valueMetersPattern:                 '{{value}} m'
 rulerUnits:                         mm
 slitsLabelPattern:                  'Slits: {{setting}}'
