@@ -107,10 +107,11 @@ export default class ExperimentScreenView extends ScreenView {
     );
 
     // Top-row stacking order (back to front):
-    // double slit -> fan beam -> detector/indicator -> incident beam -> emitter.
+    // fan beam -> double slit -> detector shadow -> incident beam -> detector/indicator -> emitter.
     // The incident beam (emitter to slit) is in front of the double slit but behind the laser.
-    this.addChild( overheadDoubleSlitNode );
     this.addChild( overheadBeamNode );
+    this.addChild( overheadDoubleSlitNode );
+    this.addChild( overheadBeamNode.detectorScreenShadowNode );
     this.addChild( overheadBeamNode.emitterBeamNode );
     this.addChild( overheadDetectorScreenNode );
     this.addChild( whichPathDetectorNode );

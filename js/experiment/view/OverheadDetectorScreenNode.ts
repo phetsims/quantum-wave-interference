@@ -221,6 +221,15 @@ export default class OverheadDetectorScreenNode extends Node {
   }
 
   /**
+   * Returns the detector screen parallelogram right x-position corresponding to the maximum screen distance for the
+   * active scene. Used for keeping the overhead fan-beam graphic static in width while the detector screen itself
+   * moves.
+   */
+  public getMaxDistanceParallelogramRight(): number {
+    return this.getMaxDistanceParallelogramLeft() + DETECTOR_DX;
+  }
+
+  /**
    * Recomputes the detector screen position using the current slit position and active scene distance.
    */
   public updatePosition(): void {
