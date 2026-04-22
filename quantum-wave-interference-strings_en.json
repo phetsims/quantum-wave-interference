@@ -71,6 +71,9 @@
   "valueMicrometersPattern": {
     "value": "{{value}} μm"
   },
+  "valueNanometersPattern": {
+    "value": "{{value}} nm"
+  },
   "valueMetersPattern": {
     "value": "{{value}} m"
   },
