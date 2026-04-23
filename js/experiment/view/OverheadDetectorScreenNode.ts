@@ -137,7 +137,9 @@ export default class OverheadDetectorScreenNode extends Node {
       detectorScreenLabel.centerX = this.parallelogramNode.centerX;
       detectorScreenLabel.top = LABEL_Y;
 
-      const spanY = Math.max( this.doubleSlitParallelogramNode.bottom, this.parallelogramNode.bottom ) + 12;
+      // Keep the slit-to-screen distance annotation at the lowest vertical position it reaches when the overhead
+      // detector is fully expanded, so zooming the front-facing detector screen does not shift the annotation.
+      const spanY = Math.max( this.doubleSlitParallelogramNode.bottom, this.getFullParallelogramBottom() ) + 12;
       const leftX = this.doubleSlitParallelogramNode.centerX;
       const rightX = this.parallelogramNode.centerX;
 
