@@ -326,11 +326,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     const huygensNorm = 0.5 * Math.sqrt( L ) / N_HUYGENS_SOURCES;
 
     const sourceSpacing = displaySlitWidth / N_HUYGENS_SOURCES;
-    const displayLambda = this.regionWidth / this.displayWavelengths;
-
-    // Fresnel distance: near the barrier, blend from geometric optics to full diffraction
-    const fresnelDistance = displaySlitWidth * displaySlitWidth / displayLambda;
-
     const taperWidth = EDGE_TAPER_CELLS * dx;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
@@ -372,8 +367,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
             amplitudeField[ idx + 1 ] = 0;
           }
           else {
-            const dxField = x - barrierX;
-
             // Compute each slit's Huygens contribution separately to preserve phase
             let topRe = 0; let topIm = 0; let bottomRe = 0; let bottomIm = 0;
 
@@ -432,32 +425,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
               huygensIm = 0;
             }
 
-            // Fresnel blend: near the barrier, smoothly transition from geometric optics
-            // (plane wave in slit projection) to full Huygens diffraction field.
-            const blendFactor = Math.min( 1.0, dxField / fresnelDistance );
-
-            if ( blendFactor >= 1.0 ) {
-              amplitudeField[ idx ] = huygensRe;
-              amplitudeField[ idx + 1 ] = huygensIm;
-            }
-            else {
-              // Geometric optics: plane wave within slit projection, zero in shadow
-              const inTopSlitProjection = this.isTopSlitOpen && Math.abs( y - topSlitY ) < displaySlitWidth / 2;
-              const inBottomSlitProjection = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < displaySlitWidth / 2;
-              const inProjection = inTopSlitProjection || inBottomSlitProjection;
-
-              if ( inProjection ) {
-                const geoPhase = k * x - omega * this.time;
-                const geoRe = Math.cos( geoPhase );
-                const geoIm = Math.sin( geoPhase );
-                amplitudeField[ idx ] = ( 1 - blendFactor ) * geoRe + blendFactor * huygensRe;
-                amplitudeField[ idx + 1 ] = ( 1 - blendFactor ) * geoIm + blendFactor * huygensIm;
-              }
-              else {
-                amplitudeField[ idx ] = blendFactor * huygensRe;
-                amplitudeField[ idx + 1 ] = blendFactor * huygensIm;
-              }
-            }
+            amplitudeField[ idx ] = huygensRe;
+            amplitudeField[ idx + 1 ] = huygensIm;
           }
         }
       }
