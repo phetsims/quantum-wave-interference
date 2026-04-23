@@ -10,7 +10,6 @@
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
-import Shape from '../../../../kite/js/Shape.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -21,7 +20,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import createParallelogramNode from './createParallelogramNode.js';
+import createParallelogramNode, { createParallelogramShape } from './createParallelogramNode.js';
 import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
@@ -48,15 +47,6 @@ export default class OverheadDetectorScreenNode extends Node {
   private currentScreenCenterX = 0;
   private readonly doubleSlitParallelogramNode: Node;
   private readonly updateDetectorScreenPosition: () => void;
-
-  private static createParallelogramShape( dx: number, dy: number, leftHeight: number ): Shape {
-    return new Shape()
-      .moveTo( 0, 0 )
-      .lineTo( 0, leftHeight )
-      .lineTo( dx, leftHeight + dy )
-      .lineTo( dx, dy )
-      .close();
-  }
 
   public constructor( sceneProperty: TReadOnlyProperty<SceneModel>, doubleSlitParallelogramNode: Node ) {
     super( { isDisposable: false } );
@@ -125,7 +115,7 @@ export default class OverheadDetectorScreenNode extends Node {
       const screenCenterX = slitCenterX + distance * pixelsPerMeter;
       this.currentScreenCenterX = screenCenterX;
 
-      this.parallelogramNode.shape = OverheadDetectorScreenNode.createParallelogramShape(
+      this.parallelogramNode.shape = createParallelogramShape(
         visibleDx,
         visibleDy,
         DETECTOR_LEFT_HEIGHT

@@ -9,9 +9,9 @@
  */
 
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import Shape from '../../../../kite/js/Shape.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import SceneModel from '../model/SceneModel.js';
+import { createParallelogramShape } from './createParallelogramNode.js';
 import getDetectorScreenTexture from './getDetectorScreenTexture.js';
 
 const FULL_SCALE_INDEX = 0;
@@ -38,12 +38,7 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
 
   private updateClipAndBounds(): void {
     this.canvasBounds = new Bounds2( 0, 0, this.dx, this.leftHeight + this.dy );
-    this.clipArea = new Shape()
-      .moveTo( 0, 0 )
-      .lineTo( 0, this.leftHeight )
-      .lineTo( this.dx, this.leftHeight + this.dy )
-      .lineTo( this.dx, this.dy )
-      .close();
+    this.clipArea = createParallelogramShape( this.dx, this.dy, this.leftHeight );
   }
 
   public setGeometry( dx: number, dy: number, leftHeight: number ): void {

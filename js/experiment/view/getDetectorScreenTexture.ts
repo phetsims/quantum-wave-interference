@@ -52,6 +52,10 @@ type SceneTextureCache = {
   hitSpriteParams: HitSpriteParams | null;
 };
 
+// Per-scene cache bucket keyed by detector screen scale index.
+// This is intentionally bounded: a scene can only create one cache per allowed zoom level
+// (currently SceneModel.DETECTOR_SCREEN_SCALE_OPTIONS.length, i.e. 4 entries).
+// Entries are reused when revisiting a zoom level rather than growing without limit.
 type SceneTextureCacheMap = Map<number, SceneTextureCache>;
 
 type HitSpriteParams = {
@@ -63,6 +67,14 @@ type HitSpriteParams = {
   glowRadius: number;
 };
 
+// Top-level cache keyed by SceneModel so each scene keeps its own detector textures.
+// WeakMap prevents the cache from extending a scene's lifetime: if a SceneModel becomes unreachable,
+// its entire per-scale cache map can be garbage collected with it.
+//
+// Cached textures should not go stale during normal use. Each SceneTextureCache registers listeners on the scene
+// that mark it dirty whenever rendering inputs change, and the texture is lazily repainted on the next request.
+// We also keep caches separate per scale index, so the front-facing and overhead detector views can reuse the same
+// rendering code without forcing each other to regenerate textures for unrelated zoom levels.
 const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCacheMap>();
 
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
