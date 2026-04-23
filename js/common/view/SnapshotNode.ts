@@ -37,7 +37,7 @@ import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, 
 
 const SNAPSHOT_WIDTH = 360;
 const SNAPSHOT_HEIGHT = 132;
-const CORNER_RADIUS = 6;
+const CORNER_RADIUS = 0;
 const METADATA_WIDTH = 165;
 const MAX_RENDERED_SNAPSHOT_HITS = 100000;
 
@@ -77,6 +77,9 @@ export type SnapshotNodeOptions = {
 
   // When provided, the full PDOM structure (section, heading, description paragraph, metadata list) is created.
   getDescription?: ( snapshot: Snapshot ) => string;
+
+  // Returns the fraction of the standard detector-screen width to use when displaying this snapshot.
+  getSnapshotDisplayWidthScale?: ( snapshot: Snapshot ) => number;
 };
 
 export default class SnapshotNode extends Node {
@@ -221,7 +224,10 @@ export default class SnapshotNode extends Node {
     );
 
     const canvasNode = new SnapshotCanvasNode(
-      snapshotProperty, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT
+      snapshotProperty,
+      SNAPSHOT_WIDTH,
+      SNAPSHOT_HEIGHT,
+      options.getSnapshotDisplayWidthScale
     );
     canvasNode.clipArea = background.shape!;
 
@@ -290,7 +296,19 @@ export default class SnapshotNode extends Node {
       children: parameterLabelsChildren
     } );
 
-    snapshotProperty.link( () => canvasNode.invalidatePaint() );
+    const updateSnapshotViewport = (): void => {
+      const snapshot = snapshotProperty.value;
+      const displayWidthScale = snapshot && options.getSnapshotDisplayWidthScale
+                                ? clamp( options.getSnapshotDisplayWidthScale( snapshot ), 0, 1 )
+                                : 1;
+      const displayWidth = SNAPSHOT_WIDTH * displayWidthScale;
+      const displayLeft = ( SNAPSHOT_WIDTH - displayWidth ) / 2;
+
+      background.setRect( displayLeft, 0, displayWidth, SNAPSHOT_HEIGHT );
+      canvasNode.clipArea = background.shape!;
+      canvasNode.invalidatePaint();
+    };
+    snapshotProperty.link( updateSnapshotViewport );
 
     const trashButton = new TrashButton( {
       listener: () => {
@@ -328,11 +346,23 @@ export default class SnapshotNode extends Node {
     metadataContent.left = 0;
     metadataContent.top = 0;
 
+    const detectorSnapshotSlot = new Node( {
+      children: [
+        new Rectangle( 0, 0, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT, {
+          fill: 'rgba( 0, 0, 0, 0 )',
+          stroke: null,
+          pickable: false
+        } ),
+        background,
+        canvasNode
+      ]
+    } );
+
     const contentBox = new HBox( {
       spacing: 10,
       align: 'top',
       children: [
-        new Node( { children: [ background, canvasNode ] } ),
+        detectorSnapshotSlot,
         metadataColumn
       ]
     } );
@@ -441,16 +471,19 @@ class SnapshotCanvasNode extends CanvasNode {
   private readonly snapshotProperty: TReadOnlyProperty<Snapshot | null>;
   private readonly intensityTextureCanvas: HTMLCanvasElement;
   private readonly intensityTextureContext: CanvasRenderingContext2D;
+  private readonly getSnapshotDisplayWidthScale: ( snapshot: Snapshot ) => number;
 
   public constructor(
     snapshotProperty: TReadOnlyProperty<Snapshot | null>,
     width: number,
-    height: number
+    height: number,
+    getSnapshotDisplayWidthScale?: ( snapshot: Snapshot ) => number
   ) {
     super( {
       canvasBounds: new Bounds2( 0, 0, width, height )
     } );
     this.snapshotProperty = snapshotProperty;
+    this.getSnapshotDisplayWidthScale = getSnapshotDisplayWidthScale || ( () => 1 );
 
     this.intensityTextureCanvas = document.createElement( 'canvas' );
     this.intensityTextureCanvas.width = ANALYTICAL_TEXTURE_WIDTH;
@@ -477,14 +510,22 @@ class SnapshotCanvasNode extends CanvasNode {
     }
   }
 
+  private getDisplayBounds( snapshot: Snapshot ): Bounds2 {
+    const displayWidthScale = clamp( this.getSnapshotDisplayWidthScale( snapshot ), 0, 1 );
+    const displayWidth = SNAPSHOT_WIDTH * displayWidthScale;
+    const displayLeft = ( SNAPSHOT_WIDTH - displayWidth ) / 2;
+    return new Bounds2( displayLeft, 0, displayLeft + displayWidth, SNAPSHOT_HEIGHT );
+  }
+
   private paintHits( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
     const hits = snapshot.hits;
     if ( hits.length === 0 ) {
       return;
     }
 
-    const width = SNAPSHOT_WIDTH;
-    const height = SNAPSHOT_HEIGHT;
+    const displayBounds = this.getDisplayBounds( snapshot );
+    const width = displayBounds.width;
+    const height = displayBounds.height;
     const displayGain = getHitsDisplayGain( snapshot.brightness );
     const brightnessFraction = getHitsBrightnessFraction( snapshot.brightness );
     const coreAlpha = getHitsCoreAlpha( brightnessFraction );
@@ -509,7 +550,7 @@ class SnapshotCanvasNode extends CanvasNode {
       context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${alpha})`;
       for ( let i = startIndex; i < hitCount; i++ ) {
         const hit = hits[ i ];
-        const viewX = ( ( hit.x + 1 ) / 2 ) * width;
+        const viewX = displayBounds.left + ( ( hit.x + 1 ) / 2 ) * width;
         const viewY = ( ( hit.y + 1 ) / 2 ) * height;
         context.beginPath();
         context.arc( viewX, viewY, radius, 0, Math.PI * 2 );
@@ -535,6 +576,7 @@ class SnapshotCanvasNode extends CanvasNode {
    */
   private paintCapturedIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
     const distribution = snapshot.intensityDistribution;
+    const displayBounds = this.getDisplayBounds( snapshot );
     const backgroundRGB = { r: 0, g: 0, b: 0 };
 
     const normalizedBrightness = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
@@ -548,16 +590,16 @@ class SnapshotCanvasNode extends CanvasNode {
                       : { r: 255, g: 255, b: 255 };
 
     const distributionLength = distribution.length;
-    for ( let x = 0; x < SNAPSHOT_WIDTH; x++ ) {
+    for ( let x = Math.floor( displayBounds.left ); x < Math.ceil( displayBounds.right ); x++ ) {
       const solverIndex = clamp(
-        Math.floor( ( x + 0.5 ) / SNAPSHOT_WIDTH * distributionLength ),
+        Math.floor( ( x - displayBounds.left + 0.5 ) / displayBounds.width * distributionLength ),
         0, distributionLength - 1
       );
       const intensityScale = distribution[ solverIndex ] * displayGain;
       const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, sourceRGB, intensityScale );
       if ( fillStyle ) {
         context.fillStyle = fillStyle;
-        context.fillRect( x, 0, 1, SNAPSHOT_HEIGHT );
+        context.fillRect( x, displayBounds.top, 1, displayBounds.height );
       }
     }
   }
@@ -575,6 +617,7 @@ class SnapshotCanvasNode extends CanvasNode {
       return;
     }
 
+    const displayBounds = this.getDisplayBounds( snapshot );
     const textureContext = this.intensityTextureContext;
     textureContext.clearRect( 0, 0, ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
 
@@ -616,7 +659,13 @@ class SnapshotCanvasNode extends CanvasNode {
 
     context.save();
     context.imageSmoothingEnabled = true;
-    context.drawImage( this.intensityTextureCanvas, 0, 0, SNAPSHOT_WIDTH, SNAPSHOT_HEIGHT );
+    context.drawImage(
+      this.intensityTextureCanvas,
+      displayBounds.left,
+      displayBounds.top,
+      displayBounds.width,
+      displayBounds.height
+    );
     context.restore();
   }
 }
