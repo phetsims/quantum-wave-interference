@@ -7,6 +7,7 @@
  */
 
 import { type AnalyticalWaveParameters, type ComplexValue, computeSampleIntensity, evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
+import { getFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_GRAY } from './AnalyticalWaveRasterizer.js';
 
 QUnit.module( 'AnalyticalModel' );
 
@@ -174,6 +175,22 @@ QUnit.test( 'zero-amplitude diffraction node is still a field sample, not ether'
   assert.ok( computeSampleIntensity( sample ) < 1e-24, 'single-slit sinc zero has negligible intensity' );
 } );
 
+QUnit.test( 'known limitation: Fraunhofer stitch is not aperture-continuous away from slit center', assert => {
+  const parameters = createPlaneParameters( {
+    waveNumber: 20 * Math.PI,
+    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
+  } );
+
+  // This documents the current far-field approximation limitation. Fresnel diffraction should
+  // replace this with a continuity assertion across x=barrierX inside the open aperture.
+  const yInsideTopApertureAwayFromCenter = -0.25 + 0.1;
+  const atAperture = evaluateAnalyticalSample( parameters, 1, yInsideTopApertureAwayFromCenter, 5 );
+  const justRightOfAperture = evaluateAnalyticalSample( parameters, 1 + 1e-6, yInsideTopApertureAwayFromCenter, 5 );
+  const discontinuity = Math.abs( computeSampleIntensity( atAperture ) - computeSampleIntensity( justRightOfAperture ) );
+
+  assert.ok( discontinuity > 0.5, 'current Fraunhofer near-aperture stitch has a measurable discontinuity' );
+} );
+
 QUnit.test( 'gaussian packet source moves and broadens analytically', assert => {
   const parameters: AnalyticalWaveParameters = {
     source: {
@@ -207,4 +224,91 @@ QUnit.test( 'gaussian packet source moves and broadens analytically', assert => 
     computeSampleIntensity( laterAtNewCenter ) < computeSampleIntensity( early ),
     'packet peak decreases as it spreads'
   );
+} );
+
+const appendRasterPreview = (
+  title: string,
+  width: number,
+  height: number,
+  pixels: Uint8ClampedArray,
+  statusCounts: Record<string, number>
+): void => {
+  let container = document.getElementById( 'analytical-wave-raster-previews' );
+  if ( !container ) {
+    container = document.createElement( 'div' );
+    container.id = 'analytical-wave-raster-previews';
+    container.style.cssText = 'padding: 12px; font: 12px sans-serif; background: #222; color: white;';
+    document.body.appendChild( container );
+
+    const heading = document.createElement( 'h2' );
+    heading.textContent = 'Analytical wave rasterizer previews';
+    heading.style.cssText = 'margin: 0 0 8px;';
+    container.appendChild( heading );
+  }
+
+  const preview = document.createElement( 'div' );
+  preview.style.cssText = 'display: inline-block; margin: 8px 16px 8px 0; vertical-align: top;';
+
+  const label = document.createElement( 'div' );
+  label.textContent = `${title} ${JSON.stringify( statusCounts )}`;
+  label.style.cssText = 'margin-bottom: 4px;';
+  preview.appendChild( label );
+
+  const canvas = document.createElement( 'canvas' );
+  canvas.width = width;
+  canvas.height = height;
+  canvas.style.cssText = 'width: 240px; height: 160px; image-rendering: pixelated; border: 1px solid #555;';
+  const context = canvas.getContext( '2d' )!;
+  const imageData = context.createImageData( width, height );
+  imageData.data.set( pixels );
+  context.putImageData( imageData, 0, 0 );
+  preview.appendChild( canvas );
+  container.appendChild( preview );
+};
+
+QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
+  const baseColor = { red: 255, green: 140, blue: 80 };
+  const coherentParameters = createPlaneParameters( {
+    obstacle: createDoubleSlitObstacle( { coherent: true } )
+  } );
+  const blockedParameters = createPlaneParameters( {
+    obstacle: createDoubleSlitObstacle( { topOpen: false, bottomOpen: false } )
+  } );
+
+  const coherentRaster = rasterizeAnalyticalWave( {
+    parameters: coherentParameters,
+    width: 80,
+    height: 48,
+    regionWidth: 2,
+    regionHeight: 1,
+    time: 4,
+    displayMode: 'timeAveragedIntensity',
+    baseColor: baseColor,
+    amplitudeScale: 1
+  } );
+  const blockedRaster = rasterizeAnalyticalWave( {
+    parameters: blockedParameters,
+    width: 80,
+    height: 48,
+    regionWidth: 2,
+    regionHeight: 1,
+    time: 4,
+    displayMode: 'timeAveragedIntensity',
+    baseColor: baseColor,
+    amplitudeScale: 1
+  } );
+
+  assert.ok( coherentRaster.statusCounts.field > 0, 'coherent raster has reached field pixels' );
+  assert.ok( coherentRaster.statusCounts.absorbed > 0, 'coherent raster distinguishes absorbed barrier pixels' );
+  assert.ok( blockedRaster.statusCounts.blocked > 0, 'blocked raster distinguishes downstream blocked pixels' );
+
+  const zeroFieldColor = getFieldSampleRGBA( { kind: 'field', components: [] }, 'timeAveragedIntensity', baseColor, 1 );
+  assert.notDeepEqual(
+    zeroFieldColor,
+    { red: UNREACHED_GRAY, green: UNREACHED_GRAY, blue: UNREACHED_GRAY, alpha: 255 },
+    'zero-intensity field is not rendered as unreached background'
+  );
+
+  appendRasterPreview( 'coherent double slit', coherentRaster.width, coherentRaster.height, coherentRaster.pixels, coherentRaster.statusCounts );
+  appendRasterPreview( 'all slits blocked', blockedRaster.width, blockedRaster.height, blockedRaster.pixels, blockedRaster.statusCounts );
 } );

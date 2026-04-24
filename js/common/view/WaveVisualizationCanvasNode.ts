@@ -1,36 +1,28 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * WaveVisualizationCanvasNode renders the 2D amplitude field from the wave solver onto the wave visualization
- * region using a CanvasNode. Cells the wavefront hasn't reached (exactly zero amplitude) render as neutral gray.
- * Visited cells use intensity-based color mapping: baseColor * intensity, oscillating smoothly between
- * near-black and the full wavelength color. A peak-envelope tracker provides smooth gray-to-wave blending
- * at wavefront edges without affecting dark fringes in diffraction patterns.
+ * WaveVisualizationCanvasNode renders field samples from the wave solver onto the wave visualization
+ * region using a CanvasNode. It uses the solver's explicit FieldSample status instead of inferring
+ * status from zero amplitude, so dark interference nodes are rendered as reached field rather than
+ * neutral background.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import { clamp } from '../../../../dot/js/util/clamp.js';
-import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Color from '../../../../scenery/js/util/Color.js';
+import { getFieldSampleRGBA, UNREACHED_GRAY } from '../model/AnalyticalWaveRasterizer.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 const MATTER_BASE_R = 200;
 const MATTER_BASE_G = 200;
 const MATTER_BASE_B = 200;
 
-// Intensity at zero wave value (the "background" level).
-const CUTOFF = 0.4;
-
 // Neutral gray for cells the wavefront hasn't reached yet.
-const BACKGROUND_GRAY = 80;
-
-// Peak envelope threshold: once a cell's max-ever rawMag exceeds this, it no longer blends with gray.
-const ENVELOPE_BLEND_THRESHOLD = 0.3;
+const BACKGROUND_GRAY = UNREACHED_GRAY;
 
 export default class WaveVisualizationCanvasNode extends CanvasNode {
 
@@ -42,9 +34,6 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
   private offscreenCanvas: HTMLCanvasElement | null = null;
   private offscreenContext: CanvasRenderingContext2D | null = null;
   private imageData: ImageData | null = null;
-
-  // Tracks the maximum rawMag each cell has ever seen, to distinguish wavefront edges from dark fringes.
-  private peakEnvelope: Float32Array | null = null;
 
   private cachedWavelength = -1;
   private cachedR = 0;
@@ -70,10 +59,8 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
     }
 
     const solver = scene.waveSolver;
-    const amplitudeField = solver.getAmplitudeField();
     const gridWidth = solver.gridWidth;
     const gridHeight = solver.gridHeight;
-    const cellCount = gridWidth * gridHeight;
 
     if ( !this.offscreenCanvas || this.offscreenCanvas.width !== gridWidth || this.offscreenCanvas.height !== gridHeight ) {
       this.offscreenCanvas = document.createElement( 'canvas' );
@@ -81,19 +68,13 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
       this.offscreenCanvas.height = gridHeight;
       this.offscreenContext = this.offscreenCanvas.getContext( '2d' )!;
       this.imageData = null;
-      this.peakEnvelope = null;
     }
 
     if ( !this.imageData ) {
       this.imageData = this.offscreenContext!.createImageData( gridWidth, gridHeight );
     }
 
-    if ( !this.peakEnvelope || this.peakEnvelope.length !== cellCount ) {
-      this.peakEnvelope = new Float32Array( cellCount );
-    }
-
     const data = this.imageData.data;
-    const envelope = this.peakEnvelope;
     const isPhotons = scene.sourceType === 'photons';
     const displayMode = scene.activeWaveDisplayModeProperty.value;
 
@@ -123,76 +104,20 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
     const amplitudeScale = scene.waveAmplitudeScaleProperty.value;
 
     for ( let gy = 0; gy < gridHeight; gy++ ) {
-      const rowOffset = gy * gridWidth * 2;
-
       for ( let gx = 0; gx < gridWidth; gx++ ) {
-        const fieldIdx = rowOffset + gx * 2;
         const cellIdx = gy * gridWidth + gx;
         const pixelIdx = cellIdx * 4;
 
-        const rawRe = amplitudeField[ fieldIdx ];
-        const rawIm = amplitudeField[ fieldIdx + 1 ];
-
-        if ( rawRe === 0 && rawIm === 0 ) {
-
-          // Reset envelope when amplitude returns to exactly zero (trailing edge has passed).
-          envelope[ cellIdx ] = 0;
-
-          data[ pixelIdx ] = BACKGROUND_GRAY;
-          data[ pixelIdx + 1 ] = BACKGROUND_GRAY;
-          data[ pixelIdx + 2 ] = BACKGROUND_GRAY;
-          data[ pixelIdx + 3 ] = 255;
-          continue;
-        }
-
-        const rawMag = Math.sqrt( rawRe * rawRe + rawIm * rawIm );
-        if ( rawMag > envelope[ cellIdx ] ) {
-          envelope[ cellIdx ] = rawMag;
-        }
-
-        const re = rawRe * amplitudeScale;
-        const im = rawIm * amplitudeScale;
-
-        let intensity;
-
-        if ( displayMode === 'timeAveragedIntensity' ) {
-          const mag2 = re * re + im * im;
-          intensity = clamp( CUTOFF + ( 1 - CUTOFF ) * mag2, CUTOFF, 1 );
-        }
-        else if ( displayMode === 'magnitude' ) {
-          const mag = Math.sqrt( re * re + im * im );
-          intensity = clamp( CUTOFF + ( 1 - CUTOFF ) * mag, CUTOFF, 1 );
-        }
-        else {
-          const value = displayMode === 'imaginaryPart' ? im : re;
-          if ( value > 0 ) {
-            intensity = clamp( CUTOFF + ( 1 - CUTOFF ) * value, CUTOFF, 1 );
-          }
-          else {
-            intensity = clamp( CUTOFF * ( 1 + value ), 0, CUTOFF );
-          }
-        }
-
-        const waveR = baseR * intensity;
-        const waveG = baseG * intensity;
-        const waveB = baseB * intensity;
-
-        // Blend from gray at wavefront edges. Once the peak envelope exceeds the threshold,
-        // the cell has been fully reached by the wavefront and shows pure wave color. This
-        // prevents dark fringes (low current amplitude but high historical amplitude) from
-        // incorrectly blending with gray.
-        if ( envelope[ cellIdx ] >= ENVELOPE_BLEND_THRESHOLD ) {
-          data[ pixelIdx ] = roundSymmetric( waveR );
-          data[ pixelIdx + 1 ] = roundSymmetric( waveG );
-          data[ pixelIdx + 2 ] = roundSymmetric( waveB );
-        }
-        else {
-          const blend = envelope[ cellIdx ] / ENVELOPE_BLEND_THRESHOLD;
-          data[ pixelIdx ] = roundSymmetric( BACKGROUND_GRAY + ( waveR - BACKGROUND_GRAY ) * blend );
-          data[ pixelIdx + 1 ] = roundSymmetric( BACKGROUND_GRAY + ( waveG - BACKGROUND_GRAY ) * blend );
-          data[ pixelIdx + 2 ] = roundSymmetric( BACKGROUND_GRAY + ( waveB - BACKGROUND_GRAY ) * blend );
-        }
-        data[ pixelIdx + 3 ] = 255;
+        const sample = solver.getFieldSampleAtGridCell( gx, gy );
+        const color = getFieldSampleRGBA( sample, displayMode, {
+          red: baseR,
+          green: baseG,
+          blue: baseB
+        }, amplitudeScale );
+        data[ pixelIdx ] = color.red;
+        data[ pixelIdx + 1 ] = color.green;
+        data[ pixelIdx + 2 ] = color.blue;
+        data[ pixelIdx + 3 ] = color.alpha;
       }
     }
 

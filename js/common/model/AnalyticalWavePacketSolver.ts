@@ -13,7 +13,7 @@
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalObstacle, type AnalyticalWaveParameters, type ComplexValue, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalObstacle, type AnalyticalWaveParameters, type ComplexValue, type FieldSample, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -115,6 +115,10 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   public getAmplitudeField(): Float64Array {
     this.ensureComputed();
     return this.amplitudeField;
+  }
+
+  public getFieldSampleAtGridCell( gridX: number, gridY: number ): FieldSample {
+    return evaluateAnalyticalSample( this.createKernelParameters(), this.getGridCellX( gridX ), this.getGridCellY( gridY ), this.time );
   }
 
   public getDetectorProbabilityDistribution(): Float64Array {
@@ -223,15 +227,11 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     }
 
     const parameters = this.createKernelParameters();
-    const dx = this.regionWidth / gridWidth;
-    const dy = this.regionHeight / gridHeight;
-    const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
-    const barrierX = this.barrierFractionX * this.regionWidth;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
-      const x = this.obstacleType === 'doubleSlit' && ix === barrierIx ? barrierX : ix * dx;
+      const x = this.getGridCellX( ix );
       for ( let iy = 0; iy < gridHeight; iy++ ) {
-        const y = ( iy + 0.5 ) * dy - this.regionHeight / 2;
+        const y = this.getGridCellY( iy );
         const value = getRepresentativeComplex( evaluateAnalyticalSample( parameters, x, y, this.time ) );
         const idx = ( iy * gridWidth + ix ) * 2;
         amplitudeField[ idx ] = value.re;
@@ -324,6 +324,17 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
   private getEffectiveTraversalTime(): number {
     return PACKET_TRAVERSAL_TIME / Math.max( this.displaySpeedScale, EPSILON );
+  }
+
+  private getGridCellX( gridX: number ): number {
+    const barrierIx = roundSymmetric( this.barrierFractionX * this.gridWidth );
+    return this.obstacleType === 'doubleSlit' && gridX === barrierIx ?
+           this.barrierFractionX * this.regionWidth :
+           gridX * this.regionWidth / this.gridWidth;
+  }
+
+  private getGridCellY( gridY: number ): number {
+    return ( gridY + 0.5 ) * this.regionHeight / this.gridHeight - this.regionHeight / 2;
   }
 
   private getDisplaySlitGeometry(): { viewSlitSep: number; viewSlitWidth: number } {

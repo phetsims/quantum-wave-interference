@@ -12,6 +12,7 @@
 
 import Vector2 from '../../../../dot/js/Vector2.js';
 import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
+import { type FieldSample } from './AnalyticalWaveKernel.js';
 import { type ObstacleType } from './ObstacleType.js';
 
 export type WaveSolverState = Record<string, IntentionalAny>;
@@ -47,6 +48,13 @@ type WaveSolver = {
   step( dt: number ): void;
 
   getAmplitudeField(): Float64Array;
+
+  /**
+   * Returns the physically meaningful field sample for a solver grid cell at the current solver time.
+   * Unlike getAmplitudeField(), this preserves status information such as unreached/absorbed/blocked
+   * and independent decoherent components.
+   */
+  getFieldSampleAtGridCell( gridX: number, gridY: number ): FieldSample;
 
   getDetectorProbabilityDistribution(): Float64Array;
 
