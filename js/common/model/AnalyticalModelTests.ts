@@ -64,6 +64,7 @@ const createPlaneParameters = ( options?: {
   stopTime?: number | null;
   speed?: number;
   waveNumber?: number;
+  edgeTaperDistance?: number;
   obstacle?: AnalyticalWaveParameters['obstacle'];
 } ): AnalyticalWaveParameters => ( {
   source: {
@@ -71,7 +72,8 @@ const createPlaneParameters = ( options?: {
     waveNumber: options?.waveNumber ?? 2 * Math.PI,
     speed: options?.speed ?? 1,
     startTime: options?.startTime === undefined ? 0 : options.startTime,
-    stopTime: options?.stopTime === undefined ? null : options.stopTime
+    stopTime: options?.stopTime === undefined ? null : options.stopTime,
+    edgeTaperDistance: options?.edgeTaperDistance
   },
   obstacle: options?.obstacle ?? { kind: 'none' }
 } );
@@ -322,6 +324,24 @@ QUnit.test( 'source stop time creates a trailing edge', assert => {
   );
 } );
 
+QUnit.test( 'plane wave source gates taper leading and trailing edges', assert => {
+  const parameters = createPlaneParameters( {
+    waveNumber: Math.PI,
+    speed: 1,
+    startTime: 0,
+    stopTime: 1,
+    edgeTaperDistance: 0.2
+  } );
+
+  const leadingEdge = intensityAt( parameters, 1, 0, 1.1 );
+  const fullyOn = intensityAt( parameters, 1, 0, 1.3 );
+  const trailingEdge = intensityAt( parameters, 1, 0, 1.9 );
+
+  assert.ok( leadingEdge > 0 && leadingEdge < fullyOn, 'leading edge is smoothly tapered' );
+  assert.ok( trailingEdge > 0 && trailingEdge < fullyOn, 'trailing edge is smoothly tapered' );
+  assertApproximately( assert, fullyOn, 1, 'fully illuminated plane wave remains unit intensity' );
+} );
+
 QUnit.test( 'extreme aperture widths remain finite', assert => {
   for ( const slitWidth of [ 1e-6, 0.01, 0.4, 1.2 ] ) {
     const parameters = createPlaneParameters( {
@@ -428,6 +448,19 @@ QUnit.test( 'gaussian packet remains finite and continuous through slit aperture
   }
 } );
 
+QUnit.test( 'gaussian packet after a slit is localized around radial propagation path', assert => {
+  const parameters = createGaussianPacketParameters( {
+    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
+  } );
+
+  const nearSlitPath = intensityAt( parameters, 1.2, -0.25, 1.7 );
+  const farFromSlitPath = intensityAt( parameters, 1.2, 0.45, 1.7 );
+  assert.ok(
+    nearSlitPath > 5 * farFromSlitPath,
+    'post-slit packet is localized around the expanding packet path instead of filling a vertical slab'
+  );
+} );
+
 const appendRasterPreview = (
   title: string,
   width: number,
@@ -509,6 +542,61 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
     zeroFieldColor,
     { red: UNREACHED_GRAY, green: UNREACHED_GRAY, blue: UNREACHED_GRAY, alpha: 255 },
     'zero-intensity field is not rendered as unreached background'
+  );
+
+  const weakFrontColor = getFieldSampleRGBA( {
+    kind: 'field',
+    components: [ {
+      source: 'incident',
+      coherenceGroup: 'incident',
+      value: { re: 0.1, im: 0 }
+    } ]
+  }, 'timeAveragedIntensity', baseColor, 1 );
+  const fullFrontColor = getFieldSampleRGBA( {
+    kind: 'field',
+    components: [ {
+      source: 'incident',
+      coherenceGroup: 'incident',
+      value: { re: 1, im: 0 }
+    } ]
+  }, 'timeAveragedIntensity', baseColor, 1 );
+  const weakAmplitudeFullSupportColor = getFieldSampleRGBA( {
+    kind: 'field',
+    components: [ {
+      source: 'topSlit',
+      coherenceGroup: 'slits',
+      support: 1,
+      value: { re: 0.03, im: 0 }
+    } ]
+  }, 'timeAveragedIntensity', baseColor, 1 );
+  const destructiveInterferenceColor = getFieldSampleRGBA( {
+    kind: 'field',
+    components: [
+      {
+        source: 'topSlit',
+        coherenceGroup: 'slits',
+        value: { re: 1, im: 0 }
+      },
+      {
+        source: 'bottomSlit',
+        coherenceGroup: 'slits',
+        value: { re: -1, im: 0 }
+      }
+    ]
+  }, 'timeAveragedIntensity', baseColor, 1 );
+
+  assert.ok(
+    Math.abs( weakFrontColor.red - UNREACHED_GRAY ) < Math.abs( fullFrontColor.red - UNREACHED_GRAY ),
+    'weak wavefront support blends closer to unreached background than full support'
+  );
+  assert.ok(
+    Math.abs( weakAmplitudeFullSupportColor.red - UNREACHED_GRAY ) > Math.abs( weakFrontColor.red - UNREACHED_GRAY ),
+    'weak diffracted amplitude with full wavefront support is not mistaken for unreached ether'
+  );
+  assert.notDeepEqual(
+    destructiveInterferenceColor,
+    { red: UNREACHED_GRAY, green: UNREACHED_GRAY, blue: UNREACHED_GRAY, alpha: 255 },
+    'destructive interference with strong component support still renders as reached field'
   );
 
   appendRasterPreview( 'coherent double slit', coherentRaster.width, coherentRaster.height, coherentRaster.pixels, coherentRaster.statusCounts );

@@ -29,6 +29,7 @@ export type FieldComponentSource = 'incident' | 'topSlit' | 'bottomSlit';
 export type FieldComponent = {
   source: FieldComponentSource;
   coherenceGroup: string;
+  support?: number;
   value: ComplexValue;
 };
 
@@ -44,6 +45,7 @@ export type PlaneWaveSource = {
   speed: number;
   startTime: number | null;
   stopTime: number | null;
+  edgeTaperDistance?: number;
 };
 
 export type GaussianPacketSource = {
@@ -343,7 +345,8 @@ const evaluateDiffractedComponent = (
   }
 
   if ( source.kind === 'plane' ) {
-    if ( !isPathReachable( source, reachPathLength, t ) ) {
+    const sourceEnvelope = getPlaneEmissionEnvelope( source, reachPathLength, t );
+    if ( sourceEnvelope <= 0 ) {
       return null;
     }
 
@@ -352,7 +355,8 @@ const evaluateDiffractedComponent = (
     return {
       source: slit.source,
       coherenceGroup: slit.coherenceGroup,
-      value: multiplyComplex( complexFromPolar( 1, barrierPhase ), apertureTransfer )
+      support: sourceEnvelope,
+      value: multiplyComplex( complexFromPolar( sourceEnvelope, barrierPhase ), apertureTransfer )
     };
   }
 
@@ -361,14 +365,18 @@ const evaluateDiffractedComponent = (
   }
 
   const state = getGaussianPacketState( source, t );
-  const paraxialPathLength = barrierX + xPastBarrier;
-  const longitudinalDelta = paraxialPathLength - state.centerX;
+  const nearAperture = xPastBarrier <= Math.max( EPSILON, slit.width * NEAR_APERTURE_X_FRACTION );
+  if ( nearAperture ) {
+    return evaluateSourceComponent( source, slit.source, slit.coherenceGroup, barrierX, y, barrierX, t );
+  }
+
+  const longitudinalDelta = reachPathLength - state.centerX;
   const normalizedPath = longitudinalDelta / state.sigmaX;
   if ( normalizedPath * normalizedPath > 64 ) {
     return null;
   }
 
-  const transverseDelta = y - source.centerY;
+  const transverseDelta = slit.centerY - source.centerY;
   const normalizedTransverse = transverseDelta / state.sigmaY;
   if ( normalizedTransverse * normalizedTransverse > 64 ) {
     return null;
@@ -377,7 +385,7 @@ const evaluateDiffractedComponent = (
   const envelope = state.normalization *
                    Math.exp( -0.5 * normalizedPath * normalizedPath ) *
                    Math.exp( -0.5 * normalizedTransverse * normalizedTransverse );
-  const phase = source.waveNumber * barrierX - source.waveNumber * source.speed * t +
+  const phase = source.waveNumber * reachPathLength - source.waveNumber * source.speed * t +
                 state.chirpX * longitudinalDelta * longitudinalDelta +
                 state.chirpY * transverseDelta * transverseDelta;
   const apertureTransfer = getFresnelApertureTransfer( source.waveNumber, xPastBarrier, y, slit );
@@ -399,7 +407,8 @@ const evaluateSourceComponent = (
   t: number
 ): FieldComponent | null => {
   if ( source.kind === 'plane' ) {
-    if ( !isPathReachable( source, pathLength, t ) ) {
+    const sourceEnvelope = getPlaneEmissionEnvelope( source, pathLength, t );
+    if ( sourceEnvelope <= 0 ) {
       return null;
     }
 
@@ -407,9 +416,10 @@ const evaluateSourceComponent = (
     return {
       source: componentSource,
       coherenceGroup: coherenceGroup,
+      support: sourceEnvelope,
       value: {
-        re: Math.cos( phase ),
-        im: Math.sin( phase )
+        re: sourceEnvelope * Math.cos( phase ),
+        im: sourceEnvelope * Math.sin( phase )
       }
     };
   }
@@ -466,19 +476,37 @@ const getGaussianPacketState = ( source: GaussianPacketSource, t: number ): Gaus
   };
 };
 
+const getPlaneEmissionEnvelope = ( source: PlaneWaveSource, pathLength: number, t: number ): number => {
+  if ( source.startTime === null || source.speed <= 0 ) {
+    return 0;
+  }
+
+  const emissionTime = t - pathLength / source.speed;
+  if ( emissionTime + EPSILON < source.startTime ) {
+    return 0;
+  }
+  if ( source.stopTime !== null && emissionTime - EPSILON > source.stopTime ) {
+    return 0;
+  }
+
+  const taperTime = ( source.edgeTaperDistance ?? 0 ) / source.speed;
+  if ( taperTime <= 0 ) {
+    return 1;
+  }
+
+  let envelope = smoothStep( 0, taperTime, emissionTime - source.startTime );
+  if ( source.stopTime !== null ) {
+    envelope *= smoothStep( 0, taperTime, source.stopTime - emissionTime );
+  }
+  return envelope;
+};
+
 const isPathReachable = ( source: AnalyticalSource, pathLength: number, t: number ): boolean => {
   if ( source.kind === 'gaussianPacket' ) {
     return source.isActive;
   }
 
-  if ( source.startTime === null || source.speed <= 0 ) {
-    return false;
-  }
-
-  const emissionTime = t - pathLength / source.speed;
-  const began = emissionTime + EPSILON >= source.startTime;
-  const notYetOff = source.stopTime === null || emissionTime - EPSILON <= source.stopTime;
-  return began && notYetOff;
+  return getPlaneEmissionEnvelope( source, pathLength, t ) > 0;
 };
 
 const applyMeasurementProjections = (

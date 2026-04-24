@@ -69,29 +69,73 @@ export const getFieldSampleRGBA = (
 
   const representative = getRepresentativeComplex( sample );
   const rawIntensity = computeSampleIntensity( sample );
+  const fieldVisibility = getFieldVisibility( sample, amplitudeScale );
   const re = representative.re * amplitudeScale;
   const im = representative.im * amplitudeScale;
 
   let intensity: number;
   if ( displayMode === 'timeAveragedIntensity' ) {
-    intensity = clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * rawIntensity * amplitudeScale * amplitudeScale, FIELD_DISPLAY_CUTOFF, 1 );
+    intensity = clamp(
+      FIELD_DISPLAY_CUTOFF * fieldVisibility + ( 1 - FIELD_DISPLAY_CUTOFF ) * rawIntensity * amplitudeScale * amplitudeScale,
+      0,
+      1
+    );
   }
   else if ( displayMode === 'magnitude' ) {
-    intensity = clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * Math.sqrt( rawIntensity ) * amplitudeScale, FIELD_DISPLAY_CUTOFF, 1 );
+    intensity = clamp(
+      FIELD_DISPLAY_CUTOFF * fieldVisibility + ( 1 - FIELD_DISPLAY_CUTOFF ) * Math.sqrt( rawIntensity ) * amplitudeScale,
+      0,
+      1
+    );
   }
   else {
     const value = displayMode === 'imaginaryPart' ? im : re;
-    intensity = value > 0 ?
+    const phaseIntensity = value > 0 ?
                 clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * value, FIELD_DISPLAY_CUTOFF, 1 ) :
                 clamp( FIELD_DISPLAY_CUTOFF * ( 1 + value ), 0, FIELD_DISPLAY_CUTOFF );
+    intensity = phaseIntensity * fieldVisibility;
   }
 
+  const fieldColor = {
+    red: baseColor.red * intensity,
+    green: baseColor.green * intensity,
+    blue: baseColor.blue * intensity
+  };
+
   return {
-    red: roundSymmetric( baseColor.red * intensity ),
-    green: roundSymmetric( baseColor.green * intensity ),
-    blue: roundSymmetric( baseColor.blue * intensity ),
+    red: roundSymmetric( blend( UNREACHED_GRAY, fieldColor.red, fieldVisibility ) ),
+    green: roundSymmetric( blend( UNREACHED_GRAY, fieldColor.green, fieldVisibility ) ),
+    blue: roundSymmetric( blend( UNREACHED_GRAY, fieldColor.blue, fieldVisibility ) ),
     alpha: 255
   };
+};
+
+const blend = ( a: number, b: number, t: number ): number => a + ( b - a ) * t;
+
+const getFieldVisibility = ( sample: Extract<FieldSample, { kind: 'field' }>, amplitudeScale: number ): number => {
+  if ( sample.components.length === 0 ) {
+    return 1;
+  }
+
+  let hasExplicitSupport = false;
+  let explicitSupport = 0;
+  let componentIntensity = 0;
+  for ( let i = 0; i < sample.components.length; i++ ) {
+    const component = sample.components[ i ];
+    if ( component.support !== undefined ) {
+      hasExplicitSupport = true;
+      explicitSupport = Math.max( explicitSupport, component.support );
+    }
+
+    const value = component.value;
+    componentIntensity += value.re * value.re + value.im * value.im;
+  }
+
+  if ( hasExplicitSupport ) {
+    return clamp( explicitSupport, 0, 1 );
+  }
+
+  return clamp( Math.sqrt( componentIntensity ) * amplitudeScale, 0, 1 );
 };
 
 export const rasterizeAnalyticalWave = ( options: AnalyticalWaveRasterOptions ): AnalyticalWaveRaster => {

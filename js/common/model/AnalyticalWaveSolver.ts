@@ -24,6 +24,7 @@ const DEFAULT_GRID_HEIGHT = 200;
 const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
 const DISPLAY_TRAVERSAL_TIME = 2.0;
 const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
+const EDGE_TAPER_CELLS = 4;
 
 export default class AnalyticalWaveSolver implements WaveSolver {
 
@@ -269,7 +270,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         waveNumber: this.getDisplayWaveNumber(),
         speed: this.getDisplaySpeed(),
         startTime: this.sourceOnTime,
-        stopTime: this.sourceOffTime
+        stopTime: this.sourceOffTime,
+        edgeTaperDistance: EDGE_TAPER_CELLS * this.regionWidth / this.gridWidth
       },
       obstacle: this.createKernelObstacle()
     };
