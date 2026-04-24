@@ -246,9 +246,9 @@ export default class SingleParticlesScreenView extends ScreenView {
     const positionPlotCheckbox = createToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ), ToolIcons.createPositionPlotIcon() );
     const detectorCheckbox = createToolCheckbox( model.isDetectorToolVisibleProperty, QuantumWaveInterferenceFluent.detectorStringProperty, tandem.createTandem( 'detectorCheckbox' ), ToolIcons.createDetectorIcon() );
 
-    // Detector checkbox is only shown when obstacle is None; its checked state is preserved in the model.
+    // Detector checkbox is only enabled when obstacle is None
     model.isDetectorToolAvailableProperty.link( isAvailable => {
-      detectorCheckbox.visible = isAvailable;
+      detectorCheckbox.enabled = isAvailable;
     } );
 
     const { rightControlsVBox, timeAndResetRow } = createRightControlsColumn( model, this, tandem, {

@@ -1,11 +1,11 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * AnalyticalWavePacketSolver computes the 2D complex amplitude field for a Gaussian wave packet
- * propagating through the wave visualization region. Used by the Single Particles screen.
+ * Stateful WaveSolver adapter for the pure analytical Gaussian-packet kernel.
  *
- * Uses a "display wavevector" so oscillations are visible on the 200x200 grid, while the
- * physical wavelength (nanometer-scale) is used by the scene model for detector interference.
+ * The packet solver owns screen state such as current time, cached grids, and detector-tool
+ * measurement projections. Each field value is evaluated by AnalyticalWaveKernel, which reports
+ * explicit field status and independent coherent components.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -13,8 +13,8 @@
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import { type AnalyticalObstacle, type AnalyticalWaveParameters, type ComplexValue, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { type ObstacleType } from './ObstacleType.js';
-import { getDisplaySlitParameters } from './getDisplaySlitParameters.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
@@ -26,10 +26,15 @@ const PACKET_TRAVERSAL_TIME = 1.5;
 const SIGMA_X_FRACTION = 0.12;
 const SIGMA_Y_FRACTION = 0.12;
 const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
-const N_HUYGENS_SOURCES = 28;
 
-// The wave packet starts this many σ_x to the left of the visible region so it enters smoothly from off-screen.
+// The wave packet starts this many sigma_x to the left of the visible region so it enters smoothly.
 const PACKET_START_OFFSET_SIGMAS = 3;
+
+// Controls packet spreading in display time. Larger values spread more slowly.
+const LONGITUDINAL_SPREAD_TRAVERSALS = 2.5;
+const TRANSVERSE_SPREAD_TRAVERSALS = 1.5;
+
+const EPSILON = 1e-12;
 
 export { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION, PACKET_START_OFFSET_SIGMAS };
 
@@ -59,38 +64,39 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   private readonly amplitudeField: Float64Array;
   private readonly detectorDistribution: Float64Array;
   private dirty = true;
-  private detectorDistributionDirty = true;
 
-  // Precomputed vertical Gaussian envelope (reused across frames when grid height is constant)
-  private readonly envYCache: Float64Array;
-
-  // Each bite is a Gaussian wave packet created at the detector position when a "not detected"
-  // measurement occurs. It propagates analytically at the same speed as the main packet, and is
-  // decoherently subtracted from the main field so the hole moves and softens naturally.
-  private readonly biteGaussians: {
-    worldX0: number; worldY: number; invSigmaSq: number;
-    peakProbDensity: number; measurementTime: number; renormScale: number;
-  }[] = [];
-
-  private scratchRe = 0;
-  private scratchIm = 0;
+  private readonly measurementProjections: MeasurementProjection[] = [];
 
   public constructor( gridWidth = DEFAULT_GRID_WIDTH, gridHeight = DEFAULT_GRID_HEIGHT ) {
     this.gridWidth = gridWidth;
     this.gridHeight = gridHeight;
     this.amplitudeField = new Float64Array( gridWidth * gridHeight * 2 );
     this.detectorDistribution = new Float64Array( gridHeight );
-    this.envYCache = new Float64Array( gridHeight );
+  }
+
+  private setIfDefined<T>( value: T | undefined, setter: ( value: T ) => void ): void {
+    if ( value !== undefined ) {
+      setter( value );
+    }
   }
 
   public setParameters( params: WaveSolverParameters ): void {
-    for ( const [ key, value ] of Object.entries( params ) ) {
-      if ( value !== undefined && key in this ) {
-        ( this as Record<string, unknown> )[ key ] = value;
-      }
-    }
+    this.setIfDefined( params.wavelength, value => { this.wavelength = value; } );
+    this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
+    this.setIfDefined( params.displaySpeedScale, value => { this.displaySpeedScale = value; } );
+    this.setIfDefined( params.displayWavelengths, value => { this.displayWavelengths = value; } );
+    this.setIfDefined( params.obstacleType, value => { this.obstacleType = value; } );
+    this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
+    this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
+    this.setIfDefined( params.slitSeparationMax, value => { this.slitSeparationMax = value; } );
+    this.setIfDefined( params.slitWidth, value => { this.slitWidth = value; } );
+    this.setIfDefined( params.barrierFractionX, value => { this.barrierFractionX = value; } );
+    this.setIfDefined( params.isTopSlitOpen, value => { this.isTopSlitOpen = value; } );
+    this.setIfDefined( params.isBottomSlitOpen, value => { this.isBottomSlitOpen = value; } );
+    this.setIfDefined( params.isSourceOn, value => { this.isSourceOn = value; } );
+    this.setIfDefined( params.regionWidth, value => { this.regionWidth = value; } );
+    this.setIfDefined( params.regionHeight, value => { this.regionHeight = value; } );
     this.dirty = true;
-    this.detectorDistributionDirty = true;
   }
 
   public step( dt: number ): void {
@@ -101,6 +107,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   private ensureComputed(): void {
     if ( this.dirty ) {
       this.computeField();
+      this.computeDetectorDistribution();
       this.dirty = false;
     }
   }
@@ -119,32 +126,39 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.time = 0;
     this.amplitudeField.fill( 0 );
     this.detectorDistribution.fill( 0 );
-    this.biteGaussians.length = 0;
+    this.measurementProjections.length = 0;
     this.dirty = true;
-    this.detectorDistributionDirty = true;
   }
 
   public getState(): WaveSolverState {
     return {
       time: this.time,
-      biteGaussians: this.biteGaussians.map( b => ( {
-        worldX0: b.worldX0, worldY: b.worldY, invSigmaSq: b.invSigmaSq,
-        peakProbDensity: b.peakProbDensity, measurementTime: b.measurementTime, renormScale: b.renormScale
+      measurementProjections: this.measurementProjections.map( projection => ( {
+        centerX: projection.centerX,
+        centerY: projection.centerY,
+        radius: projection.radius,
+        measurementTime: projection.measurementTime,
+        renormScale: projection.renormScale
       } ) )
     };
   }
 
   public setState( state: WaveSolverState ): void {
     this.time = state.time;
-    this.biteGaussians.length = 0;
-    for ( const b of state.biteGaussians ) {
-      this.biteGaussians.push( {
-        worldX0: b.worldX0, worldY: b.worldY, invSigmaSq: b.invSigmaSq,
-        peakProbDensity: b.peakProbDensity, measurementTime: b.measurementTime, renormScale: b.renormScale
+    this.measurementProjections.length = 0;
+
+    const projections = state.measurementProjections || state.biteGaussians || [];
+    for ( const projection of projections ) {
+      this.measurementProjections.push( {
+        centerX: projection.centerX ?? projection.worldX0,
+        centerY: projection.centerY ?? projection.worldY,
+        radius: projection.radius ?? Math.sqrt( 1 / projection.invSigmaSq ),
+        measurementTime: projection.measurementTime,
+        renormScale: projection.renormScale ?? 1
       } );
     }
+
     this.dirty = true;
-    this.detectorDistributionDirty = true;
   }
 
   public invalidate(): void {
@@ -154,7 +168,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   public applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void {
     this.ensureComputed();
 
-    const { gridWidth, gridHeight, amplitudeField, regionWidth, regionHeight } = this;
+    const { gridWidth, gridHeight, amplitudeField } = this;
     const cxGrid = centerNorm.x * gridWidth;
     const cyGrid = centerNorm.y * gridHeight;
     const rGrid = radiusNorm * gridWidth;
@@ -164,31 +178,30 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     let totalProb = 0;
 
     for ( let iy = 0; iy < gridHeight; iy++ ) {
-      const dyCell = iy - cyGrid;
-      const dyCellSq = dyCell * dyCell;
+      const dyCell = iy + 0.5 - cyGrid;
       for ( let ix = 0; ix < gridWidth; ix++ ) {
-        const dxCell = ix - cxGrid;
+        const dxCell = ix + 0.5 - cxGrid;
         const idx = ( iy * gridWidth + ix ) * 2;
         const re = amplitudeField[ idx ];
         const im = amplitudeField[ idx + 1 ];
         const prob = re * re + im * im;
         totalProb += prob;
-        if ( dxCell * dxCell + dyCellSq <= rSqGrid ) {
+        if ( dxCell * dxCell + dyCell * dyCell <= rSqGrid ) {
           probInCircle += prob;
         }
       }
     }
 
-    const worldX0 = centerNorm.x * regionWidth;
-    const worldY = ( centerNorm.y - 0.5 ) * regionHeight;
-    const sigmaWorld = radiusNorm * regionWidth;
-    const invSigmaSq = 1 / ( sigmaWorld * sigmaWorld );
-    const dxWorld = regionWidth / gridWidth;
-    const dyWorld = regionHeight / gridHeight;
-    const peakProbDensity = probInCircle * dxWorld * dyWorld / ( Math.PI * sigmaWorld * sigmaWorld );
-    const renormScale = totalProb > probInCircle ? Math.sqrt( totalProb / ( totalProb - probInCircle ) ) : 1;
+    const remainingProb = Math.max( 0, totalProb - probInCircle );
+    const renormScale = remainingProb > EPSILON ? Math.sqrt( totalProb / remainingProb ) : 1;
+    this.measurementProjections.push( {
+      centerX: centerNorm.x * this.regionWidth,
+      centerY: ( centerNorm.y - 0.5 ) * this.regionHeight,
+      radius: radiusNorm * this.regionWidth,
+      measurementTime: this.time,
+      renormScale: renormScale
+    } );
 
-    this.biteGaussians.push( { worldX0: worldX0, worldY: worldY, invSigmaSq: invSigmaSq, peakProbDensity: peakProbDensity, measurementTime: this.time, renormScale: renormScale } );
     this.dirty = true;
   }
 
@@ -196,8 +209,12 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     return this.isSourceOn;
   }
 
+  public evaluate( x: number, y: number, t = this.time ): ComplexValue {
+    return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
+  }
+
   private computeField(): void {
-    const { gridWidth, gridHeight, amplitudeField, regionWidth, regionHeight, envYCache } = this;
+    const { gridWidth, gridHeight, amplitudeField } = this;
 
     if ( !this.isSourceOn ) {
       amplitudeField.fill( 0 );
@@ -205,312 +222,111 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       return;
     }
 
-    const dx = regionWidth / gridWidth;
-    const dy = regionHeight / gridHeight;
-    const kDisplay = 2 * Math.PI * this.displayWavelengths / regionWidth;
-    const displaySpeed = ( regionWidth / PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
-    const omegaDisplay = kDisplay * displaySpeed;
-
-    const sigmaX = SIGMA_X_FRACTION * regionWidth;
-    const sigmaY = SIGMA_Y_FRACTION * regionHeight;
-    const invTwoSigmaXSq = 1 / ( 2 * sigmaX * sigmaX );
-    const invTwoSigmaYSq = 1 / ( 2 * sigmaY * sigmaY );
-    const xCenter = displaySpeed * this.time - PACKET_START_OFFSET_SIGMAS * sigmaX;
-
-    // Precompute vertical Gaussian envelope per row (saves ~39k redundant Math.exp calls)
-    for ( let iy = 0; iy < gridHeight; iy++ ) {
-      const y = ( iy - gridHeight / 2 ) * dy;
-      envYCache[ iy ] = Math.exp( -y * y * invTwoSigmaYSq );
-    }
-
-    if ( this.obstacleType === 'none' ) {
-      this.computeFreePacket( kDisplay, omegaDisplay, xCenter, dx, invTwoSigmaXSq );
-    }
-    else {
-      this.computeSlitPacket( kDisplay, omegaDisplay, xCenter, dx, dy, invTwoSigmaXSq, sigmaY );
-    }
-
-    this.subtractBiteGaussians();
-    this.computeDetectorDistribution();
-  }
-
-  private subtractBiteGaussians(): void {
-    if ( this.biteGaussians.length === 0 ) {
-      return;
-    }
-
-    const { gridWidth, gridHeight, amplitudeField, biteGaussians, regionWidth, regionHeight, time } = this;
-    const dxWorld = regionWidth / gridWidth;
-    const dyWorld = regionHeight / gridHeight;
-    const displaySpeed = ( regionWidth / PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
-
-    const biteCurrentXs: number[] = [];
-    for ( let b = 0; b < biteGaussians.length; b++ ) {
-      biteCurrentXs.push( biteGaussians[ b ].worldX0 + displaySpeed * ( time - biteGaussians[ b ].measurementTime ) );
-    }
-
-    const renormScale = biteGaussians[ biteGaussians.length - 1 ].renormScale;
-
-    for ( let iy = 0; iy < gridHeight; iy++ ) {
-      const worldY = ( iy - gridHeight / 2 ) * dyWorld;
-
-      for ( let ix = 0; ix < gridWidth; ix++ ) {
-        const idx = ( iy * gridWidth + ix ) * 2;
-        const re = amplitudeField[ idx ];
-        const im = amplitudeField[ idx + 1 ];
-        const probMain = re * re + im * im;
-
-        if ( probMain < 1e-12 ) {
-          continue;
-        }
-
-        const worldX = ix * dxWorld;
-        let totalProbBite = 0;
-
-        for ( let b = 0; b < biteGaussians.length; b++ ) {
-          const bite = biteGaussians[ b ];
-          const dxBite = worldX - biteCurrentXs[ b ];
-          const dyBite = worldY - bite.worldY;
-          const rSqInvSigmaSq = ( dxBite * dxBite + dyBite * dyBite ) * bite.invSigmaSq;
-
-          if ( rSqInvSigmaSq < 16 ) {
-            totalProbBite += bite.peakProbDensity * Math.exp( -rSqInvSigmaSq );
-          }
-        }
-
-        if ( totalProbBite > 0 ) {
-          const scale = Math.sqrt( Math.max( 0, probMain - totalProbBite ) / probMain ) * renormScale;
-          amplitudeField[ idx ] = re * scale;
-          amplitudeField[ idx + 1 ] = im * scale;
-        }
-        else {
-          amplitudeField[ idx ] = re * renormScale;
-          amplitudeField[ idx + 1 ] = im * renormScale;
-        }
-      }
-    }
-  }
-
-  private computeFreePacket(
-    kDisplay: number, omegaDisplay: number, xCenter: number,
-    dx: number, invTwoSigmaXSq: number
-  ): void {
-    for ( let ix = 0; ix < this.gridWidth; ix++ ) {
-      this.writeFreeColumn( ix, ix * dx, kDisplay, omegaDisplay, xCenter, invTwoSigmaXSq );
-    }
-  }
-
-  private writeFreeColumn(
-    ix: number, x: number, kDisplay: number, omegaDisplay: number,
-    xCenter: number, invTwoSigmaXSq: number
-  ): void {
-    const { gridWidth, gridHeight, amplitudeField, envYCache, time } = this;
-    const deltaX = x - xCenter;
-    const envX = Math.exp( -deltaX * deltaX * invTwoSigmaXSq );
-
-    if ( envX < 1e-6 ) {
-      for ( let iy = 0; iy < gridHeight; iy++ ) {
-        const idx = ( iy * gridWidth + ix ) * 2;
-        amplitudeField[ idx ] = 0;
-        amplitudeField[ idx + 1 ] = 0;
-      }
-      return;
-    }
-
-    const phase = kDisplay * x - omegaDisplay * time;
-    const cosPhase = Math.cos( phase );
-    const sinPhase = Math.sin( phase );
-
-    for ( let iy = 0; iy < gridHeight; iy++ ) {
-      const envelope = envX * envYCache[ iy ];
-      const idx = ( iy * gridWidth + ix ) * 2;
-      amplitudeField[ idx ] = envelope * cosPhase;
-      amplitudeField[ idx + 1 ] = envelope * sinPhase;
-    }
-  }
-
-  private computeSlitPacket(
-    kDisplay: number, omegaDisplay: number, xCenter: number,
-    dx: number, dy: number, invTwoSigmaXSq: number, sigmaY: number
-  ): void {
-    const { gridWidth, gridHeight, amplitudeField, time, envYCache } = this;
+    const parameters = this.createKernelParameters();
+    const dx = this.regionWidth / gridWidth;
+    const dy = this.regionHeight / gridHeight;
     const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
-    const barrierX = barrierIx * dx;
-
-    const { viewSlitSep, viewSlitWidth } = getViewSlitLayout(
-      this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight
-    );
-
-    const topSlitY = -viewSlitSep / 2;
-    const bottomSlitY = viewSlitSep / 2;
-
-    const deltaBarrier = barrierX - xCenter;
-    const packetAtBarrier = Math.exp( -deltaBarrier * deltaBarrier * invTwoSigmaXSq );
-    const wavefrontDist = Math.max( xCenter - barrierX, 0 );
-
-    // Huygens parameters
-    const invTwoSigmaYSq = 1 / ( 2 * sigmaY * sigmaY );
-    const sourceSpacing = viewSlitWidth / N_HUYGENS_SOURCES;
-    const L = this.regionWidth - barrierX;
-    const huygensNorm = 0.5 * Math.sqrt( L ) / N_HUYGENS_SOURCES;
+    const barrierX = this.barrierFractionX * this.regionWidth;
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
-      const x = ix * dx;
-
-      if ( ix < barrierIx ) {
-        this.writeFreeColumn( ix, x, kDisplay, omegaDisplay, xCenter, invTwoSigmaXSq );
-      }
-      else if ( ix === barrierIx ) {
-
-        const barrierPhase = kDisplay * barrierX - omegaDisplay * time;
-        const barrierCos = Math.cos( barrierPhase );
-        const barrierSin = Math.sin( barrierPhase );
-
-        for ( let iy = 0; iy < gridHeight; iy++ ) {
-          const idx = ( iy * gridWidth + ix ) * 2;
-          const y = ( iy - gridHeight / 2 ) * dy;
-          const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitY ) < viewSlitWidth / 2;
-          const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < viewSlitWidth / 2;
-
-          if ( ( inTopSlit || inBottomSlit ) && packetAtBarrier > 1e-6 ) {
-            const envelope = packetAtBarrier * envYCache[ iy ];
-            amplitudeField[ idx ] = envelope * barrierCos;
-            amplitudeField[ idx + 1 ] = envelope * barrierSin;
-          }
-          else {
-            amplitudeField[ idx ] = 0;
-            amplitudeField[ idx + 1 ] = 0;
-          }
-        }
-      }
-      else {
-
-        const distFromBarrier = x - barrierX;
-
-        if ( wavefrontDist < distFromBarrier ) {
-          for ( let iy = 0; iy < gridHeight; iy++ ) {
-            const idx = ( iy * gridWidth + ix ) * 2;
-            amplitudeField[ idx ] = 0;
-            amplitudeField[ idx + 1 ] = 0;
-          }
-        }
-        else {
-          for ( let iy = 0; iy < gridHeight; iy++ ) {
-            const idx = ( iy * gridWidth + ix ) * 2;
-            const y = ( iy - gridHeight / 2 ) * dy;
-            let totalRe = 0;
-            let totalIm = 0;
-
-            if ( this.isTopSlitOpen ) {
-              this.computeSlitContribution(
-                kDisplay, omegaDisplay, barrierX, topSlitY, sourceSpacing, huygensNorm,
-                x, y, wavefrontDist, invTwoSigmaXSq, invTwoSigmaYSq
-              );
-              totalRe += this.scratchRe;
-              totalIm += this.scratchIm;
-            }
-
-            if ( this.isBottomSlitOpen ) {
-              this.computeSlitContribution(
-                kDisplay, omegaDisplay, barrierX, bottomSlitY, sourceSpacing, huygensNorm,
-                x, y, wavefrontDist, invTwoSigmaXSq, invTwoSigmaYSq
-              );
-              totalRe += this.scratchRe;
-              totalIm += this.scratchIm;
-            }
-
-            amplitudeField[ idx ] = totalRe;
-            amplitudeField[ idx + 1 ] = totalIm;
-          }
-        }
+      const x = this.obstacleType === 'doubleSlit' && ix === barrierIx ? barrierX : ix * dx;
+      for ( let iy = 0; iy < gridHeight; iy++ ) {
+        const y = ( iy + 0.5 ) * dy - this.regionHeight / 2;
+        const value = getRepresentativeComplex( evaluateAnalyticalSample( parameters, x, y, this.time ) );
+        const idx = ( iy * gridWidth + ix ) * 2;
+        amplitudeField[ idx ] = value.re;
+        amplitudeField[ idx + 1 ] = value.im;
       }
     }
-  }
-
-  /**
-   * Huygens summation: N point sources across the slit aperture, each with cylindrical
-   * spreading (1/sqrt(r)), radial Gaussian envelope centered on the expanding wavefront,
-   * and per-source vertical Gaussian beam profile.
-   */
-  private computeSlitContribution(
-    kDisplay: number, omegaDisplay: number,
-    barrierX: number, slitCenterY: number, sourceSpacing: number, huygensNorm: number,
-    fieldX: number, fieldY: number,
-    wavefrontDist: number, invTwoSigmaXSq: number, invTwoSigmaYSq: number
-  ): void {
-    let sumRe = 0;
-    let sumIm = 0;
-    const dxField = fieldX - barrierX;
-
-    for ( let s = 0; s < N_HUYGENS_SOURCES; s++ ) {
-      const ySource = slitCenterY + ( s - ( N_HUYGENS_SOURCES - 1 ) / 2 ) * sourceSpacing;
-      const dyField = fieldY - ySource;
-      const r = Math.sqrt( dxField * dxField + dyField * dyField );
-
-      const radialDelta = r - wavefrontDist;
-      if ( radialDelta * radialDelta * invTwoSigmaXSq > 16 ) {
-        continue;
-      }
-
-      const rSafe = Math.max( r, 1e-6 );
-      const radialEnvelope = Math.exp( -radialDelta * radialDelta * invTwoSigmaXSq );
-      const verticalEnvelope = Math.exp( -ySource * ySource * invTwoSigmaYSq );
-      const amplitude = huygensNorm * verticalEnvelope * radialEnvelope / Math.sqrt( rSafe );
-      const phase = kDisplay * r - omegaDisplay * this.time;
-      sumRe += amplitude * Math.cos( phase );
-      sumIm += amplitude * Math.sin( phase );
-    }
-
-    this.scratchRe = sumRe;
-    this.scratchIm = sumIm;
   }
 
   private computeDetectorDistribution(): void {
-    if ( !this.detectorDistributionDirty ) {
-      return;
-    }
-    this.detectorDistributionDirty = false;
-
-    const { gridHeight, detectorDistribution } = this;
-
-    if ( this.obstacleType === 'none' ) {
-      detectorDistribution.fill( 1 );
+    if ( !this.isSourceOn ) {
+      this.detectorDistribution.fill( 0 );
       return;
     }
 
-    // Independent of the packet's current position — the probability distribution
-    // at the screen depends only on the slit geometry and wavelength.
-    const lambdaDisplay = this.regionWidth / this.displayWavelengths;
-    const { displaySlitSep, displaySlitWidth } = getDisplaySlitParameters( this.wavelength, this.slitSeparation, lambdaDisplay );
-    const barrierX = this.barrierFractionX * this.regionWidth;
-    const L = this.regionWidth - barrierX;
-    const dy = this.regionHeight / gridHeight;
-
+    const parameters = this.createKernelParameters();
+    const dy = this.regionHeight / this.gridHeight;
     let maxProb = 0;
 
-    for ( let iy = 0; iy < gridHeight; iy++ ) {
-      const posOnScreen = ( iy - gridHeight / 2 + 0.5 ) * dy;
-      const distToScreen = Math.sqrt( L * L + posOnScreen * posOnScreen );
-      const sinTheta = posOnScreen / distToScreen;
-
-      const singleSlitArg = Math.PI * displaySlitWidth * sinTheta / lambdaDisplay;
-      const envelope = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
-
-      if ( this.isTopSlitOpen && this.isBottomSlitOpen ) {
-        const doubleSlitArg = Math.PI * displaySlitSep * sinTheta / lambdaDisplay;
-        detectorDistribution[ iy ] = Math.pow( Math.cos( doubleSlitArg ), 2 ) * envelope;
-      }
-      else {
-        detectorDistribution[ iy ] = 0.5 * envelope;
-      }
-
-      maxProb = Math.max( maxProb, detectorDistribution[ iy ] );
+    for ( let iy = 0; iy < this.gridHeight; iy++ ) {
+      const y = ( iy + 0.5 ) * dy - this.regionHeight / 2;
+      const prob = computeSampleIntensity( evaluateAnalyticalSample( parameters, this.regionWidth, y, this.time ) );
+      this.detectorDistribution[ iy ] = prob;
+      maxProb = Math.max( maxProb, prob );
     }
 
     if ( maxProb > 0 ) {
-      for ( let iy = 0; iy < gridHeight; iy++ ) {
-        detectorDistribution[ iy ] /= maxProb;
+      for ( let iy = 0; iy < this.gridHeight; iy++ ) {
+        this.detectorDistribution[ iy ] /= maxProb;
       }
     }
+  }
+
+  private createKernelParameters(): AnalyticalWaveParameters {
+    const sigmaX0 = SIGMA_X_FRACTION * this.regionWidth;
+    const sigmaY0 = SIGMA_Y_FRACTION * this.regionHeight;
+
+    return {
+      source: {
+        kind: 'gaussianPacket',
+        isActive: this.isSourceOn,
+        waveNumber: this.getDisplayWaveNumber(),
+        speed: this.getDisplaySpeed(),
+        initialCenterX: -PACKET_START_OFFSET_SIGMAS * sigmaX0,
+        centerY: 0,
+        sigmaX0: sigmaX0,
+        sigmaY0: sigmaY0,
+        longitudinalSpreadTime: LONGITUDINAL_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime(),
+        transverseSpreadTime: TRANSVERSE_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime()
+      },
+      obstacle: this.createKernelObstacle(),
+      projections: this.measurementProjections
+    };
+  }
+
+  private createKernelObstacle(): AnalyticalObstacle {
+    if ( this.obstacleType !== 'doubleSlit' ) {
+      return { kind: 'none' };
+    }
+
+    const { viewSlitSep, viewSlitWidth } = this.getDisplaySlitGeometry();
+    return {
+      kind: 'doubleSlit',
+      barrierX: this.barrierFractionX * this.regionWidth,
+      slits: [
+        {
+          source: 'topSlit',
+          centerY: -viewSlitSep / 2,
+          width: viewSlitWidth,
+          isOpen: this.isTopSlitOpen,
+          coherenceGroup: 'slits'
+        },
+        {
+          source: 'bottomSlit',
+          centerY: viewSlitSep / 2,
+          width: viewSlitWidth,
+          isOpen: this.isBottomSlitOpen,
+          coherenceGroup: 'slits'
+        }
+      ]
+    };
+  }
+
+  private getDisplayWaveNumber(): number {
+    return 2 * Math.PI * this.displayWavelengths / this.regionWidth;
+  }
+
+  private getDisplaySpeed(): number {
+    return ( this.regionWidth / PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
+  }
+
+  private getEffectiveTraversalTime(): number {
+    return PACKET_TRAVERSAL_TIME / Math.max( this.displaySpeedScale, EPSILON );
+  }
+
+  private getDisplaySlitGeometry(): { viewSlitSep: number; viewSlitWidth: number } {
+    return getViewSlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
   }
 }

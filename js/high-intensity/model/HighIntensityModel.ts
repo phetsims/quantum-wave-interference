@@ -35,9 +35,9 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
 
     const scenes = [
       new HighIntensitySceneModel( { sourceType: 'photons', tandem: scenesTandem.createTandem( 'photonsScene' ) } ),
-      new HighIntensitySceneModel( { sourceType: 'electrons', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'electronsScene' ) } ),
-      new HighIntensitySceneModel( { sourceType: 'neutrons', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'neutronsScene' ) } ),
-      new HighIntensitySceneModel( { sourceType: 'heliumAtoms', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'heliumAtomsScene' ) } )
+      new HighIntensitySceneModel( { sourceType: 'electrons', tandem: scenesTandem.createTandem( 'electronsScene' ) } ),
+      new HighIntensitySceneModel( { sourceType: 'neutrons', tandem: scenesTandem.createTandem( 'neutronsScene' ) } ),
+      new HighIntensitySceneModel( { sourceType: 'heliumAtoms', tandem: scenesTandem.createTandem( 'heliumAtomsScene' ) } )
     ];
 
     super( scenes, providedOptions );

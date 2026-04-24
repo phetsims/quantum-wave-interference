@@ -52,8 +52,8 @@ const createWaveDisplaySection = (
   } );
 
   const photonWaveDisplayItems: ComboBoxItem<PhotonWaveDisplayMode>[] = [
-    { value: 'electricField', createNode: () => new Text( QuantumWaveInterferenceFluent.electricFieldStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'electricFieldItem' },
-    { value: 'timeAveragedIntensity', createNode: () => new Text( QuantumWaveInterferenceFluent.timeAveragedIntensityStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'timeAveragedIntensityItem' }
+    { value: 'timeAveragedIntensity', createNode: () => new Text( QuantumWaveInterferenceFluent.timeAveragedIntensityStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'timeAveragedIntensityItem' },
+    { value: 'electricField', createNode: () => new Text( QuantumWaveInterferenceFluent.electricFieldStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'electricFieldItem' }
   ];
 
   const photonWaveDisplayComboBox = new ComboBox(
@@ -64,9 +64,9 @@ const createWaveDisplaySection = (
   );
 
   const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
+    { value: 'magnitude', createNode: () => new Text( QuantumWaveInterferenceFluent.magnitudeStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'magnitudeItem' },
     { value: 'realPart', createNode: () => new Text( QuantumWaveInterferenceFluent.realPartStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'realPartItem' },
-    { value: 'imaginaryPart', createNode: () => new Text( QuantumWaveInterferenceFluent.imaginaryPartStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'imaginaryPartItem' },
-    { value: 'magnitude', createNode: () => new Text( QuantumWaveInterferenceFluent.magnitudeStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'magnitudeItem' }
+    { value: 'imaginaryPart', createNode: () => new Text( QuantumWaveInterferenceFluent.imaginaryPartStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'imaginaryPartItem' }
   ];
 
   const matterWaveDisplayComboBox = new ComboBox(

@@ -1,20 +1,18 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * AnalyticalWaveSolver computes the 2D complex amplitude field and detector-screen probability
- * distribution using closed-form Fraunhofer diffraction expressions.
+ * Stateful WaveSolver adapter for the pure analytical continuous-wave kernel.
  *
- * The solver operates in display-scale coordinates so that wave oscillations and interference
- * fringes are visible on the 200x200 grid. Physical parameters (wavelength, slit separation)
- * are mapped to display equivalents that preserve qualitative behavior while keeping patterns
- * resolvable. The detector probability distribution uses the same display-scale Fraunhofer
- * formula for consistency with the wave field.
+ * The PhET model still needs cached amplitude grids, detector accumulation, source on/off timing,
+ * serialization, and the legacy single-complex WaveSolver API. The physics evaluation itself lives
+ * in AnalyticalWaveKernel and returns richer field samples with independent coherent components.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import { type AnalyticalObstacle, type AnalyticalWaveParameters, type ComplexValue, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -25,22 +23,6 @@ const DEFAULT_GRID_HEIGHT = 200;
 
 const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
 const DISPLAY_TRAVERSAL_TIME = 2.0;
-const N_HUYGENS_SOURCES = 28;
-
-// Anti-aliasing taper at wavefront/trailing edges, in grid cells. Purely cosmetic — avoids a
-// hard 0→1 step that aliases in the view. Kept small and independent of wavelength.
-const EDGE_TAPER_CELLS = 4;
-
-const computeEdgeTaper = ( distFromFront: number, distFromTrailing: number, taperWidth: number ): number => {
-  let taper = 1;
-  if ( distFromFront < taperWidth ) {
-    taper *= 0.5 * ( 1 - Math.cos( Math.PI * distFromFront / taperWidth ) );
-  }
-  if ( distFromTrailing < taperWidth ) {
-    taper *= 0.5 * ( 1 - Math.cos( Math.PI * distFromTrailing / taperWidth ) );
-  }
-  return taper;
-};
 
 export default class AnalyticalWaveSolver implements WaveSolver {
 
@@ -67,10 +49,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private regionHeight = 1.0;
   private time = 0;
 
-  // Tracks when the source was turned on so the wavefront grows from the left edge each time
   private sourceOnTime: number | null = null;
-
-  // Tracks when the source was turned off so waves can continue propagating past the trailing edge
   private sourceOffTime: number | null = null;
 
   private readonly amplitudeField: Float64Array;
@@ -78,9 +57,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private readonly detectorAccumulator: Float64Array;
   private detectorAccumulatorCount = 0;
   private dirty = true;
-
-  private scratchRe = 0;
-  private scratchIm = 0;
 
   public constructor( gridWidth = DEFAULT_GRID_WIDTH, gridHeight = DEFAULT_GRID_HEIGHT ) {
     this.gridWidth = gridWidth;
@@ -132,8 +108,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.time += dt;
     this.dirty = true;
 
-    // Accumulate the instantaneous detector distribution each frame for time-averaging.
-    // Only accumulate while waves are actively illuminating the screen.
+    if ( dt <= 0 ) {
+      return;
+    }
+
     if ( this.isSourceOn || this.hasWavesInRegion() ) {
       this.computeInstantaneousDetectorDistribution();
       for ( let iy = 0; iy < this.gridHeight; iy++ ) {
@@ -221,9 +199,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     // No-op: the detector tool is only present on the Single Particles screen.
   }
 
-  /**
-   * Returns true when waves have fully exited the region after the source was turned off.
-   */
   public hasWavesInRegion(): boolean {
     if ( this.isSourceOn ) {
       return true;
@@ -231,331 +206,132 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     if ( this.sourceOffTime === null ) {
       return false;
     }
-    const displaySpeed = ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
-    const trailingEdge = displaySpeed * ( this.time - this.sourceOffTime );
-    return trailingEdge < this.regionWidth;
+
+    const displaySpeed = this.getDisplaySpeed();
+    return displaySpeed > 0 && this.time - this.sourceOffTime <= this.getMaximumRegionPathLength() / displaySpeed;
   }
 
-  private getDisplaySlitGeometry(): { viewSlitSep: number; viewSlitWidth: number } {
-    return getViewSlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
+  public evaluate( x: number, y: number, t = this.time ): ComplexValue {
+    return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
   }
 
   private computeField(): void {
-    const { amplitudeField } = this;
+    const { gridWidth, gridHeight, amplitudeField } = this;
 
-    // If the source was never turned on, or all waves have exited the region, zero everything
     if ( !this.isSourceOn && !this.hasWavesInRegion() ) {
       amplitudeField.fill( 0 );
       return;
     }
 
-    const displayK = 2 * Math.PI * this.displayWavelengths / this.regionWidth;
-    const displaySpeed = ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
-    const displayOmega = displayK * displaySpeed;
+    const parameters = this.createKernelParameters();
+    const dx = this.regionWidth / gridWidth;
+    const dy = this.regionHeight / gridHeight;
+    const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
+    const barrierX = this.barrierFractionX * this.regionWidth;
 
-    // Wavefront position measured from when the source was last turned on
-    const sourceOnTime = this.sourceOnTime ?? 0;
-    const displayWavefrontX = displaySpeed * ( this.time - sourceOnTime );
+    for ( let ix = 0; ix < gridWidth; ix++ ) {
+      const x = this.obstacleType === 'doubleSlit' && ix === barrierIx ? barrierX : ix * dx;
+      for ( let iy = 0; iy < gridHeight; iy++ ) {
+        const y = ( iy + 0.5 ) * dy - this.regionHeight / 2;
+        const value = getRepresentativeComplex( evaluateAnalyticalSample( parameters, x, y, this.time ) );
+        const idx = ( iy * gridWidth + ix ) * 2;
+        amplitudeField[ idx ] = value.re;
+        amplitudeField[ idx + 1 ] = value.im;
+      }
+    }
+  }
 
-    // Trailing edge: position of the last emitted wavefront's left boundary
-    const trailingEdgeX = this.sourceOffTime !== null
-                          ? displaySpeed * ( this.time - this.sourceOffTime )
-                          : 0;
-
-    const dx = this.regionWidth / this.gridWidth;
+  private computeInstantaneousDetectorDistribution(): void {
+    const parameters = this.createKernelParameters();
     const dy = this.regionHeight / this.gridHeight;
 
-    if ( this.obstacleType === 'none' ) {
-      this.computePlaneWaveField( displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx );
-    }
-    else {
-      const { viewSlitSep, viewSlitWidth } = this.getDisplaySlitGeometry();
-
-      this.computeDoubleSlitField(
-        displayK, displayOmega, displayWavefrontX, trailingEdgeX, dx, dy,
-        viewSlitSep, viewSlitWidth
+    for ( let iy = 0; iy < this.gridHeight; iy++ ) {
+      const y = ( iy + 0.5 ) * dy - this.regionHeight / 2;
+      this.detectorDistribution[ iy ] = computeSampleIntensity(
+        evaluateAnalyticalSample( parameters, this.regionWidth, y, this.time )
       );
     }
   }
 
-  private computePlaneWaveField( k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number ): void {
-    const { gridWidth, gridHeight, amplitudeField } = this;
-    const taperWidth = EDGE_TAPER_CELLS * dx;
-
-    for ( let ix = 0; ix < gridWidth; ix++ ) {
-      const x = ix * dx;
-
-      if ( x > wavefrontX || x < trailingEdgeX ) {
-        for ( let iy = 0; iy < gridHeight; iy++ ) {
-          const idx = ( iy * gridWidth + ix ) * 2;
-          amplitudeField[ idx ] = 0;
-          amplitudeField[ idx + 1 ] = 0;
-        }
-        continue;
-      }
-
-      const taper = computeEdgeTaper( wavefrontX - x, x - trailingEdgeX, taperWidth );
-      const phase = k * x - omega * this.time;
-      const re = taper * Math.cos( phase );
-      const im = taper * Math.sin( phase );
-
-      for ( let iy = 0; iy < gridHeight; iy++ ) {
-        const idx = ( iy * gridWidth + ix ) * 2;
-        amplitudeField[ idx ] = re;
-        amplitudeField[ idx + 1 ] = im;
-      }
-    }
+  private createKernelParameters(): AnalyticalWaveParameters {
+    return {
+      source: {
+        kind: 'plane',
+        waveNumber: this.getDisplayWaveNumber(),
+        speed: this.getDisplaySpeed(),
+        startTime: this.sourceOnTime,
+        stopTime: this.sourceOffTime
+      },
+      obstacle: this.createKernelObstacle()
+    };
   }
 
-  private computeDoubleSlitField(
-    k: number, omega: number, wavefrontX: number, trailingEdgeX: number, dx: number, dy: number,
-    displaySlitSep: number, displaySlitWidth: number
-  ): void {
-    const { gridWidth, gridHeight, amplitudeField } = this;
-    const barrierIx = roundSymmetric( this.barrierFractionX * gridWidth );
-    const barrierX = barrierIx * dx;
-
-    const topSlitY = -displaySlitSep / 2;
-    const bottomSlitY = displaySlitSep / 2;
-
-    const sphericalFrontDist = wavefrontX - barrierX;
-    const trailingPastBarrier = trailingEdgeX > barrierX ? trailingEdgeX - barrierX : 0;
-
-    // Huygens normalization: 0.5 * sqrt(L) / N so that each slit sums to ~0.5 at the far screen
-    const L = this.regionWidth - barrierX;
-    const huygensNorm = 0.5 * Math.sqrt( L ) / N_HUYGENS_SOURCES;
-
-    const sourceSpacing = displaySlitWidth / N_HUYGENS_SOURCES;
-    const taperWidth = EDGE_TAPER_CELLS * dx;
-
-    for ( let ix = 0; ix < gridWidth; ix++ ) {
-      const x = ix * dx;
-
-      for ( let iy = 0; iy < gridHeight; iy++ ) {
-        const idx = ( iy * gridWidth + ix ) * 2;
-        const y = ( iy - gridHeight / 2 ) * dy;
-
-        if ( ix < barrierIx ) {
-          if ( x > wavefrontX || x < trailingEdgeX ) {
-            amplitudeField[ idx ] = 0;
-            amplitudeField[ idx + 1 ] = 0;
-          }
-          else {
-            const taper = computeEdgeTaper( wavefrontX - x, x - trailingEdgeX, taperWidth );
-            const phase = k * x - omega * this.time;
-            amplitudeField[ idx ] = taper * Math.cos( phase );
-            amplitudeField[ idx + 1 ] = taper * Math.sin( phase );
-          }
-        }
-        else if ( ix === barrierIx ) {
-          const inTopSlit = this.isTopSlitOpen && Math.abs( y - topSlitY ) < displaySlitWidth / 2;
-          const inBottomSlit = this.isBottomSlitOpen && Math.abs( y - bottomSlitY ) < displaySlitWidth / 2;
-
-          if ( ( inTopSlit || inBottomSlit ) && barrierX <= wavefrontX && trailingEdgeX <= barrierX ) {
-            const phase = k * barrierX - omega * this.time;
-            amplitudeField[ idx ] = Math.cos( phase );
-            amplitudeField[ idx + 1 ] = Math.sin( phase );
-          }
-          else {
-            amplitudeField[ idx ] = 0;
-            amplitudeField[ idx + 1 ] = 0;
-          }
-        }
-        else {
-          if ( barrierX > wavefrontX ) {
-            amplitudeField[ idx ] = 0;
-            amplitudeField[ idx + 1 ] = 0;
-          }
-          else {
-            // Compute each slit's Huygens contribution separately to preserve phase
-            let topRe = 0; let topIm = 0; let bottomRe = 0; let bottomIm = 0;
-
-            if ( this.isTopSlitOpen ) {
-              this.computeSlitContribution(
-                k, omega, barrierX, topSlitY, sourceSpacing, huygensNorm,
-                x, y, sphericalFrontDist, trailingPastBarrier, taperWidth
-              );
-              topRe = this.scratchRe;
-              topIm = this.scratchIm;
-            }
-
-            if ( this.isBottomSlitOpen ) {
-              this.computeSlitContribution(
-                k, omega, barrierX, bottomSlitY, sourceSpacing, huygensNorm,
-                x, y, sphericalFrontDist, trailingPastBarrier, taperWidth
-              );
-              bottomRe = this.scratchRe;
-              bottomIm = this.scratchIm;
-            }
-
-            // Build coherent sum from non-decoherent slits
-            let coherentRe = 0; let coherentIm = 0;
-            if ( this.isTopSlitOpen && !this.isTopSlitDecoherent ) { coherentRe += topRe; coherentIm += topIm; }
-            if ( this.isBottomSlitOpen && !this.isBottomSlitDecoherent ) { coherentRe += bottomRe; coherentIm += bottomIm; }
-            const coherentIntensity = coherentRe * coherentRe + coherentIm * coherentIm;
-
-            // Decoherent slits add intensity without interference
-            let decoherentIntensity = 0;
-            if ( this.isTopSlitOpen && this.isTopSlitDecoherent ) { decoherentIntensity += topRe * topRe + topIm * topIm; }
-            if ( this.isBottomSlitOpen && this.isBottomSlitDecoherent ) { decoherentIntensity += bottomRe * bottomRe + bottomIm * bottomIm; }
-
-            const totalIntensity = coherentIntensity + decoherentIntensity;
-
-            // Pick phase from the strongest contribution
-            let bestRe = coherentRe; let bestIm = coherentIm; let bestIntensity = coherentIntensity;
-
-            if ( this.isTopSlitOpen && this.isTopSlitDecoherent ) {
-              const topIntensity = topRe * topRe + topIm * topIm;
-              if ( topIntensity > bestIntensity ) { bestRe = topRe; bestIm = topIm; bestIntensity = topIntensity; }
-            }
-            if ( this.isBottomSlitOpen && this.isBottomSlitDecoherent ) {
-              const bottomIntensity = bottomRe * bottomRe + bottomIm * bottomIm;
-              if ( bottomIntensity > bestIntensity ) { bestRe = bottomRe; bestIm = bottomIm; bestIntensity = bottomIntensity; }
-            }
-
-            let huygensRe: number;
-            let huygensIm: number;
-            if ( bestIntensity > 1e-20 ) {
-              const scale = Math.sqrt( totalIntensity / bestIntensity );
-              huygensRe = bestRe * scale;
-              huygensIm = bestIm * scale;
-            }
-            else {
-              huygensRe = 0;
-              huygensIm = 0;
-            }
-
-            amplitudeField[ idx ] = huygensRe;
-            amplitudeField[ idx + 1 ] = huygensIm;
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Huygens-Kirchhoff summation: N sources uniformly distributed across the slit aperture,
-   * treated as a line-segment source. Each source contributes with bounded amplitude that
-   * equals 1/N near the slit (so the sum = 1, continuous with the incoming plane wave)
-   * and transitions to huygensNorm/sqrt(r) in the far field (proper cylindrical spreading).
-   * The phase includes k*barrierX for continuity with the pre-barrier plane wave.
-   */
-  private computeSlitContribution(
-    k: number, omega: number,
-    barrierX: number, slitCenterY: number, sourceSpacing: number, huygensNorm: number,
-    fieldX: number, fieldY: number,
-    wavefrontDist: number, trailingDist: number,
-    taperWidth: number
-  ): void {
-    let sumRe = 0;
-    let sumIm = 0;
-    const dxField = fieldX - barrierX;
-    const nearFieldAmplitude = 1.0 / N_HUYGENS_SOURCES;
-
-    for ( let s = 0; s < N_HUYGENS_SOURCES; s++ ) {
-      const ySource = slitCenterY + ( s - ( N_HUYGENS_SOURCES - 1 ) / 2 ) * sourceSpacing;
-      const dyField = fieldY - ySource;
-      const r = Math.sqrt( dxField * dxField + dyField * dyField );
-
-      if ( r > wavefrontDist || r < trailingDist ) {
-        continue;
-      }
-
-      const taper = computeEdgeTaper( wavefrontDist - r, r - trailingDist, taperWidth );
-      const amplitude = Math.min( nearFieldAmplitude, huygensNorm / Math.sqrt( r ) ) * taper;
-      const phase = k * ( barrierX + r ) - omega * this.time;
-      sumRe += amplitude * Math.cos( phase );
-      sumIm += amplitude * Math.sin( phase );
-    }
-
-    this.scratchRe = sumRe;
-    this.scratchIm = sumIm;
-  }
-
-  /**
-   * Computes the instantaneous (un-normalized) detector-screen probability distribution using
-   * the Fraunhofer formula with time-gated illumination based on wavefront propagation.
-   * Results are written into this.detectorDistribution for accumulation by step().
-   */
-  private computeInstantaneousDetectorDistribution(): void {
-    const { gridHeight, detectorDistribution } = this;
-
-    const displayLambda = this.regionWidth / this.displayWavelengths;
-    const displaySpeed = ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
-    const sourceOnTime = this.sourceOnTime ?? 0;
-    const displayWavefrontX = displaySpeed * ( this.time - sourceOnTime );
-
-    const trailingEdgeX = this.sourceOffTime !== null
-                          ? displaySpeed * ( this.time - this.sourceOffTime )
-                          : 0;
-
-    if ( this.obstacleType === 'none' ) {
-
-      // Plane wave: uniform illumination while the wavefront is at the screen and trailing edge hasn't passed
-      const illuminated = displayWavefrontX >= this.regionWidth && trailingEdgeX < this.regionWidth ? 1 : 0;
-      detectorDistribution.fill( illuminated );
-      return;
+  private createKernelObstacle(): AnalyticalObstacle {
+    if ( this.obstacleType !== 'doubleSlit' ) {
+      return { kind: 'none' };
     }
 
     const { viewSlitSep, viewSlitWidth } = this.getDisplaySlitGeometry();
-    const barrierX = this.barrierFractionX * this.regionWidth;
-    const L = this.regionWidth - barrierX;
-    const wavefrontPastBarrier = displayWavefrontX - barrierX;
-    const trailingPastBarrier = trailingEdgeX > barrierX ? trailingEdgeX - barrierX : 0;
-    const dy = this.regionHeight / gridHeight;
-
-    const topSlitY = -viewSlitSep / 2;
-    const bottomSlitY = viewSlitSep / 2;
-
-    const slitEnvelopeAt = ( posOnScreen: number, slitY: number ): number => {
-      const dySlit = posOnScreen - slitY;
-      const dist = Math.sqrt( L * L + dySlit * dySlit );
-      const sinThetaSlit = dySlit / dist;
-      const arg = Math.PI * viewSlitWidth * sinThetaSlit / displayLambda;
-      return arg === 0 ? 1 : Math.pow( Math.sin( arg ) / arg, 2 );
+    return {
+      kind: 'doubleSlit',
+      barrierX: this.barrierFractionX * this.regionWidth,
+      slits: [
+        {
+          source: 'topSlit',
+          centerY: -viewSlitSep / 2,
+          width: viewSlitWidth,
+          isOpen: this.isTopSlitOpen,
+          coherenceGroup: this.isTopSlitDecoherent ? 'topSlitDetector' : 'coherentSlits'
+        },
+        {
+          source: 'bottomSlit',
+          centerY: viewSlitSep / 2,
+          width: viewSlitWidth,
+          isOpen: this.isBottomSlitOpen,
+          coherenceGroup: this.isBottomSlitDecoherent ? 'bottomSlitDetector' : 'coherentSlits'
+        }
+      ]
     };
+  }
 
-    for ( let iy = 0; iy < gridHeight; iy++ ) {
-      const posOnScreen = ( iy - gridHeight / 2 + 0.5 ) * dy;
-
-      // Minimum distance from any open slit to this screen position
-      let minDistFromSlit = Infinity;
-      if ( this.isTopSlitOpen ) {
-        const dyTop = posOnScreen - topSlitY;
-        minDistFromSlit = Math.min( minDistFromSlit, Math.sqrt( L * L + dyTop * dyTop ) );
-      }
-      if ( this.isBottomSlitOpen ) {
-        const dyBottom = posOnScreen - bottomSlitY;
-        minDistFromSlit = Math.min( minDistFromSlit, Math.sqrt( L * L + dyBottom * dyBottom ) );
-      }
-
-      if ( wavefrontPastBarrier < minDistFromSlit || trailingPastBarrier >= minDistFromSlit ) {
-        detectorDistribution[ iy ] = 0;
-        continue;
-      }
-
-      if ( this.isTopSlitOpen && this.isBottomSlitOpen && !this.isTopSlitDecoherent && !this.isBottomSlitDecoherent ) {
-
-        // Both open, coherent: sinTheta from the midpoint between slits
-        const distToScreen = Math.sqrt( L * L + posOnScreen * posOnScreen );
-        const sinTheta = posOnScreen / distToScreen;
-        const singleSlitArg = Math.PI * viewSlitWidth * sinTheta / displayLambda;
-        const envelope = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
-        const doubleSlitArg = Math.PI * viewSlitSep * sinTheta / displayLambda;
-        detectorDistribution[ iy ] = Math.pow( Math.cos( doubleSlitArg ), 2 ) * envelope;
-      }
-      else if ( this.isTopSlitOpen && this.isBottomSlitOpen ) {
-
-        // Decoherent: each slit's sinc² centered on its own position
-        detectorDistribution[ iy ] = 0.5 * ( slitEnvelopeAt( posOnScreen, topSlitY ) +
-                                              slitEnvelopeAt( posOnScreen, bottomSlitY ) );
-      }
-      else {
-
-        // Single slit: sinc² centered on the open slit
-        const openSlitY = this.isTopSlitOpen ? topSlitY : bottomSlitY;
-        detectorDistribution[ iy ] = 0.5 * slitEnvelopeAt( posOnScreen, openSlitY );
-      }
+  private getMaximumRegionPathLength(): number {
+    if ( this.obstacleType !== 'doubleSlit' ) {
+      return this.regionWidth;
     }
+
+    const barrierX = this.barrierFractionX * this.regionWidth;
+    const { viewSlitSep } = this.getDisplaySlitGeometry();
+    const openSlitCenters = [
+      ...( this.isTopSlitOpen ? [ -viewSlitSep / 2 ] : [] ),
+      ...( this.isBottomSlitOpen ? [ viewSlitSep / 2 ] : [] )
+    ];
+
+    if ( openSlitCenters.length === 0 ) {
+      return barrierX;
+    }
+
+    const xPastBarrier = this.regionWidth - barrierX;
+    let maxPath = barrierX;
+    for ( let i = 0; i < openSlitCenters.length; i++ ) {
+      const slitCenterY = openSlitCenters[ i ];
+      maxPath = Math.max(
+        maxPath,
+        barrierX + Math.sqrt( xPastBarrier * xPastBarrier + ( -this.regionHeight / 2 - slitCenterY ) ** 2 ),
+        barrierX + Math.sqrt( xPastBarrier * xPastBarrier + ( this.regionHeight / 2 - slitCenterY ) ** 2 )
+      );
+    }
+    return maxPath;
+  }
+
+  private getDisplayWaveNumber(): number {
+    return 2 * Math.PI * this.displayWavelengths / this.regionWidth;
+  }
+
+  private getDisplaySpeed(): number {
+    return ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
+  }
+
+  private getDisplaySlitGeometry(): { viewSlitSep: number; viewSlitWidth: number } {
+    return getViewSlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
   }
 }

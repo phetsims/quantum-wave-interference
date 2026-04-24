@@ -243,11 +243,8 @@ export default class DetectorToolNode extends Node {
     model.currentDetectorToolPositionProperty.link( () => updateCircle() );
     model.currentDetectorToolRadiusProperty.link( () => updateCircle() );
 
-    Multilink.multilink(
-      [ model.isDetectorToolVisibleProperty, model.isDetectorToolAvailableProperty ],
-      ( isVisible, isAvailable ) => {
-        this.visible = isVisible && isAvailable;
-      }
-    );
+    model.isDetectorToolVisibleProperty.link( visible => {
+      this.visible = visible;
+    } );
   }
 }

@@ -87,7 +87,7 @@ export default class HighIntensityScreenView extends ScreenView {
 
     const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
       photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
-      particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty,
+      particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
       tandem: tandem.createTandem( 'sourceControlPanel' )
     } );
 
