@@ -37,6 +37,28 @@ const assertComplexApproximately = (
 const intensityAt = ( parameters: AnalyticalWaveParameters, x: number, y: number, t: number ): number =>
   computeSampleIntensity( evaluateAnalyticalSample( parameters, x, y, t ) );
 
+const integrateIntensity = (
+  parameters: AnalyticalWaveParameters,
+  bounds: { minX: number; maxX: number; minY: number; maxY: number },
+  t: number,
+  nx: number,
+  ny: number
+): number => {
+  const dx = ( bounds.maxX - bounds.minX ) / nx;
+  const dy = ( bounds.maxY - bounds.minY ) / ny;
+  let sum = 0;
+
+  for ( let ix = 0; ix < nx; ix++ ) {
+    const x = bounds.minX + ( ix + 0.5 ) * dx;
+    for ( let iy = 0; iy < ny; iy++ ) {
+      const y = bounds.minY + ( iy + 0.5 ) * dy;
+      sum += intensityAt( parameters, x, y, t ) * dx * dy;
+    }
+  }
+
+  return sum;
+};
+
 const createPlaneParameters = ( options?: {
   startTime?: number | null;
   stopTime?: number | null;
@@ -52,6 +74,26 @@ const createPlaneParameters = ( options?: {
     stopTime: options?.stopTime === undefined ? null : options.stopTime
   },
   obstacle: options?.obstacle ?? { kind: 'none' }
+} );
+
+const createGaussianPacketParameters = ( options?: {
+  obstacle?: AnalyticalWaveParameters['obstacle'];
+  projections?: AnalyticalWaveParameters['projections'];
+} ): AnalyticalWaveParameters => ( {
+  source: {
+    kind: 'gaussianPacket',
+    isActive: true,
+    waveNumber: 2 * Math.PI,
+    speed: 1,
+    initialCenterX: -0.5,
+    centerY: 0,
+    sigmaX0: 0.2,
+    sigmaY0: 0.2,
+    longitudinalSpreadTime: 2,
+    transverseSpreadTime: 2
+  },
+  obstacle: options?.obstacle ?? { kind: 'none' },
+  projections: options?.projections
 } );
 
 const createDoubleSlitObstacle = ( options?: {
@@ -297,21 +339,7 @@ QUnit.test( 'extreme aperture widths remain finite', assert => {
 } );
 
 QUnit.test( 'gaussian packet source moves and broadens analytically', assert => {
-  const parameters: AnalyticalWaveParameters = {
-    source: {
-      kind: 'gaussianPacket',
-      isActive: true,
-      waveNumber: 2 * Math.PI,
-      speed: 1,
-      initialCenterX: -0.5,
-      centerY: 0,
-      sigmaX0: 0.2,
-      sigmaY0: 0.2,
-      longitudinalSpreadTime: 2,
-      transverseSpreadTime: 2
-    },
-    obstacle: { kind: 'none' }
-  };
+  const parameters = createGaussianPacketParameters();
 
   const early = evaluateAnalyticalSample( parameters, -0.5, 0, 0 );
   const laterAtOldCenter = evaluateAnalyticalSample( parameters, -0.5, 0, 1 );
@@ -329,6 +357,75 @@ QUnit.test( 'gaussian packet source moves and broadens analytically', assert => 
     computeSampleIntensity( laterAtNewCenter ) < computeSampleIntensity( early ),
     'packet peak decreases as it spreads'
   );
+} );
+
+QUnit.test( 'gaussian packet integrated probability is stable while spreading', assert => {
+  const parameters = createGaussianPacketParameters();
+  const bounds = { minX: -1.5, maxX: 1.5, minY: -1.2, maxY: 1.2 };
+  const initialIntegral = integrateIntensity( parameters, bounds, 0, 72, 56 );
+  const laterIntegral = integrateIntensity( parameters, bounds, 1, 72, 56 );
+
+  assertApproximately(
+    assert,
+    laterIntegral / initialIntegral,
+    1,
+    'free packet integrated probability remains stable',
+    0.01
+  );
+} );
+
+QUnit.test( 'measurement projection zeros detector region and renormalizes outside', assert => {
+  const unprojected = createGaussianPacketParameters();
+  const projected = createGaussianPacketParameters( {
+    projections: [ {
+      centerX: 0.5,
+      centerY: 0,
+      radius: 0.2,
+      measurementTime: 1,
+      renormScale: 1.5
+    } ]
+  } );
+
+  assertApproximately(
+    assert,
+    intensityAt( projected, 0.5, 0, 1 ),
+    0,
+    'projection removes probability at detector center'
+  );
+  assertApproximately(
+    assert,
+    intensityAt( projected, 0.5, 0.5, 1 ) / intensityAt( unprojected, 0.5, 0.5, 1 ),
+    1.5 * 1.5,
+    'projection renormalizes outside probability density',
+    1e-10
+  );
+} );
+
+QUnit.test( 'gaussian packet remains finite and continuous through slit aperture', assert => {
+  const parameters = createGaussianPacketParameters( {
+    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
+  } );
+  const apertureY = -0.25 + 0.08;
+  const t = 1.5;
+  const atAperture = evaluateAnalyticalSample( parameters, 1, apertureY, t );
+  const justRightOfAperture = evaluateAnalyticalSample( parameters, 1 + 1e-6, apertureY, t );
+
+  assert.strictEqual( atAperture.kind, 'field', 'packet field reaches the open aperture' );
+  assert.strictEqual( justRightOfAperture.kind, 'field', 'packet field reaches just beyond the aperture' );
+  assertComplexApproximately(
+    assert,
+    getRepresentativeComplex( justRightOfAperture ),
+    getRepresentativeComplex( atAperture ),
+    'packet field is continuous across the aperture opening',
+    1e-10
+  );
+
+  for ( const x of [ 1, 1.001, 1.2, 1.8 ] ) {
+    for ( const y of [ -0.45, -0.25, 0, 0.25, 0.45 ] ) {
+      const intensity = intensityAt( parameters, x, y, t );
+      assert.ok( Number.isFinite( intensity ), `finite packet intensity through slit at x=${x}, y=${y}` );
+    }
+  }
 } );
 
 const appendRasterPreview = (
