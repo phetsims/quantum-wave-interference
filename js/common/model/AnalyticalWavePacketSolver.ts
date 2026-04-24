@@ -35,6 +35,7 @@ const LONGITUDINAL_SPREAD_TRAVERSALS = 2.5;
 const TRANSVERSE_SPREAD_TRAVERSALS = 1.5;
 
 const EPSILON = 1e-12;
+const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
 
 export { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION, PACKET_START_OFFSET_SIGMAS };
 
@@ -62,6 +63,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   private time = 0;
 
   private readonly amplitudeField: Float64Array;
+  private readonly fieldSamples: FieldSample[];
   private readonly detectorDistribution: Float64Array;
   private dirty = true;
 
@@ -71,6 +73,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.gridWidth = gridWidth;
     this.gridHeight = gridHeight;
     this.amplitudeField = new Float64Array( gridWidth * gridHeight * 2 );
+    this.fieldSamples = new Array<FieldSample>( gridWidth * gridHeight ).fill( UNREACHED_SAMPLE );
     this.detectorDistribution = new Float64Array( gridHeight );
   }
 
@@ -118,7 +121,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   }
 
   public getFieldSampleAtGridCell( gridX: number, gridY: number ): FieldSample {
-    return evaluateAnalyticalSample( this.createKernelParameters(), this.getGridCellX( gridX ), this.getGridCellY( gridY ), this.time );
+    this.ensureComputed();
+    return this.fieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_SAMPLE;
   }
 
   public getDetectorProbabilityDistribution(): Float64Array {
@@ -129,6 +133,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   public reset(): void {
     this.time = 0;
     this.amplitudeField.fill( 0 );
+    this.fieldSamples.fill( UNREACHED_SAMPLE );
     this.detectorDistribution.fill( 0 );
     this.measurementProjections.length = 0;
     this.dirty = true;
@@ -218,10 +223,11 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   }
 
   private computeField(): void {
-    const { gridWidth, gridHeight, amplitudeField } = this;
+    const { gridWidth, gridHeight, amplitudeField, fieldSamples } = this;
 
     if ( !this.isSourceOn ) {
       amplitudeField.fill( 0 );
+      fieldSamples.fill( UNREACHED_SAMPLE );
       this.detectorDistribution.fill( 0 );
       return;
     }
@@ -232,8 +238,11 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       const x = this.getGridCellX( ix );
       for ( let iy = 0; iy < gridHeight; iy++ ) {
         const y = this.getGridCellY( iy );
-        const value = getRepresentativeComplex( evaluateAnalyticalSample( parameters, x, y, this.time ) );
-        const idx = ( iy * gridWidth + ix ) * 2;
+        const sample = evaluateAnalyticalSample( parameters, x, y, this.time );
+        const value = getRepresentativeComplex( sample );
+        const cellIndex = iy * gridWidth + ix;
+        const idx = cellIndex * 2;
+        fieldSamples[ cellIndex ] = sample;
         amplitudeField[ idx ] = value.re;
         amplitudeField[ idx + 1 ] = value.im;
       }

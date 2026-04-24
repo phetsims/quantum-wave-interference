@@ -34,6 +34,9 @@ const assertComplexApproximately = (
   assertApproximately( assert, actual.im, expected.im, `${message} im`, epsilon );
 };
 
+const intensityAt = ( parameters: AnalyticalWaveParameters, x: number, y: number, t: number ): number =>
+  computeSampleIntensity( evaluateAnalyticalSample( parameters, x, y, t ) );
+
 const createPlaneParameters = ( options?: {
   startTime?: number | null;
   stopTime?: number | null;
@@ -157,6 +160,66 @@ QUnit.test( 'coherent and decoherent slit components produce different total int
   }
 } );
 
+QUnit.test( 'symmetric apertures produce symmetric detector intensities', assert => {
+  const parameters = createPlaneParameters( {
+    waveNumber: 18 * Math.PI,
+    obstacle: createDoubleSlitObstacle( { coherent: true, slitWidth: 0.18 } )
+  } );
+
+  for ( const y of [ 0, 0.08, 0.17, 0.31, 0.42 ] ) {
+    assertApproximately(
+      assert,
+      intensityAt( parameters, 2.4, y, 6 ),
+      intensityAt( parameters, 2.4, -y, 6 ),
+      `symmetric double-slit intensity at y=${y}`,
+      1e-10
+    );
+  }
+} );
+
+QUnit.test( 'single open slit is symmetric about the open aperture center', assert => {
+  const parameters = createPlaneParameters( {
+    waveNumber: 18 * Math.PI,
+    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.18 } )
+  } );
+  const slitCenterY = -0.25;
+
+  for ( const offset of [ 0, 0.05, 0.13, 0.25 ] ) {
+    assertApproximately(
+      assert,
+      intensityAt( parameters, 2.4, slitCenterY + offset, 6 ),
+      intensityAt( parameters, 2.4, slitCenterY - offset, 6 ),
+      `single-slit intensity symmetric around open slit for offset=${offset}`,
+      1e-10
+    );
+  }
+} );
+
+QUnit.test( 'decoherent double slit intensity equals sum of independent slit intensities', assert => {
+  const decoherentParameters = createPlaneParameters( {
+    waveNumber: 18 * Math.PI,
+    obstacle: createDoubleSlitObstacle( { coherent: false, slitWidth: 0.18 } )
+  } );
+  const topOnlyParameters = createPlaneParameters( {
+    waveNumber: 18 * Math.PI,
+    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.18 } )
+  } );
+  const bottomOnlyParameters = createPlaneParameters( {
+    waveNumber: 18 * Math.PI,
+    obstacle: createDoubleSlitObstacle( { topOpen: false, bottomOpen: true, slitWidth: 0.18 } )
+  } );
+
+  for ( const y of [ -0.35, -0.1, 0.07, 0.28, 0.5 ] ) {
+    assertApproximately(
+      assert,
+      intensityAt( decoherentParameters, 2.4, y, 6 ),
+      intensityAt( topOnlyParameters, 2.4, y, 6 ) + intensityAt( bottomOnlyParameters, 2.4, y, 6 ),
+      `decoherent intensity sum at y=${y}`,
+      1e-10
+    );
+  }
+} );
+
 QUnit.test( 'diffracted far-field samples are field samples, not ether', assert => {
   const parameters = createPlaneParameters( {
     waveNumber: 20 * Math.PI,
@@ -195,6 +258,42 @@ QUnit.test( 'Fresnel aperture propagation is continuous inside an open aperture'
     'field is continuous across aperture opening',
     1e-10
   );
+} );
+
+QUnit.test( 'source stop time creates a trailing edge', assert => {
+  const parameters = createPlaneParameters( {
+    waveNumber: Math.PI,
+    speed: 1,
+    startTime: 0,
+    stopTime: 0.5
+  } );
+
+  assert.strictEqual(
+    evaluateAnalyticalSample( parameters, 0.25, 0, 0.75 ).kind,
+    'field',
+    'last emitted wavefront is still present at the trailing edge'
+  );
+  assert.strictEqual(
+    evaluateAnalyticalSample( parameters, 0.25, 0, 0.76 ).kind,
+    'unreached',
+    'field clears after the trailing edge passes'
+  );
+} );
+
+QUnit.test( 'extreme aperture widths remain finite', assert => {
+  for ( const slitWidth of [ 1e-6, 0.01, 0.4, 1.2 ] ) {
+    const parameters = createPlaneParameters( {
+      waveNumber: 24 * Math.PI,
+      obstacle: createDoubleSlitObstacle( { coherent: true, slitWidth: slitWidth } )
+    } );
+
+    for ( const x of [ 1, 1.001, 1.2, 2.5 ] ) {
+      for ( const y of [ -0.55, -0.2, 0, 0.2, 0.55 ] ) {
+        const intensity = intensityAt( parameters, x, y, 6 );
+        assert.ok( Number.isFinite( intensity ), `finite intensity for slitWidth=${slitWidth}, x=${x}, y=${y}` );
+      }
+    }
+  }
 } );
 
 QUnit.test( 'gaussian packet source moves and broadens analytically', assert => {
