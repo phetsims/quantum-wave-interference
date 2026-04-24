@@ -32,7 +32,7 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
   public readonly currentDetectorToolStateProperty: DynamicProperty<DetectorToolState, DetectorToolState, SingleParticlesSceneModel>;
   public readonly currentDetectorToolProbabilityProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
 
-  // Whether the detector tool checkbox is available (only when obstacle is None)
+  // Whether the detector tool UI is available (only when obstacle is None)
   public readonly isDetectorToolAvailableProperty: TReadOnlyProperty<boolean>;
 
   // Tool visibility specific to this screen
@@ -103,11 +103,6 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
       tandem: this.toolsTandem.createTandem( 'isDetectorToolVisibleProperty' )
     } );
 
-    this.isDetectorToolAvailableProperty.link( isAvailable => {
-      if ( !isAvailable ) {
-        this.isDetectorToolVisibleProperty.value = false;
-      }
-    } );
   }
 
   public override takeSnapshot(): void {
