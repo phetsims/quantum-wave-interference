@@ -68,9 +68,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public constructor( providedOptions: SingleParticlesSceneModelOptions ) {
 
-    super( createWavePacketSolver(), combineOptions<BaseSceneModelOptions>( {
-      defaultPhotonWaveDisplayMode: 'timeAveragedIntensity'
-    }, providedOptions ) );
+    super( createWavePacketSolver(), combineOptions<BaseSceneModelOptions>( {}, providedOptions ) );
 
     const tandem = providedOptions.tandem;
 

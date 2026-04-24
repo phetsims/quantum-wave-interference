@@ -48,9 +48,9 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
 
     const scenes = [
       photonsScene,
-      new SingleParticlesSceneModel( { sourceType: 'electrons', tandem: scenesTandem.createTandem( 'electronsScene' ) } ),
-      new SingleParticlesSceneModel( { sourceType: 'neutrons', tandem: scenesTandem.createTandem( 'neutronsScene' ) } ),
-      new SingleParticlesSceneModel( { sourceType: 'heliumAtoms', tandem: scenesTandem.createTandem( 'heliumAtomsScene' ) } )
+      new SingleParticlesSceneModel( { sourceType: 'electrons', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'electronsScene' ) } ),
+      new SingleParticlesSceneModel( { sourceType: 'neutrons', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'neutronsScene' ) } ),
+      new SingleParticlesSceneModel( { sourceType: 'heliumAtoms', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'heliumAtomsScene' ) } )
     ];
 
     super( scenes, providedOptions );
