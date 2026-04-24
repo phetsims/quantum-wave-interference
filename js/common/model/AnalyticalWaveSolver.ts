@@ -129,6 +129,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     }
   }
 
+  public getTime(): number {
+    return this.time;
+  }
+
   private ensureComputed(): void {
     if ( this.dirty ) {
       this.computeField();

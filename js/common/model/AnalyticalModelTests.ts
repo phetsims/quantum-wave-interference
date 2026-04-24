@@ -461,6 +461,87 @@ QUnit.test( 'gaussian packet after a slit is localized around radial propagation
   );
 } );
 
+QUnit.test( 'decoherent wave rendering stochastically samples channels weighted by intensity', assert => {
+  const baseColor = { red: 220, green: 120, blue: 60 };
+  const decoherentSample = {
+    kind: 'field' as const,
+    components: [
+      {
+        source: 'topSlit' as const,
+        coherenceGroup: 'topPath',
+        support: 1,
+        value: { re: 2, im: 0 }
+      },
+      {
+        source: 'bottomSlit' as const,
+        coherenceGroup: 'bottomPath',
+        support: 1,
+        value: { re: -1, im: 0 }
+      }
+    ]
+  };
+
+  let topCount = 0;
+  let bottomCount = 0;
+  let changedCount = 0;
+  const sampleWidth = 20;
+  const sampleHeight = 20;
+
+  for ( let yIndex = 0; yIndex < sampleHeight; yIndex++ ) {
+    for ( let xIndex = 0; xIndex < sampleWidth; xIndex++ ) {
+      const firstColor = getFieldSampleRGBA( decoherentSample, 'realPart', baseColor, 1, {
+        xIndex: xIndex,
+        yIndex: yIndex,
+        decoherenceFrame: 0
+      } );
+      const secondColor = getFieldSampleRGBA( decoherentSample, 'realPart', baseColor, 1, {
+        xIndex: xIndex,
+        yIndex: yIndex,
+        decoherenceFrame: 1
+      } );
+
+      if ( firstColor.red > 100 ) {
+        topCount++;
+      }
+      else {
+        bottomCount++;
+      }
+      if ( firstColor.red !== secondColor.red ) {
+        changedCount++;
+      }
+    }
+  }
+
+  const firstIntensityColor = getFieldSampleRGBA( decoherentSample, 'timeAveragedIntensity', baseColor, 1, {
+    xIndex: 0,
+    yIndex: 0,
+    decoherenceFrame: 0
+  } );
+  const secondIntensityColor = getFieldSampleRGBA( decoherentSample, 'timeAveragedIntensity', baseColor, 1, {
+    xIndex: sampleWidth - 1,
+    yIndex: sampleHeight - 1,
+    decoherenceFrame: 1
+  } );
+
+  assert.ok(
+    topCount > 2 * bottomCount,
+    `brighter top channel is selected more often than bottom channel: top=${topCount}, bottom=${bottomCount}`
+  );
+  assert.ok(
+    bottomCount > 0,
+    'lower-intensity bottom channel still appears in some cells'
+  );
+  assert.ok(
+    changedCount > 0,
+    'decoherent stochastic rendering changes as the glimmer frame advances'
+  );
+  assert.deepEqual(
+    firstIntensityColor,
+    secondIntensityColor,
+    'intensity rendering remains deterministic and independent of stochastic channel sampling'
+  );
+} );
+
 const appendRasterPreview = (
   title: string,
   width: number,

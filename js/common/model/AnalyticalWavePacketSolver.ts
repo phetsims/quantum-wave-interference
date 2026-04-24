@@ -107,6 +107,10 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.dirty = true;
   }
 
+  public getTime(): number {
+    return this.time;
+  }
+
   private ensureComputed(): void {
     if ( this.dirty ) {
       this.computeField();

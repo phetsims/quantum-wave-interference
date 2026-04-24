@@ -47,6 +47,8 @@ type WaveSolver = {
 
   step( dt: number ): void;
 
+  getTime(): number;
+
   getAmplitudeField(): Float64Array;
 
   /**
