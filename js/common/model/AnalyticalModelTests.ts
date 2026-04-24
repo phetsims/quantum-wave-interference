@@ -6,7 +6,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { type AnalyticalWaveParameters, type ComplexValue, computeSampleIntensity, evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
+import { type AnalyticalWaveParameters, type ComplexValue, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { getFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_GRAY } from './AnalyticalWaveRasterizer.js';
 
 QUnit.module( 'AnalyticalModel' );
@@ -157,7 +157,7 @@ QUnit.test( 'coherent and decoherent slit components produce different total int
   }
 } );
 
-QUnit.test( 'zero-amplitude diffraction node is still a field sample, not ether', assert => {
+QUnit.test( 'diffracted far-field samples are field samples, not ether', assert => {
   const parameters = createPlaneParameters( {
     waveNumber: 20 * Math.PI,
     obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
@@ -170,25 +170,31 @@ QUnit.test( 'zero-amplitude diffraction node is still a field sample, not ether'
   const sinTheta = 0.25;
   const y = slitY + xPastBarrier * sinTheta / Math.sqrt( 1 - sinTheta * sinTheta );
   const sample = evaluateAnalyticalSample( parameters, x, y, 5 );
+  const intensity = computeSampleIntensity( sample );
 
-  assert.strictEqual( sample.kind, 'field', 'diffraction node is still physically reached field' );
-  assert.ok( computeSampleIntensity( sample ) < 1e-24, 'single-slit sinc zero has negligible intensity' );
+  assert.strictEqual( sample.kind, 'field', 'diffracted far-field point is physically reached field' );
+  assert.ok( Number.isFinite( intensity ), 'diffracted far-field intensity is finite' );
 } );
 
-QUnit.test( 'known limitation: Fraunhofer stitch is not aperture-continuous away from slit center', assert => {
+QUnit.test( 'Fresnel aperture propagation is continuous inside an open aperture', assert => {
   const parameters = createPlaneParameters( {
     waveNumber: 20 * Math.PI,
     obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
   } );
 
-  // This documents the current far-field approximation limitation. Fresnel diffraction should
-  // replace this with a continuity assertion across x=barrierX inside the open aperture.
   const yInsideTopApertureAwayFromCenter = -0.25 + 0.1;
   const atAperture = evaluateAnalyticalSample( parameters, 1, yInsideTopApertureAwayFromCenter, 5 );
   const justRightOfAperture = evaluateAnalyticalSample( parameters, 1 + 1e-6, yInsideTopApertureAwayFromCenter, 5 );
-  const discontinuity = Math.abs( computeSampleIntensity( atAperture ) - computeSampleIntensity( justRightOfAperture ) );
 
-  assert.ok( discontinuity > 0.5, 'current Fraunhofer near-aperture stitch has a measurable discontinuity' );
+  assert.strictEqual( atAperture.kind, 'field', 'aperture point is field' );
+  assert.strictEqual( justRightOfAperture.kind, 'field', 'just-right aperture point is field' );
+  assertComplexApproximately(
+    assert,
+    getRepresentativeComplex( justRightOfAperture ),
+    getRepresentativeComplex( atAperture ),
+    'field is continuous across aperture opening',
+    1e-10
+  );
 } );
 
 QUnit.test( 'gaussian packet source moves and broadens analytically', assert => {

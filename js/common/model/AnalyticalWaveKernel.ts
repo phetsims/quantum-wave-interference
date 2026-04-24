@@ -16,6 +16,8 @@
  */
 
 const EPSILON = 1e-12;
+const NEAR_APERTURE_X_FRACTION = 1e-4;
+const INV_SQRT_2 = 1 / Math.sqrt( 2 );
 
 export type ComplexValue = {
   re: number;
@@ -98,8 +100,6 @@ type GaussianPacketState = {
   chirpY: number;
 };
 
-const sinc = ( x: number ): number => Math.abs( x ) < 1e-8 ? 1 : Math.sin( x ) / x;
-
 const smoothStep = ( edge0: number, edge1: number, x: number ): number => {
   if ( x <= edge0 ) {
     return 0;
@@ -109,6 +109,59 @@ const smoothStep = ( edge0: number, edge1: number, x: number ): number => {
   }
   const u = ( x - edge0 ) / ( edge1 - edge0 );
   return u * u * ( 3 - 2 * u );
+};
+
+// Fast Abramowitz-Stegun style approximation for Fresnel integrals. The max error is small enough
+// for rendering/unit-test invariants, and it avoids per-cell numerical quadrature in the canvas.
+const fresnelIntegral = ( x: number ): ComplexValue => {
+  const sign = x < 0 ? -1 : 1;
+  const ax = Math.abs( x );
+
+  if ( ax < EPSILON ) {
+    return { re: 0, im: 0 };
+  }
+
+  const phase = 0.5 * Math.PI * ax * ax;
+  const sinPhase = Math.sin( phase );
+  const cosPhase = Math.cos( phase );
+  const f = ( 1 + 0.926 * ax ) / ( 2 + 1.792 * ax + 3.104 * ax * ax );
+  const g = 1 / ( 2 + 4.142 * ax + 3.492 * ax * ax + 6.67 * ax * ax * ax );
+
+  return {
+    re: sign * ( 0.5 + f * sinPhase - g * cosPhase ),
+    im: sign * ( 0.5 - f * cosPhase - g * sinPhase )
+  };
+};
+
+const subtractComplex = ( a: ComplexValue, b: ComplexValue ): ComplexValue => ( {
+  re: a.re - b.re,
+  im: a.im - b.im
+} );
+
+const getFresnelApertureTransfer = (
+  waveNumber: number,
+  xPastBarrier: number,
+  y: number,
+  slit: AnalyticalSlit
+): ComplexValue => {
+  const halfWidth = slit.width / 2;
+  const yMin = slit.centerY - halfWidth;
+  const yMax = slit.centerY + halfWidth;
+
+  if ( xPastBarrier <= Math.max( EPSILON, slit.width * NEAR_APERTURE_X_FRACTION ) ) {
+    return y >= yMin && y <= yMax ? { re: 1, im: 0 } : { re: 0, im: 0 };
+  }
+
+  const wavelength = 2 * Math.PI / waveNumber;
+  const uScale = Math.sqrt( 2 / ( wavelength * xPastBarrier ) );
+  const uMin = ( yMin - y ) * uScale;
+  const uMax = ( yMax - y ) * uScale;
+  const apertureIntegral = subtractComplex( fresnelIntegral( uMax ), fresnelIntegral( uMin ) );
+
+  return multiplyComplex(
+    complexFromPolar( INV_SQRT_2, waveNumber * xPastBarrier - Math.PI / 4 ),
+    apertureIntegral
+  );
 };
 
 export const complexAbsSquared = ( value: ComplexValue ): number => value.re * value.re + value.im * value.im;
@@ -121,6 +174,16 @@ export const addComplex = ( a: ComplexValue, b: ComplexValue ): ComplexValue => 
 export const scaleComplex = ( value: ComplexValue, scale: number ): ComplexValue => ( {
   re: value.re * scale,
   im: value.im * scale
+} );
+
+const multiplyComplex = ( a: ComplexValue, b: ComplexValue ): ComplexValue => ( {
+  re: a.re * b.re - a.im * b.im,
+  im: a.re * b.im + a.im * b.re
+} );
+
+const complexFromPolar = ( magnitude: number, phase: number ): ComplexValue => ( {
+  re: magnitude * Math.cos( phase ),
+  im: magnitude * Math.sin( phase )
 } );
 
 export const computeSampleIntensity = ( sample: FieldSample ): number => {
@@ -243,7 +306,7 @@ const evaluateDoubleSlitSample = (
     const dy = y - slit.centerY;
     const r = Math.sqrt( xPastBarrier * xPastBarrier + dy * dy );
     const pathLength = obstacle.barrierX + r;
-    const component = evaluateDiffractedComponent( source, slit, x, y, pathLength, r, t );
+    const component = evaluateDiffractedComponent( source, slit, obstacle.barrierX, xPastBarrier, y, pathLength, t );
 
     if ( component ) {
       hasReachablePath = true;
@@ -269,35 +332,61 @@ const evaluateDoubleSlitSample = (
 const evaluateDiffractedComponent = (
   source: AnalyticalSource,
   slit: AnalyticalSlit,
-  x: number,
+  barrierX: number,
+  xPastBarrier: number,
   y: number,
-  pathLength: number,
-  distanceFromSlit: number,
+  reachPathLength: number,
   t: number
 ): FieldComponent | null => {
-  if ( distanceFromSlit <= EPSILON ) {
+  if ( xPastBarrier <= EPSILON ) {
     return null;
   }
 
-  const sinTheta = ( y - slit.centerY ) / distanceFromSlit;
-  const apertureAmplitude = sinc( 0.5 * source.waveNumber * slit.width * sinTheta );
-  const component = evaluateSourceComponent(
-    source,
-    slit.source,
-    slit.coherenceGroup,
-    x,
-    y,
-    pathLength,
-    t,
-    apertureAmplitude,
-    slit.centerY
-  );
+  if ( source.kind === 'plane' ) {
+    if ( !isPathReachable( source, reachPathLength, t ) ) {
+      return null;
+    }
 
-  if ( !component ) {
+    const barrierPhase = source.waveNumber * barrierX - source.waveNumber * source.speed * t;
+    const apertureTransfer = getFresnelApertureTransfer( source.waveNumber, xPastBarrier, y, slit );
+    return {
+      source: slit.source,
+      coherenceGroup: slit.coherenceGroup,
+      value: multiplyComplex( complexFromPolar( 1, barrierPhase ), apertureTransfer )
+    };
+  }
+
+  if ( !source.isActive ) {
     return null;
   }
 
-  return component;
+  const state = getGaussianPacketState( source, t );
+  const paraxialPathLength = barrierX + xPastBarrier;
+  const longitudinalDelta = paraxialPathLength - state.centerX;
+  const normalizedPath = longitudinalDelta / state.sigmaX;
+  if ( normalizedPath * normalizedPath > 64 ) {
+    return null;
+  }
+
+  const transverseDelta = y - source.centerY;
+  const normalizedTransverse = transverseDelta / state.sigmaY;
+  if ( normalizedTransverse * normalizedTransverse > 64 ) {
+    return null;
+  }
+
+  const envelope = state.normalization *
+                   Math.exp( -0.5 * normalizedPath * normalizedPath ) *
+                   Math.exp( -0.5 * normalizedTransverse * normalizedTransverse );
+  const phase = source.waveNumber * barrierX - source.waveNumber * source.speed * t +
+                state.chirpX * longitudinalDelta * longitudinalDelta +
+                state.chirpY * transverseDelta * transverseDelta;
+  const apertureTransfer = getFresnelApertureTransfer( source.waveNumber, xPastBarrier, y, slit );
+
+  return {
+    source: slit.source,
+    coherenceGroup: slit.coherenceGroup,
+    value: multiplyComplex( complexFromPolar( envelope, phase ), apertureTransfer )
+  };
 };
 
 const evaluateSourceComponent = (
@@ -307,9 +396,7 @@ const evaluateSourceComponent = (
   x: number,
   y: number,
   pathLength: number,
-  t: number,
-  apertureAmplitude = 1,
-  slitCenterY = 0
+  t: number
 ): FieldComponent | null => {
   if ( source.kind === 'plane' ) {
     if ( !isPathReachable( source, pathLength, t ) ) {
@@ -321,8 +408,8 @@ const evaluateSourceComponent = (
       source: componentSource,
       coherenceGroup: coherenceGroup,
       value: {
-        re: apertureAmplitude * Math.cos( phase ),
-        im: apertureAmplitude * Math.sin( phase )
+        re: Math.cos( phase ),
+        im: Math.sin( phase )
       }
     };
   }
@@ -338,7 +425,7 @@ const evaluateSourceComponent = (
     return null;
   }
 
-  const transverseDelta = componentSource === 'incident' ? y - source.centerY : slitCenterY - source.centerY;
+  const transverseDelta = y - source.centerY;
   const normalizedTransverse = transverseDelta / state.sigmaY;
   if ( componentSource === 'incident' && normalizedTransverse * normalizedTransverse > 64 ) {
     return null;
@@ -346,7 +433,7 @@ const evaluateSourceComponent = (
 
   const longitudinalEnvelope = Math.exp( -0.5 * normalizedPath * normalizedPath );
   const transverseEnvelope = Math.exp( -0.5 * normalizedTransverse * normalizedTransverse );
-  const envelope = state.normalization * longitudinalEnvelope * transverseEnvelope * apertureAmplitude;
+  const envelope = state.normalization * longitudinalEnvelope * transverseEnvelope;
   const phase = source.waveNumber * pathLength - source.waveNumber * source.speed * t +
                 state.chirpX * longitudinalDelta * longitudinalDelta +
                 state.chirpY * transverseDelta * transverseDelta;
