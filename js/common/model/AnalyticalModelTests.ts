@@ -283,6 +283,38 @@ QUnit.test( 'diffracted far-field samples are field samples, not ether', assert 
   assert.ok( Number.isFinite( intensity ), 'diffracted far-field intensity is finite' );
 } );
 
+QUnit.test( 'single slit diffraction includes far-field aperture envelope', assert => {
+  const waveNumber = 20 * Math.PI;
+  const wavelength = 2 * Math.PI / waveNumber;
+  const slitWidth = 0.4;
+  const barrierX = 1;
+  const slitCenterY = -0.25;
+  const xPastBarrier = 5;
+  const x = barrierX + xPastBarrier;
+  const t = 20;
+  const parameters = createPlaneParameters( {
+    waveNumber: waveNumber,
+    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: slitWidth } )
+  } );
+
+  const yAtSinTheta = ( sinTheta: number ): number =>
+    slitCenterY + xPastBarrier * sinTheta / Math.sqrt( 1 - sinTheta * sinTheta );
+
+  const firstMinimumSinTheta = wavelength / slitWidth;
+  const centerIntensity = intensityAt( parameters, x, slitCenterY, t );
+  const halfAngleIntensity = intensityAt( parameters, x, yAtSinTheta( 0.5 * firstMinimumSinTheta ), t );
+  const firstMinimumIntensity = intensityAt( parameters, x, yAtSinTheta( firstMinimumSinTheta ), t );
+
+  assert.ok(
+    halfAngleIntensity > 0.25 * centerIntensity,
+    'the central diffraction maximum stays bright before the first minimum'
+  );
+  assert.ok(
+    firstMinimumIntensity < 0.02 * centerIntensity,
+    `first single-slit minimum is dark relative to center: center=${centerIntensity}, minimum=${firstMinimumIntensity}`
+  );
+} );
+
 QUnit.test( 'Fresnel aperture propagation is continuous inside an open aperture', assert => {
   const parameters = createPlaneParameters( {
     waveNumber: 20 * Math.PI,
