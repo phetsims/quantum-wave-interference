@@ -98,6 +98,7 @@ const SOURCE_TYPE_CONFIG: Record<SourceType, SourceTypeConfig> = {
 type SelfOptions = {
   sourceType: SourceType;
   defaultPhotonWaveDisplayMode?: PhotonWaveDisplayMode;
+  defaultMatterWaveDisplayMode?: MatterWaveDisplayMode;
 };
 
 export type BaseSceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
@@ -148,6 +149,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     const options = optionize<BaseSceneModelOptions, SelfOptions, PhetioObjectOptions>()( {
       isDisposable: false,
       defaultPhotonWaveDisplayMode: 'electricField',
+      defaultMatterWaveDisplayMode: 'magnitude',
       phetioType: BaseSceneModel.BaseSceneModelIO
     }, providedOptions );
 
@@ -221,7 +223,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
         tandem: tandem.createTandem( 'photonWaveDisplayModeProperty' )
       } );
 
-    this.matterWaveDisplayModeProperty = new StringUnionProperty<MatterWaveDisplayMode>( 'magnitude', {
+    this.matterWaveDisplayModeProperty = new StringUnionProperty<MatterWaveDisplayMode>( options.defaultMatterWaveDisplayMode, {
       validValues: MatterWaveDisplayModeValues,
       tandem: tandem.createTandem( 'matterWaveDisplayModeProperty' )
     } );
