@@ -23,6 +23,8 @@ import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, 
 const SUPERSAMPLE = 2;
 const MAX_RENDERED_HITS = 10000;
 const HIT_SIZE_SCALE = 2;
+const BASE_DETECTOR_SCREEN_RAMP_WINDOW = 0.6; // seconds
+const DETECTOR_SCREEN_RAMP_WINDOW = BASE_DETECTOR_SCREEN_RAMP_WINDOW * 10; // Expanded for testing.
 
 export type DetectorScreenSceneLike = {
   hits: Vector2[];
@@ -46,6 +48,9 @@ type TextureCache = {
   lastDetectionMode: string;
   lastIntensity: number;
   lastIsEmitting: boolean;
+  lastRampContentKey: string;
+  contentRampStartTime: number;
+  lastRampFactor: number;
   hitSprite: HTMLCanvasElement | null;
   hitSpriteParams: HitSpriteParams | null;
 };
@@ -78,7 +83,7 @@ export default class DetectorScreenTextureRenderer {
     this.hitGlowRadius = BASE_HIT_GLOW_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
   }
 
-  public getTexture( scene: DetectorScreenSceneLike ): HTMLCanvasElement {
+  public getTexture( scene: DetectorScreenSceneLike, displayTime: number ): HTMLCanvasElement {
     let cache = this.cacheMap.get( scene );
     if ( !cache ) {
       cache = this.createCache( scene );
@@ -87,8 +92,8 @@ export default class DetectorScreenTextureRenderer {
 
     // In intensity mode, the solver distribution updates every frame, so always re-render
     const detectionMode = scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
-    if ( cache.dirty || detectionMode === 'averageIntensity' ) {
-      this.renderTexture( cache, scene );
+    if ( cache.dirty || detectionMode === 'averageIntensity' || cache.lastRampFactor < 1 ) {
+      this.renderTexture( cache, scene, displayTime );
     }
 
     return cache.canvas;
@@ -114,6 +119,9 @@ export default class DetectorScreenTextureRenderer {
       lastDetectionMode: '',
       lastIntensity: -1,
       lastIsEmitting: false,
+      lastRampContentKey: '',
+      contentRampStartTime: 0,
+      lastRampFactor: 1,
       hitSprite: null,
       hitSpriteParams: null
     };
@@ -134,21 +142,31 @@ export default class DetectorScreenTextureRenderer {
     return cache;
   }
 
-  private renderTexture( cache: TextureCache, scene: DetectorScreenSceneLike ): void {
+  private renderTexture( cache: TextureCache, scene: DetectorScreenSceneLike, displayTime: number ): void {
     const context = cache.context;
     const currentBrightness = scene.screenBrightnessProperty.value;
     const currentWavelength = scene.wavelengthProperty.value;
     const currentDetectionMode = scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
     const currentIntensity = scene.intensityProperty ? scene.intensityProperty.value : 1;
     const currentIsEmitting = scene.isEmittingProperty.value;
+    const supportsExposureRamp = currentDetectionMode === 'averageIntensity';
+    const rampContentKey = supportsExposureRamp ? `${currentDetectionMode}:${currentIsEmitting}` : 'none';
+
+    if ( rampContentKey !== cache.lastRampContentKey ) {
+      cache.lastRampContentKey = rampContentKey;
+      cache.contentRampStartTime = displayTime;
+    }
+
+    const rampFactor = supportsExposureRamp ? this.getRampFactor( cache, displayTime ) : 1;
 
     const paramsChanged = cache.lastBrightness !== currentBrightness ||
                           cache.lastWavelength !== currentWavelength ||
                           cache.lastDetectionMode !== currentDetectionMode ||
                           cache.lastIntensity !== currentIntensity ||
                           cache.lastIsEmitting !== currentIsEmitting;
+    const rampFactorChanged = cache.lastRampFactor !== rampFactor;
 
-    if ( paramsChanged ) {
+    if ( paramsChanged || rampFactorChanged ) {
       cache.lastRenderedHitCount = 0;
       cache.hitSprite = null;
       cache.hitSpriteParams = null;
@@ -159,6 +177,7 @@ export default class DetectorScreenTextureRenderer {
       cache.lastDetectionMode = currentDetectionMode;
       cache.lastIntensity = currentIntensity;
       cache.lastIsEmitting = currentIsEmitting;
+      cache.lastRampFactor = rampFactor;
     }
 
     if ( currentDetectionMode === 'hits' ) {
@@ -171,10 +190,19 @@ export default class DetectorScreenTextureRenderer {
       context.clearRect( 0, 0, this.textureWidth, this.textureHeight );
       const normalizedBrightness = currentBrightness / scene.screenBrightnessProperty.range.max;
       const intensityDisplayGain = getIntensityDisplayGain( normalizedBrightness, currentIntensity );
-      this.paintIntensity( context, scene, intensityDisplayGain );
+      this.paintIntensity( context, scene, intensityDisplayGain, rampFactor );
     }
 
     cache.dirty = false;
+  }
+
+  private getRampFactor( cache: TextureCache, displayTime: number ): number {
+    if ( DETECTOR_SCREEN_RAMP_WINDOW <= 0 ) {
+      return 1;
+    }
+
+    const t = clamp( ( displayTime - cache.contentRampStartTime ) / DETECTOR_SCREEN_RAMP_WINDOW, 0, 1 );
+    return t * t * ( 3 - 2 * t );
   }
 
   private paintHits(
@@ -229,12 +257,18 @@ export default class DetectorScreenTextureRenderer {
   private paintIntensity(
     context: CanvasRenderingContext2D,
     scene: DetectorScreenSceneLike,
-    displayGain: number
+    displayGain: number,
+    exposureFactor: number
   ): void {
     const backgroundRGB = getWaveAndDetectorBackgroundRGB();
     const rgb = getSceneRGB( scene.sourceType, scene.wavelengthProperty.value );
     const distribution = scene.waveSolver.getDetectorProbabilityDistribution();
     const solverHeight = scene.waveSolver.gridHeight;
+    let totalIntensity = 0;
+    for ( let i = 0; i < solverHeight; i++ ) {
+      totalIntensity += distribution[ i ];
+    }
+    const averageIntensity = solverHeight > 0 ? totalIntensity / solverHeight : 0;
 
     // Apply a shear transform so horizontal bands follow the parallelogram's axis.
     context.save();
@@ -242,8 +276,13 @@ export default class DetectorScreenTextureRenderer {
 
     for ( let y = 0; y < this.faceHeight; y++ ) {
       const solverY = clamp( Math.floor( ( y + 0.5 ) / this.faceHeight * solverHeight ), 0, solverHeight - 1 );
-      const intensity = distribution[ solverY ];
-      const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, rgb, intensity * displayGain );
+      const patternIntensity = distribution[ solverY ];
+
+      // Simulate detector exposure: brightness and contrast both ramp up so the normalized intensity
+      // pattern does not appear fully formed as soon as the first average is available.
+      const exposedIntensity = ( averageIntensity + ( patternIntensity - averageIntensity ) * exposureFactor ) *
+                               exposureFactor;
+      const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, rgb, exposedIntensity * displayGain );
       if ( !fillStyle ) {
         continue;
       }
