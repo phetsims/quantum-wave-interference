@@ -17,21 +17,17 @@ import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, 
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 
-// Supersample factor: render the texture at 2x resolution for crisper hit dots on the front-facing detector screen.
-// Consumers draw the texture with drawImage(..., destW, destH) which naturally downscales,
-// producing smoother results similar to the snapshot dialog.
+// Target displayed supersample factor for the front-facing detector screen. The backing texture scales with the
+// front-facing zoom so the cropped visible region is still downsampled by this factor at every zoom level.
 const SUPERSAMPLE = 2;
-const TEXTURE_WIDTH = SCREEN_WIDTH * SUPERSAMPLE;
-const TEXTURE_HEIGHT = SCREEN_HEIGHT * SUPERSAMPLE;
-
-// Hit dot rendering parameters (in texture-space, i.e. scaled by SUPERSAMPLE).
-const HIT_CORE_RADIUS = BASE_HIT_CORE_RADIUS * SUPERSAMPLE;
-const HIT_GLOW_RADIUS = BASE_HIT_GLOW_RADIUS * SUPERSAMPLE;
 
 type SceneTextureCache = {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   dirty: boolean;
+  renderScale: number;
+  textureWidth: number;
+  textureHeight: number;
 
   // Persistent-canvas optimization: track how many hits have already been painted so incremental frames only blit
   // the new ones. When rendering parameters change (brightness, wavelength, mode) we set lastRenderedHitCount to 0
@@ -116,6 +112,35 @@ const getScaledRGBFillStyle = ( rgb: { r: number; g: number; b: number }, scale:
   return `rgb(${r},${g},${b})`;
 };
 
+const getTextureRenderScale = ( sceneModel: SceneModel ): number => {
+  const visibleFraction = sceneModel.screenHalfWidth / sceneModel.fullScreenHalfWidth;
+  return SUPERSAMPLE / visibleFraction;
+};
+
+const resetCacheRenderingState = ( cache: SceneTextureCache ): void => {
+  cache.lastRenderedHitCount = 0;
+  cache.hitSprite = null;
+  cache.hitSpriteParams = null;
+};
+
+const updateCacheTextureSize = ( cache: SceneTextureCache, sceneModel: SceneModel ): void => {
+  const renderScale = getTextureRenderScale( sceneModel );
+
+  if ( cache.renderScale === renderScale ) {
+    return;
+  }
+
+  cache.renderScale = renderScale;
+  cache.textureWidth = Math.ceil( SCREEN_WIDTH * renderScale );
+  cache.textureHeight = Math.ceil( SCREEN_HEIGHT * renderScale );
+  cache.canvas.width = cache.textureWidth;
+  cache.canvas.height = cache.textureHeight;
+
+  // Resizing the canvas clears the context, so all hits must be repainted at the new resolution.
+  resetCacheRenderingState( cache );
+  cache.dirty = true;
+};
+
 /**
  * Creates (or returns a cached) hit sprite — a small offscreen canvas with the glow ring and solid core pre-rendered.
  * Using drawImage per hit instead of beginPath/arc/fill avoids path tessellation and is typically 3-5× faster.
@@ -133,7 +158,9 @@ const getHitSprite = (
     return cache.hitSprite;
   }
 
-  const maxRadius = Math.max( glowRadius, HIT_CORE_RADIUS );
+  const hitCoreRadius = BASE_HIT_CORE_RADIUS * cache.renderScale;
+  const maxRadius = Math.max( glowRadius, hitCoreRadius );
+
   // Pad by 1 px so antialiased edges aren't clipped.
   const size = Math.ceil( maxRadius * 2 ) + 2;
   const center = size / 2;
@@ -149,7 +176,7 @@ const getHitSprite = (
   }
 
   // Draw core circle on top (smaller, more opaque).
-  fillCircle( ctx, rgb, coreAlpha, center, HIT_CORE_RADIUS );
+  fillCircle( ctx, rgb, coreAlpha, center, hitCoreRadius );
 
   cache.hitSprite = spriteCanvas;
   cache.hitSpriteParams = { r: rgb.r, g: rgb.g, b: rgb.b, coreAlpha: coreAlpha, glowAlpha: glowAlpha, glowRadius: glowRadius };
@@ -171,7 +198,7 @@ const paintHits = (
   if ( hits.length === 0 ) {
     hasLoggedRenderCap = false;
     if ( cache.lastRenderedHitCount > 0 ) {
-      context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
+      context.clearRect( 0, 0, cache.textureWidth, cache.textureHeight );
     }
     cache.lastRenderedHitCount = 0;
     return;
@@ -180,7 +207,7 @@ const paintHits = (
   const rgb = getSceneRGB( sceneModel.sourceType, sceneModel.wavelengthProperty.value );
   const coreAlpha = getHitsCoreAlpha( brightnessFraction );
   const glowAlpha = getHitsGlowAlpha( brightnessFraction );
-  const glowRadius = HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
+  const glowRadius = BASE_HIT_GLOW_RADIUS * cache.renderScale * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
 
   const sprite = getHitSprite( cache, rgb, coreAlpha, glowAlpha, glowRadius );
   const spriteHalfW = sprite.width / 2;
@@ -207,13 +234,13 @@ const paintHits = (
   const incrementalStart = needsFullRepaint ? startIndex : Math.max( startIndex, alreadyRendered );
 
   if ( needsFullRepaint ) {
-    context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
+    context.clearRect( 0, 0, cache.textureWidth, cache.textureHeight );
   }
 
   for ( let i = incrementalStart; i < hitCount; i++ ) {
     const hit = hits[ i ];
-    const viewX = ( ( hit.x + 1 ) / 2 ) * TEXTURE_WIDTH;
-    const viewY = ( ( hit.y + 1 ) / 2 ) * TEXTURE_HEIGHT;
+    const viewX = ( ( hit.x + 1 ) / 2 ) * cache.textureWidth;
+    const viewY = ( ( hit.y + 1 ) / 2 ) * cache.textureHeight;
     context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
   }
 
@@ -221,6 +248,7 @@ const paintHits = (
 };
 
 const paintIntensity = (
+  cache: SceneTextureCache,
   context: CanvasRenderingContext2D,
   sceneModel: SceneModel,
   displayGain: number
@@ -232,8 +260,8 @@ const paintIntensity = (
 
   const rgb = getSceneRGB( sceneModel.sourceType, sceneModel.wavelengthProperty.value );
 
-  for ( let x = 0; x < TEXTURE_WIDTH; x++ ) {
-    const fraction = ( x + 0.5 ) / TEXTURE_WIDTH;
+  for ( let x = 0; x < cache.textureWidth; x++ ) {
+    const fraction = ( x + 0.5 ) / cache.textureWidth;
     const physicalX = ( fraction - 0.5 ) * 2 * sceneModel.fullScreenHalfWidth;
     const intensity = sceneModel.getIntensityAtPosition( physicalX );
     const fillStyle = getScaledRGBFillStyle( rgb, intensity * displayGain );
@@ -244,11 +272,13 @@ const paintIntensity = (
     }
 
     context.fillStyle = fillStyle;
-    context.fillRect( x, 0, 1, TEXTURE_HEIGHT );
+    context.fillRect( x, 0, 1, cache.textureHeight );
   }
 };
 
 const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ): void => {
+  updateCacheTextureSize( cache, sceneModel );
+
   const context = cache.context;
 
   const currentBrightness = sceneModel.screenBrightnessProperty.value;
@@ -267,10 +297,8 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
 
   if ( paramsChanged ) {
     // Force full repaint by resetting the incremental counter and clearing the sprite cache.
-    cache.lastRenderedHitCount = 0;
-    cache.hitSprite = null;
-    cache.hitSpriteParams = null;
-    context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
+    resetCacheRenderingState( cache );
+    context.clearRect( 0, 0, cache.textureWidth, cache.textureHeight );
 
     cache.lastBrightness = currentBrightness;
     cache.lastWavelength = currentWavelength;
@@ -290,18 +318,22 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
     paintHits( cache, context, sceneModel, hitsDisplayGain, hitsBrightnessFractionValue );
   }
   else {
-    // Intensity mode always redraws fully (it's O(TEXTURE_WIDTH) ≈ 560 iterations, already fast).
-    context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
-    paintIntensity( context, sceneModel, intensityDisplayGain );
+    // Intensity mode always redraws fully (it's O(textureWidth), already fast).
+    context.clearRect( 0, 0, cache.textureWidth, cache.textureHeight );
+    paintIntensity( cache, context, sceneModel, intensityDisplayGain );
   }
 
   cache.dirty = false;
 };
 
 const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache => {
+  const renderScale = getTextureRenderScale( sceneModel );
+  const textureWidth = Math.ceil( SCREEN_WIDTH * renderScale );
+  const textureHeight = Math.ceil( SCREEN_HEIGHT * renderScale );
+
   const canvas = document.createElement( 'canvas' );
-  canvas.width = TEXTURE_WIDTH;
-  canvas.height = TEXTURE_HEIGHT;
+  canvas.width = textureWidth;
+  canvas.height = textureHeight;
 
   const context = canvas.getContext( '2d' );
   if ( !context ) {
@@ -312,6 +344,9 @@ const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache =>
     canvas: canvas,
     context: context,
     dirty: true,
+    renderScale: renderScale,
+    textureWidth: textureWidth,
+    textureHeight: textureHeight,
     lastRenderedHitCount: 0,
     lastBrightness: -1,
     lastWavelength: -1,
@@ -346,6 +381,8 @@ function getDetectorScreenTexture( sceneModel: SceneModel ): HTMLCanvasElement {
     cache = createSceneTextureCache( sceneModel );
     sceneTextureMap.set( sceneModel, cache );
   }
+
+  updateCacheTextureSize( cache, sceneModel );
 
   if ( cache.dirty ) {
     renderSceneTexture( cache, sceneModel );
