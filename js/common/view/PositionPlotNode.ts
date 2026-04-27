@@ -33,9 +33,12 @@ import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProper
 import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 
 const WIRE_LINE_WIDTH = 3;
-const DOTTED_LINE_DASH = [ 6, 4 ];
-const MIN_Y_FRACTION = 0.02;
-const MAX_Y_FRACTION = 0.98;
+const DOTTED_LINE_DASH_LENGTH = 9;
+const DOTTED_LINE_GAP_LENGTH = 5;
+const DOTTED_LINE_DASH = [ DOTTED_LINE_DASH_LENGTH, DOTTED_LINE_GAP_LENGTH ];
+const DOTTED_LINE_DASH_OFFSET = DOTTED_LINE_DASH_LENGTH / 2;
+const MIN_Y_FRACTION = 0.1;
+const MAX_Y_FRACTION = 0.9;
 const PREVIOUS_DEFAULT_PANEL_GAP = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT / 2 + 26;
 const PANEL_GAP = PREVIOUS_DEFAULT_PANEL_GAP * 0.08;
 const LINE_HIT_AREA_HEIGHT = 16;
@@ -89,17 +92,18 @@ export default class PositionPlotNode extends Node {
       stroke: 'white',
       lineWidth: 1.5,
       lineDash: DOTTED_LINE_DASH,
+      lineDashOffset: DOTTED_LINE_DASH_OFFSET,
       opacity: 0.7
     } );
     this.addChild( dottedLine );
+
+    const lineCenterX = waveRegionX + waveRegionWidth / 2;
 
     const lineHitArea = new Rectangle( waveRegionX, 0, waveRegionWidth, LINE_HIT_AREA_HEIGHT, {
       fill: 'rgba( 0, 0, 0, 0 )',
       cursor: 'ns-resize'
     } );
     this.addChild( lineHitArea );
-
-    const lineCenterX = waveRegionX + waveRegionWidth / 2;
 
     let dragStartY = 0;
     let dragStartFraction = this.lineYFractionProperty.value;
@@ -150,17 +154,10 @@ export default class PositionPlotNode extends Node {
       dottedLine.y2 = viewY;
       lineHitArea.centerY = viewY;
 
-      if ( fraction <= 0.5 ) {
-        this.chartNode.top = viewY + PANEL_GAP;
-        wireLine.y1 = this.chartNode.top;
-      }
-      else {
-        this.chartNode.bottom = viewY - PANEL_GAP;
-        wireLine.y1 = this.chartNode.bottom;
-      }
-
+      this.chartNode.top = viewY + PANEL_GAP;
       wireLine.x1 = lineCenterX;
       wireLine.x2 = lineCenterX;
+      wireLine.y1 = this.chartNode.top;
       wireLine.y2 = viewY;
     };
 
