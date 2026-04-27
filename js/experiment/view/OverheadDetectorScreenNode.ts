@@ -10,6 +10,7 @@
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
+import Shape from '../../../../kite/js/Shape.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -20,7 +21,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import createParallelogramNode, { createParallelogramShape } from './createParallelogramNode.js';
+import createParallelogramNode from './createParallelogramNode.js';
 import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
@@ -31,15 +32,35 @@ const BASE_DETECTOR_DX = 90;
 const BASE_DOUBLE_SLIT_SKEW_DX = 51;
 const BASE_DOUBLE_SLIT_SKEW_DY = 21;
 const DISTANCE_LABEL_FONT = new PhetFont( 12 );
+const VISIBLE_REGION_STROKE = 'white';
+const VISIBLE_REGION_LINE_WIDTH = 1.5;
 
 export const DETECTOR_DX = BASE_DETECTOR_DX * OVERHEAD_SCALE;
 export const DETECTOR_DY = BASE_DETECTOR_DX * ( BASE_DOUBLE_SLIT_SKEW_DY / BASE_DOUBLE_SLIT_SKEW_DX ) * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;
 export const DETECTOR_LEFT_HEIGHT = 48 * OVERHEAD_SCALE;
 
+const createVisibleRegionShape = ( dx: number, dy: number, leftHeight: number, visibleFraction: number ): Shape => {
+  const visibleWidth = dx * visibleFraction;
+  const visibleHeight = leftHeight * visibleFraction;
+  const left = ( dx - visibleWidth ) / 2;
+  const top = ( leftHeight - visibleHeight ) / 2;
+  const right = left + visibleWidth;
+  const bottom = top + visibleHeight;
+  const slope = dy / dx;
+
+  return new Shape()
+    .moveTo( left, top + slope * left )
+    .lineTo( left, bottom + slope * left )
+    .lineTo( right, bottom + slope * right )
+    .lineTo( right, top + slope * right )
+    .close();
+};
+
 export default class OverheadDetectorScreenNode extends Node {
 
   public readonly parallelogramNode: Path;
   public readonly overheadPatternNode: OverheadDetectorPatternNode;
+  private readonly visibleRegionNode: Path;
 
   private readonly sceneProperty: TReadOnlyProperty<SceneModel>;
   private frontFacingScreenLeft = 0;
@@ -69,6 +90,14 @@ export default class OverheadDetectorScreenNode extends Node {
     // Interference pattern overlay
     this.overheadPatternNode = new OverheadDetectorPatternNode( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT );
     this.parallelogramNode.addChild( this.overheadPatternNode );
+
+    this.visibleRegionNode = new Path( createVisibleRegionShape( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT, 1 ), {
+      fill: null,
+      stroke: VISIBLE_REGION_STROKE,
+      lineWidth: VISIBLE_REGION_LINE_WIDTH,
+      pickable: false
+    } );
+    this.parallelogramNode.addChild( this.visibleRegionNode );
 
     // Distance span between double slit and detector screen
     const SPAN_TICK_LENGTH = 8 * OVERHEAD_SCALE;
@@ -102,9 +131,7 @@ export default class OverheadDetectorScreenNode extends Node {
       const scene = sceneProperty.value;
       const distance = scene.screenDistanceProperty.value;
       const range = scene.screenDistanceRange;
-      const visibleWidthFraction = this.getVisibleDetectorWidthFraction();
-      const visibleDx = DETECTOR_DX * visibleWidthFraction;
-      const visibleDy = DETECTOR_DY * visibleWidthFraction;
+      const visibleFraction = this.getVisibleDetectorSizeFraction();
 
       // Scene-dependent proportional mapping: center-to-center distance in view space is proportional to the model's
       // screen distance. For each scene, its max screenDistance maps to the current far-right max position.
@@ -115,12 +142,12 @@ export default class OverheadDetectorScreenNode extends Node {
       const screenCenterX = slitCenterX + distance * pixelsPerMeter;
       this.currentScreenCenterX = screenCenterX;
 
-      this.parallelogramNode.shape = createParallelogramShape(
-        visibleDx,
-        visibleDy,
-        DETECTOR_LEFT_HEIGHT
+      this.visibleRegionNode.shape = createVisibleRegionShape(
+        DETECTOR_DX,
+        DETECTOR_DY,
+        DETECTOR_LEFT_HEIGHT,
+        visibleFraction
       );
-      this.overheadPatternNode.setGeometry( visibleDx, visibleDy, DETECTOR_LEFT_HEIGHT );
       this.parallelogramNode.centerX = screenCenterX;
       this.parallelogramNode.centerY = this.doubleSlitParallelogramNode.centerY;
 
@@ -158,9 +185,8 @@ export default class OverheadDetectorScreenNode extends Node {
     } );
   }
 
-  public getVisibleDetectorWidthFraction(): number {
-    const fullScreenHalfWidth = SceneModel.getScreenHalfWidthForScaleIndex( 0 );
-    return this.sceneProperty.value.screenHalfWidth / fullScreenHalfWidth;
+  public getVisibleDetectorSizeFraction(): number {
+    return this.sceneProperty.value.screenHalfWidth / this.sceneProperty.value.fullScreenHalfWidth;
   }
 
   public getFullParallelogramHeight(): number {

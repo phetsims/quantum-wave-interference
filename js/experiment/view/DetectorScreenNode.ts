@@ -344,9 +344,7 @@ export default class DetectorScreenNode extends Node {
         formatSlitSeparation: formatExperimentSlitSeparation,
         showScreenDistance: true,
         getDescription: snapshot => SnapshotDescriber.getDescription( snapshot ),
-        getSnapshotDisplayWidthScale: snapshot => snapshot.screenHalfWidth / SceneModel.getScreenHalfWidthForScaleIndex(
-          SceneModel.DEFAULT_DETECTOR_SCREEN_SCALE_INDEX
-        )
+        getSnapshotDisplayWidthScale: snapshot => snapshot.screenHalfWidth / SceneModel.getFullScreenHalfWidth()
       }
     );
 

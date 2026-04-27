@@ -74,6 +74,14 @@ export default class SceneModel extends PhetioObject {
   }
 
   /**
+   * Physical half-width of the full detector screen in meters. Detector screen zoom changes the visible region,
+   * not the underlying detector data.
+   */
+  public static getFullScreenHalfWidth(): number {
+    return SceneModel.getScreenHalfWidthForScaleIndex( SceneModel.DEFAULT_DETECTOR_SCREEN_SCALE_INDEX );
+  }
+
+  /**
    * Slit width in mm for a given source type.
    */
   public static getSlitWidth( sourceType: SourceType ): number {
@@ -113,7 +121,7 @@ export default class SceneModel extends PhetioObject {
   // Screen brightness: 0 to SCREEN_BRIGHTNESS_MAX
   public readonly screenBrightnessProperty: NumberProperty;
 
-  // Horizontal detector-screen scale level. Smaller values show a wider physical span.
+  // Horizontal detector-screen zoom level. Smaller values show a wider visible span of the full detector screen.
   public readonly detectorScreenScaleIndexProperty: NumberProperty;
 
   // Slit width in mm (constant per source type, determined by the physics)
@@ -343,10 +351,6 @@ export default class SceneModel extends PhetioObject {
     this.wavelengthProperty.lazyLink( () => this.clearScreen() );
     this.velocityProperty.lazyLink( () => this.clearScreen() );
 
-    // Detection mode changes should not clear accumulated hits.
-    // Hits mode preserves its accumulated screen data when the user temporarily switches to intensity mode and back.
-    this.detectorScreenScaleIndexProperty.lazyLink( () => this.clearScreen() );
-
     // When the hit cap is reached in Hits mode, stop the source and require the user to clear the screen.
     this.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
       if ( isMaxHitsReached ) {
@@ -499,6 +503,7 @@ export default class SceneModel extends PhetioObject {
     this.slitSettingProperty.reset();
     this.detectionModeProperty.reset();
     this.screenBrightnessProperty.reset();
+    this.detectorScreenScaleIndexProperty.reset();
     this.hits.length = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.reset();
@@ -522,13 +527,13 @@ export default class SceneModel extends PhetioObject {
   private generateHitPosition(): number {
     for ( let i = 0; i < MAX_REJECTION_ITERATIONS; i++ ) {
 
-      // Propose a random position across the full screen width
-      const physicalX = ( dotRandom.nextDouble() - 0.5 ) * 2 * this.screenHalfWidth;
+      // Propose a random position across the full detector screen width. Zoom only changes the visible region.
+      const physicalX = ( dotRandom.nextDouble() - 0.5 ) * 2 * this.fullScreenHalfWidth;
 
       // Accept with probability proportional to intensity at this position
       const probability = this.getIntensityAtPosition( physicalX );
       if ( dotRandom.nextDouble() < probability ) {
-        return physicalX / this.screenHalfWidth; // Normalize to [-1, 1]
+        return physicalX / this.fullScreenHalfWidth; // Normalize to full detector screen coordinates, [-1, 1]
       }
     }
 
@@ -656,10 +661,17 @@ export default class SceneModel extends PhetioObject {
   }
 
   /**
-   * Physical half-width of the detector screen in meters for the current horizontal scale.
+   * Physical half-width of the visible detector screen region in meters for the current horizontal zoom.
    */
   public get screenHalfWidth(): number {
     return SceneModel.getScreenHalfWidthForScaleIndex( this.detectorScreenScaleIndexProperty.value );
+  }
+
+  /**
+   * Physical half-width of the full detector screen in meters. This is independent of detector screen zoom.
+   */
+  public get fullScreenHalfWidth(): number {
+    return SceneModel.getFullScreenHalfWidth();
   }
 }
 

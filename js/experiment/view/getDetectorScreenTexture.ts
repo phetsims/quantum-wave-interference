@@ -52,12 +52,6 @@ type SceneTextureCache = {
   hitSpriteParams: HitSpriteParams | null;
 };
 
-// Per-scene cache bucket keyed by detector screen scale index.
-// This is intentionally bounded: a scene can only create one cache per allowed zoom level
-// (currently SceneModel.DETECTOR_SCREEN_SCALE_OPTIONS.length, i.e. 4 entries).
-// Entries are reused when revisiting a zoom level rather than growing without limit.
-type SceneTextureCacheMap = Map<number, SceneTextureCache>;
-
 type HitSpriteParams = {
   r: number;
   g: number;
@@ -67,15 +61,13 @@ type HitSpriteParams = {
   glowRadius: number;
 };
 
-// Top-level cache keyed by SceneModel so each scene keeps its own detector textures.
+// Top-level cache keyed by SceneModel so each scene keeps its own full detector texture.
 // WeakMap prevents the cache from extending a scene's lifetime: if a SceneModel becomes unreachable,
-// its entire per-scale cache map can be garbage collected with it.
+// its full-screen texture cache can be garbage collected with it.
 //
 // Cached textures should not go stale during normal use. Each SceneTextureCache registers listeners on the scene
 // that mark it dirty whenever rendering inputs change, and the texture is lazily repainted on the next request.
-// We also keep caches separate per scale index, so the front-facing and overhead detector views can reuse the same
-// rendering code without forcing each other to regenerate textures for unrelated zoom levels.
-const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCacheMap>();
+const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
 
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
@@ -172,7 +164,6 @@ const paintHits = (
   cache: SceneTextureCache,
   context: CanvasRenderingContext2D,
   sceneModel: SceneModel,
-  targetScreenHalfWidth: number,
   displayGain: number,
   brightnessFraction: number
 ): void => {
@@ -219,18 +210,9 @@ const paintHits = (
     context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
   }
 
-  const currentScreenHalfWidth = sceneModel.screenHalfWidth;
-
   for ( let i = incrementalStart; i < hitCount; i++ ) {
     const hit = hits[ i ];
-    const physicalX = hit.x * currentScreenHalfWidth;
-    const normalizedTargetX = physicalX / targetScreenHalfWidth;
-
-    if ( Math.abs( normalizedTargetX ) > 1 ) {
-      continue;
-    }
-
-    const viewX = ( ( normalizedTargetX + 1 ) / 2 ) * TEXTURE_WIDTH;
+    const viewX = ( ( hit.x + 1 ) / 2 ) * TEXTURE_WIDTH;
     const viewY = ( ( hit.y + 1 ) / 2 ) * TEXTURE_HEIGHT;
     context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
   }
@@ -241,7 +223,6 @@ const paintHits = (
 const paintIntensity = (
   context: CanvasRenderingContext2D,
   sceneModel: SceneModel,
-  targetScreenHalfWidth: number,
   displayGain: number
 ): void => {
   // Intensity mode shows the instantaneous theoretical pattern whenever the source is emitting.
@@ -253,7 +234,7 @@ const paintIntensity = (
 
   for ( let x = 0; x < TEXTURE_WIDTH; x++ ) {
     const fraction = ( x + 0.5 ) / TEXTURE_WIDTH;
-    const physicalX = ( fraction - 0.5 ) * 2 * targetScreenHalfWidth;
+    const physicalX = ( fraction - 0.5 ) * 2 * sceneModel.fullScreenHalfWidth;
     const intensity = sceneModel.getIntensityAtPosition( physicalX );
     const fillStyle = getScaledRGBFillStyle( rgb, intensity * displayGain );
 
@@ -267,9 +248,8 @@ const paintIntensity = (
   }
 };
 
-const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel, scaleIndex: number ): void => {
+const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ): void => {
   const context = cache.context;
-  const targetScreenHalfWidth = SceneModel.getScreenHalfWidthForScaleIndex( scaleIndex );
 
   const currentBrightness = sceneModel.screenBrightnessProperty.value;
   const currentWavelength = sceneModel.wavelengthProperty.value;
@@ -307,12 +287,12 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel, s
   const intensityDisplayGain = getIntensityDisplayGain( currentBrightness, currentIntensity );
 
   if ( currentDetectionMode === 'hits' ) {
-    paintHits( cache, context, sceneModel, targetScreenHalfWidth, hitsDisplayGain, hitsBrightnessFractionValue );
+    paintHits( cache, context, sceneModel, hitsDisplayGain, hitsBrightnessFractionValue );
   }
   else {
     // Intensity mode always redraws fully (it's O(TEXTURE_WIDTH) ≈ 560 iterations, already fast).
     context.clearRect( 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT );
-    paintIntensity( context, sceneModel, targetScreenHalfWidth, intensityDisplayGain );
+    paintIntensity( context, sceneModel, intensityDisplayGain );
   }
 
   cache.dirty = false;
@@ -358,26 +338,17 @@ const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache =>
 };
 
 /**
- * Gets the shared detector-screen texture for the specified scene, rendering it lazily on demand.
+ * Gets the shared full detector-screen texture for the specified scene, rendering it lazily on demand.
  */
-function getDetectorScreenTexture(
-  sceneModel: SceneModel,
-  scaleIndex: number = sceneModel.detectorScreenScaleIndexProperty.value
-): HTMLCanvasElement {
-  let cacheMap = sceneTextureMap.get( sceneModel );
-  if ( !cacheMap ) {
-    cacheMap = new Map();
-    sceneTextureMap.set( sceneModel, cacheMap );
-  }
-
-  let cache = cacheMap.get( scaleIndex );
+function getDetectorScreenTexture( sceneModel: SceneModel ): HTMLCanvasElement {
+  let cache = sceneTextureMap.get( sceneModel );
   if ( !cache ) {
     cache = createSceneTextureCache( sceneModel );
-    cacheMap.set( scaleIndex, cache );
+    sceneTextureMap.set( sceneModel, cache );
   }
 
   if ( cache.dirty ) {
-    renderSceneTexture( cache, sceneModel, scaleIndex );
+    renderSceneTexture( cache, sceneModel );
   }
 
   return cache.canvas;

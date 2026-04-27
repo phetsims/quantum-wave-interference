@@ -14,13 +14,11 @@ import SceneModel from '../model/SceneModel.js';
 import { createParallelogramShape } from './createParallelogramNode.js';
 import getDetectorScreenTexture from './getDetectorScreenTexture.js';
 
-const FULL_SCALE_INDEX = 0;
-
 export default class OverheadDetectorPatternNode extends CanvasNode {
 
-  private dx: number;
-  private dy: number;
-  private leftHeight: number;
+  private readonly dx: number;
+  private readonly dy: number;
+  private readonly leftHeight: number;
 
   private sceneModel: SceneModel | null = null;
 
@@ -41,14 +39,6 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
     this.clipArea = createParallelogramShape( this.dx, this.dy, this.leftHeight );
   }
 
-  public setGeometry( dx: number, dy: number, leftHeight: number ): void {
-    this.dx = dx;
-    this.dy = dy;
-    this.leftHeight = leftHeight;
-    this.updateClipAndBounds();
-    this.invalidatePaint();
-  }
-
   /**
    * Updates the active scene model, then repaints.
    */
@@ -66,23 +56,19 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
       return;
     }
 
-    const texture = getDetectorScreenTexture( this.sceneModel, FULL_SCALE_INDEX );
+    const texture = getDetectorScreenTexture( this.sceneModel );
     const sourceWidth = texture.width;
     const sourceHeight = texture.height;
-    const fullScreenHalfWidth = SceneModel.getScreenHalfWidthForScaleIndex( FULL_SCALE_INDEX );
-    const visibleFraction = this.sceneModel.screenHalfWidth / fullScreenHalfWidth;
-    const sourceCropWidth = sourceWidth * visibleFraction;
-    const sourceCropX = ( sourceWidth - sourceCropWidth ) / 2;
 
     // Transform source rect -> overhead parallelogram:
     // x' = (dx / sourceWidth) * x
     // y' = (dy / sourceWidth) * x + (leftHeight / sourceHeight) * y
     context.save();
     context.transform(
-      this.dx / sourceCropWidth, this.dy / sourceCropWidth, 0,
+      this.dx / sourceWidth, this.dy / sourceWidth, 0,
       this.leftHeight / sourceHeight, 0, 0
     );
-    context.drawImage( texture, sourceCropX, 0, sourceCropWidth, sourceHeight, 0, 0, sourceCropWidth, sourceHeight );
+    context.drawImage( texture, 0, 0, sourceWidth, sourceHeight );
     context.restore();
   }
 }

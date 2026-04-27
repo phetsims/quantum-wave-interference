@@ -28,10 +28,26 @@ export default class DetectorScreenCanvasNode extends CanvasNode {
   }
 
   /**
-   * Renders the shared detector-screen texture.
+   * Renders the visible zoomed portion of the shared full detector-screen texture.
    */
   public paintCanvas( context: CanvasRenderingContext2D ): void {
     const texture = getDetectorScreenTexture( this.sceneModel );
-    context.drawImage( texture, 0, 0, this.textureWidth, this.textureHeight );
+    const visibleFraction = this.sceneModel.screenHalfWidth / this.sceneModel.fullScreenHalfWidth;
+    const sourceCropWidth = texture.width * visibleFraction;
+    const sourceCropHeight = texture.height * visibleFraction;
+    const sourceCropX = ( texture.width - sourceCropWidth ) / 2;
+    const sourceCropY = ( texture.height - sourceCropHeight ) / 2;
+
+    context.drawImage(
+      texture,
+      sourceCropX,
+      sourceCropY,
+      sourceCropWidth,
+      sourceCropHeight,
+      0,
+      0,
+      this.textureWidth,
+      this.textureHeight
+    );
   }
 }

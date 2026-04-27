@@ -171,7 +171,7 @@ export default class OverheadBeamNode extends Node {
     };
 
     // Wire up beam updates
-    const beamProperties = [ 'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'screenDistanceProperty', 'detectorScreenScaleIndexProperty' ] as const;
+    const beamProperties = [ 'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'screenDistanceProperty' ] as const;
     sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         for ( const propName of beamProperties ) {
@@ -191,7 +191,7 @@ export default class OverheadBeamNode extends Node {
     const patternProperties = [
       'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'velocityProperty',
       'slitSeparationProperty', 'screenDistanceProperty', 'slitSettingProperty',
-      'detectionModeProperty', 'screenBrightnessProperty', 'detectorScreenScaleIndexProperty'
+      'detectionModeProperty', 'screenBrightnessProperty'
     ] as const;
 
     sceneProperty.link( ( newScene, oldScene ) => {

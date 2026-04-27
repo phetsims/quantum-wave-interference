@@ -367,10 +367,16 @@ export default class GraphAccordionBox extends Node {
       return;
     }
 
-    // Bin the hits directly. Each hit has x in [-1, 1].
+    // Bin only the hits in the current visible detector region. Hits are stored in full detector screen coordinates,
+    // while the graph follows the same horizontal zoom as the front-facing detector screen.
     const bins = new Array<number>( HISTOGRAM_BINS ).fill( 0 );
     for ( let i = 0; i < sceneModel.hits.length; i++ ) {
-      const rawBinIndex = Math.floor( ( sceneModel.hits[ i ].x + 1 ) / 2 * HISTOGRAM_BINS );
+      const physicalX = sceneModel.hits[ i ].x * sceneModel.fullScreenHalfWidth;
+      const normalizedVisibleX = physicalX / sceneModel.screenHalfWidth;
+      if ( Math.abs( normalizedVisibleX ) > 1 ) {
+        continue;
+      }
+      const rawBinIndex = Math.floor( ( normalizedVisibleX + 1 ) / 2 * HISTOGRAM_BINS );
       const binIndex = Math.max( 0, Math.min( HISTOGRAM_BINS - 1, rawBinIndex ) );
       bins[ binIndex ]++;
     }
