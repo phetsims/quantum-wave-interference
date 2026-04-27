@@ -350,11 +350,15 @@ export default abstract class BaseSceneModel extends PhetioObject {
     }
     this.hits.length = 0;
     this.totalHitsProperty.value = 0;
+    this.clearWaveState();
+    this.hitsChangedEmitter.emit();
+  }
+
+  protected clearWaveState(): void {
     this.wavefrontReached = false;
     this.syncSolverParameters();
     this.waveSolver.reset();
     this.syncSolverParameters();
-    this.hitsChangedEmitter.emit();
   }
 
   protected setupClearScreenListeners(): void {
@@ -368,17 +372,14 @@ export default abstract class BaseSceneModel extends PhetioObject {
       if ( isEmitting ) {
         this.syncSolverParameters();
       }
-      else if ( this.shouldClearScreenWhenEmitterTurnsOff() ) {
-        this.clearScreen();
-      }
       else {
-        this.syncSolverParameters();
+        this.clearWaveStateWhenEmitterTurnsOff();
       }
     } );
   }
 
-  protected shouldClearScreenWhenEmitterTurnsOff(): boolean {
-    return true;
+  protected clearWaveStateWhenEmitterTurnsOff(): void {
+    this.clearWaveState();
   }
 
   public takeSnapshot( detectionMode: DetectionMode, slitSetting: SlitConfiguration, intensity: number ): void {

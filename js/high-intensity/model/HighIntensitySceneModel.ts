@@ -99,7 +99,9 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     // Initial sync and listeners
     this.syncSolverParameters();
     this.setupClearScreenListeners();
-    this.intensityProperty.lazyLink( () => this.clearScreen() );
+    this.intensityProperty.lazyLink( () => {
+      this.hitAccumulator = 0;
+    } );
     this.slitConfigurationProperty.lazyLink( () => this.clearScreen() );
 
     // Stop the source when the hit cap is reached
@@ -132,6 +134,12 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.rightDetectorHitsProperty.value = 0;
     super.clearScreen();
     this._isWaveVisibleProperty.value = this.isEmittingProperty.value;
+  }
+
+  protected override clearWaveStateWhenEmitterTurnsOff(): void {
+    this.hitAccumulator = 0;
+    super.clearWaveStateWhenEmitterTurnsOff();
+    this._isWaveVisibleProperty.value = false;
   }
 
   public takeHighIntensitySnapshot(): void {

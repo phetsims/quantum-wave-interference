@@ -71,8 +71,10 @@ export default class DetectorScreenNode extends Node {
     sceneProperty.link( scene => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( invalidateCanvas );
+        previousScene.isEmittingProperty.unlink( invalidateCanvas );
       }
       scene.hitsChangedEmitter.addListener( invalidateCanvas );
+      scene.isEmittingProperty.link( invalidateCanvas );
       previousScene = scene;
       invalidateCanvas();
     } );

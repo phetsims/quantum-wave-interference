@@ -169,8 +169,14 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     super.clearScreen();
   }
 
-  protected override shouldClearScreenWhenEmitterTurnsOff(): boolean {
-    return !this.isEndingPacket;
+  protected override clearWaveStateWhenEmitterTurnsOff(): void {
+    this.isPacketActiveProperty.value = false;
+    if ( !this.isEndingPacket ) {
+      this.detectorToolStateProperty.value = 'ready';
+      this.detectorToolProbabilityProperty.value = 0;
+    }
+    this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
+    super.clearWaveStateWhenEmitterTurnsOff();
   }
 
   public takeSingleParticlesSnapshot(): void {
