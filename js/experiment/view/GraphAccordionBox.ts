@@ -42,6 +42,10 @@ const ZOOM_BUTTON_GROUP_GAP = 4;
 const ZOOM_BUTTON_GROUP_RIGHT_PADDING = 1;
 const ACCORDION_CONTENT_X_MARGIN = 4;
 
+// Intensity curve samples per chart pixel. This keeps narrow extrema from looking chopped without
+// requiring every frame to solve for analytical peak positions.
+const INTENSITY_CURVE_SAMPLES_PER_PIXEL = 8;
+
 // Number of bins for the histogram in Hits mode
 const HISTOGRAM_BINS = 100;
 
@@ -136,7 +140,9 @@ export default class GraphAccordionBox extends Node {
 
     // Curve/histogram path, clipped to the chart area
     const dataPath = new Path( null, {
-      clipArea: Shape.rectangle( 0, 0, CHART_WIDTH, CHART_HEIGHT )
+      clipArea: Shape.rectangle( 0, 0, CHART_WIDTH, CHART_HEIGHT ),
+      lineJoin: 'round',
+      lineCap: 'round'
     } );
     // Prevent bounds recomputation on every update for performance
     dataPath.computeShapeBounds = () => chartBackground.bounds;
@@ -314,17 +320,15 @@ export default class GraphAccordionBox extends Node {
     const sourceIntensity = sceneModel.intensityProperty.value;
     const screenHalfWidth = sceneModel.screenHalfWidth;
 
-    // Number of sample points across the chart for a smooth theoretical curve
-    const NUM_SAMPLES = 1000;
+    const numSamples = CHART_WIDTH * INTENSITY_CURVE_SAMPLES_PER_PIXEL;
     const shape = new Shape();
 
     // Start at the bottom-left corner of the chart
-    const firstX = ( 0.5 / NUM_SAMPLES ) * CHART_WIDTH;
-    shape.moveTo( firstX, CHART_HEIGHT );
+    shape.moveTo( 0, CHART_HEIGHT );
 
     // Trace the theoretical intensity curve across the chart
-    for ( let i = 0; i < NUM_SAMPLES; i++ ) {
-      const fraction = ( i + 0.5 ) / NUM_SAMPLES; // Center of each sample
+    for ( let i = 0; i <= numSamples; i++ ) {
+      const fraction = i / numSamples;
       const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth; // Map to physical position
       const intensity = sceneModel.getIntensityAtPosition( physicalX );
 
@@ -335,8 +339,7 @@ export default class GraphAccordionBox extends Node {
     }
 
     // Close back to the baseline to form a filled area
-    const lastX = ( ( NUM_SAMPLES - 0.5 ) / NUM_SAMPLES ) * CHART_WIDTH;
-    shape.lineTo( lastX, CHART_HEIGHT );
+    shape.lineTo( CHART_WIDTH, CHART_HEIGHT );
     shape.close();
 
     dataPath.shape = shape;
