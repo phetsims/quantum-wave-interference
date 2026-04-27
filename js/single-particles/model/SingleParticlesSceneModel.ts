@@ -21,9 +21,9 @@ import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
-import { PACKET_START_OFFSET_SIGMAS, PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION } from '../../common/model/AnalyticalWavePacketSolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 
 export const SingleParticlesSlitConfigurationValues = [ 'bothOpen', 'leftCovered', 'rightCovered' ] as const;
 export type SingleParticlesSlitConfiguration = typeof SingleParticlesSlitConfigurationValues[number];
@@ -76,7 +76,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const tandem = providedOptions.tandem;
 
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
-    this.targetDetectionTime = PACKET_TRAVERSAL_TIME;
+    this.targetDetectionTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
     this.isEndingPacket = false;
 
     this.autoRepeatProperty = new BooleanProperty( false, {
@@ -197,12 +197,15 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   /**
    * Detection times follow the packet's horizontal probability density: Gaussian around
-   * PACKET_TRAVERSAL_TIME (packet center arrives at screen), width matches the packet's spatial
-   * spread. Truncated at ±3σ to avoid non-physical negative times.
+   * WAVE_PACKET_TRAVERSAL_TIME (packet center arrives at screen), width matches the packet's spatial
+   * spread. Truncated at +/- 3 sigma to avoid non-physical negative times.
    */
   private sampleDetectionTime(): number {
-    const effectiveTraversalTime = PACKET_TRAVERSAL_TIME * ( 1 + PACKET_START_OFFSET_SIGMAS * SIGMA_X_FRACTION ) * this.defaultWaveSpeed / this.getEffectiveWaveSpeed();
-    const sigma = SIGMA_X_FRACTION * effectiveTraversalTime;
+    const effectiveTraversalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME *
+                                   ( 1 + QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS *
+                                         QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION ) *
+                                   this.defaultWaveSpeed / this.getEffectiveWaveSpeed();
+    const sigma = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * effectiveTraversalTime;
     const maxDeviation = 3 * sigma;
     let deviation: number;
     do {

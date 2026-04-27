@@ -9,7 +9,8 @@
 import { type AnalyticalWaveParameters, type ComplexValue, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { getFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_GRAY } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
-import AnalyticalWavePacketSolver, { PACKET_TRAVERSAL_TIME } from './AnalyticalWavePacketSolver.js';
+import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
 QUnit.module( 'AnalyticalModel' );
 
@@ -368,7 +369,7 @@ QUnit.test( 'continuous wave solver restarts source after reset while source rem
 QUnit.test( 'wave packet solver reset clears source state', assert => {
   const solver = new AnalyticalWavePacketSolver();
   solver.setParameters( { isSourceOn: true } );
-  solver.step( PACKET_TRAVERSAL_TIME );
+  solver.step( QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME );
 
   assert.ok( hasNonZeroAmplitude( solver.getAmplitudeField() ), 'source produces a field before reset' );
 

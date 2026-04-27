@@ -29,6 +29,25 @@ export default class QuantumWaveInterferenceConstants {
   // Shared between the continuous-wave and wave-packet solvers so both screens show matching wavelengths.
   public static readonly DISPLAY_WAVELENGTHS = 15;
 
+  // Single Particles screen Gaussian wave packet tuning. These values control the designer-facing
+  // visual size and timing of each emitted packet, using fractions of the wave region so they scale
+  // with the displayed physical region.
+
+  // Time, in display seconds, for the center of the packet to cross the wave region.
+  public static readonly WAVE_PACKET_TRAVERSAL_TIME = 1.5;
+
+  // Initial one-sigma packet radius as a fraction of the wave region. Increase both values to make
+  // the packet visibly larger; decrease both to make it tighter. The original values were 0.12.
+  public static readonly WAVE_PACKET_SIGMA_X_FRACTION = 0.144;
+  public static readonly WAVE_PACKET_SIGMA_Y_FRACTION = 0.144;
+
+  // The packet starts this many sigma_x widths to the left of the visible region so it enters smoothly.
+  public static readonly WAVE_PACKET_START_OFFSET_SIGMAS = 3;
+
+  // Controls packet spreading in display time. Larger values spread more slowly after emission.
+  public static readonly WAVE_PACKET_LONGITUDINAL_SPREAD_TRAVERSALS = 2.5;
+  public static readonly WAVE_PACKET_TRANSVERSE_SPREAD_TRAVERSALS = 1.5;
+
   // Maximum value for the screen brightness slider, shared across all screens
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
 

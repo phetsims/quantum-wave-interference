@@ -22,22 +22,10 @@ import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js
 const DEFAULT_GRID_WIDTH = 200;
 const DEFAULT_GRID_HEIGHT = 200;
 
-const PACKET_TRAVERSAL_TIME = 1.5;
-const SIGMA_X_FRACTION = 0.12;
-const SIGMA_Y_FRACTION = 0.12;
 const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
-
-// The wave packet starts this many sigma_x to the left of the visible region so it enters smoothly.
-const PACKET_START_OFFSET_SIGMAS = 3;
-
-// Controls packet spreading in display time. Larger values spread more slowly.
-const LONGITUDINAL_SPREAD_TRAVERSALS = 2.5;
-const TRANSVERSE_SPREAD_TRAVERSALS = 1.5;
 
 const EPSILON = 1e-12;
 const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
-
-export { PACKET_TRAVERSAL_TIME, SIGMA_X_FRACTION, PACKET_START_OFFSET_SIGMAS };
 
 export default class AnalyticalWavePacketSolver implements WaveSolver {
 
@@ -275,8 +263,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   }
 
   private createKernelParameters(): AnalyticalWaveParameters {
-    const sigmaX0 = SIGMA_X_FRACTION * this.regionWidth;
-    const sigmaY0 = SIGMA_Y_FRACTION * this.regionHeight;
+    const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
+    const sigmaY0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_Y_FRACTION * this.regionHeight;
 
     return {
       source: {
@@ -284,12 +272,12 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         isActive: this.isSourceOn,
         waveNumber: this.getDisplayWaveNumber(),
         speed: this.getDisplaySpeed(),
-        initialCenterX: -PACKET_START_OFFSET_SIGMAS * sigmaX0,
+        initialCenterX: -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0,
         centerY: 0,
         sigmaX0: sigmaX0,
         sigmaY0: sigmaY0,
-        longitudinalSpreadTime: LONGITUDINAL_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime(),
-        transverseSpreadTime: TRANSVERSE_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime()
+        longitudinalSpreadTime: QuantumWaveInterferenceConstants.WAVE_PACKET_LONGITUDINAL_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime(),
+        transverseSpreadTime: QuantumWaveInterferenceConstants.WAVE_PACKET_TRANSVERSE_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime()
       },
       obstacle: this.createKernelObstacle(),
       projections: this.measurementProjections
@@ -329,11 +317,11 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   }
 
   private getDisplaySpeed(): number {
-    return ( this.regionWidth / PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
+    return ( this.regionWidth / QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
   }
 
   private getEffectiveTraversalTime(): number {
-    return PACKET_TRAVERSAL_TIME / Math.max( this.displaySpeedScale, EPSILON );
+    return QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME / Math.max( this.displaySpeedScale, EPSILON );
   }
 
   private getGridCellX( gridX: number ): number {
