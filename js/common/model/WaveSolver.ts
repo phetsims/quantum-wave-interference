@@ -12,7 +12,7 @@
 
 import Vector2 from '../../../../dot/js/Vector2.js';
 import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
-import { type FieldSample } from './AnalyticalWaveKernel.js';
+import { type ComplexValue, type FieldSample } from './AnalyticalWaveKernel.js';
 import { type ObstacleType } from './ObstacleType.js';
 
 export type WaveSolverState = Record<string, IntentionalAny>;
@@ -50,6 +50,12 @@ type WaveSolver = {
   getTime(): number;
 
   getAmplitudeField(): Float64Array;
+
+  /**
+   * Evaluates the field analytically at continuous model coordinates and an optional solver time.
+   * x is measured from the source side of the wave region, and y is centered on the region.
+   */
+  evaluate( x: number, y: number, t?: number ): ComplexValue;
 
   /**
    * Returns the physically meaningful field sample for a solver grid cell at the current solver time.

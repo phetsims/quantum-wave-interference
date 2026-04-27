@@ -3,7 +3,8 @@
 /**
  * TimePlotNode is a tool that shows the currently displayed wave quantity at a crosshair position
  * versus time. It consists of a draggable chart panel and a draggable crosshair probe connected
- * by a wire. The crosshair samples the amplitude field at its grid location each frame.
+ * by a wire. The crosshair samples the analytical wave field at fixed time intervals so the trace
+ * does not depend on animation-frame timing.
  *
  * Analogous to the WaveMeterNode in wave-interference.
  *
@@ -39,7 +40,9 @@ const CROSSHAIR_RADIUS = 15;
 const WIRE_LINE_WIDTH = 3;
 const WIRE_NORMAL_DISTANCE = 25;
 const MAX_TIME_WINDOW = 1; // seconds of data shown
-const MAX_SAMPLES = 300;
+const MAX_SAMPLES = 600;
+const TIME_SAMPLE_INTERVAL = MAX_TIME_WINDOW / MAX_SAMPLES;
+const TIME_EPSILON = 1e-12;
 const TIME_PLOT_CHART_WIDTH = 190;
 const TIME_PLOT_CHART_HEIGHT = 135;
 const TIME_PLOT_PANEL_LEFT_PADDING = 8;
@@ -58,6 +61,8 @@ export default class TimePlotNode extends Node {
   private readonly chartNode: WavePlotChartNode;
   private readonly timeSeries: TimePlotDataPoint[];
   private elapsedTime: number;
+  private previousSolverTime: number | null;
+  private nextSampleSolverTime: number | null;
   private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
   private readonly probeNode: Node;
   private readonly probePositionProperty: Vector2Property;
@@ -74,6 +79,8 @@ export default class TimePlotNode extends Node {
     this.sceneProperty = sceneProperty;
     this.timeSeries = [];
     this.elapsedTime = 0;
+    this.previousSolverTime = null;
+    this.nextSampleSolverTime = null;
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -166,26 +173,70 @@ export default class TimePlotNode extends Node {
       return;
     }
 
-    this.elapsedTime += dt;
-
     const scene = this.sceneProperty.value;
     const solver = scene.waveSolver;
-    const field = solver.getAmplitudeField();
-    const gridWidth = solver.gridWidth;
-    const gridHeight = solver.gridHeight;
+    const currentSolverTime = solver.getTime();
 
+    if ( this.previousSolverTime !== null && currentSolverTime + TIME_EPSILON < this.previousSolverTime ) {
+      this.clearData();
+    }
+
+    if ( this.previousSolverTime === null ) {
+      this.addSample( scene, currentSolverTime, this.elapsedTime );
+      this.previousSolverTime = currentSolverTime;
+      this.nextSampleSolverTime = currentSolverTime + TIME_SAMPLE_INTERVAL;
+      this.updateChart();
+      return;
+    }
+
+    if ( currentSolverTime <= this.previousSolverTime + TIME_EPSILON ) {
+      return;
+    }
+
+    const previousSolverTime = this.previousSolverTime;
+    const previousElapsedTime = this.elapsedTime;
+    const solverDt = currentSolverTime - previousSolverTime;
+    this.elapsedTime += solverDt;
+
+    let nextSampleSolverTime = this.nextSampleSolverTime || previousSolverTime + TIME_SAMPLE_INTERVAL;
+    const minVisibleSolverTime = currentSolverTime - MAX_TIME_WINDOW;
+
+    // If a large time jump occurred, skip directly to the visible part of the chart window.
+    if ( nextSampleSolverTime < minVisibleSolverTime ) {
+      nextSampleSolverTime += Math.floor( ( minVisibleSolverTime - nextSampleSolverTime ) / TIME_SAMPLE_INTERVAL ) * TIME_SAMPLE_INTERVAL;
+      while ( nextSampleSolverTime < minVisibleSolverTime ) {
+        nextSampleSolverTime += TIME_SAMPLE_INTERVAL;
+      }
+    }
+
+    while ( nextSampleSolverTime <= currentSolverTime + TIME_EPSILON ) {
+      const plotTime = previousElapsedTime + nextSampleSolverTime - previousSolverTime;
+      this.addSample( scene, nextSampleSolverTime, plotTime );
+      nextSampleSolverTime += TIME_SAMPLE_INTERVAL;
+    }
+
+    this.previousSolverTime = currentSolverTime;
+    this.nextSampleSolverTime = nextSampleSolverTime;
+
+    this.trimData();
+    this.updateChart();
+  }
+
+  private addSample( scene: WaveVisualizableScene, solverTime: number, plotTime: number ): void {
     const probePos = this.probePositionProperty.value;
-    const gx = clamp( Math.floor( ( probePos.x - this.waveRegionBounds.minX ) / this.waveRegionBounds.width * gridWidth ), 0, gridWidth - 1 );
-    const gy = clamp( Math.floor( ( probePos.y - this.waveRegionBounds.minY ) / this.waveRegionBounds.height * gridHeight ), 0, gridHeight - 1 );
+    const normalizedX = clamp( ( probePos.x - this.waveRegionBounds.minX ) / this.waveRegionBounds.width, 0, 1 );
+    const normalizedY = clamp( ( probePos.y - this.waveRegionBounds.minY ) / this.waveRegionBounds.height, 0, 1 );
 
-    const idx = ( gy * gridWidth + gx ) * 2;
-    const re = field[ idx ];
-    const im = field[ idx + 1 ];
+    const x = normalizedX * scene.regionWidth;
+    const y = normalizedY * scene.regionHeight - scene.regionHeight / 2;
+    const { re, im } = scene.waveSolver.evaluate( x, y, solverTime );
     const displayMode = scene.activeWaveDisplayModeProperty.value;
     const value = getDisplayedWaveValue( re, im, displayMode );
 
-    this.timeSeries.push( { time: this.elapsedTime, value: value } );
+    this.timeSeries.push( { time: plotTime, value: value } );
+  }
 
+  private trimData(): void {
     const minTime = this.elapsedTime - MAX_TIME_WINDOW;
     while ( this.timeSeries.length > 0 && this.timeSeries[ 0 ].time < minTime ) {
       this.timeSeries.shift();
@@ -193,8 +244,6 @@ export default class TimePlotNode extends Node {
     while ( this.timeSeries.length > MAX_SAMPLES ) {
       this.timeSeries.shift();
     }
-
-    this.updateChart();
   }
 
   private updateChart(): void {
@@ -229,6 +278,8 @@ export default class TimePlotNode extends Node {
   private clearData(): void {
     this.timeSeries.length = 0;
     this.elapsedTime = 0;
+    this.previousSolverTime = null;
+    this.nextSampleSolverTime = null;
     this.chartNode.dataPath.shape = null;
   }
 

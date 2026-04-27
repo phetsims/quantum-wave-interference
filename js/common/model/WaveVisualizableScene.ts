@@ -16,6 +16,7 @@ import type WaveSolver from './WaveSolver.js';
 type WaveVisualizableScene = {
   readonly sourceType: SourceType;
   readonly regionWidth: number;
+  readonly regionHeight: number;
   readonly wavelengthProperty: TReadOnlyProperty<number>;
   readonly waveSolver: WaveSolver;
   readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
