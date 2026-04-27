@@ -3,7 +3,7 @@
 /**
  * PositionPlotNode is a tool that shows the currently displayed wave quantity versus horizontal
  * position along a draggable horizontal dotted line across the wave visualization region.
- * It consists of a chart panel connected to a horizontal sampling line with a crosshair.
+ * It consists of a chart panel connected to a horizontal sampling line.
  *
  * Analogous to the WaveAreaGraphNode in wave-interference.
  *
@@ -11,42 +11,45 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
-import Vector2 from '../../../../dot/js/Vector2.js';
-import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import Shape from '../../../../kite/js/Shape.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
-import WireNode from '../../../../scenery-phet/js/WireNode.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
-import Circle from '../../../../scenery/js/nodes/Circle.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
+import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import getDisplayedWaveValue from '../model/getDisplayedWaveValue.js';
+import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
+import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import StickyMaxTracker from './StickyMaxTracker.js';
 import WavePlotChartNode from './WavePlotChartNode.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
 import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 
-const CROSSHAIR_RADIUS = 12;
 const WIRE_LINE_WIDTH = 3;
-const WIRE_NORMAL_DISTANCE = 25;
 const DOTTED_LINE_DASH = [ 6, 4 ];
 const MIN_Y_FRACTION = 0.02;
 const MAX_Y_FRACTION = 0.98;
-const AMPLITUDE_DECAY_PER_STEP = 0.95;
-const MIN_AMPLITUDE_SCALE = 0.01;
+const PREVIOUS_DEFAULT_PANEL_GAP = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT / 2 + 26;
+const PANEL_GAP = PREVIOUS_DEFAULT_PANEL_GAP * 0.08;
+const LINE_HIT_AREA_HEIGHT = 16;
+const POSITION_PLOT_PANEL_LEFT_PADDING = 8;
+const POSITION_PLOT_PANEL_BOTTOM_PADDING = 8;
+const POSITION_PLOT_PANEL_TOP_PADDING = 12;
+const POSITION_PLOT_PANEL_RIGHT_PADDING = 12;
 
 export default class PositionPlotNode extends Node {
 
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
   private readonly chartNode: WavePlotChartNode;
-  private readonly amplitudeScale: StickyMaxTracker;
+  private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
+  private readonly updatePlotLayout: () => void;
 
   // Reusable buffer for the sampled row. Resized lazily when gridWidth changes.
   private sampleBuffer: Float64Array;
@@ -63,7 +66,6 @@ export default class PositionPlotNode extends Node {
     super( { isDisposable: false, visibleProperty: visibleProperty } );
 
     this.sceneProperty = sceneProperty;
-    this.amplitudeScale = new StickyMaxTracker( MIN_AMPLITUDE_SCALE );
     this.sampleBuffer = new Float64Array( 0 );
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
@@ -73,6 +75,16 @@ export default class PositionPlotNode extends Node {
       range: new Range( MIN_Y_FRACTION, MAX_Y_FRACTION )
     } );
 
+    const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( sceneProperty );
+    const polarityProperty = waveDisplayModePolarityProperty( sceneProperty );
+    const activeDisplayModeProperty = new DynamicProperty<WaveDisplayMode, WaveDisplayMode, WaveVisualizableScene>( sceneProperty, {
+      derive: 'activeWaveDisplayModeProperty'
+    } );
+    this.maxDisplayValueProperty = new DerivedProperty(
+      [ activeDisplayModeProperty ],
+      displayMode => getMaxDisplayedWaveValue( displayMode )
+    );
+
     const dottedLine = new Line( waveRegionX, 0, waveRegionX + waveRegionWidth, 0, {
       stroke: 'white',
       lineWidth: 1.5,
@@ -81,75 +93,78 @@ export default class PositionPlotNode extends Node {
     } );
     this.addChild( dottedLine );
 
-    const crosshairNode = new Node( { cursor: 'ns-resize' } );
-    const crosshairBg = new Circle( CROSSHAIR_RADIUS, {
-      fill: 'rgba(0,0,0,0.2)',
-      stroke: 'white',
-      lineWidth: 2
+    const lineHitArea = new Rectangle( waveRegionX, 0, waveRegionWidth, LINE_HIT_AREA_HEIGHT, {
+      fill: 'rgba( 0, 0, 0, 0 )',
+      cursor: 'ns-resize'
     } );
-    crosshairNode.addChild( crosshairBg );
+    this.addChild( lineHitArea );
 
-    const lineOptions = { stroke: 'white', lineWidth: 2 };
-    crosshairNode.addChild( new Line( -CROSSHAIR_RADIUS, 0, CROSSHAIR_RADIUS, 0, lineOptions ) );
-    crosshairNode.addChild( new Line( 0, -CROSSHAIR_RADIUS, 0, CROSSHAIR_RADIUS, lineOptions ) );
+    const lineCenterX = waveRegionX + waveRegionWidth / 2;
 
-    crosshairNode.x = waveRegionX + waveRegionWidth / 2;
-    this.addChild( crosshairNode );
-
-    const crosshairX = waveRegionX + waveRegionWidth / 2;
-
-    const crosshairPositionProperty = new DerivedProperty(
-      [ this.lineYFractionProperty ],
-      fraction => new Vector2( crosshairX, waveRegionY + fraction * waveRegionHeight )
-    );
-
-    this.lineYFractionProperty.link( fraction => {
-      const viewY = waveRegionY + fraction * waveRegionHeight;
-      dottedLine.y1 = viewY;
-      dottedLine.y2 = viewY;
-      crosshairNode.y = viewY;
-    } );
-
-    let pressYOffset = 0;
-    crosshairNode.addInputListener( new DragListener( {
+    let dragStartY = 0;
+    let dragStartFraction = this.lineYFractionProperty.value;
+    const verticalDragListener = new DragListener( {
       start: ( event, listener ) => {
-        pressYOffset = listener.parentPoint.y - crosshairNode.y;
+        dragStartY = listener.parentPoint.y;
+        dragStartFraction = this.lineYFractionProperty.value;
       },
       drag: ( event, listener ) => {
-        const targetY = listener.parentPoint.y - pressYOffset;
-        this.lineYFractionProperty.value = clamp( ( targetY - waveRegionY ) / waveRegionHeight, MIN_Y_FRACTION, MAX_Y_FRACTION );
+        this.lineYFractionProperty.value = clamp(
+          dragStartFraction + ( listener.parentPoint.y - dragStartY ) / waveRegionHeight,
+          MIN_Y_FRACTION,
+          MAX_Y_FRACTION
+        );
       }
-    } ) );
-
-    const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( sceneProperty );
-    const polarityProperty = waveDisplayModePolarityProperty( sceneProperty );
+    } );
+    lineHitArea.addInputListener( verticalDragListener );
 
     this.chartNode = new WavePlotChartNode( {
       yAxisLabelStringProperty: yAxisLabelStringProperty,
       xAxisLabelStringProperty: QuantumWaveInterferenceFluent.positionStringProperty,
       polarityProperty: polarityProperty,
+      isDraggable: false,
+      cursor: 'ns-resize',
+      chartWidth: waveRegionWidth,
+      axisLabelFill: 'white',
+      panelLeftPadding: POSITION_PLOT_PANEL_LEFT_PADDING,
+      panelBottomPadding: POSITION_PLOT_PANEL_BOTTOM_PADDING,
+      panelTopPadding: POSITION_PLOT_PANEL_TOP_PADDING,
+      panelRightPadding: POSITION_PLOT_PANEL_RIGHT_PADDING,
       x: waveRegionX,
       y: waveRegionY + waveRegionHeight + 30
     } );
+    this.chartNode.addInputListener( verticalDragListener );
     this.addChild( this.chartNode );
 
-    // Reset the amplitude scale when the display mode polarity changes so the old scale does not
-    // contaminate the new mode's range.
-    polarityProperty.link( () => this.amplitudeScale.reset() );
-
-    const chartConnectionProperty = new DerivedProperty(
-      [ this.chartNode.boundsProperty ],
-      bounds => bounds.leftCenter
-    );
-    const wireNormal1Property = new Vector2Property( new Vector2( -WIRE_NORMAL_DISTANCE, 0 ) );
-    const wireNormal2Property = new Vector2Property( new Vector2( WIRE_NORMAL_DISTANCE, 0 ) );
-
-    const wireNode = new WireNode( chartConnectionProperty, wireNormal1Property, crosshairPositionProperty, wireNormal2Property, {
+    const wireLine = new Line( lineCenterX, 0, lineCenterX, 0, {
       stroke: QuantumWaveInterferenceColors.graphGridLineColorProperty,
       lineWidth: WIRE_LINE_WIDTH
     } );
-    this.addChild( wireNode );
-    wireNode.moveToBack();
+    this.addChild( wireLine );
+    wireLine.moveToBack();
+
+    this.updatePlotLayout = () => {
+      const fraction = this.lineYFractionProperty.value;
+      const viewY = waveRegionY + fraction * waveRegionHeight;
+      dottedLine.y1 = viewY;
+      dottedLine.y2 = viewY;
+      lineHitArea.centerY = viewY;
+
+      if ( fraction <= 0.5 ) {
+        this.chartNode.top = viewY + PANEL_GAP;
+        wireLine.y1 = this.chartNode.top;
+      }
+      else {
+        this.chartNode.bottom = viewY - PANEL_GAP;
+        wireLine.y1 = this.chartNode.bottom;
+      }
+
+      wireLine.x1 = lineCenterX;
+      wireLine.x2 = lineCenterX;
+      wireLine.y2 = viewY;
+    };
+
+    this.lineYFractionProperty.link( this.updatePlotLayout );
   }
 
   public step(): void {
@@ -171,20 +186,14 @@ export default class PositionPlotNode extends Node {
     }
     const samples = this.sampleBuffer;
 
-    let observedMax = 0;
     for ( let gx = 0; gx < gridWidth; gx++ ) {
       const idx = ( gy * gridWidth + gx ) * 2;
-      const value = getDisplayedWaveValue( field[ idx ], field[ idx + 1 ], displayMode );
-      samples[ gx ] = value;
-      const abs = Math.abs( value );
-      if ( abs > observedMax ) {
-        observedMax = abs;
-      }
+      samples[ gx ] = getDisplayedWaveValue( field[ idx ], field[ idx + 1 ], displayMode );
     }
 
-    const scale = this.amplitudeScale.update( observedMax, AMPLITUDE_DECAY_PER_STEP );
+    const scale = this.maxDisplayValueProperty.value;
 
-    const chartWidth = WavePlotChartNode.CHART_WIDTH;
+    const chartWidth = this.chartNode.chartWidth;
     const shape = new Shape();
     for ( let i = 0; i < gridWidth; i++ ) {
       const x = ( i / ( gridWidth - 1 ) ) * chartWidth;
@@ -203,8 +212,7 @@ export default class PositionPlotNode extends Node {
 
   public reset(): void {
     this.lineYFractionProperty.reset();
-    this.amplitudeScale.reset();
     this.chartNode.dataPath.shape = null;
-    this.chartNode.resetPosition();
+    this.updatePlotLayout();
   }
 }

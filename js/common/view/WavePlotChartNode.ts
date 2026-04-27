@@ -48,6 +48,7 @@ type SelfOptions = {
   yAxisLabelStringProperty: TReadOnlyProperty<string>;
   xAxisLabelStringProperty: TReadOnlyProperty<string>;
   polarityProperty: TReadOnlyProperty<WaveDisplayModePolarity>;
+  isDraggable?: boolean;
   chartWidth?: number;
   chartHeight?: number;
   axisLabelFill?: string;
@@ -76,6 +77,7 @@ export default class WavePlotChartNode extends Node {
     const options = optionize<WavePlotChartNodeOptions, SelfOptions, NodeOptions>()( {
       isDisposable: false,
       cursor: 'pointer',
+      isDraggable: true,
       chartWidth: CHART_WIDTH,
       chartHeight: CHART_HEIGHT,
       axisLabelFill: DEFAULT_AXIS_LABEL_FILL,
@@ -214,7 +216,9 @@ export default class WavePlotChartNode extends Node {
       this.y = position.y;
     } );
 
-    this.addInputListener( new DragListener( { positionProperty: this.positionProperty } ) );
+    if ( options.isDraggable ) {
+      this.addInputListener( new DragListener( { positionProperty: this.positionProperty } ) );
+    }
   }
 
   public resetPosition(): void {
