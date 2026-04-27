@@ -22,8 +22,7 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
-import { hasAnyDetector, hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
-import { type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
+import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
 
 const MAX_EMISSION_RATE = 100;
 
@@ -60,7 +59,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
     this.hitAccumulator = 0;
 
-    this.intensityProperty = new NumberProperty( 0.5, {
+    this.intensityProperty = new NumberProperty( 1, {
       range: new Range( 0, 1 ),
       tandem: tandem.createTandem( 'intensityProperty' )
     } );
