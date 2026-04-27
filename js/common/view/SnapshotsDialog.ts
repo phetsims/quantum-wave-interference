@@ -23,7 +23,6 @@ type SnapshotsDialogOptions = {
   formatSlitSeparation?: ( slitSepMM: number ) => string;
   showScreenDistance?: boolean;
   getDescription?: ( snapshot: Snapshot ) => string;
-  getSnapshotDisplayWidthScale?: ( snapshot: Snapshot ) => number;
 };
 
 export default class SnapshotsDialog extends Dialog {
@@ -44,8 +43,7 @@ export default class SnapshotsDialog extends Dialog {
         slitSettingDisplayMap: providedOptions?.slitSettingDisplayMap,
         formatSlitSeparation: providedOptions?.formatSlitSeparation,
         showScreenDistance: providedOptions?.showScreenDistance,
-        getDescription: providedOptions?.getDescription,
-        getSnapshotDisplayWidthScale: providedOptions?.getSnapshotDisplayWidthScale
+        getDescription: providedOptions?.getDescription
       } ) );
     }
 
