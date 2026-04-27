@@ -66,6 +66,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   // Sampled detection time (from truncated Gaussian) for the active packet
   private targetDetectionTime: number;
 
+  // True while a completed packet is automatically turning the emitter off.
+  private isEndingPacket: boolean;
+
   public constructor( providedOptions: SingleParticlesSceneModelOptions ) {
 
     super( createWavePacketSolver(), combineOptions<BaseSceneModelOptions>( {}, providedOptions ) );
@@ -74,6 +77,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.targetDetectionTime = PACKET_TRAVERSAL_TIME;
+    this.isEndingPacket = false;
 
     this.autoRepeatProperty = new BooleanProperty( false, {
       tandem: tandem.createTandem( 'autoRepeatProperty' )
@@ -159,8 +163,14 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public override clearScreen(): void {
     this.isPacketActiveProperty.value = false;
+    this.detectorToolStateProperty.value = 'ready';
+    this.detectorToolProbabilityProperty.value = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     super.clearScreen();
+  }
+
+  protected override shouldClearScreenWhenEmitterTurnsOff(): boolean {
+    return !this.isEndingPacket;
   }
 
   public takeSingleParticlesSnapshot(): void {
@@ -252,7 +262,13 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.isPacketActiveProperty.value = false;
 
     if ( !this.autoRepeatProperty.value ) {
-      this.isEmittingProperty.value = false;
+      this.isEndingPacket = true;
+      try {
+        this.isEmittingProperty.value = false;
+      }
+      finally {
+        this.isEndingPacket = false;
+      }
     }
   }
 

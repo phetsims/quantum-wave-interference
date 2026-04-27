@@ -244,8 +244,6 @@ export default class SidewaysGraphNode extends Node {
   }
 
   private paintIntensityCurve( scene: SidewaysGraphSceneLike ): void {
-
-    // Always read the live solver distribution so trailing waves still draw after the source is off.
     const zoomScale = linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
     const sourceIntensity = scene.intensityProperty ? scene.intensityProperty.value : 1;
 

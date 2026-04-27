@@ -3,7 +3,7 @@
 /**
  * Stateful WaveSolver adapter for the pure analytical continuous-wave kernel.
  *
- * The PhET model still needs cached amplitude grids, detector accumulation, source on/off timing,
+ * The PhET model still needs cached amplitude grids, detector accumulation, source-on timing,
  * serialization, and the legacy single-complex WaveSolver API. The physics evaluation itself lives
  * in AnalyticalWaveKernel and returns richer field samples with independent coherent components.
  *
@@ -52,8 +52,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private time = 0;
 
   private sourceOnTime: number | null = null;
-  private sourceOffTime: number | null = null;
-
   private readonly amplitudeField: Float64Array;
   private readonly fieldSamples: FieldSample[];
   private readonly detectorDistribution: Float64Array;
@@ -92,12 +90,13 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.setIfDefined( params.isTopSlitDecoherent, value => { this.isTopSlitDecoherent = value; } );
     this.setIfDefined( params.isBottomSlitDecoherent, value => { this.isBottomSlitDecoherent = value; } );
     if ( params.isSourceOn !== undefined ) {
-      if ( this.isSourceOn && !params.isSourceOn ) {
-        this.sourceOffTime = this.time;
-      }
-      else if ( !this.isSourceOn && params.isSourceOn ) {
+      if ( !this.isSourceOn && params.isSourceOn ) {
         this.sourceOnTime = this.time;
-        this.sourceOffTime = null;
+        this.detectorAccumulator.fill( 0 );
+        this.detectorAccumulatorCount = 0;
+      }
+      else if ( this.isSourceOn && !params.isSourceOn ) {
+        this.detectorDistribution.fill( 0 );
         this.detectorAccumulator.fill( 0 );
         this.detectorAccumulatorCount = 0;
       }
@@ -116,7 +115,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       return;
     }
 
-    if ( this.isSourceOn || this.hasWavesInRegion() ) {
+    if ( this.isSourceOn ) {
       this.computeInstantaneousDetectorDistribution();
       for ( let iy = 0; iy < this.gridHeight; iy++ ) {
         this.detectorAccumulator[ iy ] += this.detectorDistribution[ iy ];
@@ -176,7 +175,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.time = 0;
     this.isSourceOn = false;
     this.sourceOnTime = null;
-    this.sourceOffTime = null;
     this.amplitudeField.fill( 0 );
     this.fieldSamples.fill( UNREACHED_SAMPLE );
     this.detectorDistribution.fill( 0 );
@@ -189,7 +187,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     return {
       time: this.time,
       sourceOnTime: this.sourceOnTime,
-      sourceOffTime: this.sourceOffTime,
       detectorAccumulator: Array.from( this.detectorAccumulator ),
       detectorAccumulatorCount: this.detectorAccumulatorCount
     };
@@ -198,7 +195,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   public setState( state: WaveSolverState ): void {
     this.time = state.time;
     this.sourceOnTime = state.sourceOnTime;
-    this.sourceOffTime = state.sourceOffTime;
     if ( state.detectorAccumulator ) {
       this.detectorAccumulator.set( state.detectorAccumulator );
       this.detectorAccumulatorCount = state.detectorAccumulatorCount;
@@ -214,18 +210,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     // No-op: the detector tool is only present on the Single Particles screen.
   }
 
-  public hasWavesInRegion(): boolean {
-    if ( this.isSourceOn ) {
-      return true;
-    }
-    if ( this.sourceOffTime === null ) {
-      return false;
-    }
-
-    const displaySpeed = this.getDisplaySpeed();
-    return displaySpeed > 0 && this.time - this.sourceOffTime <= this.getMaximumRegionPathLength() / displaySpeed;
-  }
-
   public evaluate( x: number, y: number, t = this.time ): ComplexValue {
     return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
   }
@@ -233,7 +217,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private computeField(): void {
     const { gridWidth, gridHeight, amplitudeField, fieldSamples } = this;
 
-    if ( !this.isSourceOn && !this.hasWavesInRegion() ) {
+    if ( !this.isSourceOn ) {
       amplitudeField.fill( 0 );
       fieldSamples.fill( UNREACHED_SAMPLE );
       return;
@@ -275,7 +259,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         waveNumber: this.getDisplayWaveNumber(),
         speed: this.getDisplaySpeed(),
         startTime: this.sourceOnTime,
-        stopTime: this.sourceOffTime,
         edgeTaperDistance: EDGE_TAPER_CELLS * this.regionWidth / this.gridWidth
       },
       obstacle: this.createKernelObstacle()
@@ -308,35 +291,6 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         }
       ]
     };
-  }
-
-  private getMaximumRegionPathLength(): number {
-    if ( this.obstacleType !== 'doubleSlit' ) {
-      return this.regionWidth;
-    }
-
-    const barrierX = this.barrierFractionX * this.regionWidth;
-    const { viewSlitSep } = this.getDisplaySlitGeometry();
-    const openSlitCenters = [
-      ...( this.isTopSlitOpen ? [ -viewSlitSep / 2 ] : [] ),
-      ...( this.isBottomSlitOpen ? [ viewSlitSep / 2 ] : [] )
-    ];
-
-    if ( openSlitCenters.length === 0 ) {
-      return barrierX;
-    }
-
-    const xPastBarrier = this.regionWidth - barrierX;
-    let maxPath = barrierX;
-    for ( let i = 0; i < openSlitCenters.length; i++ ) {
-      const slitCenterY = openSlitCenters[ i ];
-      maxPath = Math.max(
-        maxPath,
-        barrierX + Math.sqrt( xPastBarrier * xPastBarrier + ( -this.regionHeight / 2 - slitCenterY ) ** 2 ),
-        barrierX + Math.sqrt( xPastBarrier * xPastBarrier + ( this.regionHeight / 2 - slitCenterY ) ** 2 )
-      );
-    }
-    return maxPath;
   }
 
   private getDisplayWaveNumber(): number {

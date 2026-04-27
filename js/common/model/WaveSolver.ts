@@ -66,9 +66,6 @@ type WaveSolver = {
 
   invalidate(): void;
 
-  // Returns true if there are still waves in the visualization region (used for post-emitter-off propagation)
-  hasWavesInRegion(): boolean;
-
   /**
    * Applies a measurement projection to the wavefunction: zero the amplitude inside the circular region
    * and renormalize the remainder so the total probability is preserved. The projection persists across

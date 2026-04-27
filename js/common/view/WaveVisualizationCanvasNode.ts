@@ -54,6 +54,8 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
   public paintCanvas( context: CanvasRenderingContext2D ): void {
     const scene = this.sceneProperty.value;
 
+    context.clearRect( 0, 0, this.viewWidth, this.viewHeight );
+
     if ( !scene.isWaveVisibleProperty.value ) {
       return;
     }

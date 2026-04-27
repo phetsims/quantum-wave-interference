@@ -132,6 +132,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.leftDetectorHitsProperty.value = 0;
     this.rightDetectorHitsProperty.value = 0;
     super.clearScreen();
+    this._isWaveVisibleProperty.value = this.isEmittingProperty.value;
   }
 
   public takeHighIntensitySnapshot(): void {
@@ -142,18 +143,12 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
    * Steps the scene forward in time: advances the wave solver and accumulates hits.
    */
   public step( dt: number ): void {
-
-    // Always step the wave solver so existing waves continue to propagate after the emitter is turned off
     this.waveSolver.step( dt );
 
-    const hasWaves = this.waveSolver.hasWavesInRegion();
+    this._isWaveVisibleProperty.value = this.isEmittingProperty.value;
 
-    // Update wave visibility: show waves while emitting or while existing waves are still in the region
-    this._isWaveVisibleProperty.value = this.isEmittingProperty.value || hasWaves;
-
-    // Accumulate hits while waves are in the region (even after emitter is turned off)
     if (
-      ( !this.isEmittingProperty.value && !hasWaves ) ||
+      !this.isEmittingProperty.value ||
       this.detectionModeProperty.value !== 'hits' ||
       this.isMaxHitsReachedProperty.value ||
       dt > 0.5

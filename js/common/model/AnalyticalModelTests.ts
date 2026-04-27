@@ -9,7 +9,7 @@
 import { type AnalyticalWaveParameters, type ComplexValue, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { getFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_GRAY } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
-import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
+import AnalyticalWavePacketSolver, { PACKET_TRAVERSAL_TIME } from './AnalyticalWavePacketSolver.js';
 
 QUnit.module( 'AnalyticalModel' );
 
@@ -72,7 +72,6 @@ const integrateIntensity = (
 
 const createPlaneParameters = ( options?: {
   startTime?: number | null;
-  stopTime?: number | null;
   speed?: number;
   waveNumber?: number;
   edgeTaperDistance?: number;
@@ -83,7 +82,6 @@ const createPlaneParameters = ( options?: {
     waveNumber: options?.waveNumber ?? 2 * Math.PI,
     speed: options?.speed ?? 1,
     startTime: options?.startTime === undefined ? 0 : options.startTime,
-    stopTime: options?.stopTime === undefined ? null : options.stopTime,
     edgeTaperDistance: options?.edgeTaperDistance
   },
   obstacle: options?.obstacle ?? { kind: 'none' }
@@ -347,26 +345,6 @@ QUnit.test( 'Fresnel aperture propagation is continuous inside an open aperture'
   );
 } );
 
-QUnit.test( 'source stop time creates a trailing edge', assert => {
-  const parameters = createPlaneParameters( {
-    waveNumber: Math.PI,
-    speed: 1,
-    startTime: 0,
-    stopTime: 0.5
-  } );
-
-  assert.strictEqual(
-    evaluateAnalyticalSample( parameters, 0.25, 0, 0.75 ).kind,
-    'field',
-    'last emitted wavefront is still present at the trailing edge'
-  );
-  assert.strictEqual(
-    evaluateAnalyticalSample( parameters, 0.25, 0, 0.76 ).kind,
-    'unreached',
-    'field clears after the trailing edge passes'
-  );
-} );
-
 QUnit.test( 'continuous wave solver restarts source after reset while source remains on', assert => {
   const solver = new AnalyticalWaveSolver( 12, 12 );
   solver.setParameters( {
@@ -390,29 +368,27 @@ QUnit.test( 'continuous wave solver restarts source after reset while source rem
 QUnit.test( 'wave packet solver reset clears source state', assert => {
   const solver = new AnalyticalWavePacketSolver();
   solver.setParameters( { isSourceOn: true } );
+  solver.step( PACKET_TRAVERSAL_TIME );
 
-  assert.true( solver.hasWavesInRegion(), 'source is active before reset' );
+  assert.ok( hasNonZeroAmplitude( solver.getAmplitudeField() ), 'source produces a field before reset' );
 
   solver.reset();
 
-  assert.false( solver.hasWavesInRegion(), 'source is inactive after reset' );
+  assert.false( hasNonZeroAmplitude( solver.getAmplitudeField() ), 'source is inactive after reset' );
 } );
 
-QUnit.test( 'plane wave source gates taper leading and trailing edges', assert => {
+QUnit.test( 'plane wave source gates leading edge taper', assert => {
   const parameters = createPlaneParameters( {
     waveNumber: Math.PI,
     speed: 1,
     startTime: 0,
-    stopTime: 1,
     edgeTaperDistance: 0.2
   } );
 
   const leadingEdge = intensityAt( parameters, 1, 0, 1.1 );
   const fullyOn = intensityAt( parameters, 1, 0, 1.3 );
-  const trailingEdge = intensityAt( parameters, 1, 0, 1.9 );
 
   assert.ok( leadingEdge > 0 && leadingEdge < fullyOn, 'leading edge is smoothly tapered' );
-  assert.ok( trailingEdge > 0 && trailingEdge < fullyOn, 'trailing edge is smoothly tapered' );
   assertApproximately( assert, fullyOn, 1, 'fully illuminated plane wave remains unit intensity' );
 } );
 

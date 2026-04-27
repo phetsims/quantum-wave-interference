@@ -219,10 +219,6 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.dirty = true;
   }
 
-  public hasWavesInRegion(): boolean {
-    return this.isSourceOn;
-  }
-
   public evaluate( x: number, y: number, t = this.time ): ComplexValue {
     return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
   }

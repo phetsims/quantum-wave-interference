@@ -66,6 +66,17 @@ export default class DetectorScreenNode extends Node {
     this.canvasNode.clipArea = shape;
     this.addChild( this.canvasNode );
 
+    const invalidateCanvas = () => this.canvasNode.invalidatePaint();
+    let previousScene: DetectorScreenSceneLike | null = null;
+    sceneProperty.link( scene => {
+      if ( previousScene ) {
+        previousScene.hitsChangedEmitter.removeListener( invalidateCanvas );
+      }
+      scene.hitsChangedEmitter.addListener( invalidateCanvas );
+      previousScene = scene;
+      invalidateCanvas();
+    } );
+
     this.snapshotFlashRect = new Rectangle( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT + SKEW, {
       fill: 'white',
       opacity: 0,

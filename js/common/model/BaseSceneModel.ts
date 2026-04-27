@@ -367,7 +367,21 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.slitSeparationProperty.lazyLink( () => this.clearScreen() );
     this.slitPositionFractionProperty.lazyLink( () => this.clearScreen() );
 
-    this.isEmittingProperty.lazyLink( () => this.syncSolverParameters() );
+    this.isEmittingProperty.lazyLink( isEmitting => {
+      if ( isEmitting ) {
+        this.syncSolverParameters();
+      }
+      else if ( this.shouldClearScreenWhenEmitterTurnsOff() ) {
+        this.clearScreen();
+      }
+      else {
+        this.syncSolverParameters();
+      }
+    } );
+  }
+
+  protected shouldClearScreenWhenEmitterTurnsOff(): boolean {
+    return true;
   }
 
   public takeSnapshot( detectionMode: DetectionMode, slitSetting: SlitConfiguration, intensity: number ): void {

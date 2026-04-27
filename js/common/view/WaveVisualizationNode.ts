@@ -118,6 +118,16 @@ export default class WaveVisualizationNode extends Node {
     this.waveCanvas.clipArea = backgroundRect.getShape()!;
     this.addChild( this.waveCanvas );
 
+    const invalidateWaveCanvas = () => this.waveCanvas.invalidatePaint();
+    let previousScene: WaveVisualizableScene | null = null;
+    sceneProperty.link( scene => {
+      if ( previousScene ) {
+        previousScene.isWaveVisibleProperty.unlink( invalidateWaveCanvas );
+      }
+      scene.isWaveVisibleProperty.link( invalidateWaveCanvas );
+      previousScene = scene;
+    } );
+
     // Distance scale indicator with bar in the top-left corner
     const scaleFont = new PhetFont( 11 );
     const scaleLabelColor = 'white';

@@ -44,7 +44,6 @@ export type PlaneWaveSource = {
   waveNumber: number;
   speed: number;
   startTime: number | null;
-  stopTime: number | null;
   edgeTaperDistance?: number;
 };
 
@@ -485,20 +484,13 @@ const getPlaneEmissionEnvelope = ( source: PlaneWaveSource, pathLength: number, 
   if ( emissionTime + EPSILON < source.startTime ) {
     return 0;
   }
-  if ( source.stopTime !== null && emissionTime - EPSILON > source.stopTime ) {
-    return 0;
-  }
 
   const taperTime = ( source.edgeTaperDistance ?? 0 ) / source.speed;
   if ( taperTime <= 0 ) {
     return 1;
   }
 
-  let envelope = smoothStep( 0, taperTime, emissionTime - source.startTime );
-  if ( source.stopTime !== null ) {
-    envelope *= smoothStep( 0, taperTime, source.stopTime - emissionTime );
-  }
-  return envelope;
+  return smoothStep( 0, taperTime, emissionTime - source.startTime );
 };
 
 const isPathReachable = ( source: AnalyticalSource, pathLength: number, t: number ): boolean => {
