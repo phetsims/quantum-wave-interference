@@ -3,7 +3,7 @@
 /**
  * Maps physical slit-separation range to the display-coordinate slit layout used by the wave
  * solvers and DoubleSlitNode. Centralises the magic view constants (40 px min, 220 px max,
- * 22 px slit height at 350 px region height) so they live in one place.
+ * 22 px slit height at the nominal wave-region height) so they live in one place.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

@@ -39,6 +39,7 @@ import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverState } from './WaveSolver.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import Snapshot from './Snapshot.js';
+import { MAX_VIEW_SEPARATION, MIN_VIEW_SEPARATION, SLIT_VIEW_HEIGHT } from './getViewSlitLayout.js';
 
 export const HIT_VERTICAL_EXTENT = 0.95;
 export const MAX_HITS = 25000;
@@ -49,49 +50,35 @@ const DEFAULT_PHOTON_WAVELENGTH_NM = 650;
 // scene's physical region. Photons end up at ~10 μm, matter waves scale down to nm-scale regions.
 const DEFAULT_DISPLAY_WAVELENGTHS = 15;
 
+// Preserve the former default visual slit spacing when converting the control range to physical units.
+const DEFAULT_SLIT_SEPARATION_FRACTION = 9 / 19;
+
 type SourceTypeConfig = {
   particleMass: number;
   velocityRange: [ number, number ];
-  slitSeparationRange: [ number, number ];
   defaultVelocity: number;
-  defaultSlitSeparation: number;
-
-  // Must be smaller than the minimum slit separation for each scene.
-  slitWidth: number;
 };
 
 const SOURCE_TYPE_CONFIG: Record<SourceType, SourceTypeConfig> = {
   photons: {
     particleMass: 0,
     velocityRange: [ 0, 0 ],
-    slitSeparationRange: [ 0.1, 2.0 ],
-    defaultVelocity: 0,
-    defaultSlitSeparation: 1.0,
-    slitWidth: 0.0001
+    defaultVelocity: 0
   },
   electrons: {
     particleMass: QuantumWaveInterferenceConstants.ELECTRON_MASS,
     velocityRange: [ 7e5, 1.5e6 ],
-    slitSeparationRange: [ 0.1, 2.0 ],
-    defaultVelocity: 1.1e6,
-    defaultSlitSeparation: 1.0,
-    slitWidth: 0.00003
+    defaultVelocity: 1.1e6
   },
   neutrons: {
     particleMass: QuantumWaveInterferenceConstants.NEUTRON_MASS,
     velocityRange: [ 200, 800 ],
-    slitSeparationRange: [ 0.1, 2.0 ],
-    defaultVelocity: 500,
-    defaultSlitSeparation: 1.0,
-    slitWidth: 0.00002
+    defaultVelocity: 500
   },
   heliumAtoms: {
     particleMass: QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS,
     velocityRange: [ 400, 2000 ],
-    slitSeparationRange: [ 0.1, 2.0 ],
-    defaultVelocity: 1200,
-    defaultSlitSeparation: 1.0,
-    slitWidth: 0.000008
+    defaultVelocity: 1200
   }
 };
 
@@ -158,21 +145,33 @@ export default abstract class BaseSceneModel extends PhetioObject {
     const tandem = options.tandem;
 
     const config = SOURCE_TYPE_CONFIG[ this.sourceType ];
-    this.slitWidth = config.slitWidth;
     this.waveSolver = waveSolver;
     this.particleMass = config.particleMass;
     this.velocityRange = new Range( ...config.velocityRange );
-    this.slitSeparationRange = new Range( ...config.slitSeparationRange );
 
     this.defaultEffectiveWavelength = this.sourceType === 'photons' ?
                                       DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
                                       QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * config.defaultVelocity );
 
     // Size the region so that ~DEFAULT_DISPLAY_WAVELENGTHS wavelengths are visible at the default
-    // wavelength. For photons this is ~9.75 μm; for matter waves it auto-scales down to the nm range.
+    // wavelength. The model aspect ratio matches the view so the measuring tape has the same scale
+    // horizontally and vertically. For photons this is ~10 μm wide; for matter waves it auto-scales
+    // down to the nm range.
     const regionSize = this.defaultEffectiveWavelength * DEFAULT_DISPLAY_WAVELENGTHS;
     this.regionWidth = regionSize;
-    this.regionHeight = regionSize;
+    this.regionHeight = regionSize *
+                        QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT /
+                        QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
+
+    const slitSeparationMin = MIN_VIEW_SEPARATION / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
+                              this.regionHeight * 1e3;
+    const slitSeparationMax = MAX_VIEW_SEPARATION / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
+                              this.regionHeight * 1e3;
+    const defaultSlitSeparation = slitSeparationMin +
+                                  DEFAULT_SLIT_SEPARATION_FRACTION * ( slitSeparationMax - slitSeparationMin );
+    this.slitSeparationRange = new Range( slitSeparationMin, slitSeparationMax );
+    this.slitWidth = SLIT_VIEW_HEIGHT / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
+                     this.regionHeight * 1e3;
     this.defaultWaveSpeed = this.sourceType === 'photons' ? 3e8 : config.defaultVelocity;
 
     this.hits = [];
@@ -199,7 +198,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'obstacleTypeProperty' )
     } );
 
-    this.slitSeparationProperty = new NumberProperty( config.defaultSlitSeparation, {
+    this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
       range: this.slitSeparationRange,
       units: 'mm',
       tandem: tandem.createTandem( 'slitSeparationProperty' )
