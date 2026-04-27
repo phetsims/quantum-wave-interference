@@ -174,6 +174,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
   public reset(): void {
     this.time = 0;
+    this.isSourceOn = false;
     this.sourceOnTime = null;
     this.sourceOffTime = null;
     this.amplitudeField.fill( 0 );

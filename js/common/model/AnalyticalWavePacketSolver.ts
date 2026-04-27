@@ -136,6 +136,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
   public reset(): void {
     this.time = 0;
+    this.isSourceOn = false;
     this.amplitudeField.fill( 0 );
     this.fieldSamples.fill( UNREACHED_SAMPLE );
     this.detectorDistribution.fill( 0 );

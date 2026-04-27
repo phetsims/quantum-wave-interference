@@ -8,6 +8,8 @@
 
 import { type AnalyticalWaveParameters, type ComplexValue, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { getFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_GRAY } from './AnalyticalWaveRasterizer.js';
+import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
+import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
 
 QUnit.module( 'AnalyticalModel' );
 
@@ -36,6 +38,15 @@ const assertComplexApproximately = (
 
 const intensityAt = ( parameters: AnalyticalWaveParameters, x: number, y: number, t: number ): number =>
   computeSampleIntensity( evaluateAnalyticalSample( parameters, x, y, t ) );
+
+const hasNonZeroAmplitude = ( amplitudes: Float64Array ): boolean => {
+  for ( let i = 0; i < amplitudes.length; i++ ) {
+    if ( Math.abs( amplitudes[ i ] ) > EPSILON ) {
+      return true;
+    }
+  }
+  return false;
+};
 
 const integrateIntensity = (
   parameters: AnalyticalWaveParameters,
@@ -354,6 +365,37 @@ QUnit.test( 'source stop time creates a trailing edge', assert => {
     'unreached',
     'field clears after the trailing edge passes'
   );
+} );
+
+QUnit.test( 'continuous wave solver restarts source after reset while source remains on', assert => {
+  const solver = new AnalyticalWaveSolver( 12, 12 );
+  solver.setParameters( {
+    displayWavelengths: 2,
+    displaySpeedScale: 1,
+    regionWidth: 1,
+    regionHeight: 1,
+    isSourceOn: true
+  } );
+
+  solver.step( 3 );
+  assert.ok( hasNonZeroAmplitude( solver.getAmplitudeField() ), 'source produces a field before reset' );
+
+  solver.reset();
+  solver.setParameters( { isSourceOn: true } );
+  solver.step( 3 );
+
+  assert.ok( hasNonZeroAmplitude( solver.getAmplitudeField() ), 'source produces a field after reset without toggling off first' );
+} );
+
+QUnit.test( 'wave packet solver reset clears source state', assert => {
+  const solver = new AnalyticalWavePacketSolver();
+  solver.setParameters( { isSourceOn: true } );
+
+  assert.true( solver.hasWavesInRegion(), 'source is active before reset' );
+
+  solver.reset();
+
+  assert.false( solver.hasWavesInRegion(), 'source is inactive after reset' );
 } );
 
 QUnit.test( 'plane wave source gates taper leading and trailing edges', assert => {
