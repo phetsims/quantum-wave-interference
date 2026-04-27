@@ -48,7 +48,7 @@ type SnapshotStateObject = SnapshotData & {
 
 export default class Snapshot {
 
-  // A unique, monotonically increasing number for labeling this snapshot
+  // The ordinal number used for labeling this snapshot in the dialog.
   public readonly snapshotNumber: number;
 
   // Copy of the hits at the time of capture
@@ -93,6 +93,30 @@ export default class Snapshot {
     this.intensity = data.intensity;
     this.slitWidth = data.slitWidth;
     this.intensityDistribution = data.intensityDistribution;
+  }
+
+  public withSnapshotNumber( snapshotNumber: number ): Snapshot {
+    return new Snapshot( snapshotNumber, [ ...this.hits ], {
+      detectionMode: this.detectionMode,
+      sourceType: this.sourceType,
+      wavelength: this.wavelength,
+      slitSeparation: this.slitSeparation,
+      screenDistance: this.screenDistance,
+      screenHalfWidth: this.screenHalfWidth,
+      effectiveWavelength: this.effectiveWavelength,
+      slitSetting: this.slitSetting,
+      isEmitting: this.isEmitting,
+      brightness: this.brightness,
+      intensity: this.intensity,
+      slitWidth: this.slitWidth,
+      intensityDistribution: [ ...this.intensityDistribution ]
+    } );
+  }
+
+  public static renumberSnapshots( snapshots: Snapshot[] ): Snapshot[] {
+    return snapshots.map( ( snapshot, index ) =>
+      snapshot.snapshotNumber === index + 1 ? snapshot : snapshot.withSnapshotNumber( index + 1 )
+    );
   }
 
   public static readonly SnapshotIO = new IOType<Snapshot, SnapshotStateObject>( 'SnapshotIO', {

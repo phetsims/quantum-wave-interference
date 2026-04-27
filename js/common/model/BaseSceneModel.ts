@@ -107,7 +107,6 @@ type BaseSceneModelStateObject = {
   waveSolverState: WaveSolverState;
   hits: Array<{ x: number; y: number }>;
   wavefrontReached: boolean;
-  nextSnapshotNumber: number;
 };
 
 export default abstract class BaseSceneModel extends PhetioObject {
@@ -139,7 +138,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly hitsChangedEmitter: TEmitter;
   public readonly snapshotsProperty: Property<Snapshot[]>;
   public readonly numberOfSnapshotsProperty: TReadOnlyProperty<number>;
-  protected nextSnapshotNumber: number;
 
   // Guard to prevent cascading clearScreen calls during reset
   private isResetting: boolean;
@@ -251,7 +249,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
       }
     );
 
-    this.nextSnapshotNumber = 1;
   }
 
   public getEffectiveWavelength(): number {
@@ -395,7 +392,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
                                   ? Array.from( this.waveSolver.getDetectorProbabilityDistribution() )
                                   : [];
 
-    const snapshot = new Snapshot( this.nextSnapshotNumber++, [ ...this.hits ], {
+    const snapshot = new Snapshot( this.snapshotsProperty.value.length + 1, [ ...this.hits ], {
       detectionMode: detectionMode,
       sourceType: this.sourceType,
       wavelength: this.wavelengthProperty.value,
@@ -415,7 +412,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
   }
 
   public deleteSnapshot( snapshot: Snapshot ): void {
-    this.snapshotsProperty.value = this.snapshotsProperty.value.filter( s => s !== snapshot );
+    this.snapshotsProperty.value = Snapshot.renumberSnapshots(
+      this.snapshotsProperty.value.filter( s => s !== snapshot )
+    );
   }
 
   public abstract step( dt: number ): void;
@@ -426,14 +425,12 @@ export default abstract class BaseSceneModel extends PhetioObject {
     toStateObject: ( model: BaseSceneModel ) => ( {
       waveSolverState: model.waveSolver.getState(),
       hits: model.hits.map( v => ( { x: v.x, y: v.y } ) ),
-      wavefrontReached: model.wavefrontReached,
-      nextSnapshotNumber: model.nextSnapshotNumber
+      wavefrontReached: model.wavefrontReached
     } ),
     stateSchema: {
       waveSolverState: ObjectLiteralIO,
       hits: ArrayIO( ObjectLiteralIO ),
-      wavefrontReached: IOType.ObjectIO,
-      nextSnapshotNumber: NumberIO
+      wavefrontReached: IOType.ObjectIO
     },
     applyState: ( model: BaseSceneModel, stateObject: BaseSceneModelStateObject ) => {
       model.waveSolver.setState( stateObject.waveSolverState );
@@ -442,7 +439,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
         model.hits.push( new Vector2( h.x, h.y ) );
       }
       model.wavefrontReached = stateObject.wavefrontReached;
-      model.nextSnapshotNumber = stateObject.nextSnapshotNumber;
       model.hitsChangedEmitter.emit();
     }
   } );
@@ -468,7 +464,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.wavefrontReached = false;
     this.waveSolver.reset();
     this.snapshotsProperty.value = [];
-    this.nextSnapshotNumber = 1;
 
     this.isResetting = false;
     this.hitsChangedEmitter.emit();

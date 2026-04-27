@@ -165,11 +165,6 @@ export default class SceneModel extends PhetioObject {
   // Number of snapshots currently stored
   public readonly numberOfSnapshotsProperty: TReadOnlyProperty<number>;
 
-  // Monotonically increasing counter for unique snapshot numbering.
-  // Cannot be derived from snapshotsProperty.length because snapshots can be deleted, and we want labels to never
-  // repeat.
-  private nextSnapshotNumber: number;
-
   // Fractional hit accumulator for sub-frame hit tracking
   private hitAccumulator: number;
 
@@ -332,16 +327,6 @@ export default class SceneModel extends PhetioObject {
       }
     );
 
-    this.nextSnapshotNumber = 1;
-
-    // Keep nextSnapshotNumber consistent when state is restored via phet-io.
-    this.snapshotsProperty.lazyLink( snapshots => {
-      if ( snapshots.length > 0 ) {
-        const maxNumber = Math.max( ...snapshots.map( s => s.snapshotNumber ) );
-        this.nextSnapshotNumber = Math.max( this.nextSnapshotNumber, maxNumber + 1 );
-      }
-    } );
-
     // Clear accumulated data when any parameter that affects the interference pattern changes.
     // Accumulated hits are based on the probability distribution at the time of generation,
     // so they become inconsistent (and pedagogically misleading) if the pattern changes beneath them.
@@ -458,7 +443,7 @@ export default class SceneModel extends PhetioObject {
       return;
     }
 
-    const snapshot = new Snapshot( this.nextSnapshotNumber++, [ ...this.hits ], {
+    const snapshot = new Snapshot( this.snapshotsProperty.value.length + 1, [ ...this.hits ], {
       detectionMode: this.detectionModeProperty.value,
       sourceType: this.sourceType,
       wavelength: this.wavelengthProperty.value,
@@ -484,7 +469,9 @@ export default class SceneModel extends PhetioObject {
    * Deletes a specific snapshot.
    */
   public deleteSnapshot( snapshot: Snapshot ): void {
-    this.snapshotsProperty.value = this.snapshotsProperty.value.filter( s => s !== snapshot );
+    this.snapshotsProperty.value = Snapshot.renumberSnapshots(
+      this.snapshotsProperty.value.filter( s => s !== snapshot )
+    );
   }
 
   // Maximum number of snapshots that can be stored per scene
@@ -511,7 +498,6 @@ export default class SceneModel extends PhetioObject {
     this.rightDetectorHitsProperty.reset();
     this.detectorHitsProperty.reset();
     this.snapshotsProperty.value = [];
-    this.nextSnapshotNumber = 1;
     this.hitsChangedEmitter.emit();
   }
 
@@ -623,22 +609,20 @@ export default class SceneModel extends PhetioObject {
   }
 
   /**
-   * IOType for SceneModel that serializes the live detector screen data (hits, hit accumulator,
-   * and next snapshot number) which are plain arrays/numbers not covered by the individual instrumented Properties.
+   * IOType for SceneModel that serializes the live detector screen data (hits and hit accumulator)
+   * which are plain arrays/numbers not covered by the individual instrumented Properties.
    */
   private static readonly SceneModelIO = new IOType<SceneModel, SceneModelStateObject>( 'SceneModelIO', {
     valueType: SceneModel,
     supertype: GetSetButtonsIO,
     stateSchema: {
       hits: ArrayIO( Vector2.Vector2IO ),
-      hitAccumulator: NumberIO,
-      nextSnapshotNumber: NumberIO
+      hitAccumulator: NumberIO
     },
     toStateObject: ( model: SceneModel ): SceneModelStateObject => {
       return {
         hits: model.hits.map( v => v.toStateObject() ),
-        hitAccumulator: model.hitAccumulator,
-        nextSnapshotNumber: model.nextSnapshotNumber
+        hitAccumulator: model.hitAccumulator
       };
     },
     applyState: ( model: SceneModel, state: SceneModelStateObject ) => {
@@ -647,7 +631,6 @@ export default class SceneModel extends PhetioObject {
       model.hits.push( ...state.hits.map( s => Vector2.fromStateObject( s ) ) );
 
       model.hitAccumulator = state.hitAccumulator;
-      model.nextSnapshotNumber = state.nextSnapshotNumber;
 
       model.hitsChangedEmitter.emit();
     }
@@ -678,5 +661,4 @@ export default class SceneModel extends PhetioObject {
 type SceneModelStateObject = {
   hits: Vector2StateObject[];
   hitAccumulator: number;
-  nextSnapshotNumber: number;
 };
