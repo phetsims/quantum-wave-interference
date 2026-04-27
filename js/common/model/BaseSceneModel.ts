@@ -412,6 +412,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];
   }
 
+  // Delete a specific snapshot and compact the remaining snapshot labels to match their current display order.
   public deleteSnapshot( snapshot: Snapshot ): void {
     this.snapshotsProperty.value = Snapshot.renumberSnapshots(
       this.snapshotsProperty.value.filter( s => s !== snapshot )

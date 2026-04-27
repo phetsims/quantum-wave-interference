@@ -48,7 +48,7 @@ type SnapshotStateObject = SnapshotData & {
 
 export default class Snapshot {
 
-  // The ordinal number used for labeling this snapshot in the dialog.
+  // The current ordinal label for this snapshot in the dialog, not a persistent unique ID.
   public readonly snapshotNumber: number;
 
   // Copy of the hits at the time of capture
@@ -95,6 +95,8 @@ export default class Snapshot {
     this.intensityDistribution = data.intensityDistribution;
   }
 
+  // Snapshots are captured-value objects. When snapshot labels need to be renumbered after deletion,
+  // create replacement Snapshot instances rather than mutating existing snapshots.
   public withSnapshotNumber( snapshotNumber: number ): Snapshot {
     return new Snapshot( snapshotNumber, [ ...this.hits ], {
       detectionMode: this.detectionMode,

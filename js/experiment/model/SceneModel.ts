@@ -466,7 +466,7 @@ export default class SceneModel extends PhetioObject {
   }
 
   /**
-   * Deletes a specific snapshot.
+   * Deletes a specific snapshot and compacts the remaining snapshot labels to match their current display order.
    */
   public deleteSnapshot( snapshot: Snapshot ): void {
     this.snapshotsProperty.value = Snapshot.renumberSnapshots(
