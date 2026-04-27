@@ -165,6 +165,13 @@ const getFresnelApertureTransfer = (
   );
 };
 
+const getClosestYOnSlit = ( y: number, slit: AnalyticalSlit ): number => {
+  const halfWidth = slit.width / 2;
+  const yMin = slit.centerY - halfWidth;
+  const yMax = slit.centerY + halfWidth;
+  return Math.max( yMin, Math.min( yMax, y ) );
+};
+
 export const complexAbsSquared = ( value: ComplexValue ): number => value.re * value.re + value.im * value.im;
 
 export const addComplex = ( a: ComplexValue, b: ComplexValue ): ComplexValue => ( {
@@ -304,16 +311,26 @@ const evaluateDoubleSlitSample = (
   for ( let i = 0; i < openSlits.length; i++ ) {
     const slit = openSlits[ i ];
     const xPastBarrier = x - obstacle.barrierX;
-    const dy = y - slit.centerY;
-    const r = Math.sqrt( xPastBarrier * xPastBarrier + dy * dy );
-    const pathLength = obstacle.barrierX + r;
-    const component = evaluateDiffractedComponent( source, slit, obstacle.barrierX, xPastBarrier, y, pathLength, t );
+    const closestApertureY = getClosestYOnSlit( y, slit );
+    const dyToAperture = y - closestApertureY;
+    const distanceFromAperture = Math.sqrt( xPastBarrier * xPastBarrier + dyToAperture * dyToAperture );
+    const reachPathLength = obstacle.barrierX + distanceFromAperture;
+    const component = evaluateDiffractedComponent(
+      source,
+      slit,
+      obstacle.barrierX,
+      xPastBarrier,
+      y,
+      reachPathLength,
+      closestApertureY,
+      t
+    );
 
     if ( component ) {
       hasReachablePath = true;
       components.push( component );
     }
-    else if ( isPathReachable( source, pathLength, t ) ) {
+    else if ( isPathReachable( source, reachPathLength, t ) ) {
       hasReachablePath = true;
       components.push( {
         source: slit.source,
@@ -337,6 +354,7 @@ const evaluateDiffractedComponent = (
   xPastBarrier: number,
   y: number,
   reachPathLength: number,
+  closestApertureY: number,
   t: number
 ): FieldComponent | null => {
   if ( xPastBarrier <= EPSILON ) {
@@ -365,7 +383,7 @@ const evaluateDiffractedComponent = (
 
   const state = getGaussianPacketState( source, t );
   const nearAperture = xPastBarrier <= Math.max( EPSILON, slit.width * NEAR_APERTURE_X_FRACTION );
-  if ( nearAperture ) {
+  if ( nearAperture && Math.abs( y - closestApertureY ) <= EPSILON ) {
     return evaluateSourceComponent( source, slit.source, slit.coherenceGroup, barrierX, y, barrierX, t );
   }
 
@@ -375,7 +393,7 @@ const evaluateDiffractedComponent = (
     return null;
   }
 
-  const transverseDelta = slit.centerY - source.centerY;
+  const transverseDelta = closestApertureY - source.centerY;
   const normalizedTransverse = transverseDelta / state.sigmaY;
   if ( normalizedTransverse * normalizedTransverse > 64 ) {
     return null;

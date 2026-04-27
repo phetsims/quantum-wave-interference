@@ -346,6 +346,35 @@ QUnit.test( 'Fresnel aperture propagation is continuous inside an open aperture'
   );
 } );
 
+QUnit.test( 'plane wave reaches full open aperture simultaneously', assert => {
+  const parameters = createPlaneParameters( {
+    speed: 1,
+    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
+  } );
+
+  const xJustPastBarrier = 1.0001;
+  const tJustPastBarrier = 1.0001;
+  for ( const y of [ -0.43, -0.35, -0.25, -0.15, -0.07 ] ) {
+    assert.strictEqual(
+      evaluateAnalyticalSample( parameters, xJustPastBarrier, y, tJustPastBarrier ).kind,
+      'field',
+      `plane wave reaches open aperture at y=${y}`
+    );
+  }
+
+  const yOutsideAperture = 0.03;
+  assert.strictEqual(
+    evaluateAnalyticalSample( parameters, xJustPastBarrier, yOutsideAperture, tJustPastBarrier ).kind,
+    'unreached',
+    'plane wave does not reach outside the aperture before the closest aperture edge can emit there'
+  );
+  assert.strictEqual(
+    evaluateAnalyticalSample( parameters, xJustPastBarrier, yOutsideAperture, 1.0801 ).kind,
+    'field',
+    'plane wave reaches outside the aperture based on distance to the closest aperture edge'
+  );
+} );
+
 QUnit.test( 'continuous wave solver restarts source after reset while source remains on', assert => {
   const solver = new AnalyticalWaveSolver( 12, 12 );
   solver.setParameters( {
