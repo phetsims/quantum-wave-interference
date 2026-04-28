@@ -16,25 +16,25 @@ import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import { clamp } from '../../../../dot/js/util/clamp.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import Shape from '../../../../kite/js/Shape.js';
-import { clamp } from '../../../../dot/js/util/clamp.js';
 import WireNode from '../../../../scenery-phet/js/WireNode.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
-import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
-import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import getDisplayedWaveValue from '../model/getDisplayedWaveValue.js';
+import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
+import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import WavePlotChartNode from './WavePlotChartNode.js';
-import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
 import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
+import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
+import WavePlotChartNode from './WavePlotChartNode.js';
 
 const CROSSHAIR_RADIUS = 15;
 const WIRE_LINE_WIDTH = 3;
@@ -161,8 +161,7 @@ export default class TimePlotNode extends Node {
 
     probe.addInputListener( new DragListener( {
       positionProperty: this.probePositionProperty,
-      dragBoundsProperty: new Property( this.waveRegionBounds ),
-      start: () => this.clearData()
+      dragBoundsProperty: new Property( this.waveRegionBounds )
     } ) );
 
     return probe;
