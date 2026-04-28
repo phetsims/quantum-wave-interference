@@ -148,6 +148,7 @@ export default class OverheadDetectorScreenNode extends Node {
         DETECTOR_LEFT_HEIGHT,
         visibleFraction
       );
+      this.visibleRegionNode.visible = visibleFraction < 1;
       this.parallelogramNode.centerX = screenCenterX;
       this.parallelogramNode.centerY = this.doubleSlitParallelogramNode.centerY;
 
