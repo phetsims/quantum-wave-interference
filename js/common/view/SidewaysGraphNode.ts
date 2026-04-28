@@ -23,15 +23,15 @@ import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
-import MagnifyingGlassZoomButtonGroup from '../../../../scenery-phet/js/MagnifyingGlassZoomButtonGroup.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
@@ -42,6 +42,7 @@ const GRAPH_WIDTH = 80;
 const GRAPH_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const HISTOGRAM_BINS = 100;
 const LABEL_FONT = new PhetFont( 12 );
+const ZOOM_BUTTON_GROUP_MARGIN = 4;
 
 export type SidewaysGraphSceneLike = {
   hits: Vector2[];
@@ -119,26 +120,34 @@ export default class SidewaysGraphNode extends Node {
     } );
     this.dataPath.computeShapeBounds = () => this.chartBackground.bounds;
 
-    const chartNode = new Node( {
-      children: [ this.chartBackground, this.dataPath ]
+    const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
+      level: this.zoomLevelProperty,
+      max: this.zoomLevelProperty.range.max
     } );
 
-    const zoomButtonGroup = new MagnifyingGlassZoomButtonGroup( this.zoomLevelProperty, {
-      orientation: 'vertical',
-      spacing: 8,
-      buttonOptions: {
-        baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty
+    const zoomButtonGroup = new PlusMinusZoomButtonGroup( this.zoomLevelProperty, {
+      orientation: 'horizontal',
+      spacing: 0,
+      iconOptions: {
+        scale: 1.2
       },
-      magnifyingGlassNodeOptions: {
-        glassRadius: 8
+      touchAreaXDilation: 5,
+      touchAreaYDilation: 5,
+      zoomInButtonOptions: {
+        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
+        accessibleContextResponse: zoomLevelResponseProperty
+      },
+      zoomOutButtonOptions: {
+        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
+        accessibleContextResponse: zoomLevelResponseProperty
       },
       tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' )
     } );
+    zoomButtonGroup.right = this.chartBackground.right - ZOOM_BUTTON_GROUP_MARGIN;
+    zoomButtonGroup.top = this.chartBackground.top + ZOOM_BUTTON_GROUP_MARGIN;
 
-    const chartAndZoom = new HBox( {
-      spacing: 4,
-      align: 'top',
-      children: [ chartNode, zoomButtonGroup ]
+    const chartNode = new Node( {
+      children: [ this.chartBackground, this.dataPath, zoomButtonGroup ]
     } );
 
     const axisLabel = new Text( options.axisLabelStringProperty, {
@@ -146,12 +155,12 @@ export default class SidewaysGraphNode extends Node {
       maxWidth: GRAPH_WIDTH
     } );
 
-    this.addChild( chartAndZoom );
+    this.addChild( chartNode );
     this.addChild( axisLabel );
 
     axisLabel.localBoundsProperty.link( () => {
       axisLabel.centerX = chartNode.centerX;
-      axisLabel.top = chartAndZoom.bottom + 4;
+      axisLabel.top = chartNode.bottom + 4;
     } );
 
     this.sceneProperty = sceneProperty;

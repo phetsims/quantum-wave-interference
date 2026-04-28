@@ -63,8 +63,7 @@ none:                               None
 waveDisplay:                        Wave Display
 waveFunctionDisplay:                Wave Function Display
 electricField:                      Electric Field
-timeAveragedIntensity:              Time-averaged Intensity
-magnitude:                          Magnitude
+amplitude:                          Amplitude
 realPart:                           Real Part
 imaginaryPart:                      Imaginary Part
 topCovered:                         Top Covered

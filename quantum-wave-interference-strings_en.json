@@ -194,11 +194,8 @@
   "electricField": {
     "value": "Electric Field"
   },
-  "timeAveragedIntensity": {
-    "value": "Time-averaged Intensity"
-  },
-  "magnitude": {
-    "value": "Magnitude"
+  "amplitude": {
+    "value": "Amplitude"
   },
   "realPart": {
     "value": "Real Part"

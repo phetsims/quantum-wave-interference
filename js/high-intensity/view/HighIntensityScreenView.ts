@@ -208,6 +208,7 @@ export default class HighIntensityScreenView extends ScreenView {
       model.sceneProperty,
       this.detectorScreenNode,
       model.isIntensityGraphVisibleProperty,
+      waveRegionRight,
       waveRegionTop,
       tandem.createTandem( 'sidewaysGraphNode' ),
       { detectionModeProperty: model.currentDetectionModeProperty }

@@ -30,6 +30,7 @@ const createSidewaysGraph = (
   sceneProperty: TReadOnlyProperty<SidewaysGraphSceneLike>,
   detectorScreenNode: Node,
   isVisibleProperty: TReadOnlyProperty<boolean>,
+  detectorScreenCenterX: number,
   waveRegionTop: number,
   tandem: Tandem,
   options: CreateSidewaysGraphOptions = {}
@@ -57,11 +58,13 @@ const createSidewaysGraph = (
     sidewaysGraphNode.visible = isVisible;
     if ( isVisible ) {
       detectorScreenNode.setScaleMagnitude( 0.5, 1 );
+      detectorScreenNode.centerX = detectorScreenCenterX;
       sidewaysGraphNode.left = detectorScreenNode.right + GRAPH_LEFT_GAP;
       sidewaysGraphNode.top = waveRegionTop;
     }
     else {
       detectorScreenNode.setScaleMagnitude( 1, 1 );
+      detectorScreenNode.centerX = detectorScreenCenterX;
     }
   } );
 

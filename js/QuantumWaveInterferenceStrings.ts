@@ -87,8 +87,7 @@ type StringsType = {
   'waveDisplayStringProperty': LocalizedStringProperty;
   'waveFunctionDisplayStringProperty': LocalizedStringProperty;
   'electricFieldStringProperty': LocalizedStringProperty;
-  'timeAveragedIntensityStringProperty': LocalizedStringProperty;
-  'magnitudeStringProperty': LocalizedStringProperty;
+  'amplitudeStringProperty': LocalizedStringProperty;
   'realPartStringProperty': LocalizedStringProperty;
   'imaginaryPartStringProperty': LocalizedStringProperty;
   'topCoveredStringProperty': LocalizedStringProperty;

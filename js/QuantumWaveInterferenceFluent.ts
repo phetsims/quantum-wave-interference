@@ -79,8 +79,7 @@ addToMapIfDefined( 'none', 'noneStringProperty' );
 addToMapIfDefined( 'waveDisplay', 'waveDisplayStringProperty' );
 addToMapIfDefined( 'waveFunctionDisplay', 'waveFunctionDisplayStringProperty' );
 addToMapIfDefined( 'electricField', 'electricFieldStringProperty' );
-addToMapIfDefined( 'timeAveragedIntensity', 'timeAveragedIntensityStringProperty' );
-addToMapIfDefined( 'magnitude', 'magnitudeStringProperty' );
+addToMapIfDefined( 'amplitude', 'amplitudeStringProperty' );
 addToMapIfDefined( 'realPart', 'realPartStringProperty' );
 addToMapIfDefined( 'imaginaryPart', 'imaginaryPartStringProperty' );
 addToMapIfDefined( 'topCovered', 'topCoveredStringProperty' );
@@ -268,8 +267,7 @@ const QuantumWaveInterferenceFluent = {
   waveDisplayStringProperty: _.get( QuantumWaveInterferenceStrings, 'waveDisplayStringProperty' ),
   waveFunctionDisplayStringProperty: _.get( QuantumWaveInterferenceStrings, 'waveFunctionDisplayStringProperty' ),
   electricFieldStringProperty: _.get( QuantumWaveInterferenceStrings, 'electricFieldStringProperty' ),
-  timeAveragedIntensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeAveragedIntensityStringProperty' ),
-  magnitudeStringProperty: _.get( QuantumWaveInterferenceStrings, 'magnitudeStringProperty' ),
+  amplitudeStringProperty: _.get( QuantumWaveInterferenceStrings, 'amplitudeStringProperty' ),
   realPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'realPartStringProperty' ),
   imaginaryPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'imaginaryPartStringProperty' ),
   topCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'topCoveredStringProperty' ),

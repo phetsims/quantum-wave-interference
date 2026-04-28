@@ -3,8 +3,8 @@
 /**
  * Factory function that creates the wave display / wave function display combo box section used by
  * both the High Intensity and Single Particles screens. When the Photons scene is selected, it shows
- * photon display modes (Time-averaged Intensity, Electric Field). For matter-particle scenes, it shows
- * matter wave display modes (Magnitude, Real part, Imaginary part) under a "Wave Function Display" heading.
+ * photon display modes (Amplitude, Electric Field). For matter-particle scenes, it shows
+ * matter wave display modes (Amplitude, Real part, Imaginary part) under a "Wave Function Display" heading.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -53,7 +53,7 @@ const createWaveDisplaySection = (
 
   const photonWaveDisplayItems: ComboBoxItem<PhotonWaveDisplayMode>[] = [
     { value: 'electricField', createNode: () => new Text( QuantumWaveInterferenceFluent.electricFieldStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'electricFieldItem' },
-    { value: 'timeAveragedIntensity', createNode: () => new Text( QuantumWaveInterferenceFluent.timeAveragedIntensityStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'timeAveragedIntensityItem' }
+    { value: 'timeAveragedIntensity', createNode: () => new Text( QuantumWaveInterferenceFluent.amplitudeStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'timeAveragedIntensityItem' }
   ];
 
   const photonWaveDisplayComboBox = new ComboBox(
@@ -66,7 +66,7 @@ const createWaveDisplaySection = (
   const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
     { value: 'realPart', createNode: () => new Text( QuantumWaveInterferenceFluent.realPartStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'realPartItem' },
     { value: 'imaginaryPart', createNode: () => new Text( QuantumWaveInterferenceFluent.imaginaryPartStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'imaginaryPartItem' },
-    { value: 'magnitude', createNode: () => new Text( QuantumWaveInterferenceFluent.magnitudeStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'magnitudeItem' }
+    { value: 'magnitude', createNode: () => new Text( QuantumWaveInterferenceFluent.amplitudeStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'magnitudeItem' }
   ];
 
   const matterWaveDisplayComboBox = new ComboBox(
