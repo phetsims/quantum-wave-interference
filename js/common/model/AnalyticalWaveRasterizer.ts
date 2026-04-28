@@ -16,9 +16,9 @@ import { type AnalyticalWaveParameters, type ComplexValue, type FieldComponent, 
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
 export const FIELD_DISPLAY_CUTOFF = 0.4;
-export const UNREACHED_GRAY = 0;
-export const BLOCKED_GRAY = 48;
-export const ABSORBED_GRAY = 32;
+export const UNREACHED_VACUUM = 0;
+export const BLOCKED_VACUUM = 48;
+export const ABSORBED_VACUUM = 32;
 export const DECOHERENCE_GLIMMER_RATE_HZ = 8;
 
 export type RGBColor = {
@@ -69,9 +69,9 @@ export const getFieldSampleRGBA = (
   options?: FieldSampleRGBAOptions
 ): RGBAColor => {
   if ( sample.kind !== 'field' ) {
-    const gray = sample.kind === 'unreached' ? UNREACHED_GRAY :
-                 sample.kind === 'absorbed' ? ABSORBED_GRAY :
-                 BLOCKED_GRAY;
+    const gray = sample.kind === 'unreached' ? UNREACHED_VACUUM :
+                 sample.kind === 'absorbed' ? ABSORBED_VACUUM :
+                 BLOCKED_VACUUM;
     return { red: gray, green: gray, blue: gray, alpha: 255 };
   }
 
@@ -109,9 +109,9 @@ export const getFieldSampleRGBA = (
   };
 
   return {
-    red: roundSymmetric( blend( UNREACHED_GRAY, fieldColor.red, displayState.visibility ) ),
-    green: roundSymmetric( blend( UNREACHED_GRAY, fieldColor.green, displayState.visibility ) ),
-    blue: roundSymmetric( blend( UNREACHED_GRAY, fieldColor.blue, displayState.visibility ) ),
+    red: roundSymmetric( blend( UNREACHED_VACUUM, fieldColor.red, displayState.visibility ) ),
+    green: roundSymmetric( blend( UNREACHED_VACUUM, fieldColor.green, displayState.visibility ) ),
+    blue: roundSymmetric( blend( UNREACHED_VACUUM, fieldColor.blue, displayState.visibility ) ),
     alpha: 255
   };
 };

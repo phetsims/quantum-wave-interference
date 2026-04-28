@@ -7,7 +7,7 @@
  */
 
 import { type AnalyticalWaveParameters, type ComplexValue, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
-import { getFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_GRAY } from './AnalyticalWaveRasterizer.js';
+import { getFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
@@ -701,7 +701,7 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
   const zeroFieldColor = getFieldSampleRGBA( { kind: 'field', components: [] }, 'timeAveragedIntensity', baseColor, 1 );
   assert.notDeepEqual(
     zeroFieldColor,
-    { red: UNREACHED_GRAY, green: UNREACHED_GRAY, blue: UNREACHED_GRAY, alpha: 255 },
+    { red: UNREACHED_VACUUM, green: UNREACHED_VACUUM, blue: UNREACHED_VACUUM, alpha: 255 },
     'zero-intensity field is not rendered as unreached background'
   );
 
@@ -747,16 +747,16 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
   }, 'timeAveragedIntensity', baseColor, 1 );
 
   assert.ok(
-    Math.abs( weakFrontColor.red - UNREACHED_GRAY ) < Math.abs( fullFrontColor.red - UNREACHED_GRAY ),
+    Math.abs( weakFrontColor.red - UNREACHED_VACUUM ) < Math.abs( fullFrontColor.red - UNREACHED_VACUUM ),
     'weak wavefront support blends closer to unreached background than full support'
   );
   assert.ok(
-    Math.abs( weakAmplitudeFullSupportColor.red - UNREACHED_GRAY ) > Math.abs( weakFrontColor.red - UNREACHED_GRAY ),
+    Math.abs( weakAmplitudeFullSupportColor.red - UNREACHED_VACUUM ) > Math.abs( weakFrontColor.red - UNREACHED_VACUUM ),
     'weak diffracted amplitude with full wavefront support is not mistaken for unreached ether'
   );
   assert.notDeepEqual(
     destructiveInterferenceColor,
-    { red: UNREACHED_GRAY, green: UNREACHED_GRAY, blue: UNREACHED_GRAY, alpha: 255 },
+    { red: UNREACHED_VACUUM, green: UNREACHED_VACUUM, blue: UNREACHED_VACUUM, alpha: 255 },
     'destructive interference with strong component support still renders as reached field'
   );
 
