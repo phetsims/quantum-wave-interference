@@ -37,6 +37,14 @@ const assertComplexApproximately = (
   assertApproximately( assert, actual.im, expected.im, `${message} im`, epsilon );
 };
 
+const complexDistance = ( a: ComplexValue, b: ComplexValue ): number =>
+  Math.sqrt( ( a.re - b.re ) * ( a.re - b.re ) + ( a.im - b.im ) * ( a.im - b.im ) );
+
+const phaseDifference = ( a: ComplexValue, b: ComplexValue ): number => {
+  const rawDifference = Math.atan2( b.im, b.re ) - Math.atan2( a.im, a.re );
+  return Math.atan2( Math.sin( rawDifference ), Math.cos( rawDifference ) );
+};
+
 const intensityAt = ( parameters: AnalyticalWaveParameters, x: number, y: number, t: number ): number =>
   computeSampleIntensity( evaluateAnalyticalSample( parameters, x, y, t ) );
 
@@ -89,13 +97,14 @@ const createPlaneParameters = ( options?: {
 } );
 
 const createGaussianPacketParameters = ( options?: {
+  waveNumber?: number;
   obstacle?: AnalyticalWaveParameters['obstacle'];
   projections?: AnalyticalWaveParameters['projections'];
 } ): AnalyticalWaveParameters => ( {
   source: {
     kind: 'gaussianPacket',
     isActive: true,
-    waveNumber: 2 * Math.PI,
+    waveNumber: options?.waveNumber ?? 2 * Math.PI,
     speed: 1,
     initialCenterX: -0.5,
     centerY: 0,
@@ -346,6 +355,24 @@ QUnit.test( 'Fresnel aperture propagation is continuous inside an open aperture'
   );
 } );
 
+// Regression test for the center artifact immediately downstream of an open aperture.
+QUnit.test( 'plane wave aperture handoff is smooth in the first display cell', assert => {
+  const slitWidth = 22 / 385;
+  const parameters = createPlaneParameters( {
+    waveNumber: 2 * Math.PI * QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS,
+    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: slitWidth } )
+  } );
+
+  const apertureY = -0.25;
+  const atAperture = getRepresentativeComplex( evaluateAnalyticalSample( parameters, 1, apertureY, 5 ) );
+  const firstDisplayCellRight = getRepresentativeComplex( evaluateAnalyticalSample( parameters, 1 + 1 / 200, apertureY, 5 ) );
+
+  assert.ok(
+    complexDistance( firstDisplayCellRight, atAperture ) < 0.12,
+    'first display cell right of the aperture remains visually continuous with the aperture'
+  );
+} );
+
 QUnit.test( 'plane wave reaches full open aperture simultaneously', assert => {
   const parameters = createPlaneParameters( {
     speed: 1,
@@ -524,6 +551,68 @@ QUnit.test( 'gaussian packet remains finite and continuous through slit aperture
     for ( const y of [ -0.45, -0.25, 0, 0.25, 0.45 ] ) {
       const intensity = intensityAt( parameters, x, y, t );
       assert.ok( Number.isFinite( intensity ), `finite packet intensity through slit at x=${x}, y=${y}` );
+    }
+  }
+} );
+
+// Regression test for the compressed post-slit wavelength: packet phase should not include the
+// downstream path twice when it is also multiplied by the Fresnel aperture transfer.
+QUnit.test( 'gaussian packet post-slit phase does not double-count Fresnel propagation', assert => {
+  const waveNumber = 20 * Math.PI;
+  const obstacle = createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } );
+  const planeParameters = createPlaneParameters( {
+    waveNumber: waveNumber,
+    obstacle: obstacle
+  } );
+  const packetParameters = createGaussianPacketParameters( {
+    waveNumber: waveNumber,
+    obstacle: obstacle
+  } );
+
+  const y = -0.25;
+  const t = 1.8;
+  const x1 = 1.18;
+  const x2 = 1.21;
+  const planePhaseAdvance = phaseDifference(
+    getRepresentativeComplex( evaluateAnalyticalSample( planeParameters, x1, y, t ) ),
+    getRepresentativeComplex( evaluateAnalyticalSample( planeParameters, x2, y, t ) )
+  );
+  const packetPhaseAdvance = phaseDifference(
+    getRepresentativeComplex( evaluateAnalyticalSample( packetParameters, x1, y, t ) ),
+    getRepresentativeComplex( evaluateAnalyticalSample( packetParameters, x2, y, t ) )
+  );
+
+  assertApproximately(
+    assert,
+    packetPhaseAdvance,
+    planePhaseAdvance,
+    'packet phase advances with the same post-slit wavelength as the plane wave',
+    1e-10
+  );
+} );
+
+// Regression test for the packet-only aperture artifact: visibility support must not be derived from
+// diffracted amplitude, because Fresnel amplitude ripples are still reached field.
+QUnit.test( 'gaussian packet aperture support is independent of diffracted amplitude', assert => {
+  const parameters = createGaussianPacketParameters( {
+    waveNumber: 2 * Math.PI * 25.7,
+    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 22 / 385 } )
+  } );
+
+  const sample = evaluateAnalyticalSample( parameters, 1.0119, -0.25, 1.6 );
+  assert.strictEqual( sample.kind, 'field', 'diffracted packet sample is field' );
+
+  if ( sample.kind === 'field' ) {
+    assert.strictEqual( sample.components.length, 1, 'single open slit produces one component' );
+    const component = sample.components[ 0 ];
+    const amplitude = Math.sqrt( component.value.re * component.value.re + component.value.im * component.value.im );
+
+    assert.ok( component.support !== undefined, 'diffracted packet component has explicit rendering support' );
+    if ( component.support !== undefined ) {
+      assert.ok(
+        component.support > 1.2 * amplitude,
+        'packet visibility support tracks the reached packet envelope instead of Fresnel amplitude ripples'
+      );
     }
   }
 } );

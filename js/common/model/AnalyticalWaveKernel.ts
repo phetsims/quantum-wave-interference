@@ -17,6 +17,11 @@
 
 const EPSILON = 1e-12;
 const NEAR_APERTURE_X_FRACTION = 1e-4;
+
+// Smooth the first post-aperture samples so the visual transition from slit mask to Fresnel propagation
+// does not create a screen-specific artifact at the aperture boundary.
+const APERTURE_BLEND_SLIT_WIDTH_FRACTION = 0.5;
+const APERTURE_BLEND_WAVELENGTH_FRACTION = 0.25;
 const INV_SQRT_2 = 1 / Math.sqrt( 2 );
 
 export type ComplexValue = {
@@ -101,6 +106,13 @@ type GaussianPacketState = {
   chirpY: number;
 };
 
+// Keep physical complex amplitude separate from visual wavefront support. Diffraction can reduce
+// amplitude without meaning the sample is unreached background.
+type ApertureTransfer = {
+  value: ComplexValue;
+  support: number;
+};
+
 const smoothStep = ( edge0: number, edge1: number, x: number ): number => {
   if ( x <= edge0 ) {
     return 0;
@@ -139,18 +151,34 @@ const subtractComplex = ( a: ComplexValue, b: ComplexValue ): ComplexValue => ( 
   im: a.im - b.im
 } );
 
+const blendComplex = ( a: ComplexValue, b: ComplexValue, t: number ): ComplexValue => ( {
+  re: a.re + ( b.re - a.re ) * t,
+  im: a.im + ( b.im - a.im ) * t
+} );
+
+const getApertureMaskTransfer = ( y: number, slit: AnalyticalSlit ): ComplexValue => {
+  const halfWidth = slit.width / 2;
+  return Math.abs( y - slit.centerY ) <= halfWidth ? { re: 1, im: 0 } : { re: 0, im: 0 };
+};
+
 const getFresnelApertureTransfer = (
   waveNumber: number,
   xPastBarrier: number,
   y: number,
   slit: AnalyticalSlit
-): ComplexValue => {
+): ApertureTransfer => {
   const halfWidth = slit.width / 2;
   const yMin = slit.centerY - halfWidth;
   const yMax = slit.centerY + halfWidth;
+  const nearApertureX = Math.max( EPSILON, slit.width * NEAR_APERTURE_X_FRACTION );
+  const apertureMaskTransfer = getApertureMaskTransfer( y, slit );
+  const apertureMaskSupport = apertureMaskTransfer.re;
 
-  if ( xPastBarrier <= Math.max( EPSILON, slit.width * NEAR_APERTURE_X_FRACTION ) ) {
-    return y >= yMin && y <= yMax ? { re: 1, im: 0 } : { re: 0, im: 0 };
+  if ( xPastBarrier <= nearApertureX ) {
+    return {
+      value: apertureMaskTransfer,
+      support: apertureMaskSupport
+    };
   }
 
   const wavelength = 2 * Math.PI / waveNumber;
@@ -159,10 +187,34 @@ const getFresnelApertureTransfer = (
   const uMax = ( yMax - y ) * uScale;
   const apertureIntegral = subtractComplex( fresnelIntegral( uMax ), fresnelIntegral( uMin ) );
 
-  return multiplyComplex(
+  const fresnelTransfer = multiplyComplex(
     complexFromPolar( INV_SQRT_2, waveNumber * xPastBarrier - Math.PI / 4 ),
     apertureIntegral
   );
+
+  const apertureBlendDistance = Math.max(
+    nearApertureX,
+    Math.min(
+      slit.width * APERTURE_BLEND_SLIT_WIDTH_FRACTION,
+      wavelength * APERTURE_BLEND_WAVELENGTH_FRACTION
+    )
+  );
+
+  if ( xPastBarrier < apertureBlendDistance ) {
+    const blend = smoothStep( nearApertureX, apertureBlendDistance, xPastBarrier );
+
+    // Inside the handoff region, ramp the visual support to reached-field status while blending
+    // the complex value from the aperture mask to the Fresnel result.
+    return {
+      value: blendComplex( apertureMaskTransfer, fresnelTransfer, blend ),
+      support: apertureMaskSupport + ( 1 - apertureMaskSupport ) * blend
+    };
+  }
+
+  return {
+    value: fresnelTransfer,
+    support: 1
+  };
 };
 
 const getClosestYOnSlit = ( y: number, slit: AnalyticalSlit ): number => {
@@ -372,8 +424,8 @@ const evaluateDiffractedComponent = (
     return {
       source: slit.source,
       coherenceGroup: slit.coherenceGroup,
-      support: sourceEnvelope,
-      value: multiplyComplex( complexFromPolar( sourceEnvelope, barrierPhase ), apertureTransfer )
+      support: sourceEnvelope * apertureTransfer.support,
+      value: multiplyComplex( complexFromPolar( sourceEnvelope, barrierPhase ), apertureTransfer.value )
     };
   }
 
@@ -402,15 +454,20 @@ const evaluateDiffractedComponent = (
   const envelope = state.normalization *
                    Math.exp( -0.5 * normalizedPath * normalizedPath ) *
                    Math.exp( -0.5 * normalizedTransverse * normalizedTransverse );
-  const phase = source.waveNumber * reachPathLength - source.waveNumber * source.speed * t +
-                state.chirpX * longitudinalDelta * longitudinalDelta +
+  const apertureLongitudinalDelta = barrierX - state.centerX;
+
+  // The Fresnel aperture transfer already carries downstream propagation phase, so evaluate the
+  // packet carrier/chirp at the aperture to avoid compressing the displayed post-slit wavelength.
+  const phase = source.waveNumber * barrierX - source.waveNumber * source.speed * t +
+                state.chirpX * apertureLongitudinalDelta * apertureLongitudinalDelta +
                 state.chirpY * transverseDelta * transverseDelta;
   const apertureTransfer = getFresnelApertureTransfer( source.waveNumber, xPastBarrier, y, slit );
 
   return {
     source: slit.source,
     coherenceGroup: slit.coherenceGroup,
-    value: multiplyComplex( complexFromPolar( envelope, phase ), apertureTransfer )
+    support: envelope * apertureTransfer.support,
+    value: multiplyComplex( complexFromPolar( envelope, phase ), apertureTransfer.value )
   };
 };
 
@@ -468,6 +525,10 @@ const evaluateSourceComponent = (
   return {
     source: componentSource,
     coherenceGroup: coherenceGroup,
+
+    // Packet support follows its envelope so low amplitude from phase/diffraction is still rendered
+    // as reached field instead of being mistaken for unreached background.
+    support: envelope,
     value: {
       re: envelope * Math.cos( phase ),
       im: envelope * Math.sin( phase )
@@ -559,10 +620,18 @@ const applyMeasurementProjections = (
 
   return {
     kind: 'field',
-    components: sample.components.map( component => ( {
-      source: component.source,
-      coherenceGroup: component.coherenceGroup,
-      value: scaleComplex( component.value, scale )
-    } ) )
+    components: sample.components.map( component => {
+      const projectedComponent: FieldComponent = {
+        source: component.source,
+        coherenceGroup: component.coherenceGroup,
+        value: scaleComplex( component.value, scale )
+      };
+      if ( component.support !== undefined ) {
+
+        // Measurement projections attenuate both probability amplitude and the visible reached-field support.
+        projectedComponent.support = component.support * scale;
+      }
+      return projectedComponent;
+    } )
   };
 };
