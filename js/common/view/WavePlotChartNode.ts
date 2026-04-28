@@ -168,6 +168,7 @@ export default class WavePlotChartNode extends Node {
       stroke: 'black',
       lineWidth: 1.5,
       lineJoin: 'round',
+      lineCap: 'round',
       clipArea: Shape.rectangle( 0, 0, this.chartWidth, this.chartHeight ),
       boundsMethod: 'none',
       localBounds: chartArea.localBounds

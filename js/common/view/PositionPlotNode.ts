@@ -47,15 +47,16 @@ const POSITION_PLOT_PANEL_BOTTOM_PADDING = 8;
 const POSITION_PLOT_PANEL_TOP_PADDING = 12;
 const POSITION_PLOT_PANEL_RIGHT_PADDING = 12;
 
+// Position curve samples per chart pixel. Sampling analytically at view resolution avoids stretching
+// the solver visualization grid into visibly jagged chart segments.
+const POSITION_PLOT_SAMPLES_PER_PIXEL = 2;
+
 export default class PositionPlotNode extends Node {
 
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
   private readonly chartNode: WavePlotChartNode;
   private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
   private readonly updatePlotLayout: () => void;
-
-  // Reusable buffer for the sampled row. Resized lazily when gridWidth changes.
-  private sampleBuffer: Float64Array;
 
   // Normalized y-position of the horizontal line [0, 1] where 0 = top and 1 = bottom of the wave region
   private readonly lineYFractionProperty: NumberProperty;
@@ -69,7 +70,6 @@ export default class PositionPlotNode extends Node {
     super( { isDisposable: false, visibleProperty: visibleProperty } );
 
     this.sceneProperty = sceneProperty;
-    this.sampleBuffer = new Float64Array( 0 );
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -171,30 +171,20 @@ export default class PositionPlotNode extends Node {
 
     const scene = this.sceneProperty.value;
     const solver = scene.waveSolver;
-    const field = solver.getAmplitudeField();
-    const gridWidth = solver.gridWidth;
-    const gridHeight = solver.gridHeight;
     const displayMode = scene.activeWaveDisplayModeProperty.value;
-
-    const gy = clamp( Math.floor( this.lineYFractionProperty.value * gridHeight ), 0, gridHeight - 1 );
-
-    if ( this.sampleBuffer.length !== gridWidth ) {
-      this.sampleBuffer = new Float64Array( gridWidth );
-    }
-    const samples = this.sampleBuffer;
-
-    for ( let gx = 0; gx < gridWidth; gx++ ) {
-      const idx = ( gy * gridWidth + gx ) * 2;
-      samples[ gx ] = getDisplayedWaveValue( field[ idx ], field[ idx + 1 ], displayMode );
-    }
-
     const scale = this.maxDisplayValueProperty.value;
-
     const chartWidth = this.chartNode.chartWidth;
+    const numSamples = chartWidth * POSITION_PLOT_SAMPLES_PER_PIXEL;
+    const modelY = this.lineYFractionProperty.value * scene.regionHeight - scene.regionHeight / 2;
     const shape = new Shape();
-    for ( let i = 0; i < gridWidth; i++ ) {
-      const x = ( i / ( gridWidth - 1 ) ) * chartWidth;
-      const y = this.chartNode.mapValueToY( samples[ i ], scale );
+
+    for ( let i = 0; i <= numSamples; i++ ) {
+      const fraction = i / numSamples;
+      const modelX = fraction * scene.regionWidth;
+      const value = solver.evaluate( modelX, modelY );
+      const displayValue = getDisplayedWaveValue( value.real, value.imaginary, displayMode );
+      const x = fraction * chartWidth;
+      const y = this.chartNode.mapValueToY( displayValue, scale );
 
       if ( i === 0 ) {
         shape.moveTo( x, y );
