@@ -14,19 +14,16 @@ import Bounds2 from '../../../../dot/js/Bounds2.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Color from '../../../../scenery/js/util/Color.js';
-import { DECOHERENCE_GLIMMER_RATE_HZ, getFieldSampleRGBA, UNREACHED_GRAY } from '../model/AnalyticalWaveRasterizer.js';
+import { DECOHERENCE_GLIMMER_RATE_HZ, getFieldSampleRGBA } from '../model/AnalyticalWaveRasterizer.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 const MATTER_BASE_R = 200;
 const MATTER_BASE_G = 200;
 const MATTER_BASE_B = 200;
 
-// Neutral gray for cells the wavefront hasn't reached yet.
-const BACKGROUND_GRAY = UNREACHED_GRAY;
-
 export default class WaveVisualizationCanvasNode extends CanvasNode {
 
-  public static readonly BACKGROUND_COLOR = new Color( BACKGROUND_GRAY, BACKGROUND_GRAY, BACKGROUND_GRAY );
+  public static readonly BACKGROUND_COLOR = Color.BLACK;
 
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
   private readonly viewWidth: number;

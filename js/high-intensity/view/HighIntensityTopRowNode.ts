@@ -141,7 +141,9 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     // above the main wave region so the callout lines form a symmetric "zoom in" frustum.
     // The detector is z-ordered behind the square and overlaps it, mirroring the main layout.
     const miniSquare = new Rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE, {
-      fill: WaveVisualizationCanvasNode.BACKGROUND_COLOR
+      fill: WaveVisualizationCanvasNode.BACKGROUND_COLOR,
+      stroke: 'white',
+      lineWidth: 0.5
     } );
 
     const miniDetectorOverlap = 2;

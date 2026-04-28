@@ -16,7 +16,7 @@ import { type AnalyticalWaveParameters, type ComplexValue, type FieldComponent, 
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
 export const FIELD_DISPLAY_CUTOFF = 0.4;
-export const UNREACHED_GRAY = 80;
+export const UNREACHED_GRAY = 0;
 export const BLOCKED_GRAY = 48;
 export const ABSORBED_GRAY = 32;
 export const DECOHERENCE_GLIMMER_RATE_HZ = 8;
