@@ -20,6 +20,7 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import Image from '../../../../scenery/js/nodes/Image.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import RoundStickyToggleButton from '../../../../sun/js/buttons/RoundStickyToggleButton.js';
+import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import singleParticleEmitter_svg from '../../../images/singleParticleEmitter_svg.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -54,6 +55,8 @@ export default class SingleParticleEmitterNode extends Node {
     const emitButton = new RoundStickyToggleButton( isEmittingProperty, false, true, {
       baseColor: 'red',
       radius: BUTTON_RADIUS,
+      valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
+      valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
       tandem: providedOptions.tandem.createTandem( 'emitButton' )
     } );
 

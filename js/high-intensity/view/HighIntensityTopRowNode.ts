@@ -35,6 +35,7 @@ import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
@@ -241,7 +242,9 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
         hasGlass: palette !== null,
         buttonOptions: {
           baseColor: 'red',
-          radius: EMITTER_BUTTON_RADIUS
+          radius: EMITTER_BUTTON_RADIUS,
+          valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
+          valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' )
         },
         visible: false,
         tandem: emittersTandem.createTandem( `${scene.sourceType}EmitterNode` )
