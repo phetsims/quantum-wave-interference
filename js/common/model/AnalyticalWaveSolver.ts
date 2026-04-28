@@ -10,9 +10,10 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import type Complex from '../../../../dot/js/Complex.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalObstacle, type AnalyticalWaveParameters, type ComplexValue, type FieldSample, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalObstacle, type AnalyticalWaveParameters, type FieldSample, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -210,7 +211,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     // No-op: the detector tool is only present on the Single Particles screen.
   }
 
-  public evaluate( x: number, y: number, t = this.time ): ComplexValue {
+  public evaluate( x: number, y: number, t = this.time ): Complex {
     return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
   }
 
@@ -234,8 +235,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         const cellIndex = iy * gridWidth + ix;
         const idx = cellIndex * 2;
         fieldSamples[ cellIndex ] = sample;
-        amplitudeField[ idx ] = value.re;
-        amplitudeField[ idx + 1 ] = value.im;
+        amplitudeField[ idx ] = value.real;
+        amplitudeField[ idx + 1 ] = value.imaginary;
       }
     }
   }

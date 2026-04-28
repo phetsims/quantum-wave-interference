@@ -6,7 +6,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { type AnalyticalWaveParameters, type ComplexValue, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import Complex from '../../../../dot/js/Complex.js';
+import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { getFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
@@ -28,20 +29,19 @@ const assertApproximately = (
 
 const assertComplexApproximately = (
   assert: Assert,
-  actual: ComplexValue,
-  expected: ComplexValue,
+  actual: Complex,
+  expected: Complex,
   message: string,
   epsilon = EPSILON
 ): void => {
-  assertApproximately( assert, actual.re, expected.re, `${message} re`, epsilon );
-  assertApproximately( assert, actual.im, expected.im, `${message} im`, epsilon );
+  assertApproximately( assert, actual.real, expected.real, `${message} real`, epsilon );
+  assertApproximately( assert, actual.imaginary, expected.imaginary, `${message} imaginary`, epsilon );
 };
 
-const complexDistance = ( a: ComplexValue, b: ComplexValue ): number =>
-  Math.sqrt( ( a.re - b.re ) * ( a.re - b.re ) + ( a.im - b.im ) * ( a.im - b.im ) );
+const complexDistance = ( a: Complex, b: Complex ): number => a.minus( b ).magnitude;
 
-const phaseDifference = ( a: ComplexValue, b: ComplexValue ): number => {
-  const rawDifference = Math.atan2( b.im, b.re ) - Math.atan2( a.im, a.re );
+const phaseDifference = ( a: Complex, b: Complex ): number => {
+  const rawDifference = b.phase() - a.phase();
   return Math.atan2( Math.sin( rawDifference ), Math.cos( rawDifference ) );
 };
 
@@ -159,7 +159,7 @@ QUnit.test( 'plane wave source timing and phase', assert => {
   assert.strictEqual( sample.kind, 'field', 'plane wave has reached x=1 at t=1' );
   if ( sample.kind === 'field' ) {
     assert.strictEqual( sample.components.length, 1, 'plane wave has one component' );
-    assertComplexApproximately( assert, sample.components[ 0 ].value, { re: -1, im: 0 }, 'plane wave phase' );
+    assertComplexApproximately( assert, sample.components[ 0 ].value, new Complex( -1, 0 ), 'plane wave phase' );
     assertApproximately( assert, computeSampleIntensity( sample ), 1, 'plane wave intensity' );
   }
 } );
@@ -605,7 +605,7 @@ QUnit.test( 'gaussian packet aperture support is independent of diffracted ampli
   if ( sample.kind === 'field' ) {
     assert.strictEqual( sample.components.length, 1, 'single open slit produces one component' );
     const component = sample.components[ 0 ];
-    const amplitude = Math.sqrt( component.value.re * component.value.re + component.value.im * component.value.im );
+    const amplitude = component.value.magnitude;
 
     assert.ok( component.support !== undefined, 'diffracted packet component has explicit rendering support' );
     if ( component.support !== undefined ) {
@@ -639,13 +639,13 @@ QUnit.test( 'decoherent wave rendering stochastically samples channels weighted 
         source: 'topSlit' as const,
         coherenceGroup: 'topPath',
         support: 1,
-        value: { re: 2, im: 0 }
+        value: new Complex( 2, 0 )
       },
       {
         source: 'bottomSlit' as const,
         coherenceGroup: 'bottomPath',
         support: 1,
-        value: { re: -1, im: 0 }
+        value: new Complex( -1, 0 )
       }
     ]
   };
@@ -799,7 +799,7 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
     components: [ {
       source: 'incident',
       coherenceGroup: 'incident',
-      value: { re: 0.1, im: 0 }
+      value: new Complex( 0.1, 0 )
     } ]
   }, 'timeAveragedIntensity', baseColor, 1 );
   const fullFrontColor = getFieldSampleRGBA( {
@@ -807,7 +807,7 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
     components: [ {
       source: 'incident',
       coherenceGroup: 'incident',
-      value: { re: 1, im: 0 }
+      value: new Complex( 1, 0 )
     } ]
   }, 'timeAveragedIntensity', baseColor, 1 );
   const weakAmplitudeFullSupportColor = getFieldSampleRGBA( {
@@ -816,7 +816,7 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
       source: 'topSlit',
       coherenceGroup: 'slits',
       support: 1,
-      value: { re: 0.03, im: 0 }
+      value: new Complex( 0.03, 0 )
     } ]
   }, 'timeAveragedIntensity', baseColor, 1 );
   const destructiveInterferenceColor = getFieldSampleRGBA( {
@@ -825,12 +825,12 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
       {
         source: 'topSlit',
         coherenceGroup: 'slits',
-        value: { re: 1, im: 0 }
+        value: new Complex( 1, 0 )
       },
       {
         source: 'bottomSlit',
         coherenceGroup: 'slits',
-        value: { re: -1, im: 0 }
+        value: new Complex( -1, 0 )
       }
     ]
   }, 'timeAveragedIntensity', baseColor, 1 );

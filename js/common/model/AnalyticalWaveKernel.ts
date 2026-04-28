@@ -15,6 +15,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import Complex from '../../../../dot/js/Complex.js';
+
 const EPSILON = 1e-12;
 const NEAR_APERTURE_X_FRACTION = 1e-4;
 
@@ -24,18 +26,13 @@ const APERTURE_BLEND_SLIT_WIDTH_FRACTION = 0.5;
 const APERTURE_BLEND_WAVELENGTH_FRACTION = 0.25;
 const INV_SQRT_2 = 1 / Math.sqrt( 2 );
 
-export type ComplexValue = {
-  re: number;
-  im: number;
-};
-
 export type FieldComponentSource = 'incident' | 'topSlit' | 'bottomSlit';
 
 export type FieldComponent = {
   source: FieldComponentSource;
   coherenceGroup: string;
   support?: number;
-  value: ComplexValue;
+  value: Complex;
 };
 
 export type FieldSample =
@@ -109,7 +106,7 @@ type GaussianPacketState = {
 // Keep physical complex amplitude separate from visual wavefront support. Diffraction can reduce
 // amplitude without meaning the sample is unreached background.
 type ApertureTransfer = {
-  value: ComplexValue;
+  value: Complex;
   support: number;
 };
 
@@ -126,12 +123,12 @@ const smoothStep = ( edge0: number, edge1: number, x: number ): number => {
 
 // Fast Abramowitz-Stegun style approximation for Fresnel integrals. The max error is small enough
 // for rendering/unit-test invariants, and it avoids per-cell numerical quadrature in the canvas.
-const fresnelIntegral = ( x: number ): ComplexValue => {
+const fresnelIntegral = ( x: number ): Complex => {
   const sign = x < 0 ? -1 : 1;
   const ax = Math.abs( x );
 
   if ( ax < EPSILON ) {
-    return { re: 0, im: 0 };
+    return new Complex( 0, 0 );
   }
 
   const phase = 0.5 * Math.PI * ax * ax;
@@ -140,25 +137,20 @@ const fresnelIntegral = ( x: number ): ComplexValue => {
   const f = ( 1 + 0.926 * ax ) / ( 2 + 1.792 * ax + 3.104 * ax * ax );
   const g = 1 / ( 2 + 4.142 * ax + 3.492 * ax * ax + 6.67 * ax * ax * ax );
 
-  return {
-    re: sign * ( 0.5 + f * sinPhase - g * cosPhase ),
-    im: sign * ( 0.5 - f * cosPhase - g * sinPhase )
-  };
+  return new Complex(
+    sign * ( 0.5 + f * sinPhase - g * cosPhase ),
+    sign * ( 0.5 - f * cosPhase - g * sinPhase )
+  );
 };
 
-const subtractComplex = ( a: ComplexValue, b: ComplexValue ): ComplexValue => ( {
-  re: a.re - b.re,
-  im: a.im - b.im
-} );
+const blendComplex = ( a: Complex, b: Complex, t: number ): Complex => new Complex(
+  a.real + ( b.real - a.real ) * t,
+  a.imaginary + ( b.imaginary - a.imaginary ) * t
+);
 
-const blendComplex = ( a: ComplexValue, b: ComplexValue, t: number ): ComplexValue => ( {
-  re: a.re + ( b.re - a.re ) * t,
-  im: a.im + ( b.im - a.im ) * t
-} );
-
-const getApertureMaskTransfer = ( y: number, slit: AnalyticalSlit ): ComplexValue => {
+const getApertureMaskTransfer = ( y: number, slit: AnalyticalSlit ): Complex => {
   const halfWidth = slit.width / 2;
-  return Math.abs( y - slit.centerY ) <= halfWidth ? { re: 1, im: 0 } : { re: 0, im: 0 };
+  return Math.abs( y - slit.centerY ) <= halfWidth ? new Complex( 1, 0 ) : new Complex( 0, 0 );
 };
 
 const getFresnelApertureTransfer = (
@@ -172,7 +164,7 @@ const getFresnelApertureTransfer = (
   const yMax = slit.centerY + halfWidth;
   const nearApertureX = Math.max( EPSILON, slit.width * NEAR_APERTURE_X_FRACTION );
   const apertureMaskTransfer = getApertureMaskTransfer( y, slit );
-  const apertureMaskSupport = apertureMaskTransfer.re;
+  const apertureMaskSupport = apertureMaskTransfer.real;
 
   if ( xPastBarrier <= nearApertureX ) {
     return {
@@ -185,12 +177,9 @@ const getFresnelApertureTransfer = (
   const uScale = Math.sqrt( 2 / ( wavelength * xPastBarrier ) );
   const uMin = ( yMin - y ) * uScale;
   const uMax = ( yMax - y ) * uScale;
-  const apertureIntegral = subtractComplex( fresnelIntegral( uMax ), fresnelIntegral( uMin ) );
+  const apertureIntegral = fresnelIntegral( uMax ).minus( fresnelIntegral( uMin ) );
 
-  const fresnelTransfer = multiplyComplex(
-    complexFromPolar( INV_SQRT_2, waveNumber * xPastBarrier - Math.PI / 4 ),
-    apertureIntegral
-  );
+  const fresnelTransfer = Complex.createPolar( INV_SQRT_2, waveNumber * xPastBarrier - Math.PI / 4 ).times( apertureIntegral );
 
   const apertureBlendDistance = Math.max(
     nearApertureX,
@@ -224,45 +213,22 @@ const getClosestYOnSlit = ( y: number, slit: AnalyticalSlit ): number => {
   return Math.max( yMin, Math.min( yMax, y ) );
 };
 
-export const complexAbsSquared = ( value: ComplexValue ): number => value.re * value.re + value.im * value.im;
-
-export const addComplex = ( a: ComplexValue, b: ComplexValue ): ComplexValue => ( {
-  re: a.re + b.re,
-  im: a.im + b.im
-} );
-
-export const scaleComplex = ( value: ComplexValue, scale: number ): ComplexValue => ( {
-  re: value.re * scale,
-  im: value.im * scale
-} );
-
-const multiplyComplex = ( a: ComplexValue, b: ComplexValue ): ComplexValue => ( {
-  re: a.re * b.re - a.im * b.im,
-  im: a.re * b.im + a.im * b.re
-} );
-
-const complexFromPolar = ( magnitude: number, phase: number ): ComplexValue => ( {
-  re: magnitude * Math.cos( phase ),
-  im: magnitude * Math.sin( phase )
-} );
-
 export const computeSampleIntensity = ( sample: FieldSample ): number => {
   if ( sample.kind !== 'field' ) {
     return 0;
   }
 
-  const groupSums = new Map<string, ComplexValue>();
+  const groupSums = new Map<string, Complex>();
   for ( let i = 0; i < sample.components.length; i++ ) {
     const component = sample.components[ i ];
-    const sum = groupSums.get( component.coherenceGroup ) || { re: 0, im: 0 };
-    sum.re += component.value.re;
-    sum.im += component.value.im;
+    const sum = groupSums.get( component.coherenceGroup ) || new Complex( 0, 0 );
+    sum.add( component.value );
     groupSums.set( component.coherenceGroup, sum );
   }
 
   let intensity = 0;
   groupSums.forEach( sum => {
-    intensity += complexAbsSquared( sum );
+    intensity += sum.magnitudeSquared;
   } );
   return intensity;
 };
@@ -274,39 +240,38 @@ export const computeSampleIntensity = ( sample: FieldSample ): number => {
  * returned phase is taken from the strongest group and the magnitude is scaled to the total
  * decoherent intensity. That keeps old real/imaginary displays finite while preserving intensity.
  */
-export const getRepresentativeComplex = ( sample: FieldSample ): ComplexValue => {
+export const getRepresentativeComplex = ( sample: FieldSample ): Complex => {
   if ( sample.kind !== 'field' ) {
-    return { re: 0, im: 0 };
+    return new Complex( 0, 0 );
   }
 
-  const groupSums = new Map<string, ComplexValue>();
+  const groupSums = new Map<string, Complex>();
   for ( let i = 0; i < sample.components.length; i++ ) {
     const component = sample.components[ i ];
-    const sum = groupSums.get( component.coherenceGroup ) || { re: 0, im: 0 };
-    sum.re += component.value.re;
-    sum.im += component.value.im;
+    const sum = groupSums.get( component.coherenceGroup ) || new Complex( 0, 0 );
+    sum.add( component.value );
     groupSums.set( component.coherenceGroup, sum );
   }
 
   let totalIntensity = 0;
-  let strongest: ComplexValue | null = null;
+  let strongest: Complex | null = null;
   let strongestIntensity = 0;
 
-  groupSums.forEach( sum => {
-    const intensity = complexAbsSquared( sum );
+  for ( const sum of groupSums.values() ) {
+    const intensity = sum.magnitudeSquared;
     totalIntensity += intensity;
     if ( intensity > strongestIntensity ) {
       strongest = sum;
       strongestIntensity = intensity;
     }
-  } );
+  }
 
   if ( totalIntensity <= 0 || !strongest ) {
-    return { re: 0, im: 0 };
+    return new Complex( 0, 0 );
   }
 
   const scale = Math.sqrt( totalIntensity / strongestIntensity );
-  return scaleComplex( strongest, scale );
+  return strongest.timesScalar( scale );
 };
 
 export const evaluateAnalyticalSample = (
@@ -387,7 +352,7 @@ const evaluateDoubleSlitSample = (
       components.push( {
         source: slit.source,
         coherenceGroup: slit.coherenceGroup,
-        value: { re: 0, im: 0 }
+        value: new Complex( 0, 0 )
       } );
     }
   }
@@ -425,7 +390,7 @@ const evaluateDiffractedComponent = (
       source: slit.source,
       coherenceGroup: slit.coherenceGroup,
       support: sourceEnvelope * apertureTransfer.support,
-      value: multiplyComplex( complexFromPolar( sourceEnvelope, barrierPhase ), apertureTransfer.value )
+      value: Complex.createPolar( sourceEnvelope, barrierPhase ).times( apertureTransfer.value )
     };
   }
 
@@ -467,7 +432,7 @@ const evaluateDiffractedComponent = (
     source: slit.source,
     coherenceGroup: slit.coherenceGroup,
     support: envelope * apertureTransfer.support,
-    value: multiplyComplex( complexFromPolar( envelope, phase ), apertureTransfer.value )
+    value: Complex.createPolar( envelope, phase ).times( apertureTransfer.value )
   };
 };
 
@@ -491,10 +456,7 @@ const evaluateSourceComponent = (
       source: componentSource,
       coherenceGroup: coherenceGroup,
       support: sourceEnvelope,
-      value: {
-        re: sourceEnvelope * Math.cos( phase ),
-        im: sourceEnvelope * Math.sin( phase )
-      }
+      value: Complex.createPolar( sourceEnvelope, phase )
     };
   }
 
@@ -529,10 +491,7 @@ const evaluateSourceComponent = (
     // Packet support follows its envelope so low amplitude from phase/diffraction is still rendered
     // as reached field instead of being mistaken for unreached background.
     support: envelope,
-    value: {
-      re: envelope * Math.cos( phase ),
-      im: envelope * Math.sin( phase )
-    }
+    value: Complex.createPolar( envelope, phase )
   };
 };
 
@@ -624,7 +583,7 @@ const applyMeasurementProjections = (
       const projectedComponent: FieldComponent = {
         source: component.source,
         coherenceGroup: component.coherenceGroup,
-        value: scaleComplex( component.value, scale )
+        value: component.value.timesScalar( scale )
       };
       if ( component.support !== undefined ) {
 

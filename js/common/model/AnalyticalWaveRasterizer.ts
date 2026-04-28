@@ -10,9 +10,10 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import Complex from '../../../../dot/js/Complex.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
-import { type AnalyticalWaveParameters, type ComplexValue, type FieldComponent, type FieldSample, computeSampleIntensity, evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
+import { type AnalyticalWaveParameters, type FieldComponent, type FieldSample, computeSampleIntensity, evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
 export const FIELD_DISPLAY_CUTOFF = 0.4;
@@ -76,8 +77,8 @@ export const getFieldSampleRGBA = (
   }
 
   const displayState = getDisplayState( sample, displayMode, amplitudeScale, options );
-  const re = displayState.value.re * amplitudeScale;
-  const im = displayState.value.im * amplitudeScale;
+  const real = displayState.value.real * amplitudeScale;
+  const imaginary = displayState.value.imaginary * amplitudeScale;
 
   let intensity: number;
   if ( displayMode === 'timeAveragedIntensity' ) {
@@ -95,7 +96,7 @@ export const getFieldSampleRGBA = (
     );
   }
   else {
-    const value = displayMode === 'imaginaryPart' ? im : re;
+    const value = displayMode === 'imaginaryPart' ? imaginary : real;
     const phaseIntensity = value > 0 ?
                 clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * value, FIELD_DISPLAY_CUTOFF, 1 ) :
                 clamp( FIELD_DISPLAY_CUTOFF * ( 1 + value ), 0, FIELD_DISPLAY_CUTOFF );
@@ -120,7 +121,7 @@ const blend = ( a: number, b: number, t: number ): number => a + ( b - a ) * t;
 
 type CoherenceGroupDisplayState = {
   coherenceGroup: string;
-  value: ComplexValue;
+  value: Complex;
   intensity: number;
   componentIntensity: number;
   support: number;
@@ -128,7 +129,7 @@ type CoherenceGroupDisplayState = {
 };
 
 type FieldDisplayState = {
-  value: ComplexValue;
+  value: Complex;
   intensity: number;
   visibility: number;
 };
@@ -142,7 +143,7 @@ const getDisplayState = (
   const groupStates = getCoherenceGroupDisplayStates( sample );
   if ( groupStates.length === 0 ) {
     return {
-      value: { re: 0, im: 0 },
+      value: new Complex( 0, 0 ),
       intensity: 0,
       visibility: 1
     };
@@ -168,8 +169,8 @@ const getDisplayState = (
   }
 
   const representative = strongestGroup && strongestGroup.intensity > 0 ?
-                         scaleComplex( strongestGroup.value, Math.sqrt( totalIntensity / strongestGroup.intensity ) ) :
-                         { re: 0, im: 0 };
+                         strongestGroup.value.timesScalar( Math.sqrt( totalIntensity / strongestGroup.intensity ) ) :
+                         new Complex( 0, 0 );
   return {
     value: representative,
     intensity: computeSampleIntensity( sample ),
@@ -189,7 +190,7 @@ const getCoherenceGroupDisplayStates = ( sample: Extract<FieldSample, { kind: 'f
       groupIndexMap.set( component.coherenceGroup, groupIndex );
       groupStates.push( {
         coherenceGroup: component.coherenceGroup,
-        value: { re: 0, im: 0 },
+        value: new Complex( 0, 0 ),
         intensity: 0,
         componentIntensity: 0,
         support: 0,
@@ -202,16 +203,15 @@ const getCoherenceGroupDisplayStates = ( sample: Extract<FieldSample, { kind: 'f
 
   for ( let i = 0; i < groupStates.length; i++ ) {
     const value = groupStates[ i ].value;
-    groupStates[ i ].intensity = value.re * value.re + value.im * value.im;
+    groupStates[ i ].intensity = value.magnitudeSquared;
   }
 
   return groupStates;
 };
 
 const addComponentToGroupState = ( groupState: CoherenceGroupDisplayState, component: FieldComponent ): void => {
-  groupState.value.re += component.value.re;
-  groupState.value.im += component.value.im;
-  groupState.componentIntensity += component.value.re * component.value.re + component.value.im * component.value.im;
+  groupState.value.add( component.value );
+  groupState.componentIntensity += component.value.magnitudeSquared;
   if ( component.support !== undefined ) {
     groupState.hasExplicitSupport = true;
     groupState.support = Math.max( groupState.support, component.support );
@@ -243,11 +243,6 @@ const getGroupVisibility = ( groupState: CoherenceGroupDisplayState, amplitudeSc
          clamp( groupState.support, 0, 1 ) :
          clamp( Math.sqrt( groupState.componentIntensity ) * amplitudeScale, 0, 1 );
 };
-
-const scaleComplex = ( value: ComplexValue, scale: number ): ComplexValue => ( {
-  re: value.re * scale,
-  im: value.im * scale
-} );
 
 const selectStochasticCoherenceGroup = (
   groupStates: CoherenceGroupDisplayState[],

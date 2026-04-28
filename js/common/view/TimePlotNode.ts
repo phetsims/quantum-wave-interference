@@ -229,11 +229,11 @@ export default class TimePlotNode extends Node {
 
     const x = normalizedX * scene.regionWidth;
     const y = normalizedY * scene.regionHeight - scene.regionHeight / 2;
-    const { re, im } = scene.waveSolver.evaluate( x, y, solverTime );
+    const value = scene.waveSolver.evaluate( x, y, solverTime );
     const displayMode = scene.activeWaveDisplayModeProperty.value;
-    const value = getDisplayedWaveValue( re, im, displayMode );
+    const displayValue = getDisplayedWaveValue( value.real, value.imaginary, displayMode );
 
-    this.timeSeries.push( { time: plotTime, value: value } );
+    this.timeSeries.push( { time: plotTime, value: displayValue } );
   }
 
   private trimData(): void {
