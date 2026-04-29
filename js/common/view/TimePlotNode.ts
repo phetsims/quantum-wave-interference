@@ -20,25 +20,28 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import Shape from '../../../../kite/js/Shape.js';
+import ProbeNode from '../../../../scenery-phet/js/ProbeNode.js';
 import WireNode from '../../../../scenery-phet/js/WireNode.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
-import Circle from '../../../../scenery/js/nodes/Circle.js';
-import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
+import Color from '../../../../scenery/js/util/Color.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import getDisplayedWaveValue from '../model/getDisplayedWaveValue.js';
 import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
 import WavePlotChartNode from './WavePlotChartNode.js';
 
-const CROSSHAIR_RADIUS = 15;
+const PROBE_COLOR = '#808080';
+const WIRE_COLOR = new Color( PROBE_COLOR ).darkerColor( 0.7 );
+const CROSSHAIR_STROKE_COLOR = 'white';
+const PROBE_SCALE = 0.4;
 const WIRE_LINE_WIDTH = 3;
 const WIRE_NORMAL_DISTANCE = 25;
+const WIRE_PANEL_ATTACHMENT_ABOVE_BOTTOM = 20;
 const MAX_TIME_WINDOW = 1; // seconds of data shown
 const MAX_SAMPLES = 600;
 const TIME_SAMPLE_INTERVAL = MAX_TIME_WINDOW / MAX_SAMPLES;
@@ -119,7 +122,6 @@ export default class TimePlotNode extends Node {
     ) );
 
     this.probeNode = this.createCrosshairProbe();
-    this.addChild( this.probeNode );
 
     this.probePositionProperty.link( position => {
       this.probeNode.center = position;
@@ -127,17 +129,25 @@ export default class TimePlotNode extends Node {
 
     const chartConnectionProperty = new DerivedProperty(
       [ this.chartNode.boundsProperty ],
-      bounds => bounds.leftCenter
+      bounds => bounds.leftBottom.plusXY( 0, -WIRE_PANEL_ATTACHMENT_ABOVE_BOTTOM )
+    );
+    const probeConnectionProperty = new DerivedProperty(
+      [ this.probeNode.boundsProperty ],
+      bounds => bounds.centerBottom
     );
     const wireNormal1Property = new Vector2Property( new Vector2( -WIRE_NORMAL_DISTANCE, 0 ) );
-    const wireNormal2Property = new Vector2Property( new Vector2( WIRE_NORMAL_DISTANCE, 0 ) );
+    const wireNormal2Property = new Vector2Property( new Vector2( 0, WIRE_NORMAL_DISTANCE ) );
 
-    const wireNode = new WireNode( chartConnectionProperty, wireNormal1Property, this.probePositionProperty, wireNormal2Property, {
-      stroke: QuantumWaveInterferenceColors.graphGridLineColorProperty,
+    const wireNode = new WireNode( chartConnectionProperty, wireNormal1Property, probeConnectionProperty, wireNormal2Property, {
+      stroke: WIRE_COLOR,
       lineWidth: WIRE_LINE_WIDTH
     } );
     this.addChild( wireNode );
-    wireNode.moveToBack();
+    this.addChild( this.probeNode );
+
+    this.addInputListener( {
+      down: () => this.moveToFront()
+    } );
 
     sceneProperty.link( () => this.clearData() );
 
@@ -147,21 +157,17 @@ export default class TimePlotNode extends Node {
   }
 
   private createCrosshairProbe(): Node {
-    const probe = new Node( { cursor: 'pointer' } );
-
-    probe.addChild( new Circle( CROSSHAIR_RADIUS, {
-      fill: 'rgba(0,0,0,0.2)',
-      stroke: 'white',
-      lineWidth: 2
-    } ) );
-
-    const lineOptions = { stroke: 'white', lineWidth: 2 };
-    probe.addChild( new Line( -CROSSHAIR_RADIUS, 0, CROSSHAIR_RADIUS, 0, lineOptions ) );
-    probe.addChild( new Line( 0, -CROSSHAIR_RADIUS, 0, CROSSHAIR_RADIUS, lineOptions ) );
+    const probe = new ProbeNode( {
+      color: PROBE_COLOR,
+      cursor: 'pointer',
+      sensorTypeFunction: ProbeNode.crosshairs( { stroke: CROSSHAIR_STROKE_COLOR } ),
+      scale: PROBE_SCALE
+    } );
 
     probe.addInputListener( new DragListener( {
       positionProperty: this.probePositionProperty,
-      dragBoundsProperty: new Property( this.waveRegionBounds )
+      dragBoundsProperty: new Property( this.waveRegionBounds ),
+      start: () => this.moveToFront()
     } ) );
 
     return probe;

@@ -109,6 +109,7 @@ export default class PositionPlotNode extends Node {
     let dragStartFraction = this.lineYFractionProperty.value;
     const verticalDragListener = new DragListener( {
       start: ( event, listener ) => {
+        this.moveToFront();
         dragStartY = listener.parentPoint.y;
         dragStartFraction = this.lineYFractionProperty.value;
       },
@@ -162,6 +163,10 @@ export default class PositionPlotNode extends Node {
     };
 
     this.lineYFractionProperty.link( this.updatePlotLayout );
+
+    this.addInputListener( {
+      down: () => this.moveToFront()
+    } );
   }
 
   public step(): void {
