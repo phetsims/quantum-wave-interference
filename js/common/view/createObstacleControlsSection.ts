@@ -29,20 +29,20 @@ const createObstacleControlsSection = (
 ): ObstacleControlsSection => {
   const obstacleRadioButtonItems: AquaRadioButtonGroupItem<ObstacleType>[] = [
     {
-      value: 'none',
-      createNode: () => new Text( QuantumWaveInterferenceFluent.noneStringProperty, {
-        font: LABEL_FONT,
-        maxWidth: 120
-      } ),
-      tandemName: 'noneRadioButton'
-    },
-    {
       value: 'doubleSlit',
       createNode: () => new Text( QuantumWaveInterferenceFluent.doubleSlitStringProperty, {
         font: LABEL_FONT,
         maxWidth: 120
       } ),
       tandemName: 'doubleSlitRadioButton'
+    },
+    {
+      value: 'none',
+      createNode: () => new Text( QuantumWaveInterferenceFluent.noneStringProperty, {
+        font: LABEL_FONT,
+        maxWidth: 120
+      } ),
+      tandemName: 'noneRadioButton'
     }
   ];
 

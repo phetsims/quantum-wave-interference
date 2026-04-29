@@ -193,7 +193,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'velocityProperty' )
     } );
 
-    this.obstacleTypeProperty = new StringUnionProperty<ObstacleType>( 'none', {
+    this.obstacleTypeProperty = new StringUnionProperty<ObstacleType>( 'doubleSlit', {
       validValues: ObstacleTypeValues,
       tandem: tandem.createTandem( 'obstacleTypeProperty' )
     } );
