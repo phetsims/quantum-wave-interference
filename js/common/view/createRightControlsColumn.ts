@@ -106,7 +106,10 @@ const createRightControlsColumn = (
     model.currentSnapshotsProperty,
     snapshot => model.deleteSnapshot( snapshot ),
     tandem.createTandem( 'snapshotsDialog' ),
-    { slitSettingDisplayMap: options.slitSettingDisplayMap }
+    {
+      slitSettingDisplayMap: options.slitSettingDisplayMap,
+      useFrontFacingHitCoordinates: true
+    }
   );
 
   const snapshotButton = new SnapshotButton(

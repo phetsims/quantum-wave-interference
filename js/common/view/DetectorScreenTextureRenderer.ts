@@ -22,7 +22,7 @@ import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, 
 
 const SUPERSAMPLE = 2;
 const MAX_RENDERED_HITS = 10000;
-const HIT_SIZE_SCALE = 2;
+const HIT_SIZE_SCALE = 1.2;
 const BASE_DETECTOR_SCREEN_RAMP_WINDOW = 0.6; // seconds
 const DETECTOR_SCREEN_RAMP_WINDOW = BASE_DETECTOR_SCREEN_RAMP_WINDOW * 10; // Expanded for testing.
 
@@ -242,14 +242,18 @@ export default class DetectorScreenTextureRenderer {
       context.clearRect( 0, 0, this.textureWidth, this.textureHeight );
     }
 
+    context.save();
+    context.transform( 1, -this.skewOffset / this.textureWidth, 0, 1, 0, this.skewOffset );
+
     for ( let i = incrementalStart; i < hitCount; i++ ) {
       const hit = hits[ i ];
 
       const viewX = ( ( hit.y + 1 ) / 2 ) * this.textureWidth;
-      const topEdge = this.skewOffset * ( 1 - viewX / this.textureWidth );
-      const viewY = topEdge + ( ( hit.x + 1 ) / 2 ) * this.faceHeight;
+      const viewY = ( ( hit.x + 1 ) / 2 ) * this.faceHeight;
       context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
     }
+
+    context.restore();
 
     cache.lastRenderedHitCount = hitCount;
   }

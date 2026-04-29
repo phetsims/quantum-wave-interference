@@ -77,6 +77,10 @@ export type SnapshotNodeOptions = {
 
   // When provided, the full PDOM structure (section, heading, description paragraph, metadata list) is created.
   getDescription?: ( snapshot: Snapshot ) => string;
+
+  // The front-facing High Intensity and Single Particles detector screens store hit.x as the detector-screen
+  // vertical coordinate and hit.y as the horizontal coordinate. Other screens use the conventional x/y mapping.
+  useFrontFacingHitCoordinates?: boolean;
 };
 
 export default class SnapshotNode extends Node {
@@ -223,7 +227,8 @@ export default class SnapshotNode extends Node {
     const canvasNode = new SnapshotCanvasNode(
       snapshotProperty,
       SNAPSHOT_WIDTH,
-      SNAPSHOT_HEIGHT
+      SNAPSHOT_HEIGHT,
+      options.useFrontFacingHitCoordinates || false
     );
     canvasNode.clipArea = background.shape!;
     snapshotProperty.link( () => canvasNode.invalidatePaint() );
@@ -452,18 +457,21 @@ export default class SnapshotNode extends Node {
 
 class SnapshotCanvasNode extends CanvasNode {
   private readonly snapshotProperty: TReadOnlyProperty<Snapshot | null>;
+  private readonly useFrontFacingHitCoordinates: boolean;
   private readonly intensityTextureCanvas: HTMLCanvasElement;
   private readonly intensityTextureContext: CanvasRenderingContext2D;
 
   public constructor(
     snapshotProperty: TReadOnlyProperty<Snapshot | null>,
     width: number,
-    height: number
+    height: number,
+    useFrontFacingHitCoordinates: boolean
   ) {
     super( {
       canvasBounds: new Bounds2( 0, 0, width, height )
     } );
     this.snapshotProperty = snapshotProperty;
+    this.useFrontFacingHitCoordinates = useFrontFacingHitCoordinates;
 
     this.intensityTextureCanvas = document.createElement( 'canvas' );
     this.intensityTextureCanvas.width = ANALYTICAL_TEXTURE_WIDTH;
@@ -523,8 +531,10 @@ class SnapshotCanvasNode extends CanvasNode {
       context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${alpha})`;
       for ( let i = startIndex; i < hitCount; i++ ) {
         const hit = hits[ i ];
-        const viewX = displayBounds.left + ( ( hit.x + 1 ) / 2 ) * width;
-        const viewY = ( ( hit.y + 1 ) / 2 ) * height;
+        const hitX = hit.x;
+        const hitY = this.useFrontFacingHitCoordinates ? -hit.y : hit.y;
+        const viewX = displayBounds.left + ( ( hitX + 1 ) / 2 ) * width;
+        const viewY = displayBounds.top + ( ( hitY + 1 ) / 2 ) * height;
         context.beginPath();
         context.arc( viewX, viewY, radius, 0, Math.PI * 2 );
         context.fill();

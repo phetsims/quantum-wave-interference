@@ -24,7 +24,7 @@ import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
 
-const MAX_EMISSION_RATE = 100;
+const MAX_EMISSION_RATE = 50;
 
 export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 
