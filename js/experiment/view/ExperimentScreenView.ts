@@ -157,6 +157,7 @@ export default class ExperimentScreenView extends ScreenView {
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
       return new DetectorScreenNode( scene, model.isPlayingProperty, {
+        onSnapshotCaptured: () => overheadDetectorScreenNode.startSnapshotFlash(),
         tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
       } );
     } );

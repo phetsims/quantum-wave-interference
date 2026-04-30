@@ -13,7 +13,7 @@ import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
-import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
@@ -84,7 +84,9 @@ const getScaleLabelDecimalPlaces = ( valueMM: number ): number => {
   return 2;
 };
 
-type SelfOptions = EmptySelfOptions;
+type SelfOptions = {
+  onSnapshotCaptured?: () => void;
+};
 
 type DetectorScreenNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
 
@@ -104,6 +106,7 @@ export default class DetectorScreenNode extends Node {
   ) {
     const options = optionize<DetectorScreenNodeOptions, SelfOptions, NodeOptions>()(
       {
+        onSnapshotCaptured: _.noop,
         isDisposable: false
       },
       providedOptions
@@ -351,7 +354,10 @@ export default class DetectorScreenNode extends Node {
     this.snapshotButton = new SnapshotButton(
       sceneModel.numberOfSnapshotsProperty,
       () => sceneModel.takeSnapshot(),
-      startSnapshotFlash,
+      () => {
+        startSnapshotFlash();
+        options.onSnapshotCaptured();
+      },
       providedOptions.tandem.createTandem( 'snapshotButton' )
     );
 

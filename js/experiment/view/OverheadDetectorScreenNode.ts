@@ -18,10 +18,12 @@ import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import Animation from '../../../../twixt/js/Animation.js';
+import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import createParallelogramNode from './createParallelogramNode.js';
+import createParallelogramNode, { createParallelogramShape } from './createParallelogramNode.js';
 import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
@@ -34,6 +36,8 @@ const BASE_DOUBLE_SLIT_SKEW_DY = 21;
 const DISTANCE_LABEL_FONT = new PhetFont( 12 );
 const VISIBLE_REGION_STROKE = 'white';
 const VISIBLE_REGION_LINE_WIDTH = 1.5;
+const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
+const SNAPSHOT_FLASH_DURATION = 0.6;
 
 export const DETECTOR_DX = BASE_DETECTOR_DX * OVERHEAD_SCALE;
 export const DETECTOR_DY = BASE_DETECTOR_DX * ( BASE_DOUBLE_SLIT_SKEW_DY / BASE_DOUBLE_SLIT_SKEW_DX ) * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;
@@ -61,6 +65,8 @@ export default class OverheadDetectorScreenNode extends Node {
   public readonly parallelogramNode: Path;
   public readonly overheadPatternNode: OverheadDetectorPatternNode;
   private readonly visibleRegionNode: Path;
+  private readonly snapshotFlashNode: Path;
+  private snapshotFlashAnimation: Animation | null = null;
 
   private readonly sceneProperty: TReadOnlyProperty<SceneModel>;
   private frontFacingScreenLeft = 0;
@@ -90,6 +96,15 @@ export default class OverheadDetectorScreenNode extends Node {
     // Interference pattern overlay
     this.overheadPatternNode = new OverheadDetectorPatternNode( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT );
     this.parallelogramNode.addChild( this.overheadPatternNode );
+
+    // Transient snapshot flash overlay. This is a visual effect only (not model state).
+    this.snapshotFlashNode = new Path( createParallelogramShape( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT ), {
+      fill: 'white',
+      opacity: 0,
+      visible: false,
+      pickable: false
+    } );
+    this.parallelogramNode.addChild( this.snapshotFlashNode );
 
     this.visibleRegionNode = new Path( createVisibleRegionShape( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT, 1 ), {
       fill: null,
@@ -176,6 +191,19 @@ export default class OverheadDetectorScreenNode extends Node {
 
     detectorScreenLabel.localBoundsProperty.link( () => this.updateDetectorScreenPosition() );
 
+    this.visibleProperty.lazyLink( visible => {
+      if ( !visible ) {
+        this.clearSnapshotFlash();
+      }
+    } );
+
+    // If this node is detached from all displays (e.g. screen switch), stop and clear any active flash effect.
+    this.rootedDisplayChangedEmitter.addListener( () => {
+      if ( this.rootedDisplays.length === 0 ) {
+        this.clearSnapshotFlash();
+      }
+    } );
+
     sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         oldScene.screenDistanceProperty.unlink( this.updateDetectorScreenPosition );
@@ -253,5 +281,40 @@ export default class OverheadDetectorScreenNode extends Node {
    */
   public updatePosition(): void {
     this.updateDetectorScreenPosition();
+  }
+
+  public startSnapshotFlash(): void {
+    this.clearSnapshotFlash();
+    this.snapshotFlashNode.opacity = SNAPSHOT_FLASH_INITIAL_OPACITY;
+    this.snapshotFlashNode.visible = true;
+
+    const flashAnimation = new Animation( {
+      object: this.snapshotFlashNode,
+      attribute: 'opacity',
+      from: SNAPSHOT_FLASH_INITIAL_OPACITY,
+      to: 0,
+      duration: SNAPSHOT_FLASH_DURATION,
+      easing: Easing.LINEAR
+    } );
+
+    this.snapshotFlashAnimation = flashAnimation;
+
+    flashAnimation.endedEmitter.addListener( () => {
+      if ( this.snapshotFlashAnimation === flashAnimation ) {
+        this.snapshotFlashAnimation = null;
+      }
+      this.snapshotFlashNode.visible = false;
+      flashAnimation.dispose();
+    } );
+
+    flashAnimation.start();
+  }
+
+  private clearSnapshotFlash(): void {
+    if ( this.snapshotFlashAnimation ) {
+      this.snapshotFlashAnimation.stop();
+    }
+    this.snapshotFlashNode.opacity = 0;
+    this.snapshotFlashNode.visible = false;
   }
 }
