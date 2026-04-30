@@ -22,14 +22,16 @@ import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
+const SOURCE_SCALE = OVERHEAD_SCALE * 1.15;
 const particleBeamColorProperty = QuantumWaveInterferenceColors.particleBeamColorProperty;
-const EMITTER_BEAM_HEIGHT = 32 * 0.73 * OVERHEAD_SCALE;
+const EMITTER_BEAM_HEIGHT = 32 * 0.73 * SOURCE_SCALE;
 const EMITTER_BEAM_LEFT_EXTENSION = 10 * OVERHEAD_SCALE;
 const FAN_BEAM_LEFT_OFFSET_FROM_SLIT_CENTER_FRACTION = 0.25;
 const FAN_BEAM_LEFT_HEIGHT_SCALE = 1.2;
 const FAN_BEAM_RIGHT_HEIGHT_SCALE = 2;
 const FAN_BEAM_TOP_RIGHT_Y_OFFSET = -6;
 const FAN_BEAM_BOTTOM_RIGHT_Y_OFFSET = -20;
+const FAN_BEAM_ALPHA_SCALE = 0.5;
 const DETECTOR_SCREEN_SHADOW_FILL = 'rgba(255,255,255,0.75)';
 
 export default class OverheadBeamNode extends Node {
@@ -165,7 +167,7 @@ export default class OverheadBeamNode extends Node {
         .close();
 
       const gradient = new LinearGradient( fanLeft, 0, fanRight, 0 )
-        .addColorStop( 0, beamColor.withAlpha( 0.4 * intensity ) )
+        .addColorStop( 0, beamColor.withAlpha( 0.4 * intensity * FAN_BEAM_ALPHA_SCALE ) )
         .addColorStop( 1, beamColor.withAlpha( 0 ) );
       fanBeamNode.fill = gradient;
     };

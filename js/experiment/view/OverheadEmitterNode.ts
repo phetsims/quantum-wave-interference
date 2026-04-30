@@ -34,8 +34,11 @@ import SceneModel from '../model/SceneModel.js';
 import { type SourceType } from '../model/SourceType.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
+const SOURCE_SCALE = OVERHEAD_SCALE * 1.15;
 const LABEL_FONT = new PhetFont( 16 );
 const LABEL_Y = 30;
+const SOURCE_LABEL_CENTERING_GAP = 6 * OVERHEAD_SCALE;
+const SOURCE_LABEL_GAP = 10 * OVERHEAD_SCALE;
 const MASS_LABEL_FONT = new PhetFont( 12 );
 const MASS_LABEL_TOP_MARGIN = 8;
 
@@ -134,7 +137,7 @@ export default class OverheadEmitterNode extends Node {
 
     const emitterLeftBase = layoutBounds.minX + QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN + BASE_EMITTER_LEFT;
     const baseEmitterWidth = BASE_BODY_WIDTH + BASE_NOZZLE_WIDTH;
-    const scaledEmitterWidth = OVERHEAD_SCALE * ( BASE_BODY_WIDTH + BASE_NOZZLE_WIDTH );
+    const scaledEmitterWidth = SOURCE_SCALE * ( BASE_BODY_WIDTH + BASE_NOZZLE_WIDTH );
     const emitterLeft = emitterLeftBase - ( scaledEmitterWidth - baseEmitterWidth ) / 2;
 
     const sourceLabel = new Text( sourceLabelStringProperty, {
@@ -144,8 +147,9 @@ export default class OverheadEmitterNode extends Node {
     } );
     this.addChild( sourceLabel );
 
-    // Keep the emitter at a fixed vertical position even if the source label rescales or changes height.
-    const emitterTop = sourceLabel.bottom + 6 * OVERHEAD_SCALE;
+    // Keep the emitter center at its pre-scale vertical position even if the source label rescales or changes height.
+    const getEmitterCenterY = () => sourceLabel.height + LABEL_Y + SOURCE_LABEL_CENTERING_GAP +
+                                BASE_BODY_HEIGHT * OVERHEAD_SCALE / 2;
 
     // Particle mass label (empty for photons; hidden via the visible link below).
     // DerivedProperty so the label updates reactively on both scene change and locale change.
@@ -209,7 +213,7 @@ export default class OverheadEmitterNode extends Node {
 
     const buttonOptions = {
       baseColor: 'red',
-      radius: BASE_BUTTON_RADIUS * OVERHEAD_SCALE,
+      radius: BASE_BUTTON_RADIUS * SOURCE_SCALE,
       valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
       valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
       accessibleName: emitterAccessibleNameProperty,
@@ -217,8 +221,8 @@ export default class OverheadEmitterNode extends Node {
     };
 
     this.laserPointerNode = new LaserPointerNode( isEmittingProperty, {
-      bodySize: new Dimension2( BASE_BODY_WIDTH * OVERHEAD_SCALE, BASE_BODY_HEIGHT * OVERHEAD_SCALE ),
-      nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * OVERHEAD_SCALE, BASE_NOZZLE_HEIGHT * OVERHEAD_SCALE ),
+      bodySize: new Dimension2( BASE_BODY_WIDTH * SOURCE_SCALE, BASE_BODY_HEIGHT * SOURCE_SCALE ),
+      nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * SOURCE_SCALE, BASE_NOZZLE_HEIGHT * SOURCE_SCALE ),
       buttonOptions: buttonOptions,
       left: emitterLeft,
       tandem: tandem.createTandem( 'laserPointerNode' )
@@ -226,8 +230,8 @@ export default class OverheadEmitterNode extends Node {
     this.addChild( this.laserPointerNode );
 
     this.particleEmitterNode = new LaserPointerNode( isEmittingProperty, {
-      bodySize: new Dimension2( BASE_BODY_WIDTH * OVERHEAD_SCALE, BASE_BODY_HEIGHT * OVERHEAD_SCALE ),
-      nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * OVERHEAD_SCALE, BASE_NOZZLE_HEIGHT * OVERHEAD_SCALE ),
+      bodySize: new Dimension2( BASE_BODY_WIDTH * SOURCE_SCALE, BASE_BODY_HEIGHT * SOURCE_SCALE ),
+      nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * SOURCE_SCALE, BASE_NOZZLE_HEIGHT * SOURCE_SCALE ),
       topColor: PARTICLE_EMITTER_PALETTES.electrons.topColor,
       bottomColor: PARTICLE_EMITTER_PALETTES.electrons.bottomColor,
       highlightColor: PARTICLE_EMITTER_PALETTES.electrons.highlightColor,
@@ -294,8 +298,9 @@ export default class OverheadEmitterNode extends Node {
       this.particleEmitterNode.centerX = targetEmitterCenterX;
 
       const activeEmitter = isPhoton ? this.laserPointerNode : this.particleEmitterNode;
-      activeEmitter.top = emitterTop;
+      activeEmitter.centerY = getEmitterCenterY();
       sourceLabel.centerX = targetEmitterCenterX;
+      sourceLabel.bottom = activeEmitter.top - SOURCE_LABEL_GAP;
       particleMassLabel.centerX = targetEmitterCenterX;
       particleMassLabel.top = activeEmitter.bottom + MASS_LABEL_TOP_MARGIN * OVERHEAD_SCALE;
       this.maxHitsReachedPanel.centerY = activeEmitter.centerY;

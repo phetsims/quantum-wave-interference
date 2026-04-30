@@ -19,7 +19,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import { hasDetectorOnSide } from '../model/SlitConfiguration.js';
-import createParallelogramNode from './createParallelogramNode.js';
+import createParallelogramNode, { createParallelogramShape } from './createParallelogramNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const OVERHEAD_SKEW_SCALE = ExperimentConstants.OVERHEAD_SKEW_SCALE;
@@ -29,12 +29,14 @@ const BASE_PARALLELOGRAM_X = 365;
 const BASE_PARALLELOGRAM_DX = 51;
 const BASE_PARALLELOGRAM_CENTER_X = BASE_PARALLELOGRAM_X + BASE_PARALLELOGRAM_DX / 2;
 const PARALLELOGRAM_LEFT_HEIGHT = 50 * OVERHEAD_SCALE;
-const SLIT_BACKGROUND_SCALE = 0.75;
+const BASE_SLIT_BACKGROUND_SCALE = 0.75;
+const SLIT_BACKGROUND_SCALE = BASE_SLIT_BACKGROUND_SCALE * 1.15;
 const DETECTOR_OVERLAY_FILL_ALPHA = 0.4;
 const DETECTOR_OVERLAY_STROKE_WIDTH = 0.25;
 const DETECTOR_OVERLAY_WIDTH_SCALE = 0.78;
 const DETECTOR_OVERLAY_HEIGHT_SCALE = 0.97;
 const SLIT_MARKER_WIDTH = 0.75 * OVERHEAD_SCALE;
+const PARTICLE_SLIT_VISUAL_SCALE = 0.4;
 
 export default class OverheadDoubleSlitNode extends Node {
 
@@ -66,7 +68,7 @@ export default class OverheadDoubleSlitNode extends Node {
     this.parallelogramNode.y = 45;
     this.addChild( this.parallelogramNode );
 
-    // Reduce the visible rounded-rectangle/parallelogram background by 25% in both width and height while preserving
+    // Reduce the visible rounded-rectangle/parallelogram background from the alignment bounds while preserving
     // the existing slit-line coordinates and overall node positioning.
     this.reducedBackgroundNode = createParallelogramNode(
       this.skewDx * SLIT_BACKGROUND_SCALE,
@@ -83,7 +85,7 @@ export default class OverheadDoubleSlitNode extends Node {
     this.doubleSlitLabel.localBoundsProperty.link( () => this.layoutLabel() );
 
     // Slit lines on the parallelogram
-    const slitLineLength = 18.75 * OVERHEAD_SCALE;
+    const slitLineLength = 18.75 * OVERHEAD_SCALE * 1.15;
     const slitXFraction = 0.5;
 
     // Keep slit lines vertically centered in the slit element.
@@ -92,7 +94,7 @@ export default class OverheadDoubleSlitNode extends Node {
     const slitBaseY = slitYCenter + slitXFraction * this.skewDy;
 
     const MIN_VISUAL_SLIT_SPACING = OVERHEAD_SCALE;
-    const MAX_VISUAL_SLIT_SPACING = 4 * OVERHEAD_SCALE;
+    const MAX_VISUAL_SLIT_SPACING = 8 * OVERHEAD_SCALE;
 
     const slitMarkerDy = SLIT_MARKER_WIDTH * ( this.skewDy / this.skewDx );
     const leftSlitMarker = createParallelogramNode( SLIT_MARKER_WIDTH, slitMarkerDy, slitLineLength, 'white', 0 );
@@ -132,18 +134,26 @@ export default class OverheadDoubleSlitNode extends Node {
       const separation = scene.slitSeparationProperty.value;
       const range = scene.slitSeparationRange;
       const fraction = ( separation - range.min ) / ( range.max - range.min );
-      const visualSpacing = MIN_VISUAL_SLIT_SPACING + fraction * ( MAX_VISUAL_SLIT_SPACING - MIN_VISUAL_SLIT_SPACING );
+      const particleVisualScale = scene.sourceType === 'photons' ? 1 : PARTICLE_SLIT_VISUAL_SCALE;
+      const visualSpacing = (
+        MIN_VISUAL_SLIT_SPACING + fraction * ( MAX_VISUAL_SLIT_SPACING - MIN_VISUAL_SLIT_SPACING )
+      ) * particleVisualScale;
 
       const leftX = slitBaseX - visualSpacing / 2;
       const rightX = slitBaseX + visualSpacing / 2;
 
       const slopeRatio = this.skewDy / this.skewDx;
+      const slitMarkerWidth = SLIT_MARKER_WIDTH * particleVisualScale;
+      const slitMarkerDy = slitMarkerWidth * slopeRatio;
       const leftY = slitBaseY - ( visualSpacing / 2 ) * slopeRatio;
       const rightY = slitBaseY + ( visualSpacing / 2 ) * slopeRatio;
 
-      leftSlitMarker.x = leftX - SLIT_MARKER_WIDTH / 2;
+      leftSlitMarker.shape = createParallelogramShape( slitMarkerWidth, slitMarkerDy, slitLineLength );
+      rightSlitMarker.shape = createParallelogramShape( slitMarkerWidth, slitMarkerDy, slitLineLength );
+
+      leftSlitMarker.x = leftX - slitMarkerWidth / 2;
       leftSlitMarker.y = leftY - slitLineLength / 2;
-      rightSlitMarker.x = rightX - SLIT_MARKER_WIDTH / 2;
+      rightSlitMarker.x = rightX - slitMarkerWidth / 2;
       rightSlitMarker.y = rightY - slitLineLength / 2;
 
       leftSlitDetectorOverlay.x = leftX - slitOverlayDx / 2;
@@ -209,6 +219,11 @@ export default class OverheadDoubleSlitNode extends Node {
 
   private layoutLabel(): void {
     this.doubleSlitLabel.centerX = this.parallelogramNode.centerX;
-    this.doubleSlitLabel.top = LABEL_Y;
+
+    const fullBackgroundHeight = PARALLELOGRAM_LEFT_HEIGHT + this.skewDy;
+    const originalBackgroundTop = this.parallelogramNode.y +
+                                  fullBackgroundHeight * ( 1 - BASE_SLIT_BACKGROUND_SCALE ) / 2;
+    const currentBackgroundTop = this.parallelogramNode.y + this.reducedBackgroundNode.top;
+    this.doubleSlitLabel.top = LABEL_Y + currentBackgroundTop - originalBackgroundTop;
   }
 }
