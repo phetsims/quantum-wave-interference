@@ -20,12 +20,13 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
+import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import Color from '../../../../scenery/js/util/Color.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import getDisplayedWaveValue from '../model/getDisplayedWaveValue.js';
 import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import WavePlotChartNode from './WavePlotChartNode.js';
@@ -33,15 +34,16 @@ import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProper
 import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 
 const WIRE_LINE_WIDTH = 3;
-const DOTTED_LINE_DASH_LENGTH = 9;
-const DOTTED_LINE_GAP_LENGTH = 5;
-const DOTTED_LINE_DASH = [ DOTTED_LINE_DASH_LENGTH, DOTTED_LINE_GAP_LENGTH ];
-const DOTTED_LINE_DASH_OFFSET = DOTTED_LINE_DASH_LENGTH / 2;
 const MIN_Y_FRACTION = 0.1;
 const MAX_Y_FRACTION = 0.9;
-const PREVIOUS_DEFAULT_PANEL_GAP = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT / 2 + 26;
-const PANEL_GAP = PREVIOUS_DEFAULT_PANEL_GAP * 0.08;
-const LINE_HIT_AREA_HEIGHT = 16;
+const APERTURE_TO_PANEL_GAP = 18;
+const POSITION_PROBE_COLOR = '#808080';
+const POSITION_PROBE_STROKE_COLOR = new Color( POSITION_PROBE_COLOR ).darkerColor( 0.7 );
+const POSITION_PROBE_APERTURE_HEIGHT = 9.6;
+const POSITION_PROBE_FRAME_THICKNESS = 7;
+const POSITION_PROBE_SIDE_FRAME_WIDTH = 8;
+const POSITION_PROBE_SIDE_FRAME_OVERLAP = 1;
+const POSITION_PROBE_CORNER_RADIUS = 5;
 const POSITION_PLOT_PANEL_LEFT_PADDING = 8;
 const POSITION_PLOT_PANEL_BOTTOM_PADDING = 8;
 const POSITION_PLOT_PANEL_TOP_PADDING = 12;
@@ -88,22 +90,10 @@ export default class PositionPlotNode extends Node {
       displayMode => getMaxDisplayedWaveValue( displayMode )
     );
 
-    const dottedLine = new Line( waveRegionX, 0, waveRegionX + waveRegionWidth, 0, {
-      stroke: 'white',
-      lineWidth: 1.5,
-      lineDash: DOTTED_LINE_DASH,
-      lineDashOffset: DOTTED_LINE_DASH_OFFSET,
-      opacity: 0.7
-    } );
-    this.addChild( dottedLine );
+    const apertureProbeNode = PositionPlotNode.createApertureProbeNode( waveRegionX, waveRegionWidth );
+    this.addChild( apertureProbeNode );
 
     const lineCenterX = waveRegionX + waveRegionWidth / 2;
-
-    const lineHitArea = new Rectangle( waveRegionX, 0, waveRegionWidth, LINE_HIT_AREA_HEIGHT, {
-      fill: 'rgba( 0, 0, 0, 0 )',
-      cursor: 'ns-resize'
-    } );
-    this.addChild( lineHitArea );
 
     let dragStartY = 0;
     let dragStartFraction = this.lineYFractionProperty.value;
@@ -121,7 +111,7 @@ export default class PositionPlotNode extends Node {
         );
       }
     } );
-    lineHitArea.addInputListener( verticalDragListener );
+    apertureProbeNode.addInputListener( verticalDragListener );
 
     this.chartNode = new WavePlotChartNode( {
       yAxisLabelStringProperty: yAxisLabelStringProperty,
@@ -142,7 +132,7 @@ export default class PositionPlotNode extends Node {
     this.addChild( this.chartNode );
 
     const wireLine = new Line( lineCenterX, 0, lineCenterX, 0, {
-      stroke: QuantumWaveInterferenceColors.graphGridLineColorProperty,
+      stroke: POSITION_PROBE_STROKE_COLOR,
       lineWidth: WIRE_LINE_WIDTH
     } );
     this.addChild( wireLine );
@@ -151,15 +141,13 @@ export default class PositionPlotNode extends Node {
     this.updatePlotLayout = () => {
       const fraction = this.lineYFractionProperty.value;
       const viewY = waveRegionY + fraction * waveRegionHeight;
-      dottedLine.y1 = viewY;
-      dottedLine.y2 = viewY;
-      lineHitArea.centerY = viewY;
+      apertureProbeNode.centerY = viewY;
 
-      this.chartNode.top = viewY + PANEL_GAP;
+      this.chartNode.top = apertureProbeNode.bottom + APERTURE_TO_PANEL_GAP;
       wireLine.x1 = lineCenterX;
       wireLine.x2 = lineCenterX;
       wireLine.y1 = this.chartNode.top;
-      wireLine.y2 = viewY;
+      wireLine.y2 = apertureProbeNode.bottom;
     };
 
     this.lineYFractionProperty.link( this.updatePlotLayout );
@@ -167,6 +155,60 @@ export default class PositionPlotNode extends Node {
     this.addInputListener( {
       down: () => this.moveToFront()
     } );
+  }
+
+  private static createApertureProbeNode( waveRegionX: number, waveRegionWidth: number ): Node {
+    const outerWidth = waveRegionWidth + 2 * POSITION_PROBE_SIDE_FRAME_WIDTH;
+    const outerHeight = POSITION_PROBE_APERTURE_HEIGHT + 2 * POSITION_PROBE_FRAME_THICKNESS;
+    const apertureLeft = POSITION_PROBE_SIDE_FRAME_WIDTH;
+    const apertureTop = POSITION_PROBE_FRAME_THICKNESS;
+    const apertureRight = apertureLeft + waveRegionWidth;
+    const apertureBottom = apertureTop + POSITION_PROBE_APERTURE_HEIGHT;
+
+    const fillOptions = {
+      fill: POSITION_PROBE_COLOR
+    };
+    const outlineOptions = {
+      fill: null,
+      stroke: POSITION_PROBE_STROKE_COLOR,
+      lineWidth: 1
+    };
+
+    const apertureProbeNode = new Node( {
+      cursor: 'ns-resize',
+      children: [
+        new Path( Shape.roundedRectangleWithRadii( 0, 0, outerWidth, POSITION_PROBE_FRAME_THICKNESS, {
+          topLeft: POSITION_PROBE_CORNER_RADIUS,
+          topRight: POSITION_PROBE_CORNER_RADIUS
+        } ), fillOptions ),
+        new Path( Shape.roundedRectangleWithRadii( 0, apertureBottom, outerWidth, POSITION_PROBE_FRAME_THICKNESS, {
+          bottomLeft: POSITION_PROBE_CORNER_RADIUS,
+          bottomRight: POSITION_PROBE_CORNER_RADIUS
+        } ), fillOptions ),
+        new Rectangle( 0, apertureTop - POSITION_PROBE_SIDE_FRAME_OVERLAP, POSITION_PROBE_SIDE_FRAME_WIDTH,
+          POSITION_PROBE_APERTURE_HEIGHT + 2 * POSITION_PROBE_SIDE_FRAME_OVERLAP, fillOptions ),
+        new Rectangle( apertureRight, apertureTop - POSITION_PROBE_SIDE_FRAME_OVERLAP, POSITION_PROBE_SIDE_FRAME_WIDTH,
+          POSITION_PROBE_APERTURE_HEIGHT + 2 * POSITION_PROBE_SIDE_FRAME_OVERLAP, fillOptions ),
+        new Path( Shape.roundedRectangleWithRadii( 0, 0, outerWidth, outerHeight, {
+          topLeft: POSITION_PROBE_CORNER_RADIUS,
+          topRight: POSITION_PROBE_CORNER_RADIUS,
+          bottomLeft: POSITION_PROBE_CORNER_RADIUS,
+          bottomRight: POSITION_PROBE_CORNER_RADIUS
+        } ), outlineOptions ),
+        new Rectangle( apertureLeft, apertureTop, waveRegionWidth, POSITION_PROBE_APERTURE_HEIGHT, outlineOptions ),
+
+        // Invisible hit target. The center remains visually transparent so the wave field is visible
+        // through the aperture.
+        new Rectangle( 0, 0, outerWidth, outerHeight, {
+          fill: 'rgba( 0, 0, 0, 0 )',
+          cursor: 'ns-resize'
+        } )
+      ]
+    } );
+
+    apertureProbeNode.left = waveRegionX - POSITION_PROBE_SIDE_FRAME_WIDTH;
+
+    return apertureProbeNode;
   }
 
   public step(): void {
