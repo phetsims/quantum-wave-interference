@@ -211,7 +211,13 @@ export default class HighIntensityScreenView extends ScreenView {
       waveRegionRight,
       waveRegionTop,
       tandem.createTandem( 'sidewaysGraphNode' ),
-      { detectionModeProperty: model.currentDetectionModeProperty }
+      {
+        detectionModeProperty: model.currentDetectionModeProperty,
+        initialZoomLevels: {
+          averageIntensity: 3,
+          hits: 'max'
+        }
+      }
     );
     this.addChild( this.sidewaysGraphNode );
 
@@ -242,7 +248,16 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     );
 
-    const intensityGraphCheckbox = createToolCheckbox( model.isIntensityGraphVisibleProperty, QuantumWaveInterferenceFluent.intensityGraphStringProperty, tandem.createTandem( 'intensityGraphCheckbox' ), ToolIcons.createGraphIcon() );
+    const graphCheckboxStringProperty = new DerivedProperty(
+      [
+        model.currentDetectionModeProperty,
+        QuantumWaveInterferenceFluent.hitsGraphStringProperty,
+        QuantumWaveInterferenceFluent.intensityGraphStringProperty
+      ],
+      ( detectionMode, hitsGraphString, intensityGraphString ) =>
+        detectionMode === 'hits' ? hitsGraphString : intensityGraphString
+    );
+    const intensityGraphCheckbox = createToolCheckbox( model.isIntensityGraphVisibleProperty, graphCheckboxStringProperty, tandem.createTandem( 'intensityGraphCheckbox' ), ToolIcons.createGraphIcon() );
     const tapeMeasureCheckbox = createToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ), ToolIcons.createTapeMeasureIcon() );
     const stopwatchCheckbox = createToolCheckbox( model.isStopwatchVisibleProperty, QuantumWaveInterferenceFluent.stopwatchStringProperty, tandem.createTandem( 'stopwatchCheckbox' ), ToolIcons.createStopwatchIcon() );
     const timePlotCheckbox = createToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ), ToolIcons.createTimePlotIcon() );

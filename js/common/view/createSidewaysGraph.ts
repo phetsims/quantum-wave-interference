@@ -19,11 +19,17 @@ import SidewaysGraphNode, { type SidewaysGraphSceneLike } from './SidewaysGraphN
 
 const GRAPH_LEFT_GAP = 2;
 
+type ZoomLevelOption = number | 'default' | 'max';
+
 type CreateSidewaysGraphOptions = {
 
   // Provide to make the graph adapt its axis label between "Intensity" (averageIntensity mode) and
   // "Count" (hits mode). Omit on screens that are always in hits mode.
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
+
+  // Initial and reset zoom level for the graph.
+  initialZoomLevel?: ZoomLevelOption;
+  initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
 };
 
 const createSidewaysGraph = (
@@ -51,6 +57,8 @@ const createSidewaysGraph = (
   const sidewaysGraphNode = new SidewaysGraphNode( sceneProperty, {
     detectionModeProperty: options.detectionModeProperty,
     axisLabelStringProperty: axisLabelStringProperty,
+    initialZoomLevel: options.initialZoomLevel,
+    initialZoomLevels: options.initialZoomLevels,
     tandem: tandem
   } );
 

@@ -225,7 +225,8 @@ export default class SingleParticlesScreenView extends ScreenView {
       model.isHitsGraphVisibleProperty,
       waveRegionLeft + WAVE_REGION_WIDTH,
       waveRegionTop,
-      tandem.createTandem( 'sidewaysGraphNode' )
+      tandem.createTandem( 'sidewaysGraphNode' ),
+      { initialZoomLevel: 'max' }
     );
     this.addChild( this.sidewaysGraphNode );
 

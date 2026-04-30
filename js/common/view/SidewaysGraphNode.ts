@@ -43,6 +43,11 @@ const GRAPH_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const HISTOGRAM_BINS = 100;
 const LABEL_FONT = new PhetFont( 12 );
 const ZOOM_BUTTON_GROUP_MARGIN = 4;
+const MIN_ZOOM_LEVEL = 1;
+const DEFAULT_ZOOM_LEVEL = 4;
+const MAX_ZOOM_LEVEL = 6;
+
+type ZoomLevelOption = number | 'default' | 'max';
 
 export type SidewaysGraphSceneLike = {
   hits: Vector2[];
@@ -56,6 +61,8 @@ export type SidewaysGraphSceneLike = {
 type SelfOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   axisLabelStringProperty: TReadOnlyProperty<string>;
+  initialZoomLevel?: ZoomLevelOption;
+  initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
 };
 
 type SidewaysGraphNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
@@ -67,23 +74,58 @@ export default class SidewaysGraphNode extends Node {
   private readonly dataPath: Path;
   private readonly sceneProperty: TReadOnlyProperty<SidewaysGraphSceneLike>;
   private readonly detectionModeProperty: TReadOnlyProperty<DetectionMode> | undefined;
+  private readonly defaultZoomLevelsByDetectionMode: Record<DetectionMode, number> | null;
+  private readonly zoomLevelsByDetectionMode: Record<DetectionMode, number> | null;
+  private activeDetectionMode: DetectionMode | null;
 
   public constructor(
     sceneProperty: TReadOnlyProperty<SidewaysGraphSceneLike>,
     providedOptions: SidewaysGraphNodeOptions
   ) {
     const options = optionize<SidewaysGraphNodeOptions, StrictOmit<SelfOptions, 'detectionModeProperty'>, NodeOptions>()( {
+      initialZoomLevel: 'default',
+      initialZoomLevels: {},
       isDisposable: false
     }, providedOptions );
 
     super( options );
 
-    const zoomRange = new RangeWithValue( 1, 6, 4 );
+    const getZoomLevel = ( zoomLevel: ZoomLevelOption | undefined ): number => {
+      if ( zoomLevel === 'max' ) {
+        return MAX_ZOOM_LEVEL;
+      }
+      else if ( typeof zoomLevel === 'number' ) {
+        return zoomLevel;
+      }
+      else {
+        return DEFAULT_ZOOM_LEVEL;
+      }
+    };
+
+    const getModeZoomLevel = ( detectionMode: DetectionMode ): number =>
+      getZoomLevel( options.initialZoomLevels?.[ detectionMode ] ?? options.initialZoomLevel );
+
+    this.activeDetectionMode = options.detectionModeProperty ? options.detectionModeProperty.value : null;
+
+    const zoomRange = new RangeWithValue(
+      MIN_ZOOM_LEVEL,
+      MAX_ZOOM_LEVEL,
+      this.activeDetectionMode ? getModeZoomLevel( this.activeDetectionMode ) : getZoomLevel( options.initialZoomLevel )
+    );
     this.zoomLevelProperty = new NumberProperty( zoomRange.defaultValue, {
       range: zoomRange,
       tandem: providedOptions.tandem.createTandem( 'zoomLevelProperty' ),
       numberType: 'Integer'
     } );
+
+    this.defaultZoomLevelsByDetectionMode = options.detectionModeProperty ? {
+      averageIntensity: getModeZoomLevel( 'averageIntensity' ),
+      hits: getModeZoomLevel( 'hits' )
+    } : null;
+    this.zoomLevelsByDetectionMode = this.defaultZoomLevelsByDetectionMode ? {
+      averageIntensity: this.defaultZoomLevelsByDetectionMode.averageIntensity,
+      hits: this.defaultZoomLevelsByDetectionMode.hits
+    } : null;
 
     this.chartBackground = new Rectangle( 0, 0, GRAPH_WIDTH, GRAPH_HEIGHT, {
       fill: 'white',
@@ -185,8 +227,21 @@ export default class SidewaysGraphNode extends Node {
     } );
 
     this.zoomLevelProperty.link( updateGraph );
+    this.zoomLevelProperty.lazyLink( zoomLevel => {
+      if ( this.zoomLevelsByDetectionMode && this.activeDetectionMode ) {
+        this.zoomLevelsByDetectionMode[ this.activeDetectionMode ] = zoomLevel;
+      }
+    } );
+
     if ( this.detectionModeProperty ) {
-      this.detectionModeProperty.link( updateGraph );
+      this.detectionModeProperty.lazyLink( detectionMode => {
+        this.activeDetectionMode = detectionMode;
+
+        if ( this.zoomLevelsByDetectionMode ) {
+          this.zoomLevelProperty.value = this.zoomLevelsByDetectionMode[ detectionMode ];
+        }
+        updateGraph();
+      } );
     }
   }
 
@@ -297,6 +352,13 @@ export default class SidewaysGraphNode extends Node {
   }
 
   public reset(): void {
-    this.zoomLevelProperty.reset();
+    if ( this.defaultZoomLevelsByDetectionMode && this.zoomLevelsByDetectionMode && this.activeDetectionMode ) {
+      this.zoomLevelsByDetectionMode.averageIntensity = this.defaultZoomLevelsByDetectionMode.averageIntensity;
+      this.zoomLevelsByDetectionMode.hits = this.defaultZoomLevelsByDetectionMode.hits;
+      this.zoomLevelProperty.value = this.zoomLevelsByDetectionMode[ this.activeDetectionMode ];
+    }
+    else {
+      this.zoomLevelProperty.reset();
+    }
   }
 }
