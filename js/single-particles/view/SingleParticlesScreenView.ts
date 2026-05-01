@@ -7,6 +7,7 @@
  */
 
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import Range from '../../../../dot/js/Range.js';
@@ -39,6 +40,7 @@ import SingleParticlesSceneModel, { type SingleParticlesSlitConfiguration } from
 import DetectorToolNode from './DetectorToolNode.js';
 import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
+import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -178,7 +180,23 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const { waveVisualizationNode, doubleSlitNode } = createWaveRegionNodes( model, {
       waveRegionLeft: waveRegionLeft,
-      waveRegionTop: waveRegionTop
+      waveRegionTop: waveRegionTop,
+      additionalDoubleSlitOptions: {
+        isTopSlitDetectorProperty: new DerivedProperty(
+          [ model.currentSlitConfigurationProperty ],
+          slitConfig => hasDetectorOnSide( slitConfig, 'left' )
+        ),
+        isBottomSlitDetectorProperty: new DerivedProperty(
+          [ model.currentSlitConfigurationProperty ],
+          slitConfig => hasDetectorOnSide( slitConfig, 'right' )
+        ),
+        topDetectorCountProperty: new DynamicProperty<number, number, SingleParticlesSceneModel>( model.sceneProperty, {
+          derive: 'leftDetectorHitsProperty'
+        } ),
+        bottomDetectorCountProperty: new DynamicProperty<number, number, SingleParticlesSceneModel>( model.sceneProperty, {
+          derive: 'rightDetectorHitsProperty'
+        } )
+      }
     } );
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
       x: waveRegionLeft + WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
@@ -202,7 +220,10 @@ export default class SingleParticlesScreenView extends ScreenView {
     const slitConfigItems: ComboBoxItem<SingleParticlesSlitConfiguration>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
       { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topClosedItem' },
-      { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomClosedItem' }
+      { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomClosedItem' },
+      { value: 'leftDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.topDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topDetectorItem' },
+      { value: 'rightDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomDetectorItem' },
+      { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' }
     ];
 
     const bottomRow = createObstacleControlsRow(

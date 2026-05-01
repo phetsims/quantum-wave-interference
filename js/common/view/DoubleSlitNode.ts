@@ -22,9 +22,13 @@ import Range from '../../../../dot/js/Range.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
+import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import Text from '../../../../scenery/js/nodes/Text.js';
+import Animation from '../../../../twixt/js/Animation.js';
+import Easing from '../../../../twixt/js/Easing.js';
 import { getViewSlitLayout, SLIT_VIEW_HEIGHT } from '../model/getViewSlitLayout.js';
 import { type ObstacleType } from '../model/ObstacleType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
@@ -41,6 +45,9 @@ const WAVE_REGION_FILL_INSET = 0.5;
 
 const DETECTOR_OVERLAY_PADDING = 4;
 const DETECTOR_OVERLAY_ALPHA = 0.4;
+const DETECTOR_COUNT_FONT = new PhetFont( 13 );
+const DETECTOR_FLASH_OPACITY = 0.85;
+const DETECTOR_FLASH_DURATION = 0.18;
 
 const SLIT_POSITION_FRACTION_RANGE = new Range( 0.25, 0.75 );
 
@@ -49,6 +56,8 @@ type SelfOptions = {
   isBottomSlitCoveredProperty: TReadOnlyProperty<boolean>;
   isTopSlitDetectorProperty?: TReadOnlyProperty<boolean>;
   isBottomSlitDetectorProperty?: TReadOnlyProperty<boolean>;
+  topDetectorCountProperty?: TReadOnlyProperty<number>;
+  bottomDetectorCountProperty?: TReadOnlyProperty<number>;
 };
 
 export type DoubleSlitNodeOptions = SelfOptions & NodeOptions;
@@ -66,7 +75,9 @@ export default class DoubleSlitNode extends Node {
     const options = optionize<DoubleSlitNodeOptions, SelfOptions, NodeOptions>()( {
       isDisposable: false,
       isTopSlitDetectorProperty: new TinyProperty( false ),
-      isBottomSlitDetectorProperty: new TinyProperty( false )
+      isBottomSlitDetectorProperty: new TinyProperty( false ),
+      topDetectorCountProperty: new TinyProperty( 0 ),
+      bottomDetectorCountProperty: new TinyProperty( 0 )
     }, providedOptions );
 
     super( options );
@@ -105,9 +116,55 @@ export default class DoubleSlitNode extends Node {
         stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
         lineWidth: 2
       } );
+    const topDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
+      SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2, CORNER_RADIUS, CORNER_RADIUS, {
+        fill: 'white',
+        opacity: 0,
+        visible: false,
+        pickable: false
+      } );
+    const bottomDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
+      SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2, CORNER_RADIUS, CORNER_RADIUS, {
+        fill: 'white',
+        opacity: 0,
+        visible: false,
+        pickable: false
+      } );
+
+    const topDetectorCountStringProperty = new DerivedProperty(
+      [ options.topDetectorCountProperty ],
+      count => `${count}`
+    );
+    const bottomDetectorCountStringProperty = new DerivedProperty(
+      [ options.bottomDetectorCountProperty ],
+      count => `${count}`
+    );
+
+    const topDetectorCountText = new Text( topDetectorCountStringProperty, {
+      font: DETECTOR_COUNT_FONT,
+      fill: 'black',
+      maxWidth: BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2 - 2
+    } );
+    const bottomDetectorCountText = new Text( bottomDetectorCountStringProperty, {
+      font: DETECTOR_COUNT_FONT,
+      fill: 'black',
+      maxWidth: BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2 - 2
+    } );
 
     const barrierContainer = new Node( {
-      children: [ topBarrier, centralBarrier, bottomBarrier, topCover, bottomCover, topDetector, bottomDetector ]
+      children: [
+        topBarrier,
+        centralBarrier,
+        bottomBarrier,
+        topCover,
+        bottomCover,
+        topDetector,
+        bottomDetector,
+        topDetectorFlash,
+        bottomDetectorFlash,
+        topDetectorCountText,
+        bottomDetectorCountText
+      ]
     } );
     barrierContainer.clipArea = Shape.rectangle(
       WAVE_REGION_FILL_INSET,
@@ -145,6 +202,60 @@ export default class DoubleSlitNode extends Node {
     } );
     arrowNode.addInputListener( createDragListener() );
     barrierContainer.addInputListener( createDragListener() );
+
+    let topDetectorFlashAnimation: Animation | null = null;
+    let bottomDetectorFlashAnimation: Animation | null = null;
+
+    const flashDetector = ( detectorFlash: Rectangle, isTopDetector: boolean ) => {
+      const previousAnimation = isTopDetector ? topDetectorFlashAnimation : bottomDetectorFlashAnimation;
+      if ( previousAnimation ) {
+        previousAnimation.stop();
+      }
+
+      detectorFlash.opacity = DETECTOR_FLASH_OPACITY;
+      detectorFlash.visible = true;
+
+      const flashAnimation = new Animation( {
+        object: detectorFlash,
+        attribute: 'opacity',
+        from: DETECTOR_FLASH_OPACITY,
+        to: 0,
+        duration: DETECTOR_FLASH_DURATION,
+        easing: Easing.LINEAR
+      } );
+
+      if ( isTopDetector ) {
+        topDetectorFlashAnimation = flashAnimation;
+      }
+      else {
+        bottomDetectorFlashAnimation = flashAnimation;
+      }
+
+      flashAnimation.endedEmitter.addListener( () => {
+        if ( isTopDetector && topDetectorFlashAnimation === flashAnimation ) {
+          topDetectorFlashAnimation = null;
+          detectorFlash.visible = false;
+        }
+        else if ( !isTopDetector && bottomDetectorFlashAnimation === flashAnimation ) {
+          bottomDetectorFlashAnimation = null;
+          detectorFlash.visible = false;
+        }
+        flashAnimation.dispose();
+      } );
+
+      flashAnimation.start();
+    };
+
+    options.topDetectorCountProperty.lazyLink( ( count, oldCount ) => {
+      if ( count > oldCount ) {
+        flashDetector( topDetectorFlash, true );
+      }
+    } );
+    options.bottomDetectorCountProperty.lazyLink( ( count, oldCount ) => {
+      if ( count > oldCount ) {
+        flashDetector( bottomDetectorFlash, false );
+      }
+    } );
 
     Multilink.multilink(
       [ obstacleTypeProperty, slitPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
@@ -220,6 +331,28 @@ export default class DoubleSlitNode extends Node {
         );
         topDetector.visible = isTopDetectorOn;
         bottomDetector.visible = isBottomDetectorOn;
+        topDetectorFlash.setRect(
+          topDetector.left,
+          topDetector.top,
+          topDetector.width,
+          topDetector.height,
+          CORNER_RADIUS, CORNER_RADIUS
+        );
+        bottomDetectorFlash.setRect(
+          bottomDetector.left,
+          bottomDetector.top,
+          bottomDetector.width,
+          bottomDetector.height,
+          CORNER_RADIUS, CORNER_RADIUS
+        );
+        topDetectorFlash.visible = isTopDetectorOn && topDetectorFlash.opacity > 0;
+        bottomDetectorFlash.visible = isBottomDetectorOn && bottomDetectorFlash.opacity > 0;
+        topDetectorCountText.visible = isTopDetectorOn;
+        bottomDetectorCountText.visible = isBottomDetectorOn;
+        topDetectorCountText.centerX = topDetector.centerX;
+        topDetectorCountText.centerY = topDetector.centerY;
+        bottomDetectorCountText.centerX = bottomDetector.centerX;
+        bottomDetectorCountText.centerY = bottomDetector.centerY;
 
         const arrowY = WAVE_REGION_HEIGHT + 12;
         const barrierCenterX = barrierX + BARRIER_VIEW_WIDTH / 2;

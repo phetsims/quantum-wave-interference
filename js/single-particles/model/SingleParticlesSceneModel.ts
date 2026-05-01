@@ -24,9 +24,17 @@ import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 
-export const SingleParticlesSlitConfigurationValues = [ 'bothOpen', 'leftCovered', 'rightCovered' ] as const;
-export type SingleParticlesSlitConfiguration = typeof SingleParticlesSlitConfigurationValues[number];
+export const SingleParticlesSlitConfigurationValues = [
+  'bothOpen',
+  'leftCovered',
+  'rightCovered',
+  'leftDetector',
+  'rightDetector',
+  'bothDetectors'
+] as const;
+export type SingleParticlesSlitConfiguration = SlitConfiguration;
 
 export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as const;
 export type DetectorToolState = typeof DetectorToolStateValues[number];
@@ -69,6 +77,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   // True while a completed packet is automatically turning the emitter off.
   private isEndingPacket: boolean;
 
+  private hasCreatedPacketDecoherenceEvent: boolean;
+
   public constructor( providedOptions: SingleParticlesSceneModelOptions ) {
 
     super( createWavePacketSolver(), combineOptions<BaseSceneModelOptions>( {}, providedOptions ) );
@@ -78,6 +88,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.targetDetectionTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
     this.isEndingPacket = false;
+    this.hasCreatedPacketDecoherenceEvent = false;
 
     this.autoRepeatProperty = new BooleanProperty( false, {
       tandem: tandem.createTandem( 'autoRepeatProperty' )
@@ -161,11 +172,20 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     return this.slitConfigurationProperty.value !== 'rightCovered';
   }
 
+  protected override isTopSlitDecoherent(): boolean {
+    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'left' );
+  }
+
+  protected override isBottomSlitDecoherent(): boolean {
+    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'right' );
+  }
+
   public override clearScreen(): void {
     this.isPacketActiveProperty.value = false;
     this.detectorToolStateProperty.value = 'ready';
     this.detectorToolProbabilityProperty.value = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
+    this.hasCreatedPacketDecoherenceEvent = false;
     super.clearScreen();
   }
 
@@ -176,6 +196,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       this.detectorToolProbabilityProperty.value = 0;
     }
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
+    this.hasCreatedPacketDecoherenceEvent = false;
     super.clearWaveStateWhenEmitterTurnsOff();
   }
 
@@ -197,6 +218,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.detectorToolStateProperty.value = 'ready';
     this.targetDetectionTime = this.sampleDetectionTime();
     this.timeSinceLastEmission = 0;
+    this.hasCreatedPacketDecoherenceEvent = false;
+    this.clearDecoherenceEvents();
     this.waveSolver.reset();
     this.syncSolverParameters();
   }
@@ -228,6 +251,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     if ( this.isPacketActiveProperty.value ) {
       this.waveSolver.step( dt );
+      this.createPacketDecoherenceEventIfNeeded();
 
       if ( this.timeSinceLastEmission >= this.targetDetectionTime ) {
         this.detectPacket();
@@ -253,6 +277,36 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     }
   }
 
+  private createPacketDecoherenceEventIfNeeded(): void {
+    const slitConfig = this.slitConfigurationProperty.value;
+    if (
+      this.hasCreatedPacketDecoherenceEvent ||
+      this.obstacleTypeProperty.value !== 'doubleSlit' ||
+      !hasAnyDetector( slitConfig )
+    ) {
+      return;
+    }
+
+    const propagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
+    if ( propagationSpeed <= 0 ) {
+      return;
+    }
+
+    const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
+    const initialCenterX = -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
+    const slitArrivalTime = ( this.slitPositionFractionProperty.value * this.regionWidth - initialCenterX ) / propagationSpeed;
+
+    if ( this.waveSolver.getTime() < slitArrivalTime ) {
+      return;
+    }
+
+    const event = this.createDecoherenceEventForSlitConfiguration( slitConfig, slitArrivalTime );
+    if ( event ) {
+      this.addDecoherenceEvent( event );
+    }
+    this.hasCreatedPacketDecoherenceEvent = true;
+  }
+
   private detectPacket(): void {
     if ( !this.isPacketActiveProperty.value ) {
       return;
@@ -261,6 +315,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const x = this.generateHitPosition();
     const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * HIT_VERTICAL_EXTENT;
     this.hits.push( new Vector2( x, y ) );
+    this.randomizeDecoherentGroupIndex();
     this.totalHitsProperty.value++;
     this.endPacket();
     this.hitsChangedEmitter.emit();
@@ -350,6 +405,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.detectorToolStateProperty.reset();
     this.detectorToolProbabilityProperty.reset();
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
+    this.hasCreatedPacketDecoherenceEvent = false;
     this.syncSolverParameters();
   }
 }

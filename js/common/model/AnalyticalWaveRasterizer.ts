@@ -20,7 +20,6 @@ export const FIELD_DISPLAY_CUTOFF = 0.4;
 export const UNREACHED_VACUUM = 0;
 export const BLOCKED_VACUUM = 48;
 export const ABSORBED_VACUUM = 32;
-export const DECOHERENCE_GLIMMER_RATE_HZ = 8;
 
 export type RGBColor = {
   red: number;
@@ -33,9 +32,7 @@ export type RGBAColor = RGBColor & {
 };
 
 export type FieldSampleRGBAOptions = {
-  xIndex?: number;
-  yIndex?: number;
-  decoherenceFrame?: number;
+  decoherentGroupIndex?: number;
 };
 
 export type AnalyticalWaveRasterOptions = {
@@ -76,7 +73,28 @@ export const getFieldSampleRGBA = (
     return { red: gray, green: gray, blue: gray, alpha: 255 };
   }
 
-  const displayState = getDisplayState( sample, displayMode, amplitudeScale, options );
+  const groupStates = getCoherenceGroupDisplayStates( sample );
+  if ( groupStates.length > 1 && displayMode !== 'timeAveragedIntensity' && !sample.hasDecoherenceRecord ) {
+    const selectedGroupIndex = options?.decoherentGroupIndex ?? 0;
+    const groupState = groupStates[ selectedGroupIndex % groupStates.length ];
+    const displayState = {
+      value: groupState.value,
+      intensity: groupState.intensity,
+      visibility: getGroupVisibility( groupState, amplitudeScale )
+    };
+    return getDisplayStateRGBA( displayState, displayMode, baseColor, amplitudeScale );
+  }
+
+  const displayState = getDisplayState( sample, groupStates, amplitudeScale );
+  return getDisplayStateRGBA( displayState, displayMode, baseColor, amplitudeScale );
+};
+
+const getDisplayStateRGBA = (
+  displayState: FieldDisplayState,
+  displayMode: WaveDisplayMode,
+  baseColor: RGBColor,
+  amplitudeScale: number
+): RGBAColor => {
   const real = displayState.value.real * amplitudeScale;
   const imaginary = displayState.value.imaginary * amplitudeScale;
 
@@ -136,25 +154,14 @@ type FieldDisplayState = {
 
 const getDisplayState = (
   sample: Extract<FieldSample, { kind: 'field' }>,
-  displayMode: WaveDisplayMode,
-  amplitudeScale: number,
-  options?: FieldSampleRGBAOptions
+  groupStates: CoherenceGroupDisplayState[],
+  amplitudeScale: number
 ): FieldDisplayState => {
-  const groupStates = getCoherenceGroupDisplayStates( sample );
   if ( groupStates.length === 0 ) {
     return {
       value: new Complex( 0, 0 ),
       intensity: 0,
       visibility: 1
-    };
-  }
-
-  if ( groupStates.length > 1 && displayMode !== 'timeAveragedIntensity' ) {
-    const selectedGroup = selectStochasticCoherenceGroup( groupStates, options );
-    return {
-      value: selectedGroup.value,
-      intensity: selectedGroup.intensity,
-      visibility: getGroupVisibility( selectedGroup, amplitudeScale )
     };
   }
 
@@ -244,55 +251,6 @@ const getGroupVisibility = ( groupState: CoherenceGroupDisplayState, amplitudeSc
          clamp( Math.sqrt( groupState.componentIntensity ) * amplitudeScale, 0, 1 );
 };
 
-const selectStochasticCoherenceGroup = (
-  groupStates: CoherenceGroupDisplayState[],
-  options?: FieldSampleRGBAOptions
-): CoherenceGroupDisplayState => {
-  let totalIntensity = 0;
-  for ( let i = 0; i < groupStates.length; i++ ) {
-    totalIntensity += groupStates[ i ].intensity;
-  }
-
-  if ( totalIntensity <= 0 ) {
-    return groupStates[ getFallbackGroupIndex( groupStates, options ) ];
-  }
-
-  const threshold = hashToUnitInterval(
-    options?.xIndex ?? 0,
-    options?.yIndex ?? 0,
-    options?.decoherenceFrame ?? 0
-  ) * totalIntensity;
-  let cumulativeIntensity = 0;
-  for ( let i = 0; i < groupStates.length; i++ ) {
-    cumulativeIntensity += groupStates[ i ].intensity;
-    if ( threshold <= cumulativeIntensity ) {
-      return groupStates[ i ];
-    }
-  }
-
-  return groupStates[ groupStates.length - 1 ];
-};
-
-const getFallbackGroupIndex = (
-  groupStates: CoherenceGroupDisplayState[],
-  options?: FieldSampleRGBAOptions
-): number => {
-  return Math.floor( hashToUnitInterval(
-    options?.xIndex ?? 0,
-    options?.yIndex ?? 0,
-    options?.decoherenceFrame ?? 0
-  ) * groupStates.length );
-};
-
-const hashToUnitInterval = ( xIndex: number, yIndex: number, decoherenceFrame: number ): number => {
-  const raw = Math.sin(
-    ( xIndex + 0.5 ) * 12.9898 +
-    ( yIndex + 0.5 ) * 78.233 +
-    ( decoherenceFrame + 0.5 ) * 37.719
-  ) * 43758.5453123;
-  return raw - Math.floor( raw );
-};
-
 export const rasterizeAnalyticalWave = ( options: AnalyticalWaveRasterOptions ): AnalyticalWaveRaster => {
   const pixels = new Uint8ClampedArray( options.width * options.height * 4 );
   const statusCounts = {
@@ -305,7 +263,6 @@ export const rasterizeAnalyticalWave = ( options: AnalyticalWaveRasterOptions ):
   const barrierGridX = obstacle.kind === 'doubleSlit' ?
                        roundSymmetric( obstacle.barrierX / options.regionWidth * options.width ) :
                        -1;
-  const decoherenceFrame = Math.floor( options.time * DECOHERENCE_GLIMMER_RATE_HZ );
 
   for ( let yIndex = 0; yIndex < options.height; yIndex++ ) {
     const y = ( yIndex + 0.5 ) * options.regionHeight / options.height - options.regionHeight / 2;
@@ -316,9 +273,7 @@ export const rasterizeAnalyticalWave = ( options: AnalyticalWaveRasterOptions ):
       const sample = evaluateAnalyticalSample( options.parameters, x, y, options.time );
       statusCounts[ sample.kind ]++;
       const color = getFieldSampleRGBA( sample, options.displayMode, options.baseColor, options.amplitudeScale, {
-        xIndex: xIndex,
-        yIndex: yIndex,
-        decoherenceFrame: decoherenceFrame
+        decoherentGroupIndex: 0
       } );
       const pixelIndex = ( yIndex * options.width + xIndex ) * 4;
       pixels[ pixelIndex ] = color.red;

@@ -14,7 +14,7 @@ import type Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalObstacle, type AnalyticalWaveParameters, type FieldSample, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalObstacle, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -46,6 +46,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   private barrierFractionX = 0.5;
   private isTopSlitOpen = true;
   private isBottomSlitOpen = true;
+  private isTopSlitDecoherent = false;
+  private isBottomSlitDecoherent = false;
   private isSourceOn = false;
   private regionWidth = 1.0;
   private regionHeight = 1.0;
@@ -57,6 +59,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   private dirty = true;
 
   private readonly measurementProjections: MeasurementProjection[] = [];
+  private decoherenceEvents: readonly DecoherenceEvent[] = [];
 
   public constructor( gridWidth = DEFAULT_GRID_WIDTH, gridHeight = DEFAULT_GRID_HEIGHT ) {
     this.gridWidth = gridWidth;
@@ -85,9 +88,12 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.setIfDefined( params.barrierFractionX, value => { this.barrierFractionX = value; } );
     this.setIfDefined( params.isTopSlitOpen, value => { this.isTopSlitOpen = value; } );
     this.setIfDefined( params.isBottomSlitOpen, value => { this.isBottomSlitOpen = value; } );
+    this.setIfDefined( params.isTopSlitDecoherent, value => { this.isTopSlitDecoherent = value; } );
+    this.setIfDefined( params.isBottomSlitDecoherent, value => { this.isBottomSlitDecoherent = value; } );
     this.setIfDefined( params.isSourceOn, value => { this.isSourceOn = value; } );
     this.setIfDefined( params.regionWidth, value => { this.regionWidth = value; } );
     this.setIfDefined( params.regionHeight, value => { this.regionHeight = value; } );
+    this.setIfDefined( params.decoherenceEvents, value => { this.decoherenceEvents = value.slice(); } );
     this.dirty = true;
   }
 
@@ -121,6 +127,10 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   public getDetectorProbabilityDistribution(): Float64Array {
     this.ensureComputed();
     return this.detectorDistribution;
+  }
+
+  public getDisplayPropagationSpeed(): number {
+    return this.getDisplaySpeed();
   }
 
   public reset(): void {
@@ -245,7 +255,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       return;
     }
 
-    const parameters = this.createKernelParameters();
+    const parameters = this.createKernelParameters( false );
     const dy = this.regionHeight / this.gridHeight;
     let maxProb = 0;
 
@@ -263,11 +273,11 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     }
   }
 
-  private createKernelParameters(): AnalyticalWaveParameters {
+  private createKernelParameters( includeDecoherenceEvents = true ): AnalyticalWaveParameters {
     const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
     const sigmaY0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_Y_FRACTION * this.regionHeight;
 
-    return {
+    const parameters: AnalyticalWaveParameters = {
       source: {
         kind: 'gaussianPacket',
         isActive: this.isSourceOn,
@@ -283,6 +293,12 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       obstacle: this.createKernelObstacle(),
       projections: this.measurementProjections
     };
+
+    if ( includeDecoherenceEvents ) {
+      parameters.decoherenceEvents = this.decoherenceEvents;
+    }
+
+    return parameters;
   }
 
   private createKernelObstacle(): AnalyticalObstacle {
@@ -300,14 +316,14 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
           centerY: -viewSlitSep / 2,
           width: viewSlitWidth,
           isOpen: this.isTopSlitOpen,
-          coherenceGroup: 'slits'
+          coherenceGroup: this.isTopSlitDecoherent ? 'topSlitDetector' : 'slits'
         },
         {
           source: 'bottomSlit',
           centerY: viewSlitSep / 2,
           width: viewSlitWidth,
           isOpen: this.isBottomSlitOpen,
-          coherenceGroup: 'slits'
+          coherenceGroup: this.isBottomSlitDecoherent ? 'bottomSlitDetector' : 'slits'
         }
       ]
     };

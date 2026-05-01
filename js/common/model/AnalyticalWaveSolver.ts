@@ -13,7 +13,7 @@
 import type Complex from '../../../../dot/js/Complex.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalObstacle, type AnalyticalWaveParameters, type FieldSample, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalObstacle, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { type ObstacleType } from './ObstacleType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -53,6 +53,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private time = 0;
 
   private sourceOnTime: number | null = null;
+  private decoherenceEvents: readonly DecoherenceEvent[] = [];
   private readonly amplitudeField: Float64Array;
   private readonly fieldSamples: FieldSample[];
   private readonly detectorDistribution: Float64Array;
@@ -105,6 +106,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     }
     this.setIfDefined( params.regionWidth, value => { this.regionWidth = value; } );
     this.setIfDefined( params.regionHeight, value => { this.regionHeight = value; } );
+    this.setIfDefined( params.decoherenceEvents, value => { this.decoherenceEvents = value.slice(); } );
     this.dirty = true;
   }
 
@@ -170,6 +172,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     }
 
     return this.detectorDistribution;
+  }
+
+  public getDisplayPropagationSpeed(): number {
+    return this.getDisplaySpeed();
   }
 
   public reset(): void {
@@ -242,7 +248,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   }
 
   private computeInstantaneousDetectorDistribution(): void {
-    const parameters = this.createKernelParameters();
+    const parameters = this.createKernelParameters( false );
     const dy = this.regionHeight / this.gridHeight;
 
     for ( let iy = 0; iy < this.gridHeight; iy++ ) {
@@ -253,8 +259,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     }
   }
 
-  private createKernelParameters(): AnalyticalWaveParameters {
-    return {
+  private createKernelParameters( includeDecoherenceEvents = true ): AnalyticalWaveParameters {
+    const parameters: AnalyticalWaveParameters = {
       source: {
         kind: 'plane',
         waveNumber: this.getDisplayWaveNumber(),
@@ -264,6 +270,12 @@ export default class AnalyticalWaveSolver implements WaveSolver {
       },
       obstacle: this.createKernelObstacle()
     };
+
+    if ( includeDecoherenceEvents ) {
+      parameters.decoherenceEvents = this.decoherenceEvents;
+    }
+
+    return parameters;
   }
 
   private createKernelObstacle(): AnalyticalObstacle {

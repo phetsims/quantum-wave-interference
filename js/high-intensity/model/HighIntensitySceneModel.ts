@@ -24,7 +24,12 @@ import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
 
-const MAX_EMISSION_RATE = 50;
+const MAX_EMISSION_RATE = 100; // TODO: see https://github.com/phetsims/quantum-wave-interference/issues/63. Maybe 50?
+
+// Visual detector-record rate, intentionally much lower than the hit emission rate. At full intensity this
+// creates only a few broad causal records across the wave region instead of many thin overlapping wavelets.
+const MAX_DECOHERENCE_EVENT_RATE = 1.25;
+const MAX_DECOHERENCE_EVENTS_PER_FRAME = 4;
 
 export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 
@@ -33,8 +38,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   public readonly intensityProperty: NumberProperty;
   public readonly slitConfigurationProperty: StringUnionProperty<SlitConfiguration>;
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
-  public readonly leftDetectorHitsProperty: NumberProperty;
-  public readonly rightDetectorHitsProperty: NumberProperty;
 
   // True when Hits mode has reached the hit cap
   public readonly isMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
@@ -50,6 +53,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number>;
 
   private hitAccumulator: number;
+  private nextDecoherenceEventTime: number | null;
 
   public constructor( providedOptions: HighIntensitySceneModelOptions ) {
 
@@ -58,6 +62,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     const tandem = providedOptions.tandem;
 
     this.hitAccumulator = 0;
+    this.nextDecoherenceEventTime = null;
 
     this.intensityProperty = new NumberProperty( 1, {
       range: new Range( 0, 1 ),
@@ -78,16 +83,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
     this._isWaveVisibleProperty = new BooleanProperty( false );
     this.isWaveVisibleProperty = this._isWaveVisibleProperty;
-
-    this.leftDetectorHitsProperty = new NumberProperty( 0, {
-      tandem: tandem.createTandem( 'leftDetectorHitsProperty' ),
-      phetioReadOnly: true
-    } );
-
-    this.rightDetectorHitsProperty = new NumberProperty( 0, {
-      tandem: tandem.createTandem( 'rightDetectorHitsProperty' ),
-      phetioReadOnly: true
-    } );
 
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.detectionModeProperty, this.totalHitsProperty ],
@@ -130,14 +125,14 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   public override clearScreen(): void {
     this.hitAccumulator = 0;
-    this.leftDetectorHitsProperty.value = 0;
-    this.rightDetectorHitsProperty.value = 0;
+    this.nextDecoherenceEventTime = null;
     super.clearScreen();
     this._isWaveVisibleProperty.value = this.isEmittingProperty.value;
   }
 
   protected override clearWaveStateWhenEmitterTurnsOff(): void {
     this.hitAccumulator = 0;
+    this.nextDecoherenceEventTime = null;
     super.clearWaveStateWhenEmitterTurnsOff();
     this._isWaveVisibleProperty.value = false;
   }
@@ -153,6 +148,8 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.waveSolver.step( dt );
 
     this._isWaveVisibleProperty.value = this.isEmittingProperty.value;
+
+    this.stepDecoherenceEvents( dt );
 
     if (
       !this.isEmittingProperty.value ||
@@ -177,12 +174,8 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       return;
     }
 
-    const slitConfig = this.slitConfigurationProperty.value;
-    const isDetectorActive = hasAnyDetector( slitConfig );
     const distribution = this.waveSolver.getDetectorProbabilityDistribution();
     let actualHits = 0;
-    let leftHits = 0;
-    let rightHits = 0;
 
     for ( let i = 0; i < numHits; i++ ) {
       if ( this.totalHitsProperty.value + actualHits >= MAX_HITS ) {
@@ -192,25 +185,72 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       const x = this.generateHitPosition( distribution );
       const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * HIT_VERTICAL_EXTENT;
       this.hits.push( new Vector2( x, y ) );
+      this.randomizeDecoherentGroupIndex();
       actualHits++;
-
-      if ( isDetectorActive ) {
-        const side = dotRandom.nextDouble() < 0.5 ? 'left' : 'right';
-        if ( hasDetectorOnSide( slitConfig, side ) ) {
-          if ( side === 'left' ) { leftHits++; }
-          else { rightHits++; }
-        }
-      }
     }
 
     if ( actualHits > 0 ) {
       this.totalHitsProperty.value += actualHits;
-      if ( isDetectorActive ) {
-        this.leftDetectorHitsProperty.value += leftHits;
-        this.rightDetectorHitsProperty.value += rightHits;
-      }
       this.hitsChangedEmitter.emit();
     }
+  }
+
+  private stepDecoherenceEvents( dt: number ): void {
+    if (
+      !this.isEmittingProperty.value ||
+      this.obstacleTypeProperty.value !== 'doubleSlit' ||
+      dt <= 0 ||
+      dt > 0.5
+    ) {
+      return;
+    }
+
+    const slitConfig = this.slitConfigurationProperty.value;
+    const intensity = this.intensityProperty.value;
+    if ( !hasAnyDetector( slitConfig ) || intensity <= 0 ) {
+      this.nextDecoherenceEventTime = null;
+      return;
+    }
+
+    const currentTime = this.waveSolver.getTime();
+    const propagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
+    if ( propagationSpeed <= 0 ) {
+      return;
+    }
+
+    const slitArrivalTime = this.slitPositionFractionProperty.value * this.regionWidth / propagationSpeed;
+    if ( currentTime < slitArrivalTime ) {
+      return;
+    }
+
+    const eventRate = MAX_DECOHERENCE_EVENT_RATE * intensity;
+    if ( this.nextDecoherenceEventTime === null || this.nextDecoherenceEventTime < slitArrivalTime ) {
+      this.nextDecoherenceEventTime = slitArrivalTime;
+    }
+
+    let eventsCreated = 0;
+    while (
+      this.nextDecoherenceEventTime <= currentTime &&
+      eventsCreated < MAX_DECOHERENCE_EVENTS_PER_FRAME
+    ) {
+      const event = this.createDecoherenceEventForSlitConfiguration( slitConfig, this.nextDecoherenceEventTime );
+      if ( event ) {
+        this.addDecoherenceEvent( event );
+      }
+      this.nextDecoherenceEventTime += this.sampleDecoherenceEventInterval( eventRate );
+      eventsCreated++;
+    }
+
+    if ( eventsCreated === 0 ) {
+      this.pruneDecoherenceEvents();
+    }
+    else if ( eventsCreated >= MAX_DECOHERENCE_EVENTS_PER_FRAME ) {
+      this.nextDecoherenceEventTime = currentTime + this.sampleDecoherenceEventInterval( eventRate );
+    }
+  }
+
+  private sampleDecoherenceEventInterval( eventRate: number ): number {
+    return 1 / eventRate;
   }
 
   public override reset(): void {
@@ -219,8 +259,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.slitConfigurationProperty.reset();
     this.detectionModeProperty.reset();
     this.hitAccumulator = 0;
-    this.leftDetectorHitsProperty.reset();
-    this.rightDetectorHitsProperty.reset();
+    this.nextDecoherenceEventTime = null;
     this._isWaveVisibleProperty.reset();
     this.syncSolverParameters();
   }

@@ -29,8 +29,9 @@ import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ObjectLiteralIO from '../../../../tandem/js/types/ObjectLiteralIO.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { type DetectionMode } from './DetectionMode.js';
+import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKernel.js';
 import { type ObstacleType, ObstacleTypeValues } from './ObstacleType.js';
-import { type SlitConfiguration } from './SlitConfiguration.js';
+import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration } from './SlitConfiguration.js';
 import { type SourceType } from './SourceType.js';
 import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues } from './WaveDisplayMode.js';
 import { type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues } from './WaveDisplayMode.js';
@@ -120,6 +121,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   public readonly waveSolver: WaveSolver;
   public abstract readonly isMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
+  public readonly decoherentGroupIndexProperty: NumberProperty;
+  public readonly leftDetectorHitsProperty: NumberProperty;
+  public readonly rightDetectorHitsProperty: NumberProperty;
   public readonly hits: Vector2[];
   public readonly totalHitsProperty: NumberProperty;
   public readonly hitsChangedEmitter: TEmitter;
@@ -128,6 +132,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   // Guard to prevent cascading clearScreen calls during reset
   private isResetting: boolean;
+  private readonly decoherenceEvents: DecoherenceEvent[];
 
   protected constructor( waveSolver: WaveSolver, providedOptions: BaseSceneModelOptions ) {
 
@@ -148,6 +153,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.waveSolver = waveSolver;
     this.particleMass = config.particleMass;
     this.velocityRange = new Range( ...config.velocityRange );
+    this.decoherentGroupIndexProperty = new NumberProperty( 0 );
+    this.decoherenceEvents = [];
 
     this.defaultEffectiveWavelength = this.sourceType === 'photons' ?
                                       DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
@@ -176,6 +183,16 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
+
+    this.leftDetectorHitsProperty = new NumberProperty( 0, {
+      tandem: tandem.createTandem( 'leftDetectorHitsProperty' ),
+      phetioReadOnly: true
+    } );
+
+    this.rightDetectorHitsProperty = new NumberProperty( 0, {
+      tandem: tandem.createTandem( 'rightDetectorHitsProperty' ),
+      phetioReadOnly: true
+    } );
 
     this.isEmittingProperty = new BooleanProperty( false, {
       tandem: tandem.createTandem( 'isEmittingProperty' )
@@ -293,7 +310,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       isBottomSlitDecoherent: this.isBottomSlitDecoherent(),
       isSourceOn: this.isEmittingProperty.value,
       regionWidth: this.regionWidth,
-      regionHeight: this.regionHeight
+      regionHeight: this.regionHeight,
+      decoherenceEvents: this.decoherenceEvents
     } );
   }
 
@@ -343,18 +361,101 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return binCenter + ( dotRandom.nextDouble() - 0.5 ) * binWidth;
   }
 
+  protected randomizeDecoherentGroupIndex(): void {
+    this.decoherentGroupIndexProperty.value = dotRandom.nextDouble() < 0.5 ? 0 : 1;
+  }
+
+  protected clearDecoherenceEvents(): void {
+    this.decoherenceEvents.length = 0;
+    this.syncSolverParameters();
+  }
+
+  protected addDecoherenceEvent( event: DecoherenceEvent ): void {
+    this.decoherenceEvents.push( event );
+    if ( event.clickedDetectorSlit === 'topSlit' ) {
+      this.leftDetectorHitsProperty.value++;
+    }
+    else if ( event.clickedDetectorSlit === 'bottomSlit' ) {
+      this.rightDetectorHitsProperty.value++;
+    }
+
+    this.pruneDecoherenceEvents();
+    this.syncSolverParameters();
+  }
+
+  protected pruneDecoherenceEvents(): void {
+    const propagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
+    const visibleHistoryDuration = propagationSpeed > 0 ? this.regionWidth / propagationSpeed + 0.25 : 2;
+    const oldestVisibleTime = this.waveSolver.getTime() - visibleHistoryDuration;
+    const removeBeforeTime = oldestVisibleTime - 0.1;
+    let removeCount = 0;
+
+    while ( removeCount < this.decoherenceEvents.length && this.decoherenceEvents[ removeCount ].time < removeBeforeTime ) {
+      removeCount++;
+    }
+
+    if ( removeCount > 0 ) {
+      this.decoherenceEvents.splice( 0, removeCount );
+      this.syncSolverParameters();
+    }
+  }
+
+  protected createDecoherenceEventForSlitConfiguration(
+    slitConfiguration: SlitConfiguration,
+    time: number
+  ): DecoherenceEvent | null {
+    if ( !hasAnyDetector( slitConfiguration ) ) {
+      return null;
+    }
+
+    const topOpen = this.isTopSlitOpen();
+    const bottomOpen = this.isBottomSlitOpen();
+
+    let selectedSlit: DecoherenceSlit;
+    if ( topOpen && !bottomOpen ) {
+      selectedSlit = 'topSlit';
+    }
+    else if ( bottomOpen && !topOpen ) {
+      selectedSlit = 'bottomSlit';
+    }
+    else if ( topOpen && bottomOpen ) {
+      selectedSlit = dotRandom.nextDouble() < 0.5 ? 'topSlit' : 'bottomSlit';
+    }
+    else {
+      return null;
+    }
+
+    const clickedDetectorSlit =
+      selectedSlit === 'topSlit' && hasDetectorOnSide( slitConfiguration, 'left' ) ? 'topSlit' :
+      selectedSlit === 'bottomSlit' && hasDetectorOnSide( slitConfiguration, 'right' ) ? 'bottomSlit' :
+      undefined;
+
+    return clickedDetectorSlit ? {
+      time: time,
+      selectedSlit: selectedSlit,
+      clickedDetectorSlit: clickedDetectorSlit
+    } : {
+      time: time,
+      selectedSlit: selectedSlit
+    };
+  }
+
   public clearScreen(): void {
     if ( this.isResetting ) {
       return;
     }
     this.hits.length = 0;
     this.totalHitsProperty.value = 0;
+    this.decoherentGroupIndexProperty.reset();
+    this.leftDetectorHitsProperty.value = 0;
+    this.rightDetectorHitsProperty.value = 0;
     this.clearWaveState();
     this.hitsChangedEmitter.emit();
   }
 
   protected clearWaveState(): void {
     this.wavefrontReached = false;
+    this.decoherenceEvents.length = 0;
     this.syncSolverParameters();
     this.waveSolver.reset();
     this.syncSolverParameters();
@@ -460,9 +561,13 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.screenBrightnessProperty.reset();
     this.photonWaveDisplayModeProperty.reset();
     this.matterWaveDisplayModeProperty.reset();
+    this.decoherentGroupIndexProperty.reset();
+    this.leftDetectorHitsProperty.reset();
+    this.rightDetectorHitsProperty.reset();
     this.hits.length = 0;
     this.totalHitsProperty.reset();
     this.wavefrontReached = false;
+    this.decoherenceEvents.length = 0;
     this.waveSolver.reset();
     this.snapshotsProperty.value = [];
 

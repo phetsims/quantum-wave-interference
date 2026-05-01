@@ -13,7 +13,7 @@
 import type Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
-import { type FieldSample } from './AnalyticalWaveKernel.js';
+import { type DecoherenceEvent, type FieldSample } from './AnalyticalWaveKernel.js';
 import { type ObstacleType } from './ObstacleType.js';
 
 export type WaveSolverState = Record<string, IntentionalAny>;
@@ -36,6 +36,7 @@ export type WaveSolverParameters = {
   isSourceOn?: boolean;
   regionWidth?: number;
   regionHeight?: number;
+  decoherenceEvents?: readonly DecoherenceEvent[];
 };
 
 type WaveSolver = {
@@ -66,6 +67,8 @@ type WaveSolver = {
   getFieldSampleAtGridCell( gridX: number, gridY: number ): FieldSample;
 
   getDetectorProbabilityDistribution(): Float64Array;
+
+  getDisplayPropagationSpeed(): number;
 
   setParameters( params: WaveSolverParameters ): void;
 

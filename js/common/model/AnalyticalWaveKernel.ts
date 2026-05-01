@@ -28,6 +28,14 @@ const INV_SQRT_2 = 1 / Math.sqrt( 2 );
 
 export type FieldComponentSource = 'incident' | 'topSlit' | 'bottomSlit';
 
+export type DecoherenceSlit = 'topSlit' | 'bottomSlit';
+
+export type DecoherenceEvent = {
+  time: number;
+  selectedSlit: DecoherenceSlit;
+  clickedDetectorSlit?: DecoherenceSlit;
+};
+
 export type FieldComponent = {
   source: FieldComponentSource;
   coherenceGroup: string;
@@ -39,7 +47,7 @@ export type FieldSample =
   { kind: 'unreached' } |
   { kind: 'absorbed' } |
   { kind: 'blocked' } |
-  { kind: 'field'; components: FieldComponent[] };
+  { kind: 'field'; components: FieldComponent[]; decoherenceEvent?: DecoherenceEvent; hasDecoherenceRecord?: boolean };
 
 export type PlaneWaveSource = {
   kind: 'plane';
@@ -92,6 +100,7 @@ export type AnalyticalWaveParameters = {
   source: AnalyticalSource;
   obstacle: AnalyticalObstacle;
   projections?: MeasurementProjection[];
+  decoherenceEvents?: readonly DecoherenceEvent[];
 };
 
 type GaussianPacketState = {
@@ -292,7 +301,117 @@ export const evaluateAnalyticalSample = (
     sample = evaluateDoubleSlitSample( source, obstacle, x, y, t );
   }
 
+  sample = applyDecoherenceEvent( sample, parameters, x, y, t );
+
   return applyMeasurementProjections( sample, parameters.projections || [], source, x, y, t );
+};
+
+export const getDecoherenceEventAtPassTime = (
+  events: readonly DecoherenceEvent[],
+  passTime: number
+): DecoherenceEvent | null => {
+  for ( let i = events.length - 1; i >= 0; i-- ) {
+    if ( events[ i ].time <= passTime + EPSILON ) {
+      return events[ i ];
+    }
+  }
+  return null;
+};
+
+const applyDecoherenceEvent = (
+  sample: FieldSample,
+  parameters: AnalyticalWaveParameters,
+  x: number,
+  y: number,
+  t: number
+): FieldSample => {
+  const events = parameters.decoherenceEvents;
+  const obstacle = parameters.obstacle;
+  const source = parameters.source;
+
+  if (
+    sample.kind !== 'field' ||
+    !events ||
+    events.length === 0 ||
+    obstacle.kind !== 'doubleSlit' ||
+    x <= obstacle.barrierX ||
+    source.speed <= 0
+  ) {
+    return sample;
+  }
+
+  let hasDecoherenceRecord = false;
+  let latestDecoherenceEvent: DecoherenceEvent | null = null;
+  const components = sample.components.map( component => {
+    if ( component.source === 'topSlit' || component.source === 'bottomSlit' ) {
+      const slit = obstacle.slits.find( candidate => candidate.source === component.source );
+      if ( !slit ) {
+        return component;
+      }
+
+      const xPastBarrier = x - obstacle.barrierX;
+      const closestApertureY = getClosestYOnSlit( y, slit );
+      const downstreamDistance = Math.sqrt(
+        xPastBarrier * xPastBarrier +
+        ( y - closestApertureY ) * ( y - closestApertureY )
+      );
+      const passTime = t - downstreamDistance / source.speed;
+      const event = getDecoherenceEventAtPassTime( events, passTime );
+
+      if ( !event ) {
+        return component;
+      }
+
+      hasDecoherenceRecord = true;
+      if ( !latestDecoherenceEvent || event.time > latestDecoherenceEvent.time ) {
+        latestDecoherenceEvent = event;
+      }
+
+      return event.selectedSlit === component.source ? component : {
+        source: component.source,
+        coherenceGroup: component.coherenceGroup,
+        support: 0,
+        value: new Complex( 0, 0 )
+      };
+    }
+    return component;
+  } );
+
+  return hasDecoherenceRecord ? {
+    kind: 'field',
+    components: components,
+    decoherenceEvent: latestDecoherenceEvent || undefined,
+    hasDecoherenceRecord: true
+  } : sample;
+};
+
+export const getDecoherenceEventAtSample = (
+  events: readonly DecoherenceEvent[],
+  obstacle: Extract<AnalyticalObstacle, { kind: 'doubleSlit' }>,
+  propagationSpeed: number,
+  x: number,
+  y: number,
+  t: number
+): DecoherenceEvent | null => {
+  for ( let i = events.length - 1; i >= 0; i-- ) {
+    const event = events[ i ];
+    const slit = obstacle.slits.find( candidate => candidate.source === event.selectedSlit );
+    if ( !slit ) {
+      continue;
+    }
+
+    const xPastBarrier = x - obstacle.barrierX;
+    const closestApertureY = getClosestYOnSlit( y, slit );
+    const downstreamDistance = Math.sqrt(
+      xPastBarrier * xPastBarrier +
+      ( y - closestApertureY ) * ( y - closestApertureY )
+    );
+
+    if ( event.time + downstreamDistance / propagationSpeed <= t + EPSILON ) {
+      return event;
+    }
+  }
+  return null;
 };
 
 const evaluateDoubleSlitSample = (
@@ -579,6 +698,8 @@ const applyMeasurementProjections = (
 
   return {
     kind: 'field',
+    decoherenceEvent: sample.decoherenceEvent,
+    hasDecoherenceRecord: sample.hasDecoherenceRecord,
     components: sample.components.map( component => {
       const projectedComponent: FieldComponent = {
         source: component.source,

@@ -14,7 +14,7 @@ import Bounds2 from '../../../../dot/js/Bounds2.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Color from '../../../../scenery/js/util/Color.js';
-import { DECOHERENCE_GLIMMER_RATE_HZ, getFieldSampleRGBA } from '../model/AnalyticalWaveRasterizer.js';
+import { getFieldSampleRGBA } from '../model/AnalyticalWaveRasterizer.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 const MATTER_BASE_R = 200;
@@ -101,7 +101,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
     }
 
     const amplitudeScale = scene.waveAmplitudeScaleProperty.value;
-    const decoherenceFrame = Math.floor( solver.getTime() * DECOHERENCE_GLIMMER_RATE_HZ );
+    const decoherentGroupIndex = scene.decoherentGroupIndexProperty.value;
 
     for ( let gy = 0; gy < gridHeight; gy++ ) {
       for ( let gx = 0; gx < gridWidth; gx++ ) {
@@ -114,9 +114,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
           green: baseG,
           blue: baseB
         }, amplitudeScale, {
-          xIndex: gx,
-          yIndex: gy,
-          decoherenceFrame: decoherenceFrame
+          decoherentGroupIndex: decoherentGroupIndex
         } );
         data[ pixelIdx ] = color.red;
         data[ pixelIdx + 1 ] = color.green;

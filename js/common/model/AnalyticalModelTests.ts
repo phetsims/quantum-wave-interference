@@ -7,7 +7,7 @@
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalSample, getDecoherenceEventAtPassTime, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { getFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
@@ -630,85 +630,201 @@ QUnit.test( 'gaussian packet after a slit is localized around radial propagation
   );
 } );
 
-QUnit.test( 'decoherent wave rendering stochastically samples channels weighted by intensity', assert => {
+QUnit.test( 'decoherent wave rendering selects one channel without interference', assert => {
   const baseColor = { red: 220, green: 120, blue: 60 };
+  const topComponent = {
+    source: 'topSlit' as const,
+    coherenceGroup: 'topPath',
+    support: 1,
+    value: new Complex( 0.5, 0 )
+  };
+  const bottomComponent = {
+    source: 'bottomSlit' as const,
+    coherenceGroup: 'bottomPath',
+    support: 1,
+    value: new Complex( -0.5, 0 )
+  };
   const decoherentSample = {
+    kind: 'field' as const,
+    components: [ topComponent, bottomComponent ]
+  };
+  const topRecordedSample = {
+    kind: 'field' as const,
+    components: [
+      topComponent,
+      {
+        source: 'bottomSlit' as const,
+        coherenceGroup: 'bottomPath',
+        support: 0,
+        value: new Complex( 0, 0 )
+      }
+    ],
+    decoherenceEvent: {
+      time: 1,
+      selectedSlit: 'topSlit' as const
+    },
+    hasDecoherenceRecord: true
+  };
+  const bottomRecordedSample = {
     kind: 'field' as const,
     components: [
       {
         source: 'topSlit' as const,
         coherenceGroup: 'topPath',
-        support: 1,
-        value: new Complex( 2, 0 )
+        support: 0,
+        value: new Complex( 0, 0 )
+      },
+      bottomComponent
+    ],
+    decoherenceEvent: {
+      time: 1,
+      selectedSlit: 'bottomSlit' as const
+    },
+    hasDecoherenceRecord: true
+  };
+  const allZeroRecordedSample = {
+    kind: 'field' as const,
+    components: [
+      {
+        source: 'topSlit' as const,
+        coherenceGroup: 'topPath',
+        support: 0,
+        value: new Complex( 0, 0 )
       },
       {
         source: 'bottomSlit' as const,
         coherenceGroup: 'bottomPath',
+        support: 0,
+        value: new Complex( 0, 0 )
+      }
+    ],
+    hasDecoherenceRecord: true
+  };
+  const topOnlyColor = getFieldSampleRGBA( {
+    kind: 'field' as const,
+    components: [ topComponent ]
+  }, 'realPart', baseColor, 1 );
+  const bottomOnlyColor = getFieldSampleRGBA( {
+    kind: 'field' as const,
+    components: [ bottomComponent ]
+  }, 'realPart', baseColor, 1 );
+  const topSelectedColor = getFieldSampleRGBA( decoherentSample, 'realPart', baseColor, 1, {
+    decoherentGroupIndex: 0
+  } );
+  const bottomSelectedColor = getFieldSampleRGBA( decoherentSample, 'realPart', baseColor, 1, {
+    decoherentGroupIndex: 1
+  } );
+  const topRecordedColor = getFieldSampleRGBA( topRecordedSample, 'realPart', baseColor, 1, {
+    decoherentGroupIndex: 1
+  } );
+  const bottomRecordedColor = getFieldSampleRGBA( bottomRecordedSample, 'timeAveragedIntensity', baseColor, 1, {
+    decoherentGroupIndex: 0
+  } );
+  const bottomOnlyIntensityColor = getFieldSampleRGBA( {
+    kind: 'field' as const,
+    components: [ bottomComponent ]
+  }, 'timeAveragedIntensity', baseColor, 1 );
+  const allZeroRecordedColor = getFieldSampleRGBA( allZeroRecordedSample, 'realPart', baseColor, 1 );
+  const coherentlyCancelledColor = getFieldSampleRGBA( {
+    kind: 'field' as const,
+    components: [
+      {
+        source: 'topSlit' as const,
+        coherenceGroup: 'samePath',
         support: 1,
-        value: new Complex( -1, 0 )
+        value: new Complex( 0.5, 0 )
+      },
+      {
+        source: 'bottomSlit' as const,
+        coherenceGroup: 'samePath',
+        support: 1,
+        value: new Complex( -0.5, 0 )
       }
     ]
-  };
+  }, 'realPart', baseColor, 1 );
+  const firstIntensityColor = getFieldSampleRGBA( decoherentSample, 'timeAveragedIntensity', baseColor, 1 );
+  const secondIntensityColor = getFieldSampleRGBA( decoherentSample, 'timeAveragedIntensity', baseColor, 1 );
 
-  let topCount = 0;
-  let bottomCount = 0;
-  let changedCount = 0;
-  const sampleWidth = 20;
-  const sampleHeight = 20;
-
-  for ( let yIndex = 0; yIndex < sampleHeight; yIndex++ ) {
-    for ( let xIndex = 0; xIndex < sampleWidth; xIndex++ ) {
-      const firstColor = getFieldSampleRGBA( decoherentSample, 'realPart', baseColor, 1, {
-        xIndex: xIndex,
-        yIndex: yIndex,
-        decoherenceFrame: 0
-      } );
-      const secondColor = getFieldSampleRGBA( decoherentSample, 'realPart', baseColor, 1, {
-        xIndex: xIndex,
-        yIndex: yIndex,
-        decoherenceFrame: 1
-      } );
-
-      if ( firstColor.red > 100 ) {
-        topCount++;
-      }
-      else {
-        bottomCount++;
-      }
-      if ( firstColor.red !== secondColor.red ) {
-        changedCount++;
-      }
-    }
-  }
-
-  const firstIntensityColor = getFieldSampleRGBA( decoherentSample, 'timeAveragedIntensity', baseColor, 1, {
-    xIndex: 0,
-    yIndex: 0,
-    decoherenceFrame: 0
-  } );
-  const secondIntensityColor = getFieldSampleRGBA( decoherentSample, 'timeAveragedIntensity', baseColor, 1, {
-    xIndex: sampleWidth - 1,
-    yIndex: sampleHeight - 1,
-    decoherenceFrame: 1
-  } );
-
-  assert.ok(
-    topCount > 2 * bottomCount,
-    `brighter top channel is selected more often than bottom channel: top=${topCount}, bottom=${bottomCount}`
+  assert.deepEqual( topSelectedColor, topOnlyColor, 'group index 0 renders only the top path' );
+  assert.deepEqual( bottomSelectedColor, bottomOnlyColor, 'group index 1 renders only the bottom path' );
+  assert.deepEqual( topRecordedColor, topOnlyColor, 'detector record zeroes the unselected bottom path' );
+  assert.deepEqual( bottomRecordedColor, bottomOnlyIntensityColor, 'detector record zeroes the unselected top path in intensity mode' );
+  assert.deepEqual(
+    allZeroRecordedColor,
+    { red: UNREACHED_VACUUM, green: UNREACHED_VACUUM, blue: UNREACHED_VACUUM, alpha: 255 },
+    'zeroed detector-record sample renders as blank'
   );
   assert.ok(
-    bottomCount > 0,
-    'lower-intensity bottom channel still appears in some cells'
-  );
-  assert.ok(
-    changedCount > 0,
-    'decoherent stochastic rendering changes as the glimmer frame advances'
+    topSelectedColor.red > coherentlyCancelledColor.red || bottomSelectedColor.red > coherentlyCancelledColor.red,
+    'opposite-sign decoherent paths remain visible when selected instead of cancelling like coherent paths'
   );
   assert.deepEqual(
     firstIntensityColor,
     secondIntensityColor,
-    'intensity rendering remains deterministic and independent of stochastic channel sampling'
+    'intensity rendering remains deterministic'
   );
+} );
+
+QUnit.test( 'decoherence event lookup uses latest causal record', assert => {
+  const events = [
+    { time: 1, selectedSlit: 'topSlit' as const },
+    { time: 2, selectedSlit: 'bottomSlit' as const },
+    { time: 3, selectedSlit: 'topSlit' as const }
+  ];
+
+  assert.strictEqual( getDecoherenceEventAtPassTime( events, 0.5 ), null, 'no event exists before the first record' );
+  assert.strictEqual( getDecoherenceEventAtPassTime( events, 2.5 ), events[ 1 ], 'latest event before pass time is selected' );
+  assert.strictEqual( getDecoherenceEventAtPassTime( events, 3 ), events[ 2 ], 'event at pass time is selected' );
+} );
+
+QUnit.test( 'decoherence records form rounded causal bands from slit distances', assert => {
+  const events = [
+    { time: 1, selectedSlit: 'topSlit' as const },
+    { time: 2, selectedSlit: 'bottomSlit' as const }
+  ];
+  const parameters = createPlaneParameters( {
+    speed: 1,
+    obstacle: createDoubleSlitObstacle( { coherent: false } )
+  } );
+  parameters.decoherenceEvents = events;
+
+  const sameXNearTopSlitSample = evaluateAnalyticalSample( parameters, 2, -0.25, 2.2 );
+  const sameXNearBottomSlitSample = evaluateAnalyticalSample( parameters, 2, 0.25, 3.2 );
+
+  assert.strictEqual( sameXNearTopSlitSample.kind, 'field', 'sample near top slit path has field' );
+  assert.strictEqual( sameXNearBottomSlitSample.kind, 'field', 'sample near bottom slit path has field' );
+
+  if ( sameXNearTopSlitSample.kind === 'field' && sameXNearBottomSlitSample.kind === 'field' ) {
+    assert.strictEqual(
+      sameXNearTopSlitSample.decoherenceEvent,
+      events[ 0 ],
+      'top record has reached both components near the top slit path'
+    );
+    assert.strictEqual(
+      sameXNearBottomSlitSample.decoherenceEvent,
+      events[ 1 ],
+      'bottom record has reached both components near the bottom slit path'
+    );
+
+    const topPathAtTopSample = sameXNearTopSlitSample.components.find( component => component.source === 'topSlit' );
+    const bottomPathAtTopSample = sameXNearTopSlitSample.components.find( component => component.source === 'bottomSlit' );
+    const topPathAtBottomSample = sameXNearBottomSlitSample.components.find( component => component.source === 'topSlit' );
+    const bottomPathAtBottomSample = sameXNearBottomSlitSample.components.find( component => component.source === 'bottomSlit' );
+    assert.ok( topPathAtTopSample && topPathAtTopSample.value.magnitude > 0, 'top record keeps top path nonzero' );
+    assert.strictEqual( bottomPathAtTopSample?.value.magnitude, 0, 'top record zeroes bottom path' );
+    assert.strictEqual( topPathAtBottomSample?.value.magnitude, 0, 'bottom record zeroes top path' );
+    assert.ok( bottomPathAtBottomSample && bottomPathAtBottomSample.value.magnitude > 0, 'bottom record keeps bottom path nonzero' );
+  }
+
+  const detectorOffParameters = createPlaneParameters( {
+    speed: 1,
+    obstacle: createDoubleSlitObstacle( { coherent: true } )
+  } );
+  const detectorOffSample = evaluateAnalyticalSample( detectorOffParameters, 2, 0, 3.5 );
+  assert.strictEqual( detectorOffSample.kind, 'field', 'detector-off sample has field' );
+  if ( detectorOffSample.kind === 'field' ) {
+    assert.strictEqual( detectorOffSample.decoherenceEvent, undefined, 'detector-off sample has no detector record' );
+  }
 } );
 
 const appendRasterPreview = (

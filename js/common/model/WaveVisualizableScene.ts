@@ -22,6 +22,7 @@ type WaveVisualizableScene = {
   readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
   readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number>;
+  readonly decoherentGroupIndexProperty: TReadOnlyProperty<number>;
 };
 
 export type { WaveVisualizableScene };

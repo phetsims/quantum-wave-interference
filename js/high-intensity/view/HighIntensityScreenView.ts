@@ -11,6 +11,7 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -37,6 +38,7 @@ import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
+import HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
@@ -168,7 +170,13 @@ export default class HighIntensityScreenView extends ScreenView {
         isBottomSlitDetectorProperty: new DerivedProperty(
           [ model.currentSlitConfigurationProperty ],
           slitConfig => hasDetectorOnSide( slitConfig, 'right' )
-        )
+        ),
+        topDetectorCountProperty: new DynamicProperty<number, number, HighIntensitySceneModel>( model.sceneProperty, {
+          derive: 'leftDetectorHitsProperty'
+        } ),
+        bottomDetectorCountProperty: new DynamicProperty<number, number, HighIntensitySceneModel>( model.sceneProperty, {
+          derive: 'rightDetectorHitsProperty'
+        } )
       }
     } );
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
