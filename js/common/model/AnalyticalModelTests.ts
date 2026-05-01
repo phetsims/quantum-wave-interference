@@ -729,32 +729,76 @@ QUnit.test( 'decoherence event lookup uses latest causal record', assert => {
   assert.strictEqual( getDecoherenceEventAtPassTime( events, 3 ), events[ 2 ], 'event at pass time is selected' );
 } );
 
-QUnit.test( 'decoherence records form rounded causal bands from slit distances', assert => {
-  const events = [
-    { time: 1, selectedSlit: 'topSlit' as const },
-    { time: 2, selectedSlit: 'bottomSlit' as const }
-  ];
-  const parameters = createPlaneParameters( {
+QUnit.test( 'decoherence records project aperture and downstream to the selected slit', assert => {
+  const topRecordedParameters = createPlaneParameters( {
     speed: 1,
     obstacle: createDoubleSlitObstacle( { coherent: false } )
   } );
-  parameters.decoherenceEvents = events;
+  topRecordedParameters.decoherenceEvents = [
+    { time: 3, selectedSlit: 'topSlit' as const }
+  ];
 
-  const sameXNearTopSlitSample = evaluateAnalyticalSample( parameters, 2, -0.25, 2.2 );
-  const sameXNearBottomSlitSample = evaluateAnalyticalSample( parameters, 2, 0.25, 3.2 );
+  const beforeRecordSample = evaluateAnalyticalSample( topRecordedParameters, 2, 0, 2.5 );
+  const afterTopRecordDownstreamSample = evaluateAnalyticalSample( topRecordedParameters, 2, 0.25, 3.01 );
+  const afterTopRecordBottomApertureSample = evaluateAnalyticalSample( topRecordedParameters, 1, 0.25, 3.01 );
+  const afterTopRecordTopApertureSample = evaluateAnalyticalSample( topRecordedParameters, 1, -0.25, 3.01 );
 
-  assert.strictEqual( sameXNearTopSlitSample.kind, 'field', 'sample near top slit path has field' );
-  assert.strictEqual( sameXNearBottomSlitSample.kind, 'field', 'sample near bottom slit path has field' );
+  assert.strictEqual( beforeRecordSample.kind, 'field', 'sample has field before detector record' );
+  assert.strictEqual( afterTopRecordDownstreamSample.kind, 'field', 'downstream sample has field after top record' );
+  assert.strictEqual( afterTopRecordBottomApertureSample.kind, 'field', 'unselected bottom aperture is represented as cleared field' );
+  assert.strictEqual( afterTopRecordTopApertureSample.kind, 'field', 'selected top aperture keeps field' );
 
-  if ( sameXNearTopSlitSample.kind === 'field' && sameXNearBottomSlitSample.kind === 'field' ) {
-    const topPathAtTopSample = sameXNearTopSlitSample.components.find( component => component.source === 'topSlit' );
-    const bottomPathAtTopSample = sameXNearTopSlitSample.components.find( component => component.source === 'bottomSlit' );
-    const topPathAtBottomSample = sameXNearBottomSlitSample.components.find( component => component.source === 'topSlit' );
-    const bottomPathAtBottomSample = sameXNearBottomSlitSample.components.find( component => component.source === 'bottomSlit' );
-    assert.ok( topPathAtTopSample && topPathAtTopSample.value.magnitude > 0, 'top record keeps top path nonzero' );
-    assert.strictEqual( bottomPathAtTopSample?.value.magnitude, 0, 'top record zeroes bottom path' );
-    assert.strictEqual( topPathAtBottomSample?.value.magnitude, 0, 'bottom record zeroes top path' );
-    assert.ok( bottomPathAtBottomSample && bottomPathAtBottomSample.value.magnitude > 0, 'bottom record keeps bottom path nonzero' );
+  if (
+    beforeRecordSample.kind === 'field' &&
+    afterTopRecordDownstreamSample.kind === 'field' &&
+    afterTopRecordBottomApertureSample.kind === 'field' &&
+    afterTopRecordTopApertureSample.kind === 'field'
+  ) {
+    const beforeTopPath = beforeRecordSample.components.find( component => component.source === 'topSlit' );
+    const beforeBottomPath = beforeRecordSample.components.find( component => component.source === 'bottomSlit' );
+    const downstreamTopPath = afterTopRecordDownstreamSample.components.find( component => component.source === 'topSlit' );
+    const downstreamBottomPath = afterTopRecordDownstreamSample.components.find( component => component.source === 'bottomSlit' );
+    const bottomAperturePath = afterTopRecordBottomApertureSample.components.find( component => component.source === 'bottomSlit' );
+    const topAperturePath = afterTopRecordTopApertureSample.components.find( component => component.source === 'topSlit' );
+
+    assert.ok( beforeTopPath && beforeTopPath.value.magnitude > 0, 'before record has top path' );
+    assert.ok( beforeBottomPath && beforeBottomPath.value.magnitude > 0, 'before record has bottom path' );
+    assert.ok( downstreamTopPath && downstreamTopPath.value.magnitude > 0, 'top record keeps top path downstream' );
+    assert.strictEqual( downstreamBottomPath?.value.magnitude, 0, 'top record immediately zeroes bottom path downstream' );
+    assert.strictEqual( bottomAperturePath?.value.magnitude, 0, 'top record clears the bottom aperture' );
+    assert.ok( topAperturePath && topAperturePath.value.magnitude > 0, 'top record keeps the top aperture' );
+  }
+
+  const bottomRecordedParameters = createPlaneParameters( {
+    speed: 1,
+    obstacle: createDoubleSlitObstacle( { coherent: false } )
+  } );
+  bottomRecordedParameters.decoherenceEvents = [
+    { time: 3, selectedSlit: 'bottomSlit' as const }
+  ];
+
+  const afterBottomRecordDownstreamSample = evaluateAnalyticalSample( bottomRecordedParameters, 2, -0.25, 3.01 );
+  const afterBottomRecordTopApertureSample = evaluateAnalyticalSample( bottomRecordedParameters, 1, -0.25, 3.01 );
+  const afterBottomRecordBottomApertureSample = evaluateAnalyticalSample( bottomRecordedParameters, 1, 0.25, 3.01 );
+
+  assert.strictEqual( afterBottomRecordDownstreamSample.kind, 'field', 'downstream sample has field after bottom record' );
+  assert.strictEqual( afterBottomRecordTopApertureSample.kind, 'field', 'unselected top aperture is represented as cleared field' );
+  assert.strictEqual( afterBottomRecordBottomApertureSample.kind, 'field', 'selected bottom aperture keeps field' );
+
+  if (
+    afterBottomRecordDownstreamSample.kind === 'field' &&
+    afterBottomRecordTopApertureSample.kind === 'field' &&
+    afterBottomRecordBottomApertureSample.kind === 'field'
+  ) {
+    const downstreamTopPath = afterBottomRecordDownstreamSample.components.find( component => component.source === 'topSlit' );
+    const downstreamBottomPath = afterBottomRecordDownstreamSample.components.find( component => component.source === 'bottomSlit' );
+    const topAperturePath = afterBottomRecordTopApertureSample.components.find( component => component.source === 'topSlit' );
+    const bottomAperturePath = afterBottomRecordBottomApertureSample.components.find( component => component.source === 'bottomSlit' );
+
+    assert.strictEqual( downstreamTopPath?.value.magnitude, 0, 'bottom record immediately zeroes top path downstream' );
+    assert.ok( downstreamBottomPath && downstreamBottomPath.value.magnitude > 0, 'bottom record keeps bottom path downstream' );
+    assert.strictEqual( topAperturePath?.value.magnitude, 0, 'bottom record clears the top aperture' );
+    assert.ok( bottomAperturePath && bottomAperturePath.value.magnitude > 0, 'bottom record keeps the bottom aperture' );
   }
 
   const detectorOffParameters = createPlaneParameters( {

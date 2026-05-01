@@ -327,42 +327,26 @@ const applyDecoherenceEvent = (
 ): FieldSample => {
   const events = parameters.decoherenceEvents;
   const obstacle = parameters.obstacle;
-  const source = parameters.source;
 
   if (
     sample.kind !== 'field' ||
     !events ||
     events.length === 0 ||
     obstacle.kind !== 'doubleSlit' ||
-    x <= obstacle.barrierX ||
-    source.speed <= 0
+    x < obstacle.barrierX - EPSILON
   ) {
     return sample;
   }
 
-  let hasDetectorRecord = false;
+  // A detector record projects the packet at the slit plane, clearing the unselected aperture and all
+  // downstream samples immediately instead of letting the unselected slit continue to radiate.
+  const event = getDecoherenceEventAtPassTime( events, t );
+  if ( !event ) {
+    return sample;
+  }
+
   const components = sample.components.map( component => {
     if ( component.source === 'topSlit' || component.source === 'bottomSlit' ) {
-      const slit = obstacle.slits.find( candidate => candidate.source === component.source );
-      if ( !slit ) {
-        return component;
-      }
-
-      const xPastBarrier = x - obstacle.barrierX;
-      const closestApertureY = getClosestYOnSlit( y, slit );
-      const downstreamDistance = Math.sqrt(
-        xPastBarrier * xPastBarrier +
-        ( y - closestApertureY ) * ( y - closestApertureY )
-      );
-      const passTime = t - downstreamDistance / source.speed;
-      const event = getDecoherenceEventAtPassTime( events, passTime );
-
-      if ( !event ) {
-        return component;
-      }
-
-      hasDetectorRecord = true;
-
       return event.selectedSlit === component.source ? component : {
         source: component.source,
         coherenceGroup: component.coherenceGroup,
@@ -373,10 +357,10 @@ const applyDecoherenceEvent = (
     return component;
   } );
 
-  return hasDetectorRecord ? {
+  return {
     kind: 'field',
     components: components
-  } : sample;
+  };
 };
 
 const evaluateDoubleSlitSample = (
