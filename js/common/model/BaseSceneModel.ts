@@ -121,7 +121,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   public readonly waveSolver: WaveSolver;
   public abstract readonly isMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
-  public readonly decoherentGroupIndexProperty: NumberProperty;
   public readonly leftDetectorHitsProperty: NumberProperty;
   public readonly rightDetectorHitsProperty: NumberProperty;
   public readonly hits: Vector2[];
@@ -153,7 +152,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.waveSolver = waveSolver;
     this.particleMass = config.particleMass;
     this.velocityRange = new Range( ...config.velocityRange );
-    this.decoherentGroupIndexProperty = new NumberProperty( 0 );
     this.decoherenceEvents = [];
 
     this.defaultEffectiveWavelength = this.sourceType === 'photons' ?
@@ -361,10 +359,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return binCenter + ( dotRandom.nextDouble() - 0.5 ) * binWidth;
   }
 
-  protected randomizeDecoherentGroupIndex(): void {
-    this.decoherentGroupIndexProperty.value = dotRandom.nextDouble() < 0.5 ? 0 : 1;
-  }
-
   protected clearDecoherenceEvents(): void {
     this.decoherenceEvents.length = 0;
     this.syncSolverParameters();
@@ -446,7 +440,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     }
     this.hits.length = 0;
     this.totalHitsProperty.value = 0;
-    this.decoherentGroupIndexProperty.reset();
     this.leftDetectorHitsProperty.value = 0;
     this.rightDetectorHitsProperty.value = 0;
     this.clearWaveState();
@@ -561,7 +554,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.screenBrightnessProperty.reset();
     this.photonWaveDisplayModeProperty.reset();
     this.matterWaveDisplayModeProperty.reset();
-    this.decoherentGroupIndexProperty.reset();
     this.leftDetectorHitsProperty.reset();
     this.rightDetectorHitsProperty.reset();
     this.hits.length = 0;

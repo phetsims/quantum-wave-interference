@@ -31,10 +31,6 @@ export type RGBAColor = RGBColor & {
   alpha: number;
 };
 
-export type FieldSampleRGBAOptions = {
-  decoherentGroupIndex?: number;
-};
-
 export type AnalyticalWaveRasterOptions = {
   parameters: AnalyticalWaveParameters;
   width: number;
@@ -63,8 +59,7 @@ export const getFieldSampleRGBA = (
   sample: FieldSample,
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
-  amplitudeScale: number,
-  options?: FieldSampleRGBAOptions
+  amplitudeScale: number
 ): RGBAColor => {
   if ( sample.kind !== 'field' ) {
     const gray = sample.kind === 'unreached' ? UNREACHED_VACUUM :
@@ -74,17 +69,6 @@ export const getFieldSampleRGBA = (
   }
 
   const groupStates = getCoherenceGroupDisplayStates( sample );
-  if ( groupStates.length > 1 && displayMode !== 'timeAveragedIntensity' && !sample.hasDecoherenceRecord ) {
-    const selectedGroupIndex = options?.decoherentGroupIndex ?? 0;
-    const groupState = groupStates[ selectedGroupIndex % groupStates.length ];
-    const displayState = {
-      value: groupState.value,
-      intensity: groupState.intensity,
-      visibility: getGroupVisibility( groupState, amplitudeScale )
-    };
-    return getDisplayStateRGBA( displayState, displayMode, baseColor, amplitudeScale );
-  }
-
   const displayState = getDisplayState( sample, groupStates, amplitudeScale );
   return getDisplayStateRGBA( displayState, displayMode, baseColor, amplitudeScale );
 };
@@ -245,12 +229,6 @@ const getSampleVisibility = ( groupStates: CoherenceGroupDisplayState[], amplitu
   return clamp( Math.sqrt( componentIntensity ) * amplitudeScale, 0, 1 );
 };
 
-const getGroupVisibility = ( groupState: CoherenceGroupDisplayState, amplitudeScale: number ): number => {
-  return groupState.hasExplicitSupport ?
-         clamp( groupState.support, 0, 1 ) :
-         clamp( Math.sqrt( groupState.componentIntensity ) * amplitudeScale, 0, 1 );
-};
-
 export const rasterizeAnalyticalWave = ( options: AnalyticalWaveRasterOptions ): AnalyticalWaveRaster => {
   const pixels = new Uint8ClampedArray( options.width * options.height * 4 );
   const statusCounts = {
@@ -272,9 +250,7 @@ export const rasterizeAnalyticalWave = ( options: AnalyticalWaveRasterOptions ):
                 xIndex * options.regionWidth / options.width;
       const sample = evaluateAnalyticalSample( options.parameters, x, y, options.time );
       statusCounts[ sample.kind ]++;
-      const color = getFieldSampleRGBA( sample, options.displayMode, options.baseColor, options.amplitudeScale, {
-        decoherentGroupIndex: 0
-      } );
+      const color = getFieldSampleRGBA( sample, options.displayMode, options.baseColor, options.amplitudeScale );
       const pixelIndex = ( yIndex * options.width + xIndex ) * 4;
       pixels[ pixelIndex ] = color.red;
       pixels[ pixelIndex + 1 ] = color.green;

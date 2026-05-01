@@ -315,7 +315,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const x = this.generateHitPosition();
     const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * HIT_VERTICAL_EXTENT;
     this.hits.push( new Vector2( x, y ) );
-    this.randomizeDecoherentGroupIndex();
     this.totalHitsProperty.value++;
     this.endPacket();
     this.hitsChangedEmitter.emit();

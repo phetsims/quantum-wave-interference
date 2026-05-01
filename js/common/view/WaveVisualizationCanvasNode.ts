@@ -101,7 +101,6 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
     }
 
     const amplitudeScale = scene.waveAmplitudeScaleProperty.value;
-    const decoherentGroupIndex = scene.decoherentGroupIndexProperty.value;
 
     for ( let gy = 0; gy < gridHeight; gy++ ) {
       for ( let gx = 0; gx < gridWidth; gx++ ) {
@@ -113,9 +112,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
           red: baseR,
           green: baseG,
           blue: baseB
-        }, amplitudeScale, {
-          decoherentGroupIndex: decoherentGroupIndex
-        } );
+        }, amplitudeScale );
         data[ pixelIdx ] = color.red;
         data[ pixelIdx + 1 ] = color.green;
         data[ pixelIdx + 2 ] = color.blue;
