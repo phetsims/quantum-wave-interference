@@ -729,9 +729,8 @@ QUnit.test( 'decoherence event lookup uses latest causal record', assert => {
   assert.strictEqual( getDecoherenceEventAtPassTime( events, 3 ), events[ 2 ], 'event at pass time is selected' );
 } );
 
-QUnit.test( 'decoherence records project aperture and downstream to the selected slit', assert => {
-  const topRecordedParameters = createPlaneParameters( {
-    speed: 1,
+QUnit.test( 'packet decoherence records project aperture and downstream to the selected slit', assert => {
+  const topRecordedParameters = createGaussianPacketParameters( {
     obstacle: createDoubleSlitObstacle( { coherent: false } )
   } );
   topRecordedParameters.decoherenceEvents = [
@@ -769,8 +768,7 @@ QUnit.test( 'decoherence records project aperture and downstream to the selected
     assert.ok( topAperturePath && topAperturePath.value.magnitude > 0, 'top record keeps the top aperture' );
   }
 
-  const bottomRecordedParameters = createPlaneParameters( {
-    speed: 1,
+  const bottomRecordedParameters = createGaussianPacketParameters( {
     obstacle: createDoubleSlitObstacle( { coherent: false } )
   } );
   bottomRecordedParameters.decoherenceEvents = [
@@ -801,8 +799,7 @@ QUnit.test( 'decoherence records project aperture and downstream to the selected
     assert.ok( bottomAperturePath && bottomAperturePath.value.magnitude > 0, 'bottom record keeps the bottom aperture' );
   }
 
-  const detectorOffParameters = createPlaneParameters( {
-    speed: 1,
+  const detectorOffParameters = createGaussianPacketParameters( {
     obstacle: createDoubleSlitObstacle( { coherent: true } )
   } );
   const detectorOffSample = evaluateAnalyticalSample( detectorOffParameters, 2, 0, 3.5 );
@@ -812,6 +809,53 @@ QUnit.test( 'decoherence records project aperture and downstream to the selected
       detectorOffSample.components.every( component => component.value.magnitude > 0 ),
       'detector-off sample has no zeroed detector-record component'
     );
+  }
+} );
+
+QUnit.test( 'plane-wave decoherence records form temporal bands from slit distances', assert => {
+  const topRecordedParameters = createPlaneParameters( {
+    speed: 1,
+    obstacle: createDoubleSlitObstacle( { coherent: false } )
+  } );
+  topRecordedParameters.decoherenceEvents = [
+    { time: 3, selectedSlit: 'topSlit' as const }
+  ];
+
+  const x = 2;
+  const y = 0.25;
+  const beforeBandArrivesSample = evaluateAnalyticalSample( topRecordedParameters, x, y, 3.01 );
+  const afterBandArrivesSample = evaluateAnalyticalSample( topRecordedParameters, x, y, 4.25 );
+
+  assert.strictEqual( beforeBandArrivesSample.kind, 'field', 'sample has field before temporal record band arrives' );
+  assert.strictEqual( afterBandArrivesSample.kind, 'field', 'sample has field after temporal record band arrives' );
+
+  if ( beforeBandArrivesSample.kind === 'field' && afterBandArrivesSample.kind === 'field' ) {
+    const beforeTopPath = beforeBandArrivesSample.components.find( component => component.source === 'topSlit' );
+    const beforeBottomPath = beforeBandArrivesSample.components.find( component => component.source === 'bottomSlit' );
+    const afterTopPath = afterBandArrivesSample.components.find( component => component.source === 'topSlit' );
+    const afterBottomPath = afterBandArrivesSample.components.find( component => component.source === 'bottomSlit' );
+
+    assert.ok( beforeTopPath && beforeTopPath.value.magnitude > 0, 'top path remains before its temporal band arrives' );
+    assert.ok( beforeBottomPath && beforeBottomPath.value.magnitude > 0, 'bottom path remains before its temporal band arrives' );
+    assert.ok( afterTopPath && afterTopPath.value.magnitude > 0, 'top record keeps top path after the band arrives' );
+    assert.strictEqual( afterBottomPath?.value.magnitude, 0, 'top record zeroes bottom path only after the band arrives' );
+  }
+
+  const bottomRecordedParameters = createPlaneParameters( {
+    speed: 1,
+    obstacle: createDoubleSlitObstacle( { coherent: false } )
+  } );
+  bottomRecordedParameters.decoherenceEvents = [
+    { time: 3, selectedSlit: 'bottomSlit' as const }
+  ];
+
+  const bottomBandSample = evaluateAnalyticalSample( bottomRecordedParameters, x, -0.25, 4.25 );
+  assert.strictEqual( bottomBandSample.kind, 'field', 'sample has field after bottom temporal record band arrives' );
+  if ( bottomBandSample.kind === 'field' ) {
+    const topPath = bottomBandSample.components.find( component => component.source === 'topSlit' );
+    const bottomPath = bottomBandSample.components.find( component => component.source === 'bottomSlit' );
+    assert.strictEqual( topPath?.value.magnitude, 0, 'bottom record zeroes top path after the band arrives' );
+    assert.ok( bottomPath && bottomPath.value.magnitude > 0, 'bottom record keeps bottom path after the band arrives' );
   }
 } );
 

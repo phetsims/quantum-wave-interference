@@ -338,15 +338,44 @@ const applyDecoherenceEvent = (
     return sample;
   }
 
-  // A detector record projects the packet at the slit plane, clearing the unselected aperture and all
-  // downstream samples immediately instead of letting the unselected slit continue to radiate.
-  const event = getDecoherenceEventAtPassTime( events, t );
-  if ( !event ) {
-    return sample;
-  }
+  const source = parameters.source;
+
+  // Single Particles uses one finite packet at a time. When a slit detector identifies that packet,
+  // the entire packet is projected to the selected aperture, so every aperture/downstream sample can
+  // use the same detector record based on the current simulation time.
+  const isPacketProjection = source.kind === 'gaussianPacket';
+  const packetEvent = isPacketProjection ? getDecoherenceEventAtPassTime( events, t ) : null;
 
   const components = sample.components.map( component => {
     if ( component.source === 'topSlit' || component.source === 'bottomSlit' ) {
+      let event = packetEvent;
+
+      // High Intensity uses a continuous plane wave to represent a stream of many independent
+      // particles. One detector record should clear only the temporal slice for one particle, so
+      // each sample asks when its wavefront left this slit aperture. Equal passTime contours are the
+      // semicircular bands seen downstream from the detected apertures.
+      if ( !event && source.kind === 'plane' && source.speed > 0 ) {
+        const slit = obstacle.slits.find( candidate => candidate.source === component.source );
+        if ( !slit ) {
+          return component;
+        }
+
+        // Use the nearest point on this aperture so the band expands from the whole slit opening,
+        // rather than from a single point at the slit center.
+        const xPastBarrier = x - obstacle.barrierX;
+        const closestApertureY = getClosestYOnSlit( y, slit );
+        const downstreamDistance = Math.sqrt(
+          xPastBarrier * xPastBarrier +
+          ( y - closestApertureY ) * ( y - closestApertureY )
+        );
+        const passTime = t - downstreamDistance / source.speed;
+        event = getDecoherenceEventAtPassTime( events, passTime );
+      }
+
+      if ( !event ) {
+        return component;
+      }
+
       return event.selectedSlit === component.source ? component : {
         source: component.source,
         coherenceGroup: component.coherenceGroup,

@@ -26,9 +26,9 @@ import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigur
 
 const MAX_EMISSION_RATE = 100; // TODO: see https://github.com/phetsims/quantum-wave-interference/issues/63. Maybe 50?
 
-// Visual detector-record rate, intentionally much lower than the hit emission rate. At full intensity this
-// creates only a few broad causal records across the wave region instead of many thin overlapping wavelets.
-const MAX_DECOHERENCE_EVENT_RATE = 1.25;
+// Visual detector-record rate, intentionally much lower than the hit emission rate. This creates
+// broad temporal bands across the wave region instead of many thin overlapping wavelets.
+const DECOHERENCE_EVENT_RATE = 1.25;
 const MAX_DECOHERENCE_EVENTS_PER_FRAME = 4;
 
 export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
@@ -222,7 +222,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       return;
     }
 
-    const eventRate = MAX_DECOHERENCE_EVENT_RATE * intensity;
     if ( this.nextDecoherenceEventTime === null || this.nextDecoherenceEventTime < slitArrivalTime ) {
       this.nextDecoherenceEventTime = slitArrivalTime;
     }
@@ -236,7 +235,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       if ( event ) {
         this.addDecoherenceEvent( event );
       }
-      this.nextDecoherenceEventTime += this.sampleDecoherenceEventInterval( eventRate );
+      this.nextDecoherenceEventTime += this.sampleDecoherenceEventInterval();
       eventsCreated++;
     }
 
@@ -244,12 +243,12 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       this.pruneDecoherenceEvents();
     }
     else if ( eventsCreated >= MAX_DECOHERENCE_EVENTS_PER_FRAME ) {
-      this.nextDecoherenceEventTime = currentTime + this.sampleDecoherenceEventInterval( eventRate );
+      this.nextDecoherenceEventTime = currentTime + this.sampleDecoherenceEventInterval();
     }
   }
 
-  private sampleDecoherenceEventInterval( eventRate: number ): number {
-    return 1 / eventRate;
+  private sampleDecoherenceEventInterval(): number {
+    return 1 / DECOHERENCE_EVENT_RATE;
   }
 
   public override reset(): void {
