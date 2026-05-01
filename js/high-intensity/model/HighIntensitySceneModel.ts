@@ -26,10 +26,9 @@ import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigur
 
 const MAX_EMISSION_RATE = 100; // TODO: see https://github.com/phetsims/quantum-wave-interference/issues/63. Maybe 50?
 
-// Visual detector-record rate, intentionally much lower than the hit emission rate. This creates
-// broad temporal bands across the wave region instead of many thin overlapping wavelets.
-const DECOHERENCE_EVENT_RATE = 1.25;
-const MAX_DECOHERENCE_EVENTS_PER_FRAME = 4;
+// Valid model steps are capped at 0.5 seconds, so this is enough to preserve one slit-detector
+// attempt per emitted particle at the maximum emission rate without dropping temporal bands.
+const MAX_DECOHERENCE_EVENTS_PER_FRAME = 64;
 
 export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 
@@ -165,7 +164,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       return;
     }
 
-    const rate = MAX_EMISSION_RATE * this.intensityProperty.value;
+    const rate = this.getParticleEmissionRate();
     this.hitAccumulator += rate * dt;
     const numHits = Math.floor( this.hitAccumulator );
     this.hitAccumulator -= numHits;
@@ -205,8 +204,10 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }
 
     const slitConfig = this.slitConfigurationProperty.value;
-    const intensity = this.intensityProperty.value;
-    if ( !hasAnyDetector( slitConfig ) || intensity <= 0 ) {
+    // Slit-detector attempts are tied to the same conceptual particles that create detector-screen
+    // hit dots, so increasing intensity increases both rates in lockstep.
+    const particleRate = this.getParticleEmissionRate();
+    if ( !hasAnyDetector( slitConfig ) || particleRate <= 0 ) {
       this.nextDecoherenceEventTime = null;
       return;
     }
@@ -235,7 +236,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       if ( event ) {
         this.addDecoherenceEvent( event );
       }
-      this.nextDecoherenceEventTime += this.sampleDecoherenceEventInterval();
+      this.nextDecoherenceEventTime += this.getParticleEmissionInterval( particleRate );
       eventsCreated++;
     }
 
@@ -243,12 +244,16 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       this.pruneDecoherenceEvents();
     }
     else if ( eventsCreated >= MAX_DECOHERENCE_EVENTS_PER_FRAME ) {
-      this.nextDecoherenceEventTime = currentTime + this.sampleDecoherenceEventInterval();
+      this.nextDecoherenceEventTime = currentTime + this.getParticleEmissionInterval( particleRate );
     }
   }
 
-  private sampleDecoherenceEventInterval(): number {
-    return 1 / DECOHERENCE_EVENT_RATE;
+  private getParticleEmissionRate(): number {
+    return MAX_EMISSION_RATE * this.intensityProperty.value;
+  }
+
+  private getParticleEmissionInterval( particleRate: number ): number {
+    return 1 / particleRate;
   }
 
   public override reset(): void {
