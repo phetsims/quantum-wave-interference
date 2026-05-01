@@ -24,7 +24,8 @@ import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
 
-const MAX_EMISSION_RATE = 100; // TODO: see https://github.com/phetsims/quantum-wave-interference/issues/63. Maybe 50?
+// Number of particles per second at max intensity. TODO: This seems off by a factor of https://github.com/phetsims/quantum-wave-interference/issues/63
+const MAX_EMISSION_RATE = 5;
 
 // Valid model steps are capped at 0.5 seconds, so this is enough to preserve one slit-detector
 // attempt per emitted particle at the maximum emission rate without dropping temporal bands.
@@ -231,7 +232,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     while (
       this.nextDecoherenceEventTime <= currentTime &&
       eventsCreated < MAX_DECOHERENCE_EVENTS_PER_FRAME
-    ) {
+      ) {
       const event = this.createDecoherenceEventForSlitConfiguration( slitConfig, this.nextDecoherenceEventTime );
       if ( event ) {
         this.addDecoherenceEvent( event );
