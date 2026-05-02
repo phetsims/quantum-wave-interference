@@ -189,6 +189,10 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     this.timeSpeedProperty.reset();
 
     this.resetToolVisibility();
+    this.isTapeMeasureVisibleProperty.reset();
+    this.isStopwatchVisibleProperty.reset();
+    this.isTimePlotVisibleProperty.reset();
+    this.isPositionPlotVisibleProperty.reset();
 
     this.tapeMeasureBasePositionProperty.reset();
     this.tapeMeasureTipPositionProperty.reset();
