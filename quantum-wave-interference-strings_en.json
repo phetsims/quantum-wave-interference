@@ -260,7 +260,7 @@
         "value": "Currently, { $isPlaying ->\n  [false] sim is paused. { $isMaxHitsReached ->\n    [true] Source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] Source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at slitted barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] Source is off. Detector screen is dark.\n    }\n  }\n *[true] { $isMaxHitsReached ->\n    [true] source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at slitted barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] source is off. Detector screen is dark.\n    }\n  }\n}"
       },
       "interactionHint": {
-        "value": "{ $isEmitting ->\n  [true] Adjust the source or slits to make observations.\n *[false] Turn on the { $sourceType ->\n    [photons] photon source emitter\n    [electrons] electron source emitter\n    [neutrons] neutron source emitter\n   *[heliumAtoms] helium atom source emitter\n  } to start experimenting.\n}"
+        "value": "{ $isEmitting ->\n  [true] Adjust source or slits and watch for changes on detector screen.\n *[false] Turn on the { $sourceType ->\n    [photons] photon source emitter\n    [electrons] electron source emitter\n    [neutrons] neutron source emitter\n   *[heliumAtoms] helium atom source emitter\n  } to start experimenting.\n}"
       }
     },
     "experimentSetupHeading": {
@@ -549,16 +549,16 @@
     "detectorScreen": {
       "accessibleParagraph": {
         "intensityOff": {
-          "value": "The detector screen is dark. The source is off."
+          "value": "Detector screen is dark. The source is off."
         },
         "intensity": {
-          "value": "The detector screen shows alternating bright and dark vertical bands, brightest at the center and fainter toward the edges. { $spatialDescription }"
+          "value": "Detector screen shows alternating bright and dark vertical bands, brightest at the center and fainter toward the edges. { $spatialDescription }"
         },
         "intensitySingleSlit": {
-          "value": "The detector screen is brightest at the center and fades smoothly toward the edges in a broad band. { $spatialDescription }"
+          "value": "Detector screen is brightest at the center and fades smoothly toward the edges in a broad band. { $spatialDescription }"
         },
         "hitsNone": {
-          "value": "The detector screen is empty. No particles have arrived yet."
+          "value": "Detector screen is empty. No particles have arrived yet."
         },
         "hitsFew": {
           "value": "A handful of particles are visible at scattered positions across the screen."
@@ -579,25 +579,25 @@
           "value": "Hits form a broad central band that tapers toward the edges. { $spatialDescription }"
         },
         "snapshotHitsNone": {
-          "value": "The detector screen is empty. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n} No particles have arrived yet."
+          "value": "Detector screen is empty. { $hitCount ->\n    [one] Detector screen shows a total of 1 hit.\n   *[other] Detector screen shows a total of { $hitCount } hits.\n} No particles have arrived yet."
         },
         "snapshotHitsFew": {
-          "value": "A handful of particles are visible at scattered positions across the screen. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n}"
+          "value": "A handful of particles are visible at scattered positions across the screen. { $hitCount ->\n    [one] Detector screen shows a total of 1 hit.\n   *[other] Detector screen shows a total of { $hitCount } hits.\n}"
         },
         "snapshotHitsEmerging": {
-          "value": "More particles are appearing, and faint vertical stripes are becoming visible with gaps between them. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n}"
+          "value": "More particles are appearing, and faint vertical stripes are becoming visible with gaps between them. { $hitCount ->\n    [one] Detector screen shows a total of 1 hit.\n   *[other] Detector screen shows a total of { $hitCount } hits.\n}"
         },
         "snapshotHitsDeveloping": {
-          "value": "Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n} { $spatialDescription }"
+          "value": "Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $hitCount ->\n    [one] Detector screen shows a total of 1 hit.\n   *[other] Detector screen shows a total of { $hitCount } hits.\n} { $spatialDescription }"
         },
         "snapshotHitsClear": {
-          "value": "Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n} { $spatialDescription }"
+          "value": "Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $hitCount ->\n    [one] Detector screen shows a total of 1 hit.\n   *[other] Detector screen shows a total of { $hitCount } hits.\n} { $spatialDescription }"
         },
         "snapshotHitsSingleSlitEmerging": {
-          "value": "More particles are appearing in a broad region near the center of the screen, with fewer toward the edges. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n}"
+          "value": "More particles are appearing in a broad region near the center of the screen, with fewer toward the edges. { $hitCount ->\n    [one] Detector screen shows a total of 1 hit.\n   *[other] Detector screen shows a total of { $hitCount } hits.\n}"
         },
         "snapshotHitsSingleSlitClear": {
-          "value": "Hits form a broad central band that tapers toward the edges. { $hitCount ->\n    [one] The detector screen shows a total of 1 hit.\n   *[other] The detector screen shows a total of { $hitCount } hits.\n} { $spatialDescription }"
+          "value": "Hits form a broad central band that tapers toward the edges. { $hitCount ->\n    [one] Detector screen shows a total of 1 hit.\n   *[other] Detector screen shows a total of { $hitCount } hits.\n} { $spatialDescription }"
         }
       },
       "spatialDescription": {

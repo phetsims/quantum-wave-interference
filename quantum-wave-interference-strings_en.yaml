@@ -153,7 +153,7 @@ a11y:
                         }
     interactionHint:    >-
                         { $isEmitting ->
-                          [true] Adjust the source or slits to make observations.
+                          [true] Adjust source or slits and watch for changes on detector screen.
                          *[false] Turn on the { $sourceType ->
                             [photons] photon source emitter
                             [electrons] electron source emitter
@@ -410,14 +410,14 @@ a11y:
       zoomOutAccessibleHelpText: Zoom out to see more of graph pattern.
   detectorScreen:
     accessibleParagraph:
-      intensityOff:                   The detector screen is dark. The source is off.
+      intensityOff:                   Detector screen is dark. The source is off.
       intensity:                      >-
-                                      The detector screen shows alternating bright and dark vertical bands, brightest
+                                      Detector screen shows alternating bright and dark vertical bands, brightest
                                       at the center and fainter toward the edges. { $spatialDescription }
       intensitySingleSlit:            >-
-                                      The detector screen is brightest at the center and fades smoothly toward the edges
+                                      Detector screen is brightest at the center and fades smoothly toward the edges
                                       in a broad band. { $spatialDescription }
-      hitsNone:                       The detector screen is empty. No particles have arrived yet.
+      hitsNone:                       Detector screen is empty. No particles have arrived yet.
       hitsFew:                        >-
                                       A handful of particles are visible at scattered positions across the screen.
       hitsEmerging:                   >-
@@ -437,39 +437,39 @@ a11y:
                                       Hits form a broad central band that tapers toward the edges.
                                       { $spatialDescription }
       snapshotHitsNone:               |-
-                                      The detector screen is empty. { $hitCount ->
-                                          [one] The detector screen shows a total of 1 hit.
-                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                      Detector screen is empty. { $hitCount ->
+                                          [one] Detector screen shows a total of 1 hit.
+                                         *[other] Detector screen shows a total of { $hitCount } hits.
                                       } No particles have arrived yet.
       snapshotHitsFew:                |-
                                       A handful of particles are visible at scattered positions across the screen. { $hitCount ->
-                                          [one] The detector screen shows a total of 1 hit.
-                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                          [one] Detector screen shows a total of 1 hit.
+                                         *[other] Detector screen shows a total of { $hitCount } hits.
                                       }
       snapshotHitsEmerging:           |-
                                       More particles are appearing, and faint vertical stripes are becoming visible with gaps between them. { $hitCount ->
-                                          [one] The detector screen shows a total of 1 hit.
-                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                          [one] Detector screen shows a total of 1 hit.
+                                         *[other] Detector screen shows a total of { $hitCount } hits.
                                       }
       snapshotHitsDeveloping:         |-
                                       Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $hitCount ->
-                                          [one] The detector screen shows a total of 1 hit.
-                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                          [one] Detector screen shows a total of 1 hit.
+                                         *[other] Detector screen shows a total of { $hitCount } hits.
                                       } { $spatialDescription }
       snapshotHitsClear:              |-
                                       Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $hitCount ->
-                                          [one] The detector screen shows a total of 1 hit.
-                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                          [one] Detector screen shows a total of 1 hit.
+                                         *[other] Detector screen shows a total of { $hitCount } hits.
                                       } { $spatialDescription }
       snapshotHitsSingleSlitEmerging: |-
                                       More particles are appearing in a broad region near the center of the screen, with fewer toward the edges. { $hitCount ->
-                                          [one] The detector screen shows a total of 1 hit.
-                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                          [one] Detector screen shows a total of 1 hit.
+                                         *[other] Detector screen shows a total of { $hitCount } hits.
                                       }
       snapshotHitsSingleSlitClear:    |-
                                       Hits form a broad central band that tapers toward the edges. { $hitCount ->
-                                          [one] The detector screen shows a total of 1 hit.
-                                         *[other] The detector screen shows a total of { $hitCount } hits.
+                                          [one] Detector screen shows a total of 1 hit.
+                                         *[other] Detector screen shows a total of { $hitCount } hits.
                                       } { $spatialDescription }
     spatialDescription:
       rulerDoubleSlit:
