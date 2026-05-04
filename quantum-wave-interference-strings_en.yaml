@@ -166,24 +166,24 @@ a11y:
   slitsHeading:                Slits and Screen Configuration
   detectorScreenHeading:       Detector Screen Controls
   experimentSetupDetails:
-    leadingParagraph: 'Current experimental details:'
-    sourceEmitter:    >-
-                      { $sourceType ->
-                        [photons] Photon Source Emitter
-                        [electrons] Electron Source Emitter
-                        [neutrons] Neutron Source Emitter
-                       *[heliumAtoms] Helium Atom Source Emitter
-                      } is { $isEmitting ->
-                        [true] on.
-                       *[false] off.
-                      }
-    detectionMode:    >-
-                      Screen Detection set to { $detectionMode ->
-                        [averageIntensity] Intensity Mode.
-                       *[hits] Hits Mode.
-                      }
-    wavelength:       'Wavelength is { $wavelength }, and in { $color } zone.'
-    particleSpeed:    'Particle Speed is { $speed }.'
+    leadingParagraph:  'Current experimental details:'
+    sourceEmitter:     >-
+                       { $sourceType ->
+                         [photons] Photon Source Emitter
+                         [electrons] Electron Source Emitter
+                         [neutrons] Neutron Source Emitter
+                        *[heliumAtoms] Helium Atom Source Emitter
+                       } is { $isEmitting ->
+                         [true] on.
+                        *[false] off.
+                       }
+    detectionMode:     >-
+                       Screen Detection set to { $detectionMode ->
+                         [averageIntensity] Intensity Mode.
+                        *[hits] Hits Mode.
+                       }
+    wavelength:        'Wavelength is { $wavelength }, and in { $color } zone.'
+    particleSpeed:     'Particle Speed is { $speed }.'
     slitConfiguration: >-
                        { $slitSetting ->
                          [bothOpen] Both slits open in barrier.
@@ -193,8 +193,8 @@ a11y:
                          [rightDetector] Detector on right slit in barrier.
                         *[bothDetectors] Detectors on both slits in barrier.
                        }
-    slitSeparation:   'Slit Separation distance is { $distance }.'
-    screenDistance:   'Distance from double-slit barrier to detector screen is { $distance }.'
+    slitSeparation:    'Slit Separation distance is { $distance }.'
+    screenDistance:    'Distance from double-slit barrier to detector screen is { $distance }.'
   particleMass:
     accessibleParagraph: >-
                          { $sourceType ->
@@ -203,23 +203,23 @@ a11y:
                           *[heliumAtoms] Helium atom particle mass is 6.6 times 10 to the negative 27 kilograms.
                          }
   emitterButton:
-    accessibleName:     >-
-                        { $sourceType ->
-                          [photons] Photon Source Emitter
-                          [electrons] Electron Source Emitter
-                          [neutrons] Neutron Source Emitter
-                         *[heliumAtoms] Helium Atom Source Emitter
-                        }
-    accessibleHelpText: >-
-                        { $isEmitting ->
-                          [true] Turn source off to stop experiment.
-                         *[false] Turn source on to start experiment.
-                        }
-    accessibleContextResponseOn: >-
-                                 { $isPlaying ->
-                                   [false] Experiment started. Sim paused.
-                                  *[true] Experiment started.
-                                 }
+    accessibleName:               >-
+                                  { $sourceType ->
+                                    [photons] Photon Source Emitter
+                                    [electrons] Electron Source Emitter
+                                    [neutrons] Neutron Source Emitter
+                                   *[heliumAtoms] Helium Atom Source Emitter
+                                  }
+    accessibleHelpText:           >-
+                                  { $isEmitting ->
+                                    [true] Turn source off to stop experiment.
+                                   *[false] Turn source on to start experiment.
+                                  }
+    accessibleContextResponseOn:  >-
+                                  { $isPlaying ->
+                                    [false] Experiment started. Sim paused.
+                                   *[true] Experiment started.
+                                  }
     accessibleContextResponseOff: Experiment stopped.
   ruler:
     accessibleHelpText: Move ruler up or down with keyboard shortcuts to take measurements.
@@ -236,8 +236,8 @@ a11y:
   screenDistanceSlider:
     accessibleHelpText: Change distance from double-slit barrier to detector screen in meters.
   wavelengthSlider:
-    accessibleHelpText:  Change wavelength of emitted photons in nanometers from shortest, violet, to longest, red.
-    accessibleValue:     '{ $value }, { $color } zone'
+    accessibleHelpText: Change wavelength of emitted photons in nanometers from shortest, violet, to longest, red.
+    accessibleValue:    '{ $value }, { $color } zone'
     color:
       violet: violet
       blue:   blue
@@ -249,13 +249,13 @@ a11y:
   particleSpeedSlider:
     accessibleHelpText: Change speed of emitted particles in kilometers or meters per second.
   intensitySlider:
-    accessibleHelpText: >-
-                        Change number of { $sourceType ->
-                          [photons] photons
-                          [electrons] electrons
-                          [neutrons] neutrons
-                         *[heliumAtoms] helium atoms
-                        } source emits per second.
+    accessibleHelpText:        >-
+                               Change number of { $sourceType ->
+                                 [photons] photons
+                                 [electrons] electrons
+                                 [neutrons] neutrons
+                                *[heliumAtoms] helium atoms
+                               } source emits per second.
     accessibleContextResponse: >-
                                { $change ->
                                  [more] More { $sourceType ->
@@ -304,8 +304,8 @@ a11y:
   timeControlNode:
     simSpeedDescription: Choose Normal or Fast speed. In Hits mode, Fast collects hits more quickly for faster data collection.
   sceneRadioButtonGroup:
-    accessibleName:     Particle Type
-    accessibleHelpText: Change particle type for source emitter and change experiment setup.
+    accessibleName:            Particle Type
+    accessibleHelpText:        Change particle type for source emitter and change experiment setup.
     accessibleContextResponse: >-
                                { $isMaxHitsReached ->
                                  [true] { $sourceType ->
@@ -366,12 +366,12 @@ a11y:
   zoomOutButton:
     accessibleName: Zoom Out
   graphAccordionBox:
-    accessibleHelpTextCollapsed: Explore a graph of the detector screen pattern.
-    accessibleContextResponseExpanded: >-
-                                       { $detectionMode ->
-                                         [averageIntensity] Dynamic graph of intensity pattern shown.
-                                        *[hits] Dynamic histogram of hits data shown.
-                                       }
+    accessibleHelpTextCollapsed:        Explore a graph of the detector screen pattern.
+    accessibleContextResponseExpanded:  >-
+                                        { $detectionMode ->
+                                          [averageIntensity] Dynamic graph of intensity pattern shown.
+                                         *[hits] Dynamic histogram of hits data shown.
+                                        }
     accessibleContextResponseCollapsed: >-
                                         { $detectionMode ->
                                           [averageIntensity] Intensity graph hidden.
@@ -405,7 +405,7 @@ a11y:
                               The histogram shows a broad central peak that tapers toward the edges.
                               { $spatialDescription }
     zoomButtonGroup:
-      zoomLevelResponse: 'Zoom level { $level } of { $max }.'
+      zoomLevelResponse:         'Zoom level { $level } of { $max }.'
       zoomInAccessibleHelpText:  Zoom in to see more detail of graph pattern.
       zoomOutAccessibleHelpText: Zoom out to see more of graph pattern.
   detectorScreen:
