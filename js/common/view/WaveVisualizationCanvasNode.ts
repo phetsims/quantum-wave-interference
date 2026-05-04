@@ -14,7 +14,7 @@ import Bounds2 from '../../../../dot/js/Bounds2.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Color from '../../../../scenery/js/util/Color.js';
-import { getFieldSampleRGBA } from '../model/AnalyticalWaveRasterizer.js';
+import { getFieldSampleRGBA, getLayeredFieldSampleRGBA } from '../model/AnalyticalWaveRasterizer.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 const MATTER_BASE_R = 200;
@@ -101,18 +101,20 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
     }
 
     const amplitudeScale = scene.waveAmplitudeScaleProperty.value;
+    const baseColor = {
+      red: baseR,
+      green: baseG,
+      blue: baseB
+    };
 
     for ( let gy = 0; gy < gridHeight; gy++ ) {
       for ( let gx = 0; gx < gridWidth; gx++ ) {
         const cellIdx = gy * gridWidth + gx;
         const pixelIdx = cellIdx * 4;
 
-        const sample = solver.getFieldSampleAtGridCell( gx, gy );
-        const color = getFieldSampleRGBA( sample, displayMode, {
-          red: baseR,
-          green: baseG,
-          blue: baseB
-        }, amplitudeScale );
+        const color = solver.getLayeredFieldSampleAtGridCell ?
+                      getLayeredFieldSampleRGBA( solver.getLayeredFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale ) :
+                      getFieldSampleRGBA( solver.getFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale );
         data[ pixelIdx ] = color.red;
         data[ pixelIdx + 1 ] = color.green;
         data[ pixelIdx + 2 ] = color.blue;

@@ -7,13 +7,24 @@
  * serialization, and the legacy single-complex WaveSolver API. The physics evaluation itself lives
  * in AnalyticalWaveKernel and returns richer field samples with independent coherent components.
  *
+ * For High Intensity, this solver also caches LayeredFieldSample values. Those layered samples are
+ * a rendering-oriented companion to FieldSample: they preserve which selected-slit particle band is
+ * visible at each grid cell so the canvas renderer can composite transparent layers in z order. The
+ * ordinary FieldSample cache remains the model-facing path for amplitude grids, detector intensity,
+ * graphing, tests, and the legacy representative-complex API.
+ *
+ * Keeping both caches here is deliberate during this experimental phase. The scene model still owns
+ * the time-ordered detector records, the kernel defines their particle-chain interpretation, and the
+ * rasterizer owns visual compositing. The solver's role is only to evaluate those descriptions on
+ * the fixed grid once per dirty frame.
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import type Complex from '../../../../dot/js/Complex.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, type LayeredFieldSample, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { type BarrierType } from './BarrierType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -25,6 +36,7 @@ const DEFAULT_GRID_HEIGHT = 200;
 const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
 const DISPLAY_TRAVERSAL_TIME = 2.0;
 const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
+const UNREACHED_LAYERED_SAMPLE: LayeredFieldSample = { kind: 'unreached' };
 const EDGE_TAPER_CELLS = 4;
 
 export default class AnalyticalWaveSolver implements WaveSolver {
@@ -56,6 +68,10 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private decoherenceEvents: readonly DecoherenceEvent[] = [];
   private readonly amplitudeField: Float64Array;
   private readonly fieldSamples: FieldSample[];
+
+  // Rendering cache used by WaveVisualizationCanvasNode when supported. It is intentionally separate
+  // from fieldSamples so experimentation with particle-band compositing does not change detector math.
+  private readonly layeredFieldSamples: LayeredFieldSample[];
   private readonly detectorDistribution: Float64Array;
   private readonly detectorAccumulator: Float64Array;
   private detectorAccumulatorCount = 0;
@@ -66,6 +82,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.gridHeight = gridHeight;
     this.amplitudeField = new Float64Array( gridWidth * gridHeight * 2 );
     this.fieldSamples = new Array<FieldSample>( gridWidth * gridHeight ).fill( UNREACHED_SAMPLE );
+    this.layeredFieldSamples = new Array<LayeredFieldSample>( gridWidth * gridHeight ).fill( UNREACHED_LAYERED_SAMPLE );
     this.detectorDistribution = new Float64Array( gridHeight );
     this.detectorAccumulator = new Float64Array( gridHeight );
   }
@@ -152,6 +169,11 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     return this.fieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_SAMPLE;
   }
 
+  public getLayeredFieldSampleAtGridCell( gridX: number, gridY: number ): LayeredFieldSample {
+    this.ensureComputed();
+    return this.layeredFieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_LAYERED_SAMPLE;
+  }
+
   public getDetectorProbabilityDistribution(): Float64Array {
     if ( this.detectorAccumulatorCount === 0 ) {
       this.detectorDistribution.fill( 0 );
@@ -184,6 +206,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.sourceOnTime = null;
     this.amplitudeField.fill( 0 );
     this.fieldSamples.fill( UNREACHED_SAMPLE );
+    this.layeredFieldSamples.fill( UNREACHED_LAYERED_SAMPLE );
     this.detectorDistribution.fill( 0 );
     this.detectorAccumulator.fill( 0 );
     this.detectorAccumulatorCount = 0;
@@ -222,11 +245,12 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   }
 
   private computeField(): void {
-    const { gridWidth, gridHeight, amplitudeField, fieldSamples } = this;
+    const { gridWidth, gridHeight, amplitudeField, fieldSamples, layeredFieldSamples } = this;
 
     if ( !this.isSourceOn ) {
       amplitudeField.fill( 0 );
       fieldSamples.fill( UNREACHED_SAMPLE );
+      layeredFieldSamples.fill( UNREACHED_LAYERED_SAMPLE );
       return;
     }
 
@@ -238,9 +262,11 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         const y = this.getGridCellY( iy );
         const sample = evaluateAnalyticalSample( parameters, x, y, this.time );
         const value = getRepresentativeComplex( sample );
+        const layeredSample = evaluateAnalyticalLayeredSample( parameters, x, y, this.time );
         const cellIndex = iy * gridWidth + ix;
         const idx = cellIndex * 2;
         fieldSamples[ cellIndex ] = sample;
+        layeredFieldSamples[ cellIndex ] = layeredSample;
         amplitudeField[ idx ] = value.real;
         amplitudeField[ idx + 1 ] = value.imaginary;
       }

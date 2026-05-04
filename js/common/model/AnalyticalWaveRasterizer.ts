@@ -7,13 +7,24 @@
  * deterministic grid points and maps FieldSample status/value to RGBA bytes. The production canvas
  * renderer uses the same color mapping so tests can exercise rendering semantics without a DOM.
  *
+ * There are two rendering paths. The legacy FieldSample path returns opaque pixels and encodes weak
+ * field support by blending RGB toward the vacuum color. The layered path is used for the experimental
+ * High Intensity particle-chain interpretation: each selected-slit band is drawn as a transparent
+ * source-over layer. Its taper changes alpha, not color, so the layer fades out over the black
+ * wave-region background instead of becoming a dark wave.
+ *
+ * This rasterizer is intentionally where z-order policy lives. The kernel describes layers with an
+ * order value, and this file sorts and composites them. That keeps the model-level wave description
+ * independent from whether we eventually draw bands newest-on-top, oldest-on-top, or with another
+ * visual ordering.
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import Complex from '../../../../dot/js/Complex.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
-import { type AnalyticalWaveParameters, type FieldComponent, type FieldSample, computeSampleIntensity, evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
+import { type AnalyticalWaveParameters, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample, computeSampleIntensity, evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
 export const FIELD_DISPLAY_CUTOFF = 0.4;
@@ -73,6 +84,73 @@ export const getFieldSampleRGBA = (
   return getDisplayStateRGBA( displayState, displayMode, baseColor, amplitudeScale );
 };
 
+/**
+ * Maps a LayeredFieldSample to one RGBA pixel by source-over compositing its layers.
+ *
+ * This is the production path for experimental High Intensity particle-chain rendering. The important
+ * distinction from getFieldSampleRGBA is that field layers can return alpha 0..255. Empty/fully faded
+ * layers therefore reveal the black Scenery background behind the canvas, instead of being converted
+ * into opaque black pixels. The order value comes from the kernel and is the hook for z-order
+ * experimentation.
+ */
+export const getLayeredFieldSampleRGBA = (
+  sample: LayeredFieldSample,
+  displayMode: WaveDisplayMode,
+  baseColor: RGBColor,
+  amplitudeScale: number
+): RGBAColor => {
+  if ( sample.kind !== 'field' ) {
+    const gray = sample.kind === 'unreached' ? UNREACHED_VACUUM :
+                 sample.kind === 'absorbed' ? ABSORBED_VACUUM :
+                 BLOCKED_VACUUM;
+    return { red: gray, green: gray, blue: gray, alpha: 255 };
+  }
+
+  // Layers are source-over composited in order. Empty/fully transparent field samples return alpha 0,
+  // allowing the Scenery background rectangle behind the canvas to show through as black vacuum.
+  const layers = sample.layers.slice().sort( ( a, b ) => a.order - b.order );
+  let red = 0;
+  let green = 0;
+  let blue = 0;
+  let alpha = 0;
+
+  for ( let i = 0; i < layers.length; i++ ) {
+    const color = getFieldLayerRGBA( layers[ i ], displayMode, baseColor, amplitudeScale );
+    const sourceAlpha = color.alpha / 255;
+    const destinationAlpha = alpha / 255;
+    const outputAlpha = sourceAlpha + destinationAlpha * ( 1 - sourceAlpha );
+
+    if ( outputAlpha > 0 ) {
+      red = ( color.red * sourceAlpha + red * destinationAlpha * ( 1 - sourceAlpha ) ) / outputAlpha;
+      green = ( color.green * sourceAlpha + green * destinationAlpha * ( 1 - sourceAlpha ) ) / outputAlpha;
+      blue = ( color.blue * sourceAlpha + blue * destinationAlpha * ( 1 - sourceAlpha ) ) / outputAlpha;
+    }
+    alpha = outputAlpha * 255;
+  }
+
+  return {
+    red: roundSymmetric( red ),
+    green: roundSymmetric( green ),
+    blue: roundSymmetric( blue ),
+    alpha: roundSymmetric( alpha )
+  };
+};
+
+const getFieldLayerRGBA = (
+  layer: FieldLayer,
+  displayMode: WaveDisplayMode,
+  baseColor: RGBColor,
+  amplitudeScale: number
+): RGBAColor => {
+  const layerSample: Extract<FieldSample, { kind: 'field' }> = {
+    kind: 'field',
+    components: layer.components
+  };
+  const groupStates = getCoherenceGroupDisplayStates( layerSample );
+  const displayState = getDisplayState( layerSample, groupStates, amplitudeScale );
+  return getDisplayStateTransparentRGBA( displayState, displayMode, baseColor, amplitudeScale, layer.alpha );
+};
+
 const getDisplayStateRGBA = (
   displayState: FieldDisplayState,
   displayMode: WaveDisplayMode,
@@ -116,6 +194,57 @@ const getDisplayStateRGBA = (
     green: roundSymmetric( blend( UNREACHED_VACUUM, fieldColor.green, displayState.visibility ) ),
     blue: roundSymmetric( blend( UNREACHED_VACUUM, fieldColor.blue, displayState.visibility ) ),
     alpha: 255
+  };
+};
+
+/**
+ * Converts one layer's display state into a transparent pixel.
+ *
+ * getDisplayStateRGBA bakes visibility into RGB by blending toward UNREACHED_VACUUM and always returns
+ * alpha 255. That is right for the legacy renderer, but wrong for particle bands because a taper would
+ * look like the wave itself darkens. Here intensity still controls the layer's color, while
+ * displayState.visibility and layerAlpha control transparency. The black backing node supplies the
+ * vacuum color during canvas compositing.
+ */
+const getDisplayStateTransparentRGBA = (
+  displayState: FieldDisplayState,
+  displayMode: WaveDisplayMode,
+  baseColor: RGBColor,
+  amplitudeScale: number,
+  layerAlpha: number
+): RGBAColor => {
+  const real = displayState.value.real * amplitudeScale;
+  const imaginary = displayState.value.imaginary * amplitudeScale;
+
+  let intensity: number;
+  if ( displayMode === 'timeAveragedIntensity' ) {
+    intensity = clamp(
+      FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * displayState.intensity * amplitudeScale * amplitudeScale,
+      0,
+      1
+    );
+  }
+  else if ( displayMode === 'magnitude' ) {
+    intensity = clamp(
+      FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * Math.sqrt( displayState.intensity ) * amplitudeScale,
+      0,
+      1
+    );
+  }
+  else {
+    const value = displayMode === 'imaginaryPart' ? imaginary : real;
+    intensity = value > 0 ?
+                clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * value, FIELD_DISPLAY_CUTOFF, 1 ) :
+                clamp( FIELD_DISPLAY_CUTOFF * ( 1 + value ), 0, FIELD_DISPLAY_CUTOFF );
+  }
+
+  // Unlike getDisplayStateRGBA, this does not preblend with UNREACHED_VACUUM. The field color stays
+  // chromatic while alpha carries visibility and particle-chain taper strength.
+  return {
+    red: roundSymmetric( baseColor.red * intensity ),
+    green: roundSymmetric( baseColor.green * intensity ),
+    blue: roundSymmetric( baseColor.blue * intensity ),
+    alpha: roundSymmetric( 255 * clamp( displayState.visibility * layerAlpha, 0, 1 ) )
   };
 };
 

@@ -7,8 +7,8 @@
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalSample, getDecoherenceEventAtPassTime, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
-import { getFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
+import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getDecoherenceEventAtPassTime, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { getFieldSampleRGBA, getLayeredFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
@@ -812,7 +812,7 @@ QUnit.test( 'packet decoherence records project aperture and downstream to the s
   }
 } );
 
-QUnit.test( 'plane-wave decoherence records form temporal bands from slit distances', assert => {
+QUnit.test( 'plane-wave decoherence records form selected-slit temporal chains', assert => {
   const topRecordedParameters = createPlaneParameters( {
     speed: 1,
     barrier: createDoubleSlitBarrier( { coherent: false } )
@@ -823,22 +823,56 @@ QUnit.test( 'plane-wave decoherence records form temporal bands from slit distan
 
   const x = 2;
   const y = 0.25;
-  const beforeBandArrivesSample = evaluateAnalyticalSample( topRecordedParameters, x, y, 3.01 );
-  const afterBandArrivesSample = evaluateAnalyticalSample( topRecordedParameters, x, y, 4.25 );
+  const beforeBandSample = evaluateAnalyticalSample( topRecordedParameters, x, y, 3.99 );
+  const bandHeadSample = evaluateAnalyticalSample( topRecordedParameters, x, y, 4 );
+  const partialBandSample = evaluateAnalyticalSample( topRecordedParameters, x, y, 4.05 );
+  const bandCenterSample = evaluateAnalyticalSample( topRecordedParameters, x, y, 4.1 );
+  const bandTailSample = evaluateAnalyticalSample( topRecordedParameters, x, y, 4.2 );
+  const afterBandSample = evaluateAnalyticalSample( topRecordedParameters, x, y, 4.21 );
 
-  assert.strictEqual( beforeBandArrivesSample.kind, 'field', 'sample has field before temporal record band arrives' );
-  assert.strictEqual( afterBandArrivesSample.kind, 'field', 'sample has field after temporal record band arrives' );
+  assert.strictEqual( beforeBandSample.kind, 'field', 'sample has field before temporal record band arrives' );
+  assert.strictEqual( bandHeadSample.kind, 'field', 'sample has field at temporal record band head' );
+  assert.strictEqual( partialBandSample.kind, 'field', 'sample has field inside temporal record band' );
+  assert.strictEqual( bandCenterSample.kind, 'field', 'sample has field at temporal record band center' );
+  assert.strictEqual( bandTailSample.kind, 'field', 'sample has field at temporal record band tail' );
+  assert.strictEqual( afterBandSample.kind, 'field', 'sample has field after temporal record band passes' );
 
-  if ( beforeBandArrivesSample.kind === 'field' && afterBandArrivesSample.kind === 'field' ) {
-    const beforeTopPath = beforeBandArrivesSample.components.find( component => component.source === 'topSlit' );
-    const beforeBottomPath = beforeBandArrivesSample.components.find( component => component.source === 'bottomSlit' );
-    const afterTopPath = afterBandArrivesSample.components.find( component => component.source === 'topSlit' );
-    const afterBottomPath = afterBandArrivesSample.components.find( component => component.source === 'bottomSlit' );
+  if (
+    beforeBandSample.kind === 'field' &&
+    bandHeadSample.kind === 'field' &&
+    partialBandSample.kind === 'field' &&
+    bandCenterSample.kind === 'field' &&
+    bandTailSample.kind === 'field' &&
+    afterBandSample.kind === 'field'
+  ) {
+    const getMagnitude = (
+      sample: Extract<ReturnType<typeof evaluateAnalyticalSample>, { kind: 'field' }>,
+      source: 'topSlit' | 'bottomSlit'
+    ): number =>
+      sample.components.find( component => component.source === source )?.value.magnitude ?? 0;
 
-    assert.ok( beforeTopPath && beforeTopPath.value.magnitude > 0, 'top path remains before its temporal band arrives' );
-    assert.ok( beforeBottomPath && beforeBottomPath.value.magnitude > 0, 'bottom path remains before its temporal band arrives' );
-    assert.ok( afterTopPath && afterTopPath.value.magnitude > 0, 'top record keeps top path after the band arrives' );
-    assert.strictEqual( afterBottomPath?.value.magnitude, 0, 'top record zeroes bottom path only after the band arrives' );
+    const beforeTopMagnitude = getMagnitude( beforeBandSample, 'topSlit' );
+    const beforeBottomMagnitude = getMagnitude( beforeBandSample, 'bottomSlit' );
+    const headBottomMagnitude = getMagnitude( bandHeadSample, 'bottomSlit' );
+    const partialBottomMagnitude = getMagnitude( partialBandSample, 'bottomSlit' );
+    const centerTopMagnitude = getMagnitude( bandCenterSample, 'topSlit' );
+    const centerBottomMagnitude = getMagnitude( bandCenterSample, 'bottomSlit' );
+    const tailBottomMagnitude = getMagnitude( bandTailSample, 'bottomSlit' );
+    const afterTopMagnitude = getMagnitude( afterBandSample, 'topSlit' );
+    const afterBottomMagnitude = getMagnitude( afterBandSample, 'bottomSlit' );
+
+    assert.ok( beforeTopMagnitude > 0, 'top path remains before its temporal band arrives' );
+    assert.ok( beforeBottomMagnitude > 0, 'bottom path remains before its temporal band arrives' );
+    assert.ok( headBottomMagnitude > 0, 'unselected bottom path is present at band head' );
+    assert.ok(
+      partialBottomMagnitude > 0 && partialBottomMagnitude < headBottomMagnitude,
+      'unselected bottom path is partially attenuated between band head and center'
+    );
+    assert.ok( centerTopMagnitude > 0, 'top record keeps top path at band center' );
+    assertApproximately( assert, centerBottomMagnitude, 0, 'top record zeroes bottom path at band center' );
+    assert.ok( tailBottomMagnitude > 0, 'unselected bottom path is restored at band tail' );
+    assert.ok( afterTopMagnitude > 0, 'top path remains after temporal band passes' );
+    assert.ok( afterBottomMagnitude > 0, 'bottom path remains after temporal band passes' );
   }
 
   const bottomRecordedParameters = createPlaneParameters( {
@@ -849,14 +883,105 @@ QUnit.test( 'plane-wave decoherence records form temporal bands from slit distan
     { time: 3, selectedSlit: 'bottomSlit' as const }
   ];
 
-  const bottomBandSample = evaluateAnalyticalSample( bottomRecordedParameters, x, -0.25, 4.25 );
-  assert.strictEqual( bottomBandSample.kind, 'field', 'sample has field after bottom temporal record band arrives' );
+  const bottomBandSample = evaluateAnalyticalSample( bottomRecordedParameters, x, -0.25, 4.1 );
+  assert.strictEqual( bottomBandSample.kind, 'field', 'sample has field at bottom temporal record band center' );
   if ( bottomBandSample.kind === 'field' ) {
     const topPath = bottomBandSample.components.find( component => component.source === 'topSlit' );
     const bottomPath = bottomBandSample.components.find( component => component.source === 'bottomSlit' );
-    assert.strictEqual( topPath?.value.magnitude, 0, 'bottom record zeroes top path after the band arrives' );
-    assert.ok( bottomPath && bottomPath.value.magnitude > 0, 'bottom record keeps bottom path after the band arrives' );
+    assertApproximately( assert, topPath?.value.magnitude ?? 0, 0, 'bottom record zeroes top path at band center' );
+    assert.ok( bottomPath && bottomPath.value.magnitude > 0, 'bottom record keeps bottom path at band center' );
   }
+
+  const repeatedTopParameters = createPlaneParameters( {
+    speed: 1,
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  repeatedTopParameters.decoherenceEvents = [
+    { time: 3, selectedSlit: 'topSlit' as const },
+    { time: 3.2, selectedSlit: 'topSlit' as const }
+  ];
+
+  const repeatedTopSeamSample = evaluateAnalyticalSample( repeatedTopParameters, x, y, 4.2 );
+  const repeatedTopTailSample = evaluateAnalyticalSample( repeatedTopParameters, x, y, 4.4 );
+  const repeatedTopAfterSample = evaluateAnalyticalSample( repeatedTopParameters, x, y, 4.41 );
+
+  assert.strictEqual( repeatedTopSeamSample.kind, 'field', 'sample has field where repeated top records meet' );
+  assert.strictEqual( repeatedTopTailSample.kind, 'field', 'sample has field at repeated top chain tail' );
+  assert.strictEqual( repeatedTopAfterSample.kind, 'field', 'sample has field after repeated top chain passes' );
+
+  if (
+    repeatedTopSeamSample.kind === 'field' &&
+    repeatedTopTailSample.kind === 'field' &&
+    repeatedTopAfterSample.kind === 'field'
+  ) {
+    const seamBottomPath = repeatedTopSeamSample.components.find( component => component.source === 'bottomSlit' );
+    const tailBottomPath = repeatedTopTailSample.components.find( component => component.source === 'bottomSlit' );
+    const afterBottomPath = repeatedTopAfterSample.components.find( component => component.source === 'bottomSlit' );
+    assertApproximately( assert, seamBottomPath?.value.magnitude ?? 0, 0, 'repeated top records keep bottom path zeroed at the seam' );
+    assert.ok( tailBottomPath && tailBottomPath.value.magnitude > 0, 'repeated top chain restores bottom path at the trailing edge' );
+    assert.ok( afterBottomPath && afterBottomPath.value.magnitude > 0, 'bottom path remains after repeated top chain passes' );
+  }
+} );
+
+QUnit.test( 'plane-wave decoherence layers taper with alpha and merge repeated selected-slit records', assert => {
+  const baseColor = { red: 200, green: 200, blue: 200 };
+  const x = 2;
+  const y = -0.25;
+  const parameters = createPlaneParameters( {
+    speed: 1,
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  parameters.decoherenceEvents = [
+    { time: 3, selectedSlit: 'topSlit' as const }
+  ];
+
+  const headColor = getLayeredFieldSampleRGBA(
+    evaluateAnalyticalLayeredSample( parameters, x, y, 4 ),
+    'magnitude',
+    baseColor,
+    1
+  );
+  const centerColor = getLayeredFieldSampleRGBA(
+    evaluateAnalyticalLayeredSample( parameters, x, y, 4.1 ),
+    'magnitude',
+    baseColor,
+    1
+  );
+  const tailColor = getLayeredFieldSampleRGBA(
+    evaluateAnalyticalLayeredSample( parameters, x, y, 4.2 ),
+    'magnitude',
+    baseColor,
+    1
+  );
+
+  assert.strictEqual( headColor.alpha, 0, 'single selected-slit layer is transparent at the leading edge' );
+  assert.ok( centerColor.alpha > 0, 'single selected-slit layer is visible at the band center' );
+  assert.strictEqual( tailColor.alpha, 0, 'single selected-slit layer is transparent at the trailing edge' );
+
+  const repeatedTopParameters = createPlaneParameters( {
+    speed: 1,
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  repeatedTopParameters.decoherenceEvents = [
+    { time: 3, selectedSlit: 'topSlit' as const },
+    { time: 3.2, selectedSlit: 'topSlit' as const }
+  ];
+
+  const seamColor = getLayeredFieldSampleRGBA(
+    evaluateAnalyticalLayeredSample( repeatedTopParameters, x, y, 4.2 ),
+    'magnitude',
+    baseColor,
+    1
+  );
+  const repeatedTailColor = getLayeredFieldSampleRGBA(
+    evaluateAnalyticalLayeredSample( repeatedTopParameters, x, y, 4.4 ),
+    'magnitude',
+    baseColor,
+    1
+  );
+
+  assert.strictEqual( seamColor.alpha, 255, 'repeated same-slit layers stay fully opaque where records meet' );
+  assert.strictEqual( repeatedTailColor.alpha, 0, 'repeated same-slit chain tapers to transparency only at the chain tail' );
 } );
 
 const appendRasterPreview = (

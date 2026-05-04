@@ -12,6 +12,18 @@
  * Intensity is then computed as sum( |sum(group)|^2 ). Views may choose their own depiction of
  * multiple groups; the legacy WaveSolver adapter reduces them to one representative complex value.
  *
+ * High Intensity plane waves are interpreted as a time-ordered chain of discrete particles rather
+ * than one indivisible classical wave. A which-path detector record belongs to the particle whose
+ * wavefront reached the slit at record.time. Downstream, each grid sample computes the retarded
+ * pass time for each slit component and asks which particle record, if any, owns that temporal slice.
+ *
+ * This interpretation creates a useful rendering distinction. FieldSample preserves the model-facing
+ * projection semantics: the unselected slit component is attenuated inside the particle's temporal
+ * band. LayeredFieldSample preserves the particle-chain structure for rendering: selected-slit bands
+ * become separate layers with alpha tapers. Consecutive records that choose the same slit merge into
+ * one chain, so repeated bottom choices look like a continuous bottom-selected plane wave with only
+ * a leading and trailing taper.
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
@@ -25,6 +37,8 @@ const NEAR_APERTURE_X_FRACTION = 1e-4;
 const APERTURE_BLEND_SLIT_WIDTH_FRACTION = 0.5;
 const APERTURE_BLEND_WAVELENGTH_FRACTION = 0.25;
 const INV_SQRT_2 = 1 / Math.sqrt( 2 );
+const PLANE_WAVE_DECOHERENCE_BAND_DURATION = 0.2;
+const PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION = PLANE_WAVE_DECOHERENCE_BAND_DURATION / 2;
 
 export type FieldComponentSource = 'incident' | 'topSlit' | 'bottomSlit';
 
@@ -48,6 +62,22 @@ export type FieldSample =
   { kind: 'absorbed' } |
   { kind: 'blocked' } |
   { kind: 'field'; components: FieldComponent[] };
+
+// Rendering-level description of one visible particle-chain band. order controls z-compositing,
+// alpha controls the band envelope, and components carry the field value rendered in the layer.
+export type FieldLayer = {
+  order: number;
+  alpha: number;
+  components: FieldComponent[];
+};
+
+// Layered samples are intentionally parallel to FieldSample status values, but expose renderable
+// particle bands instead of an already-projected list of components.
+export type LayeredFieldSample =
+  { kind: 'unreached' } |
+  { kind: 'absorbed' } |
+  { kind: 'blocked' } |
+  { kind: 'field'; layers: FieldLayer[] };
 
 export type PlaneWaveSource = {
   kind: 'plane';
@@ -289,21 +319,73 @@ export const evaluateAnalyticalSample = (
   y: number,
   t: number
 ): FieldSample => {
-  const { source, barrier } = parameters;
-
-  let sample: FieldSample;
-
-  if ( barrier.kind === 'none' ) {
-    const component = evaluateSourceComponent( source, 'incident', 'incident', x, y, x, t );
-    sample = component ? { kind: 'field', components: [ component ] } : { kind: 'unreached' };
-  }
-  else {
-    sample = evaluateDoubleSlitSample( source, barrier, x, y, t );
-  }
+  let sample = evaluateUndecoheredAnalyticalSample( parameters, x, y, t );
 
   sample = applyDecoherenceEvent( sample, parameters, x, y, t );
 
-  return applyMeasurementProjections( sample, parameters.projections || [], source, x, y, t );
+  return applyMeasurementProjections( sample, parameters.projections || [], parameters.source, x, y, t );
+};
+
+/**
+ * Rendering-oriented companion to evaluateAnalyticalSample.
+ *
+ * evaluateAnalyticalSample answers "what field exists here after decoherence/projection?" and returns
+ * one already-composited FieldSample. This method answers "which independently renderable field bands
+ * should be painted here?" and returns a LayeredFieldSample. For plane waves with slit-detector events,
+ * that preserves the discrete-particle-chain interpretation so the rasterizer can draw selected-slit
+ * bands as transparent layers with z ordering. For packet sources, there is no chain rendering yet, so
+ * we wrap the projected packet sample in one opaque layer.
+ */
+export const evaluateAnalyticalLayeredSample = (
+  parameters: AnalyticalWaveParameters,
+  x: number,
+  y: number,
+  t: number
+): LayeredFieldSample => {
+  const sample = evaluateUndecoheredAnalyticalSample( parameters, x, y, t );
+
+  if ( sample.kind !== 'field' ) {
+    return sample;
+  }
+
+  if ( parameters.source.kind !== 'plane' ) {
+    const projectedSample = applyMeasurementProjections( sample, parameters.projections || [], parameters.source, x, y, t );
+    return projectedSample.kind === 'field' ? {
+      kind: 'field',
+      layers: [ {
+        order: 0,
+        alpha: 1,
+        components: projectedSample.components
+      } ]
+    } : projectedSample;
+  }
+
+  return applyPlaneWaveDecoherenceEventLayers( sample, parameters, x, y, t );
+};
+
+/**
+ * Computes the raw analytical field before detector-record decoherence or measurement projections.
+ *
+ * Both public evaluators start here so model-facing FieldSample output and rendering-facing
+ * LayeredFieldSample output share the exact same source/barrier propagation. This avoids a common
+ * failure mode where the rendered particle bands and detector/graph math drift because they each
+ * approximate diffraction or source reachability independently.
+ */
+const evaluateUndecoheredAnalyticalSample = (
+  parameters: AnalyticalWaveParameters,
+  x: number,
+  y: number,
+  t: number
+): FieldSample => {
+  const { source, barrier } = parameters;
+
+  if ( barrier.kind === 'none' ) {
+    const component = evaluateSourceComponent( source, 'incident', 'incident', x, y, x, t );
+    return component ? { kind: 'field', components: [ component ] } : { kind: 'unreached' };
+  }
+  else {
+    return evaluateDoubleSlitSample( source, barrier, x, y, t );
+  }
 };
 
 export const getDecoherenceEventAtPassTime = (
@@ -316,6 +398,200 @@ export const getDecoherenceEventAtPassTime = (
     }
   }
   return null;
+};
+
+/**
+ * A same-slit run of plane-wave detector records that should be treated as one visual chain.
+ *
+ * event is the causal record for the pass time being sampled, so event.selectedSlit tells which slit
+ * owns this particle slice. strength is the chain envelope at that pass time: 0 at the chain head/tail,
+ * 1 through the interior, and smoothly varying only at the outer ends. It is used as projection strength
+ * in FieldSample output and as layer alpha in LayeredFieldSample output.
+ */
+type DecoherenceChain = {
+  event: DecoherenceEvent;
+  strength: number;
+};
+
+/**
+ * Finds the causal plane-wave particle chain for a retarded slit pass time.
+ *
+ * Each detector record owns a fixed 0.2s temporal window. Unlike getDecoherenceEventAtPassTime, this
+ * intentionally does not let the latest record stay active forever. If passTime is outside the active
+ * window of the latest causal record, there is no chain. If adjacent records choose the same slit and
+ * their windows touch, they are merged before the strength is computed. This is what makes bottom,
+ * bottom, bottom look like one continuous bottom-selected plane wave instead of three visible packets.
+ */
+const getPlaneWaveDecoherenceChainAtPassTime = (
+  events: readonly DecoherenceEvent[],
+  passTime: number
+): DecoherenceChain | null => {
+  for ( let i = events.length - 1; i >= 0; i-- ) {
+    const event = events[ i ];
+    if ( passTime < event.time - EPSILON ) {
+      continue;
+    }
+
+    if ( passTime > event.time + PLANE_WAVE_DECOHERENCE_BAND_DURATION + EPSILON ) {
+      return null;
+    }
+
+    // Same-slit particle records whose 0.2s temporal windows touch are interpreted as one chain.
+    // This prevents a run like bottom-bottom-bottom from showing artificial packet boundaries.
+    let chainStartTime = event.time;
+    for ( let j = i - 1; j >= 0; j-- ) {
+      const previousEvent = events[ j ];
+      if (
+        previousEvent.selectedSlit !== event.selectedSlit ||
+        chainStartTime - previousEvent.time > PLANE_WAVE_DECOHERENCE_BAND_DURATION + EPSILON
+      ) {
+        break;
+      }
+      chainStartTime = previousEvent.time;
+    }
+
+    let chainEndTime = event.time + PLANE_WAVE_DECOHERENCE_BAND_DURATION;
+    let lastEventTime = event.time;
+    for ( let j = i + 1; j < events.length; j++ ) {
+      const nextEvent = events[ j ];
+      if (
+        nextEvent.selectedSlit !== event.selectedSlit ||
+        nextEvent.time - lastEventTime > PLANE_WAVE_DECOHERENCE_BAND_DURATION + EPSILON
+      ) {
+        break;
+      }
+      lastEventTime = nextEvent.time;
+      chainEndTime = nextEvent.time + PLANE_WAVE_DECOHERENCE_BAND_DURATION;
+    }
+
+    return {
+      event: event,
+      strength: getPlaneWaveDecoherenceChainStrength( passTime, chainStartTime, chainEndTime )
+    };
+  }
+  return null;
+};
+
+const getPlaneWaveDecoherenceChainStrength = (
+  passTime: number,
+  chainStartTime: number,
+  chainEndTime: number
+): number => {
+  if ( passTime <= chainStartTime + EPSILON || passTime >= chainEndTime - EPSILON ) {
+    return 0;
+  }
+
+  // The envelope tapers only at the chain ends. The interior stays full strength, so a long run of
+  // same-slit particles behaves like a stable one-slit plane wave rather than a sequence of packets.
+  const leadingStrength = smoothStep(
+    chainStartTime,
+    chainStartTime + PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION,
+    passTime
+  );
+  const trailingStrength = 1 - smoothStep(
+    chainEndTime - PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION,
+    chainEndTime,
+    passTime
+  );
+  return Math.min( leadingStrength, trailingStrength );
+};
+
+const getPlaneWaveComponentDecoherenceChain = (
+  component: FieldComponent,
+  events: readonly DecoherenceEvent[],
+  barrier: Extract<AnalyticalBarrier, { kind: 'doubleSlit' }>,
+  source: PlaneWaveSource,
+  x: number,
+  y: number,
+  t: number
+): DecoherenceChain | null => {
+  if ( component.source !== 'topSlit' && component.source !== 'bottomSlit' ) {
+    return null;
+  }
+
+  const slit = barrier.slits.find( candidate => candidate.source === component.source );
+  if ( !slit ) {
+    return null;
+  }
+
+  // Use the nearest point on this aperture so the band expands from the whole slit opening,
+  // rather than from a single point at the slit center.
+  const xPastBarrier = x - barrier.barrierX;
+  const closestApertureY = getClosestYOnSlit( y, slit );
+  const downstreamDistance = Math.sqrt(
+    xPastBarrier * xPastBarrier +
+    ( y - closestApertureY ) * ( y - closestApertureY )
+  );
+  const passTime = t - downstreamDistance / source.speed;
+  return getPlaneWaveDecoherenceChainAtPassTime( events, passTime );
+};
+
+/**
+ * Converts an undecohereed plane-wave field sample into renderable particle-chain layers.
+ *
+ * For samples with no active detector chain, the original components are returned in one opaque layer.
+ * For samples inside a detected particle chain, only the selected slit component is emitted, and its
+ * chain strength becomes the layer alpha. The unselected slit is omitted instead of painted black, so
+ * the taper fades to transparent over the black wave-region background. FieldSample projection still
+ * handles model-facing attenuation separately in applyDecoherenceEvent.
+ */
+const applyPlaneWaveDecoherenceEventLayers = (
+  sample: Extract<FieldSample, { kind: 'field' }>,
+  parameters: AnalyticalWaveParameters,
+  x: number,
+  y: number,
+  t: number
+): LayeredFieldSample => {
+  const events = parameters.decoherenceEvents;
+  const barrier = parameters.barrier;
+  const source = parameters.source;
+
+  if (
+    !events ||
+    events.length === 0 ||
+    barrier.kind !== 'doubleSlit' ||
+    source.kind !== 'plane' ||
+    source.speed <= 0 ||
+    x < barrier.barrierX - EPSILON
+  ) {
+    return {
+      kind: 'field',
+      layers: [ {
+        order: 0,
+        alpha: 1,
+        components: sample.components
+      } ]
+    };
+  }
+
+  const layers: FieldLayer[] = [];
+  for ( let i = 0; i < sample.components.length; i++ ) {
+    const component = sample.components[ i ];
+    const chain = getPlaneWaveComponentDecoherenceChain( component, events, barrier, source, x, y, t );
+    if ( chain ) {
+      if ( chain.event.selectedSlit === component.source && chain.strength > EPSILON ) {
+        // Only the selected slit is rendered for a detected particle band. The alpha envelope fades
+        // this layer to transparent; the black wave-region background supplies the visual vacuum.
+        layers.push( {
+          order: chain.event.time,
+          alpha: chain.strength,
+          components: [ component ]
+        } );
+      }
+    }
+    else if ( component.source !== 'topSlit' && component.source !== 'bottomSlit' ) {
+      layers.push( {
+        order: 0,
+        alpha: 1,
+        components: [ component ]
+      } );
+    }
+  }
+
+  return {
+    kind: 'field',
+    layers: layers
+  };
 };
 
 const applyDecoherenceEvent = (
@@ -349,39 +625,38 @@ const applyDecoherenceEvent = (
   const components = sample.components.map( component => {
     if ( component.source === 'topSlit' || component.source === 'bottomSlit' ) {
       let event = packetEvent;
+      let planeWaveDecoherenceStrength = 1;
 
       // High Intensity uses a continuous plane wave to represent a stream of many independent
-      // particles. One detector record should clear only the temporal slice for one particle, so
-      // each sample asks when its wavefront left this slit aperture. Equal passTime contours are the
-      // semicircular bands seen downstream from the detected apertures.
+      // particles. One detector record attenuates only a fixed-width temporal slice for one particle,
+      // so each sample asks when its wavefront left this slit aperture. Equal passTime contours are
+      // the semicircular bands seen downstream from the detected apertures.
       if ( !event && source.kind === 'plane' && source.speed > 0 ) {
-        const slit = barrier.slits.find( candidate => candidate.source === component.source );
-        if ( !slit ) {
-          return component;
+        const chain = getPlaneWaveComponentDecoherenceChain( component, events, barrier, source, x, y, t );
+        if ( chain ) {
+          event = chain.event;
+          planeWaveDecoherenceStrength = chain.strength;
         }
-
-        // Use the nearest point on this aperture so the band expands from the whole slit opening,
-        // rather than from a single point at the slit center.
-        const xPastBarrier = x - barrier.barrierX;
-        const closestApertureY = getClosestYOnSlit( y, slit );
-        const downstreamDistance = Math.sqrt(
-          xPastBarrier * xPastBarrier +
-          ( y - closestApertureY ) * ( y - closestApertureY )
-        );
-        const passTime = t - downstreamDistance / source.speed;
-        event = getDecoherenceEventAtPassTime( events, passTime );
       }
 
       if ( !event ) {
         return component;
       }
 
-      return event.selectedSlit === component.source ? component : {
+      if ( event.selectedSlit === component.source ) {
+        return component;
+      }
+
+      const scale = 1 - planeWaveDecoherenceStrength;
+      const attenuatedComponent: FieldComponent = {
         source: component.source,
         coherenceGroup: component.coherenceGroup,
-        support: 0,
-        value: new Complex( 0, 0 )
+        value: component.value.timesScalar( scale )
       };
+      if ( component.support !== undefined ) {
+        attenuatedComponent.support = component.support * scale;
+      }
+      return attenuatedComponent;
     }
     return component;
   } );
