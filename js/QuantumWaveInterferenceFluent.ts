@@ -175,6 +175,7 @@ addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_hitsSingleSlitCle
 addToMapIfDefined( 'a11y_graphAccordionBox_zoomButtonGroup_zoomLevelResponse', 'a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponseStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_zoomButtonGroup_zoomInAccessibleHelpText', 'a11y.graphAccordionBox.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_zoomButtonGroup_zoomOutAccessibleHelpText', 'a11y.graphAccordionBox.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_maxHitsReached_accessibleContextResponse', 'a11y.detectorScreen.maxHitsReached.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_intensityOff', 'a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_intensity', 'a11y.detectorScreen.accessibleParagraph.intensityStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_intensitySingleSlit', 'a11y.detectorScreen.accessibleParagraph.intensitySingleSlitStringProperty' );
@@ -456,6 +457,9 @@ const QuantumWaveInterferenceFluent = {
       }
     },
     detectorScreen: {
+      maxHitsReached: {
+        accessibleContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_maxHitsReached_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.maxHitsReached.accessibleContextResponseStringProperty' ) )
+      },
       accessibleParagraph: {
         intensityOffStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_intensityOff', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty' ) ),
         intensity: new FluentPattern<{ bandCount: FluentVariable, spatialDescription: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_intensity', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.intensityStringProperty' ), [{"name":"bandCount"},{"name":"spatialDescription"}] ),

@@ -58,7 +58,7 @@ timePlot:                           Time Plot
 positionPlot:                       Position Plot
 time:                               Time
 position:                           Position
-barrier:                           Barrier
+barrier:                            Barrier
 none:                               None
 waveDisplay:                        Wave Display
 waveFunctionDisplay:                Wave Function Display
@@ -412,6 +412,8 @@ a11y:
       zoomInAccessibleHelpText:  Zoom in to see more detail of graph pattern.
       zoomOutAccessibleHelpText: Zoom out to see more of graph pattern.
   detectorScreen:
+    maxHitsReached:
+      accessibleContextResponse: Maximum number of hits reached. Source is off. Clear detector screen to make more observations.
     accessibleParagraph:
       intensityOff:                   Detector screen is empty.
       intensity:                      >-

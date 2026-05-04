@@ -550,6 +550,19 @@ export default class ExperimentScreenView extends ScreenView {
     // Accessible paragraph describing the current state of the detector screen for screen reader users.
     // The description scales with hit count: few hits describe scattered detections,
     // many hits describe the emerging/established interference pattern.
+    const maxHitsReachedResponseNode = new Node();
+    this.addChild( maxHitsReachedResponseNode );
+    model.scenes.forEach( scene => {
+      scene.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
+        if ( isMaxHitsReached ) {
+          maxHitsReachedResponseNode.addAccessibleContextResponse(
+            QuantumWaveInterferenceFluent.a11y.detectorScreen.maxHitsReached.accessibleContextResponseStringProperty,
+            { responseGroup: 'qwi-experiment-max-hits-reached' }
+          );
+        }
+      } );
+    } );
+
     const detectorScreenDescriber = new DetectorScreenDescriber( model.sceneProperty, model.isRulerVisibleProperty );
     const detectorScreenDescriptionNode = new Node( {
       accessibleParagraph: detectorScreenDescriber.descriptionProperty

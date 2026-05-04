@@ -246,6 +246,9 @@ type StringsType = {
       }
     };
     'detectorScreen': {
+      'maxHitsReached': {
+        'accessibleContextResponseStringProperty': LocalizedStringProperty;
+      };
       'accessibleParagraph': {
         'intensityOffStringProperty': LocalizedStringProperty;
         'intensityStringProperty': LocalizedStringProperty;

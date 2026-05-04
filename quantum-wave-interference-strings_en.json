@@ -547,6 +547,11 @@
       }
     },
     "detectorScreen": {
+      "maxHitsReached": {
+        "accessibleContextResponse": {
+          "value": "Maximum number of hits reached. Source is off. Clear detector screen to make more observations."
+        }
+      },
       "accessibleParagraph": {
         "intensityOff": {
           "value": "Detector screen is empty."
