@@ -123,7 +123,7 @@ a11y:
                                  *[true] Detector screen shows hits pattern.
                                 }
                               }
-                             *[false] Source is off. Detector screen is dark.
+                             *[false] Source is off. Detector screen is empty.
                             }
                           }
                          *[true] { $isMaxHitsReached ->
@@ -150,19 +150,19 @@ a11y:
                                 [averageIntensity] intensity
                                *[hits] hits
                               } pattern.
-                             *[false] source is off. Detector screen is dark.
+                             *[false] source is off. Detector screen is empty.
                             }
                           }
                         }
     interactionHint:    >-
                         { $isEmitting ->
                           [true] Adjust source or slits and watch for changes on detector screen.
-                         *[false] Turn on the { $sourceType ->
-                            [photons] photon source emitter
-                            [electrons] electron source emitter
-                            [neutrons] neutron source emitter
-                           *[heliumAtoms] helium atom source emitter
-                          } to start experimenting.
+                         *[false] Turn on { $sourceType ->
+                            [photons] photon
+                            [electrons] electron
+                            [neutrons] neutron
+                           *[heliumAtoms] helium atom
+                          } source and observe detector screen.
                         }
   experimentSetupHeading:      Detector Screen and Experiment Setup
   sourceHeading:               Source Controls
@@ -296,13 +296,13 @@ a11y:
       accessibleContextResponse: >-
                                  { $isEmitting ->
                                    [true] Alternating bright and dark vertical bands on detector screen.
-                                  *[false] Screen is dark. Start particle source.
+                                  *[false] Screen is empty. Start particle source.
                                  }
     hitsRadioButton:
       accessibleContextResponse: >-
                                  { $isEmitting ->
                                    [true] Individual hits increasing on detector screen.
-                                  *[false] Screen is dark. Start particle source.
+                                  *[false] Screen is empty. Start particle source.
                                  }
   timeControlNode:
     simSpeedDescription: Choose Normal or Fast speed. In Hits mode, Fast collects hits more quickly for faster data collection.
@@ -413,7 +413,7 @@ a11y:
       zoomOutAccessibleHelpText: Zoom out to see more of graph pattern.
   detectorScreen:
     accessibleParagraph:
-      intensityOff:                   Detector screen is dark.
+      intensityOff:                   Detector screen is empty.
       intensity:                      >-
                                       Detector screen shows { $bandCount } alternating bright and dark vertical
                                       bands, brightest at center and fainter toward edges. { $spatialDescription }
@@ -527,7 +527,7 @@ a11y:
                                      on detector screen.
                                     *[false] Hits pattern cleared. Sim paused.
                                    }
-                                  *[false] Hits pattern cleared. Screen dark.
+                                  *[false] Hits pattern cleared. Screen empty.
                                  }
     takeSnapshot:
       accessibleName:            Take Snapshot

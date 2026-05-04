@@ -257,10 +257,10 @@
         "value": "Clear detector screen to make more observations."
       },
       "currentDetails": {
-        "value": "Currently, { $isPlaying ->\n  [false] sim is paused. { $isMaxHitsReached ->\n    [true] Source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] Source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at double-slit barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. { $detectionMode ->\n        [averageIntensity] Detector screen shows intensity pattern.\n       *[hits] { $hasHits ->\n          [false] Detector screen has no hits.\n         *[true] Detector screen shows hits pattern.\n        }\n      }\n     *[false] Source is off. Detector screen is dark.\n    }\n  }\n *[true] { $isMaxHitsReached ->\n    [true] source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at double-slit barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] source is off. Detector screen is dark.\n    }\n  }\n}"
+        "value": "Currently, { $isPlaying ->\n  [false] sim is paused. { $isMaxHitsReached ->\n    [true] Source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] Source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at double-slit barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. { $detectionMode ->\n        [averageIntensity] Detector screen shows intensity pattern.\n       *[hits] { $hasHits ->\n          [false] Detector screen has no hits.\n         *[true] Detector screen shows hits pattern.\n        }\n      }\n     *[false] Source is off. Detector screen is empty.\n    }\n  }\n *[true] { $isMaxHitsReached ->\n    [true] source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at double-slit barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] source is off. Detector screen is empty.\n    }\n  }\n}"
       },
       "interactionHint": {
-        "value": "{ $isEmitting ->\n  [true] Adjust source or slits and watch for changes on detector screen.\n *[false] Turn on the { $sourceType ->\n    [photons] photon source emitter\n    [electrons] electron source emitter\n    [neutrons] neutron source emitter\n   *[heliumAtoms] helium atom source emitter\n  } to start experimenting.\n}"
+        "value": "{ $isEmitting ->\n  [true] Adjust source or slits and watch for changes on detector screen.\n *[false] Turn on { $sourceType ->\n    [photons] photon\n    [electrons] electron\n    [neutrons] neutron\n   *[heliumAtoms] helium atom\n  } source and observe detector screen.\n}"
       }
     },
     "experimentSetupHeading": {
@@ -418,12 +418,12 @@
       },
       "intensityRadioButton": {
         "accessibleContextResponse": {
-          "value": "{ $isEmitting ->\n  [true] Alternating bright and dark vertical bands on detector screen.\n *[false] Screen is dark. Start particle source.\n}"
+          "value": "{ $isEmitting ->\n  [true] Alternating bright and dark vertical bands on detector screen.\n *[false] Screen is empty. Start particle source.\n}"
         }
       },
       "hitsRadioButton": {
         "accessibleContextResponse": {
-          "value": "{ $isEmitting ->\n  [true] Individual hits increasing on detector screen.\n *[false] Screen is dark. Start particle source.\n}"
+          "value": "{ $isEmitting ->\n  [true] Individual hits increasing on detector screen.\n *[false] Screen is empty. Start particle source.\n}"
         }
       }
     },
@@ -549,7 +549,7 @@
     "detectorScreen": {
       "accessibleParagraph": {
         "intensityOff": {
-          "value": "Detector screen is dark."
+          "value": "Detector screen is empty."
         },
         "intensity": {
           "value": "Detector screen shows { $bandCount } alternating bright and dark vertical bands, brightest at center and fainter toward edges. { $spatialDescription }"
@@ -638,7 +638,7 @@
           "value": "Clear hits pattern on detector screen."
         },
         "accessibleContextResponse": {
-          "value": "{ $isEmitting ->\n  [true] { $isPlaying ->\n    [true] Hits pattern cleared. Hits detection restarted. Individual hits increasing\n    on detector screen.\n   *[false] Hits pattern cleared. Sim paused.\n  }\n *[false] Hits pattern cleared. Screen dark.\n}"
+          "value": "{ $isEmitting ->\n  [true] { $isPlaying ->\n    [true] Hits pattern cleared. Hits detection restarted. Individual hits increasing\n    on detector screen.\n   *[false] Hits pattern cleared. Sim paused.\n  }\n *[false] Hits pattern cleared. Screen empty.\n}"
         }
       },
       "takeSnapshot": {
