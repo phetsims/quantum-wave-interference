@@ -32,7 +32,7 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
   public readonly currentDetectorToolStateProperty: DynamicProperty<DetectorToolState, DetectorToolState, SingleParticlesSceneModel>;
   public readonly currentDetectorToolProbabilityProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
 
-  // Whether the detector tool UI is available (only when obstacle is None)
+  // Whether the detector tool UI is available (only when barrier is None)
   public readonly isDetectorToolAvailableProperty: TReadOnlyProperty<boolean>;
 
   // Tool visibility specific to this screen
@@ -91,8 +91,8 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
     } );
 
     this.isDetectorToolAvailableProperty = new DerivedProperty(
-      [ this.currentObstacleTypeProperty ],
-      obstacleType => obstacleType === 'none'
+      [ this.currentBarrierTypeProperty ],
+      barrierType => barrierType === 'none'
     );
 
     this.isHitsGraphVisibleProperty = new BooleanProperty( false, {

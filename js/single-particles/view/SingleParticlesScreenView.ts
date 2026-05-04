@@ -20,8 +20,8 @@ import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
-import createObstacleControlsSection from '../../common/view/createObstacleControlsSection.js';
-import createObstacleControlsRow from '../../common/view/createObstacleControlsRow.js';
+import createBarrierControlsSection from '../../common/view/createBarrierControlsSection.js';
+import createBarrierControlsRow from '../../common/view/createBarrierControlsRow.js';
 import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
 import createWaveRegionNodes from '../../common/view/createWaveRegionNodes.js';
@@ -55,9 +55,9 @@ const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const CONTENT_VERTICAL_OFFSET = 12;
 const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
 const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
-const SCENE_TO_OBSTACLE_CONTROLS_SPACING = 36;
+const SCENE_TO_BARRIER_CONTROLS_SPACING = 36;
 const CALLOUT_GAP = 55;
-const SCENE_AND_OBSTACLE_Y_OFFSET = 10;
+const SCENE_AND_BARRIER_Y_OFFSET = 10;
 const SCENE_BUTTON_GROUP_Y_OFFSET = 10;
 const WAVE_REGION_Y_OFFSET = -30;
 
@@ -103,7 +103,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       additionalContent: autoRepeatCheckbox
     } );
 
-    // Match the left-column geometry used on High Intensity so the scene buttons, obstacle controls,
+    // Match the left-column geometry used on High Intensity so the scene buttons, barrier controls,
     // wave region, detector screen, and graph land on the same coordinates.
     const highIntensityReferenceScenes: HighIntensityReferenceScene[] = model.scenes.map( scene => ( {
       sourceType: scene.sourceType,
@@ -147,8 +147,8 @@ export default class SingleParticlesScreenView extends ScreenView {
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
     sceneRadioButtonGroup.layoutOptions = { align: 'center' };
 
-    const { obstacleControlsSection } = createObstacleControlsSection(
-      model.currentObstacleTypeProperty,
+    const { barrierControlsSection } = createBarrierControlsSection(
+      model.currentBarrierTypeProperty,
       tandem
     );
 
@@ -162,15 +162,15 @@ export default class SingleParticlesScreenView extends ScreenView {
     sourceControlPanel.top = Y_MARGIN + 20;
     this.addChild( sourceControlPanel );
 
-    obstacleControlsSection.centerX = X_MARGIN + highIntensityLeftColumnWidth / 2;
-    obstacleControlsSection.top =
+    barrierControlsSection.centerX = X_MARGIN + highIntensityLeftColumnWidth / 2;
+    barrierControlsSection.top =
       baseWaveRegionTop + highIntensitySourceControlPanelHeight + SOURCE_TO_SCENE_CONTROLS_SPACING +
-      SCENE_AND_OBSTACLE_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_OBSTACLE_CONTROLS_SPACING;
-    this.addChild( obstacleControlsSection );
+      SCENE_AND_BARRIER_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_BARRIER_CONTROLS_SPACING;
+    this.addChild( barrierControlsSection );
 
-    sceneRadioButtonGroup.centerX = obstacleControlsSection.centerX;
+    sceneRadioButtonGroup.centerX = barrierControlsSection.centerX;
     sceneRadioButtonGroup.top =
-      obstacleControlsSection.top - SCENE_TO_OBSTACLE_CONTROLS_SPACING - sceneRadioButtonGroup.height +
+      barrierControlsSection.top - SCENE_TO_BARRIER_CONTROLS_SPACING - sceneRadioButtonGroup.height +
       SCENE_BUTTON_GROUP_Y_OFFSET;
     this.addChild( sceneRadioButtonGroup );
 
@@ -226,14 +226,14 @@ export default class SingleParticlesScreenView extends ScreenView {
       { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' }
     ];
 
-    const bottomRow = createObstacleControlsRow(
-      model.currentObstacleTypeProperty,
+    const bottomRow = createBarrierControlsRow(
+      model.currentBarrierTypeProperty,
       model.currentSlitConfigurationProperty,
       slitConfigItems,
       model.sceneProperty,
       model.scenes,
       waveRegionLeft,
-      obstacleControlsSection,
+      barrierControlsSection,
       this,
       tandem
     );
@@ -269,7 +269,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     const positionPlotCheckbox = createToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ), ToolIcons.createPositionPlotIcon() );
     const detectorCheckbox = createToolCheckbox( model.isDetectorToolVisibleProperty, QuantumWaveInterferenceFluent.detectorStringProperty, tandem.createTandem( 'detectorCheckbox' ), ToolIcons.createDetectorIcon() );
 
-    // Detector checkbox is only shown when obstacle is None; its checked state is preserved in the model.
+    // Detector checkbox is only shown when barrier is None; its checked state is preserved in the model.
     model.isDetectorToolAvailableProperty.link( isAvailable => {
       detectorCheckbox.visible = isAvailable;
     } );

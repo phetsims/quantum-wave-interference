@@ -30,7 +30,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import { getViewSlitLayout, SLIT_VIEW_HEIGHT } from '../model/getViewSlitLayout.js';
-import { type ObstacleType } from '../model/ObstacleType.js';
+import { type BarrierType } from '../model/BarrierType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
@@ -65,7 +65,7 @@ export type DoubleSlitNodeOptions = SelfOptions & NodeOptions;
 export default class DoubleSlitNode extends Node {
 
   public constructor(
-    obstacleTypeProperty: TReadOnlyProperty<ObstacleType>,
+    barrierTypeProperty: TReadOnlyProperty<BarrierType>,
     slitPositionFractionProperty: TProperty<number>,
     slitSeparationProperty: TReadOnlyProperty<number>,
     slitSeparationRangeProperty: TReadOnlyProperty<Range>,
@@ -258,13 +258,13 @@ export default class DoubleSlitNode extends Node {
     } );
 
     Multilink.multilink(
-      [ obstacleTypeProperty, slitPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
+      [ barrierTypeProperty, slitPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
         options.isTopSlitCoveredProperty, options.isBottomSlitCoveredProperty,
         options.isTopSlitDetectorProperty, options.isBottomSlitDetectorProperty ],
-      ( obstacleType, slitPositionFraction, slitSeparation, slitSeparationRange,
+      ( barrierType, slitPositionFraction, slitSeparation, slitSeparationRange,
         isTopCovered, isBottomCovered, isTopDetectorOn, isBottomDetectorOn ) => {
 
-        const isDoubleSlit = obstacleType === 'doubleSlit';
+        const isDoubleSlit = barrierType === 'doubleSlit';
         barrierContainer.visible = isDoubleSlit;
         arrowNode.visible = isDoubleSlit;
 

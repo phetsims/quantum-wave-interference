@@ -14,7 +14,7 @@ import type Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
 import { type DecoherenceEvent, type FieldSample } from './AnalyticalWaveKernel.js';
-import { type ObstacleType } from './ObstacleType.js';
+import { type BarrierType } from './BarrierType.js';
 
 export type WaveSolverState = Record<string, IntentionalAny>;
 
@@ -23,7 +23,7 @@ export type WaveSolverParameters = {
   waveSpeed?: number;
   displaySpeedScale?: number;
   displayWavelengths?: number;
-  obstacleType?: ObstacleType;
+  barrierType?: BarrierType;
   slitSeparation?: number;
   slitSeparationMin?: number;
   slitSeparationMax?: number;

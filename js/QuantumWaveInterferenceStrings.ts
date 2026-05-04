@@ -82,7 +82,7 @@ type StringsType = {
   'positionPlotStringProperty': LocalizedStringProperty;
   'timeStringProperty': LocalizedStringProperty;
   'positionStringProperty': LocalizedStringProperty;
-  'obstacleStringProperty': LocalizedStringProperty;
+  'barrierStringProperty': LocalizedStringProperty;
   'noneStringProperty': LocalizedStringProperty;
   'waveDisplayStringProperty': LocalizedStringProperty;
   'waveFunctionDisplayStringProperty': LocalizedStringProperty;

@@ -13,8 +13,8 @@
 import type Complex from '../../../../dot/js/Complex.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalObstacle, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
-import { type ObstacleType } from './ObstacleType.js';
+import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type BarrierType } from './BarrierType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
@@ -37,7 +37,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
   private waveSpeed = 3e8;
   private displaySpeedScale = 1;
   private displayWavelengths = DISPLAY_WAVELENGTHS;
-  private obstacleType: ObstacleType = 'none';
+  private barrierType: BarrierType = 'none';
   private slitSeparation = 0.25e-3;
   private slitSeparationMin = 0.25e-3;
   private slitSeparationMax = 3e-3;
@@ -81,7 +81,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
     this.setIfDefined( params.displaySpeedScale, value => { this.displaySpeedScale = value; } );
     this.setIfDefined( params.displayWavelengths, value => { this.displayWavelengths = value; } );
-    this.setIfDefined( params.obstacleType, value => { this.obstacleType = value; } );
+    this.setIfDefined( params.barrierType, value => { this.barrierType = value; } );
     this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
     this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
     this.setIfDefined( params.slitSeparationMax, value => { this.slitSeparationMax = value; } );
@@ -268,7 +268,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
         startTime: this.sourceOnTime,
         edgeTaperDistance: EDGE_TAPER_CELLS * this.regionWidth / this.gridWidth
       },
-      obstacle: this.createKernelObstacle()
+      barrier: this.createKernelBarrier()
     };
 
     if ( includeDecoherenceEvents ) {
@@ -278,8 +278,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     return parameters;
   }
 
-  private createKernelObstacle(): AnalyticalObstacle {
-    if ( this.obstacleType !== 'doubleSlit' ) {
+  private createKernelBarrier(): AnalyticalBarrier {
+    if ( this.barrierType !== 'doubleSlit' ) {
       return { kind: 'none' };
     }
 
@@ -316,7 +316,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
 
   private getGridCellX( gridX: number ): number {
     const barrierIx = roundSymmetric( this.barrierFractionX * this.gridWidth );
-    return this.obstacleType === 'doubleSlit' && gridX === barrierIx ?
+    return this.barrierType === 'doubleSlit' && gridX === barrierIx ?
            this.barrierFractionX * this.regionWidth :
            gridX * this.regionWidth / this.gridWidth;
   }

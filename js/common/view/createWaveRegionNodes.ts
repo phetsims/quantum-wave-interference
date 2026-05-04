@@ -14,12 +14,12 @@ import Range from '../../../../dot/js/Range.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import DoubleSlitNode, { type DoubleSlitNodeOptions } from './DoubleSlitNode.js';
 import WaveVisualizationNode from './WaveVisualizationNode.js';
-import { type ObstacleType } from '../model/ObstacleType.js';
+import { type BarrierType } from '../model/BarrierType.js';
 import { type WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 type WaveRegionModel = {
   readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene & { readonly slitSeparationRange: Range }>;
-  readonly currentObstacleTypeProperty: TReadOnlyProperty<ObstacleType>;
+  readonly currentBarrierTypeProperty: TReadOnlyProperty<BarrierType>;
   readonly currentSlitPositionFractionProperty: TProperty<number>;
   readonly currentSlitSeparationProperty: TReadOnlyProperty<number>;
   readonly currentSlitConfigurationProperty: TReadOnlyProperty<string>;
@@ -65,7 +65,7 @@ const createWaveRegionNodes = (
   }, options.additionalDoubleSlitOptions );
 
   const doubleSlitNode = new DoubleSlitNode(
-    model.currentObstacleTypeProperty,
+    model.currentBarrierTypeProperty,
     model.currentSlitPositionFractionProperty,
     model.currentSlitSeparationProperty,
     slitSeparationRangeProperty,

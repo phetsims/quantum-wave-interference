@@ -84,7 +84,7 @@ const createPlaneParameters = ( options?: {
   speed?: number;
   waveNumber?: number;
   edgeTaperDistance?: number;
-  obstacle?: AnalyticalWaveParameters['obstacle'];
+  barrier?: AnalyticalWaveParameters['barrier'];
 } ): AnalyticalWaveParameters => ( {
   source: {
     kind: 'plane',
@@ -93,12 +93,12 @@ const createPlaneParameters = ( options?: {
     startTime: options?.startTime === undefined ? 0 : options.startTime,
     edgeTaperDistance: options?.edgeTaperDistance
   },
-  obstacle: options?.obstacle ?? { kind: 'none' }
+  barrier: options?.barrier ?? { kind: 'none' }
 } );
 
 const createGaussianPacketParameters = ( options?: {
   waveNumber?: number;
-  obstacle?: AnalyticalWaveParameters['obstacle'];
+  barrier?: AnalyticalWaveParameters['barrier'];
   projections?: AnalyticalWaveParameters['projections'];
 } ): AnalyticalWaveParameters => ( {
   source: {
@@ -113,16 +113,16 @@ const createGaussianPacketParameters = ( options?: {
     longitudinalSpreadTime: 2,
     transverseSpreadTime: 2
   },
-  obstacle: options?.obstacle ?? { kind: 'none' },
+  barrier: options?.barrier ?? { kind: 'none' },
   projections: options?.projections
 } );
 
-const createDoubleSlitObstacle = ( options?: {
+const createDoubleSlitBarrier = ( options?: {
   topOpen?: boolean;
   bottomOpen?: boolean;
   coherent?: boolean;
   slitWidth?: number;
-} ): AnalyticalWaveParameters['obstacle'] => {
+} ): AnalyticalWaveParameters['barrier'] => {
   const coherent = options?.coherent ?? true;
   return {
     kind: 'doubleSlit',
@@ -165,8 +165,8 @@ QUnit.test( 'plane wave source timing and phase', assert => {
 } );
 
 QUnit.test( 'double slit barrier distinguishes aperture, absorbed barrier, and blocked downstream region', assert => {
-  const obstacle = createDoubleSlitObstacle( { topOpen: true, bottomOpen: false } );
-  const parameters = createPlaneParameters( { obstacle: obstacle } );
+  const barrier = createDoubleSlitBarrier( { topOpen: true, bottomOpen: false } );
+  const parameters = createPlaneParameters( { barrier: barrier } );
 
   assert.strictEqual(
     evaluateAnalyticalSample( parameters, 1, -0.25, 2 ).kind,
@@ -180,7 +180,7 @@ QUnit.test( 'double slit barrier distinguishes aperture, absorbed barrier, and b
   );
 
   const allBlockedParameters = createPlaneParameters( {
-    obstacle: createDoubleSlitObstacle( { topOpen: false, bottomOpen: false } )
+    barrier: createDoubleSlitBarrier( { topOpen: false, bottomOpen: false } )
   } );
   assert.strictEqual(
     evaluateAnalyticalSample( allBlockedParameters, 1.2, 0, 5 ).kind,
@@ -191,10 +191,10 @@ QUnit.test( 'double slit barrier distinguishes aperture, absorbed barrier, and b
 
 QUnit.test( 'coherent and decoherent slit components produce different total intensities', assert => {
   const coherentParameters = createPlaneParameters( {
-    obstacle: createDoubleSlitObstacle( { coherent: true } )
+    barrier: createDoubleSlitBarrier( { coherent: true } )
   } );
   const decoherentParameters = createPlaneParameters( {
-    obstacle: createDoubleSlitObstacle( { coherent: false } )
+    barrier: createDoubleSlitBarrier( { coherent: false } )
   } );
 
   const coherentSample = evaluateAnalyticalSample( coherentParameters, 2, 0, 4 );
@@ -226,7 +226,7 @@ QUnit.test( 'coherent and decoherent slit components produce different total int
 QUnit.test( 'symmetric apertures produce symmetric detector intensities', assert => {
   const parameters = createPlaneParameters( {
     waveNumber: 18 * Math.PI,
-    obstacle: createDoubleSlitObstacle( { coherent: true, slitWidth: 0.18 } )
+    barrier: createDoubleSlitBarrier( { coherent: true, slitWidth: 0.18 } )
   } );
 
   for ( const y of [ 0, 0.08, 0.17, 0.31, 0.42 ] ) {
@@ -243,7 +243,7 @@ QUnit.test( 'symmetric apertures produce symmetric detector intensities', assert
 QUnit.test( 'single open slit is symmetric about the open aperture center', assert => {
   const parameters = createPlaneParameters( {
     waveNumber: 18 * Math.PI,
-    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.18 } )
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: 0.18 } )
   } );
   const slitCenterY = -0.25;
 
@@ -261,15 +261,15 @@ QUnit.test( 'single open slit is symmetric about the open aperture center', asse
 QUnit.test( 'decoherent double slit intensity equals sum of independent slit intensities', assert => {
   const decoherentParameters = createPlaneParameters( {
     waveNumber: 18 * Math.PI,
-    obstacle: createDoubleSlitObstacle( { coherent: false, slitWidth: 0.18 } )
+    barrier: createDoubleSlitBarrier( { coherent: false, slitWidth: 0.18 } )
   } );
   const topOnlyParameters = createPlaneParameters( {
     waveNumber: 18 * Math.PI,
-    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.18 } )
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: 0.18 } )
   } );
   const bottomOnlyParameters = createPlaneParameters( {
     waveNumber: 18 * Math.PI,
-    obstacle: createDoubleSlitObstacle( { topOpen: false, bottomOpen: true, slitWidth: 0.18 } )
+    barrier: createDoubleSlitBarrier( { topOpen: false, bottomOpen: true, slitWidth: 0.18 } )
   } );
 
   for ( const y of [ -0.35, -0.1, 0.07, 0.28, 0.5 ] ) {
@@ -286,7 +286,7 @@ QUnit.test( 'decoherent double slit intensity equals sum of independent slit int
 QUnit.test( 'diffracted far-field samples are field samples, not ether', assert => {
   const parameters = createPlaneParameters( {
     waveNumber: 20 * Math.PI,
-    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
   } );
 
   // For lambda=0.1 and slit width=0.4, the first single-slit zero occurs at sin(theta)=0.25.
@@ -313,7 +313,7 @@ QUnit.test( 'single slit diffraction includes far-field aperture envelope', asse
   const t = 20;
   const parameters = createPlaneParameters( {
     waveNumber: waveNumber,
-    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: slitWidth } )
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: slitWidth } )
   } );
 
   const yAtSinTheta = ( sinTheta: number ): number =>
@@ -337,7 +337,7 @@ QUnit.test( 'single slit diffraction includes far-field aperture envelope', asse
 QUnit.test( 'Fresnel aperture propagation is continuous inside an open aperture', assert => {
   const parameters = createPlaneParameters( {
     waveNumber: 20 * Math.PI,
-    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
   } );
 
   const yInsideTopApertureAwayFromCenter = -0.25 + 0.1;
@@ -360,7 +360,7 @@ QUnit.test( 'plane wave aperture handoff is smooth in the first display cell', a
   const slitWidth = 22 / 385;
   const parameters = createPlaneParameters( {
     waveNumber: 2 * Math.PI * QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS,
-    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: slitWidth } )
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: slitWidth } )
   } );
 
   const apertureY = -0.25;
@@ -376,7 +376,7 @@ QUnit.test( 'plane wave aperture handoff is smooth in the first display cell', a
 QUnit.test( 'plane wave reaches full open aperture simultaneously', assert => {
   const parameters = createPlaneParameters( {
     speed: 1,
-    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
   } );
 
   const xJustPastBarrier = 1.0001;
@@ -453,7 +453,7 @@ QUnit.test( 'extreme aperture widths remain finite', assert => {
   for ( const slitWidth of [ 1e-6, 0.01, 0.4, 1.2 ] ) {
     const parameters = createPlaneParameters( {
       waveNumber: 24 * Math.PI,
-      obstacle: createDoubleSlitObstacle( { coherent: true, slitWidth: slitWidth } )
+      barrier: createDoubleSlitBarrier( { coherent: true, slitWidth: slitWidth } )
     } );
 
     for ( const x of [ 1, 1.001, 1.2, 2.5 ] ) {
@@ -530,7 +530,7 @@ QUnit.test( 'measurement projection zeros detector region and renormalizes outsi
 
 QUnit.test( 'gaussian packet remains finite and continuous through slit aperture', assert => {
   const parameters = createGaussianPacketParameters( {
-    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
   } );
   const apertureY = -0.25 + 0.08;
   const t = 1.5;
@@ -559,14 +559,14 @@ QUnit.test( 'gaussian packet remains finite and continuous through slit aperture
 // downstream path twice when it is also multiplied by the Fresnel aperture transfer.
 QUnit.test( 'gaussian packet post-slit phase does not double-count Fresnel propagation', assert => {
   const waveNumber = 20 * Math.PI;
-  const obstacle = createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } );
+  const barrier = createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } );
   const planeParameters = createPlaneParameters( {
     waveNumber: waveNumber,
-    obstacle: obstacle
+    barrier: barrier
   } );
   const packetParameters = createGaussianPacketParameters( {
     waveNumber: waveNumber,
-    obstacle: obstacle
+    barrier: barrier
   } );
 
   const y = -0.25;
@@ -596,7 +596,7 @@ QUnit.test( 'gaussian packet post-slit phase does not double-count Fresnel propa
 QUnit.test( 'gaussian packet aperture support is independent of diffracted amplitude', assert => {
   const parameters = createGaussianPacketParameters( {
     waveNumber: 2 * Math.PI * 25.7,
-    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 22 / 385 } )
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: 22 / 385 } )
   } );
 
   const sample = evaluateAnalyticalSample( parameters, 1.0119, -0.25, 1.6 );
@@ -619,7 +619,7 @@ QUnit.test( 'gaussian packet aperture support is independent of diffracted ampli
 
 QUnit.test( 'gaussian packet after a slit is localized around radial propagation path', assert => {
   const parameters = createGaussianPacketParameters( {
-    obstacle: createDoubleSlitObstacle( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: 0.4 } )
   } );
 
   const nearSlitPath = intensityAt( parameters, 1.2, -0.25, 1.7 );
@@ -731,7 +731,7 @@ QUnit.test( 'decoherence event lookup uses latest causal record', assert => {
 
 QUnit.test( 'packet decoherence records project aperture and downstream to the selected slit', assert => {
   const topRecordedParameters = createGaussianPacketParameters( {
-    obstacle: createDoubleSlitObstacle( { coherent: false } )
+    barrier: createDoubleSlitBarrier( { coherent: false } )
   } );
   topRecordedParameters.decoherenceEvents = [
     { time: 3, selectedSlit: 'topSlit' as const }
@@ -769,7 +769,7 @@ QUnit.test( 'packet decoherence records project aperture and downstream to the s
   }
 
   const bottomRecordedParameters = createGaussianPacketParameters( {
-    obstacle: createDoubleSlitObstacle( { coherent: false } )
+    barrier: createDoubleSlitBarrier( { coherent: false } )
   } );
   bottomRecordedParameters.decoherenceEvents = [
     { time: 3, selectedSlit: 'bottomSlit' as const }
@@ -800,7 +800,7 @@ QUnit.test( 'packet decoherence records project aperture and downstream to the s
   }
 
   const detectorOffParameters = createGaussianPacketParameters( {
-    obstacle: createDoubleSlitObstacle( { coherent: true } )
+    barrier: createDoubleSlitBarrier( { coherent: true } )
   } );
   const detectorOffSample = evaluateAnalyticalSample( detectorOffParameters, 2, 0, 3.5 );
   assert.strictEqual( detectorOffSample.kind, 'field', 'detector-off sample has field' );
@@ -815,7 +815,7 @@ QUnit.test( 'packet decoherence records project aperture and downstream to the s
 QUnit.test( 'plane-wave decoherence records form temporal bands from slit distances', assert => {
   const topRecordedParameters = createPlaneParameters( {
     speed: 1,
-    obstacle: createDoubleSlitObstacle( { coherent: false } )
+    barrier: createDoubleSlitBarrier( { coherent: false } )
   } );
   topRecordedParameters.decoherenceEvents = [
     { time: 3, selectedSlit: 'topSlit' as const }
@@ -843,7 +843,7 @@ QUnit.test( 'plane-wave decoherence records form temporal bands from slit distan
 
   const bottomRecordedParameters = createPlaneParameters( {
     speed: 1,
-    obstacle: createDoubleSlitObstacle( { coherent: false } )
+    barrier: createDoubleSlitBarrier( { coherent: false } )
   } );
   bottomRecordedParameters.decoherenceEvents = [
     { time: 3, selectedSlit: 'bottomSlit' as const }
@@ -902,10 +902,10 @@ const appendRasterPreview = (
 QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
   const baseColor = { red: 255, green: 140, blue: 80 };
   const coherentParameters = createPlaneParameters( {
-    obstacle: createDoubleSlitObstacle( { coherent: true } )
+    barrier: createDoubleSlitBarrier( { coherent: true } )
   } );
   const blockedParameters = createPlaneParameters( {
-    obstacle: createDoubleSlitObstacle( { topOpen: false, bottomOpen: false } )
+    barrier: createDoubleSlitBarrier( { topOpen: false, bottomOpen: false } )
   } );
 
   const coherentRaster = rasterizeAnalyticalWave( {

@@ -2,7 +2,7 @@
 
 /**
  * HighIntensityScreenView is the top-level view for the High Intensity screen. It contains:
- * - Left controls: source controls panel, scene radio buttons, obstacle combo box, slit controls
+ * - Left controls: source controls panel, scene radio buttons, barrier combo box, slit controls
  * - Center: emitter source, wave visualization region (black rectangle), detector screen (skewed parallelogram)
  * - Right controls: screen controls (erase/camera/snapshots), detection mode, brightness,
  *   tools checkboxes, wave display combo box, time controls, reset all
@@ -24,8 +24,8 @@ import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
-import createObstacleControlsSection from '../../common/view/createObstacleControlsSection.js';
-import createObstacleControlsRow from '../../common/view/createObstacleControlsRow.js';
+import createBarrierControlsSection from '../../common/view/createBarrierControlsSection.js';
+import createBarrierControlsRow from '../../common/view/createBarrierControlsRow.js';
 import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
 import createWaveRegionNodes from '../../common/view/createWaveRegionNodes.js';
@@ -59,9 +59,9 @@ const TOP_ROW_BEAM_RIGHT_PANEL_GAP = 10;
 const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
 const TOP_ROW_TO_MASS_LABEL_SPACING = 12;
 const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
-const SCENE_TO_OBSTACLE_CONTROLS_SPACING = 36;
+const SCENE_TO_BARRIER_CONTROLS_SPACING = 36;
 const SOURCE_CONTROL_Y_OFFSET = 20;
-const SCENE_AND_OBSTACLE_Y_OFFSET = 10;
+const SCENE_AND_BARRIER_Y_OFFSET = 10;
 const SCENE_BUTTON_GROUP_Y_OFFSET = 10;
 const WAVE_REGION_Y_OFFSET = -30;
 
@@ -102,12 +102,12 @@ export default class HighIntensityScreenView extends ScreenView {
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
 
     sceneRadioButtonGroup.layoutOptions = { align: 'center' };
-    const { obstacleControlsSection } = createObstacleControlsSection(
-      model.currentObstacleTypeProperty,
+    const { barrierControlsSection } = createBarrierControlsSection(
+      model.currentBarrierTypeProperty,
       tandem
     );
 
-    const leftColumnWidth = Math.max( sourceControlPanel.width, sceneRadioButtonGroup.width, obstacleControlsSection.width );
+    const leftColumnWidth = Math.max( sourceControlPanel.width, sceneRadioButtonGroup.width, barrierControlsSection.width );
     const leftColumnCenterX = X_MARGIN + leftColumnWidth / 2;
     const waveRegionLeft = X_MARGIN + leftColumnWidth + 20;
     const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
@@ -118,15 +118,15 @@ export default class HighIntensityScreenView extends ScreenView {
     sourceControlPanel.top = baseWaveRegionTop + SOURCE_CONTROL_Y_OFFSET;
     this.addChild( sourceControlPanel );
 
-    obstacleControlsSection.centerX = leftColumnCenterX;
-    obstacleControlsSection.top =
+    barrierControlsSection.centerX = leftColumnCenterX;
+    barrierControlsSection.top =
       baseWaveRegionTop + sourceControlPanel.height + SOURCE_TO_SCENE_CONTROLS_SPACING +
-      SCENE_AND_OBSTACLE_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_OBSTACLE_CONTROLS_SPACING;
-    this.addChild( obstacleControlsSection );
+      SCENE_AND_BARRIER_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_BARRIER_CONTROLS_SPACING;
+    this.addChild( barrierControlsSection );
 
     sceneRadioButtonGroup.centerX = leftColumnCenterX;
     sceneRadioButtonGroup.top =
-      obstacleControlsSection.top - SCENE_TO_OBSTACLE_CONTROLS_SPACING - sceneRadioButtonGroup.height +
+      barrierControlsSection.top - SCENE_TO_BARRIER_CONTROLS_SPACING - sceneRadioButtonGroup.height +
       SCENE_BUTTON_GROUP_Y_OFFSET;
     this.addChild( sceneRadioButtonGroup );
 
@@ -134,7 +134,7 @@ export default class HighIntensityScreenView extends ScreenView {
     const topRowNode = new HighIntensityTopRowNode(
       model.sceneProperty,
       model.scenes,
-      model.currentObstacleTypeProperty,
+      model.currentBarrierTypeProperty,
       model.currentSlitPositionFractionProperty,
       model.currentSlitSeparationProperty,
       model.currentIsEmittingProperty,
@@ -189,7 +189,7 @@ export default class HighIntensityScreenView extends ScreenView {
     this.addChild( this.waveVisualizationNode );
     this.addChild( doubleSlitNode );
 
-    // --- Bottom row: obstacle, slit configuration, slit separation ---
+    // --- Bottom row: barrier, slit configuration, slit separation ---
     const slitConfigItems: ComboBoxItem<SlitConfiguration>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
       { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topCoveredItem' },
@@ -199,14 +199,14 @@ export default class HighIntensityScreenView extends ScreenView {
       { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' }
     ];
 
-    const bottomRow = createObstacleControlsRow(
-      model.currentObstacleTypeProperty,
+    const bottomRow = createBarrierControlsRow(
+      model.currentBarrierTypeProperty,
       model.currentSlitConfigurationProperty,
       slitConfigItems,
       model.sceneProperty,
       model.scenes,
       waveRegionLeft,
-      obstacleControlsSection,
+      barrierControlsSection,
       this,
       tandem
     );

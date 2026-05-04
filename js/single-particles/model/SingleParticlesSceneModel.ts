@@ -281,7 +281,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const slitConfig = this.slitConfigurationProperty.value;
     if (
       this.hasCreatedPacketDecoherenceEvent ||
-      this.obstacleTypeProperty.value !== 'doubleSlit' ||
+      this.barrierTypeProperty.value !== 'doubleSlit' ||
       !hasAnyDetector( slitConfig )
     ) {
       return;

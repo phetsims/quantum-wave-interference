@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Factory function that creates the obstacle heading and radio button group shared by the
+ * Factory function that creates the barrier heading and radio button group shared by the
  * High Intensity and Single Particles screens.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -14,20 +14,20 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import { type ObstacleType } from '../model/ObstacleType.js';
+import { type BarrierType } from '../model/BarrierType.js';
 
 const LABEL_FONT = new PhetFont( 14 );
 
-type ObstacleControlsSection = {
-  obstacleControlsSection: VBox;
-  obstacleRadioButtonGroup: AquaRadioButtonGroup<ObstacleType>;
+type BarrierControlsSection = {
+  barrierControlsSection: VBox;
+  barrierRadioButtonGroup: AquaRadioButtonGroup<BarrierType>;
 };
 
-const createObstacleControlsSection = (
-  obstacleTypeProperty: PhetioProperty<ObstacleType>,
+const createBarrierControlsSection = (
+  barrierTypeProperty: PhetioProperty<BarrierType>,
   tandem: Tandem
-): ObstacleControlsSection => {
-  const obstacleRadioButtonItems: AquaRadioButtonGroupItem<ObstacleType>[] = [
+): BarrierControlsSection => {
+  const barrierRadioButtonItems: AquaRadioButtonGroupItem<BarrierType>[] = [
     {
       value: 'doubleSlit',
       createNode: () => new Text( QuantumWaveInterferenceFluent.doubleSlitStringProperty, {
@@ -46,35 +46,35 @@ const createObstacleControlsSection = (
     }
   ];
 
-  const obstacleHeading = new Text( QuantumWaveInterferenceFluent.obstacleStringProperty, {
+  const barrierHeading = new Text( QuantumWaveInterferenceFluent.barrierStringProperty, {
     font: LABEL_FONT,
     maxWidth: 120
   } );
 
-  const obstacleRadioButtonGroup = new AquaRadioButtonGroup<ObstacleType>(
-    obstacleTypeProperty,
-    obstacleRadioButtonItems,
+  const barrierRadioButtonGroup = new AquaRadioButtonGroup<BarrierType>(
+    barrierTypeProperty,
+    barrierRadioButtonItems,
     {
       spacing: 8,
       align: 'left',
       orientation: 'vertical',
       radioButtonOptions: { radius: 7 },
-      accessibleName: QuantumWaveInterferenceFluent.obstacleStringProperty,
-      tandem: tandem.createTandem( 'obstacleRadioButtonGroup' )
+      accessibleName: QuantumWaveInterferenceFluent.barrierStringProperty,
+      tandem: tandem.createTandem( 'barrierRadioButtonGroup' )
     }
   );
 
-  const obstacleControlsSection = new VBox( {
+  const barrierControlsSection = new VBox( {
     spacing: 6,
     align: 'left',
     layoutOptions: { align: 'center' },
-    children: [ obstacleHeading, obstacleRadioButtonGroup ]
+    children: [ barrierHeading, barrierRadioButtonGroup ]
   } );
 
   return {
-    obstacleControlsSection: obstacleControlsSection,
-    obstacleRadioButtonGroup: obstacleRadioButtonGroup
+    barrierControlsSection: barrierControlsSection,
+    barrierRadioButtonGroup: barrierRadioButtonGroup
   };
 };
 
-export default createObstacleControlsSection;
+export default createBarrierControlsSection;

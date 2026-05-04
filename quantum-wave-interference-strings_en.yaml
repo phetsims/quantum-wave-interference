@@ -58,7 +58,7 @@ timePlot:                           Time Plot
 positionPlot:                       Position Plot
 time:                               Time
 position:                           Position
-obstacle:                           Obstacle
+barrier:                           Barrier
 none:                               None
 waveDisplay:                        Wave Display
 waveFunctionDisplay:                Wave Function Display

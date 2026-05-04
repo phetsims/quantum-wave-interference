@@ -30,7 +30,7 @@ import ObjectLiteralIO from '../../../../tandem/js/types/ObjectLiteralIO.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { type DetectionMode } from './DetectionMode.js';
 import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKernel.js';
-import { type ObstacleType, ObstacleTypeValues } from './ObstacleType.js';
+import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration } from './SlitConfiguration.js';
 import { type SourceType } from './SourceType.js';
 import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues } from './WaveDisplayMode.js';
@@ -113,7 +113,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly isEmittingProperty: BooleanProperty;
   public readonly wavelengthProperty: NumberProperty;
   public readonly velocityProperty: NumberProperty;
-  public readonly obstacleTypeProperty: StringUnionProperty<ObstacleType>;
+  public readonly barrierTypeProperty: StringUnionProperty<BarrierType>;
   public readonly slitSeparationProperty: NumberProperty;
   public readonly slitPositionFractionProperty: NumberProperty;
   public readonly screenBrightnessProperty: NumberProperty;
@@ -209,9 +209,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'velocityProperty' )
     } );
 
-    this.obstacleTypeProperty = new StringUnionProperty<ObstacleType>( 'doubleSlit', {
-      validValues: ObstacleTypeValues,
-      tandem: tandem.createTandem( 'obstacleTypeProperty' )
+    this.barrierTypeProperty = new StringUnionProperty<BarrierType>( 'doubleSlit', {
+      validValues: BarrierTypeValues,
+      tandem: tandem.createTandem( 'barrierTypeProperty' )
     } );
 
     this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
@@ -297,7 +297,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       waveSpeed: this.getEffectiveWaveSpeed(),
       displaySpeedScale: this.getEffectiveWaveSpeed() / this.defaultWaveSpeed,
       displayWavelengths: displayWavelengths,
-      obstacleType: this.obstacleTypeProperty.value,
+      barrierType: this.barrierTypeProperty.value,
       slitSeparation: this.slitSeparationProperty.value * 1e-3,
       slitSeparationMin: this.slitSeparationRange.min * 1e-3,
       slitSeparationMax: this.slitSeparationRange.max * 1e-3,
@@ -458,7 +458,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   protected setupClearScreenListeners(): void {
     this.wavelengthProperty.lazyLink( () => this.clearScreen() );
     this.velocityProperty.lazyLink( () => this.clearScreen() );
-    this.obstacleTypeProperty.lazyLink( () => this.clearScreen() );
+    this.barrierTypeProperty.lazyLink( () => this.clearScreen() );
     this.slitSeparationProperty.lazyLink( () => this.clearScreen() );
     this.slitPositionFractionProperty.lazyLink( () => this.clearScreen() );
 
@@ -549,7 +549,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.isEmittingProperty.reset();
     this.wavelengthProperty.reset();
     this.velocityProperty.reset();
-    this.obstacleTypeProperty.reset();
+    this.barrierTypeProperty.reset();
     this.slitSeparationProperty.reset();
     this.slitPositionFractionProperty.reset();
     this.screenBrightnessProperty.reset();

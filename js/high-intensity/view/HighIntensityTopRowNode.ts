@@ -40,7 +40,7 @@ import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
-import { type ObstacleType } from '../../common/model/ObstacleType.js';
+import { type BarrierType } from '../../common/model/BarrierType.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import WaveVisualizationCanvasNode from '../../common/view/WaveVisualizationCanvasNode.js';
 import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
@@ -124,7 +124,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
   public constructor(
     sceneProperty: Property<T>,
     scenes: T[],
-    obstacleTypeProperty: TReadOnlyProperty<ObstacleType>,
+    barrierTypeProperty: TReadOnlyProperty<BarrierType>,
     slitPositionFractionProperty: TReadOnlyProperty<number>,
     slitSeparationProperty: TReadOnlyProperty<number>,
     currentIsEmittingProperty: TProperty<boolean>,
@@ -296,11 +296,11 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
       derive: scene => scene.intensityProperty
     } );
     Multilink.multilink(
-      [ sceneProperty, obstacleTypeProperty, slitPositionFractionProperty, slitSeparationProperty ],
-      ( scene, obstacleType, slitPositionFraction, slitSeparation ) => {
-        miniDoubleSlitNode.visible = obstacleType === 'doubleSlit';
+      [ sceneProperty, barrierTypeProperty, slitPositionFractionProperty, slitSeparationProperty ],
+      ( scene, barrierType, slitPositionFraction, slitSeparation ) => {
+        miniDoubleSlitNode.visible = barrierType === 'doubleSlit';
 
-        if ( obstacleType !== 'doubleSlit' ) {
+        if ( barrierType !== 'doubleSlit' ) {
           return;
         }
 

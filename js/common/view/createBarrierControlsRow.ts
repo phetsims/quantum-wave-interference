@@ -4,7 +4,7 @@
  * Factory function that creates the slit configuration combo box and slit separation NumberControl
  * for the High Intensity and Single Particles screens.
  *
- * The controls are aligned to the wave region edges and top-aligned with the obstacle controls
+ * The controls are aligned to the wave region edges and top-aligned with the barrier controls
  * section.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -19,7 +19,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import { type ObstacleType } from '../model/ObstacleType.js';
+import { type BarrierType } from '../model/BarrierType.js';
 import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -29,14 +29,14 @@ import linkSceneVisibility from './linkSceneVisibility.js';
 const TITLE_FONT = new PhetFont( 14 );
 const SLIT_SEPARATION_Y_OFFSET = -10;
 
-const createObstacleControlsRow = <T extends string>(
-  obstacleTypeProperty: PhetioProperty<ObstacleType>,
+const createBarrierControlsRow = <T extends string>(
+  barrierTypeProperty: PhetioProperty<BarrierType>,
   slitConfigurationProperty: PhetioProperty<T>,
   slitConfigItems: ComboBoxItem<T>[],
   sceneProperty: TReadOnlyProperty<BaseSceneModel>,
   scenes: BaseSceneModel[],
   waveRegionLeft: number,
-  obstacleAlignmentTargetNode: Node,
+  barrierAlignmentTargetNode: Node,
   listParent: Node,
   tandem: Tandem
 ): Node => {
@@ -73,8 +73,8 @@ const createObstacleControlsRow = <T extends string>(
     excludeInvisibleChildrenFromBounds: false
   } );
 
-  obstacleTypeProperty.link( obstacleType => {
-    slitControlsNode.visible = obstacleType === 'doubleSlit';
+  barrierTypeProperty.link( barrierType => {
+    slitControlsNode.visible = barrierType === 'doubleSlit';
   } );
 
   slitConfigSection.left = 0;
@@ -83,12 +83,12 @@ const createObstacleControlsRow = <T extends string>(
   slitSeparationContainer.right = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
   slitSeparationContainer.top = SLIT_SEPARATION_Y_OFFSET;
 
-  ManualConstraint.create( listParent, [ slitControlsNode, obstacleAlignmentTargetNode ], ( slitControlsProxy, obstacleProxy ) => {
+  ManualConstraint.create( listParent, [ slitControlsNode, barrierAlignmentTargetNode ], ( slitControlsProxy, barrierProxy ) => {
     slitControlsProxy.x = waveRegionLeft;
-    slitControlsProxy.y = obstacleProxy.top;
+    slitControlsProxy.y = barrierProxy.top;
   } );
 
   return slitControlsNode;
 };
 
-export default createObstacleControlsRow;
+export default createBarrierControlsRow;

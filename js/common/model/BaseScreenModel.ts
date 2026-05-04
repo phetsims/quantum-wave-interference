@@ -21,7 +21,7 @@ import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
-import { type ObstacleType } from './ObstacleType.js';
+import { type BarrierType } from './BarrierType.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from './WaveDisplayMode.js';
 import Snapshot from './Snapshot.js';
 import type BaseSceneModel from './BaseSceneModel.js';
@@ -39,7 +39,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   public readonly sceneProperty: Property<T>;
 
   // DynamicProperties that follow fields of the active scene
-  public readonly currentObstacleTypeProperty: DynamicProperty<ObstacleType, ObstacleType, BaseSceneModel>;
+  public readonly currentBarrierTypeProperty: DynamicProperty<BarrierType, BarrierType, BaseSceneModel>;
   public readonly currentIsEmittingProperty: DynamicProperty<boolean, boolean, BaseSceneModel>;
   public readonly currentIsMaxHitsReachedProperty: DynamicProperty<boolean, boolean, BaseSceneModel>;
   public readonly currentScreenBrightnessProperty: DynamicProperty<number, number, BaseSceneModel>;
@@ -80,8 +80,8 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       phetioValueType: ReferenceIO( IOType.ObjectIO )
     } );
 
-    this.currentObstacleTypeProperty = new DynamicProperty<ObstacleType, ObstacleType, BaseSceneModel>( this.sceneProperty, {
-      derive: 'obstacleTypeProperty',
+    this.currentBarrierTypeProperty = new DynamicProperty<BarrierType, BarrierType, BaseSceneModel>( this.sceneProperty, {
+      derive: 'barrierTypeProperty',
       bidirectional: true
     } );
 

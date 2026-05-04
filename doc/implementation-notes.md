@@ -69,7 +69,7 @@ Factory functions in `js/common/view/` assemble shared UI patterns:
 - `createWaveRegionNodes()`: Wave visualization + double slit for any screen.
 - `createRightControlsColumn()`: Right-side control panel with screen controls, tools, wave
   display, time controls, and reset.
-- `createObstacleControlsRow()`: Obstacle combo box + slit controls, positioned below the wave
+- `createBarrierControlsRow()`: Barrier combo box + slit controls, positioned below the wave
   region.
 - `createMeasurementToolNodes()`: Tape measure, stopwatch, time plot, and position plot.
 - `createSidewaysGraph()`: Intensity/hits graph alongside the detector screen.
@@ -115,7 +115,7 @@ coherence with the other slit, eliminating interference from that slit's contrib
 - **Top row** (`HighIntensityTopRowNode`): Per-scene LaserPointerNode emitters with particle-specific
   palettes, a mini wave-visualization symbol, beam graphics, and callout lines forming a "zoom in"
   frustum connecting the mini symbol to the main wave region.
-- **Main area**: Wave visualization region, double slit (when obstacle is "Double slit"), detector
+- **Main area**: Wave visualization region, double slit (when barrier is "Double slit"), detector
   screen with intensity/hits rendering.
 - **Left controls**: Source control panel, scene radio buttons, particle mass annotation.
 - **Right controls**: Detection mode radio buttons, screen controls, tool checkboxes (intensity
@@ -154,14 +154,14 @@ early/late probabilities. On detection, the packet disappears and exactly one hi
 Unique to this screen, the detector tool (`DetectorToolNode`) is a draggable
 circular region that displays the integrated probability density as a percentage. Pressing "Detect"
 either detects the particle (packet disappears, circle lights up) or fails (probability inside
-the circle is zeroed, remaining wave function is renormalized). Only available when obstacle is
+the circle is zeroed, remaining wave function is renormalized). Only available when barrier is
 "None."
 
 ### View
 
 `SingleParticlesScreenView` has no overhead row. The source uses a custom SVG image
 (`SingleParticleEmitter.svg`) with a sticky toggle button. Layout is: source directly left of the
-wave region, source controls and auto-repeat checkbox above, scene buttons and obstacle controls
+wave region, source controls and auto-repeat checkbox above, scene buttons and barrier controls
 below, right control column similar to High Intensity but without detection mode radio buttons.
 
 ## Component Nicknames
@@ -174,7 +174,7 @@ This table maps those nicknames to the actual class or property name in code:
 | Emitter button | `LaserPointerNode` (HI) / `SingleParticleEmitterNode` (SP) | The red push-button on the source |
 | Emitter controls | `SourceControlPanel` | Wavelength/speed and intensity/emission-rate controls |
 | Scene selection radio buttons | `SceneRadioButtonGroup` | 2x2 grid of source type icons |
-| Slit controls | `createObstacleControlsRow` | Obstacle combo box, slit configuration, slit separation |
+| Slit controls | `createBarrierControlsRow` | Barrier combo box, slit configuration, slit separation |
 | Clear button | eraser button in `DetectorScreenNode` | Clears accumulated hits/intensity from the detector screen |
 | Camera | snapshot button in `DetectorScreenNode` | Takes a snapshot of the current detector screen |
 | Eye | view snapshots button in `DetectorScreenNode` | Opens the snapshots dialog |

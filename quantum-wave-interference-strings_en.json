@@ -179,8 +179,8 @@
   "position": {
     "value": "Position"
   },
-  "obstacle": {
-    "value": "Obstacle"
+  "barrier": {
+    "value": "Barrier"
   },
   "none": {
     "value": "None"

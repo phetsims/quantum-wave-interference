@@ -197,7 +197,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   private stepDecoherenceEvents( dt: number ): void {
     if (
       !this.isEmittingProperty.value ||
-      this.obstacleTypeProperty.value !== 'doubleSlit' ||
+      this.barrierTypeProperty.value !== 'doubleSlit' ||
       dt <= 0 ||
       dt > 0.5
     ) {

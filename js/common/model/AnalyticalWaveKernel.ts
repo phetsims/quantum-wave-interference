@@ -4,7 +4,7 @@
  * Pure analytical wave kernel for the High Intensity and Single Particles screens.
  *
  * This file intentionally has no scene-model state, cached grid arrays, detector accumulation, or
- * rendering assumptions. It answers one question: given complete source/obstacle parameters, what
+ * rendering assumptions. It answers one question: given complete source/barrier parameters, what
  * physically meaningful field sample exists at ( x, y, t )?
  *
  * A sample is richer than a single complex value because decohered slit paths must not interfere.
@@ -80,7 +80,7 @@ export type AnalyticalSlit = {
   coherenceGroup: string;
 };
 
-export type AnalyticalObstacle =
+export type AnalyticalBarrier =
   { kind: 'none' } |
   {
     kind: 'doubleSlit';
@@ -98,7 +98,7 @@ export type MeasurementProjection = {
 
 export type AnalyticalWaveParameters = {
   source: AnalyticalSource;
-  obstacle: AnalyticalObstacle;
+  barrier: AnalyticalBarrier;
   projections?: MeasurementProjection[];
   decoherenceEvents?: readonly DecoherenceEvent[];
 };
@@ -289,16 +289,16 @@ export const evaluateAnalyticalSample = (
   y: number,
   t: number
 ): FieldSample => {
-  const { source, obstacle } = parameters;
+  const { source, barrier } = parameters;
 
   let sample: FieldSample;
 
-  if ( obstacle.kind === 'none' ) {
+  if ( barrier.kind === 'none' ) {
     const component = evaluateSourceComponent( source, 'incident', 'incident', x, y, x, t );
     sample = component ? { kind: 'field', components: [ component ] } : { kind: 'unreached' };
   }
   else {
-    sample = evaluateDoubleSlitSample( source, obstacle, x, y, t );
+    sample = evaluateDoubleSlitSample( source, barrier, x, y, t );
   }
 
   sample = applyDecoherenceEvent( sample, parameters, x, y, t );
@@ -326,14 +326,14 @@ const applyDecoherenceEvent = (
   t: number
 ): FieldSample => {
   const events = parameters.decoherenceEvents;
-  const obstacle = parameters.obstacle;
+  const barrier = parameters.barrier;
 
   if (
     sample.kind !== 'field' ||
     !events ||
     events.length === 0 ||
-    obstacle.kind !== 'doubleSlit' ||
-    x < obstacle.barrierX - EPSILON
+    barrier.kind !== 'doubleSlit' ||
+    x < barrier.barrierX - EPSILON
   ) {
     return sample;
   }
@@ -355,14 +355,14 @@ const applyDecoherenceEvent = (
       // each sample asks when its wavefront left this slit aperture. Equal passTime contours are the
       // semicircular bands seen downstream from the detected apertures.
       if ( !event && source.kind === 'plane' && source.speed > 0 ) {
-        const slit = obstacle.slits.find( candidate => candidate.source === component.source );
+        const slit = barrier.slits.find( candidate => candidate.source === component.source );
         if ( !slit ) {
           return component;
         }
 
         // Use the nearest point on this aperture so the band expands from the whole slit opening,
         // rather than from a single point at the slit center.
-        const xPastBarrier = x - obstacle.barrierX;
+        const xPastBarrier = x - barrier.barrierX;
         const closestApertureY = getClosestYOnSlit( y, slit );
         const downstreamDistance = Math.sqrt(
           xPastBarrier * xPastBarrier +
@@ -394,28 +394,28 @@ const applyDecoherenceEvent = (
 
 const evaluateDoubleSlitSample = (
   source: AnalyticalSource,
-  obstacle: Extract<AnalyticalObstacle, { kind: 'doubleSlit' }>,
+  barrier: Extract<AnalyticalBarrier, { kind: 'doubleSlit' }>,
   x: number,
   y: number,
   t: number
 ): FieldSample => {
-  if ( x < obstacle.barrierX - EPSILON ) {
+  if ( x < barrier.barrierX - EPSILON ) {
     const component = evaluateSourceComponent( source, 'incident', 'incident', x, y, x, t );
     return component ? { kind: 'field', components: [ component ] } : { kind: 'unreached' };
   }
 
-  const openSlits = obstacle.slits.filter( slit => slit.isOpen );
+  const openSlits = barrier.slits.filter( slit => slit.isOpen );
   if ( openSlits.length === 0 ) {
-    return Math.abs( x - obstacle.barrierX ) <= EPSILON ? { kind: 'absorbed' } : { kind: 'blocked' };
+    return Math.abs( x - barrier.barrierX ) <= EPSILON ? { kind: 'absorbed' } : { kind: 'blocked' };
   }
 
-  if ( Math.abs( x - obstacle.barrierX ) <= EPSILON ) {
+  if ( Math.abs( x - barrier.barrierX ) <= EPSILON ) {
     const slit = openSlits.find( candidate => Math.abs( y - candidate.centerY ) <= candidate.width / 2 );
     if ( !slit ) {
       return { kind: 'absorbed' };
     }
 
-    const component = evaluateSourceComponent( source, slit.source, slit.coherenceGroup, obstacle.barrierX, y, obstacle.barrierX, t );
+    const component = evaluateSourceComponent( source, slit.source, slit.coherenceGroup, barrier.barrierX, y, barrier.barrierX, t );
     return component ? { kind: 'field', components: [ component ] } : { kind: 'unreached' };
   }
 
@@ -424,15 +424,15 @@ const evaluateDoubleSlitSample = (
 
   for ( let i = 0; i < openSlits.length; i++ ) {
     const slit = openSlits[ i ];
-    const xPastBarrier = x - obstacle.barrierX;
+    const xPastBarrier = x - barrier.barrierX;
     const closestApertureY = getClosestYOnSlit( y, slit );
     const dyToAperture = y - closestApertureY;
     const distanceFromAperture = Math.sqrt( xPastBarrier * xPastBarrier + dyToAperture * dyToAperture );
-    const reachPathLength = obstacle.barrierX + distanceFromAperture;
+    const reachPathLength = barrier.barrierX + distanceFromAperture;
     const component = evaluateDiffractedComponent(
       source,
       slit,
-      obstacle.barrierX,
+      barrier.barrierX,
       xPastBarrier,
       y,
       reachPathLength,

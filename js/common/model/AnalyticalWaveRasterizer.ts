@@ -237,16 +237,16 @@ export const rasterizeAnalyticalWave = ( options: AnalyticalWaveRasterOptions ):
     absorbed: 0,
     blocked: 0
   };
-  const obstacle = options.parameters.obstacle;
-  const barrierGridX = obstacle.kind === 'doubleSlit' ?
-                       roundSymmetric( obstacle.barrierX / options.regionWidth * options.width ) :
+  const barrier = options.parameters.barrier;
+  const barrierGridX = barrier.kind === 'doubleSlit' ?
+                       roundSymmetric( barrier.barrierX / options.regionWidth * options.width ) :
                        -1;
 
   for ( let yIndex = 0; yIndex < options.height; yIndex++ ) {
     const y = ( yIndex + 0.5 ) * options.regionHeight / options.height - options.regionHeight / 2;
     for ( let xIndex = 0; xIndex < options.width; xIndex++ ) {
-      const x = obstacle.kind === 'doubleSlit' && xIndex === barrierGridX ?
-                obstacle.barrierX :
+      const x = barrier.kind === 'doubleSlit' && xIndex === barrierGridX ?
+                barrier.barrierX :
                 xIndex * options.regionWidth / options.width;
       const sample = evaluateAnalyticalSample( options.parameters, x, y, options.time );
       statusCounts[ sample.kind ]++;
