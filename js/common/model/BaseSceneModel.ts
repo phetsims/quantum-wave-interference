@@ -42,7 +42,7 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 import Snapshot from './Snapshot.js';
 import { MAX_VIEW_SEPARATION, MIN_VIEW_SEPARATION, SLIT_VIEW_HEIGHT } from './getViewSlitLayout.js';
 
-export const HIT_VERTICAL_EXTENT = 0.95;
+export const HIT_VERTICAL_EXTENT = 1;
 export const MAX_HITS = 25000;
 const MAX_SNAPSHOTS = 4;
 const DEFAULT_PHOTON_WAVELENGTH_NM = 650;

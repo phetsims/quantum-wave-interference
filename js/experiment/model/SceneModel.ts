@@ -43,8 +43,7 @@ const MAX_REJECTION_ITERATIONS = 1000;
 const SINGLE_OPEN_SLIT_INTENSITY_SCALE = 0.5;
 
 // Vertical extent of the hit distribution on the detector screen, as a fraction of the full height.
-// Slightly less than 1 so hits don't touch the screen edges.
-const HIT_VERTICAL_EXTENT = 0.95;
+const HIT_VERTICAL_EXTENT = 1;
 
 type SelfOptions = {
   sourceType: SourceType;
