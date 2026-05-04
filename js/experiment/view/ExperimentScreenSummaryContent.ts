@@ -8,9 +8,11 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import ScreenSummaryContent from '../../../../joist/js/ScreenSummaryContent.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
+import SceneModel from '../model/SceneModel.js';
 
 export default class ExperimentScreenSummaryContent extends ScreenSummaryContent {
 
@@ -27,13 +29,20 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
       isMaxHitsReached => isMaxHitsReached ? 'true' : 'false'
     );
 
+    const currentTotalHitsProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
+      derive: 'totalHitsProperty'
+    } );
+
+    const hasHitsStringProperty = currentTotalHitsProperty.derived( totalHits => totalHits > 0 ? 'true' : 'false' );
+
     const currentDetailsContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
       sourceType: sourceTypeProperty,
       slitSetting: model.currentSlitSettingProperty,
       detectionMode: model.currentDetectionModeProperty,
       isEmitting: isEmittingStringProperty,
       isPlaying: isPlayingStringProperty,
-      isMaxHitsReached: isMaxHitsReachedStringProperty
+      isMaxHitsReached: isMaxHitsReachedStringProperty,
+      hasHits: hasHitsStringProperty
     } );
 
     const defaultInteractionHintContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {

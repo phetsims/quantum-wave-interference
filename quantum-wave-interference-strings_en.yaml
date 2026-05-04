@@ -116,10 +116,13 @@ a11y:
                                 [leftDetector] detector on left slit
                                 [rightDetector] detector on right slit
                                *[bothDetectors] detectors on both slits
-                              }. Detector screen shows { $detectionMode ->
-                                [averageIntensity] intensity
-                               *[hits] hits
-                              } pattern.
+                              }. { $detectionMode ->
+                                [averageIntensity] Detector screen shows intensity pattern.
+                               *[hits] { $hasHits ->
+                                  [false] Detector screen has no hits.
+                                 *[true] Detector screen shows hits pattern.
+                                }
+                              }
                              *[false] Source is off. Detector screen is dark.
                             }
                           }
