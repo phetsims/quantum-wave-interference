@@ -532,7 +532,9 @@ class SnapshotCanvasNode extends CanvasNode {
       for ( let i = startIndex; i < hitCount; i++ ) {
         const hit = hits[ i ];
         const hitX = hit.x;
-        const hitY = this.useFrontFacingHitCoordinates ? -hit.y : hit.y;
+
+        // Front-facing detector hits use hit.y from center-to-top; snapshots stretch that half-span to full height.
+        const hitY = this.useFrontFacingHitCoordinates ? 1 - 2 * hit.y : hit.y;
         const viewX = displayBounds.left + ( ( hitX + 1 ) / 2 ) * width;
         const viewY = displayBounds.top + ( ( hitY + 1 ) / 2 ) * height;
         context.beginPath();

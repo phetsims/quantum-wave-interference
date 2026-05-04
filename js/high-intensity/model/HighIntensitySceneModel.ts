@@ -183,7 +183,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       }
 
       const x = this.generateHitPosition( distribution );
-      const y = ( dotRandom.nextDouble() - 0.5 ) * 2 * HIT_VERTICAL_EXTENT;
+      const y = dotRandom.nextDouble() * HIT_VERTICAL_EXTENT;
       this.hits.push( new Vector2( x, y ) );
       actualHits++;
     }
