@@ -220,7 +220,8 @@ export default class OverheadEmitterNode extends Node {
       valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
       accessibleName: emitterAccessibleNameProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpText.createProperty( {
-        isEmitting: isEmittingStringProperty
+        isEmitting: isEmittingStringProperty,
+        sourceType: sourceTypeProperty
       } ),
       accessibleContextResponseOn: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleContextResponseOn.createProperty( {
         isPlaying: isPlayingStringProperty

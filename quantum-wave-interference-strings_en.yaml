@@ -201,8 +201,8 @@ a11y:
   particleMass:
     accessibleParagraph: >-
                          { $sourceType ->
-                           [electrons] Electron particle mass is 9.1 times 10 to the negative 31 kilograms.
-                           [neutrons] Neutron particle mass is 1.7 times 10 to the negative 27 kilograms.
+                           [electrons] Electron mass is 9.1 times 10 to the negative 31 kilograms.
+                           [neutrons] Neutron mass is 1.7 times 10 to the negative 27 kilograms.
                           *[heliumAtoms] Helium atom particle mass is 6.6 times 10 to the negative 27 kilograms.
                          }
   emitterButton:
@@ -216,7 +216,15 @@ a11y:
     accessibleHelpText:           >-
                                   { $isEmitting ->
                                     [true] Turn source off to stop experiment.
-                                   *[false] Turn source on to start experiment.
+                                   *[false] { $sourceType ->
+                                      [photons] Turn source on to start experiment.
+                                      [electrons] Turn source on to start experiment. Electron mass is 9.1
+                                      times 10 to the negative 31 kilograms.
+                                      [neutrons] Turn source on to start experiment. Neutron mass is 1.7
+                                      times 10 to the negative 27 kilograms.
+                                     *[heliumAtoms] Turn source on to start experiment. Helium atom mass is
+                                      6.6 times 10 to the negative 27 kilograms.
+                                    }
                                   }
     accessibleContextResponseOn:  >-
                                   { $isPlaying ->
@@ -258,7 +266,7 @@ a11y:
                                  [electrons] electrons
                                  [neutrons] neutrons
                                 *[heliumAtoms] helium atoms
-                               } source emits per second.
+                               } emitted per second to adjust source intensity.
     accessibleContextResponse: >-
                                { $change ->
                                  [more] More { $sourceType ->

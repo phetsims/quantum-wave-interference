@@ -303,7 +303,7 @@
     },
     "particleMass": {
       "accessibleParagraph": {
-        "value": "{ $sourceType ->\n  [electrons] Electron particle mass is 9.1 times 10 to the negative 31 kilograms.\n  [neutrons] Neutron particle mass is 1.7 times 10 to the negative 27 kilograms.\n *[heliumAtoms] Helium atom particle mass is 6.6 times 10 to the negative 27 kilograms.\n}"
+        "value": "{ $sourceType ->\n  [electrons] Electron mass is 9.1 times 10 to the negative 31 kilograms.\n  [neutrons] Neutron mass is 1.7 times 10 to the negative 27 kilograms.\n *[heliumAtoms] Helium atom particle mass is 6.6 times 10 to the negative 27 kilograms.\n}"
       }
     },
     "emitterButton": {
@@ -311,7 +311,7 @@
         "value": "{ $sourceType ->\n  [photons] Photon Source Emitter\n  [electrons] Electron Source Emitter\n  [neutrons] Neutron Source Emitter\n *[heliumAtoms] Helium Atom Source Emitter\n}"
       },
       "accessibleHelpText": {
-        "value": "{ $isEmitting ->\n  [true] Turn source off to stop experiment.\n *[false] Turn source on to start experiment.\n}"
+        "value": "{ $isEmitting ->\n  [true] Turn source off to stop experiment.\n *[false] { $sourceType ->\n    [photons] Turn source on to start experiment.\n    [electrons] Turn source on to start experiment. Electron mass is 9.1\n    times 10 to the negative 31 kilograms.\n    [neutrons] Turn source on to start experiment. Neutron mass is 1.7\n    times 10 to the negative 27 kilograms.\n   *[heliumAtoms] Turn source on to start experiment. Helium atom mass is\n    6.6 times 10 to the negative 27 kilograms.\n  }\n}"
       },
       "accessibleContextResponseOn": {
         "value": "{ $isPlaying ->\n  [false] Experiment started. Sim paused.\n *[true] Experiment started.\n}"
@@ -395,7 +395,7 @@
     },
     "intensitySlider": {
       "accessibleHelpText": {
-        "value": "Change number of { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} source emits per second."
+        "value": "Change number of { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} emitted per second to adjust source intensity."
       },
       "accessibleContextResponse": {
         "value": "{ $change ->\n  [more] More { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n  [less] Less { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n  [max] Max { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n *[zero] Zero { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n}"
