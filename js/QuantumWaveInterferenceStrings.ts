@@ -268,6 +268,8 @@ type StringsType = {
       'spatialDescription': {
         'rulerDoubleSlitStringProperty': LocalizedStringProperty;
         'noRulerDoubleSlitStringProperty': LocalizedStringProperty;
+        'rulerDoubleSlitArrangementStringProperty': LocalizedStringProperty;
+        'noRulerDoubleSlitArrangementStringProperty': LocalizedStringProperty;
         'rulerSingleSlitStringProperty': LocalizedStringProperty;
         'noRulerSingleSlitStringProperty': LocalizedStringProperty;
       };

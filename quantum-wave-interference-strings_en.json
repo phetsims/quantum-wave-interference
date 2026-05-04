@@ -248,7 +248,7 @@
   "a11y": {
     "screenSummary": {
       "playArea": {
-        "value": "A highly configurable three-part experimental setup includes a particle source emitter, slitted barrier, and detector screen. When experiment is running, particles pass through available slits in barrier to land on detector screen and build patterns. You can choose and adjust source particles, configure slits in barrier, observe and take snapshots of resulting patterns on detector screen."
+        "value": "A highly configurable three-part experimental setup includes a particle source emitter, double-slit barrier, and detector screen. When experiment is running, particles pass through available slits in barrier to land on detector screen and build patterns. You can choose and adjust source particles, configure slits in barrier, observe and take snapshots of resulting patterns on detector screen."
       },
       "controlArea": {
         "value": "Measurement tools can be added or removed to assist with data collection and analysis. Reset sim to start over."
@@ -257,7 +257,7 @@
         "value": "Clear detector screen to make more observations."
       },
       "currentDetails": {
-        "value": "Currently, { $isPlaying ->\n  [false] sim is paused. { $isMaxHitsReached ->\n    [true] Source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] Source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at slitted barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] Source is off. Detector screen is dark.\n    }\n  }\n *[true] { $isMaxHitsReached ->\n    [true] source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at slitted barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] source is off. Detector screen is dark.\n    }\n  }\n}"
+        "value": "Currently, { $isPlaying ->\n  [false] sim is paused. { $isMaxHitsReached ->\n    [true] Source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] Source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at double-slit barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] Source is off. Detector screen is dark.\n    }\n  }\n *[true] { $isMaxHitsReached ->\n    [true] source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at double-slit barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] source is off. Detector screen is dark.\n    }\n  }\n}"
       },
       "interactionHint": {
         "value": "{ $isEmitting ->\n  [true] Adjust source or slits and watch for changes on detector screen.\n *[false] Turn on the { $sourceType ->\n    [photons] photon source emitter\n    [electrons] electron source emitter\n    [neutrons] neutron source emitter\n   *[heliumAtoms] helium atom source emitter\n  } to start experimenting.\n}"
@@ -298,7 +298,7 @@
         "value": "Slit Separation distance is { $distance }."
       },
       "screenDistance": {
-        "value": "Distance from slitted barrier to detector screen is { $distance }."
+        "value": "Distance from double-slit barrier to detector screen is { $distance }."
       }
     },
     "particleMass": {
@@ -354,7 +354,7 @@
     },
     "screenDistanceSlider": {
       "accessibleHelpText": {
-        "value": "Change distance from slitted barrier to detector screen in meters."
+        "value": "Change distance from double-slit barrier to detector screen in meters."
       }
     },
     "wavelengthSlider": {
@@ -552,7 +552,7 @@
           "value": "Detector screen is dark."
         },
         "intensity": {
-          "value": "Detector screen shows alternating bright and dark vertical bands, brightest at the center and fainter toward the edges. { $spatialDescription }"
+          "value": "Detector screen shows { $bandCount } alternating bright and dark vertical bands, brightest at center and fainter toward edges. { $spatialDescription }"
         },
         "intensitySingleSlit": {
           "value": "Detector screen is brightest at the center and fades smoothly toward the edges in a broad band. { $spatialDescription }"
@@ -606,6 +606,12 @@
         },
         "noRulerDoubleSlit": {
           "value": "{ $style ->\n  [bands] { $count } bands centered on the screen, spread symmetrically to either side.\n  *[peaks] { $count } peaks centered on the graph, spread symmetrically to either side.\n}"
+        },
+        "rulerDoubleSlitArrangement": {
+          "value": "{ $style ->\n  [bands] Bands centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.\n  *[peaks] Peaks centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.\n}"
+        },
+        "noRulerDoubleSlitArrangement": {
+          "value": "{ $style ->\n  [bands] Bands are centered on screen and spread symmetrically to either side.\n  *[peaks] Peaks are centered on graph and spread symmetrically to either side.\n}"
         },
         "rulerSingleSlit": {
           "value": "{ $style ->\n  [bands] The central band spans roughly { $centralWidth } millimeters, centered at 0.\n  *[peaks] The central peak spans roughly { $centralWidth } millimeters, centered at 0.\n}"

@@ -23,10 +23,13 @@ export default class SnapshotDescriber {
       }
 
       const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot );
-      const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
+      const spatialDescription = isDoubleSlit ?
+                                 BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, false, false ) :
+                                 BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
 
       return isDoubleSlit ?
              QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
+               bandCount: analysis.bandCount,
                spatialDescription: spatialDescription
              } ) :
              QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( {

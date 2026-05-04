@@ -47,10 +47,15 @@ export default class DetectorScreenDescriber {
         }
 
         const analysis = BandAnalysis.analyzeTheoreticalPattern( scene );
-        const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
+        const spatialDescription = isDoubleSlit ?
+                                   BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, isRulerVisible, false ) :
+                                   BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
         descriptionProperty.value = isDoubleSlit
-                                    ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } )
+                                    ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
+                                      bandCount: analysis.bandCount,
+                                      spatialDescription: spatialDescription
+                                    } )
                                     : QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( { spatialDescription: spatialDescription } );
         return;
       }

@@ -144,6 +144,26 @@ export default class BandAnalysis {
   public static formatSpatialDescription(
     analysis: BandAnalysisResult, isDoubleSlit: boolean, isRulerVisible: boolean, usePeakLanguage: boolean
   ): string {
+    return BandAnalysis.formatSpatialDescriptionWithStyle( analysis, isDoubleSlit, isRulerVisible, usePeakLanguage, true );
+  }
+
+  /**
+   * Formats only the relative/measurement arrangement of the visible double-slit bands/peaks. This supports
+   * descriptions that mention the band count elsewhere in the same sentence.
+   */
+  public static formatSpatialArrangementDescription(
+    analysis: BandAnalysisResult, isDoubleSlit: boolean, isRulerVisible: boolean, usePeakLanguage: boolean
+  ): string {
+    return BandAnalysis.formatSpatialDescriptionWithStyle( analysis, isDoubleSlit, isRulerVisible, usePeakLanguage, false );
+  }
+
+  private static formatSpatialDescriptionWithStyle(
+    analysis: BandAnalysisResult,
+    isDoubleSlit: boolean,
+    isRulerVisible: boolean,
+    usePeakLanguage: boolean,
+    includeDoubleSlitCount: boolean
+  ): string {
     if ( analysis.bandCount === 0 ) {
       return '';
     }
@@ -154,17 +174,26 @@ export default class BandAnalysis {
 
     if ( isDoubleSlit ) {
       if ( hasRulerMeasurement ) {
-        return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerDoubleSlit.format( {
-          style: style,
-          count: analysis.bandCount,
-          spacing: toFixed( analysis.averageSpacingMM, 1 )
-        } );
+        return includeDoubleSlitCount ?
+               QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerDoubleSlit.format( {
+                 style: style,
+                 count: analysis.bandCount,
+                 spacing: toFixed( analysis.averageSpacingMM, 1 )
+               } ) :
+               QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerDoubleSlitArrangement.format( {
+                 style: style,
+                 spacing: toFixed( analysis.averageSpacingMM, 1 )
+               } );
       }
       else {
-        return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerDoubleSlit.format( {
-          style: style,
-          count: analysis.bandCount
-        } );
+        return includeDoubleSlitCount ?
+               QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerDoubleSlit.format( {
+                 style: style,
+                 count: analysis.bandCount
+               } ) :
+               QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerDoubleSlitArrangement.format( {
+                 style: style
+               } );
       }
     }
     else {

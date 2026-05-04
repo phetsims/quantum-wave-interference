@@ -86,7 +86,7 @@ a11y:
   screenSummary:
     playArea:           >-
                         A highly configurable three-part experimental setup includes a particle source emitter,
-                        slitted barrier, and detector screen. When experiment is running, particles pass through
+                        double-slit barrier, and detector screen. When experiment is running, particles pass through
                         available slits in barrier to land on detector screen and build patterns. You can choose and
                         adjust source particles, configure slits in barrier, observe and take snapshots of resulting
                         patterns on detector screen.
@@ -109,7 +109,7 @@ a11y:
                                 [electrons] electrons
                                 [neutrons] neutrons
                                *[heliumAtoms] helium atoms
-                              } directly at slitted barrier with { $slitSetting ->
+                              } directly at double-slit barrier with { $slitSetting ->
                                 [bothOpen] both slits open
                                 [leftCovered] left slit covered
                                 [rightCovered] right slit covered
@@ -136,7 +136,7 @@ a11y:
                                 [electrons] electrons
                                 [neutrons] neutrons
                                *[heliumAtoms] helium atoms
-                              } directly at slitted barrier with { $slitSetting ->
+                              } directly at double-slit barrier with { $slitSetting ->
                                 [bothOpen] both slits open
                                 [leftCovered] left slit covered
                                 [rightCovered] right slit covered
@@ -194,7 +194,7 @@ a11y:
                         *[bothDetectors] Detectors on both slits in barrier.
                        }
     slitSeparation:   'Slit Separation distance is { $distance }.'
-    screenDistance:   'Distance from slitted barrier to detector screen is { $distance }.'
+    screenDistance:   'Distance from double-slit barrier to detector screen is { $distance }.'
   particleMass:
     accessibleParagraph: >-
                          { $sourceType ->
@@ -234,7 +234,7 @@ a11y:
   slitSeparationSlider:
     accessibleHelpText: Change distance between centers of slits in barrier in micrometers.
   screenDistanceSlider:
-    accessibleHelpText: Change distance from slitted barrier to detector screen in meters.
+    accessibleHelpText: Change distance from double-slit barrier to detector screen in meters.
   wavelengthSlider:
     accessibleHelpText:  Change wavelength of emitted photons in nanometers from shortest, violet, to longest, red.
     accessibleValue:     '{ $value }, { $color } zone'
@@ -412,8 +412,8 @@ a11y:
     accessibleParagraph:
       intensityOff:                   Detector screen is dark.
       intensity:                      >-
-                                      Detector screen shows alternating bright and dark vertical bands, brightest
-                                      at the center and fainter toward the edges. { $spatialDescription }
+                                      Detector screen shows { $bandCount } alternating bright and dark vertical
+                                      bands, brightest at center and fainter toward edges. { $spatialDescription }
       intensitySingleSlit:            >-
                                       Detector screen is brightest at the center and fades smoothly toward the edges
                                       in a broad band. { $spatialDescription }
@@ -486,6 +486,18 @@ a11y:
                  { $count } bands centered on the screen, spread symmetrically to either side.
           peaks: >-
                  { $count } peaks centered on the graph, spread symmetrically to either side.
+      rulerDoubleSlitArrangement:
+        select_style:
+          bands: >-
+                 Bands centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.
+          peaks: >-
+                 Peaks centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.
+      noRulerDoubleSlitArrangement:
+        select_style:
+          bands: >-
+                 Bands are centered on screen and spread symmetrically to either side.
+          peaks: >-
+                 Peaks are centered on graph and spread symmetrically to either side.
       rulerSingleSlit:
         select_style:
           bands: >-
