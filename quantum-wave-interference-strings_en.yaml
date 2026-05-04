@@ -229,7 +229,10 @@ a11y:
     accessibleContextResponseOn:  >-
                                   { $isPlaying ->
                                     [false] Experiment started. Sim paused.
-                                   *[true] Experiment started.
+                                   *[true] Experiment started. { $detectionMode ->
+                                      [averageIntensity] Alternating bright and dark vertical bands on detector screen.
+                                     *[hits] Individual hits increasing on detector screen.
+                                    }
                                   }
     accessibleContextResponseOff: Experiment stopped.
   ruler:

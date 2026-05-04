@@ -224,6 +224,7 @@ export default class OverheadEmitterNode extends Node {
         sourceType: sourceTypeProperty
       } ),
       accessibleContextResponseOn: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleContextResponseOn.createProperty( {
+        detectionMode: model.currentDetectionModeProperty,
         isPlaying: isPlayingStringProperty
       } ),
       accessibleContextResponseOff: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleContextResponseOffStringProperty
