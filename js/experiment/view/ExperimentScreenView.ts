@@ -243,7 +243,14 @@ export default class ExperimentScreenView extends ScreenView {
     const sceneRadioButtonGroup = new SceneRadioButtonGroup(
       model.sceneProperty,
       model.scenes,
-      options.tandem.createTandem( 'sceneRadioButtonGroup' )
+      options.tandem.createTandem( 'sceneRadioButtonGroup' ),
+      {
+        createAccessibleContextResponse: scene => QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleContextResponse.createProperty( {
+          sourceType: scene.sourceType,
+          isEmitting: scene.isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' ),
+          isMaxHitsReached: scene.isMaxHitsReachedProperty.derived( isMaxHitsReached => isMaxHitsReached ? 'true' : 'false' )
+        } )
+      }
     );
     const sceneButtonAreaTop = sourceControlPanel.bottom;
     const sceneButtonAreaBottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
@@ -284,6 +291,7 @@ export default class ExperimentScreenView extends ScreenView {
     const screenSettingsPanel = new ScreenSettingsPanel(
       model.currentDetectionModeProperty,
       model.currentScreenBrightnessProperty,
+      model.currentIsEmittingProperty,
       {
         tandem: options.tandem.createTandem( 'screenSettingsPanel' )
       }
@@ -579,6 +587,11 @@ export default class ExperimentScreenView extends ScreenView {
 
     // Heading nodes for PDOM navigation. Each groups related controls under a heading so screen reader users can jump
     // between major sections with heading shortcuts.
+    const experimentSetupHeadingNode = new Node( {
+      accessibleHeading: QuantumWaveInterferenceFluent.a11y.experimentSetupHeadingStringProperty
+    } );
+    this.addChild( experimentSetupHeadingNode );
+
     const sourceHeadingNode = new Node( {
       accessibleHeading: QuantumWaveInterferenceFluent.a11y.sourceHeadingStringProperty
     } );
@@ -595,19 +608,23 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( detectorScreenHeadingNode );
 
     // Play Area focus order, organized under headings for screen reader navigation
+    experimentSetupHeadingNode.pdomOrder = [
+      detectorScreenDescriptionNode,
+      slitViewDescriptionNode,
+      particleMassDescriptionNode,
+      overheadEmitterNode.maxHitsReachedPanel
+    ];
+
     sourceHeadingNode.pdomOrder = [
       overheadEmitterNode.laserPointerNode,
       overheadEmitterNode.particleEmitterNode,
-      overheadEmitterNode.maxHitsReachedPanel,
-      particleMassDescriptionNode,
       sourceControlPanel,
       sceneRadioButtonGroup
     ];
 
-    slitsHeadingNode.pdomOrder = [ slitViewDescriptionNode, slitControlPanel ];
+    slitsHeadingNode.pdomOrder = [ slitControlPanel ];
 
     detectorScreenHeadingNode.pdomOrder = [
-      detectorScreenDescriptionNode,
       ...detectorScreenNodes.flatMap( ds => [
         ds.eraserButton,
         ds.snapshotButton,
@@ -617,6 +634,7 @@ export default class ExperimentScreenView extends ScreenView {
     ];
 
     this.pdomPlayAreaNode.pdomOrder = [
+      experimentSetupHeadingNode,
       sourceHeadingNode,
       slitsHeadingNode,
       detectorScreenHeadingNode,

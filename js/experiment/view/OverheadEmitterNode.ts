@@ -196,6 +196,8 @@ export default class OverheadEmitterNode extends Node {
     } );
 
     const isEmittingProperty = model.currentIsEmittingProperty;
+    const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
+    const isPlayingStringProperty = model.isPlayingProperty.derived( isPlaying => isPlaying ? 'true' : 'false' );
 
     const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
       derive: scene => scene.isEmitterEnabledProperty
@@ -217,7 +219,13 @@ export default class OverheadEmitterNode extends Node {
       valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
       valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
       accessibleName: emitterAccessibleNameProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpTextStringProperty
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpText.createProperty( {
+        isEmitting: isEmittingStringProperty
+      } ),
+      accessibleContextResponseOn: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleContextResponseOn.createProperty( {
+        isPlaying: isPlayingStringProperty
+      } ),
+      accessibleContextResponseOff: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleContextResponseOffStringProperty
     };
 
     this.laserPointerNode = new LaserPointerNode( isEmittingProperty, {

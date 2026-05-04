@@ -85,52 +85,86 @@ detectorPercentPattern:             '{{value}}%'
 a11y:
   screenSummary:
     playArea:           >-
-                        A double-slit experiment features a source emitting particles toward a barrier with two narrow slits.
-                        Particles that pass through the slits land on a detector screen, building up a pattern.
-                        You can adjust the source and slits, observe the resulting pattern, and save snapshots of the detector screen.
+                        A highly configurable three-part experimental setup includes a particle source emitter,
+                        slitted barrier, and detector screen. When experiment is running, particles pass through
+                        available slits in barrier to land on detector screen and build patterns. You can choose and
+                        adjust source particles, configure slits in barrier, observe and take snapshots of resulting
+                        patterns on detector screen.
     controlArea:        >-
-                        A ruler and stopwatch can be shown or hidden.
-                        In hits mode, there are controls to play, pause, or adjust experiment speed.
+                        Measurement tools can be added or removed to assist with data collection and analysis.
                         Reset sim to start over.
-    maxHitsReachedHint: Clear the detector screen to collect more hits.
+    maxHitsReachedHint: Clear detector screen to make more observations.
     currentDetails:     >-
-                        Currently, running a { $sourceType ->
-                          [photons] photon
-                          [electrons] electron
-                          [neutrons] neutron
-                         *[heliumAtoms] helium atom
-                        } experiment.
-                        The barrier has { $slitSetting ->
-                          [bothOpen] both slits open
-                          [leftCovered] the left slit covered
-                          [rightCovered] the right slit covered
-                          [leftDetector] a detector on the left slit
-                          [rightDetector] a detector on the right slit
-                         *[bothDetectors] detectors on both slits
-                        } and the screen displays { $detectionMode ->
-                          [averageIntensity] intensity
-                         *[hits] hits
-                        }.
-                        The source is { $isEmitting ->
-                          [true] on
-                         *[false] off
-                        }{ $isMaxHitsReached ->
-                          [true] . Maximum hits reached for this scene.
-                         *[false] .
+                        Currently, { $isPlaying ->
+                          [false] sim is paused. { $isMaxHitsReached ->
+                            [true] Source is off. Max number of { $sourceType ->
+                              [photons] photon
+                              [electrons] electron
+                              [neutrons] neutron
+                             *[heliumAtoms] helium atom
+                            } hits reached. Detector screen shows hits pattern.
+                           *[false] { $isEmitting ->
+                              [true] Source emits { $sourceType ->
+                                [photons] photons
+                                [electrons] electrons
+                                [neutrons] neutrons
+                               *[heliumAtoms] helium atoms
+                              } directly at slitted barrier with { $slitSetting ->
+                                [bothOpen] both slits open
+                                [leftCovered] left slit covered
+                                [rightCovered] right slit covered
+                                [leftDetector] detector on left slit
+                                [rightDetector] detector on right slit
+                               *[bothDetectors] detectors on both slits
+                              }. Detector screen shows { $detectionMode ->
+                                [averageIntensity] intensity
+                               *[hits] hits
+                              } pattern.
+                             *[false] Source is off. Detector screen is dark.
+                            }
+                          }
+                         *[true] { $isMaxHitsReached ->
+                            [true] source is off. Max number of { $sourceType ->
+                              [photons] photon
+                              [electrons] electron
+                              [neutrons] neutron
+                             *[heliumAtoms] helium atom
+                            } hits reached. Detector screen shows hits pattern.
+                           *[false] { $isEmitting ->
+                              [true] source emits { $sourceType ->
+                                [photons] photons
+                                [electrons] electrons
+                                [neutrons] neutrons
+                               *[heliumAtoms] helium atoms
+                              } directly at slitted barrier with { $slitSetting ->
+                                [bothOpen] both slits open
+                                [leftCovered] left slit covered
+                                [rightCovered] right slit covered
+                                [leftDetector] detector on left slit
+                                [rightDetector] detector on right slit
+                               *[bothDetectors] detectors on both slits
+                              }. Detector screen shows { $detectionMode ->
+                                [averageIntensity] intensity
+                               *[hits] hits
+                              } pattern.
+                             *[false] source is off. Detector screen is dark.
+                            }
+                          }
                         }
     interactionHint:    >-
                         { $isEmitting ->
                           [true] Adjust the source or slits to make observations.
                          *[false] Turn on the { $sourceType ->
-                            [photons] photon source
-                            [electrons] electron source
-                            [neutrons] neutron source
-                           *[heliumAtoms] helium atom source
+                            [photons] photon source emitter
+                            [electrons] electron source emitter
+                            [neutrons] neutron source emitter
+                           *[heliumAtoms] helium atom source emitter
                           } to start experimenting.
                         }
-  sourceHeading:               Source
-  slitsHeading:                Slits
-  detectorScreenHeading:       Detector Screen
+  experimentSetupHeading:      Detector Screen and Experiment Setup
+  sourceHeading:               Source Controls
+  slitsHeading:                Slits and Screen Configuration
+  detectorScreenHeading:       Detector Screen Controls
   particleMass:
     accessibleParagraph: >-
                          { $sourceType ->
@@ -141,53 +175,130 @@ a11y:
   emitterButton:
     accessibleName:     >-
                         { $sourceType ->
-                          [photons] Photon Source
-                          [electrons] Electron Source
-                          [neutrons] Neutron Source
-                         *[heliumAtoms] Helium Atom Source
+                          [photons] Photon Source Emitter
+                          [electrons] Electron Source Emitter
+                          [neutrons] Neutron Source Emitter
+                         *[heliumAtoms] Helium Atom Source Emitter
                         }
-    accessibleHelpText: Turn the source on and off to start or stop the experiment.
+    accessibleHelpText: >-
+                        { $isEmitting ->
+                          [true] Turn source off to stop experiment.
+                         *[false] Turn source on to start experiment.
+                        }
+    accessibleContextResponseOn: >-
+                                 { $isPlaying ->
+                                   [false] Experiment started. Sim paused.
+                                  *[true] Experiment started.
+                                 }
+    accessibleContextResponseOff: Experiment stopped.
   ruler:
-    accessibleHelpText: Drag ruler up or down to align with features on the detector screen and graph.
+    accessibleHelpText: Move ruler up or down with keyboard shortcuts to take measurements.
   rulerCheckbox:
-    accessibleHelpText:                 Show or hide a ruler to measure distances on the detector screen.
-    accessibleContextResponseChecked:   Ruler shown.
-    accessibleContextResponseUnchecked: Ruler hidden.
+    accessibleHelpText:                 Use added ruler to measure distances across detector screen or graph.
+    accessibleContextResponseChecked:   Ruler added near detector screen.
+    accessibleContextResponseUnchecked: Ruler removed.
   stopwatchCheckbox:
-    accessibleHelpText:                 Show or hide a stopwatch to time the experiment.
-    accessibleContextResponseChecked:   Stopwatch shown.
-    accessibleContextResponseUnchecked: Stopwatch hidden.
+    accessibleHelpText:                 Use added stopwatch to time experiment.
+    accessibleContextResponseChecked:   Stopwatch added near detector screen.
+    accessibleContextResponseUnchecked: Stopwatch removed.
   slitSeparationSlider:
-    accessibleHelpText: Adjust the distance between the centers of the two slits.
+    accessibleHelpText: Change distance between centers of slits in barrier in micrometers.
   screenDistanceSlider:
-    accessibleHelpText: Adjust the distance from the barrier to the detector screen.
+    accessibleHelpText: Change distance from slitted barrier to detector screen in meters.
   wavelengthSlider:
-    accessibleHelpText: Adjust wavelength of emitted photons.
+    accessibleHelpText:  Change wavelength of emitted photons in nanometers from shortest, violet, to longest, red.
+    accessibleValue:     '{ $value }, { $color } zone'
+    color:
+      violet: violet
+      blue:   blue
+      indigo: indigo
+      green:  green
+      yellow: yellow
+      orange: orange
+      red:    red
   particleSpeedSlider:
-    accessibleHelpText: Adjust speed of emitted particles.
+    accessibleHelpText: Change speed of emitted particles in kilometers or meters per second.
   intensitySlider:
     accessibleHelpText: >-
-                        Adjust how many { $sourceType ->
+                        Change number of { $sourceType ->
                           [photons] photons
                           [electrons] electrons
                           [neutrons] neutrons
                          *[heliumAtoms] helium atoms
-                        } the source emits per unit time.
+                        } source emits per second.
+    accessibleContextResponse: >-
+                               { $change ->
+                                 [more] More { $sourceType ->
+                                   [photons] photons
+                                   [electrons] electrons
+                                   [neutrons] neutrons
+                                  *[heliumAtoms] helium atoms
+                                 }.
+                                 [less] Less { $sourceType ->
+                                   [photons] photons
+                                   [electrons] electrons
+                                   [neutrons] neutrons
+                                  *[heliumAtoms] helium atoms
+                                 }.
+                                 [max] Max { $sourceType ->
+                                   [photons] photons
+                                   [electrons] electrons
+                                   [neutrons] neutrons
+                                  *[heliumAtoms] helium atoms
+                                 }.
+                                *[zero] Zero { $sourceType ->
+                                   [photons] photons
+                                   [electrons] electrons
+                                   [neutrons] neutrons
+                                  *[heliumAtoms] helium atoms
+                                 }.
+                               }
   brightnessSlider:
     accessibleName:     Screen Brightness
-    accessibleHelpText: Adjust the brightness of the detector screen display.
+    accessibleHelpText: Adjust brightness to optimize visual analysis of pattern on detector screen.
   detectionModeRadioButtons:
-    accessibleName:     Detection Mode
-    accessibleHelpText: Choose how detections are displayed on the detector screen.
+    accessibleName:     Detection Mode Sensitivity
+    accessibleHelpText: Choose continuous intensity pattern or individual hits pattern for particle detection.
     intensityRadioButton:
-      accessibleContextResponse: Detector screen now shows continuous intensity pattern.
+      accessibleContextResponse: >-
+                                 { $isEmitting ->
+                                   [true] Alternating bright and dark vertical bands on detector screen.
+                                  *[false] Screen is dark. Start particle source.
+                                 }
     hitsRadioButton:
-      accessibleContextResponse: Detector screen now shows individual hits.
+      accessibleContextResponse: >-
+                                 { $isEmitting ->
+                                   [true] Individual hits increasing on detector screen.
+                                  *[false] Screen is dark. Start particle source.
+                                 }
   timeControlNode:
     simSpeedDescription: Choose Normal or Fast speed. In Hits mode, Fast collects hits more quickly for faster data collection.
   sceneRadioButtonGroup:
-    accessibleName:     Experiment Type
-    accessibleHelpText: Choose a particle type to switch to a different experiment setup.
+    accessibleName:     Particle Type
+    accessibleHelpText: Change particle type for source emitter and change experiment setup.
+    accessibleContextResponse: >-
+                               { $isMaxHitsReached ->
+                                 [true] { $sourceType ->
+                                   [photons] Photon
+                                   [electrons] Electron
+                                   [neutrons] Neutron
+                                  *[heliumAtoms] Helium atom
+                                 } experiment at max hits. Clear detector screen to make more observations.
+                                *[false] { $isEmitting ->
+                                   [true] { $sourceType ->
+                                     [photons] Photon
+                                     [electrons] Electron
+                                     [neutrons] Neutron
+                                    *[heliumAtoms] Helium atom
+                                   } experiment in progress. Configurations and detection screen updated.
+                                  *[false] Source off. { $sourceType ->
+                                     [photons] Photon
+                                     [electrons] Electron
+                                     [neutrons] Neutron
+                                    *[heliumAtoms] Helium atom
+                                   } experiment ready to start.
+                                 }
+                               }
     photonsRadioButton:
       accessibleContextResponse: Now experimenting with photons. Source, slits, and screen settings updated.
     electronsRadioButton:
@@ -198,15 +309,15 @@ a11y:
       accessibleContextResponse: Now experimenting with helium atoms. Source, slits, and screen settings updated.
   slitSettingsComboBox:
     accessibleName:            Slit Configuration
-    accessibleHelpText:        Choose a slit configuration to change which slits are open, covered, or monitored by a detector.
+    accessibleHelpText:        Choose slit configuration for barrier.
     accessibleContextResponse: >-
                                { $slitSetting ->
-                                 [bothOpen] Both slits now open.
-                                 [leftCovered] Left slit now covered.
-                                 [rightCovered] Right slit now covered.
-                                 [leftDetector] Left slit now monitored by a detector.
-                                 [rightDetector] Right slit now monitored by a detector.
-                                *[bothDetectors] Both slits now monitored by detectors.
+                                 [bothOpen] In barrier, both slits open.
+                                 [leftCovered] In barrier, left slit covered.
+                                 [rightCovered] In barrier, right slit covered.
+                                 [leftDetector] Detector added to left slit in barrier.
+                                 [rightDetector] Detector added to right slit in barrier.
+                                *[bothDetectors] Detectors added to both slits in barrier.
                                }
   slitWidthMicrometersPattern: '{ $value } micrometers'
   slitView:
@@ -226,6 +337,16 @@ a11y:
     accessibleName: Zoom Out
   graphAccordionBox:
     accessibleHelpTextCollapsed: Explore a graph of the detector screen pattern.
+    accessibleContextResponseExpanded: >-
+                                       { $detectionMode ->
+                                         [averageIntensity] Dynamic graph of intensity pattern shown.
+                                        *[hits] Dynamic histogram of hits data shown.
+                                       }
+    accessibleContextResponseCollapsed: >-
+                                        { $detectionMode ->
+                                          [averageIntensity] Intensity graph hidden.
+                                         *[hits] Hits histogram hidden.
+                                        }
     accessibleParagraph:
       intensityOff:           The graph is empty. The source is off.
       intensity:              >-
@@ -347,13 +468,13 @@ a11y:
                  A broad central peak, tapering toward the edges.
   detectorScreenButtons:
     clearScreen:
-      accessibleName:            Clear Screen
-      accessibleHelpText:        Clear all hits from the detector screen.
-      accessibleContextResponse: Screen cleared.
+      accessibleName:            Clear Hits
+      accessibleHelpText:        Clear hits pattern on detector screen.
+      accessibleContextResponse: Hits pattern cleared. Screen dark.
     takeSnapshot:
       accessibleName:            Take Snapshot
-      accessibleHelpText:        'Capture the current detector screen pattern as a snapshot. Up to { $maxSnapshots } snapshots can be saved.'
+      accessibleHelpText:        'Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.'
       accessibleContextResponse: 'Snapshot { $snapshotNumber } taken.'
     viewSnapshots:
       accessibleName:     View Snapshots
-      accessibleHelpText: View and compare saved snapshots of the detector screen.
+      accessibleHelpText: Open stored snapshots for comparative analysis or deletion.

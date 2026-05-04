@@ -21,6 +21,8 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
 
     const isEmittingStringProperty = model.currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
 
+    const isPlayingStringProperty = model.isPlayingProperty.derived( isPlaying => isPlaying ? 'true' : 'false' );
+
     const isMaxHitsReachedStringProperty = model.currentIsMaxHitsReachedProperty.derived(
       isMaxHitsReached => isMaxHitsReached ? 'true' : 'false'
     );
@@ -30,6 +32,7 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
       slitSetting: model.currentSlitSettingProperty,
       detectionMode: model.currentDetectionModeProperty,
       isEmitting: isEmittingStringProperty,
+      isPlaying: isPlayingStringProperty,
       isMaxHitsReached: isMaxHitsReachedStringProperty
     } );
 

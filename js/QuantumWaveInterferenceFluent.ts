@@ -100,12 +100,15 @@ addToMapIfDefined( 'a11y_screenSummary_controlArea', 'a11y.screenSummary.control
 addToMapIfDefined( 'a11y_screenSummary_maxHitsReachedHint', 'a11y.screenSummary.maxHitsReachedHintStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_currentDetails', 'a11y.screenSummary.currentDetailsStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_interactionHint', 'a11y.screenSummary.interactionHintStringProperty' );
+addToMapIfDefined( 'a11y_experimentSetupHeading', 'a11y.experimentSetupHeadingStringProperty' );
 addToMapIfDefined( 'a11y_sourceHeading', 'a11y.sourceHeadingStringProperty' );
 addToMapIfDefined( 'a11y_slitsHeading', 'a11y.slitsHeadingStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenHeading', 'a11y.detectorScreenHeadingStringProperty' );
 addToMapIfDefined( 'a11y_particleMass_accessibleParagraph', 'a11y.particleMass.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleName', 'a11y.emitterButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleHelpText', 'a11y.emitterButton.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_emitterButton_accessibleContextResponseOn', 'a11y.emitterButton.accessibleContextResponseOnStringProperty' );
+addToMapIfDefined( 'a11y_emitterButton_accessibleContextResponseOff', 'a11y.emitterButton.accessibleContextResponseOffStringProperty' );
 addToMapIfDefined( 'a11y_ruler_accessibleHelpText', 'a11y.ruler.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleHelpText', 'a11y.rulerCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleContextResponseChecked', 'a11y.rulerCheckbox.accessibleContextResponseCheckedStringProperty' );
@@ -116,8 +119,17 @@ addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', 
 addToMapIfDefined( 'a11y_slitSeparationSlider_accessibleHelpText', 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_screenDistanceSlider_accessibleHelpText', 'a11y.screenDistanceSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_accessibleHelpText', 'a11y.wavelengthSlider.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_wavelengthSlider_accessibleValue', 'a11y.wavelengthSlider.accessibleValueStringProperty' );
+addToMapIfDefined( 'a11y_wavelengthSlider_color_violet', 'a11y.wavelengthSlider.color.violetStringProperty' );
+addToMapIfDefined( 'a11y_wavelengthSlider_color_blue', 'a11y.wavelengthSlider.color.blueStringProperty' );
+addToMapIfDefined( 'a11y_wavelengthSlider_color_indigo', 'a11y.wavelengthSlider.color.indigoStringProperty' );
+addToMapIfDefined( 'a11y_wavelengthSlider_color_green', 'a11y.wavelengthSlider.color.greenStringProperty' );
+addToMapIfDefined( 'a11y_wavelengthSlider_color_yellow', 'a11y.wavelengthSlider.color.yellowStringProperty' );
+addToMapIfDefined( 'a11y_wavelengthSlider_color_orange', 'a11y.wavelengthSlider.color.orangeStringProperty' );
+addToMapIfDefined( 'a11y_wavelengthSlider_color_red', 'a11y.wavelengthSlider.color.redStringProperty' );
 addToMapIfDefined( 'a11y_particleSpeedSlider_accessibleHelpText', 'a11y.particleSpeedSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_intensitySlider_accessibleHelpText', 'a11y.intensitySlider.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_intensitySlider_accessibleContextResponse', 'a11y.intensitySlider.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_brightnessSlider_accessibleName', 'a11y.brightnessSlider.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_brightnessSlider_accessibleHelpText', 'a11y.brightnessSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectionModeRadioButtons_accessibleName', 'a11y.detectionModeRadioButtons.accessibleNameStringProperty' );
@@ -127,6 +139,7 @@ addToMapIfDefined( 'a11y_detectionModeRadioButtons_hitsRadioButton_accessibleCon
 addToMapIfDefined( 'a11y_timeControlNode_simSpeedDescription', 'a11y.timeControlNode.simSpeedDescriptionStringProperty' );
 addToMapIfDefined( 'a11y_sceneRadioButtonGroup_accessibleName', 'a11y.sceneRadioButtonGroup.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_sceneRadioButtonGroup_accessibleHelpText', 'a11y.sceneRadioButtonGroup.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_sceneRadioButtonGroup_accessibleContextResponse', 'a11y.sceneRadioButtonGroup.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_sceneRadioButtonGroup_photonsRadioButton_accessibleContextResponse', 'a11y.sceneRadioButtonGroup.photonsRadioButton.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_sceneRadioButtonGroup_electronsRadioButton_accessibleContextResponse', 'a11y.sceneRadioButtonGroup.electronsRadioButton.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_sceneRadioButtonGroup_neutronsRadioButton_accessibleContextResponse', 'a11y.sceneRadioButtonGroup.neutronsRadioButton.accessibleContextResponseStringProperty' );
@@ -139,6 +152,8 @@ addToMapIfDefined( 'a11y_slitView_accessibleParagraph', 'a11y.slitView.accessibl
 addToMapIfDefined( 'a11y_zoomInButton_accessibleName', 'a11y.zoomInButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_zoomOutButton_accessibleName', 'a11y.zoomOutButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleHelpTextCollapsed', 'a11y.graphAccordionBox.accessibleHelpTextCollapsedStringProperty' );
+addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseExpanded', 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' );
+addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_intensityOff', 'a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_intensity', 'a11y.graphAccordionBox.accessibleParagraph.intensityStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleParagraph_intensitySingleSlit', 'a11y.graphAccordionBox.accessibleParagraph.intensitySingleSlitStringProperty' );
@@ -290,9 +305,10 @@ const QuantumWaveInterferenceFluent = {
       playAreaStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_playArea', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.playAreaStringProperty' ) ),
       controlAreaStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_controlArea', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.controlAreaStringProperty' ) ),
       maxHitsReachedHintStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_maxHitsReachedHint', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.maxHitsReachedHintStringProperty' ) ),
-      currentDetails: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'>, isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isMaxHitsReached: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_screenSummary_currentDetails', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.currentDetailsStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]},{"name":"isEmitting","variants":["true","false"]},{"name":"isMaxHitsReached","variants":["true","false"]},{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","bothDetectors"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
+      currentDetails: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'>, isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isMaxHitsReached: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isPlaying: 'false' | 'true' | TReadOnlyProperty<'false' | 'true'>, slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_screenSummary_currentDetails', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.currentDetailsStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]},{"name":"isEmitting","variants":["true","false"]},{"name":"isMaxHitsReached","variants":["true","false"]},{"name":"isPlaying","variants":["false","true"]},{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","bothDetectors"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
       interactionHint: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_screenSummary_interactionHint', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.interactionHintStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] )
     },
+    experimentSetupHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_experimentSetupHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupHeadingStringProperty' ) ),
     sourceHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sourceHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceHeadingStringProperty' ) ),
     slitsHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitsHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.slitsHeadingStringProperty' ) ),
     detectorScreenHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreenHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreenHeadingStringProperty' ) ),
@@ -301,7 +317,9 @@ const QuantumWaveInterferenceFluent = {
     },
     emitterButton: {
       accessibleName: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleNameStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
-      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleHelpTextStringProperty' ) )
+      accessibleHelpText: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleHelpTextStringProperty' ), [{"name":"isEmitting","variants":["true","false"]}] ),
+      accessibleContextResponseOn: new FluentPattern<{ isPlaying: 'false' | 'true' | TReadOnlyProperty<'false' | 'true'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleContextResponseOn', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleContextResponseOnStringProperty' ), [{"name":"isPlaying","variants":["false","true"]}] ),
+      accessibleContextResponseOffStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleContextResponseOff', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleContextResponseOffStringProperty' ) )
     },
     ruler: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_ruler_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.ruler.accessibleHelpTextStringProperty' ) )
@@ -323,13 +341,24 @@ const QuantumWaveInterferenceFluent = {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenDistanceSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.screenDistanceSlider.accessibleHelpTextStringProperty' ) )
     },
     wavelengthSlider: {
-      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.accessibleHelpTextStringProperty' ) )
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.accessibleHelpTextStringProperty' ) ),
+      accessibleValue: new FluentPattern<{ color: FluentVariable, value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_accessibleValue', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.accessibleValueStringProperty' ), [{"name":"color"},{"name":"value"}] ),
+      color: {
+        violetStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_color_violet', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.color.violetStringProperty' ) ),
+        blueStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_color_blue', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.color.blueStringProperty' ) ),
+        indigoStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_color_indigo', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.color.indigoStringProperty' ) ),
+        greenStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_color_green', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.color.greenStringProperty' ) ),
+        yellowStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_color_yellow', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.color.yellowStringProperty' ) ),
+        orangeStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_color_orange', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.color.orangeStringProperty' ) ),
+        redStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_color_red', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.color.redStringProperty' ) )
+      }
     },
     particleSpeedSlider: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_particleSpeedSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.particleSpeedSlider.accessibleHelpTextStringProperty' ) )
     },
     intensitySlider: {
-      accessibleHelpText: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_intensitySlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.intensitySlider.accessibleHelpTextStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] )
+      accessibleHelpText: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_intensitySlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.intensitySlider.accessibleHelpTextStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
+      accessibleContextResponse: new FluentPattern<{ change: 'more' | 'less' | 'max' | number | 'zero' | TReadOnlyProperty<'more' | 'less' | 'max' | number | 'zero'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_intensitySlider_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.intensitySlider.accessibleContextResponseStringProperty' ), [{"name":"change","variants":["more","less","max",{"type":"number","value":"zero"}]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] )
     },
     brightnessSlider: {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_brightnessSlider_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.brightnessSlider.accessibleNameStringProperty' ) ),
@@ -339,10 +368,10 @@ const QuantumWaveInterferenceFluent = {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.accessibleNameStringProperty' ) ),
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.accessibleHelpTextStringProperty' ) ),
       intensityRadioButton: {
-        accessibleContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_intensityRadioButton_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseStringProperty' ) )
+        accessibleContextResponse: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'> }>( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_intensityRadioButton_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseStringProperty' ), [{"name":"isEmitting","variants":["true","false"]}] )
       },
       hitsRadioButton: {
-        accessibleContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_hitsRadioButton_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponseStringProperty' ) )
+        accessibleContextResponse: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'> }>( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_hitsRadioButton_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponseStringProperty' ), [{"name":"isEmitting","variants":["true","false"]}] )
       }
     },
     timeControlNode: {
@@ -351,6 +380,7 @@ const QuantumWaveInterferenceFluent = {
     sceneRadioButtonGroup: {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sceneRadioButtonGroup_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.sceneRadioButtonGroup.accessibleNameStringProperty' ) ),
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sceneRadioButtonGroup_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.sceneRadioButtonGroup.accessibleHelpTextStringProperty' ) ),
+      accessibleContextResponse: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isMaxHitsReached: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_sceneRadioButtonGroup_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.sceneRadioButtonGroup.accessibleContextResponseStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"isMaxHitsReached","variants":["true","false"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
       photonsRadioButton: {
         accessibleContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sceneRadioButtonGroup_photonsRadioButton_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.sceneRadioButtonGroup.photonsRadioButton.accessibleContextResponseStringProperty' ) )
       },
@@ -381,6 +411,8 @@ const QuantumWaveInterferenceFluent = {
     },
     graphAccordionBox: {
       accessibleHelpTextCollapsedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleHelpTextCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleHelpTextCollapsedStringProperty' ) ),
+      accessibleContextResponseExpanded: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'> }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseExpanded', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]}] ),
+      accessibleContextResponseCollapsed: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'> }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]}] ),
       accessibleParagraph: {
         intensityOffStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleParagraph_intensityOff', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty' ) ),
         intensity: new FluentPattern<{ spatialDescription: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleParagraph_intensity', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleParagraph.intensityStringProperty' ), [{"name":"spatialDescription"}] ),

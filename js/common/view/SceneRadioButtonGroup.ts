@@ -18,6 +18,7 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import RectangularRadioButtonGroup, { type RectangularRadioButtonGroupItem } from '../../../../sun/js/buttons/RectangularRadioButtonGroup.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
+import { TAlertable } from '../../../../utterance-queue/js/Utterance.js';
 import electron_svg from '../../../images/electron_svg.js';
 import heliumAtom_svg from '../../../images/heliumAtom_svg.js';
 import neutron_svg from '../../../images/neutron_svg.js';
@@ -68,9 +69,13 @@ const SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES = {
 
 type HasSourceType = { readonly sourceType: SourceType };
 
+type SceneRadioButtonGroupOptions<T> = {
+  createAccessibleContextResponse?: ( scene: T ) => TAlertable;
+};
+
 export default class SceneRadioButtonGroup<T extends HasSourceType> extends RectangularRadioButtonGroup<T> {
 
-  public constructor( sceneProperty: Property<T>, scenes: T[], tandem: Tandem ) {
+  public constructor( sceneProperty: Property<T>, scenes: T[], tandem: Tandem, options?: SceneRadioButtonGroupOptions<T> ) {
 
     const items: RectangularRadioButtonGroupItem<T>[] = scenes.map( scene => {
       const sourceType = scene.sourceType;
@@ -104,7 +109,9 @@ export default class SceneRadioButtonGroup<T extends HasSourceType> extends Rect
         } ),
         tandemName: `${sourceType}RadioButton`,
         options: {
-          accessibleContextResponse: SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES[ sourceType ]
+          accessibleContextResponse: options?.createAccessibleContextResponse ?
+                                     options.createAccessibleContextResponse( scene ) :
+                                     SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES[ sourceType ]
         }
       };
     } );

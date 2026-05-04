@@ -9,6 +9,7 @@
  */
 
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -37,6 +38,7 @@ export default class ScreenSettingsPanel extends Panel {
 
   public constructor( detectionModeProperty: PhetioProperty<DetectionMode>,
                       screenBrightnessProperty: PhetioProperty<number>,
+                      isEmittingProperty: TReadOnlyProperty<boolean>,
                       providedOptions: ScreenSettingsPanelOptions ) {
 
     const options = optionize<ScreenSettingsPanelOptions, SelfOptions, PanelOptions>()( {
@@ -46,6 +48,8 @@ export default class ScreenSettingsPanel extends Panel {
       fill: null,
       stroke: null
     }, providedOptions );
+
+    const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
 
     // Radio buttons for Intensity vs Hits
     const radioButtonItems: AquaRadioButtonGroupItem<DetectionMode>[] = [
@@ -57,7 +61,9 @@ export default class ScreenSettingsPanel extends Panel {
         } ),
         tandemName: 'averageIntensityRadioButton',
         options: {
-          accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseStringProperty
+          accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponse.createProperty( {
+            isEmitting: isEmittingStringProperty
+          } )
         }
       },
       {
@@ -68,7 +74,9 @@ export default class ScreenSettingsPanel extends Panel {
         } ),
         tandemName: 'hitsRadioButton',
         options: {
-          accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponseStringProperty
+          accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponse.createProperty( {
+            isEmitting: isEmittingStringProperty
+          } )
         }
       }
     ];

@@ -112,6 +112,7 @@ type StringsType = {
       'currentDetailsStringProperty': LocalizedStringProperty;
       'interactionHintStringProperty': LocalizedStringProperty;
     };
+    'experimentSetupHeadingStringProperty': LocalizedStringProperty;
     'sourceHeadingStringProperty': LocalizedStringProperty;
     'slitsHeadingStringProperty': LocalizedStringProperty;
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;
@@ -121,6 +122,8 @@ type StringsType = {
     'emitterButton': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseOnStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseOffStringProperty': LocalizedStringProperty;
     };
     'ruler': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
@@ -143,12 +146,23 @@ type StringsType = {
     };
     'wavelengthSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'accessibleValueStringProperty': LocalizedStringProperty;
+      'color': {
+        'violetStringProperty': LocalizedStringProperty;
+        'blueStringProperty': LocalizedStringProperty;
+        'indigoStringProperty': LocalizedStringProperty;
+        'greenStringProperty': LocalizedStringProperty;
+        'yellowStringProperty': LocalizedStringProperty;
+        'orangeStringProperty': LocalizedStringProperty;
+        'redStringProperty': LocalizedStringProperty;
+      }
     };
     'particleSpeedSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
     'intensitySlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseStringProperty': LocalizedStringProperty;
     };
     'brightnessSlider': {
       'accessibleNameStringProperty': LocalizedStringProperty;
@@ -170,6 +184,7 @@ type StringsType = {
     'sceneRadioButtonGroup': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseStringProperty': LocalizedStringProperty;
       'photonsRadioButton': {
         'accessibleContextResponseStringProperty': LocalizedStringProperty;
       };
@@ -200,6 +215,8 @@ type StringsType = {
     };
     'graphAccordionBox': {
       'accessibleHelpTextCollapsedStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseCollapsedStringProperty': LocalizedStringProperty;
       'accessibleParagraph': {
         'intensityOffStringProperty': LocalizedStringProperty;
         'intensityStringProperty': LocalizedStringProperty;

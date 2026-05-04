@@ -244,8 +244,17 @@ export default class GraphAccordionBox extends Node {
 
     // Create the accordion box, using the shared expandedProperty so that all scenes' graph accordion boxes stay in
     // sync (per the design: scene changes should not affect the accordion box open/closed state).
+    const graphExpandedContextResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleContextResponseExpanded.createProperty( {
+      detectionMode: sceneModel.detectionModeProperty
+    } );
+    const graphCollapsedContextResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleContextResponseCollapsed.createProperty( {
+      detectionMode: sceneModel.detectionModeProperty
+    } );
+
     this.accordionBox = new AccordionBox( contentNode, {
       accessibleHelpTextCollapsed: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleHelpTextCollapsedStringProperty,
+      accessibleContextResponseExpanded: graphExpandedContextResponseProperty,
+      accessibleContextResponseCollapsed: graphCollapsedContextResponseProperty,
       titleNode: titleText,
       titleAlignX: 'left',
       expandedProperty: options.expandedProperty,

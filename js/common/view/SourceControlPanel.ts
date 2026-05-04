@@ -24,7 +24,6 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import SceneryPhetFluent from '../../../../scenery-phet/js/SceneryPhetFluent.js';
 import { kilometersPerSecondUnit } from '../../../../scenery-phet/js/units/kilometersPerSecondUnit.js';
 import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
@@ -36,6 +35,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import SunConstants from '../../../../sun/js/SunConstants.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SourceType } from '../model/SourceType.js';
@@ -50,6 +50,8 @@ const PHOTON_INTENSITY_LABEL_SPACING = 4;
 const PARTICLE_INTENSITY_LABEL_SPACING = 2;
 const CONTROL_SECTION_SPACING = 16;
 const CONTROL_ROW_VERTICAL_MARGIN = 4;
+
+type WavelengthColorZone = 'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red';
 
 export type SourceControlScene = {
   readonly sourceType: SourceType;
@@ -176,10 +178,37 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
           maxWidth: 100
         },
         numberDisplayOptions: {
-          valuePattern: {
-            visualPattern: SceneryPhetFluent.wavelengthNMValuePatternStringProperty,
-            accessiblePattern: nanometersUnit.accessiblePattern!
+          valuePattern: SunConstants.VALUE_NAMED_PLACEHOLDER,
+          numberFormatter: ( value: number ) => {
+            const roundedValue = roundSymmetric( value );
+            const colorZone = SourceControlPanel.getWavelengthColorZone( roundedValue );
+            return {
+              visualString: StringUtils.fillIn(
+                QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty.value,
+                { value: roundedValue }
+              ),
+              accessibleString: QuantumWaveInterferenceFluent.a11y.wavelengthSlider.accessibleValue.format( {
+                value: nanometersUnit.getAccessibleString( roundedValue, {
+                  decimalPlaces: 0,
+                  showTrailingZeros: false,
+                  showIntegersAsIntegers: true
+                } ),
+                color: SourceControlPanel.getWavelengthColorZoneString( colorZone )
+              } )
+            };
           },
+          numberFormatterDependencies: [
+            QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty,
+            ...nanometersUnit.getDependentProperties(),
+            ...QuantumWaveInterferenceFluent.a11y.wavelengthSlider.accessibleValue.getDependentProperties(),
+            QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty,
+            QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty,
+            QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty,
+            QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty,
+            QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty,
+            QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty,
+            QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty
+          ],
           textOptions: {
             font: new PhetFont( 14 )
           },
@@ -360,6 +389,8 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
         showTrailingZeros: false,
         showIntegersAsIntegers: true
       } ),
+      createContextResponseAlert: ( value, _newValue, valueOnStart ) =>
+        SourceControlPanel.getIntensityContextResponse( sourceType, value, valueOnStart, intensityProperty.range ),
       accessibleName: intensityLabelStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleHelpText.createProperty( {
         sourceType: sourceType
@@ -389,6 +420,43 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
     return new VBox( {
       spacing: sourceType === 'photons' ? PHOTON_INTENSITY_LABEL_SPACING : PARTICLE_INTENSITY_LABEL_SPACING,
       children: [ intensityLabel, intensitySlider ]
+    } );
+  }
+
+  private static getWavelengthColorZone( wavelength: number ): WavelengthColorZone {
+    return wavelength <= 450 ? 'violet' :
+           wavelength <= 485 ? 'blue' :
+           wavelength <= 500 ? 'indigo' :
+           wavelength <= 565 ? 'green' :
+           wavelength <= 590 ? 'yellow' :
+           wavelength <= 625 ? 'orange' :
+           'red';
+  }
+
+  private static getWavelengthColorZoneString( colorZone: WavelengthColorZone ): string {
+    return colorZone === 'violet' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty.value :
+           colorZone === 'blue' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty.value :
+           colorZone === 'indigo' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty.value :
+           colorZone === 'green' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty.value :
+           colorZone === 'yellow' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty.value :
+           colorZone === 'orange' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty.value :
+           colorZone === 'red' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty.value :
+           ( () => { throw new Error( `Unrecognized colorZone: ${colorZone}` ); } )();
+  }
+
+  private static getIntensityContextResponse( sourceType: SourceType, value: number, valueOnStart: number, range: Range ): string | null {
+    if ( value === valueOnStart ) {
+      return null;
+    }
+
+    const change = value === range.min ? 'zero' :
+                   value === range.max ? 'max' :
+                   value > valueOnStart ? 'more' :
+                   'less';
+
+    return QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleContextResponse.format( {
+      sourceType: sourceType,
+      change: change
     } );
   }
 }

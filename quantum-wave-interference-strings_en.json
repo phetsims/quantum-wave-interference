@@ -248,29 +248,32 @@
   "a11y": {
     "screenSummary": {
       "playArea": {
-        "value": "A double-slit experiment features a source emitting particles toward a barrier with two narrow slits. Particles that pass through the slits land on a detector screen, building up a pattern. You can adjust the source and slits, observe the resulting pattern, and save snapshots of the detector screen."
+        "value": "A highly configurable three-part experimental setup includes a particle source emitter, slitted barrier, and detector screen. When experiment is running, particles pass through available slits in barrier to land on detector screen and build patterns. You can choose and adjust source particles, configure slits in barrier, observe and take snapshots of resulting patterns on detector screen."
       },
       "controlArea": {
-        "value": "A ruler and stopwatch can be shown or hidden. In hits mode, there are controls to play, pause, or adjust experiment speed. Reset sim to start over."
+        "value": "Measurement tools can be added or removed to assist with data collection and analysis. Reset sim to start over."
       },
       "maxHitsReachedHint": {
-        "value": "Clear the detector screen to collect more hits."
+        "value": "Clear detector screen to make more observations."
       },
       "currentDetails": {
-        "value": "Currently, running a { $sourceType ->\n  [photons] photon\n  [electrons] electron\n  [neutrons] neutron\n *[heliumAtoms] helium atom\n} experiment. The barrier has { $slitSetting ->\n  [bothOpen] both slits open\n  [leftCovered] the left slit covered\n  [rightCovered] the right slit covered\n  [leftDetector] a detector on the left slit\n  [rightDetector] a detector on the right slit\n *[bothDetectors] detectors on both slits\n} and the screen displays { $detectionMode ->\n  [averageIntensity] intensity\n *[hits] hits\n}. The source is { $isEmitting ->\n  [true] on\n *[false] off\n}{ $isMaxHitsReached ->\n  [true] . Maximum hits reached for this scene.\n *[false] .\n}"
+        "value": "Currently, { $isPlaying ->\n  [false] sim is paused. { $isMaxHitsReached ->\n    [true] Source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] Source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at slitted barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] Source is off. Detector screen is dark.\n    }\n  }\n *[true] { $isMaxHitsReached ->\n    [true] source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at slitted barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] source is off. Detector screen is dark.\n    }\n  }\n}"
       },
       "interactionHint": {
-        "value": "{ $isEmitting ->\n  [true] Adjust the source or slits to make observations.\n *[false] Turn on the { $sourceType ->\n    [photons] photon source\n    [electrons] electron source\n    [neutrons] neutron source\n   *[heliumAtoms] helium atom source\n  } to start experimenting.\n}"
+        "value": "{ $isEmitting ->\n  [true] Adjust the source or slits to make observations.\n *[false] Turn on the { $sourceType ->\n    [photons] photon source emitter\n    [electrons] electron source emitter\n    [neutrons] neutron source emitter\n   *[heliumAtoms] helium atom source emitter\n  } to start experimenting.\n}"
       }
     },
+    "experimentSetupHeading": {
+      "value": "Detector Screen and Experiment Setup"
+    },
     "sourceHeading": {
-      "value": "Source"
+      "value": "Source Controls"
     },
     "slitsHeading": {
-      "value": "Slits"
+      "value": "Slits and Screen Configuration"
     },
     "detectorScreenHeading": {
-      "value": "Detector Screen"
+      "value": "Detector Screen Controls"
     },
     "particleMass": {
       "accessibleParagraph": {
@@ -279,62 +282,97 @@
     },
     "emitterButton": {
       "accessibleName": {
-        "value": "{ $sourceType ->\n  [photons] Photon Source\n  [electrons] Electron Source\n  [neutrons] Neutron Source\n *[heliumAtoms] Helium Atom Source\n}"
+        "value": "{ $sourceType ->\n  [photons] Photon Source Emitter\n  [electrons] Electron Source Emitter\n  [neutrons] Neutron Source Emitter\n *[heliumAtoms] Helium Atom Source Emitter\n}"
       },
       "accessibleHelpText": {
-        "value": "Turn the source on and off to start or stop the experiment."
+        "value": "{ $isEmitting ->\n  [true] Turn source off to stop experiment.\n *[false] Turn source on to start experiment.\n}"
+      },
+      "accessibleContextResponseOn": {
+        "value": "{ $isPlaying ->\n  [false] Experiment started. Sim paused.\n *[true] Experiment started.\n}"
+      },
+      "accessibleContextResponseOff": {
+        "value": "Experiment stopped."
       }
     },
     "ruler": {
       "accessibleHelpText": {
-        "value": "Drag ruler up or down to align with features on the detector screen and graph."
+        "value": "Move ruler up or down with keyboard shortcuts to take measurements."
       }
     },
     "rulerCheckbox": {
       "accessibleHelpText": {
-        "value": "Show or hide a ruler to measure distances on the detector screen."
+        "value": "Use added ruler to measure distances across detector screen or graph."
       },
       "accessibleContextResponseChecked": {
-        "value": "Ruler shown."
+        "value": "Ruler added near detector screen."
       },
       "accessibleContextResponseUnchecked": {
-        "value": "Ruler hidden."
+        "value": "Ruler removed."
       }
     },
     "stopwatchCheckbox": {
       "accessibleHelpText": {
-        "value": "Show or hide a stopwatch to time the experiment."
+        "value": "Use added stopwatch to time experiment."
       },
       "accessibleContextResponseChecked": {
-        "value": "Stopwatch shown."
+        "value": "Stopwatch added near detector screen."
       },
       "accessibleContextResponseUnchecked": {
-        "value": "Stopwatch hidden."
+        "value": "Stopwatch removed."
       }
     },
     "slitSeparationSlider": {
       "accessibleHelpText": {
-        "value": "Adjust the distance between the centers of the two slits."
+        "value": "Change distance between centers of slits in barrier in micrometers."
       }
     },
     "screenDistanceSlider": {
       "accessibleHelpText": {
-        "value": "Adjust the distance from the barrier to the detector screen."
+        "value": "Change distance from slitted barrier to detector screen in meters."
       }
     },
     "wavelengthSlider": {
       "accessibleHelpText": {
-        "value": "Adjust wavelength of emitted photons."
+        "value": "Change wavelength of emitted photons in nanometers from shortest, violet, to longest, red."
+      },
+      "accessibleValue": {
+        "value": "{ $value }, { $color } zone"
+      },
+      "color": {
+        "violet": {
+          "value": "violet"
+        },
+        "blue": {
+          "value": "blue"
+        },
+        "indigo": {
+          "value": "indigo"
+        },
+        "green": {
+          "value": "green"
+        },
+        "yellow": {
+          "value": "yellow"
+        },
+        "orange": {
+          "value": "orange"
+        },
+        "red": {
+          "value": "red"
+        }
       }
     },
     "particleSpeedSlider": {
       "accessibleHelpText": {
-        "value": "Adjust speed of emitted particles."
+        "value": "Change speed of emitted particles in kilometers or meters per second."
       }
     },
     "intensitySlider": {
       "accessibleHelpText": {
-        "value": "Adjust how many { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} the source emits per unit time."
+        "value": "Change number of { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} source emits per second."
+      },
+      "accessibleContextResponse": {
+        "value": "{ $change ->\n  [more] More { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n  [less] Less { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n  [max] Max { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n *[zero] Zero { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n}"
       }
     },
     "brightnessSlider": {
@@ -342,24 +380,24 @@
         "value": "Screen Brightness"
       },
       "accessibleHelpText": {
-        "value": "Adjust the brightness of the detector screen display."
+        "value": "Adjust brightness to optimize visual analysis of pattern on detector screen."
       }
     },
     "detectionModeRadioButtons": {
       "accessibleName": {
-        "value": "Detection Mode"
+        "value": "Detection Mode Sensitivity"
       },
       "accessibleHelpText": {
-        "value": "Choose how detections are displayed on the detector screen."
+        "value": "Choose continuous intensity pattern or individual hits pattern for particle detection."
       },
       "intensityRadioButton": {
         "accessibleContextResponse": {
-          "value": "Detector screen now shows continuous intensity pattern."
+          "value": "{ $isEmitting ->\n  [true] Alternating bright and dark vertical bands on detector screen.\n *[false] Screen is dark. Start particle source.\n}"
         }
       },
       "hitsRadioButton": {
         "accessibleContextResponse": {
-          "value": "Detector screen now shows individual hits."
+          "value": "{ $isEmitting ->\n  [true] Individual hits increasing on detector screen.\n *[false] Screen is dark. Start particle source.\n}"
         }
       }
     },
@@ -370,10 +408,13 @@
     },
     "sceneRadioButtonGroup": {
       "accessibleName": {
-        "value": "Experiment Type"
+        "value": "Particle Type"
       },
       "accessibleHelpText": {
-        "value": "Choose a particle type to switch to a different experiment setup."
+        "value": "Change particle type for source emitter and change experiment setup."
+      },
+      "accessibleContextResponse": {
+        "value": "{ $isMaxHitsReached ->\n  [true] { $sourceType ->\n    [photons] Photon\n    [electrons] Electron\n    [neutrons] Neutron\n   *[heliumAtoms] Helium atom\n  } experiment at max hits. Clear detector screen to make more observations.\n *[false] { $isEmitting ->\n    [true] { $sourceType ->\n      [photons] Photon\n      [electrons] Electron\n      [neutrons] Neutron\n     *[heliumAtoms] Helium atom\n    } experiment in progress. Configurations and detection screen updated.\n   *[false] Source off. { $sourceType ->\n      [photons] Photon\n      [electrons] Electron\n      [neutrons] Neutron\n     *[heliumAtoms] Helium atom\n    } experiment ready to start.\n  }\n}"
       },
       "photonsRadioButton": {
         "accessibleContextResponse": {
@@ -401,10 +442,10 @@
         "value": "Slit Configuration"
       },
       "accessibleHelpText": {
-        "value": "Choose a slit configuration to change which slits are open, covered, or monitored by a detector."
+        "value": "Choose slit configuration for barrier."
       },
       "accessibleContextResponse": {
-        "value": "{ $slitSetting ->\n  [bothOpen] Both slits now open.\n  [leftCovered] Left slit now covered.\n  [rightCovered] Right slit now covered.\n  [leftDetector] Left slit now monitored by a detector.\n  [rightDetector] Right slit now monitored by a detector.\n *[bothDetectors] Both slits now monitored by detectors.\n}"
+        "value": "{ $slitSetting ->\n  [bothOpen] In barrier, both slits open.\n  [leftCovered] In barrier, left slit covered.\n  [rightCovered] In barrier, right slit covered.\n  [leftDetector] Detector added to left slit in barrier.\n  [rightDetector] Detector added to right slit in barrier.\n *[bothDetectors] Detectors added to both slits in barrier.\n}"
       }
     },
     "slitWidthMicrometersPattern": {
@@ -428,6 +469,12 @@
     "graphAccordionBox": {
       "accessibleHelpTextCollapsed": {
         "value": "Explore a graph of the detector screen pattern."
+      },
+      "accessibleContextResponseExpanded": {
+        "value": "{ $detectionMode ->\n  [averageIntensity] Dynamic graph of intensity pattern shown.\n *[hits] Dynamic histogram of hits data shown.\n}"
+      },
+      "accessibleContextResponseCollapsed": {
+        "value": "{ $detectionMode ->\n  [averageIntensity] Intensity graph hidden.\n *[hits] Hits histogram hidden.\n}"
       },
       "accessibleParagraph": {
         "intensityOff": {
@@ -539,13 +586,13 @@
     "detectorScreenButtons": {
       "clearScreen": {
         "accessibleName": {
-          "value": "Clear Screen"
+          "value": "Clear Hits"
         },
         "accessibleHelpText": {
-          "value": "Clear all hits from the detector screen."
+          "value": "Clear hits pattern on detector screen."
         },
         "accessibleContextResponse": {
-          "value": "Screen cleared."
+          "value": "Hits pattern cleared. Screen dark."
         }
       },
       "takeSnapshot": {
@@ -553,7 +600,7 @@
           "value": "Take Snapshot"
         },
         "accessibleHelpText": {
-          "value": "Capture the current detector screen pattern as a snapshot. Up to { $maxSnapshots } snapshots can be saved."
+          "value": "Capture and store up to { $maxSnapshots } snapshots of detector screen pattern."
         },
         "accessibleContextResponse": {
           "value": "Snapshot { $snapshotNumber } taken."
@@ -564,7 +611,7 @@
           "value": "View Snapshots"
         },
         "accessibleHelpText": {
-          "value": "View and compare saved snapshots of the detector screen."
+          "value": "Open stored snapshots for comparative analysis or deletion."
         }
       }
     }
