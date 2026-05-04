@@ -213,10 +213,12 @@ export default class GraphAccordionBox extends Node {
       touchAreaYDilation: 5,
       zoomInButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty,
         accessibleContextResponse: zoomLevelResponseProperty
       },
       zoomOutButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
         accessibleContextResponse: zoomLevelResponseProperty
       },
       tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' )

@@ -376,6 +376,8 @@ a11y:
                               { $spatialDescription }
     zoomButtonGroup:
       zoomLevelResponse: 'Zoom level { $level } of { $max }.'
+      zoomInAccessibleHelpText:  Zoom in to see more detail of graph pattern.
+      zoomOutAccessibleHelpText: Zoom out to see more of graph pattern.
   detectorScreen:
     accessibleParagraph:
       intensityOff:                   The detector screen is dark. The source is off.
@@ -466,11 +468,22 @@ a11y:
                  A broad central band centered on the screen, tapering toward the edges.
           peaks: >-
                  A broad central peak, tapering toward the edges.
+    zoomButtonGroup:
+      zoomInAccessibleHelpText:  Zoom in to see more detail of detector screen pattern.
+      zoomOutAccessibleHelpText: Zoom out to see more of detector screen pattern.
   detectorScreenButtons:
     clearScreen:
       accessibleName:            Clear Hits
       accessibleHelpText:        Clear hits pattern on detector screen.
-      accessibleContextResponse: Hits pattern cleared. Screen dark.
+      accessibleContextResponse: >-
+                                 { $isEmitting ->
+                                   [true] { $isPlaying ->
+                                     [true] Hits pattern cleared. Hits detection restarted. Individual hits increasing
+                                     on detector screen.
+                                    *[false] Hits pattern cleared. Sim paused.
+                                   }
+                                  *[false] Hits pattern cleared. Screen dark.
+                                 }
     takeSnapshot:
       accessibleName:            Take Snapshot
       accessibleHelpText:        'Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.'

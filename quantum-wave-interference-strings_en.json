@@ -511,6 +511,12 @@
       "zoomButtonGroup": {
         "zoomLevelResponse": {
           "value": "Zoom level { $level } of { $max }."
+        },
+        "zoomInAccessibleHelpText": {
+          "value": "Zoom in to see more detail of graph pattern."
+        },
+        "zoomOutAccessibleHelpText": {
+          "value": "Zoom out to see more of graph pattern."
         }
       }
     },
@@ -581,6 +587,14 @@
         "noRulerSingleSlit": {
           "value": "{ $style ->\n  [bands] A broad central band centered on the screen, tapering toward the edges.\n  *[peaks] A broad central peak, tapering toward the edges.\n}"
         }
+      },
+      "zoomButtonGroup": {
+        "zoomInAccessibleHelpText": {
+          "value": "Zoom in to see more detail of detector screen pattern."
+        },
+        "zoomOutAccessibleHelpText": {
+          "value": "Zoom out to see more of detector screen pattern."
+        }
       }
     },
     "detectorScreenButtons": {
@@ -592,7 +606,7 @@
           "value": "Clear hits pattern on detector screen."
         },
         "accessibleContextResponse": {
-          "value": "Hits pattern cleared. Screen dark."
+          "value": "{ $isEmitting ->\n  [true] { $isPlaying ->\n    [true] Hits pattern cleared. Hits detection restarted. Individual hits increasing\n    on detector screen.\n   *[false] Hits pattern cleared. Sim paused.\n  }\n *[false] Hits pattern cleared. Screen dark.\n}"
         }
       },
       "takeSnapshot": {

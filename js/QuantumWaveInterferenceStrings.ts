@@ -231,6 +231,8 @@ type StringsType = {
       };
       'zoomButtonGroup': {
         'zoomLevelResponseStringProperty': LocalizedStringProperty;
+        'zoomInAccessibleHelpTextStringProperty': LocalizedStringProperty;
+        'zoomOutAccessibleHelpTextStringProperty': LocalizedStringProperty;
       }
     };
     'detectorScreen': {
@@ -258,6 +260,10 @@ type StringsType = {
         'noRulerDoubleSlitStringProperty': LocalizedStringProperty;
         'rulerSingleSlitStringProperty': LocalizedStringProperty;
         'noRulerSingleSlitStringProperty': LocalizedStringProperty;
+      };
+      'zoomButtonGroup': {
+        'zoomInAccessibleHelpTextStringProperty': LocalizedStringProperty;
+        'zoomOutAccessibleHelpTextStringProperty': LocalizedStringProperty;
       }
     };
     'detectorScreenButtons': {

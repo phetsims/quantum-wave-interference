@@ -201,10 +201,12 @@ export default class DetectorScreenNode extends Node {
       top: HORIZONTAL_ZOOM_BUTTON_MARGIN,
       zoomInButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty,
         accessibleContextResponse: horizontalZoomLevelResponseProperty
       },
       zoomOutButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
         accessibleContextResponse: horizontalZoomLevelResponseProperty
       },
       tandem: providedOptions.tandem.createTandem( 'horizontalZoomButtonGroup' )
@@ -369,6 +371,11 @@ export default class DetectorScreenNode extends Node {
       sceneModel.detectionModeProperty.derived( detectionMode => detectionMode === 'hits' ),
       eraserButtonTandem
     );
+    const clearScreenContextResponseProperty =
+      QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleContextResponse.createProperty( {
+        isEmitting: sceneModel.isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' ),
+        isPlaying: isPlayingProperty.derived( isPlaying => isPlaying ? 'true' : 'false' )
+      } );
 
     // Eraser button to clear the screen
     this.eraserButton = new EraserButton( {
@@ -382,7 +389,7 @@ export default class DetectorScreenNode extends Node {
       touchAreaYDilation: 5,
       accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty,
-      accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleContextResponseStringProperty,
+      accessibleContextResponse: clearScreenContextResponseProperty,
       tandem: eraserButtonTandem,
       visibleProperty: eraserButtonVisibleProperty
     } );
