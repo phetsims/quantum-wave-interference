@@ -116,6 +116,16 @@ type StringsType = {
     'sourceHeadingStringProperty': LocalizedStringProperty;
     'slitsHeadingStringProperty': LocalizedStringProperty;
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;
+    'experimentSetupDetails': {
+      'leadingParagraphStringProperty': LocalizedStringProperty;
+      'sourceEmitterStringProperty': LocalizedStringProperty;
+      'detectionModeStringProperty': LocalizedStringProperty;
+      'wavelengthStringProperty': LocalizedStringProperty;
+      'particleSpeedStringProperty': LocalizedStringProperty;
+      'slitConfigurationStringProperty': LocalizedStringProperty;
+      'slitSeparationStringProperty': LocalizedStringProperty;
+      'screenDistanceStringProperty': LocalizedStringProperty;
+    };
     'particleMass': {
       'accessibleParagraphStringProperty': LocalizedStringProperty;
     };

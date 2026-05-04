@@ -104,6 +104,14 @@ addToMapIfDefined( 'a11y_experimentSetupHeading', 'a11y.experimentSetupHeadingSt
 addToMapIfDefined( 'a11y_sourceHeading', 'a11y.sourceHeadingStringProperty' );
 addToMapIfDefined( 'a11y_slitsHeading', 'a11y.slitsHeadingStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenHeading', 'a11y.detectorScreenHeadingStringProperty' );
+addToMapIfDefined( 'a11y_experimentSetupDetails_leadingParagraph', 'a11y.experimentSetupDetails.leadingParagraphStringProperty' );
+addToMapIfDefined( 'a11y_experimentSetupDetails_sourceEmitter', 'a11y.experimentSetupDetails.sourceEmitterStringProperty' );
+addToMapIfDefined( 'a11y_experimentSetupDetails_detectionMode', 'a11y.experimentSetupDetails.detectionModeStringProperty' );
+addToMapIfDefined( 'a11y_experimentSetupDetails_wavelength', 'a11y.experimentSetupDetails.wavelengthStringProperty' );
+addToMapIfDefined( 'a11y_experimentSetupDetails_particleSpeed', 'a11y.experimentSetupDetails.particleSpeedStringProperty' );
+addToMapIfDefined( 'a11y_experimentSetupDetails_slitConfiguration', 'a11y.experimentSetupDetails.slitConfigurationStringProperty' );
+addToMapIfDefined( 'a11y_experimentSetupDetails_slitSeparation', 'a11y.experimentSetupDetails.slitSeparationStringProperty' );
+addToMapIfDefined( 'a11y_experimentSetupDetails_screenDistance', 'a11y.experimentSetupDetails.screenDistanceStringProperty' );
 addToMapIfDefined( 'a11y_particleMass_accessibleParagraph', 'a11y.particleMass.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleName', 'a11y.emitterButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleHelpText', 'a11y.emitterButton.accessibleHelpTextStringProperty' );
@@ -316,6 +324,16 @@ const QuantumWaveInterferenceFluent = {
     sourceHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sourceHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceHeadingStringProperty' ) ),
     slitsHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitsHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.slitsHeadingStringProperty' ) ),
     detectorScreenHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreenHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreenHeadingStringProperty' ) ),
+    experimentSetupDetails: {
+      leadingParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_leadingParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.leadingParagraphStringProperty' ) ),
+      sourceEmitter: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_sourceEmitter', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.sourceEmitterStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
+      detectionMode: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'> }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_detectionMode', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.detectionModeStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]}] ),
+      wavelength: new FluentPattern<{ color: FluentVariable, wavelength: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_wavelength', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.wavelengthStringProperty' ), [{"name":"color"},{"name":"wavelength"}] ),
+      particleSpeed: new FluentPattern<{ speed: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_particleSpeed', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.particleSpeedStringProperty' ), [{"name":"speed"}] ),
+      slitConfiguration: new FluentPattern<{ slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors'> }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_slitConfiguration', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.slitConfigurationStringProperty' ), [{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","bothDetectors"]}] ),
+      slitSeparation: new FluentPattern<{ distance: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_slitSeparation', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.slitSeparationStringProperty' ), [{"name":"distance"}] ),
+      screenDistance: new FluentPattern<{ distance: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_screenDistance', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.screenDistanceStringProperty' ), [{"name":"distance"}] )
+    },
     particleMass: {
       accessibleParagraph: new FluentPattern<{ sourceType: 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_particleMass_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.particleMass.accessibleParagraphStringProperty' ), [{"name":"sourceType","variants":["electrons","neutrons","heliumAtoms"]}] )
     },

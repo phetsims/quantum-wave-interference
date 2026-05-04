@@ -275,9 +275,35 @@
     "detectorScreenHeading": {
       "value": "Detector Screen Controls"
     },
+    "experimentSetupDetails": {
+      "leadingParagraph": {
+        "value": "Current experimental details:"
+      },
+      "sourceEmitter": {
+        "value": "{ $sourceType ->\n  [photons] Photon Source Emitter\n  [electrons] Electron Source Emitter\n  [neutrons] Neutron Source Emitter\n *[heliumAtoms] Helium Atom Source Emitter\n} is { $isEmitting ->\n  [true] on.\n *[false] off.\n}"
+      },
+      "detectionMode": {
+        "value": "Screen Detection set to { $detectionMode ->\n  [averageIntensity] Intensity Mode.\n *[hits] Hits Mode.\n}"
+      },
+      "wavelength": {
+        "value": "Wavelength is { $wavelength }, and in { $color } zone."
+      },
+      "particleSpeed": {
+        "value": "Particle Speed is { $speed }."
+      },
+      "slitConfiguration": {
+        "value": "{ $slitSetting ->\n  [bothOpen] Both slits open in barrier.\n  [leftCovered] Left slit covered in barrier.\n  [rightCovered] Right slit covered in barrier.\n  [leftDetector] Detector on left slit in barrier.\n  [rightDetector] Detector on right slit in barrier.\n *[bothDetectors] Detectors on both slits in barrier.\n}"
+      },
+      "slitSeparation": {
+        "value": "Slit Separation distance is { $distance }."
+      },
+      "screenDistance": {
+        "value": "Distance from slitted barrier to detector screen is { $distance }."
+      }
+    },
     "particleMass": {
       "accessibleParagraph": {
-        "value": "{ $sourceType ->\n  [electrons] Particle mass: 9.1 times 10 to the negative 31 kilograms.\n  [neutrons] Particle mass: 1.7 times 10 to the negative 27 kilograms.\n *[heliumAtoms] Particle mass: 6.6 times 10 to the negative 27 kilograms.\n}"
+        "value": "{ $sourceType ->\n  [electrons] Electron particle mass is 9.1 times 10 to the negative 31 kilograms.\n  [neutrons] Neutron particle mass is 1.7 times 10 to the negative 27 kilograms.\n *[heliumAtoms] Helium atom particle mass is 6.6 times 10 to the negative 27 kilograms.\n}"
       }
     },
     "emitterButton": {

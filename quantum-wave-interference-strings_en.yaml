@@ -165,12 +165,42 @@ a11y:
   sourceHeading:               Source Controls
   slitsHeading:                Slits and Screen Configuration
   detectorScreenHeading:       Detector Screen Controls
+  experimentSetupDetails:
+    leadingParagraph: 'Current experimental details:'
+    sourceEmitter:    >-
+                      { $sourceType ->
+                        [photons] Photon Source Emitter
+                        [electrons] Electron Source Emitter
+                        [neutrons] Neutron Source Emitter
+                       *[heliumAtoms] Helium Atom Source Emitter
+                      } is { $isEmitting ->
+                        [true] on.
+                       *[false] off.
+                      }
+    detectionMode:    >-
+                      Screen Detection set to { $detectionMode ->
+                        [averageIntensity] Intensity Mode.
+                       *[hits] Hits Mode.
+                      }
+    wavelength:       'Wavelength is { $wavelength }, and in { $color } zone.'
+    particleSpeed:    'Particle Speed is { $speed }.'
+    slitConfiguration: >-
+                       { $slitSetting ->
+                         [bothOpen] Both slits open in barrier.
+                         [leftCovered] Left slit covered in barrier.
+                         [rightCovered] Right slit covered in barrier.
+                         [leftDetector] Detector on left slit in barrier.
+                         [rightDetector] Detector on right slit in barrier.
+                        *[bothDetectors] Detectors on both slits in barrier.
+                       }
+    slitSeparation:   'Slit Separation distance is { $distance }.'
+    screenDistance:   'Distance from slitted barrier to detector screen is { $distance }.'
   particleMass:
     accessibleParagraph: >-
                          { $sourceType ->
-                           [electrons] Particle mass: 9.1 times 10 to the negative 31 kilograms.
-                           [neutrons] Particle mass: 1.7 times 10 to the negative 27 kilograms.
-                          *[heliumAtoms] Particle mass: 6.6 times 10 to the negative 27 kilograms.
+                           [electrons] Electron particle mass is 9.1 times 10 to the negative 31 kilograms.
+                           [neutrons] Neutron particle mass is 1.7 times 10 to the negative 27 kilograms.
+                          *[heliumAtoms] Helium atom particle mass is 6.6 times 10 to the negative 27 kilograms.
                          }
   emitterButton:
     accessibleName:     >-

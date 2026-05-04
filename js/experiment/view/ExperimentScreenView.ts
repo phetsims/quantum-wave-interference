@@ -11,9 +11,11 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import GatedEnabledProperty from '../../../../axon/js/GatedEnabledProperty.js';
 import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
@@ -25,6 +27,10 @@ import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboard
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import { kilometersPerSecondUnit } from '../../../../scenery-phet/js/units/kilometersPerSecondUnit.js';
+import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
+import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
+import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -33,6 +39,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
+import SceneModel from '../model/SceneModel.js';
 import createRulerNode from './createRulerNode.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
@@ -57,6 +64,8 @@ const RULER_X_OFFSET = 0.5;
 const RULER_KEYBOARD_DRAG_DELTA = 5;
 const RULER_KEYBOARD_SHIFT_DRAG_DELTA = 1;
 const MIDDLE_COLUMN_LEFT_SHIFT = 3;
+
+type WavelengthColorZone = 'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red';
 
 export default class ExperimentScreenView extends ScreenView {
   private readonly graphAccordionBoxes: GraphAccordionBox[];
@@ -585,6 +594,159 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( particleMassDescriptionNode );
 
+    const currentWavelengthProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
+      derive: 'wavelengthProperty'
+    } );
+    const currentVelocityProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
+      derive: 'velocityProperty'
+    } );
+    const currentSlitSeparationProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
+      derive: 'slitSeparationProperty'
+    } );
+    const currentScreenDistanceProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
+      derive: 'screenDistanceProperty'
+    } );
+
+    const experimentSetupDetailsIntroNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.leadingParagraphStringProperty
+    } );
+    this.addChild( experimentSetupDetailsIntroNode );
+
+    const sourceTypeProperty = model.sceneProperty.derived( scene => scene.sourceType );
+    const isEmittingStringProperty = model.currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
+
+    const sourceEmitterDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.sourceEmitter.createProperty( {
+        sourceType: sourceTypeProperty,
+        isEmitting: isEmittingStringProperty
+      } )
+    } );
+    this.addChild( sourceEmitterDescriptionNode );
+
+    const detectionModeDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.detectionMode.createProperty( {
+        detectionMode: model.currentDetectionModeProperty
+      } )
+    } );
+    this.addChild( detectionModeDescriptionNode );
+
+    const wavelengthStringProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [ currentWavelengthProperty, ...nanometersUnit.getDependentProperties() ] ) ),
+      () => nanometersUnit.getAccessibleString( roundSymmetric( currentWavelengthProperty.value ), {
+        decimalPlaces: 0,
+        showTrailingZeros: false,
+        showIntegersAsIntegers: true
+      } )
+    );
+
+    const wavelengthColorStringProperty = new DerivedProperty(
+      [
+        currentWavelengthProperty,
+        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty,
+        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty,
+        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty,
+        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty,
+        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty,
+        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty,
+        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty
+      ],
+      wavelength => ExperimentScreenView.getWavelengthColorZoneString(
+        ExperimentScreenView.getWavelengthColorZone( roundSymmetric( wavelength ) )
+      )
+    );
+
+    const wavelengthDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.wavelength.createProperty( {
+        wavelength: wavelengthStringProperty,
+        color: wavelengthColorStringProperty
+      } )
+    } );
+    model.sceneProperty.link( scene => {
+      wavelengthDescriptionNode.visible = scene.sourceType === 'photons';
+    } );
+    this.addChild( wavelengthDescriptionNode );
+
+    const particleSpeedStringProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [
+        model.sceneProperty,
+        currentVelocityProperty,
+        ...kilometersPerSecondUnit.getDependentProperties(),
+        ...metersPerSecondUnit.getDependentProperties()
+      ] ) ),
+      () => {
+        const scene = model.sceneProperty.value;
+        const velocity = currentVelocityProperty.value;
+        const useKmPerSecond = scene.velocityRange.max >= 10000;
+        const speedUnit = useKmPerSecond ? kilometersPerSecondUnit : metersPerSecondUnit;
+        const speedValue = useKmPerSecond ? velocity / 1000 : velocity;
+        return speedUnit.getAccessibleString( roundSymmetric( speedValue ), {
+          decimalPlaces: 0,
+          showTrailingZeros: false,
+          showIntegersAsIntegers: true
+        } );
+      }
+    );
+
+    const particleSpeedDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.particleSpeed.createProperty( {
+        speed: particleSpeedStringProperty
+      } )
+    } );
+    model.sceneProperty.link( scene => {
+      particleSpeedDescriptionNode.visible = scene.sourceType !== 'photons';
+    } );
+    this.addChild( particleSpeedDescriptionNode );
+
+    const slitConfigurationDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.createProperty( {
+        slitSetting: model.currentSlitSettingProperty
+      } )
+    } );
+    this.addChild( slitConfigurationDescriptionNode );
+
+    const slitSeparationStringProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [
+        model.sceneProperty,
+        currentSlitSeparationProperty,
+        ...QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.getDependentProperties()
+      ] ) ),
+      () => {
+        const scene = model.sceneProperty.value;
+        const slitSeparationMM = currentSlitSeparationProperty.value;
+        const slitSeparationUM = slitSeparationMM * 1000;
+        const decimalPlaces = ExperimentConstants.getRangeDecimalPlaces(
+          scene.slitSeparationRange.min * 1000,
+          scene.slitSeparationRange.max * 1000
+        );
+        return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
+          value: toFixed( slitSeparationUM, decimalPlaces )
+        } );
+      }
+    );
+
+    const slitSeparationDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitSeparation.createProperty( {
+        distance: slitSeparationStringProperty
+      } )
+    } );
+    this.addChild( slitSeparationDescriptionNode );
+
+    const screenDistanceStringProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [ currentScreenDistanceProperty, ...metersUnit.getDependentProperties() ] ) ),
+      () => metersUnit.getAccessibleString( currentScreenDistanceProperty.value, {
+        decimalPlaces: 2,
+        showTrailingZeros: true,
+        showIntegersAsIntegers: true
+      } )
+    );
+
+    const screenDistanceDescriptionNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.screenDistance.createProperty( {
+        distance: screenDistanceStringProperty
+      } )
+    } );
+    this.addChild( screenDistanceDescriptionNode );
+
     // Heading nodes for PDOM navigation. Each groups related controls under a heading so screen reader users can jump
     // between major sections with heading shortcuts.
     const experimentSetupHeadingNode = new Node( {
@@ -611,7 +773,15 @@ export default class ExperimentScreenView extends ScreenView {
     experimentSetupHeadingNode.pdomOrder = [
       detectorScreenDescriptionNode,
       slitViewDescriptionNode,
+      experimentSetupDetailsIntroNode,
+      sourceEmitterDescriptionNode,
+      detectionModeDescriptionNode,
+      wavelengthDescriptionNode,
+      particleSpeedDescriptionNode,
       particleMassDescriptionNode,
+      slitConfigurationDescriptionNode,
+      slitSeparationDescriptionNode,
+      screenDistanceDescriptionNode,
       overheadEmitterNode.maxHitsReachedPanel
     ];
 
@@ -660,5 +830,26 @@ export default class ExperimentScreenView extends ScreenView {
     this.graphExpandedProperty.reset();
     this.graphAccordionBoxes.forEach( box => box.reset() );
     this.centerRulerOnDetectorScreen();
+  }
+
+  private static getWavelengthColorZone( wavelength: number ): WavelengthColorZone {
+    return wavelength <= 450 ? 'violet' :
+           wavelength <= 485 ? 'blue' :
+           wavelength <= 500 ? 'indigo' :
+           wavelength <= 565 ? 'green' :
+           wavelength <= 590 ? 'yellow' :
+           wavelength <= 625 ? 'orange' :
+           'red';
+  }
+
+  private static getWavelengthColorZoneString( colorZone: WavelengthColorZone ): string {
+    return colorZone === 'violet' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty.value :
+           colorZone === 'blue' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty.value :
+           colorZone === 'indigo' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty.value :
+           colorZone === 'green' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty.value :
+           colorZone === 'yellow' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty.value :
+           colorZone === 'orange' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty.value :
+           colorZone === 'red' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty.value :
+           ( () => { throw new Error( `Unrecognized colorZone: ${colorZone}` ); } )();
   }
 }
