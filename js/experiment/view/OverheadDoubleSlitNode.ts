@@ -43,8 +43,11 @@ export default class OverheadDoubleSlitNode extends Node {
   public readonly parallelogramNode: Path;
   private readonly reducedBackgroundNode: Path;
   private readonly doubleSlitLabel: Text;
-  private leftDetectorAnchorPoint = new Vector2( 0, 0 );
-  private rightDetectorAnchorPoint = new Vector2( 0, 0 );
+  private readonly leftSlitDetectorOverlay: Path;
+  private readonly rightSlitDetectorOverlay: Path;
+  private readonly slitOverlayDx: number;
+  private readonly slitOverlayDy: number;
+  private readonly slitOverlayHeight: number;
 
   // Skew parameters for the overhead parallelogram, exposed so sibling nodes can match the perspective.
   public readonly skewDx = 51 * OVERHEAD_SCALE;
@@ -103,30 +106,30 @@ export default class OverheadDoubleSlitNode extends Node {
     this.parallelogramNode.addChild( rightSlitMarker );
 
     // Detector overlays
-    const slitOverlayHeight = ( slitLineLength + 1.5 * OVERHEAD_SCALE ) * DETECTOR_OVERLAY_HEIGHT_SCALE;
-    const slitOverlayDx = 4 * OVERHEAD_SCALE * 0.6 * 0.85 * DETECTOR_OVERLAY_WIDTH_SCALE;
-    const slitOverlayDy = slitOverlayDx * ( this.skewDy / this.skewDx );
+    this.slitOverlayHeight = ( slitLineLength + 1.5 * OVERHEAD_SCALE ) * DETECTOR_OVERLAY_HEIGHT_SCALE;
+    this.slitOverlayDx = 4 * OVERHEAD_SCALE * 0.6 * 0.85 * DETECTOR_OVERLAY_WIDTH_SCALE;
+    this.slitOverlayDy = this.slitOverlayDx * ( this.skewDy / this.skewDx );
 
-    const leftSlitDetectorOverlay = createParallelogramNode( slitOverlayDx, slitOverlayDy, slitOverlayHeight,
+    this.leftSlitDetectorOverlay = createParallelogramNode( this.slitOverlayDx, this.slitOverlayDy, this.slitOverlayHeight,
       QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA ).toCSS(),
       0
     );
-    leftSlitDetectorOverlay.stroke = QuantumWaveInterferenceColors.detectorOverlayStrokeProperty;
-    leftSlitDetectorOverlay.lineWidth = DETECTOR_OVERLAY_STROKE_WIDTH;
-    leftSlitDetectorOverlay.visible = false;
-    this.parallelogramNode.addChild( leftSlitDetectorOverlay );
+    this.leftSlitDetectorOverlay.stroke = QuantumWaveInterferenceColors.detectorOverlayStrokeProperty;
+    this.leftSlitDetectorOverlay.lineWidth = DETECTOR_OVERLAY_STROKE_WIDTH;
+    this.leftSlitDetectorOverlay.visible = false;
+    this.parallelogramNode.addChild( this.leftSlitDetectorOverlay );
 
-    const rightSlitDetectorOverlay = createParallelogramNode(
-      slitOverlayDx,
-      slitOverlayDy,
-      slitOverlayHeight,
+    this.rightSlitDetectorOverlay = createParallelogramNode(
+      this.slitOverlayDx,
+      this.slitOverlayDy,
+      this.slitOverlayHeight,
       QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA ).toCSS(),
       0
     );
-    rightSlitDetectorOverlay.stroke = QuantumWaveInterferenceColors.detectorOverlayStrokeProperty;
-    rightSlitDetectorOverlay.lineWidth = DETECTOR_OVERLAY_STROKE_WIDTH;
-    rightSlitDetectorOverlay.visible = false;
-    this.parallelogramNode.addChild( rightSlitDetectorOverlay );
+    this.rightSlitDetectorOverlay.stroke = QuantumWaveInterferenceColors.detectorOverlayStrokeProperty;
+    this.rightSlitDetectorOverlay.lineWidth = DETECTOR_OVERLAY_STROKE_WIDTH;
+    this.rightSlitDetectorOverlay.visible = false;
+    this.parallelogramNode.addChild( this.rightSlitDetectorOverlay );
 
     // Updates slit line positions and detector overlays
     const updateOverheadSlits = () => {
@@ -156,27 +159,18 @@ export default class OverheadDoubleSlitNode extends Node {
       rightSlitMarker.x = rightX - slitMarkerWidth / 2;
       rightSlitMarker.y = rightY - slitLineLength / 2;
 
-      leftSlitDetectorOverlay.x = leftX - slitOverlayDx / 2;
-      leftSlitDetectorOverlay.y = leftY - slitOverlayHeight / 2;
-      rightSlitDetectorOverlay.x = rightX - slitOverlayDx / 2;
-      rightSlitDetectorOverlay.y = rightY - slitOverlayHeight / 2;
-
-      this.leftDetectorAnchorPoint = new Vector2(
-        this.parallelogramNode.x + leftSlitDetectorOverlay.x - DETECTOR_OVERLAY_STROKE_WIDTH / 2,
-        this.parallelogramNode.y + leftY
-      );
-      this.rightDetectorAnchorPoint = new Vector2(
-        this.parallelogramNode.x + rightSlitDetectorOverlay.x + slitOverlayDx + DETECTOR_OVERLAY_STROKE_WIDTH / 2,
-        this.parallelogramNode.y + rightY + slitOverlayDy
-      );
+      this.leftSlitDetectorOverlay.x = leftX - this.slitOverlayDx / 2;
+      this.leftSlitDetectorOverlay.y = leftY - this.slitOverlayHeight / 2;
+      this.rightSlitDetectorOverlay.x = rightX - this.slitOverlayDx / 2;
+      this.rightSlitDetectorOverlay.y = rightY - this.slitOverlayHeight / 2;
 
       const slitSetting = scene.slitSettingProperty.value;
       leftSlitMarker.visible = true;
       rightSlitMarker.visible = true;
       leftSlitMarker.fill = slitSetting === 'leftCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
       rightSlitMarker.fill = slitSetting === 'rightCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
-      leftSlitDetectorOverlay.visible = hasDetectorOnSide( slitSetting, 'left' );
-      rightSlitDetectorOverlay.visible = hasDetectorOnSide( slitSetting, 'right' );
+      this.leftSlitDetectorOverlay.visible = hasDetectorOnSide( slitSetting, 'left' );
+      this.rightSlitDetectorOverlay.visible = hasDetectorOnSide( slitSetting, 'right' );
     };
 
     sceneProperty.link( ( newScene, oldScene ) => {
@@ -214,7 +208,13 @@ export default class OverheadDoubleSlitNode extends Node {
   }
 
   public getDetectorAnchorPoint( isLeftDetector: boolean ): Vector2 {
-    return isLeftDetector ? this.leftDetectorAnchorPoint : this.rightDetectorAnchorPoint;
+    return isLeftDetector ? new Vector2(
+      this.parallelogramNode.x + this.leftSlitDetectorOverlay.x - DETECTOR_OVERLAY_STROKE_WIDTH / 2,
+      this.parallelogramNode.y + this.leftSlitDetectorOverlay.y + this.slitOverlayHeight / 2
+    ) : new Vector2(
+      this.parallelogramNode.x + this.rightSlitDetectorOverlay.x + this.slitOverlayDx + DETECTOR_OVERLAY_STROKE_WIDTH / 2,
+      this.parallelogramNode.y + this.rightSlitDetectorOverlay.y + this.slitOverlayHeight / 2 + this.slitOverlayDy
+    );
   }
 
   private layoutLabel(): void {
