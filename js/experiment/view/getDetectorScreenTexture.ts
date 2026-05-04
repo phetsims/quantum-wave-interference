@@ -12,7 +12,7 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, PERCEPTUAL_VISIBILITY_THRESHOLD } from '../../common/view/ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from '../../common/view/ScreenBrightnessUtils.js';
 
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
@@ -117,6 +117,15 @@ const getTextureRenderScale = ( sceneModel: SceneModel ): number => {
   return SUPERSAMPLE / visibleFraction;
 };
 
+const getHitSpriteCenter = ( renderScale: number ): number => {
+  const hitCoreRadius = BASE_HIT_CORE_RADIUS * renderScale;
+  const maxGlowRadius = BASE_HIT_GLOW_RADIUS * renderScale *
+                        Math.min( 2, Math.sqrt( Math.max( 1, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER ) ) );
+
+  // Fixed integer anchor for all brightness values at this render scale, plus 1 px antialiasing padding.
+  return Math.ceil( Math.max( hitCoreRadius, maxGlowRadius ) ) + 1;
+};
+
 const resetCacheRenderingState = ( cache: SceneTextureCache ): void => {
   cache.lastRenderedHitCount = 0;
   cache.hitSprite = null;
@@ -159,11 +168,8 @@ const getHitSprite = (
   }
 
   const hitCoreRadius = BASE_HIT_CORE_RADIUS * cache.renderScale;
-  const maxRadius = Math.max( glowRadius, hitCoreRadius );
-
-  // Pad by 1 px so antialiased edges aren't clipped.
-  const size = Math.ceil( maxRadius * 2 ) + 2;
-  const center = size / 2;
+  const center = getHitSpriteCenter( cache.renderScale );
+  const size = center * 2;
 
   const spriteCanvas = document.createElement( 'canvas' );
   spriteCanvas.width = size;
@@ -210,8 +216,7 @@ const paintHits = (
   const glowRadius = BASE_HIT_GLOW_RADIUS * cache.renderScale * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
 
   const sprite = getHitSprite( cache, rgb, coreAlpha, glowAlpha, glowRadius );
-  const spriteHalfW = sprite.width / 2;
-  const spriteHalfH = sprite.height / 2;
+  const spriteCenter = getHitSpriteCenter( cache.renderScale );
 
   const hitCount = hits.length;
   const renderCount = Math.min( hitCount, ExperimentConstants.MAX_HITS );
@@ -241,7 +246,7 @@ const paintHits = (
     const hit = hits[ i ];
     const viewX = ( ( hit.x + 1 ) / 2 ) * cache.textureWidth;
     const viewY = ( ( hit.y + 1 ) / 2 ) * cache.textureHeight;
-    context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
+    context.drawImage( sprite, viewX - spriteCenter, viewY - spriteCenter );
   }
 
   cache.lastRenderedHitCount = hitCount;

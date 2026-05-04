@@ -18,7 +18,7 @@ import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, getWaveAndDetectorBackgroundRGB } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER } from './ScreenBrightnessUtils.js';
 
 const SUPERSAMPLE = 2;
 const MAX_RENDERED_HITS = 10000;
@@ -72,6 +72,8 @@ export default class DetectorScreenTextureRenderer {
   private readonly faceHeight: number;
   private readonly hitCoreRadius: number;
   private readonly hitGlowRadius: number;
+  private readonly hitSpriteCenter: number;
+  private readonly hitSpriteSize: number;
   private readonly cacheMap = new WeakMap<DetectorScreenSceneLike, TextureCache>();
 
   public constructor( screenWidth: number, screenHeight: number, skew = 0 ) {
@@ -81,6 +83,13 @@ export default class DetectorScreenTextureRenderer {
     this.faceHeight = ( screenHeight - skew ) * SUPERSAMPLE;
     this.hitCoreRadius = BASE_HIT_CORE_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
     this.hitGlowRadius = BASE_HIT_GLOW_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
+
+    const maxGlowRadius = this.hitGlowRadius *
+                          Math.min( 2, Math.sqrt( Math.max( 1, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER ) ) );
+
+    // Fixed integer anchor for all brightness values, plus 1 px antialiasing padding.
+    this.hitSpriteCenter = Math.ceil( Math.max( this.hitCoreRadius, maxGlowRadius ) ) + 1;
+    this.hitSpriteSize = this.hitSpriteCenter * 2;
   }
 
   public getTexture( scene: DetectorScreenSceneLike, displayTime: number ): HTMLCanvasElement {
@@ -227,8 +236,6 @@ export default class DetectorScreenTextureRenderer {
     const glowRadius = this.hitGlowRadius * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
 
     const sprite = this.getHitSprite( cache, rgb, coreAlpha, glowAlpha, glowRadius );
-    const spriteHalfW = sprite.width / 2;
-    const spriteHalfH = sprite.height / 2;
 
     const hitCount = hits.length;
     const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
@@ -250,7 +257,7 @@ export default class DetectorScreenTextureRenderer {
 
       const viewX = ( ( hit.y + 1 ) / 2 ) * this.textureWidth;
       const viewY = ( ( hit.x + 1 ) / 2 ) * this.faceHeight;
-      context.drawImage( sprite, viewX - spriteHalfW, viewY - spriteHalfH );
+      context.drawImage( sprite, viewX - this.hitSpriteCenter, viewY - this.hitSpriteCenter );
     }
 
     context.restore();
@@ -343,20 +350,16 @@ export default class DetectorScreenTextureRenderer {
       return cache.hitSprite;
     }
 
-    const maxRadius = Math.max( glowRadius, this.hitCoreRadius );
-    const size = Math.ceil( maxRadius * 2 ) + 2;
-    const center = size / 2;
-
     const spriteCanvas = document.createElement( 'canvas' );
-    spriteCanvas.width = size;
-    spriteCanvas.height = size;
+    spriteCanvas.width = this.hitSpriteSize;
+    spriteCanvas.height = this.hitSpriteSize;
     const ctx = spriteCanvas.getContext( '2d' )!;
 
     if ( glowAlpha > 0 ) {
-      this.fillCircle( ctx, rgb, glowAlpha, center, glowRadius );
+      this.fillCircle( ctx, rgb, glowAlpha, this.hitSpriteCenter, glowRadius );
     }
 
-    this.fillCircle( ctx, rgb, coreAlpha, center, this.hitCoreRadius );
+    this.fillCircle( ctx, rgb, coreAlpha, this.hitSpriteCenter, this.hitCoreRadius );
 
     cache.hitSprite = spriteCanvas;
     cache.hitSpriteParams = { r: rgb.r, g: rgb.g, b: rgb.b, coreAlpha: coreAlpha, glowAlpha: glowAlpha, glowRadius: glowRadius };
