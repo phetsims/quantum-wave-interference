@@ -7,6 +7,7 @@
  */
 
 import Complex from '../../../../dot/js/Complex.js';
+import Vector2 from '../../../../dot/js/Vector2.js';
 import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getDecoherenceEventAtPassTime, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { getFieldSampleRGBA, getLayeredFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
@@ -509,7 +510,9 @@ QUnit.test( 'measurement projection zeros detector region and renormalizes outsi
       centerY: 0,
       radius: 0.2,
       measurementTime: 1,
-      renormScale: 1.5
+      renormScale: 1.5,
+      rippleStrength: 0.25,
+      rippleDuration: 0.5
     } ]
   } );
 
@@ -526,6 +529,135 @@ QUnit.test( 'measurement projection zeros detector region and renormalizes outsi
     'projection renormalizes outside probability density',
     1e-10
   );
+} );
+
+QUnit.test( 'measurement ripple metadata does not change analytical packet samples', assert => {
+  const projection = {
+    centerX: 0.5,
+    centerY: 0,
+    radius: 0.2,
+    measurementTime: 1,
+    renormScale: 1.5
+  };
+  const projectionWithRipple = {
+    centerX: projection.centerX,
+    centerY: projection.centerY,
+    radius: projection.radius,
+    measurementTime: projection.measurementTime,
+    renormScale: projection.renormScale,
+    rippleStrength: 0.8,
+    rippleDuration: 0.5
+  };
+  const projected = createGaussianPacketParameters( { projections: [ projection ] } );
+  const projectedWithRipple = createGaussianPacketParameters( { projections: [ projectionWithRipple ] } );
+
+  for ( const point of [
+    { x: 0.5, y: 0, t: 1 },
+    { x: 0.5, y: 0.5, t: 1 },
+    { x: 0.8, y: 0, t: 1.1 }
+  ] ) {
+    assertComplexApproximately(
+      assert,
+      getRepresentativeComplex( evaluateAnalyticalSample( projectedWithRipple, point.x, point.y, point.t ) ),
+      getRepresentativeComplex( evaluateAnalyticalSample( projected, point.x, point.y, point.t ) ),
+      `ripple metadata does not affect analytical sample at (${point.x}, ${point.y}, ${point.t})`
+    );
+  }
+} );
+
+QUnit.test( 'gaussian packet measurement ripple layers expand inward and outward then fade', assert => {
+  const parameters = createGaussianPacketParameters( {
+    projections: [ {
+      centerX: 0.5,
+      centerY: 0,
+      radius: 0.2,
+      measurementTime: 1,
+      renormScale: 1.5,
+      rippleStrength: 0.8,
+      rippleDuration: 0.5
+    } ]
+  } );
+
+  const outwardSample = evaluateAnalyticalLayeredSample( parameters, 0.8, 0, 1.1 );
+  const inwardSample = evaluateAnalyticalLayeredSample( parameters, 0.6, 0, 1.1 );
+  const fadedSample = evaluateAnalyticalLayeredSample( parameters, 0.8, 0, 1.6 );
+
+  assert.strictEqual( outwardSample.kind, 'field', 'outward ripple sample is field' );
+  assert.strictEqual( inwardSample.kind, 'field', 'inward ripple sample is field' );
+  assert.strictEqual( fadedSample.kind, 'field', 'faded ripple sample is field' );
+
+  if ( outwardSample.kind === 'field' && inwardSample.kind === 'field' && fadedSample.kind === 'field' ) {
+    assert.ok( outwardSample.layers.length > 1, 'outward boundary has an added ripple layer' );
+    assert.ok( inwardSample.layers.length > 1, 'inward boundary has an added ripple layer' );
+    assert.strictEqual( fadedSample.layers.length, 1, 'ripple layers are removed after their duration' );
+  }
+} );
+
+QUnit.test( 'gaussian packet measurement ripple layers follow packet envelope', assert => {
+  const onPacketParameters = createGaussianPacketParameters( {
+    projections: [ {
+      centerX: 0.5,
+      centerY: 0,
+      radius: 0.2,
+      measurementTime: 1,
+      renormScale: 1.5,
+      rippleStrength: 0.8,
+      rippleDuration: 0.5
+    } ]
+  } );
+  const offPacketParameters = createGaussianPacketParameters( {
+    projections: [ {
+      centerX: 0.5,
+      centerY: 1.3,
+      radius: 0.2,
+      measurementTime: 1,
+      renormScale: 1,
+      rippleStrength: 0.8,
+      rippleDuration: 0.5
+    } ]
+  } );
+
+  const onPacketSample = evaluateAnalyticalLayeredSample( onPacketParameters, 0.8, 0, 1.1 );
+  const offPacketSample = evaluateAnalyticalLayeredSample( offPacketParameters, 0.5, 1.6, 1.1 );
+
+  assert.strictEqual( onPacketSample.kind, 'field', 'on-packet ripple sample is field' );
+  assert.strictEqual( offPacketSample.kind, 'field', 'off-packet ripple sample is field' );
+
+  if ( onPacketSample.kind === 'field' && offPacketSample.kind === 'field' ) {
+    const getMaxRippleSupport = ( sample: typeof onPacketSample ): number => {
+      let maxSupport = 0;
+      for ( let i = 1; i < sample.layers.length; i++ ) {
+        maxSupport = Math.max( maxSupport, sample.layers[ i ].components[ 0 ].support ?? 0 );
+      }
+      return maxSupport;
+    };
+
+    assert.ok(
+      getMaxRippleSupport( offPacketSample ) < getMaxRippleSupport( onPacketSample ) * 1e-6,
+      'off-packet ripple is suppressed by the packet envelope'
+    );
+  }
+} );
+
+QUnit.test( 'wave packet solver exposes layered samples without changing amplitude field', assert => {
+  const solver = new AnalyticalWavePacketSolver( 12, 12 );
+  solver.setParameters( {
+    displayWavelengths: 2,
+    displaySpeedScale: 1,
+    regionWidth: 1,
+    regionHeight: 1,
+    isSourceOn: true
+  } );
+  solver.step( QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME );
+
+  const amplitudeBeforeProjection = solver.getAmplitudeField().slice();
+  solver.applyMeasurementProjection( new Vector2( 0.5, 0.5 ), 0.18 );
+  const amplitudeAfterProjection = solver.getAmplitudeField();
+  const layeredSample = solver.getLayeredFieldSampleAtGridCell( 6, 6 );
+
+  assert.ok( hasNonZeroAmplitude( amplitudeBeforeProjection ), 'packet solver has amplitude before projection' );
+  assert.ok( hasNonZeroAmplitude( amplitudeAfterProjection ), 'packet solver still has amplitude after projection' );
+  assert.strictEqual( layeredSample.kind, 'field', 'packet solver exposes layered field samples' );
 } );
 
 QUnit.test( 'gaussian packet remains finite and continuous through slit aperture', assert => {

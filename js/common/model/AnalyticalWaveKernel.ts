@@ -39,6 +39,7 @@ const APERTURE_BLEND_WAVELENGTH_FRACTION = 0.25;
 const INV_SQRT_2 = 1 / Math.sqrt( 2 );
 const PLANE_WAVE_DECOHERENCE_BAND_DURATION = 0.2;
 const PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION = PLANE_WAVE_DECOHERENCE_BAND_DURATION / 2;
+const MEASUREMENT_RIPPLE_WIDTH_FRACTION = 0.2;
 
 export type FieldComponentSource = 'incident' | 'topSlit' | 'bottomSlit';
 
@@ -124,6 +125,8 @@ export type MeasurementProjection = {
   radius: number;
   measurementTime: number;
   renormScale: number;
+  rippleStrength?: number;
+  rippleDuration?: number;
 };
 
 export type AnalyticalWaveParameters = {
@@ -333,8 +336,8 @@ export const evaluateAnalyticalSample = (
  * one already-composited FieldSample. This method answers "which independently renderable field bands
  * should be painted here?" and returns a LayeredFieldSample. For plane waves with slit-detector events,
  * that preserves the discrete-particle-chain interpretation so the rasterizer can draw selected-slit
- * bands as transparent layers with z ordering. For packet sources, there is no chain rendering yet, so
- * we wrap the projected packet sample in one opaque layer.
+ * bands as transparent layers with z ordering. For packet sources, measurement projections can add
+ * transient visual ripple layers while the projected packet remains the model-facing base layer.
  */
 export const evaluateAnalyticalLayeredSample = (
   parameters: AnalyticalWaveParameters,
@@ -349,18 +352,172 @@ export const evaluateAnalyticalLayeredSample = (
   }
 
   if ( parameters.source.kind !== 'plane' ) {
-    const projectedSample = applyMeasurementProjections( sample, parameters.projections || [], parameters.source, x, y, t );
-    return projectedSample.kind === 'field' ? {
+    return applyGaussianPacketMeasurementProjectionLayers( sample, parameters, x, y, t );
+  }
+
+  return applyPlaneWaveDecoherenceEventLayers( sample, parameters, x, y, t );
+};
+
+const applyGaussianPacketMeasurementProjectionLayers = (
+  sample: Extract<FieldSample, { kind: 'field' }>,
+  parameters: AnalyticalWaveParameters,
+  x: number,
+  y: number,
+  t: number
+): LayeredFieldSample => {
+  const source = parameters.source;
+  if ( source.kind !== 'gaussianPacket' ) {
+    return {
       kind: 'field',
       layers: [ {
         order: 0,
         alpha: 1,
-        components: projectedSample.components
+        components: sample.components
       } ]
-    } : projectedSample;
+    };
   }
 
-  return applyPlaneWaveDecoherenceEventLayers( sample, parameters, x, y, t );
+  const projectedSample = applyMeasurementProjections( sample, parameters.projections || [], source, x, y, t );
+  if ( projectedSample.kind !== 'field' ) {
+    return projectedSample;
+  }
+
+  const layers: FieldLayer[] = [ {
+    order: 0,
+    alpha: 1,
+    components: projectedSample.components
+  } ];
+
+  const packetEnvelope = getFieldSampleEnvelope( sample );
+  if ( packetEnvelope <= EPSILON ) {
+    return {
+      kind: 'field',
+      layers: layers
+    };
+  }
+
+  const projections = parameters.projections || [];
+  for ( let i = 0; i < projections.length; i++ ) {
+    addGaussianPacketMeasurementRippleLayers( layers, projections[ i ], source, packetEnvelope, x, y, t );
+  }
+
+  return {
+    kind: 'field',
+    layers: layers
+  };
+};
+
+const addGaussianPacketMeasurementRippleLayers = (
+  layers: FieldLayer[],
+  projection: MeasurementProjection,
+  source: GaussianPacketSource,
+  packetEnvelope: number,
+  x: number,
+  y: number,
+  t: number
+): void => {
+  if ( projection.rippleStrength === undefined || projection.rippleDuration === undefined ) {
+    return;
+  }
+
+  const dt = t - projection.measurementTime;
+  if (
+    dt < -EPSILON ||
+    dt > projection.rippleDuration + EPSILON ||
+    projection.rippleStrength <= 0 ||
+    projection.rippleDuration <= 0 ||
+    projection.radius <= 0 ||
+    source.speed <= 0
+  ) {
+    return;
+  }
+
+  const fade = 1 - smoothStep( 0, projection.rippleDuration, Math.max( 0, dt ) );
+  if ( fade <= EPSILON ) {
+    return;
+  }
+
+  const distance = Math.sqrt( ( x - projection.centerX ) ** 2 + ( y - projection.centerY ) ** 2 );
+  const rippleWidth = Math.max(
+    projection.radius * MEASUREMENT_RIPPLE_WIDTH_FRACTION,
+    source.speed * projection.rippleDuration * MEASUREMENT_RIPPLE_WIDTH_FRACTION
+  );
+  const outwardOffset = distance - projection.radius - source.speed * dt;
+  const inwardOffset = projection.radius - distance - source.speed * dt;
+
+  addGaussianPacketMeasurementRippleLayer(
+    layers,
+    projection,
+    source,
+    distance,
+    outwardOffset,
+    rippleWidth,
+    dt,
+    fade,
+    projection.rippleStrength,
+    packetEnvelope,
+    1
+  );
+  addGaussianPacketMeasurementRippleLayer(
+    layers,
+    projection,
+    source,
+    distance,
+    inwardOffset,
+    rippleWidth,
+    dt,
+    fade,
+    projection.rippleStrength,
+    packetEnvelope,
+    2
+  );
+};
+
+const addGaussianPacketMeasurementRippleLayer = (
+  layers: FieldLayer[],
+  projection: MeasurementProjection,
+  source: GaussianPacketSource,
+  distance: number,
+  offset: number,
+  rippleWidth: number,
+  dt: number,
+  fade: number,
+  rippleStrength: number,
+  packetEnvelope: number,
+  orderOffset: number
+): void => {
+  const absOffset = Math.abs( offset );
+  if ( absOffset >= rippleWidth ) {
+    return;
+  }
+
+  const bandEnvelope = 1 - smoothStep( 0, rippleWidth, absOffset );
+  const rippleEnvelope = bandEnvelope * packetEnvelope;
+  if ( rippleEnvelope <= EPSILON ) {
+    return;
+  }
+
+  const phase = source.waveNumber * ( distance - projection.radius ) -
+                source.waveNumber * source.speed * Math.max( 0, dt );
+  layers.push( {
+    order: projection.measurementTime + orderOffset * EPSILON,
+    alpha: rippleStrength * fade,
+    components: [ {
+      source: 'incident',
+      coherenceGroup: `measurementRipple${orderOffset}`,
+      support: rippleEnvelope,
+      value: Complex.createPolar( rippleEnvelope, phase )
+    } ]
+  } );
+};
+
+const getFieldSampleEnvelope = ( sample: Extract<FieldSample, { kind: 'field' }> ): number => {
+  let envelope = 0;
+  for ( let i = 0; i < sample.components.length; i++ ) {
+    const component = sample.components[ i ];
+    envelope = Math.max( envelope, component.support ?? component.value.magnitude );
+  }
+  return envelope;
 };
 
 /**

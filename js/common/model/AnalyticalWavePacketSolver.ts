@@ -14,7 +14,7 @@ import type Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, type LayeredFieldSample, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { type BarrierType } from './BarrierType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -27,6 +27,9 @@ const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS
 
 const EPSILON = 1e-12;
 const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
+const UNREACHED_LAYERED_SAMPLE: LayeredFieldSample = { kind: 'unreached' };
+const MEASUREMENT_RIPPLE_STRENGTH = 0.28;
+const MEASUREMENT_RIPPLE_DURATION = 0.55;
 
 export default class AnalyticalWavePacketSolver implements WaveSolver {
 
@@ -55,6 +58,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
   private readonly amplitudeField: Float64Array;
   private readonly fieldSamples: FieldSample[];
+  private readonly layeredFieldSamples: LayeredFieldSample[];
   private readonly detectorDistribution: Float64Array;
   private dirty = true;
 
@@ -66,6 +70,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.gridHeight = gridHeight;
     this.amplitudeField = new Float64Array( gridWidth * gridHeight * 2 );
     this.fieldSamples = new Array<FieldSample>( gridWidth * gridHeight ).fill( UNREACHED_SAMPLE );
+    this.layeredFieldSamples = new Array<LayeredFieldSample>( gridWidth * gridHeight ).fill( UNREACHED_LAYERED_SAMPLE );
     this.detectorDistribution = new Float64Array( gridHeight );
   }
 
@@ -124,6 +129,11 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     return this.fieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_SAMPLE;
   }
 
+  public getLayeredFieldSampleAtGridCell( gridX: number, gridY: number ): LayeredFieldSample {
+    this.ensureComputed();
+    return this.layeredFieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_LAYERED_SAMPLE;
+  }
+
   public getDetectorProbabilityDistribution(): Float64Array {
     this.ensureComputed();
     return this.detectorDistribution;
@@ -138,6 +148,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.isSourceOn = false;
     this.amplitudeField.fill( 0 );
     this.fieldSamples.fill( UNREACHED_SAMPLE );
+    this.layeredFieldSamples.fill( UNREACHED_LAYERED_SAMPLE );
     this.detectorDistribution.fill( 0 );
     this.measurementProjections.length = 0;
     this.dirty = true;
@@ -151,7 +162,9 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         centerY: projection.centerY,
         radius: projection.radius,
         measurementTime: projection.measurementTime,
-        renormScale: projection.renormScale
+        renormScale: projection.renormScale,
+        rippleStrength: projection.rippleStrength,
+        rippleDuration: projection.rippleDuration
       } ) )
     };
   }
@@ -167,7 +180,9 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         centerY: projection.centerY ?? projection.worldY,
         radius: projection.radius ?? Math.sqrt( 1 / projection.invSigmaSq ),
         measurementTime: projection.measurementTime,
-        renormScale: projection.renormScale ?? 1
+        renormScale: projection.renormScale ?? 1,
+        rippleStrength: projection.rippleStrength,
+        rippleDuration: projection.rippleDuration
       } );
     }
 
@@ -212,7 +227,9 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       centerY: ( centerNorm.y - 0.5 ) * this.regionHeight,
       radius: radiusNorm * this.regionWidth,
       measurementTime: this.time,
-      renormScale: renormScale
+      renormScale: renormScale,
+      rippleStrength: MEASUREMENT_RIPPLE_STRENGTH,
+      rippleDuration: MEASUREMENT_RIPPLE_DURATION
     } );
 
     this.dirty = true;
@@ -223,11 +240,12 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   }
 
   private computeField(): void {
-    const { gridWidth, gridHeight, amplitudeField, fieldSamples } = this;
+    const { gridWidth, gridHeight, amplitudeField, fieldSamples, layeredFieldSamples } = this;
 
     if ( !this.isSourceOn ) {
       amplitudeField.fill( 0 );
       fieldSamples.fill( UNREACHED_SAMPLE );
+      layeredFieldSamples.fill( UNREACHED_LAYERED_SAMPLE );
       this.detectorDistribution.fill( 0 );
       return;
     }
@@ -240,9 +258,11 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         const y = this.getGridCellY( iy );
         const sample = evaluateAnalyticalSample( parameters, x, y, this.time );
         const value = getRepresentativeComplex( sample );
+        const layeredSample = evaluateAnalyticalLayeredSample( parameters, x, y, this.time );
         const cellIndex = iy * gridWidth + ix;
         const idx = cellIndex * 2;
         fieldSamples[ cellIndex ] = sample;
+        layeredFieldSamples[ cellIndex ] = layeredSample;
         amplitudeField[ idx ] = value.real;
         amplitudeField[ idx + 1 ] = value.imaginary;
       }
