@@ -410,7 +410,7 @@ a11y:
       zoomOutAccessibleHelpText: Zoom out to see more of graph pattern.
   detectorScreen:
     accessibleParagraph:
-      intensityOff:                   Detector screen is dark. The source is off.
+      intensityOff:                   Detector screen is dark.
       intensity:                      >-
                                       Detector screen shows alternating bright and dark vertical bands, brightest
                                       at the center and fainter toward the edges. { $spatialDescription }

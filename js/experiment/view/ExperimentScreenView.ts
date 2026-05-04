@@ -20,6 +20,7 @@ import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import AccessibleList from '../../../../scenery-phet/js/accessibility/AccessibleList.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
@@ -583,16 +584,10 @@ export default class ExperimentScreenView extends ScreenView {
     const particleSourceTypeProperty = model.sceneProperty.derived(
       scene => scene.sourceType as 'electrons' | 'neutrons' | 'heliumAtoms'
     );
-    const particleMassDescriptionNode = new Node( {
-      accessibleParagraph:
-        QuantumWaveInterferenceFluent.a11y.particleMass.accessibleParagraph.createProperty( {
-          sourceType: particleSourceTypeProperty
-        } )
-    } );
-    model.sceneProperty.link( scene => {
-      particleMassDescriptionNode.visible = scene.sourceType !== 'photons';
-    } );
-    this.addChild( particleMassDescriptionNode );
+    const particleMassDescriptionStringProperty =
+      QuantumWaveInterferenceFluent.a11y.particleMass.accessibleParagraph.createProperty( {
+        sourceType: particleSourceTypeProperty
+      } );
 
     const currentWavelengthProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
       derive: 'wavelengthProperty'
@@ -607,28 +602,21 @@ export default class ExperimentScreenView extends ScreenView {
       derive: 'screenDistanceProperty'
     } );
 
-    const experimentSetupDetailsIntroNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.leadingParagraphStringProperty
-    } );
-    this.addChild( experimentSetupDetailsIntroNode );
-
     const sourceTypeProperty = model.sceneProperty.derived( scene => scene.sourceType );
     const isEmittingStringProperty = model.currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
+    const isPhotonSceneProperty = model.sceneProperty.derived( scene => scene.sourceType === 'photons' );
+    const isParticleSceneProperty = model.sceneProperty.derived( scene => scene.sourceType !== 'photons' );
 
-    const sourceEmitterDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.sourceEmitter.createProperty( {
+    const sourceEmitterDescriptionStringProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.sourceEmitter.createProperty( {
         sourceType: sourceTypeProperty,
         isEmitting: isEmittingStringProperty
-      } )
-    } );
-    this.addChild( sourceEmitterDescriptionNode );
+      } );
 
-    const detectionModeDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.detectionMode.createProperty( {
+    const detectionModeDescriptionStringProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.detectionMode.createProperty( {
         detectionMode: model.currentDetectionModeProperty
-      } )
-    } );
-    this.addChild( detectionModeDescriptionNode );
+      } );
 
     const wavelengthStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [ currentWavelengthProperty, ...nanometersUnit.getDependentProperties() ] ) ),
@@ -655,16 +643,11 @@ export default class ExperimentScreenView extends ScreenView {
       )
     );
 
-    const wavelengthDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.wavelength.createProperty( {
+    const wavelengthDescriptionStringProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.wavelength.createProperty( {
         wavelength: wavelengthStringProperty,
         color: wavelengthColorStringProperty
-      } )
-    } );
-    model.sceneProperty.link( scene => {
-      wavelengthDescriptionNode.visible = scene.sourceType === 'photons';
-    } );
-    this.addChild( wavelengthDescriptionNode );
+      } );
 
     const particleSpeedStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [
@@ -687,22 +670,15 @@ export default class ExperimentScreenView extends ScreenView {
       }
     );
 
-    const particleSpeedDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.particleSpeed.createProperty( {
+    const particleSpeedDescriptionStringProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.particleSpeed.createProperty( {
         speed: particleSpeedStringProperty
-      } )
-    } );
-    model.sceneProperty.link( scene => {
-      particleSpeedDescriptionNode.visible = scene.sourceType !== 'photons';
-    } );
-    this.addChild( particleSpeedDescriptionNode );
+      } );
 
-    const slitConfigurationDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.createProperty( {
+    const slitConfigurationDescriptionStringProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.createProperty( {
         slitSetting: model.currentSlitSettingProperty
-      } )
-    } );
-    this.addChild( slitConfigurationDescriptionNode );
+      } );
 
     const slitSeparationStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [
@@ -724,12 +700,10 @@ export default class ExperimentScreenView extends ScreenView {
       }
     );
 
-    const slitSeparationDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitSeparation.createProperty( {
+    const slitSeparationDescriptionStringProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitSeparation.createProperty( {
         distance: slitSeparationStringProperty
-      } )
-    } );
-    this.addChild( slitSeparationDescriptionNode );
+      } );
 
     const screenDistanceStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [ currentScreenDistanceProperty, ...metersUnit.getDependentProperties() ] ) ),
@@ -740,12 +714,36 @@ export default class ExperimentScreenView extends ScreenView {
       } )
     );
 
-    const screenDistanceDescriptionNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.screenDistance.createProperty( {
+    const screenDistanceDescriptionStringProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.screenDistance.createProperty( {
         distance: screenDistanceStringProperty
+      } );
+
+    const experimentSetupDetailsListNode = new Node( {
+      accessibleTemplate: AccessibleList.createTemplateProperty( {
+        leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.leadingParagraphStringProperty,
+        listItems: [
+          sourceEmitterDescriptionStringProperty,
+          detectionModeDescriptionStringProperty,
+          {
+            stringProperty: wavelengthDescriptionStringProperty,
+            visibleProperty: isPhotonSceneProperty
+          },
+          {
+            stringProperty: particleSpeedDescriptionStringProperty,
+            visibleProperty: isParticleSceneProperty
+          },
+          {
+            stringProperty: particleMassDescriptionStringProperty,
+            visibleProperty: isParticleSceneProperty
+          },
+          slitConfigurationDescriptionStringProperty,
+          slitSeparationDescriptionStringProperty,
+          screenDistanceDescriptionStringProperty
+        ]
       } )
     } );
-    this.addChild( screenDistanceDescriptionNode );
+    this.addChild( experimentSetupDetailsListNode );
 
     // Heading nodes for PDOM navigation. Each groups related controls under a heading so screen reader users can jump
     // between major sections with heading shortcuts.
@@ -773,15 +771,7 @@ export default class ExperimentScreenView extends ScreenView {
     experimentSetupHeadingNode.pdomOrder = [
       detectorScreenDescriptionNode,
       slitViewDescriptionNode,
-      experimentSetupDetailsIntroNode,
-      sourceEmitterDescriptionNode,
-      detectionModeDescriptionNode,
-      wavelengthDescriptionNode,
-      particleSpeedDescriptionNode,
-      particleMassDescriptionNode,
-      slitConfigurationDescriptionNode,
-      slitSeparationDescriptionNode,
-      screenDistanceDescriptionNode,
+      experimentSetupDetailsListNode,
       overheadEmitterNode.maxHitsReachedPanel
     ];
 

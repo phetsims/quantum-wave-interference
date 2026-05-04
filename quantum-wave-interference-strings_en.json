@@ -549,7 +549,7 @@
     "detectorScreen": {
       "accessibleParagraph": {
         "intensityOff": {
-          "value": "Detector screen is dark. The source is off."
+          "value": "Detector screen is dark."
         },
         "intensity": {
           "value": "Detector screen shows alternating bright and dark vertical bands, brightest at the center and fainter toward the edges. { $spatialDescription }"
