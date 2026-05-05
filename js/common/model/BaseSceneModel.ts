@@ -295,6 +295,11 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.waveSolver.setParameters( {
       wavelength: effectiveWavelength,
       waveSpeed: this.getEffectiveWaveSpeed(),
+
+      // The analytical solvers animate waves in display coordinates. displaySpeedScale maps the
+      // current physical speed to display speed by comparing it to this scene's default speed. For
+      // wave packets, AnalyticalWavePacketSolver applies this scale to
+      // regionWidth / WAVE_PACKET_TRAVERSAL_TIME.
       displaySpeedScale: this.getEffectiveWaveSpeed() / this.defaultWaveSpeed,
       displayWavelengths: displayWavelengths,
       barrierType: this.barrierTypeProperty.value,

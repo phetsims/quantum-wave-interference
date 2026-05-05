@@ -33,7 +33,11 @@ export default class QuantumWaveInterferenceConstants {
   // visual size and timing of each emitted packet, using fractions of the wave region so they scale
   // with the displayed physical region.
 
-  // Time, in display seconds, for the center of the packet to cross the wave region.
+  // Default display time for the center of a wave packet to cross the wave region at the scene's
+  // default physical particle speed. The solver converts this to an actual display propagation speed
+  // with regionWidth / WAVE_PACKET_TRAVERSAL_TIME, then scales by effectiveWaveSpeed / defaultWaveSpeed
+  // in BaseSceneModel.syncSolverParameters. So faster particles cross the display faster; this constant
+  // is the baseline animation timing, not a fixed physical speed.
   public static readonly WAVE_PACKET_TRAVERSAL_TIME = 1.5;
 
   // Initial one-sigma packet radius as a fraction of the wave region. Increase both values to make

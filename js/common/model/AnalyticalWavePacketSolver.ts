@@ -388,10 +388,14 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     return 2 * Math.PI * this.displayWavelengths / this.regionWidth;
   }
 
+  // Actual packet speed in display-model coordinates. WAVE_PACKET_TRAVERSAL_TIME sets the baseline
+  // default-speed crossing time; displaySpeedScale makes non-default particle velocities cross faster
+  // or slower while preserving that baseline timing at displaySpeedScale = 1.
   private getDisplaySpeed(): number {
     return ( this.regionWidth / QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
   }
 
+  // Display time required for the packet center to cross the region at the current scaled display speed.
   private getEffectiveTraversalTime(): number {
     return QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME / Math.max( this.displaySpeedScale, EPSILON );
   }

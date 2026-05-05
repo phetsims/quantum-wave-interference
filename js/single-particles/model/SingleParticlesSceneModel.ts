@@ -226,8 +226,10 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   /**
    * Detection times follow the packet's horizontal probability density: Gaussian around
-   * WAVE_PACKET_TRAVERSAL_TIME (packet center arrives at screen), width matches the packet's spatial
-   * spread. Truncated at +/- 3 sigma to avoid non-physical negative times.
+   * the current display traversal time. WAVE_PACKET_TRAVERSAL_TIME is the default-speed baseline,
+   * and this method scales it by defaultWaveSpeed / effectiveWaveSpeed so faster particles reach the
+   * detector screen sooner. Width matches the packet's spatial spread. Truncated at +/- 3 sigma to
+   * avoid non-physical negative times.
    */
   private sampleDetectionTime(): number {
     const effectiveTraversalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME *
