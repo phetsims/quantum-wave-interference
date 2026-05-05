@@ -79,10 +79,10 @@ type WaveSolver = {
   invalidate(): void;
 
   /**
-   * Applies a measurement projection to the wavefunction: zero the amplitude inside the circular region
-   * and renormalize the remainder so the total probability is preserved. The projection persists across
-   * subsequent step() calls. Center is normalized (0..1) within the visualization region; radius is a
-   * fraction of the grid width. Continuous-wave solvers may treat this as a no-op.
+   * Applies a measurement projection to the wavefunction and renormalizes the remainder so the total
+   * probability is preserved. The projection persists across subsequent step() calls. Center is normalized
+   * (0..1) within the visualization region; radius is a fraction of the grid width. Continuous-wave solvers
+   * may treat this as a no-op.
    */
   applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void;
 

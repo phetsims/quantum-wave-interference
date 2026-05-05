@@ -58,6 +58,22 @@ const hasNonZeroAmplitude = ( amplitudes: Float64Array ): boolean => {
   return false;
 };
 
+const sumAmplitudeProbability = ( amplitudes: Float64Array ): number => {
+  let sum = 0;
+  for ( let i = 0; i < amplitudes.length; i += 2 ) {
+    sum += amplitudes[ i ] * amplitudes[ i ] + amplitudes[ i + 1 ] * amplitudes[ i + 1 ];
+  }
+  return sum;
+};
+
+const getGridProbabilityAtNorm = ( solver: AnalyticalWavePacketSolver, xNorm: number, yNorm: number ): number => {
+  const field = solver.getAmplitudeField();
+  const ix = Math.max( 0, Math.min( solver.gridWidth - 1, Math.floor( xNorm * solver.gridWidth ) ) );
+  const iy = Math.max( 0, Math.min( solver.gridHeight - 1, Math.floor( yNorm * solver.gridHeight ) ) );
+  const idx = ( iy * solver.gridWidth + ix ) * 2;
+  return field[ idx ] * field[ idx ] + field[ idx + 1 ] * field[ idx + 1 ];
+};
+
 const integrateIntensity = (
   parameters: AnalyticalWaveParameters,
   bounds: { minX: number; maxX: number; minY: number; maxY: number },
@@ -528,6 +544,53 @@ QUnit.test( 'measurement projection zeros detector region and renormalizes outsi
     1.5 * 1.5,
     'projection renormalizes outside probability density',
     1e-10
+  );
+} );
+
+QUnit.test( 'wave-packet measurement bite shrinks while preserving grid probability', assert => {
+  const projectedSolver = new AnalyticalWavePacketSolver( 80, 80 );
+  const controlSolver = new AnalyticalWavePacketSolver( 80, 80 );
+  projectedSolver.setParameters( { isSourceOn: true } );
+  controlSolver.setParameters( { isSourceOn: true } );
+
+  projectedSolver.step( 1.4 );
+  controlSolver.step( 1.4 );
+
+  const measurementCenter = new Vector2( 0.5, 0.5 );
+  const controlTotalAtMeasurement = sumAmplitudeProbability( controlSolver.getAmplitudeField() );
+  const controlCenterAtMeasurement = getGridProbabilityAtNorm( controlSolver, measurementCenter.x, measurementCenter.y );
+  projectedSolver.applyMeasurementProjection( measurementCenter, 0.16 );
+
+  assertApproximately(
+    assert,
+    sumAmplitudeProbability( projectedSolver.getAmplitudeField() ) / controlTotalAtMeasurement,
+    1,
+    'projected packet is normalized immediately after failed detection'
+  );
+  assert.ok(
+    getGridProbabilityAtNorm( projectedSolver, measurementCenter.x, measurementCenter.y ) <
+    controlCenterAtMeasurement * 1e-4,
+    'failed-detection bite removes the packet center immediately'
+  );
+
+  const fillTime = 0.4;
+  projectedSolver.step( fillTime );
+  controlSolver.step( fillTime );
+
+  const movingBiteCenterX = measurementCenter.x + projectedSolver.getDisplayPropagationSpeed() * fillTime;
+  const laterProjectedCenter = getGridProbabilityAtNorm( projectedSolver, movingBiteCenterX, measurementCenter.y );
+  const laterControlCenter = getGridProbabilityAtNorm( controlSolver, movingBiteCenterX, measurementCenter.y );
+
+  assert.ok(
+    laterProjectedCenter > laterControlCenter * 0.2,
+    'shrinking bite lets probability fill back into the measured region'
+  );
+  assertApproximately(
+    assert,
+    sumAmplitudeProbability( projectedSolver.getAmplitudeField() ) /
+    sumAmplitudeProbability( controlSolver.getAmplitudeField() ),
+    1,
+    'projected packet remains normalized as the bite shrinks'
   );
 } );
 

@@ -127,6 +127,7 @@ export type MeasurementProjection = {
   renormScale: number;
   rippleStrength?: number;
   rippleDuration?: number;
+  shrinkDuration?: number;
 };
 
 export type AnalyticalWaveParameters = {
@@ -1088,13 +1089,7 @@ const applyMeasurementProjections = (
       continue;
     }
 
-    const dt = Math.max( 0, t - projection.measurementTime );
-    const projectionCenterX = projection.centerX + source.speed * dt;
-    const spreadTime = Math.max( source.longitudinalSpreadTime, EPSILON );
-    const projectionRadius = projection.radius * Math.sqrt( 1 + ( dt / spreadTime ) ** 2 );
-    const distance = Math.sqrt( ( x - projectionCenterX ) ** 2 + ( y - projection.centerY ) ** 2 );
-    const mask = dt <= EPSILON ? ( distance <= projection.radius ? 0 : 1 ) :
-                 smoothStep( projectionRadius * 0.82, projectionRadius * 1.18, distance );
+    const mask = getMeasurementProjectionMask( projection, source, x, y, t );
     scale *= mask * projection.renormScale;
 
     if ( scale === 0 ) {
@@ -1122,4 +1117,37 @@ const applyMeasurementProjections = (
       return projectedComponent;
     } )
   };
+};
+
+const getMeasurementProjectionMask = (
+  projection: MeasurementProjection,
+  source: GaussianPacketSource,
+  x: number,
+  y: number,
+  t: number
+): number => {
+  const dt = Math.max( 0, t - projection.measurementTime );
+  const projectionCenterX = projection.centerX + source.speed * dt;
+  const spreadTime = Math.max( source.longitudinalSpreadTime, EPSILON );
+  const projectionRadius = projection.radius * Math.sqrt( 1 + ( dt / spreadTime ) ** 2 );
+  const distance = Math.sqrt( ( x - projectionCenterX ) ** 2 + ( y - projection.centerY ) ** 2 );
+
+  if ( projection.shrinkDuration === undefined ) {
+    return dt <= EPSILON ? ( distance <= projection.radius ? 0 : 1 ) :
+           smoothStep( projectionRadius * 0.82, projectionRadius * 1.18, distance );
+  }
+
+  if ( projection.shrinkDuration <= EPSILON ) {
+    return 1;
+  }
+
+  const biteStrength = 1 - smoothStep( 0, projection.shrinkDuration, dt );
+  if ( biteStrength <= EPSILON ) {
+    return 1;
+  }
+
+  const shrinkScale = 0.25 + 0.75 * biteStrength;
+  const sigma = Math.max( projectionRadius * 0.5 * shrinkScale, EPSILON );
+  const gaussian = Math.exp( -0.5 * ( distance / sigma ) ** 2 );
+  return Math.max( 0, 1 - biteStrength * gaussian );
 };
