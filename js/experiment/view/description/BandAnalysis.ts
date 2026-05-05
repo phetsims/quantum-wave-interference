@@ -10,7 +10,7 @@
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../../model/SceneModel.js';
-import { isDoubleSlitConfiguration, SlitConfiguration } from '../../model/SlitConfiguration.js';
+import { isDoubleSlitConfiguration, SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import Snapshot from '../../../common/model/Snapshot.js';
 
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
@@ -77,7 +77,7 @@ export default class BandAnalysis {
     screenDistanceMeters: number,
     screenHalfWidthM: number,
     slitWidthMeters: number,
-    slitSetting: SlitConfiguration,
+    slitSetting: SlitConfigurationWithNoBarrier,
     slitSeparationMeters: number
   ): BandAnalysisResult {
     if ( lambda === 0 ) {

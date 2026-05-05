@@ -120,19 +120,22 @@
     "value": "Both Open"
   },
   "leftCovered": {
-    "value": "Left Covered"
+    "value": "Cover Left"
   },
   "rightCovered": {
-    "value": "Right Covered"
+    "value": "Cover Right"
   },
   "leftDetector": {
-    "value": "Left Detector"
+    "value": "Detector Left"
   },
   "rightDetector": {
-    "value": "Right Detector"
+    "value": "Detector Right"
   },
   "bothDetectors": {
-    "value": "Both Detectors"
+    "value": "Detector Both"
+  },
+  "noBarrier": {
+    "value": "No Barrier"
   },
   "hits": {
     "value": "Hits"
@@ -204,22 +207,22 @@
     "value": "Imaginary Part"
   },
   "topCovered": {
-    "value": "Top Covered"
+    "value": "Cover Top"
   },
   "bottomCovered": {
-    "value": "Bottom Covered"
+    "value": "Cover Bottom"
   },
   "topClosed": {
-    "value": "Top Closed"
+    "value": "Cover Top"
   },
   "bottomClosed": {
-    "value": "Bottom Closed"
+    "value": "Cover Bottom"
   },
   "topDetector": {
-    "value": "Top Detector"
+    "value": "Detector Top"
   },
   "bottomDetector": {
-    "value": "Bottom Detector"
+    "value": "Detector Bottom"
   },
   "autoRepeat": {
     "value": "Auto-repeat"
@@ -257,7 +260,7 @@
         "value": "Clear detector screen to make more observations."
       },
       "currentDetails": {
-        "value": "Currently, { $isPlaying ->\n  [false] sim is paused. { $isMaxHitsReached ->\n    [true] Source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] Source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at double-slit barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. { $detectionMode ->\n        [averageIntensity] Detector screen shows intensity pattern.\n       *[hits] { $hasHits ->\n          [false] Detector screen has no hits.\n         *[true] Detector screen shows hits pattern.\n        }\n      }\n     *[false] Source is off. Detector screen is empty.\n    }\n  }\n *[true] { $isMaxHitsReached ->\n    [true] source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at double-slit barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] source is off. Detector screen is empty.\n    }\n  }\n}"
+        "value": "Currently, { $isPlaying ->\n  [false] sim is paused. { $isMaxHitsReached ->\n    [true] Source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] Source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at double-slit barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n        [noBarrier] no barrier\n       *[bothDetectors] detectors on both slits\n      }. { $detectionMode ->\n        [averageIntensity] Detector screen shows intensity pattern.\n       *[hits] { $hasHits ->\n          [false] Detector screen has no hits.\n         *[true] Detector screen shows hits pattern.\n        }\n      }\n     *[false] Source is off. Detector screen is empty.\n    }\n  }\n *[true] { $isMaxHitsReached ->\n    [true] source is off. Max number of { $sourceType ->\n      [photons] photon\n      [electrons] electron\n      [neutrons] neutron\n     *[heliumAtoms] helium atom\n    } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] source emits { $sourceType ->\n        [photons] photons\n        [electrons] electrons\n        [neutrons] neutrons\n       *[heliumAtoms] helium atoms\n      } directly at double-slit barrier with { $slitSetting ->\n        [bothOpen] both slits open\n        [leftCovered] left slit covered\n        [rightCovered] right slit covered\n        [leftDetector] detector on left slit\n        [rightDetector] detector on right slit\n        [noBarrier] no barrier\n       *[bothDetectors] detectors on both slits\n      }. Detector screen shows { $detectionMode ->\n        [averageIntensity] intensity\n       *[hits] hits\n      } pattern.\n     *[false] source is off. Detector screen is empty.\n    }\n  }\n}"
       },
       "interactionHint": {
         "value": "{ $isEmitting ->\n  [true] Adjust source or slits and watch for changes on detector screen.\n *[false] Turn on { $sourceType ->\n    [photons] photon\n    [electrons] electron\n    [neutrons] neutron\n   *[heliumAtoms] helium atom\n  } source and observe detector screen.\n}"
@@ -292,7 +295,7 @@
         "value": "Particle Speed is { $speed }."
       },
       "slitConfiguration": {
-        "value": "{ $slitSetting ->\n  [bothOpen] Both slits open in barrier.\n  [leftCovered] Left slit covered in barrier.\n  [rightCovered] Right slit covered in barrier.\n  [leftDetector] Detector on left slit in barrier.\n  [rightDetector] Detector on right slit in barrier.\n *[bothDetectors] Detectors on both slits in barrier.\n}"
+        "value": "{ $slitSetting ->\n  [bothOpen] Both slits open in barrier.\n  [leftCovered] Left slit covered in barrier.\n  [rightCovered] Right slit covered in barrier.\n  [leftDetector] Detector on left slit in barrier.\n  [rightDetector] Detector on right slit in barrier.\n  [noBarrier] No barrier between source and screen.\n *[bothDetectors] Detectors on both slits in barrier.\n}"
       },
       "slitSeparation": {
         "value": "Slit Separation distance is { $distance }."
@@ -471,7 +474,7 @@
         "value": "Choose slit configuration for barrier."
       },
       "accessibleContextResponse": {
-        "value": "{ $slitSetting ->\n  [bothOpen] In barrier, both slits open.\n  [leftCovered] In barrier, left slit covered.\n  [rightCovered] In barrier, right slit covered.\n  [leftDetector] Detector added to left slit in barrier.\n  [rightDetector] Detector added to right slit in barrier.\n *[bothDetectors] Detectors added to both slits in barrier.\n}"
+        "value": "{ $slitSetting ->\n  [bothOpen] In barrier, both slits open.\n  [leftCovered] In barrier, left slit covered.\n  [rightCovered] In barrier, right slit covered.\n  [leftDetector] Detector added to left slit in barrier.\n  [rightDetector] Detector added to right slit in barrier.\n  [noBarrier] No barrier.\n *[bothDetectors] Detectors added to both slits in barrier.\n}"
       }
     },
     "slitWidthMicrometersPattern": {
@@ -479,7 +482,7 @@
     },
     "slitView": {
       "accessibleParagraph": {
-        "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits are open.\n  [leftCovered] Left slit is covered.\n  [rightCovered] Right slit is covered.\n  [leftDetector] Left slit is monitored by a detector.\n  [rightDetector] Right slit is monitored by a detector.\n *[bothDetectors] Both slits are monitored by detectors.\n}"
+        "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits are open.\n  [leftCovered] Left slit is covered.\n  [rightCovered] Right slit is covered.\n  [leftDetector] Left slit is monitored by a detector.\n  [rightDetector] Right slit is monitored by a detector.\n  [noBarrier] No barrier between source and screen.\n *[bothDetectors] Both slits are monitored by detectors.\n}"
       }
     },
     "zoomInButton": {

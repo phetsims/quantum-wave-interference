@@ -14,17 +14,15 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import BaseScreenModel from '../../common/model/BaseScreenModel.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
-import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
+import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import HighIntensitySceneModel from './HighIntensitySceneModel.js';
-
-const FAST_TIME_SPEED_FACTOR = 1.25;
 
 type HighIntensityModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class HighIntensityModel extends BaseScreenModel<HighIntensitySceneModel> {
 
   // DynamicProperties specific to this screen
-  public readonly currentSlitConfigurationProperty: DynamicProperty<SlitConfiguration, SlitConfiguration, HighIntensitySceneModel>;
+  public readonly currentSlitConfigurationProperty: DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, HighIntensitySceneModel>;
   public readonly currentDetectionModeProperty: DynamicProperty<DetectionMode, DetectionMode, HighIntensitySceneModel>;
 
   // Tool visibility specific to this screen
@@ -42,9 +40,9 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
       new HighIntensitySceneModel( { sourceType: 'heliumAtoms', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'heliumAtomsScene' ) } )
     ];
 
-    super( scenes, FAST_TIME_SPEED_FACTOR, providedOptions );
+    super( scenes, providedOptions );
 
-    this.currentSlitConfigurationProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, HighIntensitySceneModel>( this.sceneProperty, {
+    this.currentSlitConfigurationProperty = new DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, HighIntensitySceneModel>( this.sceneProperty, {
       derive: 'slitConfigurationProperty',
       bidirectional: true
     } );

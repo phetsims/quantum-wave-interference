@@ -17,8 +17,6 @@ import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import BaseScreenModel from '../../common/model/BaseScreenModel.js';
 import SingleParticlesSceneModel, { type DetectorToolState, type SingleParticlesSlitConfiguration } from './SingleParticlesSceneModel.js';
 
-const FAST_TIME_SPEED_FACTOR = 8;
-
 type SingleParticlesModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class SingleParticlesModel extends BaseScreenModel<SingleParticlesSceneModel> {
@@ -55,7 +53,7 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
       new SingleParticlesSceneModel( { sourceType: 'heliumAtoms', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'heliumAtomsScene' ) } )
     ];
 
-    super( scenes, FAST_TIME_SPEED_FACTOR, providedOptions );
+    super( scenes, providedOptions );
 
     this.photonsScene = photonsScene;
 
@@ -93,8 +91,8 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
     } );
 
     this.isDetectorToolAvailableProperty = new DerivedProperty(
-      [ this.currentBarrierTypeProperty ],
-      barrierType => barrierType === 'none'
+      [ this.currentSlitConfigurationProperty ],
+      slitConfiguration => slitConfiguration === 'noBarrier'
     );
 
     this.isHitsGraphVisibleProperty = new BooleanProperty( false, {

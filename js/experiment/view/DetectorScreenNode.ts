@@ -38,11 +38,11 @@ import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
 import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
 import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
-import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
+import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import SnapshotDescriber from './description/SnapshotDescriber.js';
 
-const EXPERIMENT_SLIT_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyProperty<string>> = {
+const EXPERIMENT_SLIT_DISPLAY_MAP: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>> = {
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
   leftCovered: QuantumWaveInterferenceFluent.leftCoveredStringProperty,
   rightCovered: QuantumWaveInterferenceFluent.rightCoveredStringProperty,

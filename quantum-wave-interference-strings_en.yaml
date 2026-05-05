@@ -38,11 +38,12 @@ slitSeparationPattern:              '{{value}} mm'
 slitSeparationMicrometerPattern:    '{{value}} μm'
 screenDistancePattern:              '{{value}} m'
 bothOpen:                           Both Open
-leftCovered:                        Left Covered
-rightCovered:                       Right Covered
-leftDetector:                       Left Detector
-rightDetector:                      Right Detector
-bothDetectors:                      Both Detectors
+leftCovered:                        Cover Left
+rightCovered:                       Cover Right
+leftDetector:                       Detector Left
+rightDetector:                      Detector Right
+bothDetectors:                      Detector Both
+noBarrier:                          No Barrier
 hits:                               Hits
 hitsCountPattern:                   'Hits: {{count}}'
 screenBrightness:                   Screen Brightness
@@ -66,12 +67,12 @@ electricField:                      Electric Field
 amplitude:                          Amplitude
 realPart:                           Real Part
 imaginaryPart:                      Imaginary Part
-topCovered:                         Top Covered
-bottomCovered:                      Bottom Covered
-topClosed:                          Top Closed
-bottomClosed:                       Bottom Closed
-topDetector:                        Top Detector
-bottomDetector:                     Bottom Detector
+topCovered:                         Cover Top
+bottomCovered:                      Cover Bottom
+topClosed:                          Cover Top
+bottomClosed:                       Cover Bottom
+topDetector:                        Detector Top
+bottomDetector:                     Detector Bottom
 autoRepeat:                         Auto-repeat
 timeScaleLabel:                     '1 fs = 10⁻¹⁵ s'
 detectorSize:                       Detector Size
@@ -115,6 +116,7 @@ a11y:
                                 [rightCovered] right slit covered
                                 [leftDetector] detector on left slit
                                 [rightDetector] detector on right slit
+                                [noBarrier] no barrier
                                *[bothDetectors] detectors on both slits
                               }. { $detectionMode ->
                                 [averageIntensity] Detector screen shows intensity pattern.
@@ -145,6 +147,7 @@ a11y:
                                 [rightCovered] right slit covered
                                 [leftDetector] detector on left slit
                                 [rightDetector] detector on right slit
+                                [noBarrier] no barrier
                                *[bothDetectors] detectors on both slits
                               }. Detector screen shows { $detectionMode ->
                                 [averageIntensity] intensity
@@ -194,6 +197,7 @@ a11y:
                          [rightCovered] Right slit covered in barrier.
                          [leftDetector] Detector on left slit in barrier.
                          [rightDetector] Detector on right slit in barrier.
+                         [noBarrier] No barrier between source and screen.
                         *[bothDetectors] Detectors on both slits in barrier.
                        }
     slitSeparation:    'Slit Separation distance is { $distance }.'
@@ -361,6 +365,7 @@ a11y:
                                  [rightCovered] In barrier, right slit covered.
                                  [leftDetector] Detector added to left slit in barrier.
                                  [rightDetector] Detector added to right slit in barrier.
+                                 [noBarrier] No barrier.
                                 *[bothDetectors] Detectors added to both slits in barrier.
                                }
   slitWidthMicrometersPattern: '{ $value } micrometers'
@@ -373,6 +378,7 @@ a11y:
                            [rightCovered] Right slit is covered.
                            [leftDetector] Left slit is monitored by a detector.
                            [rightDetector] Right slit is monitored by a detector.
+                           [noBarrier] No barrier between source and screen.
                           *[bothDetectors] Both slits are monitored by detectors.
                          }
   zoomInButton:

@@ -148,18 +148,10 @@
     <linearGradient id="linear-gradient-16" x1="-1735.44" y1="-310.9" x2="-1726.19" y2="-310.9" gradientTransform="translate(1995.31 389.27)" xlink:href="#linear-gradient"/>
     <radialGradient id="radial-gradient" cx="195.17" cy="78.38" fx="195.17" fy="78.38" r="76.43" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#fff" stop-opacity="0"/>
-      <stop offset=".11" stop-color="#fff" stop-opacity=".02"/>
-      <stop offset=".22" stop-color="#fff" stop-opacity=".06"/>
-      <stop offset=".33" stop-color="#fff" stop-opacity=".14"/>
-      <stop offset=".43" stop-color="#fff" stop-opacity=".25"/>
-      <stop offset=".54" stop-color="#fff" stop-opacity=".39"/>
-      <stop offset=".65" stop-color="#fff" stop-opacity=".57"/>
-      <stop offset=".76" stop-color="#fff" stop-opacity=".77"/>
-      <stop offset=".77" stop-color="#fff" stop-opacity=".8"/>
-      <stop offset=".8" stop-color="#fff" stop-opacity=".86"/>
-      <stop offset=".85" stop-color="#fff" stop-opacity=".94"/>
-      <stop offset=".91" stop-color="#fff" stop-opacity=".98"/>
-      <stop offset=".96" stop-color="#fff"/>
+      <stop offset=".34" stop-color="#fff" stop-opacity=".42"/>
+      <stop offset=".62" stop-color="#fff" stop-opacity=".73"/>
+      <stop offset=".82" stop-color="#fff" stop-opacity=".93"/>
+      <stop offset=".92" stop-color="#fff"/>
     </radialGradient>
     <linearGradient id="linear-gradient-17" x1="95.64" y1="6.6" x2="95.6" y2="149.27" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#999"/>
@@ -192,23 +184,23 @@
       <g class="cls-27">
         <g>
           <g>
-            <rect class="cls-26" x="128.05" y="2.8" width="4.8" height="151.14"/>
-            <rect class="cls-26" x="146.54" y="2.8" width="4.8" height="151.14"/>
-            <rect class="cls-26" x="165.03" y="2.8" width="4.8" height="151.14"/>
-            <rect class="cls-26" x="183.52" y="2.8" width="4.8" height="151.14"/>
-            <rect class="cls-26" x="202.01" y="2.8" width="4.8" height="151.14"/>
-            <rect class="cls-26" x="220.5" y="2.8" width="4.8" height="151.14"/>
-            <rect class="cls-26" x="238.99" y="2.8" width="4.8" height="151.14"/>
-            <rect class="cls-26" x="257.48" y="2.8" width="4.8" height="151.14"/>
+            <rect class="cls-26" x="128.43" y="2.8" width="4.9" height="151.14"/>
+            <rect class="cls-26" x="146.86" y="2.8" width="4.9" height="151.14"/>
+            <rect class="cls-26" x="165.23" y="2.8" width="4.9" height="151.14"/>
+            <rect class="cls-26" x="183.66" y="2.8" width="4.9" height="151.14"/>
+            <rect class="cls-26" x="202.01" y="2.8" width="4.9" height="151.14"/>
+            <rect class="cls-26" x="220.44" y="2.8" width="4.9" height="151.14"/>
+            <rect class="cls-26" x="238.79" y="2.8" width="4.9" height="151.14"/>
+            <rect class="cls-26" x="257.22" y="2.8" width="4.9" height="151.14"/>
           </g>
           <g>
-            <rect x="137.3" y="2.8" width="4.8" height="151.14"/>
-            <rect x="155.79" y="2.8" width="4.8" height="151.14"/>
-            <rect x="174.28" y="2.8" width="4.8" height="151.14"/>
-            <rect x="192.77" y="2.8" width="4.8" height="151.14"/>
-            <rect x="211.25" y="2.8" width="4.8" height="151.14"/>
-            <rect x="229.74" y="2.8" width="4.8" height="151.14"/>
-            <rect x="248.23" y="2.8" width="4.8" height="151.14"/>
+            <rect x="137.65" y="2.8" width="4.9" height="151.14"/>
+            <rect x="156.08" y="2.8" width="4.9" height="151.14"/>
+            <rect x="174.45" y="2.8" width="4.9" height="151.14"/>
+            <rect x="192.88" y="2.8" width="4.9" height="151.14"/>
+            <rect x="211.22" y="2.8" width="4.9" height="151.14"/>
+            <rect x="229.65" y="2.8" width="4.9" height="151.14"/>
+            <rect x="248" y="2.8" width="4.9" height="151.14"/>
           </g>
           <rect class="cls-14" x="121.21" y="2.8" width="9.24" height="151.14"/>
           <rect class="cls-12" x="130.45" y="2.8" width="9.24" height="151.14" transform="translate(270.15 156.75) rotate(180)"/>

@@ -24,26 +24,15 @@ import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
+import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
 
-export const SingleParticlesSlitConfigurationValues = [
-  'bothOpen',
-  'leftCovered',
-  'rightCovered',
-  'leftDetector',
-  'rightDetector',
-  'bothDetectors'
-] as const;
-export type SingleParticlesSlitConfiguration = SlitConfiguration;
+export const SingleParticlesSlitConfigurationValues = SlitConfigurationWithNoBarrierValues;
+export type SingleParticlesSlitConfiguration = SlitConfigurationWithNoBarrier;
 
 export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as const;
 export type DetectorToolState = typeof DetectorToolStateValues[number];
 
 const MIN_EMISSION_INTERVAL = 0.3;
-
-// Display-only gain for the wave visualization on the Single Particles screen. This intentionally
-// affects canvas brightness/saturation without changing wave propagation, detector probabilities, or hits.
-const SINGLE_PARTICLES_WAVE_DISPLAY_GAIN = 1.75;
 
 export type SingleParticlesSceneModelOptions = BaseSceneModelOptions;
 
@@ -52,9 +41,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   public readonly autoRepeatProperty: BooleanProperty;
   public readonly slitConfigurationProperty: StringUnionProperty<SingleParticlesSlitConfiguration>;
 
-  // Single particles have no intensity slider, but use a display-only gain so the post-slit packet
-  // remains visible in the wave region. This does not affect detector probabilities or hit sampling.
-  public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( SINGLE_PARTICLES_WAVE_DISPLAY_GAIN );
+  // Single particles always use full amplitude (no intensity slider on this screen)
+  public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( 1 );
 
   // Whether a wave packet is currently propagating through the visualization region
   public readonly isPacketActiveProperty: BooleanProperty;
@@ -146,6 +134,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     } );
 
     // Initial sync and listeners
+    this.linkSlitConfigurationToBarrierType( this.slitConfigurationProperty );
     this.syncSolverParameters();
     this.setupClearScreenListeners();
     this.slitConfigurationProperty.lazyLink( () => this.clearScreen() );
@@ -231,10 +220,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   /**
    * Detection times follow the packet's horizontal probability density: Gaussian around
-   * the current display traversal time. WAVE_PACKET_TRAVERSAL_TIME is the default-speed baseline,
-   * and this method scales it by defaultWaveSpeed / effectiveWaveSpeed so faster particles reach the
-   * detector screen sooner. Width matches the packet's spatial spread. Truncated at +/- 3 sigma to
-   * avoid non-physical negative times.
+   * WAVE_PACKET_TRAVERSAL_TIME (packet center arrives at screen), width matches the packet's spatial
+   * spread. Truncated at +/- 3 sigma to avoid non-physical negative times.
    */
   private sampleDetectionTime(): number {
     const effectiveTraversalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME *

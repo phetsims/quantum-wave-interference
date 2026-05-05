@@ -9,6 +9,8 @@
 export {
   type SlitConfiguration,
   SlitConfigurationValues,
+  type SlitConfigurationWithNoBarrier,
+  SlitConfigurationWithNoBarrierValues,
   type DetectorSide,
   DetectorSideValues,
   hasDetectorOnSide,

@@ -29,7 +29,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Panel from '../../../../sun/js/Panel.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../model/WaveDisplayMode.js';
-import { type SlitConfiguration } from '../model/SlitConfiguration.js';
+import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import Snapshot from '../model/Snapshot.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
@@ -77,7 +77,7 @@ type CreateRightControlsColumnOptions = {
   // Callback to step view-only state that should advance with the model's step-forward button.
   onStepForward?: () => void;
 
-  slitSettingDisplayMap?: Record<SlitConfiguration, TReadOnlyProperty<string>>;
+  slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
 };
 
 type RightControlsColumnResult = {

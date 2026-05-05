@@ -4,22 +4,17 @@
  * Factory function that creates the slit configuration combo box and slit separation NumberControl
  * for the High Intensity and Single Particles screens.
  *
- * The controls are aligned to the wave region edges and top-aligned with the barrier controls
- * section.
- *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import { type BarrierType } from '../model/BarrierType.js';
 import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -29,14 +24,13 @@ import linkSceneVisibility from './linkSceneVisibility.js';
 const TITLE_FONT = new PhetFont( 14 );
 const SLIT_SEPARATION_Y_OFFSET = -10;
 
-const createBarrierControlsRow = <T extends string>(
-  barrierTypeProperty: PhetioProperty<BarrierType>,
+const createSlitConfigurationControlsRow = <T extends string>(
   slitConfigurationProperty: PhetioProperty<T>,
   slitConfigItems: ComboBoxItem<T>[],
   sceneProperty: TReadOnlyProperty<BaseSceneModel>,
   scenes: BaseSceneModel[],
   waveRegionLeft: number,
-  barrierAlignmentTargetNode: Node,
+  controlsTop: number,
   listParent: Node,
   tandem: Tandem
 ): Node => {
@@ -49,7 +43,9 @@ const createBarrierControlsRow = <T extends string>(
     tandem: tandem.createTandem( 'slitConfigurationComboBox' ),
     xMargin: 10,
     yMargin: 6,
-    listPosition: 'above'
+    listPosition: 'above',
+    accessibleName: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty,
+    accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleHelpTextStringProperty
   } );
 
   const slitConfigSection = new VBox( {
@@ -73,8 +69,8 @@ const createBarrierControlsRow = <T extends string>(
     excludeInvisibleChildrenFromBounds: false
   } );
 
-  barrierTypeProperty.link( barrierType => {
-    slitControlsNode.visible = barrierType === 'doubleSlit';
+  slitConfigurationProperty.link( slitConfiguration => {
+    slitSeparationContainer.visible = slitConfiguration !== 'noBarrier';
   } );
 
   slitConfigSection.left = 0;
@@ -83,12 +79,10 @@ const createBarrierControlsRow = <T extends string>(
   slitSeparationContainer.right = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
   slitSeparationContainer.top = SLIT_SEPARATION_Y_OFFSET;
 
-  ManualConstraint.create( listParent, [ slitControlsNode, barrierAlignmentTargetNode ], ( slitControlsProxy, barrierProxy ) => {
-    slitControlsProxy.x = waveRegionLeft;
-    slitControlsProxy.y = barrierProxy.top;
-  } );
+  slitControlsNode.left = waveRegionLeft;
+  slitControlsNode.top = controlsTop;
 
   return slitControlsNode;
 };
 
-export default createBarrierControlsRow;
+export default createSlitConfigurationControlsRow;

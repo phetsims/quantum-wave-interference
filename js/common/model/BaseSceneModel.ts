@@ -31,7 +31,7 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { type DetectionMode } from './DetectionMode.js';
 import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKernel.js';
 import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
-import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration } from './SlitConfiguration.js';
+import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier } from './SlitConfiguration.js';
 import { type SourceType } from './SourceType.js';
 import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues } from './WaveDisplayMode.js';
 import { type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues } from './WaveDisplayMode.js';
@@ -295,11 +295,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.waveSolver.setParameters( {
       wavelength: effectiveWavelength,
       waveSpeed: this.getEffectiveWaveSpeed(),
-
-      // The analytical solvers animate waves in display coordinates. displaySpeedScale maps the
-      // current physical speed to display speed by comparing it to this scene's default speed. For
-      // wave packets, AnalyticalWavePacketSolver applies this scale to
-      // regionWidth / WAVE_PACKET_TRAVERSAL_TIME.
       displaySpeedScale: this.getEffectiveWaveSpeed() / this.defaultWaveSpeed,
       displayWavelengths: displayWavelengths,
       barrierType: this.barrierTypeProperty.value,
@@ -401,7 +396,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   }
 
   protected createDecoherenceEventForSlitConfiguration(
-    slitConfiguration: SlitConfiguration,
+    slitConfiguration: SlitConfigurationWithNoBarrier,
     time: number
   ): DecoherenceEvent | null {
     if ( !hasAnyDetector( slitConfiguration ) ) {
@@ -438,6 +433,37 @@ export default abstract class BaseSceneModel extends PhetioObject {
       time: time,
       selectedSlit: selectedSlit
     };
+  }
+
+  protected linkSlitConfigurationToBarrierType(
+    slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>
+  ): void {
+    let isSyncing = false;
+
+    slitConfigurationProperty.link( slitConfiguration => {
+      if ( isSyncing ) {
+        return;
+      }
+
+      isSyncing = true;
+      this.barrierTypeProperty.value = slitConfiguration === 'noBarrier' ? 'none' : 'doubleSlit';
+      isSyncing = false;
+    } );
+
+    this.barrierTypeProperty.link( barrierType => {
+      if ( isSyncing ) {
+        return;
+      }
+
+      isSyncing = true;
+      if ( barrierType === 'none' ) {
+        slitConfigurationProperty.value = 'noBarrier';
+      }
+      else if ( slitConfigurationProperty.value === 'noBarrier' ) {
+        slitConfigurationProperty.value = 'bothOpen';
+      }
+      isSyncing = false;
+    } );
   }
 
   public clearScreen(): void {
@@ -481,7 +507,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.clearWaveState();
   }
 
-  public takeSnapshot( detectionMode: DetectionMode, slitSetting: SlitConfiguration, intensity: number ): void {
+  public takeSnapshot( detectionMode: DetectionMode, slitSetting: SlitConfigurationWithNoBarrier, intensity: number ): void {
     if ( this.snapshotsProperty.value.length >= MAX_SNAPSHOTS ) {
       return;
     }

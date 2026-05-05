@@ -262,10 +262,8 @@ export default class ExperimentScreenView extends ScreenView {
         } )
       }
     );
-    const sceneButtonAreaTop = sourceControlPanel.bottom;
-    const sceneButtonAreaBottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
     sceneRadioButtonGroup.centerX = sourceControlPanel.centerX;
-    sceneRadioButtonGroup.centerY = ( sceneButtonAreaTop + sceneButtonAreaBottom ) / 2;
+    sceneRadioButtonGroup.centerY = QuantumWaveInterferenceConstants.SCENE_BUTTON_GROUP_CENTER_Y;
     this.addChild( sceneRadioButtonGroup );
 
     // Slit controls panel, top-justified directly beneath the front-facing slit view

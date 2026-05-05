@@ -20,8 +20,7 @@ import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
-import createBarrierControlsSection from '../../common/view/createBarrierControlsSection.js';
-import createBarrierControlsRow from '../../common/view/createBarrierControlsRow.js';
+import createSlitConfigurationControlsRow from '../../common/view/createSlitConfigurationControlsRow.js';
 import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
 import createWaveRegionNodes from '../../common/view/createWaveRegionNodes.js';
@@ -58,7 +57,7 @@ const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
 const SCENE_TO_BARRIER_CONTROLS_SPACING = 36;
 const CALLOUT_GAP = 55;
 const SCENE_AND_BARRIER_Y_OFFSET = 10;
-const SCENE_BUTTON_GROUP_Y_OFFSET = 10;
+const SLIT_CONTROLS_Y_ADJUSTMENT = -24;
 const WAVE_REGION_Y_OFFSET = -30;
 
 type HighIntensityReferenceScene = {
@@ -147,31 +146,22 @@ export default class SingleParticlesScreenView extends ScreenView {
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
     sceneRadioButtonGroup.layoutOptions = { align: 'center' };
 
-    const { barrierControlsSection } = createBarrierControlsSection(
-      model.currentBarrierTypeProperty,
-      tandem
-    );
-
     const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
     const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const highIntensityLeftColumnWidth = highIntensityReferenceSourceControlPanel.width;
     const highIntensitySourceControlPanelHeight = highIntensityReferenceSourceControlPanel.height;
     const waveRegionLeft = X_MARGIN + highIntensityLeftColumnWidth + 20;
+    const slitControlsTop =
+      baseWaveRegionTop + highIntensitySourceControlPanelHeight + SOURCE_TO_SCENE_CONTROLS_SPACING +
+      SCENE_AND_BARRIER_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_BARRIER_CONTROLS_SPACING +
+      SLIT_CONTROLS_Y_ADJUSTMENT;
 
     sourceControlPanel.left = X_MARGIN;
     sourceControlPanel.top = Y_MARGIN + 20;
     this.addChild( sourceControlPanel );
 
-    barrierControlsSection.centerX = X_MARGIN + highIntensityLeftColumnWidth / 2;
-    barrierControlsSection.top =
-      baseWaveRegionTop + highIntensitySourceControlPanelHeight + SOURCE_TO_SCENE_CONTROLS_SPACING +
-      SCENE_AND_BARRIER_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_BARRIER_CONTROLS_SPACING;
-    this.addChild( barrierControlsSection );
-
-    sceneRadioButtonGroup.centerX = barrierControlsSection.centerX;
-    sceneRadioButtonGroup.top =
-      barrierControlsSection.top - SCENE_TO_BARRIER_CONTROLS_SPACING - sceneRadioButtonGroup.height +
-      SCENE_BUTTON_GROUP_Y_OFFSET;
+    sceneRadioButtonGroup.centerX = sourceControlPanel.centerX;
+    sceneRadioButtonGroup.centerY = QuantumWaveInterferenceConstants.SCENE_BUTTON_GROUP_CENTER_Y;
     this.addChild( sceneRadioButtonGroup );
 
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -219,21 +209,21 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const slitConfigItems: ComboBoxItem<SingleParticlesSlitConfiguration>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
-      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topClosedItem' },
+      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topClosedItem', separatorBefore: true },
       { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomClosedItem' },
-      { value: 'leftDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.topDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topDetectorItem' },
+      { value: 'leftDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.topDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topDetectorItem', separatorBefore: true },
       { value: 'rightDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomDetectorItem' },
-      { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' }
+      { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' },
+      { value: 'noBarrier', createNode: () => new Text( QuantumWaveInterferenceFluent.noBarrierStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'noBarrierItem', separatorBefore: true }
     ];
 
-    const bottomRow = createBarrierControlsRow(
-      model.currentBarrierTypeProperty,
+    const bottomRow = createSlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
       slitConfigItems,
       model.sceneProperty,
       model.scenes,
       waveRegionLeft,
-      barrierControlsSection,
+      slitControlsTop,
       this,
       tandem
     );
@@ -299,7 +289,8 @@ export default class SingleParticlesScreenView extends ScreenView {
         rightCovered: QuantumWaveInterferenceFluent.bottomClosedStringProperty,
         leftDetector: QuantumWaveInterferenceFluent.topDetectorStringProperty,
         rightDetector: QuantumWaveInterferenceFluent.bottomDetectorStringProperty,
-        bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
+        bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty,
+        noBarrier: QuantumWaveInterferenceFluent.noBarrierStringProperty
       }
     } );
 

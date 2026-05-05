@@ -22,10 +22,9 @@ import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
-import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
+import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
-import createBarrierControlsSection from '../../common/view/createBarrierControlsSection.js';
-import createBarrierControlsRow from '../../common/view/createBarrierControlsRow.js';
+import createSlitConfigurationControlsRow from '../../common/view/createSlitConfigurationControlsRow.js';
 import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
 import createToolCheckbox from '../../common/view/createToolCheckbox.js';
 import createWaveRegionNodes from '../../common/view/createWaveRegionNodes.js';
@@ -62,7 +61,7 @@ const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
 const SCENE_TO_BARRIER_CONTROLS_SPACING = 36;
 const SOURCE_CONTROL_Y_OFFSET = 20;
 const SCENE_AND_BARRIER_Y_OFFSET = 10;
-const SCENE_BUTTON_GROUP_Y_OFFSET = 10;
+const SLIT_CONTROLS_Y_ADJUSTMENT = -24;
 const WAVE_REGION_Y_OFFSET = -30;
 
 // Extra vertical space below the top row to accommodate the zoom-callout lines between the
@@ -102,32 +101,24 @@ export default class HighIntensityScreenView extends ScreenView {
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
 
     sceneRadioButtonGroup.layoutOptions = { align: 'center' };
-    const { barrierControlsSection } = createBarrierControlsSection(
-      model.currentBarrierTypeProperty,
-      tandem
-    );
 
-    const leftColumnWidth = Math.max( sourceControlPanel.width, sceneRadioButtonGroup.width, barrierControlsSection.width );
+    const leftColumnWidth = Math.max( sourceControlPanel.width, sceneRadioButtonGroup.width );
     const leftColumnCenterX = X_MARGIN + leftColumnWidth / 2;
     const waveRegionLeft = X_MARGIN + leftColumnWidth + 20;
     const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
     const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const waveRegionRight = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
+    const slitControlsTop =
+      baseWaveRegionTop + sourceControlPanel.height + SOURCE_TO_SCENE_CONTROLS_SPACING +
+      SCENE_AND_BARRIER_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_BARRIER_CONTROLS_SPACING +
+      SLIT_CONTROLS_Y_ADJUSTMENT;
 
     sourceControlPanel.left = X_MARGIN;
     sourceControlPanel.top = baseWaveRegionTop + SOURCE_CONTROL_Y_OFFSET;
     this.addChild( sourceControlPanel );
 
-    barrierControlsSection.centerX = leftColumnCenterX;
-    barrierControlsSection.top =
-      baseWaveRegionTop + sourceControlPanel.height + SOURCE_TO_SCENE_CONTROLS_SPACING +
-      SCENE_AND_BARRIER_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_BARRIER_CONTROLS_SPACING;
-    this.addChild( barrierControlsSection );
-
-    sceneRadioButtonGroup.centerX = leftColumnCenterX;
-    sceneRadioButtonGroup.top =
-      barrierControlsSection.top - SCENE_TO_BARRIER_CONTROLS_SPACING - sceneRadioButtonGroup.height +
-      SCENE_BUTTON_GROUP_Y_OFFSET;
+    sceneRadioButtonGroup.centerX = sourceControlPanel.centerX;
+    sceneRadioButtonGroup.centerY = QuantumWaveInterferenceConstants.SCENE_BUTTON_GROUP_CENTER_Y;
     this.addChild( sceneRadioButtonGroup );
 
     const topRowBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - X_MARGIN );
@@ -190,23 +181,23 @@ export default class HighIntensityScreenView extends ScreenView {
     this.addChild( doubleSlitNode );
 
     // --- Bottom row: barrier, slit configuration, slit separation ---
-    const slitConfigItems: ComboBoxItem<SlitConfiguration>[] = [
+    const slitConfigItems: ComboBoxItem<SlitConfigurationWithNoBarrier>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
-      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topCoveredItem' },
+      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topCoveredItem', separatorBefore: true },
       { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomCoveredStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomCoveredItem' },
-      { value: 'leftDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.topDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topDetectorItem' },
+      { value: 'leftDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.topDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topDetectorItem', separatorBefore: true },
       { value: 'rightDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomDetectorItem' },
-      { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' }
+      { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' },
+      { value: 'noBarrier', createNode: () => new Text( QuantumWaveInterferenceFluent.noBarrierStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'noBarrierItem', separatorBefore: true }
     ];
 
-    const bottomRow = createBarrierControlsRow(
-      model.currentBarrierTypeProperty,
+    const bottomRow = createSlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
       slitConfigItems,
       model.sceneProperty,
       model.scenes,
       waveRegionLeft,
-      barrierControlsSection,
+      slitControlsTop,
       this,
       tandem
     );

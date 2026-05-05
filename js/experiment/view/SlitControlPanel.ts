@@ -255,7 +255,8 @@ export default class SlitControlPanel extends Panel {
             font: COMBO_BOX_FONT,
             maxWidth: 150
           } ),
-        tandemName: 'leftCoveredItem'
+        tandemName: 'leftCoveredItem',
+        separatorBefore: true
       },
       {
         value: 'rightCovered',
@@ -273,7 +274,8 @@ export default class SlitControlPanel extends Panel {
             font: COMBO_BOX_FONT,
             maxWidth: 150
           } ),
-        tandemName: 'leftDetectorItem'
+        tandemName: 'leftDetectorItem',
+        separatorBefore: true
       },
       {
         value: 'rightDetector',

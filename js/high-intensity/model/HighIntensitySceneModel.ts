@@ -22,7 +22,7 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
-import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
+import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
 
 // Number of particles per second at max intensity. TODO: This seems off by a factor of https://github.com/phetsims/quantum-wave-interference/issues/63
 const MAX_EMISSION_RATE = 5;
@@ -36,7 +36,7 @@ export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 export default class HighIntensitySceneModel extends BaseSceneModel {
 
   public readonly intensityProperty: NumberProperty;
-  public readonly slitConfigurationProperty: StringUnionProperty<SlitConfiguration>;
+  public readonly slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>;
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
 
   // True when Hits mode has reached the hit cap
@@ -71,8 +71,8 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
     this.waveAmplitudeScaleProperty = new DerivedProperty( [ this.intensityProperty ], intensity => Math.sqrt( intensity ) );
 
-    this.slitConfigurationProperty = new StringUnionProperty<SlitConfiguration>( 'bothOpen', {
-      validValues: SlitConfigurationValues,
+    this.slitConfigurationProperty = new StringUnionProperty<SlitConfigurationWithNoBarrier>( 'bothOpen', {
+      validValues: SlitConfigurationWithNoBarrierValues,
       tandem: tandem.createTandem( 'slitConfigurationProperty' )
     } );
 
@@ -92,6 +92,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMax => !isMax );
 
     // Initial sync and listeners
+    this.linkSlitConfigurationToBarrierType( this.slitConfigurationProperty );
     this.syncSolverParameters();
     this.setupClearScreenListeners();
     this.intensityProperty.lazyLink( () => {

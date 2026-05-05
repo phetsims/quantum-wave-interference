@@ -14,12 +14,12 @@ import Dialog from '../../../../sun/js/Dialog.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type SlitConfiguration } from '../model/SlitConfiguration.js';
+import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import Snapshot from '../model/Snapshot.js';
 import SnapshotNode from './SnapshotNode.js';
 
 type SnapshotsDialogOptions = {
-  slitSettingDisplayMap?: Record<SlitConfiguration, TReadOnlyProperty<string>>;
+  slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
   formatSlitSeparation?: ( slitSepMM: number ) => string;
   showScreenDistance?: boolean;
   getDescription?: ( snapshot: Snapshot ) => string;

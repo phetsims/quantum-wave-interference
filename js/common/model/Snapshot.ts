@@ -15,7 +15,7 @@ import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import StringIO from '../../../../tandem/js/types/StringIO.js';
 import { type DetectionMode } from './DetectionMode.js';
-import { type SlitConfiguration } from './SlitConfiguration.js';
+import { type SlitConfigurationWithNoBarrier } from './SlitConfiguration.js';
 import { type SourceType } from './SourceType.js';
 
 // Shared shape for the constructor parameter and the serialized state (minus hits, which differs in type).
@@ -27,7 +27,7 @@ type SnapshotData = {
   screenDistance: number;
   screenHalfWidth: number;
   effectiveWavelength: number;
-  slitSetting: SlitConfiguration;
+  slitSetting: SlitConfigurationWithNoBarrier;
   isEmitting: boolean;
   brightness: number;
   intensity: number;
@@ -68,7 +68,7 @@ export default class Snapshot {
   public readonly screenDistance: number; // m
   public readonly screenHalfWidth: number; // m
   public readonly effectiveWavelength: number; // m
-  public readonly slitSetting: SlitConfiguration;
+  public readonly slitSetting: SlitConfigurationWithNoBarrier;
   public readonly isEmitting: boolean;
   public readonly brightness: number;
   public readonly intensity: number;

@@ -28,7 +28,7 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import { type SourceType } from '../model/SourceType.js';
-import { hasAnyDetector, type SlitConfiguration } from '../model/SlitConfiguration.js';
+import { hasAnyDetector, type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -55,19 +55,20 @@ const SOURCE_TYPE_DISPLAY_MAP: Record<SourceType, TReadOnlyProperty<string>> = {
   heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomsStringProperty
 };
 
-const DEFAULT_SLIT_SETTING_DISPLAY_MAP: Record<SlitConfiguration, TReadOnlyProperty<string>> = {
+const DEFAULT_SLIT_SETTING_DISPLAY_MAP: Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>> = {
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
   leftCovered: QuantumWaveInterferenceFluent.topCoveredStringProperty,
   rightCovered: QuantumWaveInterferenceFluent.bottomCoveredStringProperty,
   leftDetector: QuantumWaveInterferenceFluent.topDetectorStringProperty,
   rightDetector: QuantumWaveInterferenceFluent.bottomDetectorStringProperty,
-  bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
+  bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty,
+  noBarrier: QuantumWaveInterferenceFluent.noBarrierStringProperty
 };
 
 export type SnapshotNodeOptions = {
   snapshotsProperty: TReadOnlyProperty<Snapshot[]>;
   deleteSnapshot: ( snapshot: Snapshot ) => void;
-  slitSettingDisplayMap?: Record<SlitConfiguration, TReadOnlyProperty<string>>;
+  slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
 
   // Formats the slit separation value (in mm) for display. Default uses µm if < 0.1 mm, else mm.
   formatSlitSeparation?: ( slitSepMM: number ) => string;
@@ -86,7 +87,16 @@ export type SnapshotNodeOptions = {
 export default class SnapshotNode extends Node {
   public constructor( index: number, options: SnapshotNodeOptions ) {
 
-    const slitSettingDisplayMap = options.slitSettingDisplayMap || DEFAULT_SLIT_SETTING_DISPLAY_MAP;
+    const providedSlitSettingDisplayMap = options.slitSettingDisplayMap;
+    const slitSettingDisplayMap: Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>> = {
+      bothOpen: providedSlitSettingDisplayMap?.bothOpen || DEFAULT_SLIT_SETTING_DISPLAY_MAP.bothOpen,
+      leftCovered: providedSlitSettingDisplayMap?.leftCovered || DEFAULT_SLIT_SETTING_DISPLAY_MAP.leftCovered,
+      rightCovered: providedSlitSettingDisplayMap?.rightCovered || DEFAULT_SLIT_SETTING_DISPLAY_MAP.rightCovered,
+      leftDetector: providedSlitSettingDisplayMap?.leftDetector || DEFAULT_SLIT_SETTING_DISPLAY_MAP.leftDetector,
+      rightDetector: providedSlitSettingDisplayMap?.rightDetector || DEFAULT_SLIT_SETTING_DISPLAY_MAP.rightDetector,
+      bothDetectors: providedSlitSettingDisplayMap?.bothDetectors || DEFAULT_SLIT_SETTING_DISPLAY_MAP.bothDetectors,
+      noBarrier: providedSlitSettingDisplayMap?.noBarrier || DEFAULT_SLIT_SETTING_DISPLAY_MAP.noBarrier
+    };
 
     const defaultFormatSlitSeparation = ( slitSepMM: number ): string => {
       return slitSepMM < 0.1
@@ -121,7 +131,8 @@ export default class SnapshotNode extends Node {
       slitSettingDisplayMap.rightCovered,
       slitSettingDisplayMap.leftDetector,
       slitSettingDisplayMap.rightDetector,
-      slitSettingDisplayMap.bothDetectors
+      slitSettingDisplayMap.bothDetectors,
+      slitSettingDisplayMap.noBarrier
     ] as const;
 
     const titleProperty = new DerivedProperty(
