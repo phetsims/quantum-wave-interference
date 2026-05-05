@@ -356,7 +356,17 @@ export const evaluateAnalyticalLayeredSample = (
   }
 
   if ( parameters.source.kind !== 'plane' ) {
-    return applyGaussianPacketMeasurementProjectionLayers( sample, parameters, x, y, t );
+
+    // Packet rendering has two independent measurement effects:
+    // 1. slit-detector records, which collapse the packet to one slit path; and
+    // 2. detector-tool projections, which add the local failed-detection bite/ripple.
+    // The canvas reads LayeredFieldSample for packet ripple rendering, so this path must apply
+    // slit-detector decoherence first. Otherwise, the model-facing FieldSample is collapsed, but the
+    // visible layered packet still renders both slit paths.
+    const decoheredSample = applyDecoherenceEvent( sample, parameters, x, y, t );
+    return decoheredSample.kind === 'field' ?
+           applyGaussianPacketMeasurementProjectionLayers( decoheredSample, parameters, x, y, t ) :
+           decoheredSample;
   }
 
   return applyPlaneWaveDecoherenceEventLayers( sample, parameters, x, y, t );

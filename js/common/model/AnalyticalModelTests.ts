@@ -1083,6 +1083,42 @@ QUnit.test( 'packet decoherence records project aperture and downstream to the s
   }
 } );
 
+QUnit.test( 'packet decoherence records are honored by layered packet rendering', assert => {
+  const topRecordedParameters = createGaussianPacketParameters( {
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  topRecordedParameters.decoherenceEvents = [
+    { time: 3, selectedSlit: 'topSlit' as const }
+  ];
+
+  const topRecordLayeredSample = evaluateAnalyticalLayeredSample( topRecordedParameters, 2, 0.25, 3.01 );
+  assert.strictEqual( topRecordLayeredSample.kind, 'field', 'top-record layered sample has field' );
+  if ( topRecordLayeredSample.kind === 'field' ) {
+    const topPath = topRecordLayeredSample.layers[ 0 ].components.find( component => component.source === 'topSlit' );
+    const bottomPath = topRecordLayeredSample.layers[ 0 ].components.find( component => component.source === 'bottomSlit' );
+
+    assert.ok( topPath && topPath.value.magnitude > 0, 'top record keeps top path in layered rendering' );
+    assert.strictEqual( bottomPath?.value.magnitude, 0, 'top record zeroes bottom path in layered rendering' );
+  }
+
+  const bottomRecordedParameters = createGaussianPacketParameters( {
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  bottomRecordedParameters.decoherenceEvents = [
+    { time: 3, selectedSlit: 'bottomSlit' as const }
+  ];
+
+  const bottomRecordLayeredSample = evaluateAnalyticalLayeredSample( bottomRecordedParameters, 2, -0.25, 3.01 );
+  assert.strictEqual( bottomRecordLayeredSample.kind, 'field', 'bottom-record layered sample has field' );
+  if ( bottomRecordLayeredSample.kind === 'field' ) {
+    const topPath = bottomRecordLayeredSample.layers[ 0 ].components.find( component => component.source === 'topSlit' );
+    const bottomPath = bottomRecordLayeredSample.layers[ 0 ].components.find( component => component.source === 'bottomSlit' );
+
+    assert.strictEqual( topPath?.value.magnitude, 0, 'bottom record zeroes top path in layered rendering' );
+    assert.ok( bottomPath && bottomPath.value.magnitude > 0, 'bottom record keeps bottom path in layered rendering' );
+  }
+} );
+
 QUnit.test( 'plane-wave decoherence records form selected-slit temporal chains', assert => {
   const topRecordedParameters = createPlaneParameters( {
     speed: 1,
