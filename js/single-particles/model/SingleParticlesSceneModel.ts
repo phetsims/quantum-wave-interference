@@ -41,6 +41,10 @@ export type DetectorToolState = typeof DetectorToolStateValues[number];
 
 const MIN_EMISSION_INTERVAL = 0.3;
 
+// Display-only gain for the wave visualization on the Single Particles screen. This intentionally
+// affects canvas brightness/saturation without changing wave propagation, detector probabilities, or hits.
+const SINGLE_PARTICLES_WAVE_DISPLAY_GAIN = 1.75;
+
 export type SingleParticlesSceneModelOptions = BaseSceneModelOptions;
 
 export default class SingleParticlesSceneModel extends BaseSceneModel {
@@ -48,8 +52,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   public readonly autoRepeatProperty: BooleanProperty;
   public readonly slitConfigurationProperty: StringUnionProperty<SingleParticlesSlitConfiguration>;
 
-  // Single particles always use full amplitude (no intensity slider on this screen)
-  public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( 1 );
+  // Single particles have no intensity slider, but use a display-only gain so the post-slit packet
+  // remains visible in the wave region. This does not affect detector probabilities or hit sampling.
+  public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( SINGLE_PARTICLES_WAVE_DISPLAY_GAIN );
 
   // Whether a wave packet is currently propagating through the visualization region
   public readonly isPacketActiveProperty: BooleanProperty;
