@@ -38,5 +38,29 @@
     "projectURL": "https://phet.colorado.edu",
     "license": "contact phethelp@colorado.edu",
     "notes": "created by Matthew Blackman"
+  },
+  "experimentScreenIcon.svg": {
+    "text": [
+      "Copyright 2026 University of Colorado Boulder"
+    ],
+    "projectURL": "https://phet.colorado.edu",
+    "license": "contact phethelp@colorado.edu",
+    "notes": "created by Matthew Blackman"
+  },
+  "highIntensityScreenIcon.svg": {
+    "text": [
+      "Copyright 2026 University of Colorado Boulder"
+    ],
+    "projectURL": "https://phet.colorado.edu",
+    "license": "contact phethelp@colorado.edu",
+    "notes": "created by Matthew Blackman"
+  },
+  "singleParticlesScreenIcon.svg": {
+    "text": [
+      "Copyright 2026 University of Colorado Boulder"
+    ],
+    "projectURL": "https://phet.colorado.edu",
+    "license": "contact phethelp@colorado.edu",
+    "notes": "created by Matthew Blackman"
   }
 }
