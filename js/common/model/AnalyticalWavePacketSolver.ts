@@ -28,9 +28,14 @@ const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS
 const EPSILON = 1e-12;
 const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
 const UNREACHED_LAYERED_SAMPLE: LayeredFieldSample = { kind: 'unreached' };
-const MEASUREMENT_RIPPLE_STRENGTH = 0.28;
+const MEASUREMENT_RIPPLE_STRENGTH = 0.85;
 const MEASUREMENT_RIPPLE_DURATION = 0.55;
 const MEASUREMENT_BITE_SHRINK_DURATION = 0.75;
+
+// Designer-tunable width of the smooth transition from blanked detector interior to untouched wave,
+// in view pixels. This feather is applied inside the detector edge only, so failed-detection effects
+// remain local and do not attenuate the wave packet outside the detector footprint.
+const MEASUREMENT_BITE_EDGE_FEATHER_PIXELS = 5;
 
 export default class AnalyticalWavePacketSolver implements WaveSolver {
 
@@ -162,6 +167,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         centerX: projection.centerX,
         centerY: projection.centerY,
         radius: projection.radius,
+        edgeFeather: projection.edgeFeather,
         measurementTime: projection.measurementTime,
         renormScale: projection.renormScale,
         rippleStrength: projection.rippleStrength,
@@ -181,6 +187,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         centerX: projection.centerX ?? projection.worldX0,
         centerY: projection.centerY ?? projection.worldY,
         radius: projection.radius ?? Math.sqrt( 1 / projection.invSigmaSq ),
+        edgeFeather: projection.edgeFeather ?? this.getMeasurementBiteEdgeFeather(),
         measurementTime: projection.measurementTime,
         renormScale: projection.renormScale ?? 1,
         rippleStrength: projection.rippleStrength,
@@ -201,6 +208,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       centerX: centerNorm.x * this.regionWidth,
       centerY: ( centerNorm.y - 0.5 ) * this.regionHeight,
       radius: radiusNorm * this.regionWidth,
+      edgeFeather: this.getMeasurementBiteEdgeFeather(),
       measurementTime: this.time,
       renormScale: 1,
       rippleStrength: MEASUREMENT_RIPPLE_STRENGTH,
@@ -342,6 +350,10 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     const parameters = this.createKernelParameters();
     parameters.projections = projections;
     return parameters;
+  }
+
+  private getMeasurementBiteEdgeFeather(): number {
+    return MEASUREMENT_BITE_EDGE_FEATHER_PIXELS / QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH * this.regionWidth;
   }
 
   private createKernelBarrier(): AnalyticalBarrier {

@@ -547,6 +547,41 @@ QUnit.test( 'measurement projection zeros detector region and renormalizes outsi
   );
 } );
 
+QUnit.test( 'shrinking measurement projection is spatially local to detector region', assert => {
+  const unprojected = createGaussianPacketParameters();
+  const projected = createGaussianPacketParameters( {
+    projections: [ {
+      centerX: 0.5,
+      centerY: 0,
+      radius: 0.2,
+      edgeFeather: 0.02,
+      measurementTime: 1,
+      renormScale: 1,
+      shrinkDuration: 0.5
+    } ]
+  } );
+
+  assertApproximately(
+    assert,
+    intensityAt( projected, 0.67, 0, 1 ),
+    0,
+    'shrinking projection blanks the detector interior'
+  );
+  const featherIntensity = intensityAt( projected, 0.69, 0, 1 );
+  const unprojectedFeatherIntensity = intensityAt( unprojected, 0.69, 0, 1 );
+  assert.ok(
+    featherIntensity > 0 && featherIntensity < unprojectedFeatherIntensity,
+    'shrinking projection feathers the inside edge of the detector region'
+  );
+  assertApproximately(
+    assert,
+    intensityAt( projected, 0.71, 0, 1 ),
+    intensityAt( unprojected, 0.71, 0, 1 ),
+    'shrinking projection does not attenuate samples outside the detector region',
+    1e-10
+  );
+} );
+
 QUnit.test( 'wave-packet measurement bite shrinks while preserving grid probability', assert => {
   const projectedSolver = new AnalyticalWavePacketSolver( 80, 80 );
   const controlSolver = new AnalyticalWavePacketSolver( 80, 80 );
@@ -557,9 +592,12 @@ QUnit.test( 'wave-packet measurement bite shrinks while preserving grid probabil
   controlSolver.step( 1.4 );
 
   const measurementCenter = new Vector2( 0.5, 0.5 );
+  const measurementRadius = 0.16;
+  const detectorInteriorX = measurementCenter.x + measurementRadius * 0.75;
   const controlTotalAtMeasurement = sumAmplitudeProbability( controlSolver.getAmplitudeField() );
   const controlCenterAtMeasurement = getGridProbabilityAtNorm( controlSolver, measurementCenter.x, measurementCenter.y );
-  projectedSolver.applyMeasurementProjection( measurementCenter, 0.16 );
+  const controlDetectorInteriorAtMeasurement = getGridProbabilityAtNorm( controlSolver, detectorInteriorX, measurementCenter.y );
+  projectedSolver.applyMeasurementProjection( measurementCenter, measurementRadius );
 
   assertApproximately(
     assert,
@@ -572,17 +610,22 @@ QUnit.test( 'wave-packet measurement bite shrinks while preserving grid probabil
     controlCenterAtMeasurement * 1e-4,
     'failed-detection bite removes the packet center immediately'
   );
+  assert.ok(
+    getGridProbabilityAtNorm( projectedSolver, detectorInteriorX, measurementCenter.y ) <
+    controlDetectorInteriorAtMeasurement * 1e-4,
+    'failed-detection bite blanks the interior of the detector region immediately'
+  );
 
   const fillTime = 0.4;
   projectedSolver.step( fillTime );
   controlSolver.step( fillTime );
 
-  const movingBiteCenterX = measurementCenter.x + projectedSolver.getDisplayPropagationSpeed() * fillTime;
-  const laterProjectedCenter = getGridProbabilityAtNorm( projectedSolver, movingBiteCenterX, measurementCenter.y );
-  const laterControlCenter = getGridProbabilityAtNorm( controlSolver, movingBiteCenterX, measurementCenter.y );
+  const movingDetectorInteriorX = detectorInteriorX + projectedSolver.getDisplayPropagationSpeed() * fillTime;
+  const laterProjectedDetectorInterior = getGridProbabilityAtNorm( projectedSolver, movingDetectorInteriorX, measurementCenter.y );
+  const laterControlDetectorInterior = getGridProbabilityAtNorm( controlSolver, movingDetectorInteriorX, measurementCenter.y );
 
   assert.ok(
-    laterProjectedCenter > laterControlCenter * 0.2,
+    laterProjectedDetectorInterior > laterControlDetectorInterior * 0.2,
     'shrinking bite lets probability fill back into the measured region'
   );
   assertApproximately(
@@ -628,7 +671,7 @@ QUnit.test( 'measurement ripple metadata does not change analytical packet sampl
   }
 } );
 
-QUnit.test( 'gaussian packet measurement ripple layers expand inward and outward then fade', assert => {
+QUnit.test( 'gaussian packet measurement ripple layer starts inside detector then fades', assert => {
   const parameters = createGaussianPacketParameters( {
     projections: [ {
       centerX: 0.5,
@@ -641,17 +684,50 @@ QUnit.test( 'gaussian packet measurement ripple layers expand inward and outward
     } ]
   } );
 
-  const outwardSample = evaluateAnalyticalLayeredSample( parameters, 0.8, 0, 1.1 );
-  const inwardSample = evaluateAnalyticalLayeredSample( parameters, 0.6, 0, 1.1 );
-  const fadedSample = evaluateAnalyticalLayeredSample( parameters, 0.8, 0, 1.6 );
+  const initialInteriorSample = evaluateAnalyticalLayeredSample( parameters, 0.57, 0, 1 );
+  const expandingInteriorSample = evaluateAnalyticalLayeredSample( parameters, 0.77, 0, 1.1 );
+  const fadedSample = evaluateAnalyticalLayeredSample( parameters, 0.77, 0, 1.6 );
+  const visibleRippleSample = evaluateAnalyticalLayeredSample( parameters, 0.82, 0, 1.1 );
 
-  assert.strictEqual( outwardSample.kind, 'field', 'outward ripple sample is field' );
-  assert.strictEqual( inwardSample.kind, 'field', 'inward ripple sample is field' );
+  assert.strictEqual( initialInteriorSample.kind, 'field', 'initial interior ripple sample is field' );
+  assert.strictEqual( expandingInteriorSample.kind, 'field', 'expanding interior ripple sample is field' );
   assert.strictEqual( fadedSample.kind, 'field', 'faded ripple sample is field' );
 
-  if ( outwardSample.kind === 'field' && inwardSample.kind === 'field' && fadedSample.kind === 'field' ) {
-    assert.ok( outwardSample.layers.length > 1, 'outward boundary has an added ripple layer' );
-    assert.ok( inwardSample.layers.length > 1, 'inward boundary has an added ripple layer' );
+  assert.strictEqual( visibleRippleSample.kind, 'field', 'visible ripple sample is field' );
+
+  if (
+    initialInteriorSample.kind === 'field' &&
+    expandingInteriorSample.kind === 'field' &&
+    fadedSample.kind === 'field' &&
+    visibleRippleSample.kind === 'field'
+  ) {
+    assert.ok( initialInteriorSample.layers.length > 1, 'ripple starts inside the detector region' );
+    assert.ok( expandingInteriorSample.layers.length > 1, 'ripple expands from inside the detector region' );
+    assert.strictEqual( expandingInteriorSample.layers[ 1 ].renderStyle, 'black', 'measurement ripple renders black' );
+
+    const baseColor = { red: 200, green: 200, blue: 200 };
+    const noRippleParameters = createGaussianPacketParameters( {
+      projections: [ {
+        centerX: 0.5,
+        centerY: 0,
+        radius: 0.2,
+        measurementTime: 1,
+        renormScale: 1.5
+      } ]
+    } );
+    const noRippleColor = getLayeredFieldSampleRGBA(
+      evaluateAnalyticalLayeredSample( noRippleParameters, 0.82, 0, 1.1 ),
+      'magnitude',
+      baseColor,
+      1
+    );
+    const blackRippleColor = getLayeredFieldSampleRGBA(
+      visibleRippleSample,
+      'magnitude',
+      baseColor,
+      1
+    );
+    assert.ok( blackRippleColor.red < noRippleColor.red, 'black measurement ripple visibly darkens the wave' );
     assert.strictEqual( fadedSample.layers.length, 1, 'ripple layers are removed after their duration' );
   }
 } );
@@ -680,7 +756,7 @@ QUnit.test( 'gaussian packet measurement ripple layers follow packet envelope', 
     } ]
   } );
 
-  const onPacketSample = evaluateAnalyticalLayeredSample( onPacketParameters, 0.8, 0, 1.1 );
+  const onPacketSample = evaluateAnalyticalLayeredSample( onPacketParameters, 0.77, 0, 1.1 );
   const offPacketSample = evaluateAnalyticalLayeredSample( offPacketParameters, 0.5, 1.6, 1.1 );
 
   assert.strictEqual( onPacketSample.kind, 'field', 'on-packet ripple sample is field' );
