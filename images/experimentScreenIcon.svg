@@ -20,14 +20,12 @@
 
       .cls-5 {
         fill: red;
-      }
-
-      .cls-5, .cls-6 {
         opacity: .4;
       }
 
       .cls-6 {
         fill: url(#linear-gradient);
+        opacity: .7;
       }
 
       .cls-7 {
