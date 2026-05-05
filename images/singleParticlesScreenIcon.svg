@@ -102,11 +102,15 @@
         fill: #d93b32;
       }
 
+      .cls-26 {
+        fill: red;
+      }
+
       .cls-3 {
         stroke-width: 1.39px;
       }
 
-      .cls-26 {
+      .cls-27 {
         clip-path: url(#clippath);
       }
     </style>
@@ -185,8 +189,27 @@
   </defs>
   <g id="Layer_1-2" data-name="Layer 1">
     <g>
-      <g class="cls-26">
+      <g class="cls-27">
         <g>
+          <g>
+            <rect class="cls-26" x="128.05" y="2.8" width="4.8" height="151.14"/>
+            <rect class="cls-26" x="146.54" y="2.8" width="4.8" height="151.14"/>
+            <rect class="cls-26" x="165.03" y="2.8" width="4.8" height="151.14"/>
+            <rect class="cls-26" x="183.52" y="2.8" width="4.8" height="151.14"/>
+            <rect class="cls-26" x="202.01" y="2.8" width="4.8" height="151.14"/>
+            <rect class="cls-26" x="220.5" y="2.8" width="4.8" height="151.14"/>
+            <rect class="cls-26" x="238.99" y="2.8" width="4.8" height="151.14"/>
+            <rect class="cls-26" x="257.48" y="2.8" width="4.8" height="151.14"/>
+          </g>
+          <g>
+            <rect x="137.3" y="2.8" width="4.8" height="151.14"/>
+            <rect x="155.79" y="2.8" width="4.8" height="151.14"/>
+            <rect x="174.28" y="2.8" width="4.8" height="151.14"/>
+            <rect x="192.77" y="2.8" width="4.8" height="151.14"/>
+            <rect x="211.25" y="2.8" width="4.8" height="151.14"/>
+            <rect x="229.74" y="2.8" width="4.8" height="151.14"/>
+            <rect x="248.23" y="2.8" width="4.8" height="151.14"/>
+          </g>
           <rect class="cls-14" x="121.21" y="2.8" width="9.24" height="151.14"/>
           <rect class="cls-12" x="130.45" y="2.8" width="9.24" height="151.14" transform="translate(270.15 156.75) rotate(180)"/>
           <rect class="cls-11" x="139.7" y="2.8" width="9.24" height="151.14"/>
