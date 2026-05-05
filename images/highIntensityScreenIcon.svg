@@ -100,6 +100,10 @@
       }
 
       .cls-25 {
+        fill: red;
+      }
+
+      .cls-26 {
         clip-path: url(#clippath);
       }
     </style>
@@ -164,6 +168,27 @@
   <g id="Layer_1-2" data-name="Layer 1">
     <g>
       <g>
+        <g>
+          <rect class="cls-25" x="116.22" y="20.16" width="4.8" height="71.6"/>
+          <rect class="cls-25" x="134.3" y="20.16" width="4.8" height="71.6"/>
+          <rect class="cls-25" x="152.32" y="20.16" width="4.8" height="71.6"/>
+          <rect class="cls-25" x="170.4" y="20.16" width="4.8" height="71.6"/>
+          <rect class="cls-25" x="188.4" y="20.16" width="4.8" height="71.6"/>
+          <rect class="cls-25" x="206.48" y="20.16" width="4.8" height="71.6"/>
+          <rect class="cls-25" x="224.48" y="20.16" width="4.8" height="71.6"/>
+          <rect class="cls-25" x="242.56" y="20.16" width="4.8" height="71.6"/>
+          <rect class="cls-25" x="260.58" y="20.16" width="4.8" height="71.6"/>
+        </g>
+        <g>
+          <rect x="125.26" y="20.16" width="4.8" height="71.6"/>
+          <rect x="143.34" y="20.16" width="4.8" height="71.6"/>
+          <rect x="161.36" y="20.16" width="4.8" height="71.6"/>
+          <rect x="179.44" y="20.16" width="4.8" height="71.6"/>
+          <rect x="197.44" y="20.16" width="4.8" height="71.6"/>
+          <rect x="215.52" y="20.16" width="4.8" height="71.6"/>
+          <rect x="233.52" y="20.16" width="4.8" height="71.6"/>
+          <rect x="251.6" y="20.16" width="4.8" height="71.6"/>
+        </g>
         <rect class="cls-12" x="181.8" y="20.16" width="9.02" height="71.6"/>
         <rect class="cls-10" x="190.82" y="20.16" width="9.02" height="71.6" transform="translate(390.66 111.92) rotate(180)"/>
         <rect class="cls-9" x="199.84" y="20.16" width="9.02" height="71.6"/>
@@ -174,8 +199,6 @@
         <rect class="cls-3" x="244.94" y="20.16" width="9.02" height="71.6" transform="translate(498.9 111.92) rotate(180)"/>
         <rect class="cls-7" x="253.96" y="20.16" width="9.02" height="71.6"/>
         <rect class="cls-13" x="262.98" y="20.16" width="9.02" height="71.6" transform="translate(534.98 111.92) rotate(180)"/>
-      </g>
-      <g>
         <rect class="cls-14" x="109.64" y="20.16" width="9.02" height="71.6"/>
         <rect class="cls-15" x="118.66" y="20.16" width="9.02" height="71.6" transform="translate(246.34 111.92) rotate(180)"/>
         <rect class="cls-16" x="127.68" y="20.16" width="9.02" height="71.6"/>
@@ -194,7 +217,7 @@
           <path class="cls-20" d="M0,1.01h67.08c5.57,0,10.12,4.55,10.12,10.12v89.97c0,5.57-4.55,10.12-10.12,10.12H0"/>
           <path class="cls-2" d="M0,1.01h67.08c5.57,0,10.12,4.55,10.12,10.12v89.97c0,5.57-4.55,10.12-10.12,10.12H0"/>
         </g>
-        <g class="cls-25">
+        <g class="cls-26">
           <g>
             <circle class="cls-11" cx="-4.35" cy="56.12" r="39.68"/>
             <circle class="cls-19" cx="-4.35" cy="56.12" r="35.15"/>
