@@ -444,32 +444,17 @@ export default abstract class BaseSceneModel extends PhetioObject {
     slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>
   ): void {
 
-    // TODO: https://github.com/phetsims/quantum-wave-interference/issues/86 do we really need an isSyncing guard? If so, document why
-    let isSyncing = false;
-
     slitConfigurationProperty.link( slitConfiguration => {
-      if ( isSyncing ) {
-        return;
-      }
-
-      isSyncing = true;
       this.barrierTypeProperty.value = slitConfiguration === 'noBarrier' ? 'none' : 'doubleSlit';
-      isSyncing = false;
     } );
 
     this.barrierTypeProperty.link( barrierType => {
-      if ( isSyncing ) {
-        return;
-      }
-
-      isSyncing = true;
       if ( barrierType === 'none' ) {
         slitConfigurationProperty.value = 'noBarrier';
       }
       else if ( slitConfigurationProperty.value === 'noBarrier' ) {
         slitConfigurationProperty.value = 'bothOpen';
       }
-      isSyncing = false;
     } );
   }
 

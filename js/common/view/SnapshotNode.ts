@@ -87,17 +87,18 @@ export type SnapshotNodeOptions = {
 export default class SnapshotNode extends Node {
   public constructor( index: number, options: SnapshotNodeOptions ) {
 
-    const providedSlitSettingDisplayMap = options.slitSettingDisplayMap;
+    const getSlitSettingDisplayProperty = (
+      slitConfiguration: SlitConfigurationWithNoBarrier
+    ): TReadOnlyProperty<string> => options.slitSettingDisplayMap?.[ slitConfiguration ] ||
+                                    DEFAULT_SLIT_SETTING_DISPLAY_MAP[ slitConfiguration ];
     const slitSettingDisplayMap: Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>> = {
-
-      // TODO: https://github.com/phetsims/quantum-wave-interference/issues/86 What's up with this query + fallback?
-      bothOpen: providedSlitSettingDisplayMap?.bothOpen || DEFAULT_SLIT_SETTING_DISPLAY_MAP.bothOpen,
-      leftCovered: providedSlitSettingDisplayMap?.leftCovered || DEFAULT_SLIT_SETTING_DISPLAY_MAP.leftCovered,
-      rightCovered: providedSlitSettingDisplayMap?.rightCovered || DEFAULT_SLIT_SETTING_DISPLAY_MAP.rightCovered,
-      leftDetector: providedSlitSettingDisplayMap?.leftDetector || DEFAULT_SLIT_SETTING_DISPLAY_MAP.leftDetector,
-      rightDetector: providedSlitSettingDisplayMap?.rightDetector || DEFAULT_SLIT_SETTING_DISPLAY_MAP.rightDetector,
-      bothDetectors: providedSlitSettingDisplayMap?.bothDetectors || DEFAULT_SLIT_SETTING_DISPLAY_MAP.bothDetectors,
-      noBarrier: providedSlitSettingDisplayMap?.noBarrier || DEFAULT_SLIT_SETTING_DISPLAY_MAP.noBarrier
+      bothOpen: getSlitSettingDisplayProperty( 'bothOpen' ),
+      leftCovered: getSlitSettingDisplayProperty( 'leftCovered' ),
+      rightCovered: getSlitSettingDisplayProperty( 'rightCovered' ),
+      leftDetector: getSlitSettingDisplayProperty( 'leftDetector' ),
+      rightDetector: getSlitSettingDisplayProperty( 'rightDetector' ),
+      bothDetectors: getSlitSettingDisplayProperty( 'bothDetectors' ),
+      noBarrier: getSlitSettingDisplayProperty( 'noBarrier' )
     };
 
     const defaultFormatSlitSeparation = ( slitSepMM: number ): string => {

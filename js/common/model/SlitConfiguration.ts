@@ -17,7 +17,8 @@ export const SlitConfigurationValues = [
 
 export type SlitConfiguration = typeof SlitConfigurationValues[number];
 
-// TODO: Do we really need this to be separate? Why not just have one enumeration? See https://github.com/phetsims/quantum-wave-interference/issues/86
+// The Experiment screen uses SlitConfiguration because it always has a barrier. High Intensity,
+// Single Particles, and snapshots also support a no-barrier state.
 export const SlitConfigurationWithNoBarrierValues = [
   ...SlitConfigurationValues,
   'noBarrier'

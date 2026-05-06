@@ -58,7 +58,8 @@ const createSlitConfigurationControlsRow = <T extends string>(
     createSlitSeparationNumberControl( scene, tandem )
   );
 
-  // TODO: Document this, what is it? See https://github.com/phetsims/quantum-wave-interference/issues/86
+  // Owns one scene-specific slit separation control per scene. linkSceneVisibility keeps only the
+  // active scene's control visible, while this container is hidden entirely when there is no barrier.
   const slitSeparationContainer = new Node( {
     children: slitSeparationNodes,
     excludeInvisibleChildrenFromBounds: false

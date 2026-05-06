@@ -35,11 +35,11 @@ import TimePlotNode from '../../common/view/TimePlotNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
-import SingleParticlesSceneModel, { type SingleParticlesSlitConfiguration } from '../model/SingleParticlesSceneModel.js';
+import SingleParticlesSceneModel from '../model/SingleParticlesSceneModel.js';
 import DetectorToolNode from './DetectorToolNode.js';
 import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
-import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
+import { hasDetectorOnSide, type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -207,7 +207,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     updateParticleMassAnnotationPosition();
     this.addChild( particleMassAnnotation );
 
-    const slitConfigItems: ComboBoxItem<SingleParticlesSlitConfiguration>[] = [
+    const slitConfigItems: ComboBoxItem<SlitConfigurationWithNoBarrier>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
       { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topClosedItem', separatorBefore: true },
       { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomClosedItem' },

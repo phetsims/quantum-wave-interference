@@ -26,10 +26,6 @@ import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
 
-// TODO: These renames look extraneous, see https://github.com/phetsims/quantum-wave-interference/issues/86
-export const SingleParticlesSlitConfigurationValues = SlitConfigurationWithNoBarrierValues;
-export type SingleParticlesSlitConfiguration = SlitConfigurationWithNoBarrier;
-
 export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as const;
 export type DetectorToolState = typeof DetectorToolStateValues[number];
 
@@ -44,7 +40,7 @@ export type SingleParticlesSceneModelOptions = BaseSceneModelOptions;
 export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public readonly autoRepeatProperty: BooleanProperty;
-  public readonly slitConfigurationProperty: StringUnionProperty<SingleParticlesSlitConfiguration>;
+  public readonly slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>;
 
   // Single particles have no intensity slider, but use a display-only gain so the post-slit packet
   // remains visible in the wave region. This does not affect detector probabilities or hit sampling.
@@ -93,8 +89,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       tandem: tandem.createTandem( 'autoRepeatProperty' )
     } );
 
-    this.slitConfigurationProperty = new StringUnionProperty<SingleParticlesSlitConfiguration>( 'bothOpen', {
-      validValues: SingleParticlesSlitConfigurationValues,
+    this.slitConfigurationProperty = new StringUnionProperty<SlitConfigurationWithNoBarrier>( 'bothOpen', {
+      validValues: SlitConfigurationWithNoBarrierValues,
       tandem: tandem.createTandem( 'slitConfigurationProperty' )
     } );
 

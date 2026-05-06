@@ -15,7 +15,8 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import BaseScreenModel from '../../common/model/BaseScreenModel.js';
-import SingleParticlesSceneModel, { type DetectorToolState, type SingleParticlesSlitConfiguration } from './SingleParticlesSceneModel.js';
+import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
+import SingleParticlesSceneModel, { type DetectorToolState } from './SingleParticlesSceneModel.js';
 
 const FAST_TIME_SPEED_FACTOR = 8;
 
@@ -26,7 +27,7 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
   public readonly photonsScene: SingleParticlesSceneModel;
 
   // DynamicProperties specific to this screen
-  public readonly currentSlitConfigurationProperty: DynamicProperty<SingleParticlesSlitConfiguration, SingleParticlesSlitConfiguration, SingleParticlesSceneModel>;
+  public readonly currentSlitConfigurationProperty: DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, SingleParticlesSceneModel>;
   public readonly currentAutoRepeatProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
   public readonly currentIsPacketActiveProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
   public readonly currentDetectorToolPositionProperty: DynamicProperty<Vector2, Vector2, SingleParticlesSceneModel>;
@@ -59,7 +60,7 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
 
     this.photonsScene = photonsScene;
 
-    this.currentSlitConfigurationProperty = new DynamicProperty<SingleParticlesSlitConfiguration, SingleParticlesSlitConfiguration, SingleParticlesSceneModel>( this.sceneProperty, {
+    this.currentSlitConfigurationProperty = new DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, SingleParticlesSceneModel>( this.sceneProperty, {
       derive: 'slitConfigurationProperty',
       bidirectional: true
     } );
