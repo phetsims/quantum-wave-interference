@@ -7,9 +7,6 @@
  *   making the button pop back out automatically.
  * - When auto-repeat is on, the button stays toggled until the user clicks again.
  *
- * The SVG image is rotated 180° so the cylindrical handle (with red button) is on the left and
- * the nozzle points right toward the wave visualization region, matching the design mockups.
- *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
@@ -27,8 +24,9 @@ type SelfOptions = EmptySelfOptions;
 
 export type SingleParticleEmitterNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
-const EMITTER_HEIGHT = 153;
-const BUTTON_RADIUS = 23;
+const EMITTER_SCALE = 1.24;
+const EMITTER_HEIGHT = 153 * EMITTER_SCALE;
+const BUTTON_RADIUS = 23 * EMITTER_SCALE;
 
 const BUTTON_CENTER_X_FRACTION = 0.32;
 const BUTTON_CENTER_Y_FRACTION = 0.5;
