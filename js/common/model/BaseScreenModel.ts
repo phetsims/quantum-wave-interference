@@ -29,7 +29,6 @@ import type BaseSceneModel from './BaseSceneModel.js';
 const NOMINAL_DT = 1 / 60;
 const SLOW_TIME_SPEED_FACTOR = 0.25;
 const NORMAL_TIME_SPEED_FACTOR = 0.5;
-const FAST_TIME_SPEED_FACTOR = 1.25;
 
 type BaseScreenModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
@@ -67,12 +66,14 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   public readonly stopwatch: Stopwatch;
 
   protected readonly toolsTandem;
+  private readonly fastTimeSpeedFactor: number;
 
-  protected constructor( scenes: T[], providedOptions: BaseScreenModelOptions ) {
+  protected constructor( scenes: T[], fastTimeSpeedFactor: number, providedOptions: BaseScreenModelOptions ) {
 
     const tandem = providedOptions.tandem;
 
     this.scenes = scenes;
+    this.fastTimeSpeedFactor = fastTimeSpeedFactor;
 
     this.sceneProperty = new Property<T>( scenes[ 0 ], {
       validValues: scenes,
@@ -214,7 +215,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
 
     const timeSpeed = this.timeSpeedProperty.value;
     return timeSpeed === TimeSpeed.SLOW ? dt * SLOW_TIME_SPEED_FACTOR :
-           timeSpeed === TimeSpeed.FAST ? dt * FAST_TIME_SPEED_FACTOR :
+           timeSpeed === TimeSpeed.FAST ? dt * this.fastTimeSpeedFactor :
            timeSpeed === TimeSpeed.NORMAL ? dt * NORMAL_TIME_SPEED_FACTOR :
            ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
   }

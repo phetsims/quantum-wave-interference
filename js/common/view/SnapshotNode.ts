@@ -89,6 +89,8 @@ export default class SnapshotNode extends Node {
 
     const providedSlitSettingDisplayMap = options.slitSettingDisplayMap;
     const slitSettingDisplayMap: Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>> = {
+
+      // TODO: https://github.com/phetsims/quantum-wave-interference/issues/86 What's up with this query + fallback?
       bothOpen: providedSlitSettingDisplayMap?.bothOpen || DEFAULT_SLIT_SETTING_DISPLAY_MAP.bothOpen,
       leftCovered: providedSlitSettingDisplayMap?.leftCovered || DEFAULT_SLIT_SETTING_DISPLAY_MAP.leftCovered,
       rightCovered: providedSlitSettingDisplayMap?.rightCovered || DEFAULT_SLIT_SETTING_DISPLAY_MAP.rightCovered,

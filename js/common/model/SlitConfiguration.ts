@@ -17,6 +17,7 @@ export const SlitConfigurationValues = [
 
 export type SlitConfiguration = typeof SlitConfigurationValues[number];
 
+// TODO: Do we really need this to be separate? Why not just have one enumeration? See https://github.com/phetsims/quantum-wave-interference/issues/86
 export const SlitConfigurationWithNoBarrierValues = [
   ...SlitConfigurationValues,
   'noBarrier'

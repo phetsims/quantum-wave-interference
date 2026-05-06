@@ -295,6 +295,11 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.waveSolver.setParameters( {
       wavelength: effectiveWavelength,
       waveSpeed: this.getEffectiveWaveSpeed(),
+
+      // The analytical solvers animate waves in display coordinates. displaySpeedScale maps the
+      // current physical speed to display speed by comparing it to this scene's default speed. For
+      // wave packets, AnalyticalWavePacketSolver applies this scale to
+      // regionWidth / WAVE_PACKET_TRAVERSAL_TIME.
       displaySpeedScale: this.getEffectiveWaveSpeed() / this.defaultWaveSpeed,
       displayWavelengths: displayWavelengths,
       barrierType: this.barrierTypeProperty.value,
@@ -438,6 +443,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
   protected linkSlitConfigurationToBarrierType(
     slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>
   ): void {
+
+    // TODO: https://github.com/phetsims/quantum-wave-interference/issues/86 do we really need an isSyncing guard? If so, document why
     let isSyncing = false;
 
     slitConfigurationProperty.link( slitConfiguration => {

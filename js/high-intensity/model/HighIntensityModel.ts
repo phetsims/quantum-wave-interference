@@ -17,6 +17,8 @@ import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import HighIntensitySceneModel from './HighIntensitySceneModel.js';
 
+const FAST_TIME_SPEED_FACTOR = 1.25;
+
 type HighIntensityModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class HighIntensityModel extends BaseScreenModel<HighIntensitySceneModel> {
@@ -40,7 +42,7 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
       new HighIntensitySceneModel( { sourceType: 'heliumAtoms', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'heliumAtomsScene' ) } )
     ];
 
-    super( scenes, providedOptions );
+    super( scenes, FAST_TIME_SPEED_FACTOR, providedOptions );
 
     this.currentSlitConfigurationProperty = new DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, HighIntensitySceneModel>( this.sceneProperty, {
       derive: 'slitConfigurationProperty',

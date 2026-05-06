@@ -58,6 +58,7 @@ const createSlitConfigurationControlsRow = <T extends string>(
     createSlitSeparationNumberControl( scene, tandem )
   );
 
+  // TODO: Document this, what is it? See https://github.com/phetsims/quantum-wave-interference/issues/86
   const slitSeparationContainer = new Node( {
     children: slitSeparationNodes,
     excludeInvisibleChildrenFromBounds: false

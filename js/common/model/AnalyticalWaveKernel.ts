@@ -40,6 +40,7 @@ const INV_SQRT_2 = 1 / Math.sqrt( 2 );
 const PLANE_WAVE_DECOHERENCE_BAND_DURATION = 0.2;
 const PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION = PLANE_WAVE_DECOHERENCE_BAND_DURATION / 2;
 const MEASUREMENT_RIPPLE_WIDTH_FRACTION = 0.2;
+const MEASUREMENT_BITE_INITIAL_SATURATION = Math.exp( 0.5 );
 
 export type FieldComponentSource = 'incident' | 'topSlit' | 'bottomSlit';
 
@@ -69,6 +70,7 @@ export type FieldSample =
 export type FieldLayer = {
   order: number;
   alpha: number;
+  renderStyle?: 'field' | 'black';
   components: FieldComponent[];
 };
 
@@ -123,10 +125,12 @@ export type MeasurementProjection = {
   centerX: number;
   centerY: number;
   radius: number;
+  edgeFeather?: number;
   measurementTime: number;
   renormScale: number;
   rippleStrength?: number;
   rippleDuration?: number;
+  shrinkDuration?: number;
 };
 
 export type AnalyticalWaveParameters = {
@@ -352,7 +356,17 @@ export const evaluateAnalyticalLayeredSample = (
   }
 
   if ( parameters.source.kind !== 'plane' ) {
-    return applyGaussianPacketMeasurementProjectionLayers( sample, parameters, x, y, t );
+
+    // Packet rendering has two independent measurement effects:
+    // 1. slit-detector records, which collapse the packet to one slit path; and
+    // 2. detector-tool projections, which add the local failed-detection bite/ripple.
+    // The canvas reads LayeredFieldSample for packet ripple rendering, so this path must apply
+    // slit-detector decoherence first. Otherwise, the model-facing FieldSample is collapsed, but the
+    // visible layered packet still renders both slit paths.
+    const decoheredSample = applyDecoherenceEvent( sample, parameters, x, y, t );
+    return decoheredSample.kind === 'field' ?
+           applyGaussianPacketMeasurementProjectionLayers( decoheredSample, parameters, x, y, t ) :
+           decoheredSample;
   }
 
   return applyPlaneWaveDecoherenceEventLayers( sample, parameters, x, y, t );
@@ -437,39 +451,28 @@ const addGaussianPacketMeasurementRippleLayers = (
     return;
   }
 
-  const distance = Math.sqrt( ( x - projection.centerX ) ** 2 + ( y - projection.centerY ) ** 2 );
+  const projectionCenterX = projection.centerX + source.speed * Math.max( 0, dt );
+  const distance = Math.sqrt( ( x - projectionCenterX ) ** 2 + ( y - projection.centerY ) ** 2 );
   const rippleWidth = Math.max(
     projection.radius * MEASUREMENT_RIPPLE_WIDTH_FRACTION,
     source.speed * projection.rippleDuration * MEASUREMENT_RIPPLE_WIDTH_FRACTION
   );
-  const outwardOffset = distance - projection.radius - source.speed * dt;
-  const inwardOffset = projection.radius - distance - source.speed * dt;
+  const rippleStartRadius = projection.radius * 0.35;
+  const rippleOffset = distance - rippleStartRadius - source.speed * dt;
 
   addGaussianPacketMeasurementRippleLayer(
     layers,
     projection,
     source,
     distance,
-    outwardOffset,
+    rippleOffset,
     rippleWidth,
     dt,
     fade,
     projection.rippleStrength,
     packetEnvelope,
-    1
-  );
-  addGaussianPacketMeasurementRippleLayer(
-    layers,
-    projection,
-    source,
-    distance,
-    inwardOffset,
-    rippleWidth,
-    dt,
-    fade,
-    projection.rippleStrength,
-    packetEnvelope,
-    2
+    1,
+    rippleStartRadius
   );
 };
 
@@ -484,7 +487,8 @@ const addGaussianPacketMeasurementRippleLayer = (
   fade: number,
   rippleStrength: number,
   packetEnvelope: number,
-  orderOffset: number
+  orderOffset: number,
+  rippleStartRadius: number
 ): void => {
   const absOffset = Math.abs( offset );
   if ( absOffset >= rippleWidth ) {
@@ -497,11 +501,12 @@ const addGaussianPacketMeasurementRippleLayer = (
     return;
   }
 
-  const phase = source.waveNumber * ( distance - projection.radius ) -
+  const phase = source.waveNumber * ( distance - rippleStartRadius ) -
                 source.waveNumber * source.speed * Math.max( 0, dt );
   layers.push( {
     order: projection.measurementTime + orderOffset * EPSILON,
     alpha: rippleStrength * fade,
+    renderStyle: 'black',
     components: [ {
       source: 'incident',
       coherenceGroup: `measurementRipple${orderOffset}`,
@@ -1088,13 +1093,7 @@ const applyMeasurementProjections = (
       continue;
     }
 
-    const dt = Math.max( 0, t - projection.measurementTime );
-    const projectionCenterX = projection.centerX + source.speed * dt;
-    const spreadTime = Math.max( source.longitudinalSpreadTime, EPSILON );
-    const projectionRadius = projection.radius * Math.sqrt( 1 + ( dt / spreadTime ) ** 2 );
-    const distance = Math.sqrt( ( x - projectionCenterX ) ** 2 + ( y - projection.centerY ) ** 2 );
-    const mask = dt <= EPSILON ? ( distance <= projection.radius ? 0 : 1 ) :
-                 smoothStep( projectionRadius * 0.82, projectionRadius * 1.18, distance );
+    const mask = getMeasurementProjectionMask( projection, source, x, y, t );
     scale *= mask * projection.renormScale;
 
     if ( scale === 0 ) {
@@ -1122,4 +1121,51 @@ const applyMeasurementProjections = (
       return projectedComponent;
     } )
   };
+};
+
+const getMeasurementProjectionMask = (
+  projection: MeasurementProjection,
+  source: GaussianPacketSource,
+  x: number,
+  y: number,
+  t: number
+): number => {
+  const dt = Math.max( 0, t - projection.measurementTime );
+  const projectionCenterX = projection.centerX + source.speed * dt;
+  const spreadTime = Math.max( source.longitudinalSpreadTime, EPSILON );
+  const spreadingProjectionRadius = projection.radius * Math.sqrt( 1 + ( dt / spreadTime ) ** 2 );
+  const projectionRadius = projection.shrinkDuration === undefined ? spreadingProjectionRadius : projection.radius;
+  const distance = Math.sqrt( ( x - projectionCenterX ) ** 2 + ( y - projection.centerY ) ** 2 );
+  const edgeFeather = projection.shrinkDuration === undefined ? 0 : Math.max( projection.edgeFeather ?? 0, 0 );
+
+  if ( projection.shrinkDuration === undefined ) {
+    return dt <= EPSILON ? ( distance <= projection.radius ? 0 : 1 ) :
+           smoothStep( spreadingProjectionRadius * 0.82, spreadingProjectionRadius * 1.18, distance );
+  }
+
+  if ( distance >= projectionRadius ) {
+    return 1;
+  }
+
+  if ( projection.shrinkDuration <= EPSILON ) {
+    return 1;
+  }
+
+  const biteStrength = 1 - smoothStep( 0, projection.shrinkDuration, dt );
+  if ( biteStrength <= EPSILON ) {
+    return 1;
+  }
+
+  const shrinkScale = 0.2 + 0.8 * biteStrength;
+  const sigma = Math.max( projectionRadius * shrinkScale, EPSILON );
+  const saturatedGaussian = MEASUREMENT_BITE_INITIAL_SATURATION * biteStrength *
+                            Math.exp( -0.5 * ( distance / sigma ) ** 2 );
+  const localMask = Math.max( 0, 1 - saturatedGaussian );
+
+  // Keep failed-detection effects local to the detector: the designer-tunable feather is applied
+  // inside the detector boundary only, so samples outside projectionRadius are untouched.
+  const boundaryBlend = edgeFeather > EPSILON ?
+                        smoothStep( Math.max( 0, projectionRadius - edgeFeather ), projectionRadius, distance ) :
+                        0;
+  return localMask + ( 1 - localMask ) * boundaryBlend;
 };

@@ -28,8 +28,14 @@ const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS
 const EPSILON = 1e-12;
 const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
 const UNREACHED_LAYERED_SAMPLE: LayeredFieldSample = { kind: 'unreached' };
-const MEASUREMENT_RIPPLE_STRENGTH = 0.28;
+const MEASUREMENT_RIPPLE_STRENGTH = 0.85;
 const MEASUREMENT_RIPPLE_DURATION = 0.55;
+const MEASUREMENT_BITE_SHRINK_DURATION = 0.75;
+
+// Designer-tunable width of the smooth transition from blanked detector interior to untouched wave,
+// in view pixels. This feather is applied inside the detector edge only, so failed-detection effects
+// remain local and do not attenuate the wave packet outside the detector footprint.
+const MEASUREMENT_BITE_EDGE_FEATHER_PIXELS = 5;
 
 export default class AnalyticalWavePacketSolver implements WaveSolver {
 
@@ -161,10 +167,12 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         centerX: projection.centerX,
         centerY: projection.centerY,
         radius: projection.radius,
+        edgeFeather: projection.edgeFeather,
         measurementTime: projection.measurementTime,
         renormScale: projection.renormScale,
         rippleStrength: projection.rippleStrength,
-        rippleDuration: projection.rippleDuration
+        rippleDuration: projection.rippleDuration,
+        shrinkDuration: projection.shrinkDuration
       } ) )
     };
   }
@@ -179,10 +187,12 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         centerX: projection.centerX ?? projection.worldX0,
         centerY: projection.centerY ?? projection.worldY,
         radius: projection.radius ?? Math.sqrt( 1 / projection.invSigmaSq ),
+        edgeFeather: projection.edgeFeather ?? this.getMeasurementBiteEdgeFeather(),
         measurementTime: projection.measurementTime,
         renormScale: projection.renormScale ?? 1,
         rippleStrength: projection.rippleStrength,
-        rippleDuration: projection.rippleDuration
+        rippleDuration: projection.rippleDuration,
+        shrinkDuration: projection.shrinkDuration ?? MEASUREMENT_BITE_SHRINK_DURATION
       } );
     }
 
@@ -194,48 +204,23 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
   }
 
   public applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void {
-    this.ensureComputed();
-
-    const { gridWidth, gridHeight, amplitudeField } = this;
-    const cxGrid = centerNorm.x * gridWidth;
-    const cyGrid = centerNorm.y * gridHeight;
-    const rGrid = radiusNorm * gridWidth;
-    const rSqGrid = rGrid * rGrid;
-
-    let probInCircle = 0;
-    let totalProb = 0;
-
-    for ( let iy = 0; iy < gridHeight; iy++ ) {
-      const dyCell = iy + 0.5 - cyGrid;
-      for ( let ix = 0; ix < gridWidth; ix++ ) {
-        const dxCell = ix + 0.5 - cxGrid;
-        const idx = ( iy * gridWidth + ix ) * 2;
-        const re = amplitudeField[ idx ];
-        const im = amplitudeField[ idx + 1 ];
-        const prob = re * re + im * im;
-        totalProb += prob;
-        if ( dxCell * dxCell + dyCell * dyCell <= rSqGrid ) {
-          probInCircle += prob;
-        }
-      }
-    }
-
-    const remainingProb = Math.max( 0, totalProb - probInCircle );
-    const renormScale = remainingProb > EPSILON ? Math.sqrt( totalProb / remainingProb ) : 1;
     this.measurementProjections.push( {
       centerX: centerNorm.x * this.regionWidth,
       centerY: ( centerNorm.y - 0.5 ) * this.regionHeight,
       radius: radiusNorm * this.regionWidth,
+      edgeFeather: this.getMeasurementBiteEdgeFeather(),
       measurementTime: this.time,
-      renormScale: renormScale,
+      renormScale: 1,
       rippleStrength: MEASUREMENT_RIPPLE_STRENGTH,
-      rippleDuration: MEASUREMENT_RIPPLE_DURATION
+      rippleDuration: MEASUREMENT_RIPPLE_DURATION,
+      shrinkDuration: MEASUREMENT_BITE_SHRINK_DURATION
     } );
 
     this.dirty = true;
   }
 
   public evaluate( x: number, y: number, t = this.time ): Complex {
+    this.ensureComputed();
     return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
   }
 
@@ -251,6 +236,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     }
 
     const parameters = this.createKernelParameters();
+    this.updateMeasurementProjectionRenormScales();
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
       const x = this.getGridCellX( ix );
@@ -321,6 +307,55 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     return parameters;
   }
 
+  private updateMeasurementProjectionRenormScales( t = this.time ): void {
+    if ( this.measurementProjections.length === 0 || !this.isSourceOn ) {
+      return;
+    }
+
+    for ( let i = 0; i < this.measurementProjections.length; i++ ) {
+      this.measurementProjections[ i ].renormScale = 1;
+    }
+
+    let lastActiveProjection: MeasurementProjection | null = null;
+    for ( let i = 0; i < this.measurementProjections.length; i++ ) {
+      if ( t + EPSILON >= this.measurementProjections[ i ].measurementTime ) {
+        lastActiveProjection = this.measurementProjections[ i ];
+      }
+    }
+
+    if ( !lastActiveProjection ) {
+      return;
+    }
+
+    const unprojectedParameters = this.createKernelParametersWithProjections( [] );
+    const projectedParameters = this.createKernelParametersWithProjections( this.measurementProjections );
+    let unprojectedTotal = 0;
+    let projectedTotal = 0;
+
+    for ( let ix = 0; ix < this.gridWidth; ix++ ) {
+      const x = this.getGridCellX( ix );
+      for ( let iy = 0; iy < this.gridHeight; iy++ ) {
+        const y = this.getGridCellY( iy );
+        unprojectedTotal += computeSampleIntensity( evaluateAnalyticalSample( unprojectedParameters, x, y, t ) );
+        projectedTotal += computeSampleIntensity( evaluateAnalyticalSample( projectedParameters, x, y, t ) );
+      }
+    }
+
+    lastActiveProjection.renormScale = projectedTotal > EPSILON && unprojectedTotal > EPSILON ?
+                                       Math.sqrt( unprojectedTotal / projectedTotal ) :
+                                       1;
+  }
+
+  private createKernelParametersWithProjections( projections: MeasurementProjection[] ): AnalyticalWaveParameters {
+    const parameters = this.createKernelParameters();
+    parameters.projections = projections;
+    return parameters;
+  }
+
+  private getMeasurementBiteEdgeFeather(): number {
+    return MEASUREMENT_BITE_EDGE_FEATHER_PIXELS / QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH * this.regionWidth;
+  }
+
   private createKernelBarrier(): AnalyticalBarrier {
     if ( this.barrierType !== 'doubleSlit' ) {
       return { kind: 'none' };
@@ -353,10 +388,14 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     return 2 * Math.PI * this.displayWavelengths / this.regionWidth;
   }
 
+  // Actual packet speed in display-model coordinates. WAVE_PACKET_TRAVERSAL_TIME sets the baseline
+  // default-speed crossing time; displaySpeedScale makes non-default particle velocities cross faster
+  // or slower while preserving that baseline timing at displaySpeedScale = 1.
   private getDisplaySpeed(): number {
     return ( this.regionWidth / QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
   }
 
+  // Display time required for the packet center to cross the region at the current scaled display speed.
   private getEffectiveTraversalTime(): number {
     return QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME / Math.max( this.displaySpeedScale, EPSILON );
   }

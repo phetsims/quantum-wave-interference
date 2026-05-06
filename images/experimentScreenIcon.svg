@@ -20,14 +20,12 @@
 
       .cls-5 {
         fill: red;
-      }
-
-      .cls-5, .cls-6 {
-        opacity: .4;
+        opacity: .5;
       }
 
       .cls-6 {
         fill: url(#linear-gradient);
+        opacity: .8;
       }
 
       .cls-7 {
@@ -40,7 +38,7 @@
         stroke-width: 1.17px;
       }
     </style>
-    <linearGradient id="linear-gradient" x1="208.78" y1="42.37" x2="272" y2="42.37" gradientUnits="userSpaceOnUse">
+    <linearGradient id="linear-gradient" x1="199.78" y1="42.37" x2="272" y2="42.37" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="red" stop-opacity=".3"/>
       <stop offset="1" stop-color="red" stop-opacity=".1"/>
     </linearGradient>
@@ -70,15 +68,15 @@
   </defs>
   <g id="Layer_1-2" data-name="Layer 1">
     <g>
-      <polygon class="cls-6" points="208.78 20.57 272 10.1 272 74.64 208.78 64.44 208.78 20.57"/>
+      <polygon class="cls-6" points="199.78 20.57 272 10.1 272 74.64 199.78 64.44 199.78 20.57"/>
       <g>
-        <path d="M232.35,82.94l-52.74-13.22c-2.11-.53-3.83-3-3.83-5.51V3.7c0-2.52,1.71-4.13,3.83-3.59l52.74,13.22c2.11.53,3.83,3,3.83,5.51v60.51c0,2.52-1.71,4.13-3.83,3.59Z"/>
+        <path d="M223.35,82.94l-52.74-13.22c-2.11-.53-3.83-3-3.83-5.51V3.7c0-2.52,1.71-4.13,3.83-3.59l52.74,13.22c2.11.53,3.83,3,3.83,5.51v60.51c0,2.52-1.71,4.13-3.83,3.59Z"/>
         <g>
-          <polygon class="cls-7" points="203.19 59.31 201.33 58.84 201.33 21.86 203.19 22.33 203.19 59.31"/>
-          <polygon class="cls-7" points="210.64 61.18 208.78 60.71 208.78 23.73 210.64 24.2 210.64 61.18"/>
+          <polygon class="cls-7" points="194.19 59.31 192.33 58.84 192.33 21.86 194.19 22.33 194.19 59.31"/>
+          <polygon class="cls-7" points="201.64 61.18 199.78 60.71 199.78 23.73 201.64 24.2 201.64 61.18"/>
         </g>
       </g>
-      <path class="cls-5" d="M207.14,19.86h-91.38v43.33h91.38c6.19,0,8.56-9.7,8.56-21.67s-2.36-21.67-8.56-21.67Z"/>
+      <path class="cls-5" d="M198.14,19.86h-82.38v43.33h82.38c6.19,0,8.56-9.7,8.56-21.67s-2.36-21.67-8.56-21.67Z"/>
       <g>
         <g>
           <rect class="cls-3" x="94.51" y="15.88" width="26.4" height="51.28" rx="5.84" ry="5.84"/>
