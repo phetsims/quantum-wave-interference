@@ -13,6 +13,7 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from '../../common/view/ScreenBrightnessUtils.js';
+import { getApparentAnalyticalDetectorIntensity } from '../../common/view/AnalyticalDetectorPattern.js';
 
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
@@ -265,10 +266,26 @@ const paintIntensity = (
 
   const rgb = getSceneRGB( sceneModel.sourceType, sceneModel.wavelengthProperty.value );
 
+  // The texture spans the full detector width, which is twice the model's fullScreenHalfWidth.
+  const sampleWidthOnScreen = 2 * sceneModel.fullScreenHalfWidth / cache.textureWidth;
+  const effectiveWavelength = sceneModel.getEffectiveWavelength();
+  const screenDistance = sceneModel.screenDistanceProperty.value;
+  const slitWidth = sceneModel.slitWidth * 1e-3;
+  const slitSeparation = sceneModel.slitSeparationProperty.value * 1e-3;
+  const slitSetting = sceneModel.slitSettingProperty.value;
+
   for ( let x = 0; x < cache.textureWidth; x++ ) {
     const fraction = ( x + 0.5 ) / cache.textureWidth;
     const physicalX = ( fraction - 0.5 ) * 2 * sceneModel.fullScreenHalfWidth;
-    const intensity = sceneModel.getIntensityAtPosition( physicalX );
+    const intensity = getApparentAnalyticalDetectorIntensity( {
+      positionOnScreen: physicalX,
+      sampleWidthOnScreen: sampleWidthOnScreen,
+      effectiveWavelength: effectiveWavelength,
+      screenDistance: screenDistance,
+      slitWidth: slitWidth,
+      slitSeparation: slitSeparation,
+      slitSetting: slitSetting
+    } );
     const fillStyle = getScaledRGBFillStyle( rgb, intensity * displayGain );
 
     // Skip bands below perceptual visibility to avoid painting nearly-black pixels

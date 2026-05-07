@@ -26,6 +26,7 @@ import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import GetSetButtonsIO from '../../../../tandem/js/types/GetSetButtonsIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
+import { getExactAnalyticalDetectorIntensity } from '../../common/model/AnalyticalDetectorPattern.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
@@ -38,9 +39,6 @@ const MAX_EMISSION_RATE = 100;
 
 // Maximum iterations for rejection sampling to prevent infinite loops
 const MAX_REJECTION_ITERATIONS = 1000;
-
-// With one slit covered, only half the beam contributes, so the peak intensity is reduced.
-const SINGLE_OPEN_SLIT_INTENSITY_SCALE = 0.5;
 
 // Vertical extent of the hit distribution on the detector screen, as a fraction of the full height.
 const HIT_VERTICAL_EXTENT = 1;
@@ -372,53 +370,16 @@ export default class SceneModel extends PhetioObject {
    */
   public getIntensityAtPosition( positionOnScreen: number ): number {
     const lambda = this.getEffectiveWavelength();
-    if ( lambda === 0 ) {
-      return 0;
-    }
 
-    const slitSeparationMeters = this.slitSeparationProperty.value * 1e-3;
-    const slitWidthMeters = this.slitWidth * 1e-3;
-    const screenDistanceMeters = this.screenDistanceProperty.value;
-
-    const sinTheta = positionOnScreen / Math.sqrt( positionOnScreen * positionOnScreen + screenDistanceMeters * screenDistanceMeters );
-
-    // Single-slit diffraction envelope: sinc²(π a sinθ / λ)
-    const singleSlitArg = Math.PI * slitWidthMeters * sinTheta / lambda;
-    const singleSlitFactor = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
-
-    const slitSetting = this.slitSettingProperty.value;
-
-    if ( slitSetting === 'leftCovered' || slitSetting === 'rightCovered' ) {
-      // When one slit is covered, shift the single-slit pattern center by half the slit separation toward the
-      // uncovered slit while preserving the full detector-screen width.
-      const uncoveredSlitOffsetMeters = slitSetting === 'leftCovered' ? slitSeparationMeters / 2 :
-                                        -slitSeparationMeters / 2;
-      const shiftedPositionOnScreen = positionOnScreen - uncoveredSlitOffsetMeters;
-      const shiftedSinTheta = shiftedPositionOnScreen /
-                              Math.sqrt( shiftedPositionOnScreen * shiftedPositionOnScreen + screenDistanceMeters * screenDistanceMeters );
-      const shiftedSingleSlitArg = Math.PI * slitWidthMeters * shiftedSinTheta / lambda;
-
-      // Single slit: only the diffraction envelope, centered on the uncovered slit.
-      // Closing one slit halves the total transmitted intensity, so scale the envelope accordingly.
-      return SINGLE_OPEN_SLIT_INTENSITY_SCALE * (
-        shiftedSingleSlitArg === 0 ? 1 :
-        Math.pow( Math.sin( shiftedSingleSlitArg ) / shiftedSingleSlitArg, 2 )
-      );
-    }
-
-    if ( hasAnyDetector( slitSetting ) ) {
-
-      // Which-path detection destroys interference: sum of two single-slit patterns (no cross-term),
-      // result is essentially a broad single-slit-like pattern
-      return singleSlitFactor;
-    }
-
-    // Both open: double-slit interference modulated by single-slit envelope
-    // I = cos²(π d sinθ / λ) * sinc²(π a sinθ / λ)
-    const doubleSlitArg = Math.PI * slitSeparationMeters * sinTheta / lambda;
-    const doubleSlitFactor = Math.pow( Math.cos( doubleSlitArg ), 2 );
-
-    return doubleSlitFactor * singleSlitFactor;
+    // Convert mm-scale slit geometry to meters before evaluating the shared Fraunhofer detector formula.
+    return getExactAnalyticalDetectorIntensity( {
+      positionOnScreen: positionOnScreen,
+      effectiveWavelength: lambda,
+      screenDistance: this.screenDistanceProperty.value,
+      slitWidth: this.slitWidth * 1e-3,
+      slitSeparation: this.slitSeparationProperty.value * 1e-3,
+      slitSetting: this.slitSettingProperty.value
+    } );
   }
 
   /**

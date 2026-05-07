@@ -28,11 +28,12 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import { type SourceType } from '../model/SourceType.js';
-import { hasAnyDetector, type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
+import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import Snapshot from '../model/Snapshot.js';
+import { getApparentAnalyticalDetectorIntensity } from './AnalyticalDetectorPattern.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle } from './ScreenBrightnessUtils.js';
 
 const SNAPSHOT_WIDTH = 360;
@@ -622,11 +623,13 @@ class SnapshotCanvasNode extends CanvasNode {
 
     const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
     const screenHalfWidth = snapshot.screenHalfWidth;
+
+    // The analytical snapshot texture spans the full detector width, which is twice the captured screenHalfWidth.
+    const sampleWidthOnScreen = 2 * screenHalfWidth / ANALYTICAL_TEXTURE_WIDTH;
     const slitWidthMeters = snapshot.slitWidth * 1e-3;
     const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
     const screenDistanceMeters = snapshot.screenDistance;
     const slitSetting = snapshot.slitSetting;
-    const isSingleSlit = slitSetting === 'leftCovered' || slitSetting === 'rightCovered' || hasAnyDetector( slitSetting );
     const backgroundRGB = { r: 0, g: 0, b: 0 };
 
     const sourceRGB = snapshot.sourceType === 'photons'
@@ -639,14 +642,15 @@ class SnapshotCanvasNode extends CanvasNode {
     for ( let x = 0; x < ANALYTICAL_TEXTURE_WIDTH; x++ ) {
       const fraction = ( x + 0.5 ) / ANALYTICAL_TEXTURE_WIDTH;
       const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
-      const sinTheta = physicalX / Math.sqrt( physicalX * physicalX + screenDistanceMeters * screenDistanceMeters );
-
-      const singleSlitArg = Math.PI * slitWidthMeters * sinTheta / lambda;
-      const singleSlitFactor = singleSlitArg === 0 ? 1 : Math.pow( Math.sin( singleSlitArg ) / singleSlitArg, 2 );
-
-      const intensity = isSingleSlit
-                        ? singleSlitFactor
-                        : Math.pow( Math.cos( Math.PI * slitSeparationMeters * sinTheta / lambda ), 2 ) * singleSlitFactor;
+      const intensity = getApparentAnalyticalDetectorIntensity( {
+        positionOnScreen: physicalX,
+        sampleWidthOnScreen: sampleWidthOnScreen,
+        effectiveWavelength: lambda,
+        screenDistance: screenDistanceMeters,
+        slitWidth: slitWidthMeters,
+        slitSeparation: slitSeparationMeters,
+        slitSetting: slitSetting
+      } );
 
       const intensityScale = intensity * displayGain;
       const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, sourceRGB, intensityScale );
