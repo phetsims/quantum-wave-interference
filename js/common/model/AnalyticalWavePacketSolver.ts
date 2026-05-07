@@ -37,6 +37,15 @@ const MEASUREMENT_BITE_SHRINK_DURATION = 0.75;
 // remain local and do not attenuate the wave packet outside the detector footprint.
 const MEASUREMENT_BITE_EDGE_FEATHER_PIXELS = 5;
 
+const copyPacketReEmission = ( reEmission: GaussianPacketReEmission ): GaussianPacketReEmission => ( {
+  selectedSlit: reEmission.selectedSlit,
+  eventTime: reEmission.eventTime,
+  timeAdvance: reEmission.timeAdvance,
+  sourceX: reEmission.sourceX,
+  centerY: reEmission.centerY,
+  width: reEmission.width
+} );
+
 export default class AnalyticalWavePacketSolver implements WaveSolver {
 
   public readonly gridWidth: number;
@@ -108,7 +117,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.setIfDefined( params.decoherenceEvents, value => { this.decoherenceEvents = value.slice(); } );
     this.setIfDefined( params.packetReEmission, value => {
       const previousEventTime = this.packetReEmission?.eventTime;
-      this.packetReEmission = value ? { ...value } : null;
+      this.packetReEmission = value ? copyPacketReEmission( value ) : null;
       if ( value && previousEventTime !== value.eventTime ) {
         this.measurementProjections.length = 0;
       }
@@ -183,7 +192,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         rippleDuration: projection.rippleDuration,
         shrinkDuration: projection.shrinkDuration
       } ) ),
-      packetReEmission: this.packetReEmission ? { ...this.packetReEmission } : null
+      packetReEmission: this.packetReEmission ? copyPacketReEmission( this.packetReEmission ) : null
     };
   }
 
@@ -206,7 +215,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       } );
     }
 
-    this.packetReEmission = state.packetReEmission ? { ...state.packetReEmission } : null;
+    this.packetReEmission = state.packetReEmission ? copyPacketReEmission( state.packetReEmission ) : null;
     this.dirty = true;
   }
 

@@ -856,8 +856,16 @@ const evaluateGaussianPacketReEmissionSample = (
 
   const localTime = t - reEmission.eventTime + Math.max( 0, reEmission.timeAdvance ?? 0 );
   const localSource: GaussianPacketSource = {
-    ...source,
-    centerY: reEmission.centerY
+    kind: source.kind,
+    isActive: source.isActive,
+    waveNumber: source.waveNumber,
+    speed: source.speed,
+    initialCenterX: source.initialCenterX,
+    centerY: reEmission.centerY,
+    sigmaX0: source.sigmaX0,
+    sigmaY0: source.sigmaY0,
+    longitudinalSpreadTime: source.longitudinalSpreadTime,
+    transverseSpreadTime: source.transverseSpreadTime
   };
   const slit: AnalyticalSlit = {
     source: reEmission.selectedSlit,
