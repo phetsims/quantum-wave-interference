@@ -48,6 +48,11 @@ export default class QuantumWaveInterferenceConstants {
   // The packet starts this many sigma_x widths to the left of the visible region so it enters smoothly.
   public static readonly WAVE_PACKET_START_OFFSET_SIGMAS = 3;
 
+  // Slit-detector re-emission starts with this many sigma_x of packet history already elapsed. This
+  // keeps the source-side packet reset, while avoiding a long wait before the new packet is visible
+  // at the detected aperture in slow motion.
+  public static readonly WAVE_PACKET_RE_EMISSION_TIME_ADVANCE_SIGMAS = 1.5;
+
   // Controls packet spreading in display time. Larger values spread more slowly after emission.
   public static readonly WAVE_PACKET_LONGITUDINAL_SPREAD_TRAVERSALS = 2.5;
   public static readonly WAVE_PACKET_TRANSVERSE_SPREAD_TRAVERSALS = 1.5;

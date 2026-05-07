@@ -14,7 +14,7 @@ import type Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, type LayeredFieldSample, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, type GaussianPacketReEmission, type LayeredFieldSample, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import { type BarrierType } from './BarrierType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -70,6 +70,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
 
   private readonly measurementProjections: MeasurementProjection[] = [];
   private decoherenceEvents: readonly DecoherenceEvent[] = [];
+  private packetReEmission: GaussianPacketReEmission | null = null;
 
   public constructor( gridWidth = DEFAULT_GRID_WIDTH, gridHeight = DEFAULT_GRID_HEIGHT ) {
     this.gridWidth = gridWidth;
@@ -105,6 +106,13 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.setIfDefined( params.regionWidth, value => { this.regionWidth = value; } );
     this.setIfDefined( params.regionHeight, value => { this.regionHeight = value; } );
     this.setIfDefined( params.decoherenceEvents, value => { this.decoherenceEvents = value.slice(); } );
+    this.setIfDefined( params.packetReEmission, value => {
+      const previousEventTime = this.packetReEmission?.eventTime;
+      this.packetReEmission = value ? { ...value } : null;
+      if ( value && previousEventTime !== value.eventTime ) {
+        this.measurementProjections.length = 0;
+      }
+    } );
     this.dirty = true;
   }
 
@@ -157,6 +165,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.layeredFieldSamples.fill( UNREACHED_LAYERED_SAMPLE );
     this.detectorDistribution.fill( 0 );
     this.measurementProjections.length = 0;
+    this.packetReEmission = null;
     this.dirty = true;
   }
 
@@ -173,7 +182,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         rippleStrength: projection.rippleStrength,
         rippleDuration: projection.rippleDuration,
         shrinkDuration: projection.shrinkDuration
-      } ) )
+      } ) ),
+      packetReEmission: this.packetReEmission ? { ...this.packetReEmission } : null
     };
   }
 
@@ -196,6 +206,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       } );
     }
 
+    this.packetReEmission = state.packetReEmission ? { ...state.packetReEmission } : null;
     this.dirty = true;
   }
 
@@ -297,7 +308,8 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         transverseSpreadTime: QuantumWaveInterferenceConstants.WAVE_PACKET_TRANSVERSE_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime()
       },
       barrier: this.createKernelBarrier(),
-      projections: this.measurementProjections
+      projections: this.measurementProjections,
+      packetReEmission: this.packetReEmission
     };
 
     if ( includeDecoherenceEvents ) {

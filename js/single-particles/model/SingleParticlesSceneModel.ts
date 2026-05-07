@@ -25,6 +25,8 @@ import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HI
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
+import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
+import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
 
 export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as const;
 export type DetectorToolState = typeof DetectorToolStateValues[number];
@@ -73,6 +75,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   private isEndingPacket: boolean;
 
   private hasCreatedPacketDecoherenceEvent: boolean;
+  private packetReEmission: GaussianPacketReEmission | null = null;
 
   public constructor( providedOptions: SingleParticlesSceneModelOptions ) {
 
@@ -182,11 +185,13 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.detectorToolProbabilityProperty.value = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.hasCreatedPacketDecoherenceEvent = false;
+    this.packetReEmission = null;
     super.clearScreen();
   }
 
   protected override clearWaveStateWhenEmitterTurnsOff(): void {
     this.isPacketActiveProperty.value = false;
+    this.packetReEmission = null;
     if ( !this.isEndingPacket ) {
       this.detectorToolStateProperty.value = 'ready';
       this.detectorToolProbabilityProperty.value = 0;
@@ -215,24 +220,39 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.targetDetectionTime = this.sampleDetectionTime();
     this.timeSinceLastEmission = 0;
     this.hasCreatedPacketDecoherenceEvent = false;
+    this.packetReEmission = null;
     this.clearDecoherenceEvents();
     this.waveSolver.reset();
     this.syncSolverParameters();
   }
 
+  protected override syncSolverParameters(): void {
+    super.syncSolverParameters();
+    this.waveSolver.setParameters( {
+      packetReEmission: this.packetReEmission
+    } );
+  }
+
   /**
-   * Detection times follow the packet's horizontal probability density: Gaussian around
-   * the current display traversal time. WAVE_PACKET_TRAVERSAL_TIME is the default-speed baseline,
-   * and this method scales it by defaultWaveSpeed / effectiveWaveSpeed so faster particles reach the
-   * detector screen sooner. Width matches the packet's spatial spread. Truncated at +/- 3 sigma to
-   * avoid non-physical negative times.
+   * Detection times follow the packet's horizontal probability density from the active packet source
+   * to the detector screen. The packet starts at the standard negative sigma offset, so slit
+   * re-emission gets the same envelope/timing as ordinary source emission with a shifted origin.
+   * Width matches the packet's spatial spread. Truncated at +/- 3 sigma to avoid non-physical times.
    */
   private sampleDetectionTime(): number {
-    const effectiveTraversalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME *
-                                   ( 1 + QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS *
-                                         QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION ) *
-                                   this.defaultWaveSpeed / this.getEffectiveWaveSpeed();
-    const sigma = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * effectiveTraversalTime;
+    return this.sampleDetectionDelayFromSourceX( 0 );
+  }
+
+  private sampleDetectionDelayFromSourceX( sourceX: number ): number {
+    const propagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
+    if ( propagationSpeed <= 0 ) {
+      return QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
+    }
+
+    const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
+    const initialCenterX = -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
+    const effectiveTraversalTime = ( this.regionWidth - sourceX - initialCenterX ) / propagationSpeed;
+    const sigma = sigmaX0 / propagationSpeed;
     const maxDeviation = 3 * sigma;
     let deviation: number;
     do {
@@ -300,9 +320,59 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     const event = this.createDecoherenceEventForSlitConfiguration( slitConfig, slitArrivalTime );
     if ( event ) {
-      this.addDecoherenceEvent( event );
+      if ( event.clickedDetectorSlit ) {
+        this.startPacketReEmission( event.clickedDetectorSlit, slitArrivalTime );
+      }
+      else {
+        this.addDecoherenceEvent( event );
+      }
     }
     this.hasCreatedPacketDecoherenceEvent = true;
+  }
+
+  private startPacketReEmission( selectedSlit: 'topSlit' | 'bottomSlit', eventTime: number ): void {
+    if ( selectedSlit === 'topSlit' ) {
+      this.leftDetectorHitsProperty.value++;
+    }
+    else {
+      this.rightDetectorHitsProperty.value++;
+    }
+
+    this.clearDecoherenceEvents();
+    const packetReEmission = this.createPacketReEmission( selectedSlit, eventTime );
+    this.packetReEmission = packetReEmission;
+    this.targetDetectionTime = eventTime + Math.max(
+      0,
+      this.sampleDetectionDelayFromSourceX( packetReEmission.sourceX ) - ( packetReEmission.timeAdvance ?? 0 )
+    );
+    this.syncSolverParameters();
+  }
+
+  private createPacketReEmission( selectedSlit: 'topSlit' | 'bottomSlit', eventTime: number ): GaussianPacketReEmission {
+    const { viewSlitSep, viewSlitWidth } = getViewSlitLayout(
+      this.slitSeparationProperty.value * 1e-3,
+      this.slitSeparationRange.min * 1e-3,
+      this.slitSeparationRange.max * 1e-3,
+      this.regionHeight
+    );
+
+    return {
+      selectedSlit: selectedSlit,
+      eventTime: eventTime,
+      timeAdvance: this.getPacketReEmissionTimeAdvance(),
+      sourceX: this.slitPositionFractionProperty.value * this.regionWidth,
+      centerY: selectedSlit === 'topSlit' ? -viewSlitSep / 2 : viewSlitSep / 2,
+      width: viewSlitWidth
+    };
+  }
+
+  private getPacketReEmissionTimeAdvance(): number {
+    const propagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
+    return propagationSpeed > 0 ?
+           QuantumWaveInterferenceConstants.WAVE_PACKET_RE_EMISSION_TIME_ADVANCE_SIGMAS *
+           QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth /
+           propagationSpeed :
+           0;
   }
 
   private detectPacket(): void {
@@ -403,6 +473,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.detectorToolProbabilityProperty.reset();
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.hasCreatedPacketDecoherenceEvent = false;
+    this.packetReEmission = null;
     this.syncSolverParameters();
   }
 }

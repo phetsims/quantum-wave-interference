@@ -52,6 +52,15 @@ export type DecoherenceEvent = {
   clickedDetectorSlit?: DecoherenceSlit;
 };
 
+export type GaussianPacketReEmission = {
+  selectedSlit: DecoherenceSlit;
+  eventTime: number;
+  timeAdvance?: number;
+  sourceX: number;
+  centerY: number;
+  width: number;
+};
+
 export type FieldComponent = {
   source: FieldComponentSource;
   coherenceGroup: string;
@@ -138,6 +147,7 @@ export type AnalyticalWaveParameters = {
   barrier: AnalyticalBarrier;
   projections?: MeasurementProjection[];
   decoherenceEvents?: readonly DecoherenceEvent[];
+  packetReEmission?: GaussianPacketReEmission | null;
 };
 
 type GaussianPacketState = {
@@ -541,6 +551,10 @@ const evaluateUndecoheredAnalyticalSample = (
 ): FieldSample => {
   const { source, barrier } = parameters;
 
+  if ( parameters.packetReEmission && source.kind === 'gaussianPacket' ) {
+    return evaluateGaussianPacketReEmissionSample( source, parameters.packetReEmission, x, y, t );
+  }
+
   if ( barrier.kind === 'none' ) {
     const component = evaluateSourceComponent( source, 'incident', 'incident', x, y, x, t );
     return component ? { kind: 'field', components: [ component ] } : { kind: 'unreached' };
@@ -827,6 +841,71 @@ const applyDecoherenceEvent = (
     kind: 'field',
     components: components
   };
+};
+
+const evaluateGaussianPacketReEmissionSample = (
+  source: GaussianPacketSource,
+  reEmission: GaussianPacketReEmission,
+  x: number,
+  y: number,
+  t: number
+): FieldSample => {
+  if ( !source.isActive || t < reEmission.eventTime - EPSILON || x < reEmission.sourceX - EPSILON ) {
+    return { kind: 'unreached' };
+  }
+
+  const localTime = t - reEmission.eventTime + Math.max( 0, reEmission.timeAdvance ?? 0 );
+  const localSource: GaussianPacketSource = {
+    ...source,
+    centerY: reEmission.centerY
+  };
+  const slit: AnalyticalSlit = {
+    source: reEmission.selectedSlit,
+    centerY: reEmission.centerY,
+    width: reEmission.width,
+    isOpen: true,
+    coherenceGroup: reEmission.selectedSlit
+  };
+  const xPastSource = x - reEmission.sourceX;
+
+  if ( xPastSource <= EPSILON ) {
+    if ( Math.abs( y - reEmission.centerY ) > reEmission.width / 2 ) {
+      return { kind: 'unreached' };
+    }
+
+    const component = evaluateSourceComponent(
+      localSource,
+      reEmission.selectedSlit,
+      reEmission.selectedSlit,
+      0,
+      y,
+      0,
+      localTime
+    );
+    return component ? { kind: 'field', components: [ component ] } : { kind: 'unreached' };
+  }
+
+  const closestApertureY = getClosestYOnSlit( y, slit );
+  const dyToAperture = y - closestApertureY;
+  const distanceFromAperture = Math.sqrt( xPastSource * xPastSource + dyToAperture * dyToAperture );
+  const component = evaluateDiffractedComponent(
+    localSource,
+    slit,
+    0,
+    xPastSource,
+    y,
+    distanceFromAperture,
+    closestApertureY,
+    localTime
+  );
+
+  if ( component ) {
+    return { kind: 'field', components: [ component ] };
+  }
+
+  return isPathReachable( localSource, distanceFromAperture, localTime ) ?
+         { kind: 'field', components: [] } :
+         { kind: 'unreached' };
 };
 
 const evaluateDoubleSlitSample = (

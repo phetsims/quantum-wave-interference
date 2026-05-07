@@ -1119,6 +1119,147 @@ QUnit.test( 'packet decoherence records are honored by layered packet rendering'
   }
 } );
 
+QUnit.test( 'packet slit re-emission blanks prior field and emits from selected slit', assert => {
+  const baselineParameters = createGaussianPacketParameters( {
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  const baselineSample = evaluateAnalyticalSample( baselineParameters, 0.5, 0, 1 );
+  assert.strictEqual( baselineSample.kind, 'field', 'ordinary packet behavior is unchanged before slit detection' );
+
+  const topReEmissionParameters = createGaussianPacketParameters( {
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  topReEmissionParameters.packetReEmission = {
+    selectedSlit: 'topSlit',
+    eventTime: 3,
+    timeAdvance: 0.5,
+    sourceX: 1,
+    centerY: -0.25,
+    width: 0.12
+  };
+
+  assert.strictEqual(
+    evaluateAnalyticalSample( topReEmissionParameters, 1.05, -0.25, 2.99 ).kind,
+    'unreached',
+    're-emitted packet is blank before the detector event time'
+  );
+  assert.strictEqual(
+    evaluateAnalyticalSample( topReEmissionParameters, 0.5, -0.25, 3 ).kind,
+    'unreached',
+    'left side of the slit is blank immediately after top-slit detection'
+  );
+  assert.strictEqual(
+    computeSampleIntensity( evaluateAnalyticalSample( topReEmissionParameters, 1, 0.25, 3 ) ),
+    0,
+    'bottom slit is blank immediately after top-slit detection'
+  );
+
+  const topSourceSample = evaluateAnalyticalSample( topReEmissionParameters, 1, -0.25, 3 );
+  const topDownstreamSample = evaluateAnalyticalSample( topReEmissionParameters, 1.2, 0.25, 3.35 );
+  assert.strictEqual( topSourceSample.kind, 'field', 'top slit begins re-emitting immediately' );
+  assert.strictEqual( topDownstreamSample.kind, 'field', 'downstream top-slit re-emission reaches off-axis samples' );
+  if ( topSourceSample.kind === 'field' && topDownstreamSample.kind === 'field' ) {
+    assertComplexApproximately(
+      assert,
+      getRepresentativeComplex( topSourceSample ),
+      getRepresentativeComplex( evaluateAnalyticalSample( createGaussianPacketParameters(), 0, 0, 0.5 ) ),
+      'top slit re-emission uses the configured packet time advance'
+    );
+    assert.ok( computeSampleIntensity( topSourceSample ) > 0, 'top slit re-emission has nonzero source intensity' );
+    assert.ok(
+      topDownstreamSample.components.every( component => component.source === 'topSlit' ),
+      'downstream top-slit re-emission contains only the top slit contribution'
+    );
+  }
+
+  const bottomReEmissionParameters = createGaussianPacketParameters( {
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  bottomReEmissionParameters.packetReEmission = {
+    selectedSlit: 'bottomSlit',
+    eventTime: 3,
+    timeAdvance: 0.5,
+    sourceX: 1,
+    centerY: 0.25,
+    width: 0.12
+  };
+
+  assert.strictEqual(
+    evaluateAnalyticalSample( bottomReEmissionParameters, 0.5, 0.25, 3 ).kind,
+    'unreached',
+    'left side of the slit is blank immediately after bottom-slit detection'
+  );
+  assert.strictEqual(
+    computeSampleIntensity( evaluateAnalyticalSample( bottomReEmissionParameters, 1, -0.25, 3 ) ),
+    0,
+    'top slit is blank immediately after bottom-slit detection'
+  );
+
+  const bottomSourceSample = evaluateAnalyticalSample( bottomReEmissionParameters, 1, 0.25, 3 );
+  const bottomDownstreamSample = evaluateAnalyticalSample( bottomReEmissionParameters, 1.2, -0.25, 3.35 );
+  assert.strictEqual( bottomSourceSample.kind, 'field', 'bottom slit begins re-emitting immediately' );
+  assert.strictEqual( bottomDownstreamSample.kind, 'field', 'downstream bottom-slit re-emission reaches off-axis samples' );
+  if ( bottomSourceSample.kind === 'field' && bottomDownstreamSample.kind === 'field' ) {
+    assert.ok( computeSampleIntensity( bottomSourceSample ) > 0, 'bottom slit re-emission has nonzero source intensity' );
+    assert.ok(
+      bottomDownstreamSample.components.every( component => component.source === 'bottomSlit' ),
+      'downstream bottom-slit re-emission contains only the bottom slit contribution'
+    );
+  }
+
+  const planeControlParameters = createPlaneParameters( {
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  const planeReEmissionParameters = createPlaneParameters( {
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  planeReEmissionParameters.packetReEmission = topReEmissionParameters.packetReEmission;
+  assertComplexApproximately(
+    assert,
+    getRepresentativeComplex( evaluateAnalyticalSample( planeReEmissionParameters, 1.3, 0, 4 ) ),
+    getRepresentativeComplex( evaluateAnalyticalSample( planeControlParameters, 1.3, 0, 4 ) ),
+    'packet re-emission descriptor is ignored by plane-wave sources'
+  );
+} );
+
+QUnit.test( 'wave packet solver serializes active slit re-emission state', assert => {
+  const solver = new AnalyticalWavePacketSolver( 12, 12 );
+  const packetReEmission = {
+    selectedSlit: 'topSlit' as const,
+    eventTime: 0,
+    timeAdvance: 0.25,
+    sourceX: 0.5,
+    centerY: -0.2,
+    width: 0.15
+  };
+  solver.setParameters( {
+    displayWavelengths: 2,
+    displaySpeedScale: 1,
+    regionWidth: 1,
+    regionHeight: 1,
+    isSourceOn: true,
+    barrierType: 'doubleSlit',
+    barrierFractionX: 0.5,
+    packetReEmission: packetReEmission
+  } );
+  solver.step( 0.1 );
+  const state = solver.getState();
+  const beforeClear = solver.evaluate( 0.5, -0.2 ).magnitudeSquared;
+
+  solver.setParameters( {
+    packetReEmission: null
+  } );
+  solver.setState( state );
+
+  assert.deepEqual( state.packetReEmission, packetReEmission, 'state includes slit re-emission descriptor' );
+  assertApproximately(
+    assert,
+    solver.evaluate( 0.5, -0.2 ).magnitudeSquared,
+    beforeClear,
+    'restored state preserves active slit re-emission field'
+  );
+} );
+
 QUnit.test( 'plane-wave decoherence records form selected-slit temporal chains', assert => {
   const topRecordedParameters = createPlaneParameters( {
     speed: 1,

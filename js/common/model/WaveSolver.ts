@@ -13,7 +13,7 @@
 import type Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
-import { type DecoherenceEvent, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
+import { type DecoherenceEvent, type FieldSample, type GaussianPacketReEmission, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type BarrierType } from './BarrierType.js';
 
 export type WaveSolverState = Record<string, IntentionalAny>;
@@ -37,6 +37,7 @@ export type WaveSolverParameters = {
   regionWidth?: number;
   regionHeight?: number;
   decoherenceEvents?: readonly DecoherenceEvent[];
+  packetReEmission?: GaussianPacketReEmission | null;
 };
 
 type WaveSolver = {
