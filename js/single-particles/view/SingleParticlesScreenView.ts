@@ -45,6 +45,14 @@ type SelfOptions = EmptySelfOptions;
 
 type SingleParticlesScreenViewOptions = SelfOptions & ScreenViewOptions;
 
+type SourceControlPanelWithIntensityReferenceScene = {
+  sourceType: SingleParticlesSceneModel[ 'sourceType' ];
+  wavelengthProperty: SingleParticlesSceneModel[ 'wavelengthProperty' ];
+  velocityProperty: SingleParticlesSceneModel[ 'velocityProperty' ];
+  velocityRange: SingleParticlesSceneModel[ 'velocityRange' ];
+  intensityProperty: NumberProperty;
+};
+
 const LABEL_FONT = new PhetFont( 14 );
 const COMBO_BOX_FONT = new PhetFont( 14 );
 
@@ -59,15 +67,6 @@ const CALLOUT_GAP = 55;
 const SCENE_AND_BARRIER_Y_OFFSET = 10;
 const SLIT_CONTROLS_Y_ADJUSTMENT = -24;
 const WAVE_REGION_Y_OFFSET = -30;
-
-type HighIntensityReferenceScene = {
-  sourceType: SingleParticlesSceneModel[ 'sourceType' ];
-  wavelengthProperty: SingleParticlesSceneModel[ 'wavelengthProperty' ];
-  velocityProperty: SingleParticlesSceneModel[ 'velocityProperty' ];
-  velocityRange: SingleParticlesSceneModel[ 'velocityRange' ];
-  intensityProperty: NumberProperty;
-};
-
 
 export default class SingleParticlesScreenView extends ScreenView {
 
@@ -104,22 +103,28 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     // Match the left-column geometry used on High Intensity so the scene buttons, barrier controls,
     // wave region, detector screen, and graph land on the same coordinates.
-    const highIntensityReferenceScenes: HighIntensityReferenceScene[] = model.scenes.map( scene => ( {
+    const highIntensityReferenceSourceControlPanel = new SourceControlPanel(
+      model.sceneProperty,
+      model.scenes,
+      {
+        tandem: Tandem.OPT_OUT
+      }
+    );
+    const sourceControlPanelWithIntensityReferenceScenes: SourceControlPanelWithIntensityReferenceScene[] = model.scenes.map( scene => ( {
       sourceType: scene.sourceType,
       wavelengthProperty: scene.wavelengthProperty,
       velocityProperty: scene.velocityProperty,
       velocityRange: scene.velocityRange,
-      intensityProperty: new NumberProperty( 0.5, {
+      intensityProperty: new NumberProperty( 1, {
         range: new Range( 0, 1 )
       } )
     } ) );
-    const highIntensityReferenceSceneProperty = new Property( highIntensityReferenceScenes[ 0 ] );
-    const highIntensityReferenceSourceControlPanel = new SourceControlPanel(
-      highIntensityReferenceSceneProperty,
-      highIntensityReferenceScenes,
+    const sourceControlPanelWithIntensityReference = new SourceControlPanel(
+      new Property( sourceControlPanelWithIntensityReferenceScenes[ 0 ] ),
+      sourceControlPanelWithIntensityReferenceScenes,
       {
         photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
-        particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
+        particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty,
         tandem: Tandem.OPT_OUT
       }
     );
@@ -149,10 +154,9 @@ export default class SingleParticlesScreenView extends ScreenView {
     const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
     const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const highIntensityLeftColumnWidth = highIntensityReferenceSourceControlPanel.width;
-    const highIntensitySourceControlPanelHeight = highIntensityReferenceSourceControlPanel.height;
     const waveRegionLeft = X_MARGIN + highIntensityLeftColumnWidth + 20;
     const slitControlsTop =
-      baseWaveRegionTop + highIntensitySourceControlPanelHeight + SOURCE_TO_SCENE_CONTROLS_SPACING +
+      baseWaveRegionTop + sourceControlPanelWithIntensityReference.height + SOURCE_TO_SCENE_CONTROLS_SPACING +
       SCENE_AND_BARRIER_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_BARRIER_CONTROLS_SPACING +
       SLIT_CONTROLS_Y_ADJUSTMENT;
 

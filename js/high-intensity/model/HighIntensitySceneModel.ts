@@ -4,8 +4,8 @@
  * HighIntensitySceneModel holds the state for one of the four source-type scenes (Photons, Electrons,
  * Neutrons, Helium atoms) on the High Intensity screen.
  *
- * Extends BaseSceneModel with High Intensity–specific state: detection mode, intensity control,
- * detector hit tracking per slit, continuous hit accumulation, and full slit configuration
+ * Extends BaseSceneModel with High Intensity–specific state: detection mode, detector hit tracking per slit,
+ * continuous hit accumulation, and full slit configuration
  * (including detector variants).
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -13,11 +13,10 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import NumberProperty from '../../../../axon/js/NumberProperty.js';
+import Property from '../../../../axon/js/Property.js';
 import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
-import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.js';
@@ -35,7 +34,6 @@ export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 
 export default class HighIntensitySceneModel extends BaseSceneModel {
 
-  public readonly intensityProperty: NumberProperty;
   public readonly slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>;
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
 
@@ -49,8 +47,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   public readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
   private readonly _isWaveVisibleProperty: BooleanProperty;
 
-  // Scales the wave amplitude for visualization; sqrt(intensity) so that displayed |A|² ∝ intensity
-  public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number>;
+  public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( 1 );
 
   private hitAccumulator: number;
   private nextDecoherenceEventTime: number | null;
@@ -63,13 +60,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
     this.hitAccumulator = 0;
     this.nextDecoherenceEventTime = null;
-
-    this.intensityProperty = new NumberProperty( 1, {
-      range: new Range( 0, 1 ),
-      tandem: tandem.createTandem( 'intensityProperty' )
-    } );
-
-    this.waveAmplitudeScaleProperty = new DerivedProperty( [ this.intensityProperty ], intensity => Math.sqrt( intensity ) );
 
     this.slitConfigurationProperty = new StringUnionProperty<SlitConfigurationWithNoBarrier>( 'bothOpen', {
       validValues: SlitConfigurationWithNoBarrierValues,
@@ -95,9 +85,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.linkSlitConfigurationToBarrierType( this.slitConfigurationProperty );
     this.syncSolverParameters();
     this.setupClearScreenListeners();
-    this.intensityProperty.lazyLink( () => {
-      this.hitAccumulator = 0;
-    } );
     this.slitConfigurationProperty.lazyLink( () => this.clearScreen() );
 
     // Stop the source when the hit cap is reached
@@ -139,7 +126,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   }
 
   public takeHighIntensitySnapshot(): void {
-    this.takeSnapshot( this.detectionModeProperty.value, this.slitConfigurationProperty.value, this.intensityProperty.value );
+    this.takeSnapshot( this.detectionModeProperty.value, this.slitConfigurationProperty.value, 1 );
   }
 
   /**
@@ -251,7 +238,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   }
 
   private getParticleEmissionRate(): number {
-    return MAX_EMISSION_RATE * this.intensityProperty.value;
+    return MAX_EMISSION_RATE;
   }
 
   private getParticleEmissionInterval( particleRate: number ): number {
@@ -260,7 +247,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   public override reset(): void {
     super.reset();
-    this.intensityProperty.reset();
     this.slitConfigurationProperty.reset();
     this.detectionModeProperty.reset();
     this.hitAccumulator = 0;

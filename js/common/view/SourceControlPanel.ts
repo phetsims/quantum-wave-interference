@@ -5,8 +5,8 @@
  * - For photons: a WavelengthNumberControl (and an Intensity slider when the scene supplies `intensityProperty`)
  * - For particles (electrons, neutrons, helium atoms): a Velocity NumberControl (plus Intensity slider when present)
  *
- * The panel swaps its content when the active scene changes. The Single Particles screen omits the intensity
- * slider by using scenes without an `intensityProperty`; the Experiment and High Intensity screens include it.
+ * The panel swaps its content when the active scene changes. Screens omit the intensity slider by using scenes
+ * without an `intensityProperty`.
  *
  * Generic over any scene type that has the required source properties.
  *
@@ -59,8 +59,7 @@ export type SourceControlScene = {
   readonly velocityProperty: NumberProperty;
   readonly velocityRange: Range;
 
-  // Only scenes that drive a continuous beam (Experiment, High Intensity) supply an intensity property.
-  // Single Particles scenes omit it, which in turn hides the intensity slider.
+  // Scenes omit this property when their source intensity is fixed, which hides the intensity slider.
   readonly intensityProperty?: NumberProperty;
 };
 

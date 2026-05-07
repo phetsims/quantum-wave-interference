@@ -234,7 +234,7 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( sourceControlPanel );
 
     const updateSourceControlPanelPosition = () => {
-      sourceControlPanel.top = ExperimentConstants.FRONT_FACING_ROW_TOP - 2;
+      sourceControlPanel.top = QuantumWaveInterferenceConstants.SOURCE_CONTROL_PANEL_TOP;
     };
     model.sceneProperty.link( updateSourceControlPanelPosition );
 

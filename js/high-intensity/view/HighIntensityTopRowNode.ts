@@ -101,7 +101,6 @@ const PARTICLE_EMITTER_PALETTES: Record<Exclude<SourceType, 'photons'>, Particle
 type TopRowSceneLike = {
   sourceType: SourceType;
   wavelengthProperty: TReadOnlyProperty<number>;
-  intensityProperty: TReadOnlyProperty<number>;
   isEmitterEnabledProperty: TReadOnlyProperty<boolean>;
   slitSeparationRange: Range;
 };
@@ -292,9 +291,6 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     const currentWavelengthProperty = new DynamicProperty<number, number, T>( sceneProperty, {
       derive: scene => scene.wavelengthProperty
     } );
-    const currentIntensityProperty = new DynamicProperty<number, number, T>( sceneProperty, {
-      derive: scene => scene.intensityProperty
-    } );
     Multilink.multilink(
       [ sceneProperty, barrierTypeProperty, slitPositionFractionProperty, slitSeparationProperty ],
       ( scene, barrierType, slitPositionFraction, slitSeparation ) => {
@@ -347,9 +343,8 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
       currentIsEmittingProperty,
       sceneProperty,
       currentWavelengthProperty,
-      currentIntensityProperty,
       QuantumWaveInterferenceColors.particleBeamColorProperty
-    ], ( isEmitting, scene, wavelength, intensity, particleBeamColor ) => {
+    ], ( isEmitting, scene, wavelength, particleBeamColor ) => {
       beamContainer.visible = isEmitting;
       if ( !isEmitting ) {
         return;
@@ -358,10 +353,10 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
       const baseColor: Color = scene.sourceType === 'photons'
                                ? VisibleColor.wavelengthToColor( wavelength )
                                : particleBeamColor;
-      emitterBeam.fill = baseColor.withAlpha( HIGH_OPACITY_BEAM_ALPHA_SCALE * intensity );
-      upperRightBeam.fill = baseColor.withAlpha( HIGH_OPACITY_BEAM_ALPHA_SCALE * intensity );
-      lowerRightBeam.fill = baseColor.withAlpha( HIGH_OPACITY_BEAM_ALPHA_SCALE * intensity );
-      dimRightBeam.fill = baseColor.withAlpha( DIM_RIGHT_BEAM_ALPHA_SCALE * intensity );
+      emitterBeam.fill = baseColor.withAlpha( HIGH_OPACITY_BEAM_ALPHA_SCALE );
+      upperRightBeam.fill = baseColor.withAlpha( HIGH_OPACITY_BEAM_ALPHA_SCALE );
+      lowerRightBeam.fill = baseColor.withAlpha( HIGH_OPACITY_BEAM_ALPHA_SCALE );
+      dimRightBeam.fill = baseColor.withAlpha( DIM_RIGHT_BEAM_ALPHA_SCALE );
     } );
 
     linkSceneVisibility( sceneProperty, scenes, emitterChildren );
