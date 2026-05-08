@@ -8,16 +8,12 @@
 
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import NumberProperty from '../../../../axon/js/NumberProperty.js';
-import Property from '../../../../axon/js/Property.js';
-import Range from '../../../../dot/js/Range.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
-import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
 import createSlitConfigurationControlsRow from '../../common/view/createSlitConfigurationControlsRow.js';
@@ -45,14 +41,6 @@ type SelfOptions = EmptySelfOptions;
 
 type SingleParticlesScreenViewOptions = SelfOptions & ScreenViewOptions;
 
-type SourceControlPanelWithIntensityReferenceScene = {
-  sourceType: SingleParticlesSceneModel[ 'sourceType' ];
-  wavelengthProperty: SingleParticlesSceneModel[ 'wavelengthProperty' ];
-  velocityProperty: SingleParticlesSceneModel[ 'velocityProperty' ];
-  velocityRange: SingleParticlesSceneModel[ 'velocityRange' ];
-  intensityProperty: NumberProperty;
-};
-
 const LABEL_FONT = new PhetFont( 14 );
 const COMBO_BOX_FONT = new PhetFont( 14 );
 
@@ -61,11 +49,7 @@ const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const CONTENT_VERTICAL_OFFSET = 12;
 const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
-const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
-const SCENE_TO_BARRIER_CONTROLS_SPACING = 36;
 const CALLOUT_GAP = 55;
-const SCENE_AND_BARRIER_Y_OFFSET = 10;
-const SLIT_CONTROLS_Y_ADJUSTMENT = -24;
 const WAVE_REGION_Y_OFFSET = -30;
 
 export default class SingleParticlesScreenView extends ScreenView {
@@ -101,34 +85,6 @@ export default class SingleParticlesScreenView extends ScreenView {
       additionalContent: autoRepeatCheckbox
     } );
 
-    // Match the left-column geometry used on High Intensity so the scene buttons, barrier controls,
-    // wave region, detector screen, and graph land on the same coordinates.
-    const highIntensityReferenceSourceControlPanel = new SourceControlPanel(
-      model.sceneProperty,
-      model.scenes,
-      {
-        tandem: Tandem.OPT_OUT
-      }
-    );
-    const sourceControlPanelWithIntensityReferenceScenes: SourceControlPanelWithIntensityReferenceScene[] = model.scenes.map( scene => ( {
-      sourceType: scene.sourceType,
-      wavelengthProperty: scene.wavelengthProperty,
-      velocityProperty: scene.velocityProperty,
-      velocityRange: scene.velocityRange,
-      intensityProperty: new NumberProperty( 1, {
-        range: new Range( 0, 1 )
-      } )
-    } ) );
-    const sourceControlPanelWithIntensityReference = new SourceControlPanel(
-      new Property( sourceControlPanelWithIntensityReferenceScenes[ 0 ] ),
-      sourceControlPanelWithIntensityReferenceScenes,
-      {
-        photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
-        particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty,
-        tandem: Tandem.OPT_OUT
-      }
-    );
-
     // Emitter source with SingleParticleEmitter.svg image and red toggle button
     const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SingleParticlesSceneModel>( model.sceneProperty, {
       derive: scene => scene.isEmitterEnabledProperty
@@ -151,22 +107,21 @@ export default class SingleParticlesScreenView extends ScreenView {
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );
     sceneRadioButtonGroup.layoutOptions = { align: 'center' };
 
-    const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
-    const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
-    const highIntensityLeftColumnWidth = highIntensityReferenceSourceControlPanel.width;
-    const waveRegionLeft = X_MARGIN + highIntensityLeftColumnWidth + 20;
-    const slitControlsTop =
-      baseWaveRegionTop + sourceControlPanelWithIntensityReference.height + SOURCE_TO_SCENE_CONTROLS_SPACING +
-      SCENE_AND_BARRIER_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_BARRIER_CONTROLS_SPACING +
-      SLIT_CONTROLS_Y_ADJUSTMENT;
+    const leftColumnWidth = Math.max( sourceControlPanel.width, sceneRadioButtonGroup.width );
+    const leftColumnCenterX = X_MARGIN + leftColumnWidth / 2;
 
-    sourceControlPanel.left = X_MARGIN;
+    sourceControlPanel.centerX = leftColumnCenterX;
     sourceControlPanel.top = Y_MARGIN + 20;
     this.addChild( sourceControlPanel );
 
-    sceneRadioButtonGroup.centerX = sourceControlPanel.centerX;
+    sceneRadioButtonGroup.centerX = leftColumnCenterX;
     sceneRadioButtonGroup.centerY = QuantumWaveInterferenceConstants.SCENE_BUTTON_GROUP_CENTER_Y;
     this.addChild( sceneRadioButtonGroup );
+
+    const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
+    const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
+    const waveRegionLeft = X_MARGIN + leftColumnWidth + 20;
+    const slitControlsBottom = this.layoutBounds.maxY - Y_MARGIN;
 
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
     emitterNode.right = waveRegionLeft + 2;
@@ -227,7 +182,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       model.sceneProperty,
       model.scenes,
       waveRegionLeft,
-      slitControlsTop,
+      slitControlsBottom,
       this,
       tandem
     );

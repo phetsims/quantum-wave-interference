@@ -22,7 +22,6 @@ import createSlitSeparationNumberControl from './createSlitSeparationNumberContr
 import linkSceneVisibility from './linkSceneVisibility.js';
 
 const TITLE_FONT = new PhetFont( 14 );
-const SLIT_SEPARATION_Y_OFFSET = -10;
 
 const createSlitConfigurationControlsRow = <T extends string>(
   slitConfigurationProperty: PhetioProperty<T>,
@@ -30,7 +29,7 @@ const createSlitConfigurationControlsRow = <T extends string>(
   sceneProperty: TReadOnlyProperty<BaseSceneModel>,
   scenes: BaseSceneModel[],
   waveRegionLeft: number,
-  controlsTop: number,
+  controlsBottom: number,
   listParent: Node,
   tandem: Tandem
 ): Node => {
@@ -76,13 +75,13 @@ const createSlitConfigurationControlsRow = <T extends string>(
   } );
 
   slitConfigSection.left = 0;
-  slitConfigSection.top = 0;
+  slitConfigSection.bottom = 0;
 
   slitSeparationContainer.right = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
-  slitSeparationContainer.top = SLIT_SEPARATION_Y_OFFSET;
+  slitSeparationContainer.bottom = 0;
 
   slitControlsNode.left = waveRegionLeft;
-  slitControlsNode.top = controlsTop;
+  slitControlsNode.bottom = controlsBottom;
 
   return slitControlsNode;
 };

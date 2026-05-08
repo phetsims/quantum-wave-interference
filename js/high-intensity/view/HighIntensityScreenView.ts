@@ -13,15 +13,12 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
-import Property from '../../../../axon/js/Property.js';
-import Range from '../../../../dot/js/Range.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
-import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
@@ -50,14 +47,6 @@ type SelfOptions = EmptySelfOptions;
 
 type HighIntensityScreenViewOptions = SelfOptions & ScreenViewOptions;
 
-type SourceControlPanelWithIntensityReferenceScene = {
-  sourceType: HighIntensitySceneModel[ 'sourceType' ];
-  wavelengthProperty: HighIntensitySceneModel[ 'wavelengthProperty' ];
-  velocityProperty: HighIntensitySceneModel[ 'velocityProperty' ];
-  velocityRange: HighIntensitySceneModel[ 'velocityRange' ];
-  intensityProperty: NumberProperty;
-};
-
 const LABEL_FONT = new PhetFont( 14 );
 const COMBO_BOX_FONT = new PhetFont( 14 );
 
@@ -68,10 +57,6 @@ const TOP_ROW_BEAM_RIGHT_PANEL_GAP = 10;
 
 const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
 const TOP_ROW_TO_MASS_LABEL_SPACING = 12;
-const SOURCE_TO_SCENE_CONTROLS_SPACING = 40;
-const SCENE_TO_BARRIER_CONTROLS_SPACING = 36;
-const SCENE_AND_BARRIER_Y_OFFSET = 10;
-const SLIT_CONTROLS_Y_ADJUSTMENT = -24;
 const WAVE_REGION_Y_OFFSET = -30;
 
 // Extra vertical space below the top row to accommodate the zoom-callout lines between the
@@ -99,24 +84,6 @@ export default class HighIntensityScreenView extends ScreenView {
     const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
       tandem: tandem.createTandem( 'sourceControlPanel' )
     } );
-    const sourceControlPanelWithIntensityReferenceScenes: SourceControlPanelWithIntensityReferenceScene[] = model.scenes.map( scene => ( {
-      sourceType: scene.sourceType,
-      wavelengthProperty: scene.wavelengthProperty,
-      velocityProperty: scene.velocityProperty,
-      velocityRange: scene.velocityRange,
-      intensityProperty: new NumberProperty( 1, {
-        range: new Range( 0, 1 )
-      } )
-    } ) );
-    const sourceControlPanelWithIntensityReference = new SourceControlPanel(
-      new Property( sourceControlPanelWithIntensityReferenceScenes[ 0 ] ),
-      sourceControlPanelWithIntensityReferenceScenes,
-      {
-        photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.intensityStringProperty,
-        particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty,
-        tandem: Tandem.OPT_OUT
-      }
-    );
 
     const sceneRadioButtonGroup = new SceneRadioButtonGroup(
       model.sceneProperty,
@@ -130,22 +97,20 @@ export default class HighIntensityScreenView extends ScreenView {
 
     const leftColumnWidth = Math.max( sourceControlPanel.width, sceneRadioButtonGroup.width );
     const leftColumnCenterX = X_MARGIN + leftColumnWidth / 2;
+
+    sourceControlPanel.centerX = leftColumnCenterX;
+    sourceControlPanel.top = QuantumWaveInterferenceConstants.SOURCE_CONTROL_PANEL_TOP;
+    this.addChild( sourceControlPanel );
+
+    sceneRadioButtonGroup.centerX = leftColumnCenterX;
+    sceneRadioButtonGroup.centerY = QuantumWaveInterferenceConstants.SCENE_BUTTON_GROUP_CENTER_Y;
+    this.addChild( sceneRadioButtonGroup );
+
     const waveRegionLeft = X_MARGIN + leftColumnWidth + 20;
     const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
     const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const waveRegionRight = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
-    const slitControlsTop =
-      baseWaveRegionTop + sourceControlPanelWithIntensityReference.height + SOURCE_TO_SCENE_CONTROLS_SPACING +
-      SCENE_AND_BARRIER_Y_OFFSET + sceneRadioButtonGroup.height + SCENE_TO_BARRIER_CONTROLS_SPACING +
-      SLIT_CONTROLS_Y_ADJUSTMENT;
-
-    sourceControlPanel.left = X_MARGIN;
-    sourceControlPanel.top = QuantumWaveInterferenceConstants.SOURCE_CONTROL_PANEL_TOP;
-    this.addChild( sourceControlPanel );
-
-    sceneRadioButtonGroup.centerX = sourceControlPanel.centerX;
-    sceneRadioButtonGroup.centerY = QuantumWaveInterferenceConstants.SCENE_BUTTON_GROUP_CENTER_Y;
-    this.addChild( sceneRadioButtonGroup );
+    const slitControlsBottom = this.layoutBounds.maxY - Y_MARGIN;
 
     const topRowBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - X_MARGIN );
     const topRowNode = new HighIntensityTopRowNode(
@@ -223,7 +188,7 @@ export default class HighIntensityScreenView extends ScreenView {
       model.sceneProperty,
       model.scenes,
       waveRegionLeft,
-      slitControlsTop,
+      slitControlsBottom,
       this,
       tandem
     );
