@@ -28,8 +28,6 @@ const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS
 const EPSILON = 1e-12;
 const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
 const UNREACHED_LAYERED_SAMPLE: LayeredFieldSample = { kind: 'unreached' };
-const MEASUREMENT_RIPPLE_STRENGTH = 0.85;
-const MEASUREMENT_RIPPLE_DURATION = 0.55;
 const MEASUREMENT_BITE_SHRINK_DURATION = 0.75;
 
 // Designer-tunable width of the smooth transition from blanked detector interior to untouched wave,
@@ -188,8 +186,6 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         edgeFeather: projection.edgeFeather,
         measurementTime: projection.measurementTime,
         renormScale: projection.renormScale,
-        rippleStrength: projection.rippleStrength,
-        rippleDuration: projection.rippleDuration,
         shrinkDuration: projection.shrinkDuration
       } ) ),
       packetReEmission: this.packetReEmission ? copyPacketReEmission( this.packetReEmission ) : null
@@ -209,8 +205,6 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
         edgeFeather: projection.edgeFeather ?? this.getMeasurementBiteEdgeFeather(),
         measurementTime: projection.measurementTime,
         renormScale: projection.renormScale ?? 1,
-        rippleStrength: projection.rippleStrength,
-        rippleDuration: projection.rippleDuration,
         shrinkDuration: projection.shrinkDuration ?? MEASUREMENT_BITE_SHRINK_DURATION
       } );
     }
@@ -231,8 +225,6 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
       edgeFeather: this.getMeasurementBiteEdgeFeather(),
       measurementTime: this.time,
       renormScale: 1,
-      rippleStrength: MEASUREMENT_RIPPLE_STRENGTH,
-      rippleDuration: MEASUREMENT_RIPPLE_DURATION,
       shrinkDuration: MEASUREMENT_BITE_SHRINK_DURATION
     } );
 

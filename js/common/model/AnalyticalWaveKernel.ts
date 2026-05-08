@@ -39,7 +39,6 @@ const APERTURE_BLEND_WAVELENGTH_FRACTION = 0.25;
 const INV_SQRT_2 = 1 / Math.sqrt( 2 );
 const PLANE_WAVE_DECOHERENCE_BAND_DURATION = 0.2;
 const PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION = PLANE_WAVE_DECOHERENCE_BAND_DURATION / 2;
-const MEASUREMENT_RIPPLE_WIDTH_FRACTION = 0.2;
 const MEASUREMENT_BITE_INITIAL_SATURATION = Math.exp( 0.5 );
 
 export type FieldComponentSource = 'incident' | 'topSlit' | 'bottomSlit';
@@ -79,7 +78,6 @@ export type FieldSample =
 export type FieldLayer = {
   order: number;
   alpha: number;
-  renderStyle?: 'field' | 'black';
   components: FieldComponent[];
 };
 
@@ -137,8 +135,6 @@ export type MeasurementProjection = {
   edgeFeather?: number;
   measurementTime: number;
   renormScale: number;
-  rippleStrength?: number;
-  rippleDuration?: number;
   shrinkDuration?: number;
 };
 
@@ -350,8 +346,8 @@ export const evaluateAnalyticalSample = (
  * one already-composited FieldSample. This method answers "which independently renderable field bands
  * should be painted here?" and returns a LayeredFieldSample. For plane waves with slit-detector events,
  * that preserves the discrete-particle-chain interpretation so the rasterizer can draw selected-slit
- * bands as transparent layers with z ordering. For packet sources, measurement projections can add
- * transient visual ripple layers while the projected packet remains the model-facing base layer.
+ * bands as transparent layers with z ordering. For packet sources, measurement projections are applied
+ * to the base packet layer so layered rendering matches the model-facing FieldSample.
  */
 export const evaluateAnalyticalLayeredSample = (
   parameters: AnalyticalWaveParameters,
@@ -369,10 +365,8 @@ export const evaluateAnalyticalLayeredSample = (
 
     // Packet rendering has two independent measurement effects:
     // 1. slit-detector records, which collapse the packet to one slit path; and
-    // 2. detector-tool projections, which add the local failed-detection bite/ripple.
-    // The canvas reads LayeredFieldSample for packet ripple rendering, so this path must apply
-    // slit-detector decoherence first. Otherwise, the model-facing FieldSample is collapsed, but the
-    // visible layered packet still renders both slit paths.
+    // 2. detector-tool projections, which apply the local failed-detection bite.
+    // Apply slit-detector decoherence first so the model-facing and layered packet samples agree.
     const decoheredSample = applyDecoherenceEvent( sample, parameters, x, y, t );
     return decoheredSample.kind === 'field' ?
            applyGaussianPacketMeasurementProjectionLayers( decoheredSample, parameters, x, y, t ) :
@@ -412,127 +406,10 @@ const applyGaussianPacketMeasurementProjectionLayers = (
     components: projectedSample.components
   } ];
 
-  const packetEnvelope = getFieldSampleEnvelope( sample );
-  if ( packetEnvelope <= EPSILON ) {
-    return {
-      kind: 'field',
-      layers: layers
-    };
-  }
-
-  const projections = parameters.projections || [];
-  for ( let i = 0; i < projections.length; i++ ) {
-    addGaussianPacketMeasurementRippleLayers( layers, projections[ i ], source, packetEnvelope, x, y, t );
-  }
-
   return {
     kind: 'field',
     layers: layers
   };
-};
-
-const addGaussianPacketMeasurementRippleLayers = (
-  layers: FieldLayer[],
-  projection: MeasurementProjection,
-  source: GaussianPacketSource,
-  packetEnvelope: number,
-  x: number,
-  y: number,
-  t: number
-): void => {
-  if ( projection.rippleStrength === undefined || projection.rippleDuration === undefined ) {
-    return;
-  }
-
-  const dt = t - projection.measurementTime;
-  if (
-    dt < -EPSILON ||
-    dt > projection.rippleDuration + EPSILON ||
-    projection.rippleStrength <= 0 ||
-    projection.rippleDuration <= 0 ||
-    projection.radius <= 0 ||
-    source.speed <= 0
-  ) {
-    return;
-  }
-
-  const fade = 1 - smoothStep( 0, projection.rippleDuration, Math.max( 0, dt ) );
-  if ( fade <= EPSILON ) {
-    return;
-  }
-
-  const projectionCenterX = projection.centerX + source.speed * Math.max( 0, dt );
-  const distance = Math.sqrt( ( x - projectionCenterX ) ** 2 + ( y - projection.centerY ) ** 2 );
-  const rippleWidth = Math.max(
-    projection.radius * MEASUREMENT_RIPPLE_WIDTH_FRACTION,
-    source.speed * projection.rippleDuration * MEASUREMENT_RIPPLE_WIDTH_FRACTION
-  );
-  const rippleStartRadius = projection.radius * 0.35;
-  const rippleOffset = distance - rippleStartRadius - source.speed * dt;
-
-  addGaussianPacketMeasurementRippleLayer(
-    layers,
-    projection,
-    source,
-    distance,
-    rippleOffset,
-    rippleWidth,
-    dt,
-    fade,
-    projection.rippleStrength,
-    packetEnvelope,
-    1,
-    rippleStartRadius
-  );
-};
-
-const addGaussianPacketMeasurementRippleLayer = (
-  layers: FieldLayer[],
-  projection: MeasurementProjection,
-  source: GaussianPacketSource,
-  distance: number,
-  offset: number,
-  rippleWidth: number,
-  dt: number,
-  fade: number,
-  rippleStrength: number,
-  packetEnvelope: number,
-  orderOffset: number,
-  rippleStartRadius: number
-): void => {
-  const absOffset = Math.abs( offset );
-  if ( absOffset >= rippleWidth ) {
-    return;
-  }
-
-  const bandEnvelope = 1 - smoothStep( 0, rippleWidth, absOffset );
-  const rippleEnvelope = bandEnvelope * packetEnvelope;
-  if ( rippleEnvelope <= EPSILON ) {
-    return;
-  }
-
-  const phase = source.waveNumber * ( distance - rippleStartRadius ) -
-                source.waveNumber * source.speed * Math.max( 0, dt );
-  layers.push( {
-    order: projection.measurementTime + orderOffset * EPSILON,
-    alpha: rippleStrength * fade,
-    renderStyle: 'black',
-    components: [ {
-      source: 'incident',
-      coherenceGroup: `measurementRipple${orderOffset}`,
-      support: rippleEnvelope,
-      value: Complex.createPolar( rippleEnvelope, phase )
-    } ]
-  } );
-};
-
-const getFieldSampleEnvelope = ( sample: Extract<FieldSample, { kind: 'field' }> ): number => {
-  let envelope = 0;
-  for ( let i = 0; i < sample.components.length; i++ ) {
-    const component = sample.components[ i ];
-    envelope = Math.max( envelope, component.support ?? component.value.magnitude );
-  }
-  return envelope;
 };
 
 /**

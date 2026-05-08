@@ -526,9 +526,7 @@ QUnit.test( 'measurement projection zeros detector region and renormalizes outsi
       centerY: 0,
       radius: 0.2,
       measurementTime: 1,
-      renormScale: 1.5,
-      rippleStrength: 0.25,
-      rippleDuration: 0.5
+      renormScale: 1.5
     } ]
   } );
 
@@ -637,144 +635,40 @@ QUnit.test( 'wave-packet measurement bite shrinks while preserving grid probabil
   );
 } );
 
-QUnit.test( 'measurement ripple metadata does not change analytical packet samples', assert => {
-  const projection = {
-    centerX: 0.5,
-    centerY: 0,
-    radius: 0.2,
-    measurementTime: 1,
-    renormScale: 1.5
-  };
-  const projectionWithRipple = {
-    centerX: projection.centerX,
-    centerY: projection.centerY,
-    radius: projection.radius,
-    measurementTime: projection.measurementTime,
-    renormScale: projection.renormScale,
-    rippleStrength: 0.8,
-    rippleDuration: 0.5
-  };
-  const projected = createGaussianPacketParameters( { projections: [ projection ] } );
-  const projectedWithRipple = createGaussianPacketParameters( { projections: [ projectionWithRipple ] } );
-
-  for ( const point of [
-    { x: 0.5, y: 0, t: 1 },
-    { x: 0.5, y: 0.5, t: 1 },
-    { x: 0.8, y: 0, t: 1.1 }
-  ] ) {
-    assertComplexApproximately(
-      assert,
-      getRepresentativeComplex( evaluateAnalyticalSample( projectedWithRipple, point.x, point.y, point.t ) ),
-      getRepresentativeComplex( evaluateAnalyticalSample( projected, point.x, point.y, point.t ) ),
-      `ripple metadata does not affect analytical sample at (${point.x}, ${point.y}, ${point.t})`
-    );
-  }
-} );
-
-QUnit.test( 'gaussian packet measurement ripple layer starts inside detector then fades', assert => {
+QUnit.test( 'gaussian packet measurement projection returns one projected base layer', assert => {
   const parameters = createGaussianPacketParameters( {
     projections: [ {
       centerX: 0.5,
       centerY: 0,
       radius: 0.2,
       measurementTime: 1,
-      renormScale: 1.5,
-      rippleStrength: 0.8,
-      rippleDuration: 0.5
+      renormScale: 1.5
     } ]
   } );
 
-  const initialInteriorSample = evaluateAnalyticalLayeredSample( parameters, 0.57, 0, 1 );
-  const expandingInteriorSample = evaluateAnalyticalLayeredSample( parameters, 0.77, 0, 1.1 );
-  const fadedSample = evaluateAnalyticalLayeredSample( parameters, 0.77, 0, 1.6 );
-  const visibleRippleSample = evaluateAnalyticalLayeredSample( parameters, 0.82, 0, 1.1 );
+  const layeredSample = evaluateAnalyticalLayeredSample( parameters, 0.82, 0, 1.1 );
+  const sample = evaluateAnalyticalSample( parameters, 0.82, 0, 1.1 );
 
-  assert.strictEqual( initialInteriorSample.kind, 'field', 'initial interior ripple sample is field' );
-  assert.strictEqual( expandingInteriorSample.kind, 'field', 'expanding interior ripple sample is field' );
-  assert.strictEqual( fadedSample.kind, 'field', 'faded ripple sample is field' );
+  assert.strictEqual( layeredSample.kind, 'field', 'projected layered sample is field' );
+  assert.strictEqual( sample.kind, 'field', 'projected sample is field' );
 
-  assert.strictEqual( visibleRippleSample.kind, 'field', 'visible ripple sample is field' );
-
-  if (
-    initialInteriorSample.kind === 'field' &&
-    expandingInteriorSample.kind === 'field' &&
-    fadedSample.kind === 'field' &&
-    visibleRippleSample.kind === 'field'
-  ) {
-    assert.ok( initialInteriorSample.layers.length > 1, 'ripple starts inside the detector region' );
-    assert.ok( expandingInteriorSample.layers.length > 1, 'ripple expands from inside the detector region' );
-    assert.strictEqual( expandingInteriorSample.layers[ 1 ].renderStyle, 'black', 'measurement ripple renders black' );
-
-    const baseColor = { red: 200, green: 200, blue: 200 };
-    const noRippleParameters = createGaussianPacketParameters( {
-      projections: [ {
-        centerX: 0.5,
-        centerY: 0,
-        radius: 0.2,
-        measurementTime: 1,
-        renormScale: 1.5
-      } ]
-    } );
-    const noRippleColor = getLayeredFieldSampleRGBA(
-      evaluateAnalyticalLayeredSample( noRippleParameters, 0.82, 0, 1.1 ),
-      'magnitude',
-      baseColor,
-      1
+  if ( layeredSample.kind === 'field' && sample.kind === 'field' ) {
+    assert.strictEqual( layeredSample.layers.length, 1, 'projected packet has only the base layer' );
+    assert.strictEqual( layeredSample.layers[ 0 ].alpha, 1, 'base layer remains opaque' );
+    assert.strictEqual(
+      layeredSample.layers[ 0 ].components.length,
+      sample.components.length,
+      'base layer uses the projected sample components'
     );
-    const blackRippleColor = getLayeredFieldSampleRGBA(
-      visibleRippleSample,
-      'magnitude',
-      baseColor,
-      1
-    );
-    assert.ok( blackRippleColor.red < noRippleColor.red, 'black measurement ripple visibly darkens the wave' );
-    assert.strictEqual( fadedSample.layers.length, 1, 'ripple layers are removed after their duration' );
-  }
-} );
 
-QUnit.test( 'gaussian packet measurement ripple layers follow packet envelope', assert => {
-  const onPacketParameters = createGaussianPacketParameters( {
-    projections: [ {
-      centerX: 0.5,
-      centerY: 0,
-      radius: 0.2,
-      measurementTime: 1,
-      renormScale: 1.5,
-      rippleStrength: 0.8,
-      rippleDuration: 0.5
-    } ]
-  } );
-  const offPacketParameters = createGaussianPacketParameters( {
-    projections: [ {
-      centerX: 0.5,
-      centerY: 1.3,
-      radius: 0.2,
-      measurementTime: 1,
-      renormScale: 1,
-      rippleStrength: 0.8,
-      rippleDuration: 0.5
-    } ]
-  } );
-
-  const onPacketSample = evaluateAnalyticalLayeredSample( onPacketParameters, 0.77, 0, 1.1 );
-  const offPacketSample = evaluateAnalyticalLayeredSample( offPacketParameters, 0.5, 1.6, 1.1 );
-
-  assert.strictEqual( onPacketSample.kind, 'field', 'on-packet ripple sample is field' );
-  assert.strictEqual( offPacketSample.kind, 'field', 'off-packet ripple sample is field' );
-
-  if ( onPacketSample.kind === 'field' && offPacketSample.kind === 'field' ) {
-    const getMaxRippleSupport = ( sample: typeof onPacketSample ): number => {
-      let maxSupport = 0;
-      for ( let i = 1; i < sample.layers.length; i++ ) {
-        maxSupport = Math.max( maxSupport, sample.layers[ i ].components[ 0 ].support ?? 0 );
-      }
-      return maxSupport;
-    };
-
-    assert.ok(
-      getMaxRippleSupport( offPacketSample ) < getMaxRippleSupport( onPacketSample ) * 1e-6,
-      'off-packet ripple is suppressed by the packet envelope'
-    );
+    for ( let i = 0; i < sample.components.length; i++ ) {
+      const layeredComponent = layeredSample.layers[ 0 ].components[ i ];
+      const sampleComponent = sample.components[ i ];
+      assert.strictEqual( layeredComponent.source, sampleComponent.source, 'base layer component source matches' );
+      assert.strictEqual( layeredComponent.coherenceGroup, sampleComponent.coherenceGroup, 'base layer component coherence matches' );
+      assert.strictEqual( layeredComponent.support, sampleComponent.support, 'base layer component support matches' );
+      assertComplexApproximately( assert, layeredComponent.value, sampleComponent.value, 'base layer component value matches' );
+    }
   }
 } );
 

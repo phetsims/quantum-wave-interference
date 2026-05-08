@@ -148,16 +148,6 @@ const getFieldLayerRGBA = (
   };
   const groupStates = getCoherenceGroupDisplayStates( layerSample );
   const displayState = getDisplayState( layerSample, groupStates, amplitudeScale );
-
-  if ( layer.renderStyle === 'black' ) {
-    return {
-      red: 0,
-      green: 0,
-      blue: 0,
-      alpha: roundSymmetric( 255 * clamp( Math.sqrt( displayState.visibility ) * layer.alpha, 0, 1 ) )
-    };
-  }
-
   return getDisplayStateTransparentRGBA( displayState, displayMode, baseColor, amplitudeScale, layer.alpha );
 };
 
