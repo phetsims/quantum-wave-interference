@@ -31,7 +31,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
-import Snapshot from '../../common/model/Snapshot.js';
+import { renumberSnapshots, type Snapshot, SnapshotIO } from '../../common/model/Snapshot.js';
 import { type SourceType } from './SourceType.js';
 
 // Maximum emission rate in hits per second at full intensity
@@ -311,7 +311,7 @@ export default class SceneModel extends PhetioObject {
 
     this.snapshotsProperty = new Property<Snapshot[]>( [], {
       tandem: tandem.createTandem( 'snapshotsProperty' ),
-      phetioValueType: ArrayIO( Snapshot.SnapshotIO ),
+      phetioValueType: ArrayIO( SnapshotIO ),
       phetioDocumentation: 'The array of detector screen snapshots captured in this scene.'
     } );
 
@@ -403,7 +403,9 @@ export default class SceneModel extends PhetioObject {
       return;
     }
 
-    const snapshot = new Snapshot( this.snapshotsProperty.value.length + 1, [ ...this.hits ], {
+    const snapshot: Snapshot = {
+      snapshotNumber: this.snapshotsProperty.value.length + 1,
+      hits: [ ...this.hits ],
       detectionMode: this.detectionModeProperty.value,
       sourceType: this.sourceType,
       wavelength: this.wavelengthProperty.value,
@@ -420,7 +422,7 @@ export default class SceneModel extends PhetioObject {
       // Experiment screen renders its own intensity snapshots from closed-form Fraunhofer formulas via
       // its private SnapshotNode — no solver distribution to capture.
       intensityDistribution: []
-    } );
+    };
 
     this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];
   }
@@ -429,7 +431,7 @@ export default class SceneModel extends PhetioObject {
    * Deletes a specific snapshot and compacts the remaining snapshot labels to match their current display order.
    */
   public deleteSnapshot( snapshot: Snapshot ): void {
-    this.snapshotsProperty.value = Snapshot.renumberSnapshots(
+    this.snapshotsProperty.value = renumberSnapshots(
       this.snapshotsProperty.value.filter( s => s !== snapshot )
     );
   }

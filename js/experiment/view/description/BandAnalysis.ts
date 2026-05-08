@@ -11,7 +11,7 @@ import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../../model/SceneModel.js';
 import { isDoubleSlitConfiguration, SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
-import Snapshot from '../../../common/model/Snapshot.js';
+import type { Snapshot } from '../../../common/model/Snapshot.js';
 
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
 // updates so they only fire at pedagogically meaningful thresholds.

@@ -39,7 +39,7 @@ import { type WaveDisplayMode } from './WaveDisplayMode.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverState } from './WaveSolver.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import Snapshot from './Snapshot.js';
+import { renumberSnapshots, type Snapshot, SnapshotIO } from './Snapshot.js';
 import { MAX_VIEW_SEPARATION, MIN_VIEW_SEPARATION, SLIT_VIEW_HEIGHT } from './getViewSlitLayout.js';
 
 // Full normalized detector-screen half-span used by High Intensity and Single Particles hit scatter.
@@ -127,7 +127,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly hits: Vector2[];
   public readonly totalHitsProperty: NumberProperty;
   public readonly hitsChangedEmitter: TEmitter;
-  public readonly snapshotsProperty: Property<Snapshot[]>;
+  public readonly snapshotsProperty: Property<Snapshot[]>; // TODO: Use ObservableArray? See https://github.com/phetsims/tandem/issues/279
   public readonly numberOfSnapshotsProperty: TReadOnlyProperty<number>;
 
   // Guard to prevent cascading clearScreen calls during reset
@@ -253,7 +253,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.snapshotsProperty = new Property<Snapshot[]>( [], {
       tandem: tandem.createTandem( 'snapshotsProperty' ),
-      phetioValueType: ArrayIO( Snapshot.SnapshotIO )
+      phetioValueType: ArrayIO( SnapshotIO )
     } );
 
     this.numberOfSnapshotsProperty = new DerivedProperty(
@@ -510,7 +510,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
                                   ? Array.from( this.waveSolver.getDetectorProbabilityDistribution() )
                                   : [];
 
-    const snapshot = new Snapshot( this.snapshotsProperty.value.length + 1, [ ...this.hits ], {
+    const snapshot: Snapshot = {
+      snapshotNumber: this.snapshotsProperty.value.length + 1,
+      hits: [ ...this.hits ],
       detectionMode: detectionMode,
       sourceType: this.sourceType,
       wavelength: this.wavelengthProperty.value,
@@ -524,14 +526,14 @@ export default abstract class BaseSceneModel extends PhetioObject {
       intensity: intensity,
       slitWidth: this.slitWidth,
       intensityDistribution: intensityDistribution
-    } );
+    };
 
     this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];
   }
 
   // Delete a specific snapshot and compact the remaining snapshot labels to match their current display order.
   public deleteSnapshot( snapshot: Snapshot ): void {
-    this.snapshotsProperty.value = Snapshot.renumberSnapshots(
+    this.snapshotsProperty.value = renumberSnapshots(
       this.snapshotsProperty.value.filter( s => s !== snapshot )
     );
   }

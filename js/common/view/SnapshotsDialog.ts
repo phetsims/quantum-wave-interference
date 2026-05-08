@@ -15,7 +15,7 @@ import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
-import Snapshot from '../model/Snapshot.js';
+import type { Snapshot } from '../model/Snapshot.js';
 import SnapshotNode from './SnapshotNode.js';
 
 type SnapshotsDialogOptions = {

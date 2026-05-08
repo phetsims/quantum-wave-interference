@@ -23,7 +23,7 @@ import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
 import { type BarrierType } from './BarrierType.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from './WaveDisplayMode.js';
-import Snapshot from './Snapshot.js';
+import type { Snapshot } from './Snapshot.js';
 import type BaseSceneModel from './BaseSceneModel.js';
 
 const NOMINAL_DT = 1 / 60;

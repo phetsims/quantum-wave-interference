@@ -30,7 +30,7 @@ import Panel from '../../../../sun/js/Panel.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../model/WaveDisplayMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
-import Snapshot from '../model/Snapshot.js';
+import type { Snapshot } from '../model/Snapshot.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import createBrightnessControl from './createBrightnessControl.js';

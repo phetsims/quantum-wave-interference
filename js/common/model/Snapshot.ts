@@ -8,144 +8,68 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import Vector2, { type Vector2StateObject } from '../../../../dot/js/Vector2.js';
+import Vector2 from '../../../../dot/js/Vector2.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
-import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
-import StringIO from '../../../../tandem/js/types/StringIO.js';
-import { type DetectionMode } from './DetectionMode.js';
-import { type SlitConfigurationWithNoBarrier } from './SlitConfiguration.js';
-import { type SourceType } from './SourceType.js';
+import SchemaOrientedIOType from '../../../../tandem/js/types/SchemaOrientedIOType.js';
+import { type CoreRecord } from '../../../../tandem/js/types/StateSchema.js';
+import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
+import { DetectionModeValues } from './DetectionMode.js';
+import { SlitConfigurationWithNoBarrierValues } from './SlitConfiguration.js';
+import { SourceTypeValues } from './SourceType.js';
 
-// Shared shape for the constructor parameter and the serialized state (minus hits, which differs in type).
-type SnapshotData = {
-  detectionMode: DetectionMode;
-  sourceType: SourceType;
-  wavelength: number;
-  slitSeparation: number;
-  screenDistance: number;
-  screenHalfWidth: number;
-  effectiveWavelength: number;
-  slitSetting: SlitConfigurationWithNoBarrier;
-  isEmitting: boolean;
-  brightness: number;
-  intensity: number;
-  slitWidth: number;
+const SNAPSHOT_SCHEMA = {
+
+  // The current ordinal label for this snapshot in the dialog, not a persistent unique ID.
+  snapshotNumber: NumberIO,
+
+  // Copy of the hits at the time of capture
+  hits: ArrayIO( Vector2.Vector2IO ),
+
+  // The detection mode at the time of capture
+  detectionMode: StringUnionIO( DetectionModeValues ),
+
+  // The source type at the time of capture (needed for rendering color)
+  sourceType: StringUnionIO( SourceTypeValues ),
+
+  // Wavelength (nm) at the time of capture (needed for photon hit color)
+  wavelength: NumberIO,
+
+  // Physics parameters captured for display in the snapshot dialog labels
+  slitSeparation: NumberIO, // mm
+  screenDistance: NumberIO, // m
+  screenHalfWidth: NumberIO, // m
+  effectiveWavelength: NumberIO, // m
+  slitSetting: StringUnionIO( SlitConfigurationWithNoBarrierValues ),
+  isEmitting: BooleanIO,
+  brightness: NumberIO,
+  intensity: NumberIO,
+  slitWidth: NumberIO, // mm
 
   // 1D probability distribution along the detector screen at capture time. Populated only for snapshots
   // taken in averageIntensity mode from solver-driven scenes (High Intensity screen); empty otherwise.
   // Consumers that render an intensity-mode snapshot should prefer this captured distribution so the
   // snapshot image matches the live detector screen; if empty, callers must fall back to a closed-form
   // pattern computed from the other snapshot metadata (used by the Experiment screen).
-  intensityDistribution: number[];
+  intensityDistribution: ArrayIO( NumberIO )
 };
 
-type SnapshotStateObject = SnapshotData & {
-  snapshotNumber: number;
-  hits: Vector2StateObject[];
+export type Snapshot = CoreRecord<typeof SNAPSHOT_SCHEMA>;
+
+export const SnapshotIO = new SchemaOrientedIOType<Snapshot, typeof SNAPSHOT_SCHEMA>( 'SnapshotIO', {
+  documentation: 'Serialization for a detector screen snapshot.',
+  stateSchema: SNAPSHOT_SCHEMA
+} );
+
+// Snapshots are captured-value objects. When snapshot labels need to be renumbered after one is deleted, create
+// replacement Snapshot instances rather than mutating existing snapshots.
+export const renumberSnapshots = ( snapshots: Snapshot[] ): Snapshot[] => {
+  return snapshots.map( ( snapshot, index ) => _.assign( {}, snapshot, {
+    snapshotNumber: index + 1,
+
+    // Wrap arrays in a new container so they cannot be mutated by another reference
+    hits: [ ...snapshot.hits ],
+    intensityDistribution: [ ...snapshot.intensityDistribution ]
+  } ) );
 };
-
-export default class Snapshot {
-
-  // The current ordinal label for this snapshot in the dialog, not a persistent unique ID.
-  public readonly snapshotNumber: number;
-
-  // Copy of the hits at the time of capture
-  public readonly hits: Vector2[];
-
-  // The detection mode at the time of capture
-  public readonly detectionMode: DetectionMode;
-
-  // The source type at the time of capture (needed for rendering color)
-  public readonly sourceType: SourceType;
-
-  // Wavelength (nm) at the time of capture (needed for photon hit color)
-  public readonly wavelength: number;
-
-  // Physics parameters captured for display in the snapshot dialog labels
-  public readonly slitSeparation: number; // mm
-  public readonly screenDistance: number; // m
-  public readonly screenHalfWidth: number; // m
-  public readonly effectiveWavelength: number; // m
-  public readonly slitSetting: SlitConfigurationWithNoBarrier;
-  public readonly isEmitting: boolean;
-  public readonly brightness: number;
-  public readonly intensity: number;
-  public readonly slitWidth: number; // mm
-
-  // See SnapshotData.intensityDistribution. Empty array means "not captured" (fall back to closed-form).
-  public readonly intensityDistribution: number[];
-
-  public constructor( snapshotNumber: number, hits: Vector2[], data: SnapshotData ) {
-    this.snapshotNumber = snapshotNumber;
-    this.hits = hits;
-    this.detectionMode = data.detectionMode;
-    this.sourceType = data.sourceType;
-    this.wavelength = data.wavelength;
-    this.slitSeparation = data.slitSeparation;
-    this.screenDistance = data.screenDistance;
-    this.screenHalfWidth = data.screenHalfWidth;
-    this.effectiveWavelength = data.effectiveWavelength;
-    this.slitSetting = data.slitSetting;
-    this.isEmitting = data.isEmitting;
-    this.brightness = data.brightness;
-    this.intensity = data.intensity;
-    this.slitWidth = data.slitWidth;
-    this.intensityDistribution = data.intensityDistribution;
-  }
-
-  // Snapshots are captured-value objects. When snapshot labels need to be renumbered after deletion,
-  // create replacement Snapshot instances rather than mutating existing snapshots.
-  public withSnapshotNumber( snapshotNumber: number ): Snapshot {
-    return new Snapshot( snapshotNumber, [ ...this.hits ], {
-      detectionMode: this.detectionMode,
-      sourceType: this.sourceType,
-      wavelength: this.wavelength,
-      slitSeparation: this.slitSeparation,
-      screenDistance: this.screenDistance,
-      screenHalfWidth: this.screenHalfWidth,
-      effectiveWavelength: this.effectiveWavelength,
-      slitSetting: this.slitSetting,
-      isEmitting: this.isEmitting,
-      brightness: this.brightness,
-      intensity: this.intensity,
-      slitWidth: this.slitWidth,
-      intensityDistribution: [ ...this.intensityDistribution ]
-    } );
-  }
-
-  public static renumberSnapshots( snapshots: Snapshot[] ): Snapshot[] {
-    return snapshots.map( ( snapshot, index ) =>
-      snapshot.snapshotNumber === index + 1 ? snapshot : snapshot.withSnapshotNumber( index + 1 )
-    );
-  }
-
-  public static readonly SnapshotIO = new IOType<Snapshot, SnapshotStateObject>( 'SnapshotIO', {
-    valueType: Snapshot,
-    documentation: 'Serialization for a detector screen snapshot.',
-    stateSchema: {
-      snapshotNumber: NumberIO,
-      hits: ArrayIO( Vector2.Vector2IO ),
-      detectionMode: StringIO,
-      sourceType: StringIO,
-      wavelength: NumberIO,
-      slitSeparation: NumberIO,
-      screenDistance: NumberIO,
-      screenHalfWidth: NumberIO,
-      effectiveWavelength: NumberIO,
-      slitSetting: StringIO,
-      isEmitting: BooleanIO,
-      brightness: NumberIO,
-      intensity: NumberIO,
-      slitWidth: NumberIO,
-      intensityDistribution: ArrayIO( NumberIO )
-    },
-
-    // toStateObject is auto-generated from stateSchema (composite schema with matching field names).
-
-    fromStateObject: ( state: SnapshotStateObject ): Snapshot => {
-      return new Snapshot( state.snapshotNumber, state.hits.map( s => Vector2.fromStateObject( s ) ), state );
-    }
-  } );
-}

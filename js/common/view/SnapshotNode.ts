@@ -32,7 +32,7 @@ import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import Snapshot from '../model/Snapshot.js';
+import type { Snapshot } from '../model/Snapshot.js';
 import { getApparentAnalyticalDetectorIntensity } from './AnalyticalDetectorPattern.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle } from './ScreenBrightnessUtils.js';
 
