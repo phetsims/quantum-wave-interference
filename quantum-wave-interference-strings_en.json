@@ -251,7 +251,7 @@
   "a11y": {
     "screenSummary": {
       "playArea": {
-        "value": "A highly configurable three-part experimental setup includes a particle source emitter, double-slit barrier, and detector screen. When experiment is running, particles pass through available slits in barrier to land on detector screen and build patterns. You can choose and adjust source particles, configure slits in barrier, observe and take snapshots of resulting patterns on detector screen."
+        "value": "A highly configurable three-part experimental setup includes a particle source emitter, double-slit barrier, and detector screen. When experiment is running, particles pass through available slits in barrier to land on detector screen and build patterns. You can choose and adjust source particles, configure slits in barrier, observe and take snapshots of resulting patterns on detector panel."
       },
       "controlArea": {
         "value": "Measurement tools can be added or removed to assist with data collection and analysis. Reset sim to start over."
