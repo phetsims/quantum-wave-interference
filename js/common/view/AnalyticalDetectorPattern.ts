@@ -19,6 +19,7 @@ const FULLY_UNRESOLVED_SAMPLES_PER_FRINGE = 2;
 const FULLY_RESOLVED_SAMPLES_PER_FRINGE = 4;
 
 export type ApparentAnalyticalDetectorPatternOptions = AnalyticalDetectorPatternOptions & {
+
   // Physical width, in meters, represented by the rendered sample.
   sampleWidthOnScreen: number;
 };
@@ -73,3 +74,5 @@ export const getApparentAnalyticalDetectorIntensity = ( options: ApparentAnalyti
 
   return exactIntensity + ( envelopeIntensity - exactIntensity ) * unresolvedBlend;
 };
+
+// TODO: Do not give same filename as the model one, see https://github.com/phetsims/quantum-wave-interference/issues/100

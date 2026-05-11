@@ -10,6 +10,8 @@
  *
  * Generic over any scene type that has the required source properties.
  *
+ * TODO: This entire file requires documentation, see https://github.com/phetsims/quantum-wave-interference/issues/100
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
@@ -119,7 +121,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
     const maxSceneWidth = Math.max( ...sceneContentNodes.map( node => node.width ) );
     const maxSceneHeight = Math.max( ...sceneContentNodes.map( node => node.height ) );
 
-    const sceneNodes: Node[] = sceneContentNodes.map( ( sceneContent, index ) => {
+    const sceneNodes = sceneContentNodes.map( ( sceneContent, index ) => {
       return new AlignBox( sceneContent, {
         xAlign: 'center',
         yAlign: 'center',
@@ -422,6 +424,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
     } );
   }
 
+  // TODO: Duplicated, see https://github.com/phetsims/quantum-wave-interference/issues/100
   private static getWavelengthColorZone( wavelength: number ): WavelengthColorZone {
     return wavelength <= 450 ? 'violet' :
            wavelength <= 485 ? 'blue' :
@@ -432,6 +435,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
            'red';
   }
 
+  // TODO: Duplicated, see https://github.com/phetsims/quantum-wave-interference/issues/100
   private static getWavelengthColorZoneString( colorZone: WavelengthColorZone ): string {
     return colorZone === 'violet' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty.value :
            colorZone === 'blue' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty.value :

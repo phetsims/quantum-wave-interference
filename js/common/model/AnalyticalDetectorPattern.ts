@@ -108,12 +108,7 @@ export const getExactAnalyticalDetectorIntensity = ( options: AnalyticalDetector
     );
   }
 
-  const envelope = getAnalyticalSingleSlitEnvelopeIntensity(
-    options.positionOnScreen,
-    lambda,
-    options.screenDistance,
-    options.slitWidth
-  );
+  const envelope = getAnalyticalSingleSlitEnvelopeIntensity( options.positionOnScreen, lambda, options.screenDistance, options.slitWidth );
 
   if ( hasAnyDetector( slitSetting ) ) {
 

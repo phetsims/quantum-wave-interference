@@ -145,6 +145,8 @@ export default class SceneRadioButtonGroup<T extends HasSourceType> extends Rect
     } );
 
     const actualChildWidth = this.children[ 0 ].width;
+
+    // TODO: Why? See https://github.com/phetsims/quantum-wave-interference/issues/100
     this.preferredWidth = actualChildWidth * GRID_COLUMNS + GRID_HORIZONTAL_SPACING * ( GRID_COLUMNS - 1 );
   }
 }

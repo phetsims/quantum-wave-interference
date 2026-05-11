@@ -25,6 +25,7 @@ const EYE_BUTTON_X_MARGIN = 4;
 
 export default class ViewSnapshotsButton extends RectangularPushButton {
 
+  // TODO: Document every parameter in JSDoc, see https://github.com/phetsims/quantum-wave-interference/issues/100
   public constructor(
     numberOfSnapshotsProperty: TReadOnlyProperty<number>,
     isPlayingProperty: Property<boolean>,
@@ -34,6 +35,7 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
     tandem: Tandem
   ) {
 
+    // TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/100
     let shouldResumeOnDialogClose = false;
     snapshotsDialog.isShowingProperty.link( isShowing => {
       if ( !isShowing && shouldResumeOnDialogClose ) {
