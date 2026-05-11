@@ -125,6 +125,7 @@ export default class OverheadBeamNode extends Node {
       this.emitterBeamNode.shape = beamShape;
       this.emitterBeamNode.fill = beamColor.withAlpha( 0.8 * intensity );
 
+      // TODO: Document this section, see https://github.com/phetsims/quantum-wave-interference/issues/100
       const visibleDoubleSlitLeft = doubleSlitNode.getVisibleBackgroundLeftX();
       const visibleDoubleSlitRight = doubleSlitNode.getVisibleBackgroundRightX();
       const visibleDoubleSlitCenterX = ( visibleDoubleSlitLeft + visibleDoubleSlitRight ) / 2;
@@ -133,6 +134,7 @@ export default class OverheadBeamNode extends Node {
       const fanRight = detectorScreenNode.getMaxDistanceParallelogramRight();
       const narrowHalfHeight = beamHeight * FAN_BEAM_LEFT_HEIGHT_SCALE / 2;
 
+      // TODO: Document this section, see https://github.com/phetsims/quantum-wave-interference/issues/100
       const slitCenterY = doubleSlitParallelogram.centerY;
       const screenCenterY = detectorScreenNode.parallelogramNode.centerY;
       const wideHalfHeight = detectorScreenNode.getFullParallelogramHeight() * FAN_BEAM_RIGHT_HEIGHT_SCALE / 2;
@@ -150,6 +152,7 @@ export default class OverheadBeamNode extends Node {
       fanBeamNode.shape = fanShape;
       fanBeamNode.clipArea = null;
 
+      // TODO: Document this section, see https://github.com/phetsims/quantum-wave-interference/issues/100
       const detectorTopLeftX = detectorScreenNode.parallelogramNode.left;
       const detectorTopLeftY = detectorScreenNode.parallelogramNode.top;
       const detectorBottomRightX = detectorScreenNode.parallelogramNode.right;

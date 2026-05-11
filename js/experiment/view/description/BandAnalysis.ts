@@ -160,6 +160,7 @@ export default class BandAnalysis {
     return BandAnalysis.formatSpatialDescriptionWithStyle( analysis, isDoubleSlit, isRulerVisible, usePeakLanguage, false );
   }
 
+  // TODO: Make sure this is called when anything changes, see https://github.com/phetsims/quantum-wave-interference/issues/100
   private static formatSpatialDescriptionWithStyle(
     analysis: BandAnalysisResult,
     isDoubleSlit: boolean,

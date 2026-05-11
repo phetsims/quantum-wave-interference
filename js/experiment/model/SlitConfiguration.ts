@@ -3,6 +3,8 @@
 /**
  * Re-exports SlitConfiguration from common for backwards compatibility.
  *
+ * TODO: We do not want or need backward compatibility, delete and use directly, see https://github.com/phetsims/quantum-wave-interference/issues/100
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 

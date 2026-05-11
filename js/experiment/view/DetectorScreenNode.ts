@@ -52,8 +52,9 @@ const EXPERIMENT_SLIT_DISPLAY_MAP: Partial<Record<SlitConfigurationWithNoBarrier
   bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
 };
 
+// TODO: is this recomputed when anything changes? See https://github.com/phetsims/quantum-wave-interference/issues/100
 const formatExperimentSlitSeparation = ( slitSepMM: number ): string => {
-  const slitSepUM = slitSepMM * 1000;
+  const slitSepUM = slitSepMM * 1000; // TODO: Should we use millimetersToMeters and vice versa throughout? See https://github.com/phetsims/quantum-wave-interference/issues/100
   return StringUtils.fillIn(
     QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
     { value: toFixed( slitSepUM, ExperimentConstants.getDecimalPlacesForValue( slitSepUM ) ) }

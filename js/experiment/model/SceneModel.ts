@@ -27,12 +27,12 @@ import GetSetButtonsIO from '../../../../tandem/js/types/GetSetButtonsIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import { getExactAnalyticalDetectorIntensity } from '../../common/model/AnalyticalDetectorPattern.js';
+import { renumberSnapshots, type Snapshot, SnapshotIO } from '../../common/model/Snapshot.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { getFullDetectorScreenHalfWidth } from './DetectorScreenScale.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
-import { renumberSnapshots, type Snapshot, SnapshotIO } from '../../common/model/Snapshot.js';
 import { type SourceType } from './SourceType.js';
 
 // Maximum emission rate in hits per second at full intensity
@@ -42,6 +42,7 @@ const MAX_EMISSION_RATE = 100;
 const MAX_REJECTION_ITERATIONS = 1000;
 
 // Vertical extent of the hit distribution on the detector screen, as a fraction of the full height.
+// TODO: Do we still need this? See https://github.com/phetsims/quantum-wave-interference/issues/100
 const HIT_VERTICAL_EXTENT = 1;
 
 type SelfOptions = {
@@ -59,6 +60,7 @@ export default class SceneModel extends PhetioObject {
    */
   public static getSlitWidth( sourceType: SourceType ): number {
     return sourceType === 'photons' ? 0.02 :    // 20 μm
+      // TODO: https://github.com/phetsims/quantum-wave-interference/issues/100 Just use else 0.00006, the type checker knows it cannot be anything else.
            sourceType === 'electrons' ? 0.00006 : // 0.06 μm
            sourceType === 'neutrons' ? 0.00006 :  // 0.06 μm
            sourceType === 'heliumAtoms' ? 0.00006 : // 0.06 μm
@@ -343,8 +345,8 @@ export default class SceneModel extends PhetioObject {
       positionOnScreen: positionOnScreen,
       effectiveWavelength: lambda,
       screenDistance: this.screenDistanceProperty.value,
-      slitWidth: this.slitWidth * 1e-3,
-      slitSeparation: this.slitSeparationProperty.value * 1e-3,
+      slitWidth: this.slitWidth * 1E-3,
+      slitSeparation: this.slitSeparationProperty.value * 1E-3,
       slitSetting: this.slitSettingProperty.value
     } );
   }
@@ -398,9 +400,7 @@ export default class SceneModel extends PhetioObject {
    * Deletes a specific snapshot and compacts the remaining snapshot labels to match their current display order.
    */
   public deleteSnapshot( snapshot: Snapshot ): void {
-    this.snapshotsProperty.value = renumberSnapshots(
-      this.snapshotsProperty.value.filter( s => s !== snapshot )
-    );
+    this.snapshotsProperty.value = renumberSnapshots( this.snapshotsProperty.value.filter( s => s !== snapshot ) );
   }
 
   // Maximum number of snapshots that can be stored per scene
@@ -566,6 +566,7 @@ export default class SceneModel extends PhetioObject {
 
   /**
    * Physical half-width of the full detector screen in meters. This is independent of detector screen zoom.
+   * TODO Make static? Eliminate as redundant? See https://github.com/phetsims/quantum-wave-interference/issues/100
    */
   public get fullScreenHalfWidth(): number {
     return getFullDetectorScreenHalfWidth();

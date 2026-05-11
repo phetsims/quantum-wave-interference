@@ -606,6 +606,7 @@ export default class ExperimentScreenView extends ScreenView {
         sourceType: particleSourceTypeProperty
       } );
 
+    // TODO: Document this section, see https://github.com/phetsims/quantum-wave-interference/issues/100
     const currentWavelengthProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
       derive: 'wavelengthProperty'
     } );
@@ -619,6 +620,7 @@ export default class ExperimentScreenView extends ScreenView {
       derive: 'screenDistanceProperty'
     } );
 
+    // TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/100
     const sourceTypeProperty = model.sceneProperty.derived( scene => scene.sourceType );
     const isEmittingStringProperty = model.currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
     const isPhotonSceneProperty = model.sceneProperty.derived( scene => scene.sourceType === 'photons' );
@@ -674,6 +676,8 @@ export default class ExperimentScreenView extends ScreenView {
         ...metersPerSecondUnit.getDependentProperties()
       ] ) ),
       () => {
+
+        // TODO: Document this derivation, see https://github.com/phetsims/quantum-wave-interference/issues/100
         const scene = model.sceneProperty.value;
         const velocity = currentVelocityProperty.value;
         const useKmPerSecond = scene.velocityRange.max >= 10000;
@@ -849,6 +853,7 @@ export default class ExperimentScreenView extends ScreenView {
            'red';
   }
 
+  // TODO: Duplicated fragment, see https://github.com/phetsims/quantum-wave-interference/issues/100
   private static getWavelengthColorZoneString( colorZone: WavelengthColorZone ): string {
     return colorZone === 'violet' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty.value :
            colorZone === 'blue' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty.value :

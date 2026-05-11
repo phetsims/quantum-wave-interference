@@ -71,6 +71,7 @@ const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
 
+// TODO: Document me, see https://github.com/phetsims/quantum-wave-interference/issues/100
 const hitSpriteParamsMatch = (
   params: HitSpriteParams | null,
   rgb: { r: number; g: number; b: number },
@@ -126,6 +127,8 @@ const getTextureRenderScale = (
 
 const getHitSpriteCenter = ( renderScale: number ): number => {
   const hitCoreRadius = BASE_HIT_CORE_RADIUS * renderScale;
+
+  // TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/100
   const maxGlowRadius = BASE_HIT_GLOW_RADIUS * renderScale *
                         Math.min( 2, Math.sqrt( Math.max( 1, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER ) ) );
 

@@ -33,6 +33,7 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
       derive: 'totalHitsProperty'
     } );
 
+    // TODO: There sure is a lot of mapping to "true" and "false", is that good or is there a better way? See https://github.com/phetsims/quantum-wave-interference/issues/100
     const hasHitsStringProperty = currentTotalHitsProperty.derived( totalHits => totalHits > 0 ? 'true' : 'false' );
 
     const currentDetailsContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
