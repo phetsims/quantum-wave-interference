@@ -2,13 +2,13 @@
 
 /**
  * Factory for the draggable ruler used by the Experiment screen.
- * The ruler's horizontal scale is calibrated to the active detector screen:
- * its full width maps to the scene's full detector width in mm.
- * Each scene gets its own ruler so the tick labels can be tuned to that scene's source type and detector size.
+ * The ruler's horizontal scale is calibrated to the shared detector-screen zoom:
+ * its full width maps to the visible detector width in mm.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { rangeInclusive } from '../../../../dot/js/util/rangeInclusive.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import AccessibleDraggableOptions from '../../../../scenery-phet/js/accessibility/grab-drag/AccessibleDraggableOptions.js';
@@ -19,7 +19,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import SceneModel from '../model/SceneModel.js';
+import { DETECTOR_SCREEN_SCALE_OPTIONS } from '../model/DetectorScreenScale.js';
 
 const RULER_LABELED_TICK_INTERVAL_MM = 5;
 const RULER_MINOR_TICKS_PER_MAJOR = 4;
@@ -36,7 +36,7 @@ const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number ): number => {
 };
 
 const createRulerNode = (
-  sceneModel: SceneModel,
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>,
   tandem: Tandem
 ): InteractiveHighlightingNode => {
   const rulerContainer = new Node();
@@ -48,7 +48,7 @@ const createRulerNode = (
       rulerNode.dispose();
     }
 
-    const { minMM, maxMM } = sceneModel.detectorScreenScale;
+    const { minMM, maxMM } = DETECTOR_SCREEN_SCALE_OPTIONS[ detectorScreenScaleIndexProperty.value ];
     const detectorWidthMM = maxMM - minMM;
     const halfDetectorWidthMM = detectorWidthMM / 2;
     const labelDecimalPlaces = getRulerLabelDecimalPlaces( halfDetectorWidthMM );
@@ -78,7 +78,7 @@ const createRulerNode = (
     rulerContainer.addChild( rulerNode );
   };
 
-  sceneModel.detectorScreenScaleIndexProperty.link( rebuildRuler );
+  detectorScreenScaleIndexProperty.link( rebuildRuler );
 
   return new InteractiveHighlightingNode( {
     children: [ rulerContainer ],

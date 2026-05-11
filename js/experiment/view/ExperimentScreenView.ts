@@ -107,6 +107,7 @@ export default class ExperimentScreenView extends ScreenView {
 
     const overheadDetectorScreenNode = new OverheadDetectorScreenNode(
       model.sceneProperty,
+      model.detectorScreenScaleIndexProperty,
       overheadDoubleSlitNode.parallelogramNode
     );
     const overheadBeamNode = new OverheadBeamNode(
@@ -166,7 +167,7 @@ export default class ExperimentScreenView extends ScreenView {
     const controlsRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
     const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
     const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
-      return new DetectorScreenNode( scene, model.isPlayingProperty, {
+      return new DetectorScreenNode( scene, model.detectorScreenScaleIndexProperty, model.isPlayingProperty, {
         onSnapshotCaptured: () => overheadDetectorScreenNode.startSnapshotFlash(),
         tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
       } );
@@ -201,6 +202,7 @@ export default class ExperimentScreenView extends ScreenView {
       const graphBox = new GraphAccordionBox( scene, {
         expandedProperty: this.graphExpandedProperty,
         isRulerVisibleProperty: model.isRulerVisibleProperty,
+        detectorScreenScaleIndexProperty: model.detectorScreenScaleIndexProperty,
         tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
       } );
       graphBox.x = detectorScreenCenterX - graphBox.getChartAreaLocalBounds().centerX;
@@ -420,9 +422,9 @@ export default class ExperimentScreenView extends ScreenView {
     // the scene's full detector width in mm.
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
-    const rulerNodes = model.scenes.map( ( scene, index ) => {
+    const rulerNodes = model.scenes.map( ( _scene, index ) => {
       const rulerNode = createRulerNode(
-        scene,
+        model.detectorScreenScaleIndexProperty,
         rulerNodesTandem.createTandem( `rulerNode${index}` )
       );
       this.addChild( rulerNode );
@@ -561,7 +563,11 @@ export default class ExperimentScreenView extends ScreenView {
       } );
     } );
 
-    const detectorScreenDescriber = new DetectorScreenDescriber( model.sceneProperty, model.isRulerVisibleProperty );
+    const detectorScreenDescriber = new DetectorScreenDescriber(
+      model.sceneProperty,
+      model.isRulerVisibleProperty,
+      model.detectorScreenScaleIndexProperty
+    );
     const detectorScreenDescriptionNode = new Node( {
       accessibleParagraph: detectorScreenDescriber.descriptionProperty
     } );

@@ -16,6 +16,7 @@
 import Property from '../../../../../axon/js/Property.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
+import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import SceneModel from '../../model/SceneModel.js';
 import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
 import BandAnalysis from './BandAnalysis.js';
@@ -24,7 +25,11 @@ export default class GraphDescriber {
 
   public readonly descriptionProperty: TReadOnlyProperty<string>;
 
-  public constructor( sceneModel: SceneModel, isRulerVisibleProperty: TReadOnlyProperty<boolean> ) {
+  public constructor(
+    sceneModel: SceneModel,
+    isRulerVisibleProperty: TReadOnlyProperty<boolean>,
+    detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+  ) {
 
     const descriptionProperty = new Property<string>( '' );
     this.descriptionProperty = descriptionProperty;
@@ -45,7 +50,10 @@ export default class GraphDescriber {
           return;
         }
 
-        const analysis = BandAnalysis.analyzeTheoreticalPattern( sceneModel );
+        const analysis = BandAnalysis.analyzeTheoreticalPattern(
+          sceneModel,
+          getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value )
+        );
         const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
 
         descriptionProperty.value = isDoubleSlit
@@ -64,7 +72,10 @@ export default class GraphDescriber {
 
       // Use the theoretical pattern for spatial descriptions so they remain stable as hits accumulate,
       // rather than jumping with noisy bin data.
-      const analysis = BandAnalysis.analyzeTheoreticalPattern( sceneModel );
+      const analysis = BandAnalysis.analyzeTheoreticalPattern(
+        sceneModel,
+        getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value )
+      );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
 
       if ( isDoubleSlit ) {
@@ -98,7 +109,7 @@ export default class GraphDescriber {
     sceneModel.screenDistanceProperty.lazyLink( fullUpdate );
     sceneModel.wavelengthProperty.lazyLink( fullUpdate );
     sceneModel.velocityProperty.lazyLink( fullUpdate );
-    sceneModel.detectorScreenScaleIndexProperty.lazyLink( fullUpdate );
+    detectorScreenScaleIndexProperty.lazyLink( fullUpdate );
     isRulerVisibleProperty.lazyLink( fullUpdate );
 
     // Re-render whenever the Fluent bundle changes (e.g. locale change,

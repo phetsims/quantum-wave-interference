@@ -83,9 +83,15 @@ export type SnapshotNodeOptions = {
   // The front-facing High Intensity and Single Particles detector screens store hit.x as the detector-screen
   // vertical coordinate and hit.y as the horizontal coordinate. Other screens use the conventional x/y mapping.
   useFrontFacingHitCoordinates?: boolean;
+
+  // Optional Experiment detector zoom. When supplied, all snapshots are cropped to the centered visible detector span.
+  detectorScreenScaleIndexProperty?: TReadOnlyProperty<number>;
+  getVisibleScreenHalfWidth?: () => number;
 };
 
 export default class SnapshotNode extends Node {
+  private readonly detectorSnapshotSlot: Node;
+
   public constructor( index: number, options: SnapshotNodeOptions ) {
 
     const getSlitSettingDisplayProperty = (
@@ -243,10 +249,12 @@ export default class SnapshotNode extends Node {
       snapshotProperty,
       SNAPSHOT_WIDTH,
       SNAPSHOT_HEIGHT,
-      options.useFrontFacingHitCoordinates || false
+      options.useFrontFacingHitCoordinates || false,
+      options.getVisibleScreenHalfWidth
     );
     canvasNode.clipArea = background.shape!;
     snapshotProperty.link( () => canvasNode.invalidatePaint() );
+    options.detectorScreenScaleIndexProperty?.link( () => canvasNode.invalidatePaint() );
 
     const titleText = new Text( titleProperty, {
       font: TITLE_FONT,
@@ -378,9 +386,14 @@ export default class SnapshotNode extends Node {
     if ( options.getDescription ) {
       const getDescription = options.getDescription;
 
-      const descriptionProperty = snapshotProperty.derived(
-        snapshot => snapshot ? getDescription( snapshot ) : ''
-      );
+      const descriptionProperty = options.detectorScreenScaleIndexProperty ?
+                                  new DerivedProperty(
+                                    [ snapshotProperty, options.detectorScreenScaleIndexProperty ],
+                                    snapshot => snapshot ? getDescription( snapshot ) : ''
+                                  ) :
+                                  snapshotProperty.derived(
+                                    snapshot => snapshot ? getDescription( snapshot ) : ''
+                                  );
       const descriptionNode = new Node( {
         accessibleParagraph: descriptionProperty
       } );
@@ -461,6 +474,7 @@ export default class SnapshotNode extends Node {
     }
 
     super( superOptions );
+    this.detectorSnapshotSlot = detectorSnapshotSlot;
 
     if ( options.getDescription ) {
       const descriptionNode = nodeChildren[ 2 ];
@@ -468,11 +482,19 @@ export default class SnapshotNode extends Node {
       this.pdomOrder = [ descriptionNode, metadataListNode, trashButton ];
     }
   }
+
+  public addSnapshotOverlayChild( child: Node, includeInPDOM = false ): void {
+    this.detectorSnapshotSlot.addChild( child );
+    if ( includeInPDOM && this.pdomOrder ) {
+      this.pdomOrder = [ child, ...this.pdomOrder ];
+    }
+  }
 }
 
 class SnapshotCanvasNode extends CanvasNode {
   private readonly snapshotProperty: TReadOnlyProperty<Snapshot | null>;
   private readonly useFrontFacingHitCoordinates: boolean;
+  private readonly getZoomedScreenHalfWidth: ( () => number ) | null;
   private readonly intensityTextureCanvas: HTMLCanvasElement;
   private readonly intensityTextureContext: CanvasRenderingContext2D;
 
@@ -480,13 +502,15 @@ class SnapshotCanvasNode extends CanvasNode {
     snapshotProperty: TReadOnlyProperty<Snapshot | null>,
     width: number,
     height: number,
-    useFrontFacingHitCoordinates: boolean
+    useFrontFacingHitCoordinates: boolean,
+    getVisibleScreenHalfWidth?: () => number
   ) {
     super( {
       canvasBounds: new Bounds2( 0, 0, width, height )
     } );
     this.snapshotProperty = snapshotProperty;
     this.useFrontFacingHitCoordinates = useFrontFacingHitCoordinates;
+    this.getZoomedScreenHalfWidth = getVisibleScreenHalfWidth || null;
 
     this.intensityTextureCanvas = document.createElement( 'canvas' );
     this.intensityTextureCanvas.width = ANALYTICAL_TEXTURE_WIDTH;
@@ -522,11 +546,14 @@ class SnapshotCanvasNode extends CanvasNode {
     const displayBounds = this.canvasBounds;
     const width = displayBounds.width;
     const height = displayBounds.height;
+    const visibleHalfWidth = this.getVisibleScreenHalfWidth( snapshot );
+    const visibleFraction = visibleHalfWidth / snapshot.screenHalfWidth;
+    const zoomScale = 1 / visibleFraction;
     const displayGain = getHitsDisplayGain( snapshot.brightness );
     const brightnessFraction = getHitsBrightnessFraction( snapshot.brightness );
     const coreAlpha = getHitsCoreAlpha( brightnessFraction );
     const glowAlpha = getHitsGlowAlpha( brightnessFraction );
-    const glowRadius = BASE_HIT_GLOW_RADIUS * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
+    const glowRadius = BASE_HIT_GLOW_RADIUS * zoomScale * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
 
     const baseRGB = snapshot.sourceType === 'photons'
                     ? VisibleColor.wavelengthToColor( snapshot.wavelength )
@@ -547,11 +574,20 @@ class SnapshotCanvasNode extends CanvasNode {
       for ( let i = startIndex; i < hitCount; i++ ) {
         const hit = hits[ i ];
         const hitX = hit.x;
+        const normalizedVisibleX = hitX / visibleFraction;
+        if ( Math.abs( normalizedVisibleX ) > 1 ) {
+          continue;
+        }
 
         // Front-facing detector hits use hit.y from center-to-top; snapshots stretch that half-span to full height.
         const hitY = this.useFrontFacingHitCoordinates ? 1 - 2 * hit.y : hit.y;
-        const viewX = displayBounds.left + ( ( hitX + 1 ) / 2 ) * width;
-        const viewY = displayBounds.top + ( ( hitY + 1 ) / 2 ) * height;
+        const normalizedVisibleY = hitY / visibleFraction;
+        if ( Math.abs( normalizedVisibleY ) > 1 ) {
+          continue;
+        }
+
+        const viewX = displayBounds.left + ( ( normalizedVisibleX + 1 ) / 2 ) * width;
+        const viewY = displayBounds.top + ( ( normalizedVisibleY + 1 ) / 2 ) * height;
         context.beginPath();
         context.arc( viewX, viewY, radius, 0, Math.PI * 2 );
         context.fill();
@@ -559,7 +595,7 @@ class SnapshotCanvasNode extends CanvasNode {
     };
 
     drawHits( glowAlpha, glowRadius );
-    drawHits( coreAlpha, BASE_HIT_CORE_RADIUS );
+    drawHits( coreAlpha, BASE_HIT_CORE_RADIUS * zoomScale );
   }
 
   private paintIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
@@ -622,7 +658,7 @@ class SnapshotCanvasNode extends CanvasNode {
     textureContext.clearRect( 0, 0, ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
 
     const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
-    const screenHalfWidth = snapshot.screenHalfWidth;
+    const screenHalfWidth = this.getVisibleScreenHalfWidth( snapshot );
 
     // The analytical snapshot texture spans the full detector width, which is twice the captured screenHalfWidth.
     const sampleWidthOnScreen = 2 * screenHalfWidth / ANALYTICAL_TEXTURE_WIDTH;
@@ -670,5 +706,9 @@ class SnapshotCanvasNode extends CanvasNode {
       displayBounds.height
     );
     context.restore();
+  }
+
+  private getVisibleScreenHalfWidth( snapshot: Snapshot ): number {
+    return this.getZoomedScreenHalfWidth ? this.getZoomedScreenHalfWidth() : snapshot.screenHalfWidth;
   }
 }

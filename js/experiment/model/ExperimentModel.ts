@@ -11,7 +11,9 @@
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import TModel from '../../../../joist/js/TModel.js';
@@ -22,6 +24,7 @@ import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
+import { DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, DETECTOR_SCREEN_SCALE_OPTIONS } from './DetectorScreenScale.js';
 import { type DetectionMode } from './DetectionMode.js';
 import SceneModel from './SceneModel.js';
 import { type SlitConfiguration } from './SlitConfiguration.js';
@@ -50,6 +53,9 @@ export default class ExperimentModel implements TModel {
   public readonly currentIsEmittingProperty: DynamicProperty<boolean, boolean, SceneModel>;
   public readonly currentIsMaxHitsReachedProperty: DynamicProperty<boolean, boolean, SceneModel>;
   public readonly currentScreenBrightnessProperty: DynamicProperty<number, number, SceneModel>;
+
+  // Shared horizontal detector-screen zoom level for all Experiment scene views and snapshots.
+  public readonly detectorScreenScaleIndexProperty: NumberProperty;
 
   // Shared state: time controls
   public readonly isPlayingProperty: BooleanProperty;
@@ -123,6 +129,12 @@ export default class ExperimentModel implements TModel {
       bidirectional: true
     } );
 
+    this.detectorScreenScaleIndexProperty = new NumberProperty( DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, {
+      range: new Range( 0, DETECTOR_SCREEN_SCALE_OPTIONS.length - 1 ),
+      numberType: 'Integer',
+      tandem: tandem.createTandem( 'detectorScreenScaleIndexProperty' )
+    } );
+
     this.isPlayingProperty = new BooleanProperty( true, {
       tandem: tandem.createTandem( 'isPlayingProperty' )
     } );
@@ -160,6 +172,7 @@ export default class ExperimentModel implements TModel {
     this.scenes.forEach( scene => scene.reset() );
 
     // Reset shared state
+    this.detectorScreenScaleIndexProperty.reset();
     this.isPlayingProperty.reset();
     this.timeSpeedProperty.reset();
     this.isRulerVisibleProperty.reset();

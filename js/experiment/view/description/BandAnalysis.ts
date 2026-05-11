@@ -42,11 +42,11 @@ export default class BandAnalysis {
    * For single slit (or which-path detector), only the broad central diffraction maximum is reported.
    * This avoids the resolution and smoothing artifacts of numerical peak detection.
    */
-  public static analyzeTheoreticalPattern( scene: SceneModel ): BandAnalysisResult {
+  public static analyzeTheoreticalPattern( scene: SceneModel, screenHalfWidth: number ): BandAnalysisResult {
     return BandAnalysis.computeTheoreticalPattern(
       scene.getEffectiveWavelength(),
       scene.screenDistanceProperty.value,
-      scene.screenHalfWidth,
+      screenHalfWidth,
       scene.slitWidth * 1e-3, // mm -> m
       scene.slitSettingProperty.value,
       scene.slitSeparationProperty.value * 1e-3 // mm -> m
@@ -56,11 +56,14 @@ export default class BandAnalysis {
   /**
    * Computes band information analytically from a snapshot's stored detector-screen state.
    */
-  public static analyzeTheoreticalPatternFromSnapshot( snapshot: Snapshot ): BandAnalysisResult {
+  public static analyzeTheoreticalPatternFromSnapshot(
+    snapshot: Snapshot,
+    screenHalfWidth = snapshot.screenHalfWidth
+  ): BandAnalysisResult {
     return BandAnalysis.computeTheoreticalPattern(
       snapshot.effectiveWavelength,
       snapshot.screenDistance,
-      snapshot.screenHalfWidth,
+      screenHalfWidth,
       SceneModel.getSlitWidth( snapshot.sourceType ) * 1e-3,
       snapshot.slitSetting,
       snapshot.slitSeparation * 1e-3

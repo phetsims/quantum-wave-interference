@@ -31,6 +31,7 @@ import AccordionBox from '../../../../sun/js/AccordionBox.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
+import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 import SceneModel from '../model/SceneModel.js';
 import GraphDescriber from './description/GraphDescriber.js';
 
@@ -57,6 +58,7 @@ type SelfOptions = {
   // per the design requirement that scene changes should not affect the graph accordion box state.
   expandedProperty: Property<boolean>;
   isRulerVisibleProperty: TReadOnlyProperty<boolean>;
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>;
 };
 
 type GraphAccordionBoxOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
@@ -64,6 +66,7 @@ type GraphAccordionBoxOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'
 export default class GraphAccordionBox extends Node {
   private readonly accordionBox: AccordionBox;
   private readonly zoomLevelProperty: NumberProperty;
+  private readonly detectorScreenScaleIndexProperty: TReadOnlyProperty<number>;
 
   private readonly chartBackground: Rectangle;
   private readonly zoomButtonGroup: PlusMinusZoomButtonGroup;
@@ -77,6 +80,8 @@ export default class GraphAccordionBox extends Node {
     );
 
     super( options );
+
+    this.detectorScreenScaleIndexProperty = options.detectorScreenScaleIndexProperty;
 
     // Zoom level for the y-axis.
     // Start two steps below the maximum zoom so the graph opens less magnified by default.
@@ -175,7 +180,11 @@ export default class GraphAccordionBox extends Node {
       children: [ yAxisGutterSpacer, yAxisLabel, chartAreaNode ]
     } );
 
-    const graphDescriber = new GraphDescriber( sceneModel, options.isRulerVisibleProperty );
+    const graphDescriber = new GraphDescriber(
+      sceneModel,
+      options.isRulerVisibleProperty,
+      options.detectorScreenScaleIndexProperty
+    );
     const graphDescriptionNode = new Node( {
       accessibleParagraph: graphDescriber.descriptionProperty
     } );
@@ -300,7 +309,7 @@ export default class GraphAccordionBox extends Node {
     sceneModel.screenDistanceProperty.link( () => updateGraph() );
     sceneModel.slitSettingProperty.link( () => updateGraph() );
     sceneModel.intensityProperty.link( () => updateGraph() );
-    sceneModel.detectorScreenScaleIndexProperty.link( () => updateGraph() );
+    options.detectorScreenScaleIndexProperty.link( () => updateGraph() );
 
     // For photons, wavelength changes affect the intensity curve
     if ( sceneModel.sourceType === 'photons' ) {
@@ -329,7 +338,7 @@ export default class GraphAccordionBox extends Node {
 
     const zoomScale = linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
     const sourceIntensity = sceneModel.intensityProperty.value;
-    const screenHalfWidth = sceneModel.screenHalfWidth;
+    const screenHalfWidth = getDetectorScreenHalfWidthForScaleIndex( this.detectorScreenScaleIndexProperty.value );
 
     const numSamples = CHART_WIDTH * INTENSITY_CURVE_SAMPLES_PER_PIXEL;
     const shape = new Shape();
@@ -386,7 +395,8 @@ export default class GraphAccordionBox extends Node {
     const bins = new Array<number>( HISTOGRAM_BINS ).fill( 0 );
     for ( let i = 0; i < sceneModel.hits.length; i++ ) {
       const physicalX = sceneModel.hits[ i ].x * sceneModel.fullScreenHalfWidth;
-      const normalizedVisibleX = physicalX / sceneModel.screenHalfWidth;
+      const normalizedVisibleX = physicalX /
+                                 getDetectorScreenHalfWidthForScaleIndex( this.detectorScreenScaleIndexProperty.value );
       if ( Math.abs( normalizedVisibleX ) > 1 ) {
         continue;
       }

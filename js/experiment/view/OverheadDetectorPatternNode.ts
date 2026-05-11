@@ -9,6 +9,7 @@
  */
 
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import SceneModel from '../model/SceneModel.js';
 import { createParallelogramShape } from './createParallelogramNode.js';
@@ -19,10 +20,16 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
   private readonly dx: number;
   private readonly dy: number;
   private readonly leftHeight: number;
+  private readonly detectorScreenScaleIndexProperty: TReadOnlyProperty<number>;
 
   private sceneModel: SceneModel | null = null;
 
-  public constructor( dx: number, dy: number, leftHeight: number ) {
+  public constructor(
+    dx: number,
+    dy: number,
+    leftHeight: number,
+    detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+  ) {
     super( {
       canvasBounds: new Bounds2( 0, 0, dx, leftHeight + dy )
     } );
@@ -30,8 +37,10 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
     this.dx = dx;
     this.dy = dy;
     this.leftHeight = leftHeight;
+    this.detectorScreenScaleIndexProperty = detectorScreenScaleIndexProperty;
 
     this.updateClipAndBounds();
+    detectorScreenScaleIndexProperty.link( () => this.invalidatePaint() );
   }
 
   private updateClipAndBounds(): void {
@@ -56,7 +65,7 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
       return;
     }
 
-    const texture = getDetectorScreenTexture( this.sceneModel );
+    const texture = getDetectorScreenTexture( this.sceneModel, this.detectorScreenScaleIndexProperty );
     const sourceWidth = texture.width;
     const sourceHeight = texture.height;
 

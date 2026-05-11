@@ -22,6 +22,7 @@ import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
+import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 import SceneModel from '../model/SceneModel.js';
 import createParallelogramNode, { createParallelogramShape } from './createParallelogramNode.js';
 import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
@@ -69,16 +70,22 @@ export default class OverheadDetectorScreenNode extends Node {
   private snapshotFlashAnimation: Animation | null = null;
 
   private readonly sceneProperty: TReadOnlyProperty<SceneModel>;
+  private readonly detectorScreenScaleIndexProperty: TReadOnlyProperty<number>;
   private frontFacingScreenLeft = 0;
   private frontFacingScreenRight = 0;
   private currentScreenCenterX = 0;
   private readonly doubleSlitParallelogramNode: Node;
   private readonly updateDetectorScreenPosition: () => void;
 
-  public constructor( sceneProperty: TReadOnlyProperty<SceneModel>, doubleSlitParallelogramNode: Node ) {
+  public constructor(
+    sceneProperty: TReadOnlyProperty<SceneModel>,
+    detectorScreenScaleIndexProperty: TReadOnlyProperty<number>,
+    doubleSlitParallelogramNode: Node
+  ) {
     super( { isDisposable: false } );
 
     this.sceneProperty = sceneProperty;
+    this.detectorScreenScaleIndexProperty = detectorScreenScaleIndexProperty;
     this.doubleSlitParallelogramNode = doubleSlitParallelogramNode;
 
     // Detector screen label
@@ -94,7 +101,12 @@ export default class OverheadDetectorScreenNode extends Node {
     this.addChild( this.parallelogramNode );
 
     // Interference pattern overlay
-    this.overheadPatternNode = new OverheadDetectorPatternNode( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT );
+    this.overheadPatternNode = new OverheadDetectorPatternNode(
+      DETECTOR_DX,
+      DETECTOR_DY,
+      DETECTOR_LEFT_HEIGHT,
+      detectorScreenScaleIndexProperty
+    );
     this.parallelogramNode.addChild( this.overheadPatternNode );
 
     // Transient snapshot flash overlay. This is a visual effect only (not model state).
@@ -207,15 +219,15 @@ export default class OverheadDetectorScreenNode extends Node {
     sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         oldScene.screenDistanceProperty.unlink( this.updateDetectorScreenPosition );
-        oldScene.detectorScreenScaleIndexProperty.unlink( this.updateDetectorScreenPosition );
       }
       newScene.screenDistanceProperty.link( this.updateDetectorScreenPosition );
-      newScene.detectorScreenScaleIndexProperty.link( this.updateDetectorScreenPosition );
     } );
+    detectorScreenScaleIndexProperty.link( this.updateDetectorScreenPosition );
   }
 
   public getVisibleDetectorSizeFraction(): number {
-    return this.sceneProperty.value.screenHalfWidth / this.sceneProperty.value.fullScreenHalfWidth;
+    return getDetectorScreenHalfWidthForScaleIndex( this.detectorScreenScaleIndexProperty.value ) /
+           this.sceneProperty.value.fullScreenHalfWidth;
   }
 
   public getFullParallelogramHeight(): number {

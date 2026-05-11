@@ -10,18 +10,17 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
-import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
-import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -41,6 +40,8 @@ import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import SnapshotDescriber from './description/SnapshotDescriber.js';
+import DetectorScreenScaleIndicatorNode from './DetectorScreenScaleIndicatorNode.js';
+import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 
 const EXPERIMENT_SLIT_DISPLAY_MAP: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>> = {
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
@@ -64,25 +65,12 @@ const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 const SCREEN_CORNER_RADIUS = 0;
 const BUTTON_COLUMN_GAP = 6;
-const TARGET_SCALE_WIDTH_MM = 5;
 const HORIZONTAL_ZOOM_BUTTON_MARGIN = 6;
 const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
 const SNAPSHOT_FLASH_DURATION = 0.6;
 const DETECTOR_ACTION_BUTTON_MIN_WIDTH = 36;
-
-/**
- * Returns the number of decimal places to show in a millimeter scale label,
- * based on the magnitude of the value (0 for integers >=1, 1 for >=0.1, 2 otherwise).
- */
-const getScaleLabelDecimalPlaces = ( valueMM: number ): number => {
-  if ( valueMM >= 1 ) {
-    return Number.isInteger( valueMM ) ? 0 : 1;
-  }
-  if ( valueMM >= 0.1 ) {
-    return 1;
-  }
-  return 2;
-};
+const SPAN_TICK_LENGTH = 8;
+const SPAN_ARROW_Y = -10;
 
 type SelfOptions = {
   onSnapshotCaptured?: () => void;
@@ -101,6 +89,7 @@ export default class DetectorScreenNode extends Node {
 
   public constructor(
     sceneModel: SceneModel,
+    detectorScreenScaleIndexProperty: NumberProperty,
     isPlayingProperty: Property<boolean>,
     providedOptions: DetectorScreenNodeOptions
   ) {
@@ -131,7 +120,12 @@ export default class DetectorScreenNode extends Node {
     this.addChild( this.screenBackgroundRect );
 
     // Canvas node for rendering hits and intensity, clipped to the screen area
-    this.screenCanvasNode = new DetectorScreenCanvasNode( sceneModel, SCREEN_WIDTH, SCREEN_HEIGHT );
+    this.screenCanvasNode = new DetectorScreenCanvasNode(
+      sceneModel,
+      detectorScreenScaleIndexProperty,
+      SCREEN_WIDTH,
+      SCREEN_HEIGHT
+    );
     this.screenCanvasNode.clipArea = this.screenBackgroundRect.shape!;
     this.addChild( this.screenCanvasNode );
 
@@ -183,13 +177,13 @@ export default class DetectorScreenNode extends Node {
 
     const horizontalZoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
       level: new DerivedProperty(
-        [ sceneModel.detectorScreenScaleIndexProperty ],
+        [ detectorScreenScaleIndexProperty ],
         detectorScreenScaleIndex => detectorScreenScaleIndex + 1
       ),
-      max: sceneModel.detectorScreenScaleIndexProperty.range.max + 1
+      max: detectorScreenScaleIndexProperty.range.max + 1
     } );
 
-    const horizontalZoomButtonGroup = new PlusMinusZoomButtonGroup( sceneModel.detectorScreenScaleIndexProperty, {
+    const horizontalZoomButtonGroup = new PlusMinusZoomButtonGroup( detectorScreenScaleIndexProperty, {
       orientation: 'horizontal',
       spacing: 0,
       iconOptions: {
@@ -223,79 +217,11 @@ export default class DetectorScreenNode extends Node {
     } );
     this.addChild( hitCountText );
 
-    // Scale indicator: a double-headed span arrow spanning the full width of the detector screen,
-    // with tick marks at the endpoints and a centered label showing the physical width.
-    // This matches the span indicators used in FrontFacingSlitNode for slit width/separation.
-    const SPAN_TICK_LENGTH = 8;
-    const SPAN_ARROW_Y = -10; // y position of the span arrow above the screen
-
-    // Scale indicator: the span arrow length is computed directly from the scene's physical detector width,
-    // so the visual measurement is consistent with the interference pattern scale.
-    // Use 5 mm when that fits on the detector screen. For scenes with sub-mm detector widths,
-    // use 1/4 of the detector width so the scale bar remains readable.
-    const scaleLabelStringProperty = new DerivedProperty(
-      [
-        sceneModel.detectorScreenScaleIndexProperty,
-        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty
-      ],
-      ( _detectorScreenScaleIndex, pattern ) => {
-        const fullPhysicalWidthMM = sceneModel.screenHalfWidth * 2 * 1e3;
-        const scalePhysicalWidthMM = fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
-        return StringUtils.fillIn( pattern, {
-          value: toFixed( scalePhysicalWidthMM, getScaleLabelDecimalPlaces( scalePhysicalWidthMM ) )
-        } );
-      }
-    );
-
-    // Future cleanup: the scale indicator (arrow + ticks + label) could be extracted to a reusable ScaleIndicatorNode.
-    const scaleArrow = new ArrowNode( 0, SPAN_ARROW_Y, 1, SPAN_ARROW_Y, {
-      headHeight: 5,
-      headWidth: 5,
-      tailWidth: 1,
-      doubleHead: true,
-      fill: 'black',
-      stroke: null
-    } );
-    this.addChild( scaleArrow );
-
-    const scaleLeftTick = new Line(
-      0,
-      SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2,
-      0,
-      SPAN_ARROW_Y + SPAN_TICK_LENGTH / 2,
-      { stroke: 'black', lineWidth: 1 }
-    );
-    this.addChild( scaleLeftTick );
-
-    const scaleRightTick = new Line(
-      0,
-      SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2,
-      0,
-      SPAN_ARROW_Y + SPAN_TICK_LENGTH / 2,
-      { stroke: 'black', lineWidth: 1 }
-    );
-    this.addChild( scaleRightTick );
-
-    const scaleLabelText = new Text( scaleLabelStringProperty, {
-      font: new PhetFont( 12 ),
-      fill: 'black',
-      maxWidth: 100,
-      centerY: SPAN_ARROW_Y
-    } );
-    this.addChild( scaleLabelText );
-
-    const updateScaleIndicator = () => {
-      const fullPhysicalWidth = sceneModel.screenHalfWidth * 2;
-      const metersPerPixel = fullPhysicalWidth / SCREEN_WIDTH;
-      const fullPhysicalWidthMM = fullPhysicalWidth * 1e3;
-      const scalePhysicalWidthMM = fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ? TARGET_SCALE_WIDTH_MM : fullPhysicalWidthMM * 0.25;
-      const scaleArrowWidth = ( scalePhysicalWidthMM * 1e-3 ) / metersPerPixel;
-
-      scaleArrow.setTailAndTip( 0, SPAN_ARROW_Y, scaleArrowWidth, SPAN_ARROW_Y );
-      scaleRightTick.x = scaleArrowWidth;
-      scaleLabelText.left = scaleArrowWidth + 4;
-    };
-    sceneModel.detectorScreenScaleIndexProperty.link( updateScaleIndicator );
+    this.addChild( new DetectorScreenScaleIndicatorNode(
+      detectorScreenScaleIndexProperty,
+      SCREEN_WIDTH,
+      SPAN_ARROW_Y
+    ) );
 
     // Update the hit count text and canvas when hits change or locale strings change
     const updateDisplay = () => {
@@ -322,7 +248,7 @@ export default class DetectorScreenNode extends Node {
     sceneModel.isEmittingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.screenBrightnessProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.intensityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
-    sceneModel.detectorScreenScaleIndexProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    detectorScreenScaleIndexProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
     // The intensity pattern is derived from accumulated hits (which trigger hitsChangedEmitter),
     // but wavelength changes affect hit dot color for photons.
@@ -348,7 +274,14 @@ export default class DetectorScreenNode extends Node {
         slitSettingDisplayMap: EXPERIMENT_SLIT_DISPLAY_MAP,
         formatSlitSeparation: formatExperimentSlitSeparation,
         showScreenDistance: true,
-        getDescription: snapshot => SnapshotDescriber.getDescription( snapshot )
+        getDescription: snapshot => SnapshotDescriber.getDescription( snapshot, detectorScreenScaleIndexProperty.value ),
+        detectorScreenScaleIndexProperty: detectorScreenScaleIndexProperty,
+        getVisibleScreenHalfWidth: () => getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value ),
+        createScaleIndicatorNode: () => new DetectorScreenScaleIndicatorNode(
+          detectorScreenScaleIndexProperty,
+          SCREEN_WIDTH,
+          SPAN_ARROW_Y
+        )
       }
     );
 

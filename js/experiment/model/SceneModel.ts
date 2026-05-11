@@ -28,6 +28,7 @@ import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import { getExactAnalyticalDetectorIntensity } from '../../common/model/AnalyticalDetectorPattern.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import { getFullDetectorScreenHalfWidth } from './DetectorScreenScale.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
@@ -52,31 +53,6 @@ export type SceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 
 export default class SceneModel extends PhetioObject {
 
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
-
-  // Horizontal detector screen scale options, in millimeters, shared by all scenes.
-  public static readonly DETECTOR_SCREEN_SCALE_OPTIONS = [
-    { minMM: -20, maxMM: 20 },
-    { minMM: -15, maxMM: 15 },
-    { minMM: -10, maxMM: 10 },
-    { minMM: -5, maxMM: 5 }
-  ] as const;
-  public static readonly DEFAULT_DETECTOR_SCREEN_SCALE_INDEX = 0;
-
-  /**
-   * Physical half-width of the detector screen in meters for a given horizontal scale level.
-   */
-  public static getScreenHalfWidthForScaleIndex( scaleIndex: number ): number {
-    const scaleOption = SceneModel.DETECTOR_SCREEN_SCALE_OPTIONS[ scaleIndex ];
-    return ( scaleOption.maxMM - scaleOption.minMM ) * 0.5 * 1e-3;
-  }
-
-  /**
-   * Physical half-width of the full detector screen in meters. Detector screen zoom changes the visible region,
-   * not the underlying detector data.
-   */
-  public static getFullScreenHalfWidth(): number {
-    return SceneModel.getScreenHalfWidthForScaleIndex( SceneModel.DEFAULT_DETECTOR_SCREEN_SCALE_INDEX );
-  }
 
   /**
    * Slit width in mm for a given source type.
@@ -117,9 +93,6 @@ export default class SceneModel extends PhetioObject {
 
   // Screen brightness: 0 to SCREEN_BRIGHTNESS_MAX
   public readonly screenBrightnessProperty: NumberProperty;
-
-  // Horizontal detector-screen zoom level. Smaller values show a wider visible span of the full detector screen.
-  public readonly detectorScreenScaleIndexProperty: NumberProperty;
 
   // Slit width in mm (constant per source type, determined by the physics)
   public readonly slitWidth: number;
@@ -273,12 +246,6 @@ export default class SceneModel extends PhetioObject {
     this.screenBrightnessProperty = new NumberProperty( SceneModel.SCREEN_BRIGHTNESS_MAX * 0.5, {
       range: new Range( 0, SceneModel.SCREEN_BRIGHTNESS_MAX ),
       tandem: tandem.createTandem( 'screenBrightnessProperty' )
-    } );
-
-    this.detectorScreenScaleIndexProperty = new NumberProperty( SceneModel.DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, {
-      range: new Range( 0, SceneModel.DETECTOR_SCREEN_SCALE_OPTIONS.length - 1 ),
-      numberType: 'Integer',
-      tandem: tandem.createTandem( 'detectorScreenScaleIndexProperty' )
     } );
 
     this.totalHitsProperty = new NumberProperty( 0, {
@@ -452,7 +419,6 @@ export default class SceneModel extends PhetioObject {
     this.slitSettingProperty.reset();
     this.detectionModeProperty.reset();
     this.screenBrightnessProperty.reset();
-    this.detectorScreenScaleIndexProperty.reset();
     this.hits.length = 0;
     this.hitAccumulator = 0;
     this.totalHitsProperty.reset();
@@ -599,24 +565,10 @@ export default class SceneModel extends PhetioObject {
   } );
 
   /**
-   * The current detector screen scale option.
-   */
-  public get detectorScreenScale(): ( typeof SceneModel.DETECTOR_SCREEN_SCALE_OPTIONS )[ number ] {
-    return SceneModel.DETECTOR_SCREEN_SCALE_OPTIONS[ this.detectorScreenScaleIndexProperty.value ];
-  }
-
-  /**
-   * Physical half-width of the visible detector screen region in meters for the current horizontal zoom.
-   */
-  public get screenHalfWidth(): number {
-    return SceneModel.getScreenHalfWidthForScaleIndex( this.detectorScreenScaleIndexProperty.value );
-  }
-
-  /**
    * Physical half-width of the full detector screen in meters. This is independent of detector screen zoom.
    */
   public get fullScreenHalfWidth(): number {
-    return SceneModel.getFullScreenHalfWidth();
+    return getFullDetectorScreenHalfWidth();
   }
 }
 

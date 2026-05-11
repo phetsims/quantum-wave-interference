@@ -16,6 +16,7 @@
 import Property from '../../../../../axon/js/Property.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
+import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import SceneModel from '../../model/SceneModel.js';
 import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
 import BandAnalysis from './BandAnalysis.js';
@@ -24,7 +25,11 @@ export default class DetectorScreenDescriber {
 
   public readonly descriptionProperty: TReadOnlyProperty<string>;
 
-  public constructor( sceneProperty: TReadOnlyProperty<SceneModel>, isRulerVisibleProperty: TReadOnlyProperty<boolean> ) {
+  public constructor(
+    sceneProperty: TReadOnlyProperty<SceneModel>,
+    isRulerVisibleProperty: TReadOnlyProperty<boolean>,
+    detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+  ) {
 
     const descriptionProperty = new Property<string>( '' );
     this.descriptionProperty = descriptionProperty;
@@ -46,7 +51,10 @@ export default class DetectorScreenDescriber {
           return;
         }
 
-        const analysis = BandAnalysis.analyzeTheoreticalPattern( scene );
+        const analysis = BandAnalysis.analyzeTheoreticalPattern(
+          scene,
+          getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value )
+        );
         const spatialDescription = isDoubleSlit ?
                                    BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, isRulerVisible, false ) :
                                    BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
@@ -70,7 +78,10 @@ export default class DetectorScreenDescriber {
 
       // Use the theoretical pattern for spatial descriptions so they remain stable as hits accumulate,
       // rather than jumping with noisy bin data.
-      const analysis = BandAnalysis.analyzeTheoreticalPattern( scene );
+      const analysis = BandAnalysis.analyzeTheoreticalPattern(
+        scene,
+        getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value )
+      );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
       if ( isDoubleSlit ) {
@@ -109,7 +120,6 @@ export default class DetectorScreenDescriber {
         previousScene.screenDistanceProperty.unlink( fullUpdate );
         previousScene.wavelengthProperty.unlink( fullUpdate );
         previousScene.velocityProperty.unlink( fullUpdate );
-        previousScene.detectorScreenScaleIndexProperty.unlink( fullUpdate );
       }
       scene.hitsChangedEmitter.addListener( update );
       scene.detectionModeProperty.lazyLink( fullUpdate );
@@ -119,13 +129,13 @@ export default class DetectorScreenDescriber {
       scene.screenDistanceProperty.lazyLink( fullUpdate );
       scene.wavelengthProperty.lazyLink( fullUpdate );
       scene.velocityProperty.lazyLink( fullUpdate );
-      scene.detectorScreenScaleIndexProperty.lazyLink( fullUpdate );
       previousScene = scene;
       fullUpdate();
     } );
 
     // Also update when the ruler visibility changes, since it affects spatial language.
     isRulerVisibleProperty.lazyLink( fullUpdate );
+    detectorScreenScaleIndexProperty.lazyLink( fullUpdate );
 
     // Re-render whenever the Fluent bundle changes (e.g. locale change,
     // or PhET-iO string edits that swap the bundle without changing localeProperty).

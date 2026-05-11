@@ -10,7 +10,9 @@
 
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import ExperimentConstants from '../ExperimentConstants.js';
+import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 import SceneModel from '../model/SceneModel.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from '../../common/view/ScreenBrightnessUtils.js';
 import { getApparentAnalyticalDetectorIntensity } from '../../common/view/AnalyticalDetectorPattern.js';
@@ -113,8 +115,12 @@ const getScaledRGBFillStyle = ( rgb: { r: number; g: number; b: number }, scale:
   return `rgb(${r},${g},${b})`;
 };
 
-const getTextureRenderScale = ( sceneModel: SceneModel ): number => {
-  const visibleFraction = sceneModel.screenHalfWidth / sceneModel.fullScreenHalfWidth;
+const getTextureRenderScale = (
+  sceneModel: SceneModel,
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+): number => {
+  const visibleFraction = getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value ) /
+                          sceneModel.fullScreenHalfWidth;
   return SUPERSAMPLE / visibleFraction;
 };
 
@@ -133,8 +139,12 @@ const resetCacheRenderingState = ( cache: SceneTextureCache ): void => {
   cache.hitSpriteParams = null;
 };
 
-const updateCacheTextureSize = ( cache: SceneTextureCache, sceneModel: SceneModel ): void => {
-  const renderScale = getTextureRenderScale( sceneModel );
+const updateCacheTextureSize = (
+  cache: SceneTextureCache,
+  sceneModel: SceneModel,
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+): void => {
+  const renderScale = getTextureRenderScale( sceneModel, detectorScreenScaleIndexProperty );
 
   if ( cache.renderScale === renderScale ) {
     return;
@@ -298,8 +308,12 @@ const paintIntensity = (
   }
 };
 
-const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ): void => {
-  updateCacheTextureSize( cache, sceneModel );
+const renderSceneTexture = (
+  cache: SceneTextureCache,
+  sceneModel: SceneModel,
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+): void => {
+  updateCacheTextureSize( cache, sceneModel, detectorScreenScaleIndexProperty );
 
   const context = cache.context;
 
@@ -348,8 +362,11 @@ const renderSceneTexture = ( cache: SceneTextureCache, sceneModel: SceneModel ):
   cache.dirty = false;
 };
 
-const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache => {
-  const renderScale = getTextureRenderScale( sceneModel );
+const createSceneTextureCache = (
+  sceneModel: SceneModel,
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+): SceneTextureCache => {
+  const renderScale = getTextureRenderScale( sceneModel, detectorScreenScaleIndexProperty );
   const textureWidth = Math.ceil( SCREEN_WIDTH * renderScale );
   const textureHeight = Math.ceil( SCREEN_HEIGHT * renderScale );
 
@@ -397,17 +414,20 @@ const createSceneTextureCache = ( sceneModel: SceneModel ): SceneTextureCache =>
 /**
  * Gets the shared full detector-screen texture for the specified scene, rendering it lazily on demand.
  */
-function getDetectorScreenTexture( sceneModel: SceneModel ): HTMLCanvasElement {
+function getDetectorScreenTexture(
+  sceneModel: SceneModel,
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+): HTMLCanvasElement {
   let cache = sceneTextureMap.get( sceneModel );
   if ( !cache ) {
-    cache = createSceneTextureCache( sceneModel );
+    cache = createSceneTextureCache( sceneModel, detectorScreenScaleIndexProperty );
     sceneTextureMap.set( sceneModel, cache );
   }
 
-  updateCacheTextureSize( cache, sceneModel );
+  updateCacheTextureSize( cache, sceneModel, detectorScreenScaleIndexProperty );
 
   if ( cache.dirty ) {
-    renderSceneTexture( cache, sceneModel );
+    renderSceneTexture( cache, sceneModel, detectorScreenScaleIndexProperty );
   }
 
   return cache.canvas;
