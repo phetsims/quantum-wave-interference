@@ -18,7 +18,7 @@ import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGB, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, sampleIntensityDistribution } from './ScreenBrightnessUtils.js';
 
 const SUPERSAMPLE = 2;
 const MAX_RENDERED_HITS = 10000;
@@ -274,35 +274,38 @@ export default class DetectorScreenTextureRenderer {
     const backgroundRGB = getWaveAndDetectorBackgroundRGB();
     const rgb = getSceneRGB( scene.sourceType, scene.wavelengthProperty.value );
     const distribution = scene.waveSolver.getDetectorProbabilityDistribution();
-    const solverHeight = scene.waveSolver.gridHeight;
+    const distributionLength = distribution.length;
     let totalIntensity = 0;
-    for ( let i = 0; i < solverHeight; i++ ) {
+    for ( let i = 0; i < distributionLength; i++ ) {
       totalIntensity += distribution[ i ];
     }
-    const averageIntensity = solverHeight > 0 ? totalIntensity / solverHeight : 0;
+    const averageIntensity = distributionLength > 0 ? totalIntensity / distributionLength : 0;
+    const imageData = context.createImageData( this.textureWidth, this.textureHeight );
+    const data = imageData.data;
+    const shear = this.skewOffset / this.textureWidth;
 
-    // Apply a shear transform so horizontal bands follow the parallelogram's axis.
-    context.save();
-    context.transform( 1, -this.skewOffset / this.textureWidth, 0, 1, 0, this.skewOffset );
+    for ( let y = 0; y < this.textureHeight; y++ ) {
+      for ( let x = 0; x < this.textureWidth; x++ ) {
+        const pixelIndex = ( y * this.textureWidth + x ) * 4;
+        const faceY = y + 0.5 - this.skewOffset + shear * ( x + 0.5 );
+        const patternIntensity = faceY >= 0 && faceY < this.faceHeight ?
+                                 sampleIntensityDistribution( distribution, faceY / this.faceHeight ) :
+                                 0;
 
-    for ( let y = 0; y < this.faceHeight; y++ ) {
-      const solverY = clamp( Math.floor( ( y + 0.5 ) / this.faceHeight * solverHeight ), 0, solverHeight - 1 );
-      const patternIntensity = distribution[ solverY ];
+        // Simulate detector exposure: brightness and contrast both ramp up so the normalized intensity
+        // pattern does not appear fully formed as soon as the first average is available.
+        const exposedIntensity = ( averageIntensity + ( patternIntensity - averageIntensity ) * exposureFactor ) *
+                                 exposureFactor;
+        const color = getInterpolatedRGB( backgroundRGB, rgb, exposedIntensity * displayGain );
 
-      // Simulate detector exposure: brightness and contrast both ramp up so the normalized intensity
-      // pattern does not appear fully formed as soon as the first average is available.
-      const exposedIntensity = ( averageIntensity + ( patternIntensity - averageIntensity ) * exposureFactor ) *
-                               exposureFactor;
-      const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, rgb, exposedIntensity * displayGain );
-      if ( !fillStyle ) {
-        continue;
+        data[ pixelIndex ] = color.r;
+        data[ pixelIndex + 1 ] = color.g;
+        data[ pixelIndex + 2 ] = color.b;
+        data[ pixelIndex + 3 ] = 255;
       }
-
-      context.fillStyle = fillStyle;
-      context.fillRect( 0, y, this.textureWidth, 1 );
     }
 
-    context.restore();
+    context.putImageData( imageData, 0, 0 );
   }
 
   private rgbToRGBA( rgb: { r: number; g: number; b: number }, alpha: number ): string {

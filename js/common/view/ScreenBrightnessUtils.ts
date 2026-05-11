@@ -15,6 +15,8 @@ import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type SourceType } from '../model/SourceType.js';
 
+export type RGB = { r: number; g: number; b: number };
+
 // Below this intensity threshold, a band is considered perceptually invisible and is skipped during rendering.
 export const PERCEPTUAL_VISIBILITY_THRESHOLD = 0.004;
 
@@ -119,7 +121,7 @@ export const getIntensityDisplayGain = ( brightness: number, intensity: number )
 /**
  * Returns the RGB color for a scene's particles (wavelength-dependent for photons, white for matter).
  */
-export const getSceneRGB = ( sourceType: SourceType, wavelength: number ): { r: number; g: number; b: number } => {
+export const getSceneRGB = ( sourceType: SourceType, wavelength: number ): RGB => {
   if ( sourceType === 'photons' ) {
     const color = VisibleColor.wavelengthToColor( wavelength );
     return { r: color.red, g: color.green, b: color.blue };
@@ -133,26 +135,95 @@ export const getSceneRGB = ( sourceType: SourceType, wavelength: number ): { r: 
  * Returns the detector screen background RGB. Black so that the intensity interpolation
  * goes from black to the wavelength color, matching the wave visualization's color scheme.
  */
-export const getWaveAndDetectorBackgroundRGB = (): { r: number; g: number; b: number } => {
+export const getWaveAndDetectorBackgroundRGB = (): RGB => {
   return { r: 0, g: 0, b: 0 };
 };
 
 /**
- * Interpolates between two RGB colors and returns an rgb(...) fill style string.
- * Values below the perceptual threshold are skipped so callers can let the background show through.
+ * Samples a detector distribution with linear interpolation between solver-cell centers.
  */
-export const getInterpolatedRGBFillStyle = (
-  startRGB: { r: number; g: number; b: number },
-  endRGB: { r: number; g: number; b: number },
+export const sampleIntensityDistribution = ( distribution: ArrayLike<number>, fraction: number ): number => {
+  const length = distribution.length;
+  if ( length === 0 ) {
+    return 0;
+  }
+  if ( length === 1 ) {
+    return distribution[ 0 ];
+  }
+
+  const sampleIndex = clamp( fraction, 0, 1 ) * length - 0.5;
+  if ( sampleIndex <= 0 ) {
+    return distribution[ 0 ];
+  }
+  if ( sampleIndex >= length - 1 ) {
+    return distribution[ length - 1 ];
+  }
+
+  const lowerIndex = Math.floor( sampleIndex );
+  const upperWeight = sampleIndex - lowerIndex;
+  return linear( 0, 1, distribution[ lowerIndex ], distribution[ lowerIndex + 1 ], upperWeight );
+};
+
+/**
+ * Samples a detector distribution with a small triangular smoothing kernel, where radius is measured in solver bins.
+ */
+export const sampleSmoothedIntensityDistribution = (
+  distribution: ArrayLike<number>,
+  fraction: number,
+  radius: number
+): number => {
+  if ( radius <= 0 || distribution.length <= 1 ) {
+    return sampleIntensityDistribution( distribution, fraction );
+  }
+
+  const length = distribution.length;
+  const centerIndex = clamp( fraction, 0, 1 ) * length - 0.5;
+  const startIndex = Math.floor( centerIndex - radius );
+  const endIndex = Math.ceil( centerIndex + radius );
+  let weightedIntensity = 0;
+  let totalWeight = 0;
+
+  for ( let i = startIndex; i <= endIndex; i++ ) {
+    const distance = Math.abs( i - centerIndex );
+    const weight = Math.max( 0, 1 - distance / ( radius + 1 ) );
+    if ( weight > 0 ) {
+      weightedIntensity += sampleIntensityDistribution( distribution, ( i + 0.5 ) / length ) * weight;
+      totalWeight += weight;
+    }
+  }
+
+  return totalWeight > 0 ? weightedIntensity / totalWeight : sampleIntensityDistribution( distribution, fraction );
+};
+
+/**
+ * Interpolates between two RGB colors and returns integer RGB components.
+ */
+export const getInterpolatedRGB = (
+  startRGB: RGB,
+  endRGB: RGB,
   fraction: number
-): string => {
+): RGB => {
   if ( fraction < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
-    return `rgb(${startRGB.r},${startRGB.g},${startRGB.b})`;
+    return startRGB;
   }
 
   const clampedFraction = clamp( fraction, 0, 1 );
-  const r = clamp( roundSymmetric( linear( 0, 1, startRGB.r, endRGB.r, clampedFraction ) ), 0, 255 );
-  const g = clamp( roundSymmetric( linear( 0, 1, startRGB.g, endRGB.g, clampedFraction ) ), 0, 255 );
-  const b = clamp( roundSymmetric( linear( 0, 1, startRGB.b, endRGB.b, clampedFraction ) ), 0, 255 );
-  return `rgb(${r},${g},${b})`;
+  return {
+    r: clamp( roundSymmetric( linear( 0, 1, startRGB.r, endRGB.r, clampedFraction ) ), 0, 255 ),
+    g: clamp( roundSymmetric( linear( 0, 1, startRGB.g, endRGB.g, clampedFraction ) ), 0, 255 ),
+    b: clamp( roundSymmetric( linear( 0, 1, startRGB.b, endRGB.b, clampedFraction ) ), 0, 255 )
+  };
+};
+
+/**
+ * Interpolates between two RGB colors and returns an rgb(...) fill style string.
+ * Values below the perceptual threshold are rendered as the background color.
+ */
+export const getInterpolatedRGBFillStyle = (
+  startRGB: RGB,
+  endRGB: RGB,
+  fraction: number
+): string => {
+  const rgb = getInterpolatedRGB( startRGB, endRGB, fraction );
+  return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
 };

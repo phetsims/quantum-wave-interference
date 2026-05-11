@@ -11,7 +11,6 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
@@ -34,7 +33,7 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type { Snapshot } from '../model/Snapshot.js';
 import { getApparentAnalyticalDetectorIntensity } from './AnalyticalDetectorPattern.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, sampleSmoothedIntensityDistribution } from './ScreenBrightnessUtils.js';
 
 const SNAPSHOT_WIDTH = 360;
 const SNAPSHOT_HEIGHT = 132;
@@ -45,6 +44,9 @@ const MAX_RENDERED_SNAPSHOT_HITS = 100000;
 // Resolution for the offscreen texture canvas used by the analytical intensity rendering path.
 const ANALYTICAL_TEXTURE_WIDTH = 376;
 const ANALYTICAL_TEXTURE_HEIGHT = 155;
+const CAPTURED_INTENSITY_TEXTURE_WIDTH = SNAPSHOT_WIDTH * 4;
+const CAPTURED_INTENSITY_TEXTURE_HEIGHT = SNAPSHOT_HEIGHT;
+const CAPTURED_INTENSITY_SMOOTHING_RADIUS = 1.5;
 
 const PARAM_FONT = new PhetFont( 12 );
 const TITLE_FONT = new PhetFont( { size: 16, weight: 'bold' } );
@@ -613,6 +615,10 @@ class SnapshotCanvasNode extends CanvasNode {
   private paintCapturedIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
     const distribution = snapshot.intensityDistribution;
     const displayBounds = this.canvasBounds;
+    const textureContext = this.intensityTextureContext;
+    this.setIntensityTextureSize( CAPTURED_INTENSITY_TEXTURE_WIDTH, CAPTURED_INTENSITY_TEXTURE_HEIGHT );
+    textureContext.clearRect( 0, 0, CAPTURED_INTENSITY_TEXTURE_WIDTH, CAPTURED_INTENSITY_TEXTURE_HEIGHT );
+
     const backgroundRGB = { r: 0, g: 0, b: 0 };
 
     const normalizedBrightness = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
@@ -625,19 +631,28 @@ class SnapshotCanvasNode extends CanvasNode {
                       } )()
                       : { r: 255, g: 255, b: 255 };
 
-    const distributionLength = distribution.length;
-    for ( let x = Math.floor( displayBounds.left ); x < Math.ceil( displayBounds.right ); x++ ) {
-      const solverIndex = clamp(
-        Math.floor( ( x - displayBounds.left + 0.5 ) / displayBounds.width * distributionLength ),
-        0, distributionLength - 1
-      );
-      const intensityScale = distribution[ solverIndex ] * displayGain;
+    for ( let x = 0; x < CAPTURED_INTENSITY_TEXTURE_WIDTH; x++ ) {
+      const fraction = ( x + 0.5 ) / CAPTURED_INTENSITY_TEXTURE_WIDTH;
+      const intensityScale = sampleSmoothedIntensityDistribution( distribution, fraction, CAPTURED_INTENSITY_SMOOTHING_RADIUS ) *
+                             displayGain;
       const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, sourceRGB, intensityScale );
       if ( fillStyle ) {
-        context.fillStyle = fillStyle;
-        context.fillRect( x, displayBounds.top, 1, displayBounds.height );
+        textureContext.fillStyle = fillStyle;
+        textureContext.fillRect( x, 0, 1, CAPTURED_INTENSITY_TEXTURE_HEIGHT );
       }
     }
+
+    context.save();
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+    context.drawImage(
+      this.intensityTextureCanvas,
+      displayBounds.left,
+      displayBounds.top,
+      displayBounds.width,
+      displayBounds.height
+    );
+    context.restore();
   }
 
   /**
@@ -655,6 +670,7 @@ class SnapshotCanvasNode extends CanvasNode {
 
     const displayBounds = this.canvasBounds;
     const textureContext = this.intensityTextureContext;
+    this.setIntensityTextureSize( ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
     textureContext.clearRect( 0, 0, ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
 
     const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
@@ -710,5 +726,14 @@ class SnapshotCanvasNode extends CanvasNode {
 
   private getVisibleScreenHalfWidth( snapshot: Snapshot ): number {
     return this.getZoomedScreenHalfWidth ? this.getZoomedScreenHalfWidth() : snapshot.screenHalfWidth;
+  }
+
+  private setIntensityTextureSize( width: number, height: number ): void {
+    if ( this.intensityTextureCanvas.width !== width ) {
+      this.intensityTextureCanvas.width = width;
+    }
+    if ( this.intensityTextureCanvas.height !== height ) {
+      this.intensityTextureCanvas.height = height;
+    }
   }
 }
