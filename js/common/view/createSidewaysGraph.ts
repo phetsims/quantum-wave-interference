@@ -2,8 +2,8 @@
 
 /**
  * Factory function that creates the sideways graph (intensity curve / hits histogram) and wires it
- * to the detector screen so the screen scales horizontally to 50% when the graph is shown. The High
- * Intensity and Single Particles screens both use this layout but with different visibility properties
+ * to the detector screen so the screen hides while the graph is shown. The High Intensity and
+ * Single Particles screens both use this layout but with different visibility properties
  * and (for the axis label) different detection-mode handling.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -64,15 +64,14 @@ const createSidewaysGraph = (
 
   isVisibleProperty.link( isVisible => {
     sidewaysGraphNode.visible = isVisible;
+    detectorScreenNode.visible = !isVisible;
+
+    detectorScreenNode.setScaleMagnitude( 1, 1 );
+    detectorScreenNode.centerX = detectorScreenCenterX;
+
     if ( isVisible ) {
-      detectorScreenNode.setScaleMagnitude( 0.5, 1 );
-      detectorScreenNode.centerX = detectorScreenCenterX;
-      sidewaysGraphNode.left = detectorScreenNode.right + GRAPH_LEFT_GAP;
+      sidewaysGraphNode.left = detectorScreenCenterX + GRAPH_LEFT_GAP;
       sidewaysGraphNode.top = waveRegionTop;
-    }
-    else {
-      detectorScreenNode.setScaleMagnitude( 1, 1 );
-      detectorScreenNode.centerX = detectorScreenCenterX;
     }
   } );
 

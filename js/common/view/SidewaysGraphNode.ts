@@ -38,7 +38,8 @@ import type WaveSolver from '../model/WaveSolver.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
-const GRAPH_WIDTH = 80;
+// Preserve the previous right edge while moving the graph left edge to the wave visualizer's right edge.
+const GRAPH_WIDTH = 80 + QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 4;
 const GRAPH_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const HISTOGRAM_BINS = 100;
 const LABEL_FONT = new PhetFont( 12 );
