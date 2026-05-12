@@ -18,7 +18,6 @@ import TrashButton from '../../../../scenery-phet/js/buttons/TrashButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import SceneryPhetFluent from '../../../../scenery-phet/js/SceneryPhetFluent.js';
 import SceneryPhetStrings from '../../../../scenery-phet/js/SceneryPhetStrings.js';
-import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
@@ -33,7 +32,7 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type { Snapshot } from '../model/Snapshot.js';
 import { getApparentAnalyticalDetectorIntensity } from './ApparentDetectorPattern.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, sampleSmoothedIntensityDistribution } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, sampleSmoothedIntensityDistribution } from './ScreenBrightnessUtils.js';
 
 const SNAPSHOT_WIDTH = 360;
 const SNAPSHOT_HEIGHT = 132;
@@ -557,12 +556,10 @@ class SnapshotCanvasNode extends CanvasNode {
     const glowAlpha = getHitsGlowAlpha( brightnessFraction );
     const glowRadius = BASE_HIT_GLOW_RADIUS * zoomScale * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
 
-    const baseRGB = snapshot.sourceType === 'photons'
-                    ? VisibleColor.wavelengthToColor( snapshot.wavelength )
-                    : { red: 255, green: 255, blue: 255 };
-    const scaledR = baseRGB.red;
-    const scaledG = baseRGB.green;
-    const scaledB = baseRGB.blue;
+    const baseRGB = getSceneRGB( snapshot.sourceType, snapshot.wavelength );
+    const scaledR = baseRGB.r;
+    const scaledG = baseRGB.g;
+    const scaledB = baseRGB.b;
 
     const hitCount = hits.length;
     const renderCount = Math.min( hitCount, MAX_RENDERED_SNAPSHOT_HITS );
@@ -624,12 +621,7 @@ class SnapshotCanvasNode extends CanvasNode {
     const normalizedBrightness = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
     const displayGain = getIntensityDisplayGain( normalizedBrightness, snapshot.intensity );
 
-    const sourceRGB = snapshot.sourceType === 'photons'
-                      ? ( () => {
-                        const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
-                        return { r: color.red, g: color.green, b: color.blue };
-                      } )()
-                      : { r: 255, g: 255, b: 255 };
+    const sourceRGB = getSceneRGB( snapshot.sourceType, snapshot.wavelength );
 
     for ( let x = 0; x < CAPTURED_INTENSITY_TEXTURE_WIDTH; x++ ) {
       const fraction = ( x + 0.5 ) / CAPTURED_INTENSITY_TEXTURE_WIDTH;
@@ -682,12 +674,7 @@ class SnapshotCanvasNode extends CanvasNode {
     const slitSetting = snapshot.slitSetting;
     const backgroundRGB = { r: 0, g: 0, b: 0 };
 
-    const sourceRGB = snapshot.sourceType === 'photons'
-                      ? ( () => {
-                        const color = VisibleColor.wavelengthToColor( snapshot.wavelength );
-                        return { r: color.red, g: color.green, b: color.blue };
-                      } )()
-                      : { r: 255, g: 255, b: 255 };
+    const sourceRGB = getSceneRGB( snapshot.sourceType, snapshot.wavelength );
 
     for ( let x = 0; x < ANALYTICAL_TEXTURE_WIDTH; x++ ) {
       const fraction = ( x + 0.5 ) / ANALYTICAL_TEXTURE_WIDTH;

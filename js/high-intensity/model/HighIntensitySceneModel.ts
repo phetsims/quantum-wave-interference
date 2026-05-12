@@ -81,18 +81,8 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMax => !isMax );
 
-    // Initial sync and listeners
-    this.linkSlitConfigurationToBarrierType( this.slitConfigurationProperty );
-    this.syncSolverParameters();
-    this.setupClearScreenListeners();
-    this.slitConfigurationProperty.lazyLink( () => this.clearScreen() );
-
-    // Stop the source when the hit cap is reached
-    this.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
-      if ( isMaxHitsReached ) {
-        this.isEmittingProperty.value = false;
-      }
-    } );
+    this.setupSlitConfigurationListeners( this.slitConfigurationProperty );
+    this.stopEmitterWhenMaxHitsReached();
   }
 
   protected override isTopSlitOpen(): boolean {

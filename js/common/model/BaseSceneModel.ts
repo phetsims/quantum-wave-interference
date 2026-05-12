@@ -458,6 +458,21 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
   }
 
+  protected setupSlitConfigurationListeners( slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier> ): void {
+    this.linkSlitConfigurationToBarrierType( slitConfigurationProperty );
+    this.syncSolverParameters();
+    this.setupClearScreenListeners();
+    slitConfigurationProperty.lazyLink( () => this.clearScreen() );
+  }
+
+  protected stopEmitterWhenMaxHitsReached(): void {
+    this.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
+      if ( isMaxHitsReached ) {
+        this.isEmittingProperty.value = false;
+      }
+    } );
+  }
+
   public clearScreen(): void {
     if ( this.isResetting ) {
       return;

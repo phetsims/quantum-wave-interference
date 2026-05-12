@@ -10,24 +10,13 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import type Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
-import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, type GaussianPacketReEmission, type LayeredFieldSample, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
-import { type BarrierType } from './BarrierType.js';
-import { getViewSlitLayout } from './getViewSlitLayout.js';
-import type WaveSolver from './WaveSolver.js';
+import { type AnalyticalSource, type AnalyticalWaveParameters, type GaussianPacketReEmission, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
+import BaseAnalyticalWaveSolver from './BaseAnalyticalWaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
-const DEFAULT_GRID_WIDTH = 200;
-const DEFAULT_GRID_HEIGHT = 200;
-
-const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
-
 const EPSILON = 1e-12;
-const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
-const UNREACHED_LAYERED_SAMPLE: LayeredFieldSample = { kind: 'unreached' };
 const MEASUREMENT_BITE_SHRINK_DURATION = 0.75;
 
 // Designer-tunable width of the smooth transition from blanked detector interior to untouched wave,
@@ -44,75 +33,17 @@ const copyPacketReEmission = ( reEmission: GaussianPacketReEmission ): GaussianP
   width: reEmission.width
 } );
 
-export default class AnalyticalWavePacketSolver implements WaveSolver {
-
-  public readonly gridWidth: number;
-  public readonly gridHeight: number;
-  public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
-
-  private wavelength = 650e-9;
-  private waveSpeed = 3e8;
-  private displaySpeedScale = 1;
-  private displayWavelengths = DISPLAY_WAVELENGTHS;
-  private barrierType: BarrierType = 'none';
-  private slitSeparation = 0.25e-3;
-  private slitSeparationMin = 0.25e-3;
-  private slitSeparationMax = 3e-3;
-  private slitWidth = 0.02e-3;
-  private barrierFractionX = 0.5;
-  private isTopSlitOpen = true;
-  private isBottomSlitOpen = true;
-  private isTopSlitDecoherent = false;
-  private isBottomSlitDecoherent = false;
-  private isSourceOn = false;
-  private regionWidth = 1.0;
-  private regionHeight = 1.0;
-  private time = 0;
-
-  private readonly amplitudeField: Float64Array;
-  private readonly fieldSamples: FieldSample[];
-  private readonly layeredFieldSamples: LayeredFieldSample[];
-  private readonly detectorDistribution: Float64Array;
-  private dirty = true;
+export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver {
 
   private readonly measurementProjections: MeasurementProjection[] = [];
-  private decoherenceEvents: readonly DecoherenceEvent[] = [];
   private packetReEmission: GaussianPacketReEmission | null = null;
 
-  public constructor( gridWidth = DEFAULT_GRID_WIDTH, gridHeight = DEFAULT_GRID_HEIGHT ) {
-    this.gridWidth = gridWidth;
-    this.gridHeight = gridHeight;
-    this.amplitudeField = new Float64Array( gridWidth * gridHeight * 2 );
-    this.fieldSamples = new Array<FieldSample>( gridWidth * gridHeight ).fill( UNREACHED_SAMPLE );
-    this.layeredFieldSamples = new Array<LayeredFieldSample>( gridWidth * gridHeight ).fill( UNREACHED_LAYERED_SAMPLE );
-    this.detectorDistribution = new Float64Array( gridHeight );
+  public constructor( gridWidth?: number, gridHeight?: number ) {
+    super( gridWidth, gridHeight );
   }
 
-  private setIfDefined<T>( value: T | undefined, setter: ( value: T ) => void ): void {
-    if ( value !== undefined ) {
-      setter( value );
-    }
-  }
-
-  public setParameters( params: WaveSolverParameters ): void {
-    this.setIfDefined( params.wavelength, value => { this.wavelength = value; } );
-    this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
-    this.setIfDefined( params.displaySpeedScale, value => { this.displaySpeedScale = value; } );
-    this.setIfDefined( params.displayWavelengths, value => { this.displayWavelengths = value; } );
-    this.setIfDefined( params.barrierType, value => { this.barrierType = value; } );
-    this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
-    this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
-    this.setIfDefined( params.slitSeparationMax, value => { this.slitSeparationMax = value; } );
-    this.setIfDefined( params.slitWidth, value => { this.slitWidth = value; } );
-    this.setIfDefined( params.barrierFractionX, value => { this.barrierFractionX = value; } );
-    this.setIfDefined( params.isTopSlitOpen, value => { this.isTopSlitOpen = value; } );
-    this.setIfDefined( params.isBottomSlitOpen, value => { this.isBottomSlitOpen = value; } );
-    this.setIfDefined( params.isTopSlitDecoherent, value => { this.isTopSlitDecoherent = value; } );
-    this.setIfDefined( params.isBottomSlitDecoherent, value => { this.isBottomSlitDecoherent = value; } );
-    this.setIfDefined( params.isSourceOn, value => { this.isSourceOn = value; } );
-    this.setIfDefined( params.regionWidth, value => { this.regionWidth = value; } );
-    this.setIfDefined( params.regionHeight, value => { this.regionHeight = value; } );
-    this.setIfDefined( params.decoherenceEvents, value => { this.decoherenceEvents = value.slice(); } );
+  public override setParameters( params: WaveSolverParameters ): void {
+    super.setParameters( params );
     this.setIfDefined( params.packetReEmission, value => {
       const previousEventTime = this.packetReEmission?.eventTime;
       this.packetReEmission = value ? copyPacketReEmission( value ) : null;
@@ -123,16 +54,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.dirty = true;
   }
 
-  public step( dt: number ): void {
-    this.time += dt;
-    this.dirty = true;
-  }
-
-  public getTime(): number {
-    return this.time;
-  }
-
-  private ensureComputed(): void {
+  protected override ensureComputed(): void {
     if ( this.dirty ) {
       this.computeField();
       this.computeDetectorDistribution();
@@ -140,40 +62,10 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     }
   }
 
-  public getAmplitudeField(): Float64Array {
-    this.ensureComputed();
-    return this.amplitudeField;
-  }
-
-  public getFieldSampleAtGridCell( gridX: number, gridY: number ): FieldSample {
-    this.ensureComputed();
-    return this.fieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_SAMPLE;
-  }
-
-  public getLayeredFieldSampleAtGridCell( gridX: number, gridY: number ): LayeredFieldSample {
-    this.ensureComputed();
-    return this.layeredFieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_LAYERED_SAMPLE;
-  }
-
-  public getDetectorProbabilityDistribution(): Float64Array {
-    this.ensureComputed();
-    return this.detectorDistribution;
-  }
-
-  public getDisplayPropagationSpeed(): number {
-    return this.getDisplaySpeed();
-  }
-
-  public reset(): void {
-    this.time = 0;
-    this.isSourceOn = false;
-    this.amplitudeField.fill( 0 );
-    this.fieldSamples.fill( UNREACHED_SAMPLE );
-    this.layeredFieldSamples.fill( UNREACHED_LAYERED_SAMPLE );
-    this.detectorDistribution.fill( 0 );
+  public override reset(): void {
+    super.reset();
     this.measurementProjections.length = 0;
     this.packetReEmission = null;
-    this.dirty = true;
   }
 
   public getState(): WaveSolverState {
@@ -213,11 +105,7 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.dirty = true;
   }
 
-  public invalidate(): void {
-    this.dirty = true;
-  }
-
-  public applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void {
+  public override applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void {
     this.measurementProjections.push( {
       centerX: centerNorm.x * this.regionWidth,
       centerY: ( centerNorm.y - 0.5 ) * this.regionHeight,
@@ -231,40 +119,12 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     this.dirty = true;
   }
 
-  public evaluate( x: number, y: number, t = this.time ): Complex {
-    this.ensureComputed();
-    return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
+  protected override clearAdditionalFieldStateWhenSourceOff(): void {
+    this.detectorDistribution.fill( 0 );
   }
 
-  private computeField(): void {
-    const { gridWidth, gridHeight, amplitudeField, fieldSamples, layeredFieldSamples } = this;
-
-    if ( !this.isSourceOn ) {
-      amplitudeField.fill( 0 );
-      fieldSamples.fill( UNREACHED_SAMPLE );
-      layeredFieldSamples.fill( UNREACHED_LAYERED_SAMPLE );
-      this.detectorDistribution.fill( 0 );
-      return;
-    }
-
-    const parameters = this.createKernelParameters();
+  protected override beforeFieldSampleLoop(): void {
     this.updateMeasurementProjectionRenormScales();
-
-    for ( let ix = 0; ix < gridWidth; ix++ ) {
-      const x = this.getGridCellX( ix );
-      for ( let iy = 0; iy < gridHeight; iy++ ) {
-        const y = this.getGridCellY( iy );
-        const sample = evaluateAnalyticalSample( parameters, x, y, this.time );
-        const value = getRepresentativeComplex( sample );
-        const layeredSample = evaluateAnalyticalLayeredSample( parameters, x, y, this.time );
-        const cellIndex = iy * gridWidth + ix;
-        const idx = cellIndex * 2;
-        fieldSamples[ cellIndex ] = sample;
-        layeredFieldSamples[ cellIndex ] = layeredSample;
-        amplitudeField[ idx ] = value.real;
-        amplitudeField[ idx + 1 ] = value.imaginary;
-      }
-    }
   }
 
   private computeDetectorDistribution(): void {
@@ -291,33 +151,30 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     }
   }
 
-  private createKernelParameters( includeDecoherenceEvents = true ): AnalyticalWaveParameters {
+  protected override createKernelParameters( includeDecoherenceEvents = true ): AnalyticalWaveParameters {
+    const parameters = super.createKernelParameters( includeDecoherenceEvents );
+    parameters.projections = this.measurementProjections;
+    parameters.packetReEmission = this.packetReEmission;
+
+    return parameters;
+  }
+
+  protected override createKernelSource(): AnalyticalSource {
     const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
     const sigmaY0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_Y_FRACTION * this.regionHeight;
 
-    const parameters: AnalyticalWaveParameters = {
-      source: {
-        kind: 'gaussianPacket',
-        isActive: this.isSourceOn,
-        waveNumber: this.getDisplayWaveNumber(),
-        speed: this.getDisplaySpeed(),
-        initialCenterX: -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0,
-        centerY: 0,
-        sigmaX0: sigmaX0,
-        sigmaY0: sigmaY0,
-        longitudinalSpreadTime: QuantumWaveInterferenceConstants.WAVE_PACKET_LONGITUDINAL_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime(),
-        transverseSpreadTime: QuantumWaveInterferenceConstants.WAVE_PACKET_TRANSVERSE_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime()
-      },
-      barrier: this.createKernelBarrier(),
-      projections: this.measurementProjections,
-      packetReEmission: this.packetReEmission
+    return {
+      kind: 'gaussianPacket',
+      isActive: this.isSourceOn,
+      waveNumber: this.getDisplayWaveNumber(),
+      speed: this.getDisplaySpeed(),
+      initialCenterX: -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0,
+      centerY: 0,
+      sigmaX0: sigmaX0,
+      sigmaY0: sigmaY0,
+      longitudinalSpreadTime: QuantumWaveInterferenceConstants.WAVE_PACKET_LONGITUDINAL_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime(),
+      transverseSpreadTime: QuantumWaveInterferenceConstants.WAVE_PACKET_TRANSVERSE_SPREAD_TRAVERSALS * this.getEffectiveTraversalTime()
     };
-
-    if ( includeDecoherenceEvents ) {
-      parameters.decoherenceEvents = this.decoherenceEvents;
-    }
-
-    return parameters;
   }
 
   private updateMeasurementProjectionRenormScales( t = this.time ): void {
@@ -369,62 +226,19 @@ export default class AnalyticalWavePacketSolver implements WaveSolver {
     return MEASUREMENT_BITE_EDGE_FEATHER_PIXELS / QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH * this.regionWidth;
   }
 
-  private createKernelBarrier(): AnalyticalBarrier {
-    if ( this.barrierType !== 'doubleSlit' ) {
-      return { kind: 'none' };
-    }
-
-    const { viewSlitSep, viewSlitWidth } = this.getDisplaySlitGeometry();
-    return {
-      kind: 'doubleSlit',
-      barrierX: this.barrierFractionX * this.regionWidth,
-      slits: [
-        {
-          source: 'topSlit',
-          centerY: -viewSlitSep / 2,
-          width: viewSlitWidth,
-          isOpen: this.isTopSlitOpen,
-          coherenceGroup: this.isTopSlitDecoherent ? 'topSlitDetector' : 'slits'
-        },
-        {
-          source: 'bottomSlit',
-          centerY: viewSlitSep / 2,
-          width: viewSlitWidth,
-          isOpen: this.isBottomSlitOpen,
-          coherenceGroup: this.isBottomSlitDecoherent ? 'bottomSlitDetector' : 'slits'
-        }
-      ]
-    };
-  }
-
-  private getDisplayWaveNumber(): number {
-    return 2 * Math.PI * this.displayWavelengths / this.regionWidth;
+  protected override getCoherentSlitsGroup(): string {
+    return 'slits';
   }
 
   // Actual packet speed in display-model coordinates. WAVE_PACKET_TRAVERSAL_TIME sets the baseline
   // default-speed crossing time; displaySpeedScale makes non-default particle velocities cross faster
   // or slower while preserving that baseline timing at displaySpeedScale = 1.
-  private getDisplaySpeed(): number {
+  protected override getDisplaySpeed(): number {
     return ( this.regionWidth / QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
   }
 
   // Display time required for the packet center to cross the region at the current scaled display speed.
   private getEffectiveTraversalTime(): number {
     return QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME / Math.max( this.displaySpeedScale, EPSILON );
-  }
-
-  private getGridCellX( gridX: number ): number {
-    const barrierIx = roundSymmetric( this.barrierFractionX * this.gridWidth );
-    return this.barrierType === 'doubleSlit' && gridX === barrierIx ?
-           this.barrierFractionX * this.regionWidth :
-           gridX * this.regionWidth / this.gridWidth;
-  }
-
-  private getGridCellY( gridY: number ): number {
-    return ( gridY + 0.5 ) * this.regionHeight / this.gridHeight - this.regionHeight / 2;
-  }
-
-  private getDisplaySlitGeometry(): { viewSlitSep: number; viewSlitWidth: number } {
-    return getViewSlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
   }
 }

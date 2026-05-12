@@ -22,114 +22,41 @@
  */
 
 import type Complex from '../../../../dot/js/Complex.js';
-import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, type LayeredFieldSample, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
-import { type BarrierType } from './BarrierType.js';
-import { getViewSlitLayout } from './getViewSlitLayout.js';
-import type WaveSolver from './WaveSolver.js';
-import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
+import { type AnalyticalSource, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import BaseAnalyticalWaveSolver from './BaseAnalyticalWaveSolver.js';
+import { type WaveSolverState } from './WaveSolver.js';
 
-const DEFAULT_GRID_WIDTH = 200;
-const DEFAULT_GRID_HEIGHT = 200;
-
-const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
 const DISPLAY_TRAVERSAL_TIME = 2.0;
-const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
-const UNREACHED_LAYERED_SAMPLE: LayeredFieldSample = { kind: 'unreached' };
 const EDGE_TAPER_CELLS = 4;
 
-export default class AnalyticalWaveSolver implements WaveSolver {
-
-  public readonly gridWidth: number;
-  public readonly gridHeight: number;
-  public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
-
-  private wavelength = 650e-9;
-  private waveSpeed = 3e8;
-  private displaySpeedScale = 1;
-  private displayWavelengths = DISPLAY_WAVELENGTHS;
-  private barrierType: BarrierType = 'none';
-  private slitSeparation = 0.25e-3;
-  private slitSeparationMin = 0.25e-3;
-  private slitSeparationMax = 3e-3;
-  private slitWidth = 0.02e-3;
-  private barrierFractionX = 0.5;
-  private isTopSlitOpen = true;
-  private isBottomSlitOpen = true;
-  private isTopSlitDecoherent = false;
-  private isBottomSlitDecoherent = false;
-  private isSourceOn = false;
-  private regionWidth = 1.0;
-  private regionHeight = 1.0;
-  private time = 0;
+export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
 
   private sourceOnTime: number | null = null;
-  private decoherenceEvents: readonly DecoherenceEvent[] = [];
-  private readonly amplitudeField: Float64Array;
-  private readonly fieldSamples: FieldSample[];
 
-  // Rendering cache used by WaveVisualizationCanvasNode when supported. It is intentionally separate
-  // from fieldSamples so experimentation with particle-band compositing does not change detector math.
-  private readonly layeredFieldSamples: LayeredFieldSample[];
-  private readonly detectorDistribution: Float64Array;
   private readonly detectorAccumulator: Float64Array;
   private detectorAccumulatorCount = 0;
-  private dirty = true;
 
-  public constructor( gridWidth = DEFAULT_GRID_WIDTH, gridHeight = DEFAULT_GRID_HEIGHT ) {
-    this.gridWidth = gridWidth;
-    this.gridHeight = gridHeight;
-    this.amplitudeField = new Float64Array( gridWidth * gridHeight * 2 );
-    this.fieldSamples = new Array<FieldSample>( gridWidth * gridHeight ).fill( UNREACHED_SAMPLE );
-    this.layeredFieldSamples = new Array<LayeredFieldSample>( gridWidth * gridHeight ).fill( UNREACHED_LAYERED_SAMPLE );
-    this.detectorDistribution = new Float64Array( gridHeight );
-    this.detectorAccumulator = new Float64Array( gridHeight );
+  public constructor( gridWidth?: number, gridHeight?: number ) {
+    super( gridWidth, gridHeight );
+    this.detectorAccumulator = new Float64Array( this.gridHeight );
   }
 
-  private setIfDefined<T>( value: T | undefined, setter: ( value: T ) => void ): void {
-    if ( value !== undefined ) {
-      setter( value );
+  protected override setSourceOn( isSourceOn: boolean ): void {
+    if ( !this.isSourceOn && isSourceOn ) {
+      this.sourceOnTime = this.time;
+      this.detectorAccumulator.fill( 0 );
+      this.detectorAccumulatorCount = 0;
     }
-  }
-
-  public setParameters( params: WaveSolverParameters ): void {
-    this.setIfDefined( params.wavelength, value => { this.wavelength = value; } );
-    this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
-    this.setIfDefined( params.displaySpeedScale, value => { this.displaySpeedScale = value; } );
-    this.setIfDefined( params.displayWavelengths, value => { this.displayWavelengths = value; } );
-    this.setIfDefined( params.barrierType, value => { this.barrierType = value; } );
-    this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
-    this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
-    this.setIfDefined( params.slitSeparationMax, value => { this.slitSeparationMax = value; } );
-    this.setIfDefined( params.slitWidth, value => { this.slitWidth = value; } );
-    this.setIfDefined( params.barrierFractionX, value => { this.barrierFractionX = value; } );
-    this.setIfDefined( params.isTopSlitOpen, value => { this.isTopSlitOpen = value; } );
-    this.setIfDefined( params.isBottomSlitOpen, value => { this.isBottomSlitOpen = value; } );
-    this.setIfDefined( params.isTopSlitDecoherent, value => { this.isTopSlitDecoherent = value; } );
-    this.setIfDefined( params.isBottomSlitDecoherent, value => { this.isBottomSlitDecoherent = value; } );
-    if ( params.isSourceOn !== undefined ) {
-      if ( !this.isSourceOn && params.isSourceOn ) {
-        this.sourceOnTime = this.time;
-        this.detectorAccumulator.fill( 0 );
-        this.detectorAccumulatorCount = 0;
-      }
-      else if ( this.isSourceOn && !params.isSourceOn ) {
-        this.detectorDistribution.fill( 0 );
-        this.detectorAccumulator.fill( 0 );
-        this.detectorAccumulatorCount = 0;
-      }
-      this.isSourceOn = params.isSourceOn;
+    else if ( this.isSourceOn && !isSourceOn ) {
+      this.detectorDistribution.fill( 0 );
+      this.detectorAccumulator.fill( 0 );
+      this.detectorAccumulatorCount = 0;
     }
-    this.setIfDefined( params.regionWidth, value => { this.regionWidth = value; } );
-    this.setIfDefined( params.regionHeight, value => { this.regionHeight = value; } );
-    this.setIfDefined( params.decoherenceEvents, value => { this.decoherenceEvents = value.slice(); } );
-    this.dirty = true;
+    this.isSourceOn = isSourceOn;
   }
 
-  public step( dt: number ): void {
-    this.time += dt;
-    this.dirty = true;
+  public override step( dt: number ): void {
+    super.step( dt );
 
     if ( dt <= 0 ) {
       return;
@@ -148,33 +75,7 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     }
   }
 
-  public getTime(): number {
-    return this.time;
-  }
-
-  private ensureComputed(): void {
-    if ( this.dirty ) {
-      this.computeField();
-      this.dirty = false;
-    }
-  }
-
-  public getAmplitudeField(): Float64Array {
-    this.ensureComputed();
-    return this.amplitudeField;
-  }
-
-  public getFieldSampleAtGridCell( gridX: number, gridY: number ): FieldSample {
-    this.ensureComputed();
-    return this.fieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_SAMPLE;
-  }
-
-  public getLayeredFieldSampleAtGridCell( gridX: number, gridY: number ): LayeredFieldSample {
-    this.ensureComputed();
-    return this.layeredFieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_LAYERED_SAMPLE;
-  }
-
-  public getDetectorProbabilityDistribution(): Float64Array {
+  public override getDetectorProbabilityDistribution(): Float64Array {
     if ( this.detectorAccumulatorCount === 0 ) {
       this.detectorDistribution.fill( 0 );
       return this.detectorDistribution;
@@ -196,21 +97,11 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     return this.detectorDistribution;
   }
 
-  public getDisplayPropagationSpeed(): number {
-    return this.getDisplaySpeed();
-  }
-
-  public reset(): void {
-    this.time = 0;
-    this.isSourceOn = false;
+  public override reset(): void {
+    super.reset();
     this.sourceOnTime = null;
-    this.amplitudeField.fill( 0 );
-    this.fieldSamples.fill( UNREACHED_SAMPLE );
-    this.layeredFieldSamples.fill( UNREACHED_LAYERED_SAMPLE );
-    this.detectorDistribution.fill( 0 );
     this.detectorAccumulator.fill( 0 );
     this.detectorAccumulatorCount = 0;
-    this.dirty = true;
   }
 
   public getState(): WaveSolverState {
@@ -232,45 +123,8 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     this.dirty = true;
   }
 
-  public invalidate(): void {
-    this.dirty = true;
-  }
-
-  public applyMeasurementProjection(): void {
-    // No-op: the detector tool is only present on the Single Particles screen.
-  }
-
-  public evaluate( x: number, y: number, t = this.time ): Complex {
+  public override evaluate( x: number, y: number, t = this.time ): Complex {
     return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
-  }
-
-  private computeField(): void {
-    const { gridWidth, gridHeight, amplitudeField, fieldSamples, layeredFieldSamples } = this;
-
-    if ( !this.isSourceOn ) {
-      amplitudeField.fill( 0 );
-      fieldSamples.fill( UNREACHED_SAMPLE );
-      layeredFieldSamples.fill( UNREACHED_LAYERED_SAMPLE );
-      return;
-    }
-
-    const parameters = this.createKernelParameters();
-
-    for ( let ix = 0; ix < gridWidth; ix++ ) {
-      const x = this.getGridCellX( ix );
-      for ( let iy = 0; iy < gridHeight; iy++ ) {
-        const y = this.getGridCellY( iy );
-        const sample = evaluateAnalyticalSample( parameters, x, y, this.time );
-        const value = getRepresentativeComplex( sample );
-        const layeredSample = evaluateAnalyticalLayeredSample( parameters, x, y, this.time );
-        const cellIndex = iy * gridWidth + ix;
-        const idx = cellIndex * 2;
-        fieldSamples[ cellIndex ] = sample;
-        layeredFieldSamples[ cellIndex ] = layeredSample;
-        amplitudeField[ idx ] = value.real;
-        amplitudeField[ idx + 1 ] = value.imaginary;
-      }
-    }
   }
 
   private computeInstantaneousDetectorDistribution(): void {
@@ -285,73 +139,21 @@ export default class AnalyticalWaveSolver implements WaveSolver {
     }
   }
 
-  private createKernelParameters( includeDecoherenceEvents = true ): AnalyticalWaveParameters {
-    const parameters: AnalyticalWaveParameters = {
-      source: {
-        kind: 'plane',
-        waveNumber: this.getDisplayWaveNumber(),
-        speed: this.getDisplaySpeed(),
-        startTime: this.sourceOnTime,
-        edgeTaperDistance: EDGE_TAPER_CELLS * this.regionWidth / this.gridWidth
-      },
-      barrier: this.createKernelBarrier()
-    };
-
-    if ( includeDecoherenceEvents ) {
-      parameters.decoherenceEvents = this.decoherenceEvents;
-    }
-
-    return parameters;
-  }
-
-  private createKernelBarrier(): AnalyticalBarrier {
-    if ( this.barrierType !== 'doubleSlit' ) {
-      return { kind: 'none' };
-    }
-
-    const { viewSlitSep, viewSlitWidth } = this.getDisplaySlitGeometry();
+  protected override createKernelSource(): AnalyticalSource {
     return {
-      kind: 'doubleSlit',
-      barrierX: this.barrierFractionX * this.regionWidth,
-      slits: [
-        {
-          source: 'topSlit',
-          centerY: -viewSlitSep / 2,
-          width: viewSlitWidth,
-          isOpen: this.isTopSlitOpen,
-          coherenceGroup: this.isTopSlitDecoherent ? 'topSlitDetector' : 'coherentSlits'
-        },
-        {
-          source: 'bottomSlit',
-          centerY: viewSlitSep / 2,
-          width: viewSlitWidth,
-          isOpen: this.isBottomSlitOpen,
-          coherenceGroup: this.isBottomSlitDecoherent ? 'bottomSlitDetector' : 'coherentSlits'
-        }
-      ]
+      kind: 'plane',
+      waveNumber: this.getDisplayWaveNumber(),
+      speed: this.getDisplaySpeed(),
+      startTime: this.sourceOnTime,
+      edgeTaperDistance: EDGE_TAPER_CELLS * this.regionWidth / this.gridWidth
     };
   }
 
-  private getDisplayWaveNumber(): number {
-    return 2 * Math.PI * this.displayWavelengths / this.regionWidth;
+  protected override getCoherentSlitsGroup(): string {
+    return 'coherentSlits';
   }
 
-  private getDisplaySpeed(): number {
+  protected override getDisplaySpeed(): number {
     return ( this.regionWidth / DISPLAY_TRAVERSAL_TIME ) * this.displaySpeedScale;
-  }
-
-  private getGridCellX( gridX: number ): number {
-    const barrierIx = roundSymmetric( this.barrierFractionX * this.gridWidth );
-    return this.barrierType === 'doubleSlit' && gridX === barrierIx ?
-           this.barrierFractionX * this.regionWidth :
-           gridX * this.regionWidth / this.gridWidth;
-  }
-
-  private getGridCellY( gridY: number ): number {
-    return ( gridY + 0.5 ) * this.regionHeight / this.gridHeight - this.regionHeight / 2;
-  }
-
-  private getDisplaySlitGeometry(): { viewSlitSep: number; viewSlitWidth: number } {
-    return getViewSlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
   }
 }

@@ -70,6 +70,8 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const tandem = options.tandem;
 
+    // This top-level layout intentionally parallels HighIntensityScreenView while keeping screen-specific
+    // controls and tandems explicit.
     const autoRepeatCheckbox = new Checkbox(
       model.currentAutoRepeatProperty,
       new Text( QuantumWaveInterferenceFluent.autoRepeatStringProperty, { font: LABEL_FONT, maxWidth: 120 } ),

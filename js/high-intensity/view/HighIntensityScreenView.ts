@@ -81,6 +81,8 @@ export default class HighIntensityScreenView extends ScreenView {
 
     const tandem = options.tandem;
 
+    // This top-level layout intentionally parallels SingleParticlesScreenView while keeping screen-specific
+    // controls and tandems explicit.
     const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
       tandem: tandem.createTandem( 'sourceControlPanel' )
     } );

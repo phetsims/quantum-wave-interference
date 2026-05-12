@@ -178,18 +178,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       phetioReadOnly: true
     } );
 
-    // Initial sync and listeners
-    this.linkSlitConfigurationToBarrierType( this.slitConfigurationProperty );
-    this.syncSolverParameters();
-    this.setupClearScreenListeners();
-    this.slitConfigurationProperty.lazyLink( () => this.clearScreen() );
-
-    // Stop the source when the hit cap is reached
-    this.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
-      if ( isMaxHitsReached ) {
-        this.isEmittingProperty.value = false;
-      }
-    } );
+    this.setupSlitConfigurationListeners( this.slitConfigurationProperty );
+    this.stopEmitterWhenMaxHitsReached();
 
     // step() only recomputes probability while the sim is playing; also recompute when the detector
     // is moved or resized so the value reflects the current state while paused or mid-drag.
