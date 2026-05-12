@@ -20,6 +20,7 @@ import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
+import { clamp } from '../../../../dot/js/util/clamp.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
@@ -32,6 +33,35 @@ export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as
 export type DetectorToolState = typeof DetectorToolStateValues[number];
 
 const MIN_EMISSION_INTERVAL = 0.3;
+
+export type ScreenDetectionTimingParameters = {
+  startWeight: number;
+  peakWeight: number;
+  endWeight: number;
+  leadingPower: number;
+  trailingPower: number;
+};
+
+// Designer tuning for when a packet can collapse at the right-side detector screen.
+// These weights describe how much of the packet's longitudinal probability has reached
+// the detector screen. Weight 0.5 means the packet midpoint/center is at the screen.
+// Weight 0.85 means about 85% of the packet has reached the screen.
+//
+// The sampled curve is zero outside [startWeight, endWeight], rises from startWeight to
+// peakWeight, then trails off to endWeight. Raising startWeight prevents collapses until
+// later in the packet lifecycle. Raising peakWeight makes the typical collapse later.
+// Raising endWeight allows later trailing detections. Larger power values make that side
+// of the curve sharper; smaller values make it broader.
+//
+// See doc/screen-detection-timing-tuner.html for an interactive tuning page. Its
+// "Copy these parameters" button produces this object shape.
+export const SCREEN_DETECTION_TIMING_PARAMETERS: ScreenDetectionTimingParameters = {
+  startWeight: 0.5,
+  peakWeight: 0.68,
+  endWeight: 0.9,
+  leadingPower: 1.8,
+  trailingPower: 0.8
+};
 const ON_SLIT_DETECTION_TIME_SIGMA_X_FRACTION = 0.5;
 const DETECTION_TIME_TRUNCATION_SIGMAS = 3;
 
@@ -70,7 +100,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   // Time since the last packet was emitted
   private timeSinceLastEmission: number;
 
-  // Sampled detection time (from truncated Gaussian) for the active packet
+  // Sampled detector-screen hit time for the active packet
   private targetDetectionTime: number;
 
   // Sampled which-slit detection time for the active packet
@@ -253,7 +283,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
    * Detection times follow the packet's horizontal probability density from the active packet source
    * to the detector screen. The packet starts at the standard negative sigma offset, so slit
    * re-emission gets the same envelope/timing as ordinary source emission with a shifted origin.
-   * Width matches the packet's spatial spread. Truncated at +/- 3 sigma to avoid non-physical times.
+   * The sampled packet weight is intentionally later than the leading edge, documented at
+   * SCREEN_DETECTION_TIMING_PARAMETERS.
    */
   private sampleDetectionTime(): number {
     return this.sampleDetectionDelayFromSourceX( 0 );
@@ -267,9 +298,105 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
     const initialCenterX = -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
-    const effectiveTraversalTime = ( this.regionWidth - sourceX - initialCenterX ) / propagationSpeed;
-    const sigma = sigmaX0 / propagationSpeed;
-    return this.sampleTruncatedGaussianTime( effectiveTraversalTime, sigma );
+    const sampledScreenWeight = this.sampleScreenDetectionWeight();
+    const sampledCenterOffset = SingleParticlesSceneModel.inverseStandardNormalCDF( sampledScreenWeight ) * sigmaX0;
+    return ( this.regionWidth - sourceX - initialCenterX + sampledCenterOffset ) / propagationSpeed;
+  }
+
+  private sampleScreenDetectionWeight(): number {
+    const parameters = SCREEN_DETECTION_TIMING_PARAMETERS;
+    assert && assert(
+      parameters.startWeight > 0 &&
+      parameters.startWeight < parameters.peakWeight &&
+      parameters.peakWeight < parameters.endWeight &&
+      parameters.endWeight < 1,
+      'screen detection weights should be ordered within (0, 1)'
+    );
+    assert && assert( parameters.leadingPower > 0 && parameters.trailingPower > 0, 'curve powers should be positive' );
+
+    for ( let i = 0; i < 100; i++ ) {
+      const candidate = parameters.startWeight +
+                        dotRandom.nextDouble() * ( parameters.endWeight - parameters.startWeight );
+      if ( dotRandom.nextDouble() < this.getScreenDetectionCurveDensity( candidate ) ) {
+        return candidate;
+      }
+    }
+
+    // Rejection sampling should normally accept quickly. Fall back to the most likely point
+    // so pathological tuning values still produce a finite, designer-predictable result.
+    return parameters.peakWeight;
+  }
+
+  private getScreenDetectionCurveDensity( weight: number ): number {
+    const parameters = SCREEN_DETECTION_TIMING_PARAMETERS;
+
+    if ( weight < parameters.startWeight || weight > parameters.endWeight ) {
+      return 0;
+    }
+    if ( weight <= parameters.peakWeight ) {
+      const leadingFraction = ( weight - parameters.startWeight ) /
+                              ( parameters.peakWeight - parameters.startWeight );
+      return Math.pow( clamp( leadingFraction, 0, 1 ), parameters.leadingPower );
+    }
+
+    const trailingFraction = ( parameters.endWeight - weight ) /
+                             ( parameters.endWeight - parameters.peakWeight );
+    return Math.pow( clamp( trailingFraction, 0, 1 ), parameters.trailingPower );
+  }
+
+  /**
+   * Approximation for the standard normal quantile. Used to convert "fraction of packet weight
+   * that has reached the screen" back into a packet-center offset in sigma_x units.
+   */
+  private static inverseStandardNormalCDF( probability: number ): number {
+    const p = clamp( probability, 1e-12, 1 - 1e-12 );
+    const a = [
+      -3.969683028665376e+1,
+      2.209460984245205e+2,
+      -2.759285104469687e+2,
+      1.383577518672690e+2,
+      -3.066479806614716e+1,
+      2.506628277459239
+    ];
+    const b = [
+      -5.447609879822406e+1,
+      1.615858368580409e+2,
+      -1.556989798598866e+2,
+      6.680131188771972e+1,
+      -1.328068155288572e+1
+    ];
+    const c = [
+      -7.784894002430293e-3,
+      -3.223964580411365e-1,
+      -2.400758277161838,
+      -2.549732539343734,
+      4.374664141464968,
+      2.938163982698783
+    ];
+    const d = [
+      7.784695709041462e-3,
+      3.224671290700398e-1,
+      2.445134137142996,
+      3.754408661907416
+    ];
+    const lowTail = 0.02425;
+    const highTail = 1 - lowTail;
+
+    if ( p < lowTail ) {
+      const q = Math.sqrt( -2 * Math.log( p ) );
+      return ( ( ( ( ( c[ 0 ] * q + c[ 1 ] ) * q + c[ 2 ] ) * q + c[ 3 ] ) * q + c[ 4 ] ) * q + c[ 5 ] ) /
+             ( ( ( ( d[ 0 ] * q + d[ 1 ] ) * q + d[ 2 ] ) * q + d[ 3 ] ) * q + 1 );
+    }
+    if ( p > highTail ) {
+      const q = Math.sqrt( -2 * Math.log( 1 - p ) );
+      return -( ( ( ( ( c[ 0 ] * q + c[ 1 ] ) * q + c[ 2 ] ) * q + c[ 3 ] ) * q + c[ 4 ] ) * q + c[ 5 ] ) /
+             ( ( ( ( d[ 0 ] * q + d[ 1 ] ) * q + d[ 2 ] ) * q + d[ 3 ] ) * q + 1 );
+    }
+
+    const q = p - 0.5;
+    const r = q * q;
+    return ( ( ( ( ( a[ 0 ] * r + a[ 1 ] ) * r + a[ 2 ] ) * r + a[ 3 ] ) * r + a[ 4 ] ) * r + a[ 5 ] ) * q /
+           ( ( ( ( ( b[ 0 ] * r + b[ 1 ] ) * r + b[ 2 ] ) * r + b[ 3 ] ) * r + b[ 4 ] ) * r + 1 );
   }
 
   private sampleOnSlitDetectionTime( deterministicSlitArrivalTime: number ): number {

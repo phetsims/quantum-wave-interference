@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Single Particles Screen Detection Timing Tuner</title>
+  <style>
+    :root {
+      --ink: #202124;
+      --muted: #5f6368;
+      --line: #cfd4d9;
+      --panel: #f7f8fa;
+      --accent: #176b87;
+      --accent-2: #b84a39;
+      --accent-3: #6f7f2a;
+      --screen: #2e3135;
+      --wave: #3b79c9;
+      --background: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--background);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(520px, 1fr) 360px;
+      gap: 18px;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+    }
+
+    .stage {
+      min-width: 0;
+    }
+
+    .visualization {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fbfcfd;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .readout {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      border-top: 1px solid var(--line);
+      background: var(--line);
+    }
+
+    .metric {
+      min-width: 0;
+      padding: 10px 12px;
+      background: #ffffff;
+    }
+
+    .metric .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric .value {
+      display: block;
+      margin-top: 2px;
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .controls {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .control {
+      display: grid;
+      grid-template-columns: 1fr 76px;
+      gap: 8px 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .control label {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .control output {
+      justify-self: end;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .control input {
+      grid-column: 1 / -1;
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin: 6px 0 12px;
+    }
+
+    button {
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background: #ffffff;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button.primary {
+      color: #ffffff;
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 174px;
+      resize: vertical;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background: #ffffff;
+      font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .hint {
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .readout {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section class="stage" aria-labelledby="title">
+    <h1 id="title">Single Particles Screen Detection Timing</h1>
+    <p>
+      Tune detector-screen collapse in packet-weight space. Weight 0.50 is when the packet midpoint reaches
+      the screen; weight 0.85 is when most of the packet has passed the screen.
+    </p>
+    <div class="visualization">
+      <canvas id="plot" width="780" height="520" aria-label="Detection timing curve and sampled hits"></canvas>
+      <div class="readout">
+        <div class="metric">
+          <span class="label">Sample mean</span>
+          <span class="value" id="meanReadout">0.00</span>
+        </div>
+        <div class="metric">
+          <span class="label">Earliest</span>
+          <span class="value" id="earliestReadout">0.00</span>
+        </div>
+        <div class="metric">
+          <span class="label">Peak</span>
+          <span class="value" id="peakReadout">0.00</span>
+        </div>
+        <div class="metric">
+          <span class="label">Latest</span>
+          <span class="value" id="latestReadout">0.00</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="controls" aria-label="Curve parameters">
+    <h2>Parameters</h2>
+    <div class="control">
+      <label for="startWeight">Start weight</label>
+      <output id="startWeightValue"></output>
+      <input id="startWeight" type="range" min="0.35" max="0.75" step="0.01" value="0.50">
+    </div>
+    <div class="control">
+      <label for="peakWeight">Peak weight</label>
+      <output id="peakWeightValue"></output>
+      <input id="peakWeight" type="range" min="0.40" max="0.90" step="0.01" value="0.68">
+    </div>
+    <div class="control">
+      <label for="endWeight">End weight</label>
+      <output id="endWeightValue"></output>
+      <input id="endWeight" type="range" min="0.55" max="0.98" step="0.01" value="0.90">
+    </div>
+    <div class="control">
+      <label for="leadingPower">Leading power</label>
+      <output id="leadingPowerValue"></output>
+      <input id="leadingPower" type="range" min="0.4" max="6" step="0.1" value="1.8">
+    </div>
+    <div class="control">
+      <label for="trailingPower">Trailing power</label>
+      <output id="trailingPowerValue"></output>
+      <input id="trailingPower" type="range" min="0.4" max="6" step="0.1" value="0.8">
+    </div>
+    <div class="actions">
+      <button class="primary" id="copyButton" type="button">Copy these parameters</button>
+      <button id="resetButton" type="button">Reset</button>
+    </div>
+    <textarea id="parametersText" spellcheck="false"></textarea>
+    <p class="hint" id="copyStatus" role="status" aria-live="polite"></p>
+  </aside>
+</main>
+
+<script>
+  const defaults = {
+    startWeight: 0.50,
+    peakWeight: 0.68,
+    endWeight: 0.90,
+    leadingPower: 1.8,
+    trailingPower: 0.8
+  };
+
+  const controls = [ 'startWeight', 'peakWeight', 'endWeight', 'leadingPower', 'trailingPower' ];
+  const canvas = document.getElementById( 'plot' );
+  const context = canvas.getContext( '2d' );
+  const parameterText = document.getElementById( 'parametersText' );
+  const copyStatus = document.getElementById( 'copyStatus' );
+
+  const getValue = id => Number( document.getElementById( id ).value );
+  const setValue = ( id, value ) => {
+    document.getElementById( id ).value = String( value );
+  };
+
+  const clamp = ( value, min, max ) => Math.max( min, Math.min( max, value ) );
+
+  const getParameters = () => {
+    let startWeight = getValue( 'startWeight' );
+    let peakWeight = getValue( 'peakWeight' );
+    let endWeight = getValue( 'endWeight' );
+
+    peakWeight = clamp( peakWeight, startWeight + 0.01, 0.97 );
+    endWeight = clamp( endWeight, peakWeight + 0.01, 0.98 );
+    startWeight = clamp( startWeight, 0.01, peakWeight - 0.01 );
+
+    setValue( 'startWeight', startWeight.toFixed( 2 ) );
+    setValue( 'peakWeight', peakWeight.toFixed( 2 ) );
+    setValue( 'endWeight', endWeight.toFixed( 2 ) );
+
+    return {
+      startWeight: startWeight,
+      peakWeight: peakWeight,
+      endWeight: endWeight,
+      leadingPower: getValue( 'leadingPower' ),
+      trailingPower: getValue( 'trailingPower' )
+    };
+  };
+
+  const curveDensity = ( weight, parameters ) => {
+    if ( weight < parameters.startWeight || weight > parameters.endWeight ) {
+      return 0;
+    }
+    if ( weight <= parameters.peakWeight ) {
+      const fraction = ( weight - parameters.startWeight ) /
+                       ( parameters.peakWeight - parameters.startWeight );
+      return Math.pow( clamp( fraction, 0, 1 ), parameters.leadingPower );
+    }
+
+    const fraction = ( parameters.endWeight - weight ) /
+                     ( parameters.endWeight - parameters.peakWeight );
+    return Math.pow( clamp( fraction, 0, 1 ), parameters.trailingPower );
+  };
+
+  const sampleWeight = parameters => {
+    for ( let i = 0; i < 100; i++ ) {
+      const candidate = parameters.startWeight +
+                        Math.random() * ( parameters.endWeight - parameters.startWeight );
+      if ( Math.random() < curveDensity( candidate, parameters ) ) {
+        return candidate;
+      }
+    }
+    return parameters.peakWeight;
+  };
+
+  const inverseStandardNormalCDF = probability => {
+    const p = clamp( probability, 1e-12, 1 - 1e-12 );
+    const a = [ -3.969683028665376e+1, 2.209460984245205e+2, -2.759285104469687e+2,
+      1.383577518672690e+2, -3.066479806614716e+1, 2.506628277459239 ];
+    const b = [ -5.447609879822406e+1, 1.615858368580409e+2, -1.556989798598866e+2,
+      6.680131188771972e+1, -1.328068155288572e+1 ];
+    const c = [ -7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838,
+      -2.549732539343734, 4.374664141464968, 2.938163982698783 ];
+    const d = [ 7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416 ];
+    const lowTail = 0.02425;
+    const highTail = 1 - lowTail;
+
+    if ( p < lowTail ) {
+      const q = Math.sqrt( -2 * Math.log( p ) );
+      return ( ( ( ( ( c[ 0 ] * q + c[ 1 ] ) * q + c[ 2 ] ) * q + c[ 3 ] ) * q + c[ 4 ] ) * q + c[ 5 ] ) /
+             ( ( ( ( d[ 0 ] * q + d[ 1 ] ) * q + d[ 2 ] ) * q + d[ 3 ] ) * q + 1 );
+    }
+    if ( p > highTail ) {
+      const q = Math.sqrt( -2 * Math.log( 1 - p ) );
+      return -( ( ( ( ( c[ 0 ] * q + c[ 1 ] ) * q + c[ 2 ] ) * q + c[ 3 ] ) * q + c[ 4 ] ) * q + c[ 5 ] ) /
+             ( ( ( ( d[ 0 ] * q + d[ 1 ] ) * q + d[ 2 ] ) * q + d[ 3 ] ) * q + 1 );
+    }
+
+    const q = p - 0.5;
+    const r = q * q;
+    return ( ( ( ( ( a[ 0 ] * r + a[ 1 ] ) * r + a[ 2 ] ) * r + a[ 3 ] ) * r + a[ 4 ] ) * r + a[ 5 ] ) * q /
+           ( ( ( ( ( b[ 0 ] * r + b[ 1 ] ) * r + b[ 2 ] ) * r + b[ 3 ] ) * r + b[ 4 ] ) * r + 1 );
+  };
+
+  const weightToSigmaOffset = weight => inverseStandardNormalCDF( weight );
+  const format = value => value.toFixed( 2 );
+
+  const draw = () => {
+    const parameters = getParameters();
+    controls.forEach( id => {
+      document.getElementById( `${id}Value` ).textContent = getValue( id ).toFixed( id.includes( 'Power' ) ? 1 : 2 );
+    } );
+
+    const samples = Array.from( { length: 2500 }, () => sampleWeight( parameters ) );
+    const mean = samples.reduce( ( sum, value ) => sum + value, 0 ) / samples.length;
+    const histogram = new Array( 60 ).fill( 0 );
+    samples.forEach( sample => {
+      const index = clamp( Math.floor( sample * histogram.length ), 0, histogram.length - 1 );
+      histogram[ index ]++;
+    } );
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const top = 24;
+    const left = 58;
+    const right = width - 28;
+    const curveBottom = 230;
+    const curveTop = top;
+    const packetTop = 286;
+    const packetBottom = 416;
+    const xForWeight = weight => left + weight * ( right - left );
+    const yForDensity = density => curveBottom - density * ( curveBottom - curveTop );
+
+    context.clearRect( 0, 0, width, height );
+    context.fillStyle = '#fbfcfd';
+    context.fillRect( 0, 0, width, height );
+
+    context.strokeStyle = '#d8dde2';
+    context.lineWidth = 1;
+    for ( let i = 0.4; i <= 0.9; i += 0.1 ) {
+      const x = xForWeight( i );
+      context.beginPath();
+      context.moveTo( x, curveTop );
+      context.lineTo( x, packetBottom );
+      context.stroke();
+      context.fillStyle = '#5f6368';
+      context.fillText( i.toFixed( 1 ), x - 10, curveBottom + 20 );
+    }
+
+    context.fillStyle = '#202124';
+    context.font = '600 14px system-ui, sans-serif';
+    context.fillText( 'Detection probability by packet weight', left, 18 );
+    context.font = '12px system-ui, sans-serif';
+    context.fillStyle = '#5f6368';
+    context.fillText( 'packet midpoint at screen', xForWeight( 0.5 ) - 54, packetBottom + 30 );
+
+    const maxBin = Math.max( ...histogram );
+    context.fillStyle = 'rgba(184, 74, 57, 0.22)';
+    histogram.forEach( ( count, index ) => {
+      const binLeft = left + index / histogram.length * ( right - left );
+      const binWidth = ( right - left ) / histogram.length;
+      const barHeight = maxBin > 0 ? count / maxBin * ( curveBottom - curveTop ) : 0;
+      context.fillRect( binLeft, curveBottom - barHeight, Math.max( 1, binWidth - 1 ), barHeight );
+    } );
+
+    context.strokeStyle = '#176b87';
+    context.lineWidth = 3;
+    context.beginPath();
+    for ( let i = 0; i <= 240; i++ ) {
+      const weight = i / 240;
+      const x = xForWeight( weight );
+      const y = yForDensity( curveDensity( weight, parameters ) );
+      if ( i === 0 ) {
+        context.moveTo( x, y );
+      }
+      else {
+        context.lineTo( x, y );
+      }
+    }
+    context.stroke();
+
+    const markers = [
+      [ parameters.startWeight, 'start', '#6f7f2a' ],
+      [ parameters.peakWeight, 'peak', '#176b87' ],
+      [ parameters.endWeight, 'end', '#b84a39' ],
+      [ mean, 'mean', '#202124' ]
+    ];
+
+    markers.forEach( ( [ weight, label, color ] ) => {
+      const x = xForWeight( weight );
+      context.strokeStyle = color;
+      context.lineWidth = 2;
+      context.beginPath();
+      context.moveTo( x, curveTop );
+      context.lineTo( x, packetBottom );
+      context.stroke();
+      context.fillStyle = color;
+      context.fillText( label, x + 5, curveTop + 16 );
+    } );
+
+    context.fillStyle = '#eef4fb';
+    context.fillRect( left, packetTop, right - left, packetBottom - packetTop );
+    context.fillStyle = '#2e3135';
+    context.fillRect( xForWeight( 0.5 ) - 3, packetTop - 8, 6, packetBottom - packetTop + 16 );
+
+    const packetCenterX = xForWeight( 0.5 );
+    const sigmaPixels = ( right - left ) * 0.13;
+    const packetY = ( packetTop + packetBottom ) / 2;
+    const gradient = context.createRadialGradient( packetCenterX, packetY, 4, packetCenterX, packetY, sigmaPixels * 2.6 );
+    gradient.addColorStop( 0, 'rgba(59, 121, 201, 0.72)' );
+    gradient.addColorStop( 1, 'rgba(59, 121, 201, 0)' );
+    context.fillStyle = gradient;
+    context.beginPath();
+    context.ellipse( packetCenterX, packetY, sigmaPixels * 2.6, 44, 0, 0, Math.PI * 2 );
+    context.fill();
+
+    context.fillStyle = '#2e3135';
+    context.font = '600 13px system-ui, sans-serif';
+    context.fillText( 'screen', xForWeight( 0.5 ) - 18, packetTop - 16 );
+    context.font = '12px system-ui, sans-serif';
+    context.fillStyle = '#5f6368';
+    context.fillText( 'Sampled detections occur after enough packet weight reaches this screen line.', left, 486 );
+
+    document.getElementById( 'meanReadout' ).textContent = `${format( mean )} (${format( weightToSigmaOffset( mean ) )} sigma)`;
+    document.getElementById( 'earliestReadout' ).textContent =
+      `${format( parameters.startWeight )} (${format( weightToSigmaOffset( parameters.startWeight ) )} sigma)`;
+    document.getElementById( 'peakReadout' ).textContent =
+      `${format( parameters.peakWeight )} (${format( weightToSigmaOffset( parameters.peakWeight ) )} sigma)`;
+    document.getElementById( 'latestReadout' ).textContent =
+      `${format( parameters.endWeight )} (${format( weightToSigmaOffset( parameters.endWeight ) )} sigma)`;
+
+    parameterText.value = `export const SCREEN_DETECTION_TIMING_PARAMETERS: ScreenDetectionTimingParameters = {
+  startWeight: ${parameters.startWeight.toFixed( 2 )},
+  peakWeight: ${parameters.peakWeight.toFixed( 2 )},
+  endWeight: ${parameters.endWeight.toFixed( 2 )},
+  leadingPower: ${parameters.leadingPower.toFixed( 1 )},
+  trailingPower: ${parameters.trailingPower.toFixed( 1 )}
+};`;
+  };
+
+  controls.forEach( id => {
+    document.getElementById( id ).addEventListener( 'input', () => {
+      copyStatus.textContent = '';
+      draw();
+    } );
+  } );
+
+  document.getElementById( 'resetButton' ).addEventListener( 'click', () => {
+    Object.keys( defaults ).forEach( key => setValue( key, defaults[ key ] ) );
+    copyStatus.textContent = '';
+    draw();
+  } );
+
+  document.getElementById( 'copyButton' ).addEventListener( 'click', async () => {
+    parameterText.select();
+    try {
+      await navigator.clipboard.writeText( parameterText.value );
+      copyStatus.textContent = 'Copied.';
+    }
+    catch( error ) {
+      document.execCommand( 'copy' );
+      copyStatus.textContent = 'Selected and copied with document command.';
+    }
+  } );
+
+  draw();
+</script>
+</body>
+</html>
