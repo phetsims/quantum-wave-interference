@@ -17,7 +17,7 @@ import { type SourceType } from '../model/SourceType.js';
 
 export type RGB = { r: number; g: number; b: number };
 
-// Below this intensity threshold, a band is considered perceptually invisible and is skipped during rendering.
+// Below this intensity threshold, a band is considered perceptually invisible and is rendered as the background color.
 export const PERCEPTUAL_VISIBILITY_THRESHOLD = 0.004;
 
 // Base hit-dot radii in CSS pixels (before any supersampling). Shared between the live detector screen texture
@@ -201,18 +201,23 @@ export const sampleSmoothedIntensityDistribution = (
 export const getInterpolatedRGB = (
   startRGB: RGB,
   endRGB: RGB,
-  fraction: number
+  fraction: number,
+  result?: RGB
 ): RGB => {
+  const outputRGB = result || { r: 0, g: 0, b: 0 };
+
   if ( fraction < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
-    return startRGB;
+    outputRGB.r = startRGB.r;
+    outputRGB.g = startRGB.g;
+    outputRGB.b = startRGB.b;
+    return outputRGB;
   }
 
   const clampedFraction = clamp( fraction, 0, 1 );
-  return {
-    r: clamp( roundSymmetric( linear( 0, 1, startRGB.r, endRGB.r, clampedFraction ) ), 0, 255 ),
-    g: clamp( roundSymmetric( linear( 0, 1, startRGB.g, endRGB.g, clampedFraction ) ), 0, 255 ),
-    b: clamp( roundSymmetric( linear( 0, 1, startRGB.b, endRGB.b, clampedFraction ) ), 0, 255 )
-  };
+  outputRGB.r = clamp( roundSymmetric( linear( 0, 1, startRGB.r, endRGB.r, clampedFraction ) ), 0, 255 );
+  outputRGB.g = clamp( roundSymmetric( linear( 0, 1, startRGB.g, endRGB.g, clampedFraction ) ), 0, 255 );
+  outputRGB.b = clamp( roundSymmetric( linear( 0, 1, startRGB.b, endRGB.b, clampedFraction ) ), 0, 255 );
+  return outputRGB;
 };
 
 /**

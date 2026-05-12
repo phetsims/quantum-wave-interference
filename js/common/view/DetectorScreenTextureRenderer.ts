@@ -53,6 +53,7 @@ type TextureCache = {
   lastRampFactor: number;
   hitSprite: HTMLCanvasElement | null;
   hitSpriteParams: HitSpriteParams | null;
+  intensityImageData: ImageData | null;
 };
 
 type HitSpriteParams = {
@@ -132,7 +133,8 @@ export default class DetectorScreenTextureRenderer {
       contentRampStartTime: 0,
       lastRampFactor: 1,
       hitSprite: null,
-      hitSpriteParams: null
+      hitSpriteParams: null,
+      intensityImageData: null
     };
 
     const markDirty = () => { cache.dirty = true; };
@@ -199,7 +201,7 @@ export default class DetectorScreenTextureRenderer {
       context.clearRect( 0, 0, this.textureWidth, this.textureHeight );
       const normalizedBrightness = currentBrightness / scene.screenBrightnessProperty.range.max;
       const intensityDisplayGain = getIntensityDisplayGain( normalizedBrightness, currentIntensity );
-      this.paintIntensity( context, scene, intensityDisplayGain, rampFactor );
+      this.paintIntensity( cache, scene, intensityDisplayGain, rampFactor );
     }
 
     cache.dirty = false;
@@ -266,11 +268,12 @@ export default class DetectorScreenTextureRenderer {
   }
 
   private paintIntensity(
-    context: CanvasRenderingContext2D,
+    cache: TextureCache,
     scene: DetectorScreenSceneLike,
     displayGain: number,
     exposureFactor: number
   ): void {
+    const context = cache.context;
     const backgroundRGB = getWaveAndDetectorBackgroundRGB();
     const rgb = getSceneRGB( scene.sourceType, scene.wavelengthProperty.value );
     const distribution = scene.waveSolver.getDetectorProbabilityDistribution();
@@ -280,23 +283,34 @@ export default class DetectorScreenTextureRenderer {
       totalIntensity += distribution[ i ];
     }
     const averageIntensity = distributionLength > 0 ? totalIntensity / distributionLength : 0;
-    const imageData = context.createImageData( this.textureWidth, this.textureHeight );
+    let imageData = cache.intensityImageData;
+    if ( !imageData || imageData.width !== this.textureWidth || imageData.height !== this.textureHeight ) {
+      imageData = context.createImageData( this.textureWidth, this.textureHeight );
+      cache.intensityImageData = imageData;
+    }
     const data = imageData.data;
     const shear = this.skewOffset / this.textureWidth;
+    const color = { r: 0, g: 0, b: 0 };
 
     for ( let y = 0; y < this.textureHeight; y++ ) {
       for ( let x = 0; x < this.textureWidth; x++ ) {
         const pixelIndex = ( y * this.textureWidth + x ) * 4;
         const faceY = y + 0.5 - this.skewOffset + shear * ( x + 0.5 );
-        const patternIntensity = faceY >= 0 && faceY < this.faceHeight ?
-                                 sampleIntensityDistribution( distribution, faceY / this.faceHeight ) :
-                                 0;
+        if ( faceY < 0 || faceY >= this.faceHeight ) {
+          data[ pixelIndex ] = 0;
+          data[ pixelIndex + 1 ] = 0;
+          data[ pixelIndex + 2 ] = 0;
+          data[ pixelIndex + 3 ] = 0;
+          continue;
+        }
+
+        const patternIntensity = sampleIntensityDistribution( distribution, faceY / this.faceHeight );
 
         // Simulate detector exposure: brightness and contrast both ramp up so the normalized intensity
         // pattern does not appear fully formed as soon as the first average is available.
         const exposedIntensity = ( averageIntensity + ( patternIntensity - averageIntensity ) * exposureFactor ) *
                                  exposureFactor;
-        const color = getInterpolatedRGB( backgroundRGB, rgb, exposedIntensity * displayGain );
+        getInterpolatedRGB( backgroundRGB, rgb, exposedIntensity * displayGain, color );
 
         data[ pixelIndex ] = color.r;
         data[ pixelIndex + 1 ] = color.g;

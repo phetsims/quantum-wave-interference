@@ -636,10 +636,8 @@ class SnapshotCanvasNode extends CanvasNode {
       const intensityScale = sampleSmoothedIntensityDistribution( distribution, fraction, CAPTURED_INTENSITY_SMOOTHING_RADIUS ) *
                              displayGain;
       const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, sourceRGB, intensityScale );
-      if ( fillStyle ) {
-        textureContext.fillStyle = fillStyle;
-        textureContext.fillRect( x, 0, 1, CAPTURED_INTENSITY_TEXTURE_HEIGHT );
-      }
+      textureContext.fillStyle = fillStyle;
+      textureContext.fillRect( x, 0, 1, CAPTURED_INTENSITY_TEXTURE_HEIGHT );
     }
 
     context.save();
@@ -706,10 +704,8 @@ class SnapshotCanvasNode extends CanvasNode {
 
       const intensityScale = intensity * displayGain;
       const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, sourceRGB, intensityScale );
-      if ( fillStyle ) {
-        textureContext.fillStyle = fillStyle;
-        textureContext.fillRect( x, 0, 1, ANALYTICAL_TEXTURE_HEIGHT );
-      }
+      textureContext.fillStyle = fillStyle;
+      textureContext.fillRect( x, 0, 1, ANALYTICAL_TEXTURE_HEIGHT );
     }
 
     context.save();
