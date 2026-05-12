@@ -513,7 +513,7 @@
           "value": "The graph traces intensity versus position with a tall central peak and smaller peaks on either side. { $spatialDescription }"
         },
         "intensitySingleSlit": {
-          "value": "The graph traces intensity versus position as a single broad peak centered on the graph, tapering smoothly toward the edges. { $spatialDescription }"
+          "value": "The graph traces intensity versus position as a single broad peak centered on the graph, tapering smoothly toward the edges."
         },
         "hitsNone": {
           "value": "The histogram is empty. No particles have been counted yet."

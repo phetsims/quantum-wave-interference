@@ -58,7 +58,7 @@ export default class GraphDescriber {
 
         descriptionProperty.value = isDoubleSlit
                                     ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } )
-                                    : QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensitySingleSlit.format( { spatialDescription: spatialDescription } );
+                                    : QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensitySingleSlitStringProperty.value;
         return;
       }
 

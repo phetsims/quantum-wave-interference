@@ -405,7 +405,7 @@ a11y:
                               { $spatialDescription }
       intensitySingleSlit:    >-
                               The graph traces intensity versus position as a single broad peak centered on the
-                              graph, tapering smoothly toward the edges. { $spatialDescription }
+                              graph, tapering smoothly toward the edges.
       hitsNone:               The histogram is empty. No particles have been counted yet.
       hitsFew:                >-
                               A few bars have appeared at scattered positions across the histogram.
