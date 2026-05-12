@@ -44,7 +44,8 @@ export const DETECTOR_DX = BASE_DETECTOR_DX * OVERHEAD_SCALE;
 export const DETECTOR_DY = BASE_DETECTOR_DX * ( BASE_DOUBLE_SLIT_SKEW_DY / BASE_DOUBLE_SLIT_SKEW_DX ) * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;
 export const DETECTOR_LEFT_HEIGHT = 48 * OVERHEAD_SCALE;
 
-// TODO: Document this section, see https://github.com/phetsims/quantum-wave-interference/issues/100
+// Shape of the centered visible region when the detector screen is horizontally zoomed. The shape is drawn in the
+// same skewed coordinate system as the full detector parallelogram.
 const createVisibleRegionShape = ( dx: number, dy: number, leftHeight: number, visibleFraction: number ): Shape => {
   const visibleWidth = dx * visibleFraction;
   const visibleHeight = leftHeight * visibleFraction;
@@ -243,22 +244,6 @@ export default class OverheadDetectorScreenNode extends Node {
     return this.parallelogramNode.centerY + this.getFullParallelogramHeight() / 2;
   }
 
-  // TODO: Unused?, see https://github.com/phetsims/quantum-wave-interference/issues/100
-  public getFullParallelogramTopLeft(): { x: number; y: number } {
-    return {
-      x: this.currentScreenCenterX - DETECTOR_DX / 2,
-      y: this.getFullParallelogramTop()
-    };
-  }
-
-  // TODO: Unused?, see https://github.com/phetsims/quantum-wave-interference/issues/100
-  public getFullParallelogramBottomRight(): { x: number; y: number } {
-    return {
-      x: this.currentScreenCenterX + DETECTOR_DX / 2,
-      y: this.getFullParallelogramBottom()
-    };
-  }
-
   /**
    * Sets the front-facing screen bounds used for positioning the overhead parallelogram.
    * Must be called after front-facing screens are created.
@@ -298,7 +283,10 @@ export default class OverheadDetectorScreenNode extends Node {
     this.updateDetectorScreenPosition();
   }
 
-  // TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/100
+  /**
+   * Starts a short white flash over the detector screen when a snapshot is captured. Only one flash is active at a
+   * time, so rapid snapshots restart the visual feedback instead of stacking animations.
+   */
   public startSnapshotFlash(): void {
     this.clearSnapshotFlash();
     this.snapshotFlashNode.opacity = SNAPSHOT_FLASH_INITIAL_OPACITY;

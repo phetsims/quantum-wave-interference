@@ -15,7 +15,7 @@ import createRoundedPolygonShape from '../../common/view/createRoundedPolygonSha
 
 /**
  * Creates the ordered corners for a parallelogram with a vertical left edge and a right edge offset by (dx, dy).
- * TODO: https://github.com/phetsims/quantum-wave-interference/issues/100 do we need both this and the one below? Check usages
+ * Exported separately because rounded visual nodes and unrounded clip/overlay shapes both need identical geometry.
  */
 export function createParallelogramCorners( dx: number, dy: number, leftHeight: number ): Vector2[] {
   return [

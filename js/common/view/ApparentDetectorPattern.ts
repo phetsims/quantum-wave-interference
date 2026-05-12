@@ -10,7 +10,7 @@
 
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { getAnalyticalSingleSlitEnvelopeIntensity, getExactAnalyticalDetectorIntensity, getLocalDoubleSlitFringeSpacing, type AnalyticalDetectorPatternOptions } from '../model/AnalyticalDetectorPattern.js';
-import { isDoubleSlitConfiguration } from '../model/SlitConfiguration.js';
+import { showsDoubleSlitInterferencePattern } from '../model/SlitConfiguration.js';
 
 // Below this many samples per bright-fringe spacing, alternating bright/dark fringes are not displayable.
 const FULLY_UNRESOLVED_SAMPLES_PER_FRINGE = 2;
@@ -42,7 +42,7 @@ const smootherStep = ( t: number ): number => {
 export const getApparentAnalyticalDetectorIntensity = ( options: ApparentAnalyticalDetectorPatternOptions ): number => {
   const exactIntensity = getExactAnalyticalDetectorIntensity( options );
 
-  if ( !isDoubleSlitConfiguration( options.slitSetting ) || options.sampleWidthOnScreen <= 0 ) {
+  if ( !showsDoubleSlitInterferencePattern( options.slitSetting ) || options.sampleWidthOnScreen <= 0 ) {
     return exactIntensity;
   }
 
@@ -74,5 +74,3 @@ export const getApparentAnalyticalDetectorIntensity = ( options: ApparentAnalyti
 
   return exactIntensity + ( envelopeIntensity - exactIntensity ) * unresolvedBlend;
 };
-
-// TODO: Do not give same filename as the model one, see https://github.com/phetsims/quantum-wave-interference/issues/100

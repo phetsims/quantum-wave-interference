@@ -7,9 +7,9 @@
  */
 
 import { getAnalyticalSingleSlitEnvelopeIntensity, getExactAnalyticalDetectorIntensity } from '../model/AnalyticalDetectorPattern.js';
-import { getApparentAnalyticalDetectorIntensity, type ApparentAnalyticalDetectorPatternOptions } from './AnalyticalDetectorPattern.js';
+import { getApparentAnalyticalDetectorIntensity, type ApparentAnalyticalDetectorPatternOptions } from './ApparentDetectorPattern.js';
 
-QUnit.module( 'AnalyticalDetectorPattern' );
+QUnit.module( 'ApparentDetectorPattern' );
 
 const EPSILON = 1e-10;
 

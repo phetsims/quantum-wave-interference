@@ -31,7 +31,7 @@ import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceC
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SlitConfiguration } from '../model/SlitConfiguration.js';
+import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 
 const TITLE_FONT = new PhetFont( 14 );

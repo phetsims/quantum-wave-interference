@@ -9,14 +9,14 @@
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
-import { isDoubleSlitConfiguration } from '../../model/SlitConfiguration.js';
+import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
 import type { Snapshot } from '../../../common/model/Snapshot.js';
 import BandAnalysis from './BandAnalysis.js';
 
 export default class SnapshotDescriber {
 
   public static getDescription( snapshot: Snapshot, detectorScreenScaleIndex: number ): string {
-    const isDoubleSlit = isDoubleSlitConfiguration( snapshot.slitSetting );
+    const isDoubleSlit = showsDoubleSlitInterferencePattern( snapshot.slitSetting );
     const screenHalfWidth = getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndex );
 
     if ( snapshot.detectionMode === 'averageIntensity' ) {

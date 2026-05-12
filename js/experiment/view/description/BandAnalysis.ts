@@ -9,9 +9,9 @@
  */
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import SceneModel from '../../model/SceneModel.js';
-import { isDoubleSlitConfiguration, SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
+import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import type { Snapshot } from '../../../common/model/Snapshot.js';
+import SceneModel from '../../model/SceneModel.js';
 
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
 // updates so they only fire at pedagogically meaningful thresholds.
@@ -87,7 +87,7 @@ export default class BandAnalysis {
       return { bandCount: 0, peakPositionsMM: [], averageSpacingMM: 0, centralWidthMM: 0 };
     }
 
-    if ( isDoubleSlitConfiguration( slitSetting ) ) {
+    if ( showsDoubleSlitInterferencePattern( slitSetting ) ) {
 
       // Fringe spacing: Δy = λL/d
       const fringeSpacingM = lambda * screenDistanceMeters / slitSeparationMeters;
@@ -160,7 +160,8 @@ export default class BandAnalysis {
     return BandAnalysis.formatSpatialDescriptionWithStyle( analysis, isDoubleSlit, isRulerVisible, usePeakLanguage, false );
   }
 
-  // TODO: Make sure this is called when anything changes, see https://github.com/phetsims/quantum-wave-interference/issues/100
+  // Pure formatter; live describers subscribe to physics, ruler, zoom, hit-stage, and Fluent-bundle changes before
+  // calling this helper. Snapshot descriptions call it from immutable snapshot state.
   private static formatSpatialDescriptionWithStyle(
     analysis: BandAnalysisResult,
     isDoubleSlit: boolean,

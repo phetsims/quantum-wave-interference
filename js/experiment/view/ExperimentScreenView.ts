@@ -56,6 +56,7 @@ import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
+import { getWavelengthColorZone, getWavelengthColorZoneString } from '../../common/view/WavelengthColorUtils.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -65,8 +66,6 @@ const RULER_X_OFFSET = 0.5;
 const RULER_KEYBOARD_DRAG_DELTA = 5;
 const RULER_KEYBOARD_SHIFT_DRAG_DELTA = 1;
 const MIDDLE_COLUMN_LEFT_SHIFT = 3;
-
-type WavelengthColorZone = 'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red';
 
 export default class ExperimentScreenView extends ScreenView {
   private readonly graphAccordionBoxes: GraphAccordionBox[];
@@ -606,7 +605,8 @@ export default class ExperimentScreenView extends ScreenView {
         sourceType: particleSourceTypeProperty
       } );
 
-    // TODO: Document this section, see https://github.com/phetsims/quantum-wave-interference/issues/100
+    // DynamicProperties follow the active scene so the setup details read from the same scene-specific controls that
+    // are visible on screen. Each property rewires automatically when the user switches source type.
     const currentWavelengthProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
       derive: 'wavelengthProperty'
     } );
@@ -620,7 +620,8 @@ export default class ExperimentScreenView extends ScreenView {
       derive: 'screenDistanceProperty'
     } );
 
-    // TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/100
+    // Booleans are converted to Fluent select keys, and source-type predicates control which scene-specific details
+    // are included in the accessible setup list.
     const sourceTypeProperty = model.sceneProperty.derived( scene => scene.sourceType );
     const isEmittingStringProperty = model.currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
     const isPhotonSceneProperty = model.sceneProperty.derived( scene => scene.sourceType === 'photons' );
@@ -657,8 +658,8 @@ export default class ExperimentScreenView extends ScreenView {
         QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty,
         QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty
       ],
-      wavelength => ExperimentScreenView.getWavelengthColorZoneString(
-        ExperimentScreenView.getWavelengthColorZone( roundSymmetric( wavelength ) )
+      wavelength => getWavelengthColorZoneString(
+        getWavelengthColorZone( roundSymmetric( wavelength ) )
       )
     );
 
@@ -677,7 +678,7 @@ export default class ExperimentScreenView extends ScreenView {
       ] ) ),
       () => {
 
-        // TODO: Document this derivation, see https://github.com/phetsims/quantum-wave-interference/issues/100
+        // Match the visual controls: electrons use km/s, while the slower particle sources use m/s.
         const scene = model.sceneProperty.value;
         const velocity = currentVelocityProperty.value;
         const useKmPerSecond = scene.velocityRange.max >= 10000;
@@ -843,25 +844,4 @@ export default class ExperimentScreenView extends ScreenView {
     this.centerRulerOnDetectorScreen();
   }
 
-  private static getWavelengthColorZone( wavelength: number ): WavelengthColorZone {
-    return wavelength <= 450 ? 'violet' :
-           wavelength <= 485 ? 'blue' :
-           wavelength <= 500 ? 'indigo' :
-           wavelength <= 565 ? 'green' :
-           wavelength <= 590 ? 'yellow' :
-           wavelength <= 625 ? 'orange' :
-           'red';
-  }
-
-  // TODO: Duplicated fragment, see https://github.com/phetsims/quantum-wave-interference/issues/100
-  private static getWavelengthColorZoneString( colorZone: WavelengthColorZone ): string {
-    return colorZone === 'violet' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty.value :
-           colorZone === 'blue' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty.value :
-           colorZone === 'indigo' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty.value :
-           colorZone === 'green' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty.value :
-           colorZone === 'yellow' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty.value :
-           colorZone === 'orange' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty.value :
-           colorZone === 'red' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty.value :
-           ( () => { throw new Error( `Unrecognized colorZone: ${colorZone}` ); } )();
-  }
 }

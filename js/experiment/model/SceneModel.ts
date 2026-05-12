@@ -31,9 +31,9 @@ import { renumberSnapshots, type Snapshot, SnapshotIO } from '../../common/model
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { getFullDetectorScreenHalfWidth } from './DetectorScreenScale.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
-import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from './SlitConfiguration.js';
-import { type SourceType } from './SourceType.js';
+import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
+import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
+import { type SourceType } from '../../common/model/SourceType.js';
 
 // Maximum emission rate in hits per second at full intensity
 const MAX_EMISSION_RATE = 100;
@@ -41,9 +41,16 @@ const MAX_EMISSION_RATE = 100;
 // Maximum iterations for rejection sampling to prevent infinite loops
 const MAX_REJECTION_ITERATIONS = 1000;
 
-// Vertical extent of the hit distribution on the detector screen, as a fraction of the full height.
-// TODO: Do we still need this? See https://github.com/phetsims/quantum-wave-interference/issues/100
+// Vertical extent of the hit distribution on the detector screen, as a fraction of the full height. Keeping this as a
+// named constant makes the normalized hit coordinate convention explicit, even though it is currently the full height.
 const HIT_VERTICAL_EXTENT = 1;
+
+const SLIT_WIDTH_BY_SOURCE_TYPE: Record<SourceType, number> = {
+  photons: 0.02, // 20 μm
+  electrons: 0.00006, // 0.06 μm
+  neutrons: 0.00006, // 0.06 μm
+  heliumAtoms: 0.00006 // 0.06 μm
+};
 
 type SelfOptions = {
   sourceType: SourceType;
@@ -59,12 +66,7 @@ export default class SceneModel extends PhetioObject {
    * Slit width in mm for a given source type.
    */
   public static getSlitWidth( sourceType: SourceType ): number {
-    return sourceType === 'photons' ? 0.02 :    // 20 μm
-      // TODO: https://github.com/phetsims/quantum-wave-interference/issues/100 Just use else 0.00006, the type checker knows it cannot be anything else.
-           sourceType === 'electrons' ? 0.00006 : // 0.06 μm
-           sourceType === 'neutrons' ? 0.00006 :  // 0.06 μm
-           sourceType === 'heliumAtoms' ? 0.00006 : // 0.06 μm
-           ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
+    return SLIT_WIDTH_BY_SOURCE_TYPE[ sourceType ];
   }
 
   public readonly sourceType: SourceType;
@@ -565,8 +567,8 @@ export default class SceneModel extends PhetioObject {
   } );
 
   /**
-   * Physical half-width of the full detector screen in meters. This is independent of detector screen zoom.
-   * TODO Make static? Eliminate as redundant? See https://github.com/phetsims/quantum-wave-interference/issues/100
+   * Physical half-width of the full detector screen in meters. This getter keeps model and view call sites readable
+   * while delegating the shared scale constants to DetectorScreenScale.
    */
   public get fullScreenHalfWidth(): number {
     return getFullDetectorScreenHalfWidth();

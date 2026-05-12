@@ -52,9 +52,8 @@ const EXPERIMENT_SLIT_DISPLAY_MAP: Partial<Record<SlitConfigurationWithNoBarrier
   bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
 };
 
-// TODO: is this recomputed when anything changes? See https://github.com/phetsims/quantum-wave-interference/issues/100
 const formatExperimentSlitSeparation = ( slitSepMM: number ): string => {
-  const slitSepUM = slitSepMM * 1000; // TODO: Should we use millimetersToMeters and vice versa throughout? See https://github.com/phetsims/quantum-wave-interference/issues/100
+  const slitSepUM = slitSepMM * 1000;
   return StringUtils.fillIn(
     QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
     { value: toFixed( slitSepUM, ExperimentConstants.getDecimalPlacesForValue( slitSepUM ) ) }
@@ -251,10 +250,13 @@ export default class DetectorScreenNode extends Node {
     sceneModel.intensityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     detectorScreenScaleIndexProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
-    // The intensity pattern is derived from accumulated hits (which trigger hitsChangedEmitter),
-    // but wavelength changes affect hit dot color for photons.
+    // These Properties affect the detector texture directly. In Hits mode, geometry changes clear the screen through
+    // SceneModel, but Average Intensity mode must also repaint when the theoretical pattern changes.
     sceneModel.wavelengthProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.velocityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.slitSeparationProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.screenDistanceProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.slitSettingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
     // Eraser button to clear the screen
     const eraserButtonEnabledProperty = new DerivedProperty(

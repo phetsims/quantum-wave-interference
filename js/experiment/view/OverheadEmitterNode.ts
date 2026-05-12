@@ -31,7 +31,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SourceType } from '../model/SourceType.js';
+import { type SourceType } from '../../common/model/SourceType.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const SOURCE_SCALE = OVERHEAD_SCALE * 1.15;

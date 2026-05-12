@@ -14,6 +14,10 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
 
+type FluentBoolean = 'true' | 'false';
+
+const toFluentBoolean = ( value: boolean ): FluentBoolean => value ? 'true' : 'false';
+
 export default class ExperimentScreenSummaryContent extends ScreenSummaryContent {
 
   public constructor( model: ExperimentModel ) {
@@ -21,20 +25,18 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
     // Track the active scene's source type (a plain value, not a Property, so derive with a function)
     const sourceTypeProperty = model.sceneProperty.derived( scene => scene.sourceType );
 
-    const isEmittingStringProperty = model.currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
+    const isEmittingStringProperty = model.currentIsEmittingProperty.derived( toFluentBoolean );
 
-    const isPlayingStringProperty = model.isPlayingProperty.derived( isPlaying => isPlaying ? 'true' : 'false' );
+    const isPlayingStringProperty = model.isPlayingProperty.derived( toFluentBoolean );
 
-    const isMaxHitsReachedStringProperty = model.currentIsMaxHitsReachedProperty.derived(
-      isMaxHitsReached => isMaxHitsReached ? 'true' : 'false'
-    );
+    const isMaxHitsReachedStringProperty = model.currentIsMaxHitsReachedProperty.derived( toFluentBoolean );
 
     const currentTotalHitsProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
       derive: 'totalHitsProperty'
     } );
 
-    // TODO: There sure is a lot of mapping to "true" and "false", is that good or is there a better way? See https://github.com/phetsims/quantum-wave-interference/issues/100
-    const hasHitsStringProperty = currentTotalHitsProperty.derived( totalHits => totalHits > 0 ? 'true' : 'false' );
+    // Fluent select expressions use string keys, so derived booleans are normalized through one helper.
+    const hasHitsStringProperty = currentTotalHitsProperty.derived( totalHits => toFluentBoolean( totalHits > 0 ) );
 
     const currentDetailsContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
       sourceType: sourceTypeProperty,

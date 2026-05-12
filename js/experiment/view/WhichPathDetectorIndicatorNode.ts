@@ -21,7 +21,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { type DetectorSide, DetectorSideValues, hasDetectorOnSide } from '../model/SlitConfiguration.js';
+import { type DetectorSide, DetectorSideValues, hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;

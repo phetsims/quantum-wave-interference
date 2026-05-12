@@ -8,9 +8,8 @@
  * The panel swaps its content when the active scene changes. Screens omit the intensity slider by using scenes
  * without an `intensityProperty`.
  *
- * Generic over any scene type that has the required source properties.
- *
- * TODO: This entire file requires documentation, see https://github.com/phetsims/quantum-wave-interference/issues/100
+ * Generic over any scene type that has the required source properties, so the Experiment and simplified screens can
+ * share the same wavelength/velocity controls while supplying different scene models.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -42,6 +41,7 @@ import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SourceType } from '../model/SourceType.js';
 import linkSceneVisibility from './linkSceneVisibility.js';
+import { getWavelengthColorZone, getWavelengthColorZoneString } from './WavelengthColorUtils.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
@@ -52,8 +52,6 @@ const PHOTON_INTENSITY_LABEL_SPACING = 4;
 const PARTICLE_INTENSITY_LABEL_SPACING = 2;
 const CONTROL_SECTION_SPACING = 16;
 const CONTROL_ROW_VERTICAL_MARGIN = 4;
-
-type WavelengthColorZone = 'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red';
 
 export type SourceControlScene = {
   readonly sourceType: SourceType;
@@ -182,7 +180,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
           valuePattern: SunConstants.VALUE_NAMED_PLACEHOLDER,
           numberFormatter: ( value: number ) => {
             const roundedValue = roundSymmetric( value );
-            const colorZone = SourceControlPanel.getWavelengthColorZone( roundedValue );
+            const colorZone = getWavelengthColorZone( roundedValue );
             return {
               visualString: StringUtils.fillIn(
                 QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty.value,
@@ -194,7 +192,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
                   showTrailingZeros: false,
                   showIntegersAsIntegers: true
                 } ),
-                color: SourceControlPanel.getWavelengthColorZoneString( colorZone )
+                color: getWavelengthColorZoneString( colorZone )
               } )
             };
           },
@@ -422,29 +420,6 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
       spacing: sourceType === 'photons' ? PHOTON_INTENSITY_LABEL_SPACING : PARTICLE_INTENSITY_LABEL_SPACING,
       children: [ intensityLabel, intensitySlider ]
     } );
-  }
-
-  // TODO: Duplicated, see https://github.com/phetsims/quantum-wave-interference/issues/100
-  private static getWavelengthColorZone( wavelength: number ): WavelengthColorZone {
-    return wavelength <= 450 ? 'violet' :
-           wavelength <= 485 ? 'blue' :
-           wavelength <= 500 ? 'indigo' :
-           wavelength <= 565 ? 'green' :
-           wavelength <= 590 ? 'yellow' :
-           wavelength <= 625 ? 'orange' :
-           'red';
-  }
-
-  // TODO: Duplicated, see https://github.com/phetsims/quantum-wave-interference/issues/100
-  private static getWavelengthColorZoneString( colorZone: WavelengthColorZone ): string {
-    return colorZone === 'violet' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty.value :
-           colorZone === 'blue' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty.value :
-           colorZone === 'indigo' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty.value :
-           colorZone === 'green' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty.value :
-           colorZone === 'yellow' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty.value :
-           colorZone === 'orange' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty.value :
-           colorZone === 'red' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty.value :
-           ( () => { throw new Error( `Unrecognized colorZone: ${colorZone}` ); } )();
   }
 
   private static getIntensityContextResponse( sourceType: SourceType, value: number, valueOnStart: number, range: Range ): string | null {

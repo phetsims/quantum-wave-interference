@@ -26,20 +26,40 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 const SNAPSHOT_ZOOM_BUTTON_MARGIN = 6;
 
 type SnapshotsDialogOptions = {
-  // TODO: Document every option, see https://github.com/phetsims/quantum-wave-interference/issues/100
+
+  // Optional display-name map for slit configurations. Defaults in SnapshotNode are used for omitted entries.
   slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
+
+  // Formats slit separation in millimeters for the snapshot details row.
   formatSlitSeparation?: ( slitSepMM: number ) => string;
+
+  // Whether snapshots should include the screen-distance details row.
   showScreenDistance?: boolean;
+
+  // Optional accessible paragraph for a snapshot.
   getDescription?: ( snapshot: Snapshot ) => string;
+
+  // Whether hit y-coordinates should be rendered in the front-facing detector coordinate convention.
   useFrontFacingHitCoordinates?: boolean;
+
+  // Shared detector-screen zoom for Experiment snapshots; present only on screens that support zooming snapshots.
   detectorScreenScaleIndexProperty?: NumberProperty;
+
+  // Visible detector half-width in meters for the current zoom level.
   getVisibleScreenHalfWidth?: () => number;
+
+  // Creates the scale indicator overlay paired with the optional zoom button group.
   createScaleIndicatorNode?: () => Node;
 };
 
 export default class SnapshotsDialog extends Dialog {
 
-  // TODO: Document every parameter in JSDoc, see https://github.com/phetsims/quantum-wave-interference/issues/100
+  /**
+   * @param snapshotsProperty - ordered snapshots shown in the dialog
+   * @param deleteSnapshot - deletes a snapshot from the owning scene/model
+   * @param tandem - tandem for dialog instrumentation
+   * @param providedOptions - optional screen-specific rendering, zoom, and accessible-description hooks
+   */
   public constructor(
     snapshotsProperty: TReadOnlyProperty<Snapshot[]>,
     deleteSnapshot: ( snapshot: Snapshot ) => void,
@@ -66,7 +86,8 @@ export default class SnapshotsDialog extends Dialog {
 
     const contentChildren = [ ...snapshotNodes ];
 
-    // TODO: Document if statement, see https://github.com/phetsims/quantum-wave-interference/issues/100
+    // Experiment snapshots share the detector-screen horizontal zoom. Add the zoom controls only when both the model
+    // Property and the matching visual scale indicator factory are provided.
     if ( detectorScreenScaleIndexProperty && providedOptions?.createScaleIndicatorNode ) {
       const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
         level: new DerivedProperty(

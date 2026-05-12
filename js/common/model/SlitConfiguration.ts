@@ -42,7 +42,7 @@ export const hasAnyDetector = ( slitConfiguration: SlitConfigurationWithNoBarrie
          slitConfiguration === 'rightDetector';
 };
 
-// Does it show a double slit interference pattern? TODO: Rename, see https://github.com/phetsims/quantum-wave-interference/issues/100
-export const isDoubleSlitConfiguration = ( slitConfiguration: SlitConfigurationWithNoBarrier ): boolean => {
+// True when the configuration preserves coherent paths through both open slits, producing interference fringes.
+export const showsDoubleSlitInterferencePattern = ( slitConfiguration: SlitConfigurationWithNoBarrier ): boolean => {
   return slitConfiguration === 'bothOpen';
 };

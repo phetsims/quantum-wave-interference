@@ -125,7 +125,8 @@ export default class OverheadBeamNode extends Node {
       this.emitterBeamNode.shape = beamShape;
       this.emitterBeamNode.fill = beamColor.withAlpha( 0.8 * intensity );
 
-      // TODO: Document this section, see https://github.com/phetsims/quantum-wave-interference/issues/100
+      // Start the fan from the visible face of the slit barrier rather than from the full parallelogram bounds, so the
+      // beam appears to emerge from the slit openings in the overhead perspective.
       const visibleDoubleSlitLeft = doubleSlitNode.getVisibleBackgroundLeftX();
       const visibleDoubleSlitRight = doubleSlitNode.getVisibleBackgroundRightX();
       const visibleDoubleSlitCenterX = ( visibleDoubleSlitLeft + visibleDoubleSlitRight ) / 2;
@@ -134,7 +135,8 @@ export default class OverheadBeamNode extends Node {
       const fanRight = detectorScreenNode.getMaxDistanceParallelogramRight();
       const narrowHalfHeight = beamHeight * FAN_BEAM_LEFT_HEIGHT_SCALE / 2;
 
-      // TODO: Document this section, see https://github.com/phetsims/quantum-wave-interference/issues/100
+      // The fan widens from the slit center to the detector screen. Its right edge uses the farthest detector position
+      // so the fan footprint does not shrink as the screen-distance slider moves the detector.
       const slitCenterY = doubleSlitParallelogram.centerY;
       const screenCenterY = detectorScreenNode.parallelogramNode.centerY;
       const wideHalfHeight = detectorScreenNode.getFullParallelogramHeight() * FAN_BEAM_RIGHT_HEIGHT_SCALE / 2;
@@ -152,7 +154,8 @@ export default class OverheadBeamNode extends Node {
       fanBeamNode.shape = fanShape;
       fanBeamNode.clipArea = null;
 
-      // TODO: Document this section, see https://github.com/phetsims/quantum-wave-interference/issues/100
+      // Project the fan edges onto the detector parallelogram to draw the pale region where the beam intersects the
+      // screen. The projections use the fan slopes so the shadow stays aligned with the current perspective geometry.
       const detectorTopLeftX = detectorScreenNode.parallelogramNode.left;
       const detectorTopLeftY = detectorScreenNode.parallelogramNode.top;
       const detectorBottomRightX = detectorScreenNode.parallelogramNode.right;

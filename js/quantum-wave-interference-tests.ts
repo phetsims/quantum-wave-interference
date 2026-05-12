@@ -8,7 +8,7 @@
 
 import qunitStart from '../../chipper/js/browser/sim-tests/qunitStart.js';
 import './common/model/AnalyticalModelTests.js';
-import './common/view/AnalyticalDetectorPatternTests.js';
+import './common/view/ApparentDetectorPatternTests.js';
 import './single-particles/model/SingleParticlesSceneModelTests.js';
 
 // Since our tests are loaded asynchronously, we must direct QUnit to begin the tests

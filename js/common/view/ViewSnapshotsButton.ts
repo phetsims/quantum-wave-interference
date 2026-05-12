@@ -25,7 +25,14 @@ const EYE_BUTTON_X_MARGIN = 4;
 
 export default class ViewSnapshotsButton extends RectangularPushButton {
 
-  // TODO: Document every parameter in JSDoc, see https://github.com/phetsims/quantum-wave-interference/issues/100
+  /**
+   * @param numberOfSnapshotsProperty - number of snapshots currently available; disables the button at zero
+   * @param isPlayingProperty - shared playback state to pause while the dialog is open
+   * @param snapshotsDialog - dialog shown by this button
+   * @param minWidth - minimum button width, matched to neighboring detector-screen action buttons
+   * @param minHeight - minimum button height, matched to neighboring detector-screen action buttons
+   * @param tandem - tandem for the button and its instrumented enabledProperty
+   */
   public constructor(
     numberOfSnapshotsProperty: TReadOnlyProperty<number>,
     isPlayingProperty: Property<boolean>,
@@ -35,7 +42,8 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
     tandem: Tandem
   ) {
 
-    // TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/100
+    // Remember whether the sim was playing before this button opened the dialog. If it was, resume when the dialog
+    // closes; if it was already paused, leave it paused.
     let shouldResumeOnDialogClose = false;
     snapshotsDialog.isShowingProperty.link( isShowing => {
       if ( !isShowing && shouldResumeOnDialogClose ) {

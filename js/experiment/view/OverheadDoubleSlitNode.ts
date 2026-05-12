@@ -18,7 +18,7 @@ import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceC
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { hasDetectorOnSide } from '../model/SlitConfiguration.js';
+import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import createParallelogramNode, { createParallelogramShape } from './createParallelogramNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;

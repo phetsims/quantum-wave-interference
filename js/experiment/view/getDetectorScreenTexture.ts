@@ -15,7 +15,7 @@ import ExperimentConstants from '../ExperimentConstants.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 import SceneModel from '../model/SceneModel.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from '../../common/view/ScreenBrightnessUtils.js';
-import { getApparentAnalyticalDetectorIntensity } from '../../common/view/AnalyticalDetectorPattern.js';
+import { getApparentAnalyticalDetectorIntensity } from '../../common/view/ApparentDetectorPattern.js';
 
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
@@ -71,7 +71,7 @@ const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
 
-// TODO: Document me, see https://github.com/phetsims/quantum-wave-interference/issues/100
+// True when an existing cached hit sprite can be reused for the current source color and brightness settings.
 const hitSpriteParamsMatch = (
   params: HitSpriteParams | null,
   rgb: { r: number; g: number; b: number },
@@ -128,7 +128,8 @@ const getTextureRenderScale = (
 const getHitSpriteCenter = ( renderScale: number ): number => {
   const hitCoreRadius = BASE_HIT_CORE_RADIUS * renderScale;
 
-  // TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/100
+  // Reserve enough canvas space for the largest glow possible at this render scale. This keeps the sprite size stable
+  // across brightness changes, so hit placement does not shift when the sprite is regenerated.
   const maxGlowRadius = BASE_HIT_GLOW_RADIUS * renderScale *
                         Math.min( 2, Math.sqrt( Math.max( 1, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER ) ) );
 
@@ -410,6 +411,9 @@ const createSceneTextureCache = (
   sceneModel.intensityProperty.link( markDirty );
   sceneModel.wavelengthProperty.link( markDirty );
   sceneModel.velocityProperty.link( markDirty );
+  sceneModel.slitSeparationProperty.link( markDirty );
+  sceneModel.screenDistanceProperty.link( markDirty );
+  sceneModel.slitSettingProperty.link( markDirty );
 
   return cache;
 };
