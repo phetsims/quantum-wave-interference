@@ -148,6 +148,7 @@ export default class SceneModel extends PhetioObject {
       isDisposable: false,
       phetioType: SceneModel.SceneModelIO,
       phetioDocumentation: 'Model for a single source-type scene, including detector screen data.'
+      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Should this be phetioState: false, or does it have state of its own?
     }, providedOptions );
 
     super( options );

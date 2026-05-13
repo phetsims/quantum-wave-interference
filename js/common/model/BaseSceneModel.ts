@@ -141,6 +141,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       defaultPhotonWaveDisplayMode: 'electricField',
       defaultMatterWaveDisplayMode: 'magnitude',
       phetioType: BaseSceneModel.BaseSceneModelIO
+      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Should this be phetioState: false, or does it have state of its own?
     }, providedOptions );
 
     super( options );
