@@ -1,5 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
+//REVIEW Documentation is not up to PhET standards.
+
 /**
  * Unit tests for the pure analytical wave kernel.
  *

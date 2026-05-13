@@ -1,5 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
+//REVIEW Documentation is not up to PhET standards. Other than the header comment, there is no documentation.
+
 /**
  * BaseAnalyticalWaveSolver owns the shared stateful WaveSolver adapter behavior for analytical solvers.
  * Subclasses provide the source model and any screen-specific detector/projection state.

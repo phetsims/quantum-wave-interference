@@ -15,5 +15,7 @@ export type PhotonWaveDisplayMode = typeof PhotonWaveDisplayModeValues[number];
 export const MatterWaveDisplayModeValues = [ 'magnitude', 'realPart', 'imaginaryPart' ] as const;
 export type MatterWaveDisplayMode = typeof MatterWaveDisplayModeValues[number];
 
+//REVIEW WebStorm identifies WaveDisplayModeValues as unused.
+//REVIEW Should WaveDisplayMode = typeof WaveDisplayModeValues[number] ?
 export const WaveDisplayModeValues = [ ...PhotonWaveDisplayModeValues, ...MatterWaveDisplayModeValues ] as const;
 export type WaveDisplayMode = PhotonWaveDisplayMode | MatterWaveDisplayMode;

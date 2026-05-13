@@ -1,5 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
+//REVIEW Documentation is not up to PhET standards.
+
 /**
  * Minimal pure rasterization harness for analytical wave samples.
  *
@@ -65,6 +67,8 @@ export type AnalyticalWaveRaster = {
     blocked: number;
   };
 };
+
+//REVIEW Generated code seems to prefer not to use 'function' for defining functions. Might facilitate unintended closures.
 
 export const getFieldSampleRGBA = (
   sample: FieldSample,

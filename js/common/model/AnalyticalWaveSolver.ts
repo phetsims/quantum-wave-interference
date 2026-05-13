@@ -29,6 +29,8 @@ import { type WaveSolverState } from './WaveSolver.js';
 const DISPLAY_TRAVERSAL_TIME = 2.0;
 const EDGE_TAPER_CELLS = 4;
 
+//REVIEW Documentation is not up to PhET standards for fields and methods.
+
 export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
 
   private sourceOnTime: number | null = null;
