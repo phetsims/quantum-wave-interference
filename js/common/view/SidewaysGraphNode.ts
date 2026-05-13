@@ -215,8 +215,8 @@ export default class SidewaysGraphNode extends Node {
     // Repaint when visibility changes so the graph is current when shown
     this.visibleProperty.link( updateGraph );
 
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 previousScene is unnecessary, it is provided as the 2nd argument to the sceneProperty callback.
     let previousScene: SidewaysGraphSceneLike | null = null;
-
     sceneProperty.link( scene => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( updateGraph );
