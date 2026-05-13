@@ -568,6 +568,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   public abstract step( dt: number ): void;
 
+  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 IOType documentation is supposed to identify the type of serialization.
   public static readonly BaseSceneModelIO = new IOType<BaseSceneModel, BaseSceneModelStateObject>( 'BaseSceneModelIO', {
     valueType: BaseSceneModel,
     documentation: 'Serializes the wave solver state and hit positions for a scene',

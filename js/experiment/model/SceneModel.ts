@@ -538,6 +538,7 @@ export default class SceneModel extends PhetioObject {
     this.hitsChangedEmitter.emit();
   }
 
+  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 IOType documentation is supposed to identify the type of serialization.
   /**
    * IOType for SceneModel that serializes the live detector screen data (hits and hit accumulator)
    * which are plain arrays/numbers not covered by the individual instrumented Properties.
