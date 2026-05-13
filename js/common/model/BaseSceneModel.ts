@@ -200,13 +200,13 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? DEFAULT_PHOTON_WAVELENGTH_NM : 0, {
       range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),
-      units: 'nm',
+      units: 'nm', //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Use PhetUnit
       tandem: tandem.createTandem( 'wavelengthProperty' )
     } );
 
     this.velocityProperty = new NumberProperty( config.defaultVelocity, {
       range: this.velocityRange,
-      units: 'm/s',
+      units: 'm/s', //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Use PhetUnit
       tandem: tandem.createTandem( 'velocityProperty' )
     } );
 
@@ -217,11 +217,12 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
       range: this.slitSeparationRange,
-      units: 'mm',
+      units: 'mm', //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Use PhetUnit
       tandem: tandem.createTandem( 'slitSeparationProperty' )
     } );
 
     this.slitPositionFractionProperty = new NumberProperty( 0.5, {
+      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 units?
       range: new Range( 0.25, 0.75 ),
       tandem: tandem.createTandem( 'slitPositionFractionProperty' )
     } );
