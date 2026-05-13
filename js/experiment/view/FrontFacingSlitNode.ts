@@ -95,6 +95,7 @@ const createSpanNode = (
     stroke: 'black',
     lineWidth: 1
   } );
+  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical to leftTick
   const rightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
     stroke: 'black',
     lineWidth: 1

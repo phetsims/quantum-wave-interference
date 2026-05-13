@@ -110,7 +110,10 @@ export default class OverheadDoubleSlitNode extends Node {
     this.slitOverlayDx = 4 * OVERHEAD_SCALE * 0.6 * 0.85 * DETECTOR_OVERLAY_WIDTH_SCALE;
     this.slitOverlayDy = this.slitOverlayDx * ( this.skewDy / this.skewDx );
 
-    this.leftSlitDetectorOverlay = createParallelogramNode( this.slitOverlayDx, this.slitOverlayDy, this.slitOverlayHeight,
+    this.leftSlitDetectorOverlay = createParallelogramNode(
+      this.slitOverlayDx,
+      this.slitOverlayDy,
+      this.slitOverlayHeight,
       QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA ).toCSS(),
       0
     );
@@ -119,6 +122,7 @@ export default class OverheadDoubleSlitNode extends Node {
     this.leftSlitDetectorOverlay.visible = false;
     this.parallelogramNode.addChild( this.leftSlitDetectorOverlay );
 
+    //REVIEW leftSlitDetectorOverlay Identical to leftSlitDetectorOverlay above.
     this.rightSlitDetectorOverlay = createParallelogramNode(
       this.slitOverlayDx,
       this.slitOverlayDy,

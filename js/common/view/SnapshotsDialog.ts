@@ -89,6 +89,8 @@ export default class SnapshotsDialog extends Dialog {
     // Experiment snapshots share the detector-screen horizontal zoom. Add the zoom controls only when both the model
     // Property and the matching visual scale indicator factory are provided.
     if ( detectorScreenScaleIndexProperty && providedOptions?.createScaleIndicatorNode ) {
+
+      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same as horizontalZoomLevelResponseProperty in DetectorScreenNode
       const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
         level: new DerivedProperty(
           [ detectorScreenScaleIndexProperty ],

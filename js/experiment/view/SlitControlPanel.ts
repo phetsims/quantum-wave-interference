@@ -167,7 +167,7 @@ export default class SlitControlPanel extends Panel {
       slitSeparationTicks = SlitControlPanel.createNumericTicks( slitSeparationRange );
     }
 
-    //REVIEW Factor out SlitSeparationControl extends NumberControl
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out SlitSeparationControl extends NumberControl
     const slitSeparationControl = new NumberControl(
       QuantumWaveInterferenceFluent.slitSeparationStringProperty,
       scene.slitSeparationProperty,
@@ -197,7 +197,7 @@ export default class SlitControlPanel extends Panel {
     // Screen distance NumberControl
     const screenDistanceRange = scene.screenDistanceRange;
 
-    //REVIEW Factor out screenDistanceControl extends NumberControl
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out screenDistanceControl extends NumberControl
     const screenDistanceControl = new NumberControl(
       QuantumWaveInterferenceFluent.screenDistanceStringProperty,
       scene.screenDistanceProperty,
@@ -234,7 +234,7 @@ export default class SlitControlPanel extends Panel {
       }
     );
 
-    //REVIEW Factor out SlitSettingsComboBox. There is too much inlined here.
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out SlitSettingsComboBox. There is too much inlined here.
 
     // Slit settings ComboBox
     const slitSettingsLabel = new Text( QuantumWaveInterferenceFluent.slitConfigurationStringProperty, {

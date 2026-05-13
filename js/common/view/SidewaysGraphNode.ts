@@ -67,7 +67,7 @@ type SelfOptions = {
   initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
 };
 
-//REVIEW ... = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
+//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 ... = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
 type SidewaysGraphNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
 export default class SidewaysGraphNode extends Node {
@@ -115,6 +115,7 @@ export default class SidewaysGraphNode extends Node {
       MAX_ZOOM_LEVEL,
       this.activeDetectionMode ? getModeZoomLevel( this.activeDetectionMode ) : getZoomLevel( options.initialZoomLevel )
     );
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical zoomLevelProperty in GraphAccordionBox
     this.zoomLevelProperty = new NumberProperty( zoomRange.defaultValue, {
       range: zoomRange,
       tandem: providedOptions.tandem.createTandem( 'zoomLevelProperty' ),
@@ -340,6 +341,7 @@ export default class SidewaysGraphNode extends Node {
     this.dataPath.shape = shape;
     this.dataPath.lineWidth = 1.5;
 
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same if-then-else as line 302, but with different constant values.
     if ( scene.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( scene.wavelengthProperty.value );
       this.dataPath.fill = color.withAlpha( 0.3 );

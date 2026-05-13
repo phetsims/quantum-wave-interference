@@ -18,7 +18,7 @@ import ExperimentScreenView from './view/ExperimentScreenView.js';
 
 type SelfOptions = EmptySelfOptions;
 
-//REVIEW Narrow this interface to omit the ScreenOptions that this class controls.
+//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Narrow this interface to omit the ScreenOptions that this class controls.
 type ExperimentScreenOptions = SelfOptions & ScreenOptions;
 
 export default class ExperimentScreen extends Screen<ExperimentModel, ExperimentScreenView> {

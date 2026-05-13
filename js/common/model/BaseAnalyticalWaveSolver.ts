@@ -1,6 +1,6 @@
 // Copyright 2026, University of Colorado Boulder
 
-//REVIEW Documentation is not up to PhET standards. Other than the header comment, there is no documentation.
+//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Documentation is not up to PhET standards. Other than the header comment, there is no documentation.
 
 /**
  * BaseAnalyticalWaveSolver owns the shared stateful WaveSolver adapter behavior for analytical solvers.

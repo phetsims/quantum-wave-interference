@@ -29,6 +29,7 @@ export default class SnapshotDescriber {
                                  BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, false, false ) :
                                  BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
 
+      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same as DetectorScreenDescriber line 62
       return isDoubleSlit ?
              QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
                bandCount: analysis.bandCount,
@@ -66,6 +67,7 @@ export default class SnapshotDescriber {
       } );
     }
 
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Lots of duplication here with if statements starting at line 70.
     if ( hitStage === 'none' ) {
       return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNone.format( { hitCount: hitCount } );
     }

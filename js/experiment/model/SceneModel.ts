@@ -188,6 +188,7 @@ export default class SceneModel extends PhetioObject {
     else {
       // Helium atoms
       this.particleMass = QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
+      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Next 4 lines are the same as lines 183-186, maybe that's OK.
       this.velocityRange = new Range( 200, 1000 ); // m/s
       this.slitSeparationRange = new Range( 0.0001, 0.002 ); // mm (0.1–2.0 μm)
       defaultVelocity = 600;
@@ -209,6 +210,7 @@ export default class SceneModel extends PhetioObject {
     // For non-photons, the wavelength is derived from velocity via de Broglie (see getEffectiveWavelength),
     // so this property's range is [0,0] and its value is unused directly.
     this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? 650 : 0, {
+      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Option values are the same as BaseModel's wavelengthProperty
       range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),
       units: 'nm',
       tandem: tandem.createTandem( 'wavelengthProperty' )
@@ -225,6 +227,7 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'intensityProperty' )
     } );
 
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical to BaseModel.slitSeparationProperty
     this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
       range: this.slitSeparationRange,
       units: 'mm',
@@ -398,6 +401,7 @@ export default class SceneModel extends PhetioObject {
     this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];
   }
 
+  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same as BaseSceneModel deleteSnapshot
   /**
    * Deletes a specific snapshot and compacts the remaining snapshot labels to match their current display order.
    */

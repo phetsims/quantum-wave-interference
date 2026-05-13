@@ -139,6 +139,7 @@ export default class ExperimentModel implements TModel {
       tandem: tandem.createTandem( 'isPlayingProperty' )
     } );
 
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same as BaseScreenModel
     this.timeSpeedProperty = new EnumerationProperty( TimeSpeed.NORMAL, {
       validValues: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
       tandem: tandem.createTandem( 'timeSpeedProperty' )

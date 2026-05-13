@@ -77,6 +77,7 @@ export default class DetectorScreenScaleIndicatorNode extends Node {
       { stroke: 'black', lineWidth: 1 }
     );
 
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same implementation as scaleLeftTick
     const scaleRightTick = new Line(
       0,
       spanArrowY - SPAN_TICK_LENGTH / 2,

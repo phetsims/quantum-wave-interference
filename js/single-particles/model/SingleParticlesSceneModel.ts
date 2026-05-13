@@ -132,6 +132,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       tandem: tandem.createTandem( 'autoRepeatProperty' )
     } );
 
+    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical to slitConfigurationProperty in HighIntensitySceneModel
     this.slitConfigurationProperty = new StringUnionProperty<SlitConfigurationWithNoBarrier>( 'bothOpen', {
       validValues: SlitConfigurationWithNoBarrierValues,
       tandem: tandem.createTandem( 'slitConfigurationProperty' )
