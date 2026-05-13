@@ -7,6 +7,8 @@
  */
 
 import Tandem from '../../../../tandem/js/Tandem.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import { type SourceType } from '../../common/model/SourceType.js';
 import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_DURATION } from './HighIntensitySceneModel.js';
 
 QUnit.module( 'HighIntensitySceneModel' );
@@ -23,8 +25,14 @@ const assertApproximately = (
   assert.ok( Math.abs( actual - expected ) <= epsilon, `${message}: expected ${expected}, got ${actual}` );
 };
 
-const createScene = (): HighIntensitySceneModel => new HighIntensitySceneModel( {
-  sourceType: 'photons',
+const PARTICLE_MASSES: Partial<Record<SourceType, number>> = {
+  electrons: QuantumWaveInterferenceConstants.ELECTRON_MASS,
+  neutrons: QuantumWaveInterferenceConstants.NEUTRON_MASS,
+  heliumAtoms: QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS
+};
+
+const createScene = ( sourceType: SourceType = 'photons' ): HighIntensitySceneModel => new HighIntensitySceneModel( {
+  sourceType: sourceType,
   tandem: Tandem.OPT_OUT
 } );
 
@@ -69,4 +77,47 @@ QUnit.test( 'detector pattern formation waits for wavefront and uses model dt', 
 
   scene.step( DETECTOR_PATTERN_FORMATION_DURATION / 2 );
   assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 1, 'formation reaches completion after the configured duration' );
+} );
+
+QUnit.test( 'effective wave speed and wavelength use physical source values', assert => {
+  const photonScene = createScene( 'photons' );
+  assert.strictEqual( photonScene.getEffectiveWaveSpeed(), 3e8, 'photon wave speed is c' );
+  assertApproximately(
+    assert,
+    photonScene.getEffectiveWavelength(),
+    photonScene.wavelengthProperty.value * 1e-9,
+    'photon wavelength is the wavelength control value in meters'
+  );
+
+  ( [ 'electrons', 'neutrons', 'heliumAtoms' ] as SourceType[] ).forEach( sourceType => {
+    const scene = createScene( sourceType );
+    const particleMass = PARTICLE_MASSES[ sourceType ]!;
+
+    [ scene.velocityRange.min, scene.velocityProperty.value, scene.velocityRange.max ].forEach( velocity => {
+      scene.velocityProperty.value = velocity;
+
+      assert.strictEqual( scene.getEffectiveWaveSpeed(), velocity, `${sourceType} wave speed is particle velocity` );
+      assertApproximately(
+        assert,
+        scene.getEffectiveWavelength(),
+        QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( particleMass * velocity ),
+        `${sourceType} wavelength follows de Broglie relation at ${velocity} m/s`
+      );
+    } );
+  } );
+} );
+
+QUnit.test( 'continuous solver physical time conversion matches effective wave speed', assert => {
+  const scene = createScene( 'photons' );
+  const visualDt = 0.75;
+  const physicalDt = scene.getPhysicalDt( visualDt );
+
+  assert.ok( physicalDt > 0, 'positive visual dt produces positive physical dt' );
+  assertApproximately(
+    assert,
+    scene.waveSolver.getDisplayPropagationSpeed() * visualDt / physicalDt,
+    scene.getEffectiveWaveSpeed(),
+    'display distance divided by physical time equals photon speed'
+  );
+  assert.strictEqual( scene.getPhysicalDt( 0 ), 0, 'zero visual dt produces zero physical dt' );
 } );

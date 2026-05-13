@@ -53,6 +53,7 @@ count:                              Count
 snapshotNumberPattern:              'Snapshot {{number}}'
 ruler:                              Ruler
 stopwatch:                          Stopwatch
+stopwatchValueUnitsPattern:          '{{value}} {{units}}'
 detector:                           Detector
 tapeMeasure:                        Tape Measure
 timePlot:                           Time Plot
@@ -81,6 +82,18 @@ resetDetector:                      Reset
 particleDetected:                   Particle detected
 notDetected:                        Not detected
 detectorPercentPattern:             '{{value}}%'
+timeUnits.femtoseconds.symbol:       fs
+timeUnits.femtoseconds.accessibleName: femtoseconds
+timeUnits.picoseconds.symbol:        ps
+timeUnits.picoseconds.accessibleName: picoseconds
+timeUnits.nanoseconds.symbol:        ns
+timeUnits.nanoseconds.accessibleName: nanoseconds
+timeUnits.microseconds.symbol:       μs
+timeUnits.microseconds.accessibleName: microseconds
+timeUnits.milliseconds.symbol:       ms
+timeUnits.milliseconds.accessibleName: milliseconds
+timeUnits.seconds.symbol:            s
+timeUnits.seconds.accessibleName:    seconds
 
 # Accessibility strings
 a11y:

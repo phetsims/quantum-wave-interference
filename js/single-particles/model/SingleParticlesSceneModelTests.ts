@@ -222,3 +222,18 @@ QUnit.test( 'screen detection timing waits until after packet midpoint', assert 
 
   assert.strictEqual( scene.totalHitsProperty.value, 1, 'detector-screen hit occurs at sampled later threshold' );
 } );
+
+QUnit.test( 'packet solver physical time conversion matches effective wave speed', assert => {
+  const scene = createScene();
+  const visualDt = 0.75;
+  const physicalDt = scene.getPhysicalDt( visualDt );
+
+  assert.ok( physicalDt > 0, 'positive visual dt produces positive physical dt' );
+  assertApproximately(
+    assert,
+    scene.waveSolver.getDisplayPropagationSpeed() * visualDt / physicalDt,
+    scene.getEffectiveWaveSpeed(),
+    'display distance divided by physical time equals photon speed'
+  );
+  assert.strictEqual( scene.getPhysicalDt( -1 ), 0, 'negative visual dt produces zero physical dt' );
+} );

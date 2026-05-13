@@ -221,8 +221,13 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   }
 
   public stepOnce(): void {
-    this.sceneProperty.value.step( NOMINAL_DT );
-    this.stopwatch.step( NOMINAL_DT );
+    const scene = this.sceneProperty.value;
+    scene.step( NOMINAL_DT );
+
+    const physicalDt = scene.getPhysicalDt( NOMINAL_DT );
+    if ( physicalDt > 0 ) {
+      this.stopwatch.step( physicalDt );
+    }
   }
 
   public step( dt: number ): void {
@@ -231,7 +236,12 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       return;
     }
 
-    this.sceneProperty.value.step( effectiveDt );
-    this.stopwatch.step( effectiveDt );
+    const scene = this.sceneProperty.value;
+    scene.step( effectiveDt );
+
+    const physicalDt = scene.getPhysicalDt( effectiveDt );
+    if ( physicalDt > 0 ) {
+      this.stopwatch.step( physicalDt );
+    }
   }
 }

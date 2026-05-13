@@ -279,6 +279,19 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return this.sourceType === 'photons' ? 3e8 : this.velocityProperty.value;
   }
 
+  public getPhysicalDt( visualDt: number ): number {
+    const displayPropagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
+    const effectiveWaveSpeed = this.getEffectiveWaveSpeed();
+
+    return visualDt > 0 &&
+           Number.isFinite( displayPropagationSpeed ) &&
+           Number.isFinite( effectiveWaveSpeed ) &&
+           displayPropagationSpeed > 0 &&
+           effectiveWaveSpeed > 0 ?
+           displayPropagationSpeed * visualDt / effectiveWaveSpeed :
+           0;
+  }
+
   protected abstract isTopSlitOpen(): boolean;
 
   protected abstract isBottomSlitOpen(): boolean;

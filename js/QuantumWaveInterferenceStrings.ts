@@ -77,6 +77,7 @@ type StringsType = {
   'snapshotNumberPatternStringProperty': LocalizedStringProperty;
   'rulerStringProperty': LocalizedStringProperty;
   'stopwatchStringProperty': LocalizedStringProperty;
+  'stopwatchValueUnitsPatternStringProperty': LocalizedStringProperty;
   'detectorStringProperty': LocalizedStringProperty;
   'tapeMeasureStringProperty': LocalizedStringProperty;
   'timePlotStringProperty': LocalizedStringProperty;
@@ -105,6 +106,32 @@ type StringsType = {
   'particleDetectedStringProperty': LocalizedStringProperty;
   'notDetectedStringProperty': LocalizedStringProperty;
   'detectorPercentPatternStringProperty': LocalizedStringProperty;
+  'timeUnits': {
+    'femtoseconds': {
+      'symbolStringProperty': LocalizedStringProperty;
+      'accessibleNameStringProperty': LocalizedStringProperty;
+    };
+    'picoseconds': {
+      'symbolStringProperty': LocalizedStringProperty;
+      'accessibleNameStringProperty': LocalizedStringProperty;
+    };
+    'nanoseconds': {
+      'symbolStringProperty': LocalizedStringProperty;
+      'accessibleNameStringProperty': LocalizedStringProperty;
+    };
+    'microseconds': {
+      'symbolStringProperty': LocalizedStringProperty;
+      'accessibleNameStringProperty': LocalizedStringProperty;
+    };
+    'milliseconds': {
+      'symbolStringProperty': LocalizedStringProperty;
+      'accessibleNameStringProperty': LocalizedStringProperty;
+    };
+    'seconds': {
+      'symbolStringProperty': LocalizedStringProperty;
+      'accessibleNameStringProperty': LocalizedStringProperty;
+    }
+  };
   'a11y': {
     'screenSummary': {
       'playAreaStringProperty': LocalizedStringProperty;

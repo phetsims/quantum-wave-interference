@@ -164,6 +164,9 @@
   "stopwatch": {
     "value": "Stopwatch"
   },
+  "stopwatchValueUnitsPattern": {
+    "value": "{{value}} {{units}}"
+  },
   "detector": {
     "value": "Detector"
   },
@@ -247,6 +250,42 @@
   },
   "detectorPercentPattern": {
     "value": "{{value}}%"
+  },
+  "timeUnits.femtoseconds.symbol": {
+    "value": "fs"
+  },
+  "timeUnits.femtoseconds.accessibleName": {
+    "value": "femtoseconds"
+  },
+  "timeUnits.picoseconds.symbol": {
+    "value": "ps"
+  },
+  "timeUnits.picoseconds.accessibleName": {
+    "value": "picoseconds"
+  },
+  "timeUnits.nanoseconds.symbol": {
+    "value": "ns"
+  },
+  "timeUnits.nanoseconds.accessibleName": {
+    "value": "nanoseconds"
+  },
+  "timeUnits.microseconds.symbol": {
+    "value": "μs"
+  },
+  "timeUnits.microseconds.accessibleName": {
+    "value": "microseconds"
+  },
+  "timeUnits.milliseconds.symbol": {
+    "value": "ms"
+  },
+  "timeUnits.milliseconds.accessibleName": {
+    "value": "milliseconds"
+  },
+  "timeUnits.seconds.symbol": {
+    "value": "s"
+  },
+  "timeUnits.seconds.accessibleName": {
+    "value": "seconds"
   },
   "a11y": {
     "screenSummary": {
