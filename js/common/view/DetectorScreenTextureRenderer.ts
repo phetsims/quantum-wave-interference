@@ -13,7 +13,6 @@
 
 import TEmitter from '../../../../axon/js/TEmitter.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import { clamp } from '../../../../dot/js/util/clamp.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
@@ -23,8 +22,6 @@ import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, 
 const SUPERSAMPLE = 2;
 const MAX_RENDERED_HITS = 10000;
 const HIT_SIZE_SCALE = 1.2;
-const BASE_DETECTOR_SCREEN_RAMP_WINDOW = 0.6; // seconds
-const DETECTOR_SCREEN_RAMP_WINDOW = BASE_DETECTOR_SCREEN_RAMP_WINDOW * 10; // Expanded for testing.
 
 export type DetectorScreenSceneLike = {
   hits: Vector2[];
@@ -36,6 +33,7 @@ export type DetectorScreenSceneLike = {
   waveSolver: WaveSolver;
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   intensityProperty?: TReadOnlyProperty<number>;
+  detectorPatternFormationFactorProperty?: TReadOnlyProperty<number>;
 };
 
 type TextureCache = {
@@ -48,8 +46,6 @@ type TextureCache = {
   lastDetectionMode: string;
   lastIntensity: number;
   lastIsEmitting: boolean;
-  lastRampContentKey: string;
-  contentRampStartTime: number;
   lastRampFactor: number;
   hitSprite: HTMLCanvasElement | null;
   hitSpriteParams: HitSpriteParams | null;
@@ -93,7 +89,7 @@ export default class DetectorScreenTextureRenderer {
     this.hitSpriteSize = this.hitSpriteCenter * 2;
   }
 
-  public getTexture( scene: DetectorScreenSceneLike, displayTime: number ): HTMLCanvasElement {
+  public getTexture( scene: DetectorScreenSceneLike ): HTMLCanvasElement {
     let cache = this.cacheMap.get( scene );
     if ( !cache ) {
       cache = this.createCache( scene );
@@ -103,7 +99,7 @@ export default class DetectorScreenTextureRenderer {
     // In intensity mode, the solver distribution updates every frame, so always re-render
     const detectionMode = scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
     if ( cache.dirty || detectionMode === 'averageIntensity' || cache.lastRampFactor < 1 ) {
-      this.renderTexture( cache, scene, displayTime );
+      this.renderTexture( cache, scene );
     }
 
     return cache.canvas;
@@ -129,8 +125,6 @@ export default class DetectorScreenTextureRenderer {
       lastDetectionMode: '',
       lastIntensity: -1,
       lastIsEmitting: false,
-      lastRampContentKey: '',
-      contentRampStartTime: 0,
       lastRampFactor: 1,
       hitSprite: null,
       hitSpriteParams: null,
@@ -149,26 +143,23 @@ export default class DetectorScreenTextureRenderer {
     if ( scene.intensityProperty ) {
       scene.intensityProperty.link( markDirty );
     }
+    if ( scene.detectorPatternFormationFactorProperty ) {
+      scene.detectorPatternFormationFactorProperty.link( markDirty );
+    }
 
     return cache;
   }
 
-  private renderTexture( cache: TextureCache, scene: DetectorScreenSceneLike, displayTime: number ): void {
+  private renderTexture( cache: TextureCache, scene: DetectorScreenSceneLike ): void {
     const context = cache.context;
     const currentBrightness = scene.screenBrightnessProperty.value;
     const currentWavelength = scene.wavelengthProperty.value;
     const currentDetectionMode = scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
     const currentIntensity = scene.intensityProperty ? scene.intensityProperty.value : 1;
     const currentIsEmitting = scene.isEmittingProperty.value;
-    const supportsExposureRamp = currentDetectionMode === 'averageIntensity';
-    const rampContentKey = supportsExposureRamp ? `${currentDetectionMode}:${currentIsEmitting}` : 'none';
-
-    if ( rampContentKey !== cache.lastRampContentKey ) {
-      cache.lastRampContentKey = rampContentKey;
-      cache.contentRampStartTime = displayTime;
-    }
-
-    const rampFactor = supportsExposureRamp ? this.getRampFactor( cache, displayTime ) : 1;
+    const rampFactor = currentDetectionMode === 'averageIntensity' ?
+                       scene.detectorPatternFormationFactorProperty?.value ?? 1 :
+                       1;
 
     const paramsChanged = cache.lastBrightness !== currentBrightness ||
                           cache.lastWavelength !== currentWavelength ||
@@ -205,15 +196,6 @@ export default class DetectorScreenTextureRenderer {
     }
 
     cache.dirty = false;
-  }
-
-  private getRampFactor( cache: TextureCache, displayTime: number ): number {
-    if ( DETECTOR_SCREEN_RAMP_WINDOW <= 0 ) {
-      return 1;
-    }
-
-    const t = clamp( ( displayTime - cache.contentRampStartTime ) / DETECTOR_SCREEN_RAMP_WINDOW, 0, 1 );
-    return t * t * ( 3 - 2 * t );
   }
 
   private paintHits(

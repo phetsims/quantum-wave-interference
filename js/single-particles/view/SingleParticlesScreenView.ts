@@ -271,7 +271,7 @@ export default class SingleParticlesScreenView extends ScreenView {
   public override step( dt: number ): void {
     super.step( dt );
     this.waveVisualizationNode.step();
-    this.detectorScreenNode.step( dt );
+    this.detectorScreenNode.step();
     this.sidewaysGraphNode.step();
     this.timePlotNode.step( this.model.getEffectiveDt( dt ) );
     this.positionPlotNode.step();

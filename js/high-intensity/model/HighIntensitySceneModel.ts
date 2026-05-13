@@ -13,10 +13,12 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
+import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.js';
@@ -29,6 +31,10 @@ const MAX_EMISSION_RATE = 5;
 // Valid model steps are capped at 0.5 seconds, so this is enough to preserve one slit-detector
 // attempt per emitted particle at the maximum emission rate without dropping temporal bands.
 const MAX_DECOHERENCE_EVENTS_PER_FRAME = 64;
+
+// The screen model runs at 0.5x in Normal speed, so 2 seconds of effective model time produces
+// a 4-second detector pattern formation time in Normal speed.
+export const DETECTOR_PATTERN_FORMATION_DURATION = 2;
 
 export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 
@@ -46,6 +52,10 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   // Whether the wave field should be rendered in the visualization region
   public readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
   private readonly _isWaveVisibleProperty: BooleanProperty;
+
+  // Normalized progress for the detector-screen and chart intensity pattern exposure.
+  public readonly detectorPatternFormationFactorProperty: TReadOnlyProperty<number>;
+  private readonly _detectorPatternFormationFactorProperty: NumberProperty;
 
   public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( 1 );
 
@@ -74,6 +84,13 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this._isWaveVisibleProperty = new BooleanProperty( false );
     this.isWaveVisibleProperty = this._isWaveVisibleProperty;
 
+    this._detectorPatternFormationFactorProperty = new NumberProperty( 0, {
+      range: new Range( 0, 1 ),
+      tandem: tandem.createTandem( 'detectorPatternFormationFactorProperty' ),
+      phetioReadOnly: true
+    } );
+    this.detectorPatternFormationFactorProperty = this._detectorPatternFormationFactorProperty;
+
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.detectionModeProperty, this.totalHitsProperty ],
       ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits >= MAX_HITS
@@ -82,6 +99,11 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMax => !isMax );
 
     this.setupSlitConfigurationListeners( this.slitConfigurationProperty );
+    this.detectionModeProperty.lazyLink( detectionMode => {
+      if ( detectionMode === 'averageIntensity' ) {
+        this.resetDetectorPatternFormation();
+      }
+    } );
     this.stopEmitterWhenMaxHitsReached();
   }
 
@@ -104,6 +126,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   public override clearScreen(): void {
     this.hitAccumulator = 0;
     this.nextDecoherenceEventTime = null;
+    this.resetDetectorPatternFormation();
     super.clearScreen();
     this._isWaveVisibleProperty.value = this.isEmittingProperty.value;
   }
@@ -111,6 +134,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   protected override clearWaveStateWhenEmitterTurnsOff(): void {
     this.hitAccumulator = 0;
     this.nextDecoherenceEventTime = null;
+    this.resetDetectorPatternFormation();
     super.clearWaveStateWhenEmitterTurnsOff();
     this._isWaveVisibleProperty.value = false;
   }
@@ -127,6 +151,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
     this._isWaveVisibleProperty.value = this.isEmittingProperty.value;
 
+    this.stepDetectorPatternFormation( dt );
     this.stepDecoherenceEvents( dt );
 
     if (
@@ -227,6 +252,32 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }
   }
 
+  private stepDetectorPatternFormation( dt: number ): void {
+    if (
+      this.detectionModeProperty.value !== 'averageIntensity' ||
+      !this.isEmittingProperty.value ||
+      dt <= 0 ||
+      this._detectorPatternFormationFactorProperty.value >= 1
+    ) {
+      return;
+    }
+
+    // Exposure begins when there is actually detector-screen content, so the screen and chart
+    // do not finish forming while the leading wavefront is still traveling.
+    if ( !this.hasWavefrontReachedScreen() ) {
+      return;
+    }
+
+    this._detectorPatternFormationFactorProperty.value = Math.min(
+      1,
+      this._detectorPatternFormationFactorProperty.value + dt / DETECTOR_PATTERN_FORMATION_DURATION
+    );
+  }
+
+  private resetDetectorPatternFormation(): void {
+    this._detectorPatternFormationFactorProperty.value = 0;
+  }
+
   private getParticleEmissionRate(): number {
     return MAX_EMISSION_RATE;
   }
@@ -241,6 +292,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.detectionModeProperty.reset();
     this.hitAccumulator = 0;
     this.nextDecoherenceEventTime = null;
+    this.resetDetectorPatternFormation();
     this._isWaveVisibleProperty.reset();
     this.syncSolverParameters();
   }

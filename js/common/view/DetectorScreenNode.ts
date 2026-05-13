@@ -38,7 +38,6 @@ export default class DetectorScreenNode extends Node {
   private readonly canvasNode: CanvasNode;
   private readonly snapshotFlashRect: Rectangle;
   private snapshotFlashAnimation: Animation | null = null;
-  private displayTime = 0;
 
   public constructor( sceneProperty: TReadOnlyProperty<DetectorScreenSceneLike>, providedOptions?: DetectorScreenNodeOptions ) {
 
@@ -67,8 +66,7 @@ export default class DetectorScreenNode extends Node {
       sceneProperty,
       textureRenderer,
       SCREEN_WIDTH,
-      SCREEN_HEIGHT + SKEW,
-      () => this.displayTime
+      SCREEN_HEIGHT + SKEW
     );
     this.canvasNode.clipArea = shape;
     this.addChild( this.canvasNode );
@@ -131,8 +129,7 @@ export default class DetectorScreenNode extends Node {
     this.snapshotFlashRect.visible = false;
   }
 
-  public step( dt: number ): void {
-    this.displayTime += dt;
+  public step(): void {
     this.canvasNode.invalidatePaint();
   }
 }
@@ -143,14 +140,12 @@ class DetectorScreenCanvasNode extends CanvasNode {
   private readonly textureRenderer: DetectorScreenTextureRenderer;
   private readonly displayWidth: number;
   private readonly displayHeight: number;
-  private readonly getDisplayTime: () => number;
 
   public constructor(
     sceneProperty: TReadOnlyProperty<DetectorScreenSceneLike>,
     textureRenderer: DetectorScreenTextureRenderer,
     width: number,
-    height: number,
-    getDisplayTime: () => number
+    height: number
   ) {
     super( {
       canvasBounds: new Bounds2( 0, 0, width, height )
@@ -160,11 +155,10 @@ class DetectorScreenCanvasNode extends CanvasNode {
     this.textureRenderer = textureRenderer;
     this.displayWidth = width;
     this.displayHeight = height;
-    this.getDisplayTime = getDisplayTime;
   }
 
   public paintCanvas( context: CanvasRenderingContext2D ): void {
-    const texture = this.textureRenderer.getTexture( this.sceneProperty.value, this.getDisplayTime() );
+    const texture = this.textureRenderer.getTexture( this.sceneProperty.value );
     context.drawImage( texture, 0, 0, this.displayWidth, this.displayHeight );
   }
 }

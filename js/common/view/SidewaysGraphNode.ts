@@ -57,6 +57,7 @@ export type SidewaysGraphSceneLike = {
   hitsChangedEmitter: TEmitter;
   waveSolver: WaveSolver;
   intensityProperty?: TReadOnlyProperty<number>;
+  detectorPatternFormationFactorProperty?: TReadOnlyProperty<number>;
 };
 
 type SelfOptions = {
@@ -311,6 +312,7 @@ export default class SidewaysGraphNode extends Node {
   private paintIntensityCurve( scene: SidewaysGraphSceneLike ): void {
     const zoomScale = linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
     const sourceIntensity = scene.intensityProperty ? scene.intensityProperty.value : 1;
+    const detectorPatternFormationFactor = scene.detectorPatternFormationFactorProperty?.value ?? 1;
 
     const distribution = scene.waveSolver.getDetectorProbabilityDistribution();
     const solverHeight = scene.waveSolver.gridHeight;
@@ -325,7 +327,7 @@ export default class SidewaysGraphNode extends Node {
       const intensity = distribution[ i ];
 
       const viewY = fraction * GRAPH_HEIGHT;
-      const viewX = intensity * sourceIntensity * GRAPH_WIDTH * zoomScale;
+      const viewX = intensity * sourceIntensity * detectorPatternFormationFactor * GRAPH_WIDTH * zoomScale;
 
       shape.lineTo( viewX, viewY );
     }
