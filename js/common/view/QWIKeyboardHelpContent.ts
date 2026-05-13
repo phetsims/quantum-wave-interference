@@ -1,5 +1,6 @@
 // Copyright 2026, University of Colorado Boulder
 
+//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/116 Rename to QuantumWaveInterferenceKeyboardHelpContent
 /**
  * Keyboard-help dialog content shared by all screens of the Quantum Wave Interference simulation.
  *
