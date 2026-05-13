@@ -19,6 +19,7 @@ type SelfOptions = EmptySelfOptions;
 
 type SingleParticlesScreenOptions = SelfOptions & ScreenOptions;
 
+//REVIEW Narrow this interface to omit the ScreenOptions that this class controls.
 export default class SingleParticlesScreen extends Screen<SingleParticlesModel, SingleParticlesScreenView> {
 
   public constructor( providedOptions: SingleParticlesScreenOptions ) {

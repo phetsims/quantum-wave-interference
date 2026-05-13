@@ -58,6 +58,7 @@ type SelfOptions = {
   panelRightPadding?: number;
 };
 
+//REVIEW ... = SelfOptions & StrictOmit<NodeOptions, 'cursor'>
 type WavePlotChartNodeOptions = SelfOptions & NodeOptions;
 
 export default class WavePlotChartNode extends Node {

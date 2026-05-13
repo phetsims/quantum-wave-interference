@@ -39,6 +39,7 @@ import { hasDetectorOnSide, type SlitConfigurationWithNoBarrier } from '../../co
 
 type SelfOptions = EmptySelfOptions;
 
+//REVIEW Narrow this interface to omit the ScreenViewOptions that this class controls.
 type SingleParticlesScreenViewOptions = SelfOptions & ScreenViewOptions;
 
 const LABEL_FONT = new PhetFont( 14 );

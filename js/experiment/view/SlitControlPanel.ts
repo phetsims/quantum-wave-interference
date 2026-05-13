@@ -167,6 +167,7 @@ export default class SlitControlPanel extends Panel {
       slitSeparationTicks = SlitControlPanel.createNumericTicks( slitSeparationRange );
     }
 
+    //REVIEW Factor out SlitSeparationControl extends NumberControl
     const slitSeparationControl = new NumberControl(
       QuantumWaveInterferenceFluent.slitSeparationStringProperty,
       scene.slitSeparationProperty,
@@ -196,6 +197,7 @@ export default class SlitControlPanel extends Panel {
     // Screen distance NumberControl
     const screenDistanceRange = scene.screenDistanceRange;
 
+    //REVIEW Factor out screenDistanceControl extends NumberControl
     const screenDistanceControl = new NumberControl(
       QuantumWaveInterferenceFluent.screenDistanceStringProperty,
       scene.screenDistanceProperty,
@@ -231,6 +233,8 @@ export default class SlitControlPanel extends Panel {
         tandem: tandem.createTandem( `${sceneTandemName}ScreenDistanceControl` )
       }
     );
+
+    //REVIEW Factor out SlitSettingsComboBox. There is too much inlined here.
 
     // Slit settings ComboBox
     const slitSettingsLabel = new Text( QuantumWaveInterferenceFluent.slitConfigurationStringProperty, {

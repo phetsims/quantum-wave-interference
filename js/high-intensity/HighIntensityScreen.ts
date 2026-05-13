@@ -19,6 +19,7 @@ type SelfOptions = EmptySelfOptions;
 
 type HighIntensityScreenOptions = SelfOptions & ScreenOptions;
 
+//REVIEW Narrow this interface to omit the ScreenOptions that this class controls.
 export default class HighIntensityScreen extends Screen<HighIntensityModel, HighIntensityScreenView> {
 
   public constructor( providedOptions: HighIntensityScreenOptions ) {

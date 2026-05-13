@@ -1,5 +1,11 @@
 // Copyright 2026, University of Colorado Boulder
 
+//REVIEW This class is too big and (more importantly) has responsibilities that do not belong at the ScreenView level.
+//REVIEW   Reduce size by factoring out view components and (especially) description code.
+
+//REVIEW I would hate to have to change/maintain the layout of this ScreenView. Layout is spread out, not well encapsulated.
+//REIEW    Could scenery layout be used more?
+
 /**
  * ExperimentScreenView is the top-level view for the Quantum Wave Interference simulation. It contains three visual
  * "rows": the top row with the emitter, double slit, and detector screen in overhead perspective;
@@ -60,6 +66,7 @@ import { getWavelengthColorZone, getWavelengthColorZoneString } from '../../comm
 
 type SelfOptions = EmptySelfOptions;
 
+//REVIEW Narrow this interface to omit the ScreenViewOptions that this class controls.
 type ExperimentScreenViewOptions = SelfOptions & ScreenViewOptions;
 
 const RULER_X_OFFSET = 0.5;
@@ -336,6 +343,8 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( resetAllButton );
 
+    //REVIEW Factor out everything related to rulerCheckbox, for better encapsulation and less code in the class.
+
     // Ruler checkbox
     const rulerCheckboxLabel = new Text( QuantumWaveInterferenceFluent.rulerStringProperty, {
       font: new PhetFont( 14 ),
@@ -349,6 +358,8 @@ export default class ExperimentScreenView extends ScreenView {
       accessibleContextResponseUnchecked: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleContextResponseUncheckedStringProperty,
       tandem: options.tandem.createTandem( 'rulerCheckbox' )
     } );
+
+    //REVIEW Factor out everything related to stopwatchCheckbox, for better encapsulation and less code in the class.
 
     // Stopwatch checkbox - positioned below the ruler checkbox
     const stopwatchCheckboxLabel = new Text( QuantumWaveInterferenceFluent.stopwatchStringProperty, {
@@ -446,6 +457,8 @@ export default class ExperimentScreenView extends ScreenView {
       } );
     } );
 
+    //REVIEW Factor out rulerDragBoundsProperty and things related to it.
+
     const getActiveSceneIndex = () => model.scenes.indexOf( model.sceneProperty.value );
     const rulerDragBoundsProperty = new DerivedProperty(
       [ this.visibleBoundsProperty, model.sceneProperty, this.graphExpandedProperty ],
@@ -496,6 +509,8 @@ export default class ExperimentScreenView extends ScreenView {
       );
     };
     this.centerRulerOnDetectorScreen();
+
+    //REVIEW Why is there no ruler class that is responsible for adding input listener?
 
     rulerNodes.forEach( ( rulerNode, index ) => {
       const rulerTandem = rulerNodesTandem.createTandem( `rulerNode${index}` );
@@ -572,6 +587,8 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( detectorScreenDescriptionNode );
 
+    //REVIEW Factor out everything related to slitViewDescriptionNode, for better encapsulation and less code in the class.
+
     // Accessible paragraph describing the magnified slit view for screen reader users.
     // This is important non-interactive visual content: the slit view shows the barrier with two slits, their width,
     // and the current slit configuration (open/covered/detector). The slit width is a constant per scene that is
@@ -604,6 +621,8 @@ export default class ExperimentScreenView extends ScreenView {
       QuantumWaveInterferenceFluent.a11y.particleMass.accessibleParagraph.createProperty( {
         sourceType: particleSourceTypeProperty
       } );
+
+    //REVIEW Should these DynamicProperties be in the model? Or in some description-related class?
 
     // DynamicProperties follow the active scene so the setup details read from the same scene-specific controls that
     // are visible on screen. Each property rewires automatically when the user switches source type.

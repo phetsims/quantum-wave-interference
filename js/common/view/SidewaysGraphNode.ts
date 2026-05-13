@@ -67,6 +67,7 @@ type SelfOptions = {
   initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
 };
 
+//REVIEW ... = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
 type SidewaysGraphNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
 export default class SidewaysGraphNode extends Node {

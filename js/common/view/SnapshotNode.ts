@@ -1,5 +1,6 @@
 // Copyright 2026, University of Colorado Boulder
 
+//REVIEW This file is a bit too large. Consider moving class SnapshotCanvasNode to its own file.
 /**
  * SnapshotNode displays a single snapshot in the SnapshotsDialog.
  * It shows a miniature rendering of the detector screen state at the time the snapshot was taken, along with a title,
