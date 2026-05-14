@@ -256,7 +256,8 @@ export default class OverheadEmitterNode extends Node {
       },
       left: emitterLeft,
       visible: false,
-      tandem: tandem.createTandem( 'particleEmitterNode' )
+      tandem: tandem.createTandem( 'particleEmitterNode' ),
+      tandemNameSuffix: 'particleEmitterNode'
     } );
     this.addChild( this.particleEmitterNode );
 

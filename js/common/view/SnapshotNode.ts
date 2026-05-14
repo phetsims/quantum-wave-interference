@@ -31,6 +31,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
+import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import type { Snapshot } from '../model/Snapshot.js';
@@ -185,9 +186,9 @@ export default class SnapshotNode extends Node {
         ...millimetersUnit.getDependentProperties()
       ] ) ),
       () => ifSnapshot( snapshot => formatLabelValue(
-          QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
-          formatSlitSeparation( snapshot.slitSeparation )
-        ), '' )( snapshotProperty.value )
+        QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
+        formatSlitSeparation( snapshot.slitSeparation )
+      ), '' )( snapshotProperty.value )
     );
 
     const wavelengthOrSpeedProperty = DerivedProperty.deriveAny(
@@ -225,7 +226,7 @@ export default class SnapshotNode extends Node {
             decimalPlaces: 0,
             showTrailingZeros: false,
             showIntegersAsIntegers: true
-        } );
+          } );
         return formatLabelValue( QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, speedValue );
       }, '' )( snapshotProperty.value )
     );
@@ -347,7 +348,8 @@ export default class SnapshotNode extends Node {
         scale: 0.6
       },
       touchAreaXDilation: 8,
-      touchAreaYDilation: 8
+      touchAreaYDilation: 8,
+      tandem: Tandem.OPT_OUT
     } );
 
     const metadataContent = new VBox( {
