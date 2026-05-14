@@ -14,7 +14,7 @@ import SliderControlsKeyboardHelpSection from '../../../../scenery-phet/js/keybo
 import TimeControlsKeyboardHelpSection from '../../../../scenery-phet/js/keyboard/help/TimeControlsKeyboardHelpSection.js';
 import TwoColumnKeyboardHelpContent from '../../../../scenery-phet/js/keyboard/help/TwoColumnKeyboardHelpContent.js';
 
-export default class QWIKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
+export default class QuantumWaveInterferenceKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
 
   public constructor() {
     super(

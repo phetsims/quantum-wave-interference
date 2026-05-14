@@ -573,7 +573,7 @@ export default class ExperimentScreenView extends ScreenView {
         if ( isMaxHitsReached ) {
           maxHitsReachedResponseNode.addAccessibleContextResponse(
             QuantumWaveInterferenceFluent.a11y.detectorScreen.maxHitsReached.accessibleContextResponseStringProperty,
-            { responseGroup: 'qwi-experiment-max-hits-reached' }
+            { responseGroup: 'quantum-wave-interference-experiment-max-hits-reached' }
           );
         }
       } );

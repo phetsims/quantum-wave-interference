@@ -83,7 +83,7 @@ npm run sim-test -- --sim=quantum-wave-interference --script="
 
 ## Multi-Pass Workflow
 
-When working on QWI, use sim-test iteratively:
+When working on Quantum Wave Interference, use sim-test iteratively:
 
 1. **Explore** -- Use `--script` to understand the current model state before making changes.
 2. **Change** -- Edit the code.
