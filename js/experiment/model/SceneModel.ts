@@ -185,6 +185,8 @@ export default class SceneModel extends PhetioObject {
     }
     else if ( options.sourceType === 'neutrons' ) {
       this.particleMass = QuantumWaveInterferenceConstants.NEUTRON_MASS;
+
+      // NOTE: The settings are similar to Helium by design
       this.velocityRange = new Range( 200, 1000 ); // m/s
       this.slitSeparationRange = new Range( 0.0001, 0.002 ); // mm (0.1–2.0 μm)
       defaultVelocity = 600;
@@ -193,7 +195,8 @@ export default class SceneModel extends PhetioObject {
     else {
       // Helium atoms
       this.particleMass = QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
-      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Next 4 lines are the same as lines 183-186, maybe that's OK.
+
+      // NOTE: The settings are similar to Neutrons by design
       this.velocityRange = new Range( 200, 1000 ); // m/s
       this.slitSeparationRange = new Range( 0.0001, 0.002 ); // mm (0.1–2.0 μm)
       defaultVelocity = 600;
