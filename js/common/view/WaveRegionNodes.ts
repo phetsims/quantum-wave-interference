@@ -8,15 +8,15 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import type TProperty from '../../../../axon/js/TProperty.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
-import DoubleSlitNode, { type DoubleSlitNodeOptions } from './DoubleSlitNode.js';
-import WaveVisualizationNode from './WaveVisualizationNode.js';
 import { type BarrierType } from '../model/BarrierType.js';
 import { type WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
+import DoubleSlitNode, { type DoubleSlitNodeOptions } from './DoubleSlitNode.js';
+import WaveVisualizationNode from './WaveVisualizationNode.js';
 
 type WaveRegionModel = {
   readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene & { readonly slitSeparationRange: Range }>;

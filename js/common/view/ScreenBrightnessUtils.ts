@@ -12,8 +12,8 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import { linear } from '../../../../dot/js/util/linear.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type SourceType } from '../model/SourceType.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
 export type RGB = { r: number; g: number; b: number };
 

@@ -30,20 +30,20 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import Shape from '../../../../kite/js/Shape.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import Color from '../../../../scenery/js/util/Color.js';
-import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import Color from '../../../../scenery/js/util/Color.js';
+import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
+import { type BarrierType } from '../../common/model/BarrierType.js';
+import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
+import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
-import { type BarrierType } from '../../common/model/BarrierType.js';
-import { type SourceType } from '../../common/model/SourceType.js';
-import WaveVisualizationCanvasNode from '../../common/view/WaveVisualizationCanvasNode.js';
 import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
+import WaveVisualizationCanvasNode from '../../common/view/WaveVisualizationCanvasNode.js';
 
 const EMITTER_SCALE = 1.5;
 

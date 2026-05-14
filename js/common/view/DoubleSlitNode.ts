@@ -15,8 +15,8 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
-import TProperty from '../../../../axon/js/TProperty.js';
 import TinyProperty from '../../../../axon/js/TinyProperty.js';
+import TProperty from '../../../../axon/js/TProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
 import Shape from '../../../../kite/js/Shape.js';
@@ -29,8 +29,8 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
-import { getViewSlitLayout, SLIT_VIEW_HEIGHT } from '../model/getViewSlitLayout.js';
 import { type BarrierType } from '../model/BarrierType.js';
+import { getViewSlitLayout, SLIT_VIEW_HEIGHT } from '../model/getViewSlitLayout.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 

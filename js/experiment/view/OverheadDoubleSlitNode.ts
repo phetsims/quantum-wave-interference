@@ -14,11 +14,11 @@ import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import ParallelogramNode, { ParallelogramShape } from './ParallelogramNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
@@ -143,8 +143,8 @@ export default class OverheadDoubleSlitNode extends Node {
       const fraction = ( separation - range.min ) / ( range.max - range.min );
       const particleVisualScale = scene.sourceType === 'photons' ? 1 : PARTICLE_SLIT_VISUAL_SCALE;
       const visualSpacing = (
-        MIN_VISUAL_SLIT_SPACING + fraction * ( MAX_VISUAL_SLIT_SPACING - MIN_VISUAL_SLIT_SPACING )
-      ) * particleVisualScale;
+                              MIN_VISUAL_SLIT_SPACING + fraction * ( MAX_VISUAL_SLIT_SPACING - MIN_VISUAL_SLIT_SPACING )
+                            ) * particleVisualScale;
 
       const leftX = slitBaseX - visualSpacing / 2;
       const rightX = slitBaseX + visualSpacing / 2;

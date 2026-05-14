@@ -22,9 +22,9 @@ import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
 import { type BarrierType } from './BarrierType.js';
-import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from './WaveDisplayMode.js';
-import type { Snapshot } from './Snapshot.js';
 import type BaseSceneModel from './BaseSceneModel.js';
+import type { Snapshot } from './Snapshot.js';
+import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from './WaveDisplayMode.js';
 
 const NOMINAL_DT = 1 / 60;
 const SLOW_TIME_SPEED_FACTOR = 0.25;

@@ -18,16 +18,16 @@ import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
+import { clamp } from '../../../../dot/js/util/clamp.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
-import { clamp } from '../../../../dot/js/util/clamp.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
+import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
-import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
 import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
+import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 
 export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as const;
 export type DetectorToolState = typeof DetectorToolStateValues[number];
@@ -298,10 +298,10 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   private sampleScreenDetectionWeight(): number {
     const parameters = SCREEN_DETECTION_TIMING_PARAMETERS;
     assert && assert(
-      parameters.startWeight > 0 &&
-      parameters.startWeight < parameters.peakWeight &&
-      parameters.peakWeight < parameters.endWeight &&
-      parameters.endWeight < 1,
+    parameters.startWeight > 0 &&
+    parameters.startWeight < parameters.peakWeight &&
+    parameters.peakWeight < parameters.endWeight &&
+    parameters.endWeight < 1,
       'screen detection weights should be ordered within (0, 1)'
     );
     assert && assert( parameters.leadingPower > 0 && parameters.trailingPower > 0, 'curve powers should be positive' );

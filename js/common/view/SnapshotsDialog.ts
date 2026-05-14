@@ -17,11 +17,11 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Dialog from '../../../../sun/js/Dialog.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import type { Snapshot } from '../model/Snapshot.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import SnapshotNode from './SnapshotNode.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
 const SNAPSHOT_ZOOM_BUTTON_MARGIN = 6;
 

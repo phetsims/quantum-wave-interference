@@ -26,12 +26,12 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
-import { type SourceType } from '../model/SourceType.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
+import type { Snapshot } from '../model/Snapshot.js';
+import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import type { Snapshot } from '../model/Snapshot.js';
 import { getApparentAnalyticalDetectorIntensity } from './ApparentDetectorPattern.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, sampleSmoothedIntensityDistribution } from './ScreenBrightnessUtils.js';
 

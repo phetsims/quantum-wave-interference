@@ -11,9 +11,9 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
-import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
+import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 export default function waveDisplayModeYAxisLabelProperty(
   sceneProperty: TReadOnlyProperty<WaveVisualizableScene>

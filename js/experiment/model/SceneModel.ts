@@ -27,13 +27,13 @@ import GetSetButtonsIO from '../../../../tandem/js/types/GetSetButtonsIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import { getExactAnalyticalDetectorIntensity } from '../../common/model/AnalyticalDetectorPattern.js';
-import { renumberSnapshots, type Snapshot, SnapshotIO } from '../../common/model/Snapshot.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import { getFullDetectorScreenHalfWidth } from './DetectorScreenScale.js';
-import ExperimentConstants from '../ExperimentConstants.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
+import { renumberSnapshots, type Snapshot, SnapshotIO } from '../../common/model/Snapshot.js';
 import { type SourceType } from '../../common/model/SourceType.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import ExperimentConstants from '../ExperimentConstants.js';
+import { getFullDetectorScreenHalfWidth } from './DetectorScreenScale.js';
 
 // Maximum emission rate in hits per second at full intensity
 const MAX_EMISSION_RATE = 100;

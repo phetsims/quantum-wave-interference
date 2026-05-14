@@ -17,9 +17,9 @@ import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUn
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import type BaseSceneModel from '../model/BaseSceneModel.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );

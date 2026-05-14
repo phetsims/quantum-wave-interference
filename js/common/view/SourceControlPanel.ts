@@ -37,9 +37,9 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import SunConstants from '../../../../sun/js/SunConstants.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SourceType } from '../model/SourceType.js';
+import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import linkSceneVisibility from './linkSceneVisibility.js';
 import { getWavelengthColorZone, getWavelengthColorZoneString } from './WavelengthColorUtils.js';
 
@@ -97,8 +97,8 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
         scene,
         options.tandem,
         scene.sourceType === 'photons'
-          ? options.photonIntensityLabelStringProperty
-          : options.particleIntensityLabelStringProperty
+        ? options.photonIntensityLabelStringProperty
+        : options.particleIntensityLabelStringProperty
       )
     );
 

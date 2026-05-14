@@ -19,9 +19,8 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type DetectorScreenSceneLike } from './DetectorScreenTextureRenderer.js';
+import DetectorScreenTextureRenderer, { type DetectorScreenSceneLike } from './DetectorScreenTextureRenderer.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
-import DetectorScreenTextureRenderer from './DetectorScreenTextureRenderer.js';
 
 type SelfOptions = EmptySelfOptions;
 

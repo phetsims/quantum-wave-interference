@@ -9,8 +9,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
+import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
 import type WaveSolver from './WaveSolver.js';
 
 export function createContinuousWaveSolver(): WaveSolver {

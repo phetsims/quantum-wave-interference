@@ -15,10 +15,10 @@
 
 import Property from '../../../../../axon/js/Property.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
+import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import SceneModel from '../../model/SceneModel.js';
-import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
 import BandAnalysis from './BandAnalysis.js';
 
 export default class GraphDescriber {

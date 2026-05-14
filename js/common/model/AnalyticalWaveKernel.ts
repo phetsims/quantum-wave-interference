@@ -543,7 +543,7 @@ const getPlaneWaveDecoherenceChainStrength = (
     passTime
   );
   const trailingStrength = 1 - smoothStep(
-    chainEndTime - PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION,
+                           chainEndTime - PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION,
     chainEndTime,
     passTime
   );
@@ -790,8 +790,8 @@ const evaluateGaussianPacketReEmissionSample = (
   }
 
   return isPathReachable( localSource, distanceFromAperture, localTime ) ?
-         { kind: 'field', components: [] } :
-         { kind: 'unreached' };
+    { kind: 'field', components: [] } :
+    { kind: 'unreached' };
 };
 
 const evaluateDoubleSlitSample = (

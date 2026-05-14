@@ -11,6 +11,7 @@
  */
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Emitter from '../../../../axon/js/Emitter.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
@@ -27,20 +28,17 @@ import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ObjectLiteralIO from '../../../../tandem/js/types/ObjectLiteralIO.js';
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import { type DetectionMode } from './DetectionMode.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKernel.js';
 import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
+import { type DetectionMode } from './DetectionMode.js';
+import { MAX_VIEW_SEPARATION, MIN_VIEW_SEPARATION, SLIT_VIEW_HEIGHT } from './getViewSlitLayout.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier } from './SlitConfiguration.js';
+import { renumberSnapshots, type Snapshot, SnapshotIO } from './Snapshot.js';
 import { type SourceType } from './SourceType.js';
-import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues } from './WaveDisplayMode.js';
-import { type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues } from './WaveDisplayMode.js';
-import { type WaveDisplayMode } from './WaveDisplayMode.js';
+import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues, type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues, type WaveDisplayMode } from './WaveDisplayMode.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverState } from './WaveSolver.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { renumberSnapshots, type Snapshot, SnapshotIO } from './Snapshot.js';
-import { MAX_VIEW_SEPARATION, MIN_VIEW_SEPARATION, SLIT_VIEW_HEIGHT } from './getViewSlitLayout.js';
 
 // Full normalized detector-screen half-span used by High Intensity and Single Particles hit scatter.
 export const HIT_VERTICAL_EXTENT = 1;
@@ -245,8 +243,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     // Since sourceType is fixed per instance, just alias the relevant property
     this.activeWaveDisplayModeProperty = this.sourceType === 'photons'
-      ? this.photonWaveDisplayModeProperty
-      : this.matterWaveDisplayModeProperty;
+                                         ? this.photonWaveDisplayModeProperty
+                                         : this.matterWaveDisplayModeProperty;
 
     this.totalHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'totalHitsProperty' ),

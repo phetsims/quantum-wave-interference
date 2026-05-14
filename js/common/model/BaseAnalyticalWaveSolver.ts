@@ -10,10 +10,10 @@
  */
 
 import type Complex from '../../../../dot/js/Complex.js';
-import type Vector2 from '../../../../dot/js/Vector2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
+import type Vector2 from '../../../../dot/js/Vector2.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalBarrier, type AnalyticalSource, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, type LayeredFieldSample, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalBarrier, type AnalyticalSource, type AnalyticalWaveParameters, type DecoherenceEvent, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, type FieldSample, getRepresentativeComplex, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type BarrierType } from './BarrierType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';

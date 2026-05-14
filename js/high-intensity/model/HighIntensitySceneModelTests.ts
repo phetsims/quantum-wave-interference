@@ -7,8 +7,8 @@
  */
 
 import Tandem from '../../../../tandem/js/Tandem.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import { type SourceType } from '../../common/model/SourceType.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_DURATION } from './HighIntensitySceneModel.js';
 
 QUnit.module( 'HighIntensitySceneModel' );

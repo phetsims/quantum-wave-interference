@@ -73,7 +73,7 @@ export default class QuantumWaveInterferenceConstants {
   // edges are vertical; adjusting this single value changes the perspective skew.
   public static readonly DETECTOR_SCREEN_ANGLE_DEGREES = 20;
   public static readonly DETECTOR_SCREEN_SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH *
-    Math.tan( QuantumWaveInterferenceConstants.DETECTOR_SCREEN_ANGLE_DEGREES * Math.PI / 180 );
+                                                Math.tan( QuantumWaveInterferenceConstants.DETECTOR_SCREEN_ANGLE_DEGREES * Math.PI / 180 );
   public static readonly RIGHT_PANEL_WIDTH = 180;
 
   // Shared vertical placement for the source-type scene button group.

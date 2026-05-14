@@ -24,9 +24,9 @@
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
-import { type AnalyticalWaveParameters, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample, computeSampleIntensity, evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
+import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalSample, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
 export const FIELD_DISPLAY_CUTOFF = 0.4;
@@ -184,8 +184,8 @@ const getDisplayStateRGBA = (
   else {
     const value = displayMode === 'imaginaryPart' ? imaginary : real;
     const phaseIntensity = value > 0 ?
-                clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * value, FIELD_DISPLAY_CUTOFF, 1 ) :
-                clamp( FIELD_DISPLAY_CUTOFF * ( 1 + value ), 0, FIELD_DISPLAY_CUTOFF );
+                           clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * value, FIELD_DISPLAY_CUTOFF, 1 ) :
+                           clamp( FIELD_DISPLAY_CUTOFF * ( 1 + value ), 0, FIELD_DISPLAY_CUTOFF );
     intensity = phaseIntensity * displayState.visibility;
   }
 

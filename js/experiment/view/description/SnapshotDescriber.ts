@@ -7,10 +7,10 @@
  * @author Matthew Blackman (PhET Interactive Simulations)
  */
 
-import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
 import type { Snapshot } from '../../../common/model/Snapshot.js';
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
+import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import BandAnalysis from './BandAnalysis.js';
 
 export default class SnapshotDescriber {

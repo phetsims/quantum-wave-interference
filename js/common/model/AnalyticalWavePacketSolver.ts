@@ -12,7 +12,7 @@
 
 import Vector2 from '../../../../dot/js/Vector2.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalSource, type AnalyticalWaveParameters, type GaussianPacketReEmission, type MeasurementProjection, computeSampleIntensity, evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
+import { type AnalyticalSource, type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalSample, type GaussianPacketReEmission, type MeasurementProjection } from './AnalyticalWaveKernel.js';
 import BaseAnalyticalWaveSolver from './BaseAnalyticalWaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 

@@ -17,8 +17,8 @@ import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushBut
 import nullSoundPlayer from '../../../../tambo/js/nullSoundPlayer.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 
 const EYE_BUTTON_X_MARGIN = 4;

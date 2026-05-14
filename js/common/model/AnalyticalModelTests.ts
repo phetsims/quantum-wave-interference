@@ -10,11 +10,11 @@
 
 import Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getDecoherenceEventAtPassTime, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
 import { getFieldSampleRGBA, getLayeredFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
-import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
 QUnit.module( 'AnalyticalModel' );
 

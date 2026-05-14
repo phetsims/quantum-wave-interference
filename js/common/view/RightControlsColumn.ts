@@ -28,17 +28,17 @@ import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Panel from '../../../../sun/js/Panel.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../model/WaveDisplayMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import type { Snapshot } from '../model/Snapshot.js';
+import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../model/WaveDisplayMode.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import BrightnessControl from './BrightnessControl.js';
-import WaveDisplaySection from './WaveDisplaySection.js';
 import SnapshotButton from './SnapshotButton.js';
 import SnapshotIndicatorDotsNode from './SnapshotIndicatorDotsNode.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 import ViewSnapshotsButton from './ViewSnapshotsButton.js';
+import WaveDisplaySection from './WaveDisplaySection.js';
 
 export type RightControlsModel = {
   sceneProperty: TReadOnlyProperty<{ sourceType: string }>;
@@ -93,7 +93,7 @@ export default class RightControlsColumn extends VBox {
 
     const rightPanelWidth = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH;
 
-  // --- Screen controls panel ---
+    // --- Screen controls panel ---
 
     const eraseButton = new EraserButton( {
       listener: options.clearScreen,
@@ -162,7 +162,7 @@ export default class RightControlsColumn extends VBox {
       minWidth: rightPanelWidth
     } );
 
-  // --- Tools panel ---
+    // --- Tools panel ---
 
     const toolsPanel = new Panel( new VBox( {
       spacing: 8,
@@ -176,11 +176,11 @@ export default class RightControlsColumn extends VBox {
       minWidth: rightPanelWidth
     } );
 
-  // --- Wave display combo box ---
+    // --- Wave display combo box ---
 
     const waveDisplaySection = new WaveDisplaySection( model, listParent, tandem );
 
-  // --- Time controls ---
+    // --- Time controls ---
 
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
@@ -199,7 +199,7 @@ export default class RightControlsColumn extends VBox {
       tandem: tandem.createTandem( 'timeControlNode' )
     } );
 
-  // --- Reset All ---
+    // --- Reset All ---
 
     const resetAllButton = new ResetAllButton( {
       listener: () => {
@@ -209,7 +209,7 @@ export default class RightControlsColumn extends VBox {
       tandem: tandem.createTandem( 'resetAllButton' )
     } );
 
-  // --- Bottom row: time controls to the left of reset all ---
+    // --- Bottom row: time controls to the left of reset all ---
 
     const bottomRow = new HBox( {
       spacing: 15,
@@ -217,7 +217,7 @@ export default class RightControlsColumn extends VBox {
       children: [ timeControlNode, resetAllButton ]
     } );
 
-  // --- Assemble column ---
+    // --- Assemble column ---
 
     super( {
       spacing: 16,

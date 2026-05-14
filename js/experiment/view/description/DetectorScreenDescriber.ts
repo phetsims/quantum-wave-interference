@@ -15,10 +15,10 @@
 
 import Property from '../../../../../axon/js/Property.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
+import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import SceneModel from '../../model/SceneModel.js';
-import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
 import BandAnalysis from './BandAnalysis.js';
 
 export default class DetectorScreenDescriber {
@@ -61,9 +61,9 @@ export default class DetectorScreenDescriber {
 
         descriptionProperty.value = isDoubleSlit
                                     ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
-                                      bandCount: analysis.bandCount,
-                                      spatialDescription: spatialDescription
-                                    } )
+            bandCount: analysis.bandCount,
+            spatialDescription: spatialDescription
+          } )
                                     : QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( { spatialDescription: spatialDescription } );
         return;
       }

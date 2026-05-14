@@ -24,8 +24,8 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 import SceneModel from '../model/SceneModel.js';
-import ParallelogramNode, { ParallelogramShape } from './ParallelogramNode.js';
 import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
+import ParallelogramNode, { ParallelogramShape } from './ParallelogramNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const OVERHEAD_SKEW_SCALE = ExperimentConstants.OVERHEAD_SKEW_SCALE;

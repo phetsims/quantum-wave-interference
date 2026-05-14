@@ -6,35 +6,35 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
+import { hasDetectorOnSide, type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import MeasurementToolNodes from '../../common/view/MeasurementToolNodes.js';
-import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
+import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
+import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import RightControlsColumn from '../../common/view/RightControlsColumn.js';
-import ToolCheckbox from '../../common/view/ToolCheckbox.js';
-import WaveRegionNodes from '../../common/view/WaveRegionNodes.js';
-import ToolIcons from '../../common/view/ToolIcons.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraph from '../../common/view/SidewaysGraph.js';
-import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
-import PositionPlotNode from '../../common/view/PositionPlotNode.js';
+import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
+import ToolCheckbox from '../../common/view/ToolCheckbox.js';
+import ToolIcons from '../../common/view/ToolIcons.js';
+import WaveRegionNodes from '../../common/view/WaveRegionNodes.js';
+import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import SingleParticlesSceneModel from '../model/SingleParticlesSceneModel.js';
 import DetectorToolNode from './DetectorToolNode.js';
 import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
-import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
-import { hasDetectorOnSide, type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 
 type SelfOptions = EmptySelfOptions;
 

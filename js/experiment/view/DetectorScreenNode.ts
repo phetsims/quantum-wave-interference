@@ -12,6 +12,7 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize from '../../../../phet-core/js/optionize.js';
@@ -28,20 +29,19 @@ import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
+import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import SnapshotIndicatorDotsNode from '../../common/view/SnapshotIndicatorDotsNode.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import ExperimentConstants from '../ExperimentConstants.js';
-import SceneModel from '../model/SceneModel.js';
-import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
+import SnapshotIndicatorDotsNode from '../../common/view/SnapshotIndicatorDotsNode.js';
 import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
 import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
-import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import SnapshotDescriber from './description/SnapshotDescriber.js';
-import DetectorScreenScaleIndicatorNode from './DetectorScreenScaleIndicatorNode.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
+import SceneModel from '../model/SceneModel.js';
+import SnapshotDescriber from './description/SnapshotDescriber.js';
+import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
+import DetectorScreenScaleIndicatorNode from './DetectorScreenScaleIndicatorNode.js';
 
 const EXPERIMENT_SLIT_DISPLAY_MAP: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>> = {
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,

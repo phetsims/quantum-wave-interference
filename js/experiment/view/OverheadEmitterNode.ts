@@ -25,13 +25,13 @@ import RadialGradient from '../../../../scenery/js/util/RadialGradient.js';
 import Panel from '../../../../sun/js/Panel.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
+import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import { type SourceType } from '../../common/model/SourceType.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const SOURCE_SCALE = OVERHEAD_SCALE * 1.15;
@@ -149,7 +149,7 @@ export default class OverheadEmitterNode extends Node {
 
     // Keep the emitter center at its pre-scale vertical position even if the source label rescales or changes height.
     const getEmitterCenterY = () => sourceLabel.height + LABEL_Y + SOURCE_LABEL_CENTERING_GAP +
-                                BASE_BODY_HEIGHT * OVERHEAD_SCALE / 2;
+                                    BASE_BODY_HEIGHT * OVERHEAD_SCALE / 2;
 
     // Particle mass label (empty for photons; hidden via the visible link below).
     // DerivedProperty so the label updates reactively on both scene change and locale change.

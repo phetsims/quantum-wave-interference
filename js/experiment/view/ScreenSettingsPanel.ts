@@ -22,9 +22,9 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import { type DetectionMode } from '../../common/model/DetectionMode.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const LABEL_FONT = new PhetFont( 14 );

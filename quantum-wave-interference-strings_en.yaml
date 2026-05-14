@@ -1,99 +1,99 @@
-quantum-wave-interference.title:    'Quantum Wave Interference'
-screen.experiment.name:             Experiment
-screen.highIntensity.name:          'High Intensity'
-screen.singleParticles.name:        'Single Particles'
-photons:                            Photons
-electrons:                          Electrons
-neutrons:                           Neutrons
-heliumAtoms:                        Helium Atoms
-photonSource:                       Photon source
-electronSource:                     Electron source
-neutronSource:                      Neutron source
-heliumAtomSource:                   Helium atom source
-doubleSlit:                         Double slit
-detectorScreen:                     Detector screen
-maximumHitsReached:                 Maximum hits reached
-intensity:                          Intensity
-sourceIntensity:                    Source Intensity
-particleSpeed:                      Particle Speed
-emissionRate:                       Emission Rate
-particleSpeedKmPerSecondPattern:    '{{value}} km/s'
-particleSpeedMeterPerSecondPattern: '{{value}} m/s'
-wavelengthNanometersPattern:        '{{value}} nm'
-valueMillimetersPattern:            '{{value}} mm'
-valueMicrometersPattern:            '{{value}} μm'
-valueNanometersPattern:             '{{value}} nm'
-valueMetersPattern:                 '{{value}} m'
-rulerUnits:                         mm
-slitsLabelPattern:                  'Slits: {{setting}}'
-snapshotLabelValuePattern:          '{{label}}: {{value}}'
-electronMassLabel:                  'm<sub>e</sub> = 9.1×10<sup>−31</sup> kg'
-neutronMassLabel:                   'm<sub>n</sub> = 1.7×10<sup>−27</sup> kg'
-heliumAtomMassLabel:                'm<sub>He</sub> = 6.6×10<sup>−27</sup> kg'
-max:                                Max
-slitSeparation:                     Slit Separation
-screenDistance:                     Screen Distance
-slitConfiguration:                  Slit Configuration
-slitSeparationPattern:              '{{value}} mm'
-slitSeparationMicrometerPattern:    '{{value}} μm'
-screenDistancePattern:              '{{value}} m'
-bothOpen:                           Both Open
-leftCovered:                        Cover Left
-rightCovered:                       Cover Right
-leftDetector:                       Detector Left
-rightDetector:                      Detector Right
-bothDetectors:                      Detector Both
-noBarrier:                          No Barrier
-hits:                               Hits
-hitsCountPattern:                   'Hits: {{count}}'
-screenBrightness:                   Screen Brightness
-intensityGraph:                     Intensity Graph
-hitsGraph:                          Hits Graph
-count:                              Count
-snapshotNumberPattern:              'Snapshot {{number}}'
-ruler:                              Ruler
-stopwatch:                          Stopwatch
-stopwatchValueUnitsPattern:          '{{value}} {{units}}'
-detector:                           Detector
-tapeMeasure:                        Tape Measure
-timePlot:                           Time Plot
-positionPlot:                       Position Plot
-time:                               Time
-position:                           Position
-barrier:                            Barrier
-none:                               None
-waveDisplay:                        Wave Display
-waveFunctionDisplay:                Wave Function Display
-electricField:                      Electric Field
-amplitude:                          Amplitude
-realPart:                           Real Part
-imaginaryPart:                      Imaginary Part
-topCovered:                         Cover Top
-bottomCovered:                      Cover Bottom
-topClosed:                          Cover Top
-bottomClosed:                       Cover Bottom
-topDetector:                        Detector Top
-bottomDetector:                     Detector Bottom
-autoRepeat:                         Auto-repeat
-timeScaleLabel:                     '1 fs = 10⁻¹⁵ s'
-detectorSize:                       Detector Size
-detect:                             Detect
-resetDetector:                      Reset
-particleDetected:                   Particle detected
-notDetected:                        Not detected
-detectorPercentPattern:             '{{value}}%'
-timeUnits.femtoseconds.symbol:       fs
+quantum-wave-interference.title:       'Quantum Wave Interference'
+screen.experiment.name:                Experiment
+screen.highIntensity.name:             'High Intensity'
+screen.singleParticles.name:           'Single Particles'
+photons:                               Photons
+electrons:                             Electrons
+neutrons:                              Neutrons
+heliumAtoms:                           Helium Atoms
+photonSource:                          Photon source
+electronSource:                        Electron source
+neutronSource:                         Neutron source
+heliumAtomSource:                      Helium atom source
+doubleSlit:                            Double slit
+detectorScreen:                        Detector screen
+maximumHitsReached:                    Maximum hits reached
+intensity:                             Intensity
+sourceIntensity:                       Source Intensity
+particleSpeed:                         Particle Speed
+emissionRate:                          Emission Rate
+particleSpeedKmPerSecondPattern:       '{{value}} km/s'
+particleSpeedMeterPerSecondPattern:    '{{value}} m/s'
+wavelengthNanometersPattern:           '{{value}} nm'
+valueMillimetersPattern:               '{{value}} mm'
+valueMicrometersPattern:               '{{value}} μm'
+valueNanometersPattern:                '{{value}} nm'
+valueMetersPattern:                    '{{value}} m'
+rulerUnits:                            mm
+slitsLabelPattern:                     'Slits: {{setting}}'
+snapshotLabelValuePattern:             '{{label}}: {{value}}'
+electronMassLabel:                     'm<sub>e</sub> = 9.1×10<sup>−31</sup> kg'
+neutronMassLabel:                      'm<sub>n</sub> = 1.7×10<sup>−27</sup> kg'
+heliumAtomMassLabel:                   'm<sub>He</sub> = 6.6×10<sup>−27</sup> kg'
+max:                                   Max
+slitSeparation:                        Slit Separation
+screenDistance:                        Screen Distance
+slitConfiguration:                     Slit Configuration
+slitSeparationPattern:                 '{{value}} mm'
+slitSeparationMicrometerPattern:       '{{value}} μm'
+screenDistancePattern:                 '{{value}} m'
+bothOpen:                              Both Open
+leftCovered:                           Cover Left
+rightCovered:                          Cover Right
+leftDetector:                          Detector Left
+rightDetector:                         Detector Right
+bothDetectors:                         Detector Both
+noBarrier:                             No Barrier
+hits:                                  Hits
+hitsCountPattern:                      'Hits: {{count}}'
+screenBrightness:                      Screen Brightness
+intensityGraph:                        Intensity Graph
+hitsGraph:                             Hits Graph
+count:                                 Count
+snapshotNumberPattern:                 'Snapshot {{number}}'
+ruler:                                 Ruler
+stopwatch:                             Stopwatch
+stopwatchValueUnitsPattern:            '{{value}} {{units}}'
+detector:                              Detector
+tapeMeasure:                           Tape Measure
+timePlot:                              Time Plot
+positionPlot:                          Position Plot
+time:                                  Time
+position:                              Position
+barrier:                               Barrier
+none:                                  None
+waveDisplay:                           Wave Display
+waveFunctionDisplay:                   Wave Function Display
+electricField:                         Electric Field
+amplitude:                             Amplitude
+realPart:                              Real Part
+imaginaryPart:                         Imaginary Part
+topCovered:                            Cover Top
+bottomCovered:                         Cover Bottom
+topClosed:                             Cover Top
+bottomClosed:                          Cover Bottom
+topDetector:                           Detector Top
+bottomDetector:                        Detector Bottom
+autoRepeat:                            Auto-repeat
+timeScaleLabel:                        '1 fs = 10⁻¹⁵ s'
+detectorSize:                          Detector Size
+detect:                                Detect
+resetDetector:                         Reset
+particleDetected:                      Particle detected
+notDetected:                           Not detected
+detectorPercentPattern:                '{{value}}%'
+timeUnits.femtoseconds.symbol:         fs
 timeUnits.femtoseconds.accessibleName: femtoseconds
-timeUnits.picoseconds.symbol:        ps
-timeUnits.picoseconds.accessibleName: picoseconds
-timeUnits.nanoseconds.symbol:        ns
-timeUnits.nanoseconds.accessibleName: nanoseconds
-timeUnits.microseconds.symbol:       μs
+timeUnits.picoseconds.symbol:          ps
+timeUnits.picoseconds.accessibleName:  picoseconds
+timeUnits.nanoseconds.symbol:          ns
+timeUnits.nanoseconds.accessibleName:  nanoseconds
+timeUnits.microseconds.symbol:         μs
 timeUnits.microseconds.accessibleName: microseconds
-timeUnits.milliseconds.symbol:       ms
+timeUnits.milliseconds.symbol:         ms
 timeUnits.milliseconds.accessibleName: milliseconds
-timeUnits.seconds.symbol:            s
-timeUnits.seconds.accessibleName:    seconds
+timeUnits.seconds.symbol:              s
+timeUnits.seconds.accessibleName:      seconds
 
 # Accessibility strings
 a11y:

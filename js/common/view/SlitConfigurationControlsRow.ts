@@ -15,11 +15,11 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import SlitSeparationNumberControl from './SlitSeparationNumberControl.js';
 import linkSceneVisibility from './linkSceneVisibility.js';
+import SlitSeparationNumberControl from './SlitSeparationNumberControl.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 

@@ -8,8 +8,8 @@
 
 import Tandem from '../../../../tandem/js/Tandem.js';
 import HighIntensitySceneModel from '../../high-intensity/model/HighIntensitySceneModel.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type SourceType } from '../model/SourceType.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 
 QUnit.module( 'MeasuringTapeUnits' );

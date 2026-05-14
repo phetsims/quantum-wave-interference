@@ -13,8 +13,8 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import RichText from '../../../../scenery/js/nodes/RichText.js';
-import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import { type SourceType } from '../model/SourceType.js';
 
 const MASS_LABEL_FONT = new PhetFont( 13 );
 
@@ -25,16 +25,16 @@ export default class ParticleMassAnnotationNode extends RichText {
   public constructor( sceneProperty: TReadOnlyProperty<SceneLike> ) {
 
     const massLabelStringProperty = new DerivedProperty( [
-      sceneProperty,
-      QuantumWaveInterferenceFluent.electronMassLabelStringProperty,
-      QuantumWaveInterferenceFluent.neutronMassLabelStringProperty,
-      QuantumWaveInterferenceFluent.heliumAtomMassLabelStringProperty
-    ], ( scene, electronMass, neutronMass, heliumAtomMass ) =>
-      scene.sourceType === 'electrons' ? electronMass :
-      scene.sourceType === 'neutrons' ? neutronMass :
-      scene.sourceType === 'heliumAtoms' ? heliumAtomMass :
-      scene.sourceType === 'photons' ? '' :
-      ( () => { throw new Error( `Unrecognized sourceType: ${scene.sourceType}` ); } )()
+        sceneProperty,
+        QuantumWaveInterferenceFluent.electronMassLabelStringProperty,
+        QuantumWaveInterferenceFluent.neutronMassLabelStringProperty,
+        QuantumWaveInterferenceFluent.heliumAtomMassLabelStringProperty
+      ], ( scene, electronMass, neutronMass, heliumAtomMass ) =>
+        scene.sourceType === 'electrons' ? electronMass :
+        scene.sourceType === 'neutrons' ? neutronMass :
+        scene.sourceType === 'heliumAtoms' ? heliumAtomMass :
+        scene.sourceType === 'photons' ? '' :
+        ( () => { throw new Error( `Unrecognized sourceType: ${scene.sourceType}` ); } )()
     );
 
     const isVisibleProperty = new DerivedProperty(

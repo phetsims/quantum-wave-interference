@@ -7,7 +7,7 @@
  */
 
 import { getAnalyticalSingleSlitEnvelopeIntensity, getExactAnalyticalDetectorIntensity } from '../model/AnalyticalDetectorPattern.js';
-import { getApparentAnalyticalDetectorIntensity, type ApparentAnalyticalDetectorPatternOptions } from './ApparentDetectorPattern.js';
+import { type ApparentAnalyticalDetectorPatternOptions, getApparentAnalyticalDetectorIntensity } from './ApparentDetectorPattern.js';
 
 QUnit.module( 'ApparentDetectorPattern' );
 

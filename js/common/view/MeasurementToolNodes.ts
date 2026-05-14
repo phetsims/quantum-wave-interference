@@ -10,8 +10,8 @@
 import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
@@ -22,10 +22,10 @@ import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import PositionPlotNode from './PositionPlotNode.js';
 import TimePlotNode from './TimePlotNode.js';
-import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 type MeasurementSceneLike = WaveVisualizableScene & { sourceType: string; regionWidth: number };
 

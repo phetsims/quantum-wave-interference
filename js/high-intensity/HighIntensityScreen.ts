@@ -9,8 +9,8 @@
 import Screen, { ScreenOptions } from '../../../joist/js/Screen.js';
 import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js';
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
-import { HighIntensityScreenIcon } from '../common/view/ScreenIcons.js';
 import QuantumWaveInterferenceKeyboardHelpContent from '../common/view/QuantumWaveInterferenceKeyboardHelpContent.js';
+import { HighIntensityScreenIcon } from '../common/view/ScreenIcons.js';
 import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from './model/HighIntensityModel.js';
 import HighIntensityScreenView from './view/HighIntensityScreenView.js';

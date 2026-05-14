@@ -24,10 +24,10 @@ import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
-import { DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, DETECTOR_SCREEN_SCALE_OPTIONS } from './DetectorScreenScale.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
-import SceneModel from './SceneModel.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
+import { DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, DETECTOR_SCREEN_SCALE_OPTIONS } from './DetectorScreenScale.js';
+import SceneModel from './SceneModel.js';
 
 type SelfOptions = EmptySelfOptions;
 

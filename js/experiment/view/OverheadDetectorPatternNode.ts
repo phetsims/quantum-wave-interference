@@ -8,12 +8,12 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import Bounds2 from '../../../../dot/js/Bounds2.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import SceneModel from '../model/SceneModel.js';
-import { ParallelogramShape } from './ParallelogramNode.js';
 import getDetectorScreenTexture from './getDetectorScreenTexture.js';
+import { ParallelogramShape } from './ParallelogramNode.js';
 
 export default class OverheadDetectorPatternNode extends CanvasNode {
 

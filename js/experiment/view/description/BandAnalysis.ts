@@ -8,9 +8,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
-import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import type { Snapshot } from '../../../common/model/Snapshot.js';
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import SceneModel from '../../model/SceneModel.js';
 
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle

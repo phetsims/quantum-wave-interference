@@ -23,9 +23,9 @@ import electron_svg from '../../../images/electron_svg.js';
 import heliumAtom_svg from '../../../images/heliumAtom_svg.js';
 import neutron_svg from '../../../images/neutron_svg.js';
 import photon_svg from '../../../images/photon_svg.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SourceType } from '../model/SourceType.js';
+import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 
 const LABEL_FONT = new PhetFont( 12 );
 const ICON_MAX_WIDTH = 24;
