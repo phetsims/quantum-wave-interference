@@ -254,15 +254,9 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( sceneRadioButtonGroup );
 
     // Slit controls panel, top-justified directly beneath the front-facing slit view
-    const slitControlPanel = new SlitControlPanel(
-      model.sceneProperty,
-      model.scenes,
-
-      // ComboBox list parent
-      this, {
-        tandem: options.tandem.createTandem( 'slitControlPanel' )
-      }
-    );
+    const slitControlPanel = new SlitControlPanel( model.sceneProperty, model.scenes, this, {
+      tandem: options.tandem.createTandem( 'slitControlPanel' )
+    } );
 
     // Center the slit-view/slit-panel middle column between the left and right columns.
     const leftColumnRight = Math.max( sourceControlPanel.right, sceneRadioButtonGroup.right );
