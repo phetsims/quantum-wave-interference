@@ -22,7 +22,6 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import GatedEnabledProperty from '../../../../axon/js/GatedEnabledProperty.js';
 import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
-import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -60,6 +59,7 @@ import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
 import RulerCheckbox from './RulerCheckbox.js';
+import RulerDragBoundsProperty from './RulerDragBoundsProperty.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
 import StopwatchCheckbox from './StopwatchCheckbox.js';
@@ -69,7 +69,6 @@ type SelfOptions = EmptySelfOptions;
 
 type ExperimentScreenViewOptions = SelfOptions & Pick<ScreenViewOptions, 'tandem'>;
 
-const RULER_X_OFFSET = 0.5;
 const RULER_KEYBOARD_DRAG_DELTA = 5;
 const RULER_KEYBOARD_SHIFT_DRAG_DELTA = 1;
 const MIDDLE_COLUMN_LEFT_SHIFT = 3;
@@ -425,56 +424,12 @@ export default class ExperimentScreenView extends ScreenView {
       } );
     } );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out rulerDragBoundsProperty and things related to it.
-
-    const getActiveSceneIndex = () => model.scenes.indexOf( model.sceneProperty.value );
-    const rulerDragBoundsProperty = new DerivedProperty(
-      [ this.visibleBoundsProperty, model.sceneProperty, this.graphExpandedProperty ],
-      visibleBounds => {
-        const activeSceneIndex = getActiveSceneIndex();
-        const activeDetectorScreen = detectorScreenNodes[ activeSceneIndex ];
-        const activeGraphBox = this.graphAccordionBoxes[ activeSceneIndex ];
-        const activeRulerNode = rulerNodes[ activeSceneIndex ];
-
-        const detectorRectCenterX = activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
-        const fixedLeft = detectorRectCenterX - activeRulerNode.width / 2 + RULER_X_OFFSET;
-
-        const detectorScreenRectBounds = this.globalToLocalBounds(
-          activeDetectorScreen.getScreenRectangleGlobalBounds()
-        );
-        const minTopFromScreen = detectorScreenRectBounds.top;
-        const graphChartBounds = this.globalToLocalBounds(
-          activeGraphBox.getChartAreaGlobalBounds()
-        );
-        const maxTopFromGraph = graphChartBounds.bottom - activeRulerNode.height + activeGraphBox.getChartAreaStrokeLineWidth();
-
-        const minTop = Math.max( minTopFromScreen, visibleBounds.minY );
-        const maxTop = Math.max(
-          minTop,
-          Math.min( maxTopFromGraph, visibleBounds.maxY - activeRulerNode.height )
-        );
-
-        // Lock X to detector screen center by setting minX === maxX.
-        return new Bounds2( fixedLeft, minTop, fixedLeft, maxTop );
-      }
-    );
-
-    rulerDragBoundsProperty.link( dragBounds => {
-      model.rulerPositionProperty.value = dragBounds.closestPointTo(
-        model.rulerPositionProperty.value
-      );
-    } );
+    const rulerDragBoundsProperty = new RulerDragBoundsProperty( this.visibleBoundsProperty, model.sceneProperty,
+      this.graphExpandedProperty, model.scenes, detectorScreenNodes, this.graphAccordionBoxes, rulerNodes, this );
+    rulerDragBoundsProperty.constrainRulerPositionProperty( model.rulerPositionProperty );
 
     this.centerRulerOnDetectorScreen = () => {
-      const activeSceneIndex = getActiveSceneIndex();
-      const activeDetectorScreen = detectorScreenNodes[ activeSceneIndex ];
-      const activeRulerNode = rulerNodes[ activeSceneIndex ];
-      const centeredTop = activeDetectorScreen.centerY - activeRulerNode.height / 2;
-      const detectorRectCenterX = activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
-      const centeredLeft = detectorRectCenterX - activeRulerNode.width / 2 + RULER_X_OFFSET;
-      model.rulerPositionProperty.value = rulerDragBoundsProperty.value.closestPointTo(
-        new Vector2( centeredLeft, centeredTop )
-      );
+      model.rulerPositionProperty.value = rulerDragBoundsProperty.getCenteredRulerPosition();
     };
     this.centerRulerOnDetectorScreen();
 
@@ -486,7 +441,7 @@ export default class ExperimentScreenView extends ScreenView {
       rulerNode.addInputListener(
         new SoundDragListener( {
           positionProperty: model.rulerPositionProperty,
-          dragBoundsProperty: rulerDragBoundsProperty,
+          dragBoundsProperty: rulerDragBoundsProperty.dragBoundsProperty,
           tandem: rulerTandem.createTandem( 'dragListener' )
         } )
       );
@@ -494,7 +449,7 @@ export default class ExperimentScreenView extends ScreenView {
       rulerNode.addInputListener(
         new SoundKeyboardDragListener( {
           positionProperty: model.rulerPositionProperty,
-          dragBoundsProperty: rulerDragBoundsProperty,
+          dragBoundsProperty: rulerDragBoundsProperty.dragBoundsProperty,
           keyboardDragDirection: 'upDown',
           dragDelta: RULER_KEYBOARD_DRAG_DELTA,
           shiftDragDelta: RULER_KEYBOARD_SHIFT_DRAG_DELTA,
