@@ -1,6 +1,5 @@
 // Copyright 2026, University of Colorado Boulder
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 This file is a bit too large. Consider moving class SnapshotCanvasNode to its own file.
 /**
  * SnapshotNode displays a single snapshot in the SnapshotsDialog.
  * It shows a miniature rendering of the detector screen state at the time the snapshot was taken, along with a title,
@@ -11,7 +10,6 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import TrashButton from '../../../../scenery-phet/js/buttons/TrashButton.js';
@@ -26,7 +24,6 @@ import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUn
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
-import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -38,21 +35,12 @@ import type { Snapshot } from '../model/Snapshot.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { getApparentAnalyticalDetectorIntensity } from './ApparentDetectorPattern.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, sampleSmoothedIntensityDistribution } from './ScreenBrightnessUtils.js';
+import SnapshotCanvasNode from './SnapshotCanvasNode.js';
 
 const SNAPSHOT_WIDTH = 360;
 const SNAPSHOT_HEIGHT = 132;
 const CORNER_RADIUS = 0;
 const METADATA_WIDTH = 165;
-const MAX_RENDERED_SNAPSHOT_HITS = 100000;
-
-// Resolution for the offscreen texture canvas used by the analytical intensity rendering path.
-const ANALYTICAL_TEXTURE_WIDTH = 376;
-const ANALYTICAL_TEXTURE_HEIGHT = 155;
-const CAPTURED_INTENSITY_TEXTURE_WIDTH = SNAPSHOT_WIDTH * 4;
-const CAPTURED_INTENSITY_TEXTURE_HEIGHT = SNAPSHOT_HEIGHT;
-const CAPTURED_INTENSITY_SMOOTHING_RADIUS = 1.5;
 
 const PARAM_FONT = new PhetFont( 12 );
 const TITLE_FONT = new PhetFont( { size: 16, weight: 'bold' } );
@@ -501,235 +489,6 @@ export default class SnapshotNode extends Node {
     this.detectorSnapshotSlot.addChild( child );
     if ( includeInPDOM && this.pdomOrder ) {
       this.pdomOrder = [ child, ...this.pdomOrder ];
-    }
-  }
-}
-
-class SnapshotCanvasNode extends CanvasNode {
-  private readonly snapshotProperty: TReadOnlyProperty<Snapshot | null>;
-  private readonly useFrontFacingHitCoordinates: boolean;
-  private readonly getZoomedScreenHalfWidth: ( () => number ) | null;
-  private readonly intensityTextureCanvas: HTMLCanvasElement;
-  private readonly intensityTextureContext: CanvasRenderingContext2D;
-
-  public constructor(
-    snapshotProperty: TReadOnlyProperty<Snapshot | null>,
-    width: number,
-    height: number,
-    useFrontFacingHitCoordinates: boolean,
-    getVisibleScreenHalfWidth?: () => number
-  ) {
-    super( {
-      canvasBounds: new Bounds2( 0, 0, width, height )
-    } );
-    this.snapshotProperty = snapshotProperty;
-    this.useFrontFacingHitCoordinates = useFrontFacingHitCoordinates;
-    this.getZoomedScreenHalfWidth = getVisibleScreenHalfWidth || null;
-
-    this.intensityTextureCanvas = document.createElement( 'canvas' );
-    this.intensityTextureCanvas.width = ANALYTICAL_TEXTURE_WIDTH;
-    this.intensityTextureCanvas.height = ANALYTICAL_TEXTURE_HEIGHT;
-
-    const intensityTextureContext = this.intensityTextureCanvas.getContext( '2d' );
-    if ( !intensityTextureContext ) {
-      throw new Error( 'Could not create 2D context for snapshot intensity texture' );
-    }
-    this.intensityTextureContext = intensityTextureContext;
-  }
-
-  public paintCanvas( context: CanvasRenderingContext2D ): void {
-    const snapshot = this.snapshotProperty.value;
-    if ( !snapshot ) {
-      return;
-    }
-
-    if ( snapshot.detectionMode === 'hits' ) {
-      this.paintHits( context, snapshot );
-    }
-    else {
-      this.paintIntensity( context, snapshot );
-    }
-  }
-
-  private paintHits( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
-    const hits = snapshot.hits;
-    if ( hits.length === 0 ) {
-      return;
-    }
-
-    const displayBounds = this.canvasBounds;
-    const width = displayBounds.width;
-    const height = displayBounds.height;
-    const visibleHalfWidth = this.getVisibleScreenHalfWidth( snapshot );
-    const visibleFraction = visibleHalfWidth / snapshot.screenHalfWidth;
-    const zoomScale = 1 / visibleFraction;
-    const displayGain = getHitsDisplayGain( snapshot.brightness );
-    const brightnessFraction = getHitsBrightnessFraction( snapshot.brightness );
-    const coreAlpha = getHitsCoreAlpha( brightnessFraction );
-    const glowAlpha = getHitsGlowAlpha( brightnessFraction );
-    const glowRadius = BASE_HIT_GLOW_RADIUS * zoomScale * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
-
-    const baseRGB = getSceneRGB( snapshot.sourceType, snapshot.wavelength );
-    const scaledR = baseRGB.r;
-    const scaledG = baseRGB.g;
-    const scaledB = baseRGB.b;
-
-    const hitCount = hits.length;
-    const renderCount = Math.min( hitCount, MAX_RENDERED_SNAPSHOT_HITS );
-    const startIndex = hitCount - renderCount;
-
-    const drawHits = ( alpha: number, radius: number ): void => {
-      if ( alpha === 0 ) {
-        return;
-      }
-      context.fillStyle = `rgba(${scaledR},${scaledG},${scaledB},${alpha})`;
-      for ( let i = startIndex; i < hitCount; i++ ) {
-        const hit = hits[ i ];
-        const hitX = hit.x;
-        const normalizedVisibleX = hitX / visibleFraction;
-        if ( Math.abs( normalizedVisibleX ) > 1 ) {
-          continue;
-        }
-
-        // Front-facing detector hits use hit.y from center-to-top; snapshots stretch that half-span to full height.
-        const hitY = this.useFrontFacingHitCoordinates ? 1 - 2 * hit.y : hit.y;
-        const normalizedVisibleY = hitY / visibleFraction;
-        if ( Math.abs( normalizedVisibleY ) > 1 ) {
-          continue;
-        }
-
-        const viewX = displayBounds.left + ( ( normalizedVisibleX + 1 ) / 2 ) * width;
-        const viewY = displayBounds.top + ( ( normalizedVisibleY + 1 ) / 2 ) * height;
-        context.beginPath();
-        context.arc( viewX, viewY, radius, 0, Math.PI * 2 );
-        context.fill();
-      }
-    };
-
-    drawHits( glowAlpha, glowRadius );
-    drawHits( coreAlpha, BASE_HIT_CORE_RADIUS * zoomScale );
-  }
-
-  private paintIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
-    if ( snapshot.intensityDistribution.length > 0 ) {
-      this.paintCapturedIntensity( context, snapshot );
-    }
-    else {
-      this.paintAnalyticalIntensity( context, snapshot );
-    }
-  }
-
-  /**
-   * Renders from a captured solver probability distribution (High Intensity / Single Particles screens).
-   */
-  private paintCapturedIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
-    const distribution = snapshot.intensityDistribution;
-    const displayBounds = this.canvasBounds;
-    const textureContext = this.intensityTextureContext;
-    this.setIntensityTextureSize( CAPTURED_INTENSITY_TEXTURE_WIDTH, CAPTURED_INTENSITY_TEXTURE_HEIGHT );
-    textureContext.clearRect( 0, 0, CAPTURED_INTENSITY_TEXTURE_WIDTH, CAPTURED_INTENSITY_TEXTURE_HEIGHT );
-
-    const backgroundRGB = { r: 0, g: 0, b: 0 };
-
-    const normalizedBrightness = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
-    const displayGain = getIntensityDisplayGain( normalizedBrightness, snapshot.intensity );
-
-    const sourceRGB = getSceneRGB( snapshot.sourceType, snapshot.wavelength );
-
-    for ( let x = 0; x < CAPTURED_INTENSITY_TEXTURE_WIDTH; x++ ) {
-      const fraction = ( x + 0.5 ) / CAPTURED_INTENSITY_TEXTURE_WIDTH;
-      const intensityScale = sampleSmoothedIntensityDistribution( distribution, fraction, CAPTURED_INTENSITY_SMOOTHING_RADIUS ) *
-                             displayGain;
-      const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, sourceRGB, intensityScale );
-      textureContext.fillStyle = fillStyle;
-      textureContext.fillRect( x, 0, 1, CAPTURED_INTENSITY_TEXTURE_HEIGHT );
-    }
-
-    context.save();
-    context.imageSmoothingEnabled = true;
-    context.imageSmoothingQuality = 'high';
-    context.drawImage(
-      this.intensityTextureCanvas,
-      displayBounds.left,
-      displayBounds.top,
-      displayBounds.width,
-      displayBounds.height
-    );
-    context.restore();
-  }
-
-  /**
-   * Computes the analytical Fraunhofer diffraction pattern from snapshot metadata (Experiment screen).
-   */
-  private paintAnalyticalIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
-    if ( !snapshot.isEmitting ) {
-      return;
-    }
-
-    const lambda = snapshot.effectiveWavelength;
-    if ( lambda === 0 ) {
-      return;
-    }
-
-    const displayBounds = this.canvasBounds;
-    const textureContext = this.intensityTextureContext;
-    this.setIntensityTextureSize( ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
-    textureContext.clearRect( 0, 0, ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
-
-    const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
-    const screenHalfWidth = this.getVisibleScreenHalfWidth( snapshot );
-
-    // The analytical snapshot texture spans the full detector width, which is twice the captured screenHalfWidth.
-    const sampleWidthOnScreen = 2 * screenHalfWidth / ANALYTICAL_TEXTURE_WIDTH;
-    const slitWidthMeters = snapshot.slitWidth * 1e-3;
-    const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
-    const screenDistanceMeters = snapshot.screenDistance;
-    const slitSetting = snapshot.slitSetting;
-    const backgroundRGB = { r: 0, g: 0, b: 0 };
-
-    const sourceRGB = getSceneRGB( snapshot.sourceType, snapshot.wavelength );
-
-    for ( let x = 0; x < ANALYTICAL_TEXTURE_WIDTH; x++ ) {
-      const fraction = ( x + 0.5 ) / ANALYTICAL_TEXTURE_WIDTH;
-      const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
-      const intensity = getApparentAnalyticalDetectorIntensity( {
-        positionOnScreen: physicalX,
-        sampleWidthOnScreen: sampleWidthOnScreen,
-        effectiveWavelength: lambda,
-        screenDistance: screenDistanceMeters,
-        slitWidth: slitWidthMeters,
-        slitSeparation: slitSeparationMeters,
-        slitSetting: slitSetting
-      } );
-
-      const intensityScale = intensity * displayGain;
-      const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, sourceRGB, intensityScale );
-      textureContext.fillStyle = fillStyle;
-      textureContext.fillRect( x, 0, 1, ANALYTICAL_TEXTURE_HEIGHT );
-    }
-
-    context.save();
-    context.imageSmoothingEnabled = true;
-    context.drawImage(
-      this.intensityTextureCanvas,
-      displayBounds.left,
-      displayBounds.top,
-      displayBounds.width,
-      displayBounds.height
-    );
-    context.restore();
-  }
-
-  private getVisibleScreenHalfWidth( snapshot: Snapshot ): number {
-    return this.getZoomedScreenHalfWidth ? this.getZoomedScreenHalfWidth() : snapshot.screenHalfWidth;
-  }
-
-  private setIntensityTextureSize( width: number, height: number ): void {
-    if ( this.intensityTextureCanvas.width !== width ) {
-      this.intensityTextureCanvas.width = width;
-    }
-    if ( this.intensityTextureCanvas.height !== height ) {
-      this.intensityTextureCanvas.height = height;
     }
   }
 }
