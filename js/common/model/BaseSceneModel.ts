@@ -200,7 +200,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
 
     this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? DEFAULT_PHOTON_WAVELENGTH_NM : 0, {
-      range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),
+      range: QuantumWaveInterferenceConstants.createWavelengthRangeNM( options.sourceType ),
       units: nanometersUnit,
       tandem: tandem.createTandem( 'wavelengthProperty' )
     } );

@@ -218,8 +218,7 @@ export default class SceneModel extends PhetioObject {
     // For non-photons, the wavelength is derived from velocity via de Broglie (see getEffectiveWavelength),
     // so this property's range is [0,0] and its value is unused directly.
     this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? 650 : 0, {
-      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Option values are the same as BaseModel's wavelengthProperty
-      range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),
+      range: QuantumWaveInterferenceConstants.createWavelengthRangeNM( options.sourceType ),
       units: nanometersUnit,
       tandem: tandem.createTandem( 'wavelengthProperty' )
     } );

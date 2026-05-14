@@ -7,6 +7,15 @@
  */
 
 import { numberOfDecimalPlaces } from '../../../dot/js/util/numberOfDecimalPlaces.js';
+import Range from '../../../dot/js/Range.js';
+import { type SourceType } from './model/SourceType.js';
+
+const WAVELENGTH_RANGE_NM_BY_SOURCE_TYPE: Readonly<Record<SourceType, readonly [ number, number ]>> = {
+  photons: [ 380, 780 ],
+  electrons: [ 0, 0 ],
+  neutrons: [ 0, 0 ],
+  heliumAtoms: [ 0, 0 ]
+};
 
 export default class QuantumWaveInterferenceConstants {
 
@@ -81,6 +90,11 @@ export default class QuantumWaveInterferenceConstants {
 
   // Shared top edge for the source control panels on screens that visually align with the Experiment screen.
   public static readonly SOURCE_CONTROL_PANEL_TOP = 178;
+
+  public static createWavelengthRangeNM( sourceType: SourceType ): Range {
+    const range = WAVELENGTH_RANGE_NM_BY_SOURCE_TYPE[ sourceType ];
+    return new Range( range[ 0 ], range[ 1 ] );
+  }
 
   public static getRangeDecimalPlaces( min: number, max: number ): number {
     return Math.max( numberOfDecimalPlaces( min ), numberOfDecimalPlaces( max ) );
