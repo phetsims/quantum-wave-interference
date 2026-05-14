@@ -1,9 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Factory function that creates measurement tool nodes (stopwatch, measuring tape, time plot,
- * position plot) and adds them to the provided parent node. These tools are identical between
- * the High Intensity and Single Particles screens.
+ * MeasurementToolNodes creates measurement tool nodes (stopwatch, measuring tape, time plot,
+ * position plot). These tools are identical between the High Intensity and Single Particles screens.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -41,10 +40,75 @@ type MeasurementToolsModel = {
   tapeMeasureTipPositionProperty: Vector2Property;
 };
 
-type MeasurementToolNodes = {
-  timePlotNode: TimePlotNode;
-  positionPlotNode: PositionPlotNode;
-};
+export default class MeasurementToolNodes extends Node {
+
+  public readonly timePlotNode: TimePlotNode;
+  public readonly positionPlotNode: PositionPlotNode;
+
+  public constructor(
+    model: MeasurementToolsModel,
+    visibleBoundsProperty: Property<Bounds2>,
+    waveRegionLeft: number,
+    waveRegionTop: number,
+    tandem: Tandem
+  ) {
+
+    const stopwatchNode = new StopwatchNode( model.stopwatch, {
+      dragBoundsProperty: visibleBoundsProperty,
+      numberDisplayRange: Stopwatch.ZERO_TO_ALMOST_SIXTY,
+      numberDisplayOptions: {
+        numberFormatter: createPhysicalStopwatchFormatter(),
+        numberFormatterDependencies: [
+          QuantumWaveInterferenceFluent.stopwatchValueUnitsPatternStringProperty,
+          ...STOPWATCH_TIME_UNITS.flatMap( unit => [ unit.symbolStringProperty, unit.accessibleNameStringProperty ] )
+        ],
+        useRichText: true,
+        maxWidth: 150
+      },
+      tandem: tandem.createTandem( 'stopwatchNode' )
+    } );
+    model.isStopwatchVisibleProperty.link( isVisible => {
+      model.stopwatch.isVisibleProperty.value = isVisible;
+    } );
+
+    const measuringTapeUnitsProperty = new DerivedProperty(
+      [ model.sceneProperty ],
+      scene => getMeasuringTapeUnits( scene.regionWidth )
+    );
+
+    const measuringTapeNode = new MeasuringTapeNode( measuringTapeUnitsProperty, {
+      textBackgroundColor: 'rgba( 255, 255, 255, 0.6 )',
+      textColor: 'black',
+      basePositionProperty: model.tapeMeasureBasePositionProperty,
+      tipPositionProperty: model.tapeMeasureTipPositionProperty,
+      significantFigures: 2,
+      tandem: tandem.createTandem( 'measuringTapeNode' )
+    } );
+    visibleBoundsProperty.link( visibleBounds => measuringTapeNode.setDragBounds( visibleBounds.eroded( 20 ) ) );
+    model.isTapeMeasureVisibleProperty.linkAttribute( measuringTapeNode, 'visible' );
+
+    const timePlotNode = new TimePlotNode(
+      model.sceneProperty,
+      waveRegionLeft,
+      waveRegionTop,
+      model.isTimePlotVisibleProperty
+    );
+
+    const positionPlotNode = new PositionPlotNode(
+      model.sceneProperty,
+      waveRegionLeft,
+      waveRegionTop,
+      model.isPositionPlotVisibleProperty
+    );
+
+    super( {
+      children: [ stopwatchNode, measuringTapeNode, timePlotNode, positionPlotNode ]
+    } );
+
+    this.timePlotNode = timePlotNode;
+    this.positionPlotNode = positionPlotNode;
+  }
+}
 
 type StopwatchTimeUnit = {
   threshold: number;
@@ -116,69 +180,3 @@ const createPhysicalStopwatchFormatter = (): ( time: number ) => DualString => {
     };
   };
 };
-
-const createMeasurementToolNodes = (
-  model: MeasurementToolsModel,
-  parentNode: Node,
-  visibleBoundsProperty: Property<Bounds2>,
-  waveRegionLeft: number,
-  waveRegionTop: number,
-  tandem: Tandem
-): MeasurementToolNodes => {
-
-  const stopwatchNode = new StopwatchNode( model.stopwatch, {
-    dragBoundsProperty: visibleBoundsProperty,
-    numberDisplayRange: Stopwatch.ZERO_TO_ALMOST_SIXTY,
-    numberDisplayOptions: {
-      numberFormatter: createPhysicalStopwatchFormatter(),
-      numberFormatterDependencies: [
-        QuantumWaveInterferenceFluent.stopwatchValueUnitsPatternStringProperty,
-        ...STOPWATCH_TIME_UNITS.flatMap( unit => [ unit.symbolStringProperty, unit.accessibleNameStringProperty ] )
-      ],
-      useRichText: true,
-      maxWidth: 150
-    },
-    tandem: tandem.createTandem( 'stopwatchNode' )
-  } );
-  model.isStopwatchVisibleProperty.link( isVisible => {
-    model.stopwatch.isVisibleProperty.value = isVisible;
-  } );
-  parentNode.addChild( stopwatchNode );
-
-  const measuringTapeUnitsProperty = new DerivedProperty(
-    [ model.sceneProperty ],
-    scene => getMeasuringTapeUnits( scene.regionWidth )
-  );
-
-  const measuringTapeNode = new MeasuringTapeNode( measuringTapeUnitsProperty, {
-    textBackgroundColor: 'rgba( 255, 255, 255, 0.6 )',
-    textColor: 'black',
-    basePositionProperty: model.tapeMeasureBasePositionProperty,
-    tipPositionProperty: model.tapeMeasureTipPositionProperty,
-    significantFigures: 2,
-    tandem: tandem.createTandem( 'measuringTapeNode' )
-  } );
-  visibleBoundsProperty.link( visibleBounds => measuringTapeNode.setDragBounds( visibleBounds.eroded( 20 ) ) );
-  model.isTapeMeasureVisibleProperty.linkAttribute( measuringTapeNode, 'visible' );
-  parentNode.addChild( measuringTapeNode );
-
-  const timePlotNode = new TimePlotNode(
-    model.sceneProperty,
-    waveRegionLeft,
-    waveRegionTop,
-    model.isTimePlotVisibleProperty
-  );
-  parentNode.addChild( timePlotNode );
-
-  const positionPlotNode = new PositionPlotNode(
-    model.sceneProperty,
-    waveRegionLeft,
-    waveRegionTop,
-    model.isPositionPlotVisibleProperty
-  );
-  parentNode.addChild( positionPlotNode );
-
-  return { timePlotNode: timePlotNode, positionPlotNode: positionPlotNode };
-};
-
-export default createMeasurementToolNodes;

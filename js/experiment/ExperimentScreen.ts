@@ -10,7 +10,7 @@
 import Screen, { ScreenOptions } from '../../../joist/js/Screen.js';
 import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js';
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
-import { createExperimentScreenIcon } from '../common/view/createScreenIcons.js';
+import { ExperimentScreenIcon } from '../common/view/ScreenIcons.js';
 import QuantumWaveInterferenceKeyboardHelpContent from '../common/view/QuantumWaveInterferenceKeyboardHelpContent.js';
 import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from './model/ExperimentModel.js';
@@ -28,7 +28,7 @@ export default class ExperimentScreen extends Screen<ExperimentModel, Experiment
     const options = optionize<ExperimentScreenOptions, SelfOptions, ScreenOptions>()( {
       name: QuantumWaveInterferenceFluent.screen.experiment.nameStringProperty,
       backgroundColorProperty: QuantumWaveInterferenceColors.screenBackgroundColorProperty,
-      homeScreenIcon: createExperimentScreenIcon(),
+      homeScreenIcon: new ExperimentScreenIcon(),
       createKeyboardHelpNode: () => new QuantumWaveInterferenceKeyboardHelpContent()
     }, providedOptions );
 

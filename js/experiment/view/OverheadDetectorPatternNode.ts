@@ -12,7 +12,7 @@ import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import SceneModel from '../model/SceneModel.js';
-import { createParallelogramShape } from './createParallelogramNode.js';
+import { ParallelogramShape } from './ParallelogramNode.js';
 import getDetectorScreenTexture from './getDetectorScreenTexture.js';
 
 export default class OverheadDetectorPatternNode extends CanvasNode {
@@ -45,7 +45,7 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
 
   private updateClipAndBounds(): void {
     this.canvasBounds = new Bounds2( 0, 0, this.dx, this.leftHeight + this.dy );
-    this.clipArea = createParallelogramShape( this.dx, this.dy, this.leftHeight );
+    this.clipArea = new ParallelogramShape( this.dx, this.dy, this.leftHeight );
   }
 
   /**

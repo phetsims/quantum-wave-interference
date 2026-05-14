@@ -49,7 +49,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
-import createRulerNode from './createRulerNode.js';
+import DetectorRulerNode from './DetectorRulerNode.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
@@ -435,7 +435,7 @@ export default class ExperimentScreenView extends ScreenView {
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
 
     const rulerNodes = model.scenes.map( ( _scene, index ) => {
-      const rulerNode = createRulerNode(
+      const rulerNode = new DetectorRulerNode(
         model.detectorScreenScaleIndexProperty,
         rulerNodesTandem.createTandem( `rulerNode${index}` )
       );

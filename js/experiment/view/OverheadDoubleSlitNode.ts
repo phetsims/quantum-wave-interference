@@ -19,7 +19,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
-import createParallelogramNode, { createParallelogramShape } from './createParallelogramNode.js';
+import ParallelogramNode, { ParallelogramShape } from './ParallelogramNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const OVERHEAD_SKEW_SCALE = ExperimentConstants.OVERHEAD_SKEW_SCALE;
@@ -66,14 +66,14 @@ export default class OverheadDoubleSlitNode extends Node {
     // Double slit parallelogram container (overhead perspective view).
     // The container keeps the original bounds for layout/beam geometry, while the visible background is a smaller
     // child.
-    this.parallelogramNode = createParallelogramNode( this.skewDx, this.skewDy, PARALLELOGRAM_LEFT_HEIGHT, 'rgba(0,0,0,0)' );
+    this.parallelogramNode = new ParallelogramNode( this.skewDx, this.skewDy, PARALLELOGRAM_LEFT_HEIGHT, 'rgba(0,0,0,0)' );
     this.parallelogramNode.x = BASE_PARALLELOGRAM_CENTER_X - this.skewDx / 2;
     this.parallelogramNode.y = 45;
     this.addChild( this.parallelogramNode );
 
     // Reduce the visible rounded-rectangle/parallelogram background from the alignment bounds while preserving
     // the existing slit-line coordinates and overall node positioning.
-    this.reducedBackgroundNode = createParallelogramNode(
+    this.reducedBackgroundNode = new ParallelogramNode(
       this.skewDx * SLIT_BACKGROUND_SCALE,
       this.skewDy * SLIT_BACKGROUND_SCALE,
       PARALLELOGRAM_LEFT_HEIGHT * SLIT_BACKGROUND_SCALE,
@@ -100,8 +100,8 @@ export default class OverheadDoubleSlitNode extends Node {
     const MAX_VISUAL_SLIT_SPACING = 8 * OVERHEAD_SCALE;
 
     const slitMarkerDy = SLIT_MARKER_WIDTH * ( this.skewDy / this.skewDx );
-    const leftSlitMarker = createParallelogramNode( SLIT_MARKER_WIDTH, slitMarkerDy, slitLineLength, 'white', 0 );
-    const rightSlitMarker = createParallelogramNode( SLIT_MARKER_WIDTH, slitMarkerDy, slitLineLength, 'white', 0 );
+    const leftSlitMarker = new ParallelogramNode( SLIT_MARKER_WIDTH, slitMarkerDy, slitLineLength, 'white', 0 );
+    const rightSlitMarker = new ParallelogramNode( SLIT_MARKER_WIDTH, slitMarkerDy, slitLineLength, 'white', 0 );
     this.parallelogramNode.addChild( leftSlitMarker );
     this.parallelogramNode.addChild( rightSlitMarker );
 
@@ -110,7 +110,7 @@ export default class OverheadDoubleSlitNode extends Node {
     this.slitOverlayDx = 4 * OVERHEAD_SCALE * 0.6 * 0.85 * DETECTOR_OVERLAY_WIDTH_SCALE;
     this.slitOverlayDy = this.slitOverlayDx * ( this.skewDy / this.skewDx );
 
-    this.leftSlitDetectorOverlay = createParallelogramNode(
+    this.leftSlitDetectorOverlay = new ParallelogramNode(
       this.slitOverlayDx,
       this.slitOverlayDy,
       this.slitOverlayHeight,
@@ -123,7 +123,7 @@ export default class OverheadDoubleSlitNode extends Node {
     this.parallelogramNode.addChild( this.leftSlitDetectorOverlay );
 
     //REVIEW leftSlitDetectorOverlay Identical to leftSlitDetectorOverlay above.
-    this.rightSlitDetectorOverlay = createParallelogramNode(
+    this.rightSlitDetectorOverlay = new ParallelogramNode(
       this.slitOverlayDx,
       this.slitOverlayDy,
       this.slitOverlayHeight,
@@ -155,8 +155,8 @@ export default class OverheadDoubleSlitNode extends Node {
       const leftY = slitBaseY - ( visualSpacing / 2 ) * slopeRatio;
       const rightY = slitBaseY + ( visualSpacing / 2 ) * slopeRatio;
 
-      leftSlitMarker.shape = createParallelogramShape( slitMarkerWidth, slitMarkerDy, slitLineLength );
-      rightSlitMarker.shape = createParallelogramShape( slitMarkerWidth, slitMarkerDy, slitLineLength );
+      leftSlitMarker.shape = new ParallelogramShape( slitMarkerWidth, slitMarkerDy, slitLineLength );
+      rightSlitMarker.shape = new ParallelogramShape( slitMarkerWidth, slitMarkerDy, slitLineLength );
 
       leftSlitMarker.x = leftX - slitMarkerWidth / 2;
       leftSlitMarker.y = leftY - slitLineLength / 2;

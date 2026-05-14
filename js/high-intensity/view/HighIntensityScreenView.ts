@@ -23,16 +23,15 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
-import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
-import createSlitConfigurationControlsRow from '../../common/view/createSlitConfigurationControlsRow.js';
-import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
-import createToolCheckbox from '../../common/view/createToolCheckbox.js';
-import createWaveRegionNodes from '../../common/view/createWaveRegionNodes.js';
+import MeasurementToolNodes from '../../common/view/MeasurementToolNodes.js';
+import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
+import RightControlsColumn from '../../common/view/RightControlsColumn.js';
+import ToolCheckbox from '../../common/view/ToolCheckbox.js';
+import WaveRegionNodes from '../../common/view/WaveRegionNodes.js';
 import HighIntensityTopRowNode from './HighIntensityTopRowNode.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
-import createSidewaysGraph from '../../common/view/createSidewaysGraph.js';
-import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
+import SidewaysGraph from '../../common/view/SidewaysGraph.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -68,7 +67,7 @@ export default class HighIntensityScreenView extends ScreenView {
   private readonly model: HighIntensityModel;
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
-  private readonly sidewaysGraphNode: SidewaysGraphNode;
+  private readonly sidewaysGraphNode: SidewaysGraph;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
 
@@ -143,7 +142,7 @@ export default class HighIntensityScreenView extends ScreenView {
     updateParticleMassAnnotationPosition();
     this.addChild( particleMassAnnotation );
 
-    const { waveVisualizationNode, doubleSlitNode } = createWaveRegionNodes( model, {
+    const waveRegionNodes = new WaveRegionNodes( model, {
       waveRegionLeft: waveRegionLeft,
       waveRegionTop: waveRegionTop,
       additionalDoubleSlitOptions: {
@@ -169,9 +168,8 @@ export default class HighIntensityScreenView extends ScreenView {
     } );
     this.addChild( this.detectorScreenNode );
 
-    this.waveVisualizationNode = waveVisualizationNode;
-    this.addChild( this.waveVisualizationNode );
-    this.addChild( doubleSlitNode );
+    this.waveVisualizationNode = waveRegionNodes.waveVisualizationNode;
+    this.addChild( waveRegionNodes );
 
     // --- Bottom row: barrier, slit configuration, slit separation ---
     const slitConfigItems: ComboBoxItem<SlitConfigurationWithNoBarrier>[] = [
@@ -184,7 +182,7 @@ export default class HighIntensityScreenView extends ScreenView {
       { value: 'noBarrier', createNode: () => new Text( QuantumWaveInterferenceFluent.noBarrierStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'noBarrierItem', separatorBefore: true }
     ];
 
-    const bottomRow = createSlitConfigurationControlsRow(
+    const bottomRow = new SlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
       slitConfigItems,
       model.sceneProperty,
@@ -196,7 +194,7 @@ export default class HighIntensityScreenView extends ScreenView {
     );
     this.addChild( bottomRow );
 
-    this.sidewaysGraphNode = createSidewaysGraph(
+    this.sidewaysGraphNode = new SidewaysGraph(
       model.sceneProperty,
       this.detectorScreenNode,
       model.isIntensityGraphVisibleProperty,
@@ -249,13 +247,13 @@ export default class HighIntensityScreenView extends ScreenView {
       ( detectionMode, hitsGraphString, intensityGraphString ) =>
         detectionMode === 'hits' ? hitsGraphString : intensityGraphString
     );
-    const intensityGraphCheckbox = createToolCheckbox( model.isIntensityGraphVisibleProperty, graphCheckboxStringProperty, tandem.createTandem( 'intensityGraphCheckbox' ), ToolIcons.createGraphIcon() );
-    const tapeMeasureCheckbox = createToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ), ToolIcons.createTapeMeasureIcon() );
-    const stopwatchCheckbox = createToolCheckbox( model.isStopwatchVisibleProperty, QuantumWaveInterferenceFluent.stopwatchStringProperty, tandem.createTandem( 'stopwatchCheckbox' ), ToolIcons.createStopwatchIcon() );
-    const timePlotCheckbox = createToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ), ToolIcons.createTimePlotIcon() );
-    const positionPlotCheckbox = createToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ), ToolIcons.createPositionPlotIcon() );
+    const intensityGraphCheckbox = new ToolCheckbox( model.isIntensityGraphVisibleProperty, graphCheckboxStringProperty, tandem.createTandem( 'intensityGraphCheckbox' ), ToolIcons.createGraphIcon() );
+    const tapeMeasureCheckbox = new ToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ), ToolIcons.createTapeMeasureIcon() );
+    const stopwatchCheckbox = new ToolCheckbox( model.isStopwatchVisibleProperty, QuantumWaveInterferenceFluent.stopwatchStringProperty, tandem.createTandem( 'stopwatchCheckbox' ), ToolIcons.createStopwatchIcon() );
+    const timePlotCheckbox = new ToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ), ToolIcons.createTimePlotIcon() );
+    const positionPlotCheckbox = new ToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ), ToolIcons.createPositionPlotIcon() );
 
-    const { rightControlsVBox, timeAndResetRow } = createRightControlsColumn( model, this, tandem, {
+    const rightControlsColumn = new RightControlsColumn( model, this, tandem, {
       additionalScreenControlChildren: [ detectionModeRadioButtonGroup ],
       toolCheckboxes: [
         intensityGraphCheckbox,
@@ -275,16 +273,17 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     } );
 
-    rightControlsVBox.right = this.layoutBounds.maxX - X_MARGIN;
-    rightControlsVBox.top = Y_MARGIN;
-    topRowBeamRightLimitXProperty.value = rightControlsVBox.left - TOP_ROW_BEAM_RIGHT_PANEL_GAP;
-    this.addChild( rightControlsVBox );
+    rightControlsColumn.right = this.layoutBounds.maxX - X_MARGIN;
+    rightControlsColumn.top = Y_MARGIN;
+    topRowBeamRightLimitXProperty.value = rightControlsColumn.left - TOP_ROW_BEAM_RIGHT_PANEL_GAP;
+    this.addChild( rightControlsColumn );
 
-    timeAndResetRow.right = this.layoutBounds.maxX - X_MARGIN;
-    timeAndResetRow.bottom = this.layoutBounds.maxY - Y_MARGIN;
-    this.addChild( timeAndResetRow );
+    rightControlsColumn.timeAndResetRow.right = this.layoutBounds.maxX - X_MARGIN;
+    rightControlsColumn.timeAndResetRow.bottom = this.layoutBounds.maxY - Y_MARGIN;
+    this.addChild( rightControlsColumn.timeAndResetRow );
 
-    const toolNodes = createMeasurementToolNodes( model, this, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
+    const toolNodes = new MeasurementToolNodes( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
+    this.addChild( toolNodes );
     this.timePlotNode = toolNodes.timePlotNode;
     this.positionPlotNode = toolNodes.positionPlotNode;
   }

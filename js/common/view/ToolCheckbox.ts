@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Factory function that creates a tool visibility checkbox, used by both the High Intensity
+ * ToolCheckbox creates a tool visibility checkbox, used by both the High Intensity
  * and Single Particles screen views for tool panels (tape measure, stopwatch, time plot, etc.).
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -18,22 +18,24 @@ import Tandem from '../../../../tandem/js/Tandem.js';
 
 const LABEL_FONT = new PhetFont( 14 );
 
-const createToolCheckbox = (
-  property: BooleanProperty,
-  stringProperty: TReadOnlyProperty<string>,
-  tandem: Tandem,
-  icon?: Node
-): Checkbox => {
-  const label = new Text( stringProperty, { font: LABEL_FONT, maxWidth: 120, layoutOptions: { grow: 1 } } );
-  const content = icon ?
-                  new HBox( { children: [ label, icon ], spacing: 6 } ) :
-                  label;
-  return new Checkbox( property, content, {
-    boxWidth: 16,
-    spacing: 6,
-    layoutOptions: { stretch: true },
-    tandem: tandem
-  } );
-};
+export default class ToolCheckbox extends Checkbox {
 
-export default createToolCheckbox;
+  public constructor(
+    property: BooleanProperty,
+    stringProperty: TReadOnlyProperty<string>,
+    tandem: Tandem,
+    icon?: Node
+  ) {
+    const label = new Text( stringProperty, { font: LABEL_FONT, maxWidth: 120, layoutOptions: { grow: 1 } } );
+    const content = icon ?
+                    new HBox( { children: [ label, icon ], spacing: 6 } ) :
+                    label;
+
+    super( property, content, {
+      boxWidth: 16,
+      spacing: 6,
+      layoutOptions: { stretch: true },
+      tandem: tandem
+    } );
+  }
+}

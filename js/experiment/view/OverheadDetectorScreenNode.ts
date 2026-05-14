@@ -24,7 +24,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 import SceneModel from '../model/SceneModel.js';
-import createParallelogramNode, { createParallelogramShape } from './createParallelogramNode.js';
+import ParallelogramNode, { ParallelogramShape } from './ParallelogramNode.js';
 import OverheadDetectorPatternNode from './OverheadDetectorPatternNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
@@ -98,7 +98,7 @@ export default class OverheadDetectorScreenNode extends Node {
     this.addChild( detectorScreenLabel );
 
     // Detector screen parallelogram
-    this.parallelogramNode = createParallelogramNode( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT, 'black', 0 );
+    this.parallelogramNode = new ParallelogramNode( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT, 'black', 0 );
     this.parallelogramNode.y = 48;
     this.addChild( this.parallelogramNode );
 
@@ -112,7 +112,7 @@ export default class OverheadDetectorScreenNode extends Node {
     this.parallelogramNode.addChild( this.overheadPatternNode );
 
     // Transient snapshot flash overlay. This is a visual effect only (not model state).
-    this.snapshotFlashNode = new Path( createParallelogramShape( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT ), {
+    this.snapshotFlashNode = new Path( new ParallelogramShape( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT ), {
       fill: 'white',
       opacity: 0,
       visible: false,

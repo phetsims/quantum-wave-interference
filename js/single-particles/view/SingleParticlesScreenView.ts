@@ -15,15 +15,14 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import createMeasurementToolNodes from '../../common/view/createMeasurementToolNodes.js';
-import createSlitConfigurationControlsRow from '../../common/view/createSlitConfigurationControlsRow.js';
-import createRightControlsColumn from '../../common/view/createRightControlsColumn.js';
-import createToolCheckbox from '../../common/view/createToolCheckbox.js';
-import createWaveRegionNodes from '../../common/view/createWaveRegionNodes.js';
+import MeasurementToolNodes from '../../common/view/MeasurementToolNodes.js';
+import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
+import RightControlsColumn from '../../common/view/RightControlsColumn.js';
+import ToolCheckbox from '../../common/view/ToolCheckbox.js';
+import WaveRegionNodes from '../../common/view/WaveRegionNodes.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
-import createSidewaysGraph from '../../common/view/createSidewaysGraph.js';
-import SidewaysGraphNode from '../../common/view/SidewaysGraphNode.js';
+import SidewaysGraph from '../../common/view/SidewaysGraph.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
@@ -58,7 +57,7 @@ export default class SingleParticlesScreenView extends ScreenView {
   private readonly model: SingleParticlesModel;
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
-  private readonly sidewaysGraphNode: SidewaysGraphNode;
+  private readonly sidewaysGraphNode: SidewaysGraph;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
 
@@ -130,7 +129,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     emitterNode.right = waveRegionLeft + 2;
     emitterNode.centerY = waveRegionTop + waveRegionHeight / 2;
 
-    const { waveVisualizationNode, doubleSlitNode } = createWaveRegionNodes( model, {
+    const waveRegionNodes = new WaveRegionNodes( model, {
       waveRegionLeft: waveRegionLeft,
       waveRegionTop: waveRegionTop,
       additionalDoubleSlitOptions: {
@@ -156,9 +155,8 @@ export default class SingleParticlesScreenView extends ScreenView {
     } );
     this.addChild( this.detectorScreenNode );
 
-    this.waveVisualizationNode = waveVisualizationNode;
-    this.addChild( this.waveVisualizationNode );
-    this.addChild( doubleSlitNode );
+    this.waveVisualizationNode = waveRegionNodes.waveVisualizationNode;
+    this.addChild( waveRegionNodes );
     this.addChild( emitterNode );
 
     const updateParticleMassAnnotationPosition = () => {
@@ -180,7 +178,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     ];
 
     //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical to bottomRow in HighIntensityScreenView
-    const bottomRow = createSlitConfigurationControlsRow(
+    const bottomRow = new SlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
       slitConfigItems,
       model.sceneProperty,
@@ -193,7 +191,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( bottomRow );
 
     // Hits graph (always in Hits mode on this screen)
-    this.sidewaysGraphNode = createSidewaysGraph(
+    this.sidewaysGraphNode = new SidewaysGraph(
       model.sceneProperty,
       this.detectorScreenNode,
       model.isHitsGraphVisibleProperty,
@@ -215,19 +213,19 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     // --- Right controls (shared factory) ---
 
-    const hitsGraphCheckbox = createToolCheckbox( model.isHitsGraphVisibleProperty, QuantumWaveInterferenceFluent.hitsGraphStringProperty, tandem.createTandem( 'hitsGraphCheckbox' ), ToolIcons.createGraphIcon() );
-    const tapeMeasureCheckbox = createToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ), ToolIcons.createTapeMeasureIcon() );
-    const stopwatchCheckbox = createToolCheckbox( model.isStopwatchVisibleProperty, QuantumWaveInterferenceFluent.stopwatchStringProperty, tandem.createTandem( 'stopwatchCheckbox' ), ToolIcons.createStopwatchIcon() );
-    const timePlotCheckbox = createToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ), ToolIcons.createTimePlotIcon() );
-    const positionPlotCheckbox = createToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ), ToolIcons.createPositionPlotIcon() );
-    const detectorCheckbox = createToolCheckbox( model.isDetectorToolVisibleProperty, QuantumWaveInterferenceFluent.detectorStringProperty, tandem.createTandem( 'detectorCheckbox' ), ToolIcons.createDetectorIcon() );
+    const hitsGraphCheckbox = new ToolCheckbox( model.isHitsGraphVisibleProperty, QuantumWaveInterferenceFluent.hitsGraphStringProperty, tandem.createTandem( 'hitsGraphCheckbox' ), ToolIcons.createGraphIcon() );
+    const tapeMeasureCheckbox = new ToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ), ToolIcons.createTapeMeasureIcon() );
+    const stopwatchCheckbox = new ToolCheckbox( model.isStopwatchVisibleProperty, QuantumWaveInterferenceFluent.stopwatchStringProperty, tandem.createTandem( 'stopwatchCheckbox' ), ToolIcons.createStopwatchIcon() );
+    const timePlotCheckbox = new ToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ), ToolIcons.createTimePlotIcon() );
+    const positionPlotCheckbox = new ToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ), ToolIcons.createPositionPlotIcon() );
+    const detectorCheckbox = new ToolCheckbox( model.isDetectorToolVisibleProperty, QuantumWaveInterferenceFluent.detectorStringProperty, tandem.createTandem( 'detectorCheckbox' ), ToolIcons.createDetectorIcon() );
 
     // Detector checkbox is only shown when barrier is None; its checked state is preserved in the model.
     model.isDetectorToolAvailableProperty.link( isAvailable => {
       detectorCheckbox.visible = isAvailable;
     } );
 
-    const { rightControlsVBox, timeAndResetRow } = createRightControlsColumn( model, this, tandem, {
+    const rightControlsColumn = new RightControlsColumn( model, this, tandem, {
       additionalScreenControlChildren: [],
       toolCheckboxes: [
         hitsGraphCheckbox,
@@ -258,15 +256,16 @@ export default class SingleParticlesScreenView extends ScreenView {
       }
     } );
 
-    rightControlsVBox.right = this.layoutBounds.maxX - X_MARGIN;
-    rightControlsVBox.top = Y_MARGIN;
-    this.addChild( rightControlsVBox );
+    rightControlsColumn.right = this.layoutBounds.maxX - X_MARGIN;
+    rightControlsColumn.top = Y_MARGIN;
+    this.addChild( rightControlsColumn );
 
-    timeAndResetRow.right = this.layoutBounds.maxX - X_MARGIN;
-    timeAndResetRow.bottom = this.layoutBounds.maxY - Y_MARGIN;
-    this.addChild( timeAndResetRow );
+    rightControlsColumn.timeAndResetRow.right = this.layoutBounds.maxX - X_MARGIN;
+    rightControlsColumn.timeAndResetRow.bottom = this.layoutBounds.maxY - Y_MARGIN;
+    this.addChild( rightControlsColumn.timeAndResetRow );
 
-    const toolNodes = createMeasurementToolNodes( model, this, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
+    const toolNodes = new MeasurementToolNodes( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
+    this.addChild( toolNodes );
     this.timePlotNode = toolNodes.timePlotNode;
     this.positionPlotNode = toolNodes.positionPlotNode;
   }
