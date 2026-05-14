@@ -18,9 +18,7 @@ import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
-import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -28,9 +26,9 @@ import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import ScreenDistanceControl from './ScreenDistanceControl.js';
 import SlitSeparationControl from './SlitSeparationControl.js';
+import SlitSettingsComboBox from './SlitSettingsComboBox.js';
 
 const SLIT_SETTINGS_TITLE_FONT = new PhetFont( 14 );
-const COMBO_BOX_FONT = new PhetFont( 14 );
 const PANEL_CONTENT_SPACING = 20;
 const SLIT_SETTINGS_SECTION_SPACING = 6;
 const PANEL_WIDTH = ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH + 20;
@@ -105,91 +103,14 @@ export default class SlitControlPanel extends Panel {
       tandem: tandem.createTandem( `${sceneTandemName}ScreenDistanceControl` )
     } );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out SlitSettingsComboBox. There is too much inlined here.
-
-    // Slit settings ComboBox
     const slitSettingsLabel = new Text( QuantumWaveInterferenceFluent.slitConfigurationStringProperty, {
       font: SLIT_SETTINGS_TITLE_FONT,
       maxWidth: 170
     } );
 
-    const comboBoxItems: ComboBoxItem<SlitConfiguration>[] = [
-      {
-        value: 'bothOpen',
-        createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, {
-            font: COMBO_BOX_FONT,
-            maxWidth: 150
-          } ),
-        tandemName: 'bothOpenItem'
-      },
-      {
-        value: 'leftCovered',
-        createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.coverLeftStringProperty, {
-            font: COMBO_BOX_FONT,
-            maxWidth: 150
-          } ),
-        tandemName: 'leftCoveredItem',
-        separatorBefore: true
-      },
-      {
-        value: 'rightCovered',
-        createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.coverRightStringProperty, {
-            font: COMBO_BOX_FONT,
-            maxWidth: 150
-          } ),
-        tandemName: 'rightCoveredItem'
-      },
-      {
-        value: 'leftDetector',
-        createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.detectorLeftStringProperty, {
-            font: COMBO_BOX_FONT,
-            maxWidth: 150
-          } ),
-        tandemName: 'leftDetectorItem',
-        separatorBefore: true
-      },
-      {
-        value: 'rightDetector',
-        createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.detectorRightStringProperty, {
-            font: COMBO_BOX_FONT,
-            maxWidth: 150
-          } ),
-        tandemName: 'rightDetectorItem'
-      },
-      {
-        value: 'bothDetectors',
-        createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.detectorBothStringProperty, {
-            font: COMBO_BOX_FONT,
-            maxWidth: 150
-          } ),
-        tandemName: 'bothDetectorsItem'
-      }
-    ];
-
-    const slitSettingsContextResponseProperty = QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleContextResponse.createProperty( {
-      slitSetting: scene.slitSettingProperty
+    const slitSettingsComboBox = new SlitSettingsComboBox( scene, comboBoxParent, {
+      tandem: tandem.createTandem( `${sceneTandemName}SlitSettingsComboBox` )
     } );
-
-    const slitSettingsComboBox = new ComboBox(
-      scene.slitSettingProperty,
-      comboBoxItems,
-      comboBoxParent,
-      {
-        xMargin: 16,
-        yMargin: 8,
-        listPosition: 'above',
-        accessibleName: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleHelpTextStringProperty,
-        accessibleContextResponse: slitSettingsContextResponseProperty,
-        tandem: tandem.createTandem( `${sceneTandemName}SlitSettingsComboBox` )
-      }
-    );
 
     const slitSettingsSection = new VBox( {
       spacing: SLIT_SETTINGS_SECTION_SPACING,
