@@ -110,29 +110,25 @@ export default class OverheadDoubleSlitNode extends Node {
     this.slitOverlayDx = 4 * OVERHEAD_SCALE * 0.6 * 0.85 * DETECTOR_OVERLAY_WIDTH_SCALE;
     this.slitOverlayDy = this.slitOverlayDx * ( this.skewDy / this.skewDx );
 
-    this.leftSlitDetectorOverlay = new ParallelogramNode(
-      this.slitOverlayDx,
-      this.slitOverlayDy,
-      this.slitOverlayHeight,
-      QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA ).toCSS(),
-      0
-    );
-    this.leftSlitDetectorOverlay.stroke = QuantumWaveInterferenceColors.detectorOverlayStrokeProperty;
-    this.leftSlitDetectorOverlay.lineWidth = DETECTOR_OVERLAY_STROKE_WIDTH;
-    this.leftSlitDetectorOverlay.visible = false;
+    const createOverlayParallelogramNode = () => {
+      const overlay = new ParallelogramNode(
+        this.slitOverlayDx,
+        this.slitOverlayDy,
+        this.slitOverlayHeight,
+        QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA ).toCSS(),
+        0
+      );
+      overlay.stroke = QuantumWaveInterferenceColors.detectorOverlayStrokeProperty;
+      overlay.lineWidth = DETECTOR_OVERLAY_STROKE_WIDTH;
+      overlay.visible = false;
+
+      return overlay;
+    };
+
+    this.leftSlitDetectorOverlay = createOverlayParallelogramNode();
     this.parallelogramNode.addChild( this.leftSlitDetectorOverlay );
 
-    // TODO leftSlitDetectorOverlay Identical to leftSlitDetectorOverlay above, see https://github.com/phetsims/quantum-wave-interference/issues/27
-    this.rightSlitDetectorOverlay = new ParallelogramNode(
-      this.slitOverlayDx,
-      this.slitOverlayDy,
-      this.slitOverlayHeight,
-      QuantumWaveInterferenceColors.detectorOverlayFillProperty.value.withAlpha( DETECTOR_OVERLAY_FILL_ALPHA ).toCSS(),
-      0
-    );
-    this.rightSlitDetectorOverlay.stroke = QuantumWaveInterferenceColors.detectorOverlayStrokeProperty;
-    this.rightSlitDetectorOverlay.lineWidth = DETECTOR_OVERLAY_STROKE_WIDTH;
-    this.rightSlitDetectorOverlay.visible = false;
+    this.rightSlitDetectorOverlay = createOverlayParallelogramNode();
     this.parallelogramNode.addChild( this.rightSlitDetectorOverlay );
 
     // Updates slit line positions and detector overlays
