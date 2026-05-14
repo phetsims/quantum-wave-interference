@@ -47,6 +47,7 @@ import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import SceneModel from '../model/SceneModel.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
+import SlitViewDescriptionNode from './description/SlitViewDescriptionNode.js';
 import DetectorRulerNode from './DetectorRulerNode.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
@@ -468,27 +469,7 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( detectorScreenDescriptionNode );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out everything related to slitViewDescriptionNode, for better encapsulation and less code in the class.
-
-    // Accessible paragraph describing the magnified slit view for screen reader users.
-    // This is important non-interactive visual content: the slit view shows the barrier with two slits, their width,
-    // and the current slit configuration (open/covered/detector). The slit width is a constant per scene that is
-    // visible on screen but not accessible through any interactive control.
-    const slitSettingProperty = model.currentSlitSettingProperty;
-    const slitWidthStringProperty = model.sceneProperty.derived( scene => {
-      const slitWidthMM = scene.slitWidth;
-      const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
-      return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
-        value: toFixed( slitWidthUM, decimalPlaces )
-      } );
-    } );
-    const slitViewDescriptionNode = new Node( {
-      accessibleParagraph:
-        QuantumWaveInterferenceFluent.a11y.slitView.accessibleParagraph.createProperty( {
-          slitWidth: slitWidthStringProperty,
-          slitSetting: slitSettingProperty
-        } )
-    } );
+    const slitViewDescriptionNode = new SlitViewDescriptionNode( model );
     this.addChild( slitViewDescriptionNode );
 
     // Accessible paragraph describing the particle mass for screen reader users.
