@@ -238,6 +238,7 @@ const QuantumWaveInterferenceFluent = {
   electronsStringProperty: _.get( QuantumWaveInterferenceStrings, 'electronsStringProperty' ),
   neutronsStringProperty: _.get( QuantumWaveInterferenceStrings, 'neutronsStringProperty' ),
   heliumAtomsStringProperty: _.get( QuantumWaveInterferenceStrings, 'heliumAtomsStringProperty' ),
+  _comment_0: new FluentComment( {"comment":"Shown above the emitter","associatedKey":"photonSource"} ),
   photonSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'photonSourceStringProperty' ),
   electronSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'electronSourceStringProperty' ),
   neutronSourceStringProperty: _.get( QuantumWaveInterferenceStrings, 'neutronSourceStringProperty' ),
@@ -299,7 +300,7 @@ const QuantumWaveInterferenceFluent = {
   resetDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'resetDetectorStringProperty' ),
   particleDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleDetectedStringProperty' ),
   notDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'notDetectedStringProperty' ),
-  _comment_0: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
+  _comment_1: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
   a11y: {
     screenSummary: {
       playAreaStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_playArea', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.playAreaStringProperty' ) ),
