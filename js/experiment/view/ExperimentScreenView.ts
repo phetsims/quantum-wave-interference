@@ -1,13 +1,5 @@
 // Copyright 2026, University of Colorado Boulder
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27
-//REVIEW   This class is too big and (more importantly) has responsibilities that do not belong at the ScreenView level.
-//REVIEW   Reduce size by factoring out view components and (especially) description code.
-
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27
-//REVIEW   I would hate to have to change/maintain the layout of this ScreenView. Layout is spread out, not well encapsulated.
-//REIEW    Could scenery layout be used more?
-
 /**
  * ExperimentScreenView is the top-level view for the Quantum Wave Interference simulation. It contains three visual
  * "rows": the top row with the emitter, double slit, and detector screen in overhead perspective;
@@ -17,7 +9,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import GatedEnabledProperty from '../../../../axon/js/GatedEnabledProperty.js';
 import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -32,23 +23,15 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import ExperimentScreenViewDescription from './description/ExperimentScreenViewDescription.js';
 import DetectorRulerNode from './DetectorRulerNode.js';
-import DetectorScreenNode from './DetectorScreenNode.js';
+import ExperimentDetectorColumnNode from './ExperimentDetectorColumnNode.js';
+import ExperimentOverheadApparatusNode from './ExperimentOverheadApparatusNode.js';
 import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
-import FrontFacingSlitNode from './FrontFacingSlitNode.js';
-import GraphAccordionBox from './GraphAccordionBox.js';
-import OverheadBeamNode from './OverheadBeamNode.js';
-import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
-import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
-import OverheadEmitterNode from './OverheadEmitterNode.js';
+import ExperimentSlitColumnNode from './ExperimentSlitColumnNode.js';
 import RulerCheckbox from './RulerCheckbox.js';
-import ScreenSettingsPanel from './ScreenSettingsPanel.js';
-import SlitControlPanel from './SlitControlPanel.js';
 import StopwatchCheckbox from './StopwatchCheckbox.js';
-import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -57,12 +40,8 @@ type ExperimentScreenViewOptions = SelfOptions & Pick<ScreenViewOptions, 'tandem
 const MIDDLE_COLUMN_LEFT_SHIFT = 3;
 
 export default class ExperimentScreenView extends ScreenView {
-  private readonly graphAccordionBoxes: GraphAccordionBox[];
+  private readonly detectorColumnNode: ExperimentDetectorColumnNode;
   private readonly centerRulerOnDetectorScreen: () => void;
-
-  // Shared expanded state for the graph accordion boxes across all scenes,
-  // so that switching scenes preserves the open/closed state per the design requirement.
-  private readonly graphExpandedProperty: BooleanProperty;
 
   public constructor( model: ExperimentModel, providedOptions: ExperimentScreenViewOptions ) {
     const options = optionize<ExperimentScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
@@ -72,153 +51,28 @@ export default class ExperimentScreenView extends ScreenView {
 
     super( options );
 
-    // ==============================
-    // Top Row: Emitter, Double Slit, Detector Screen (overhead perspective)
-    // ==============================
+    const overheadApparatusNode = new ExperimentOverheadApparatusNode( model, this.layoutBounds, options.tandem );
+    this.addChild( overheadApparatusNode );
 
-    const overheadEmitterNode = new OverheadEmitterNode( model, this.layoutBounds, options.tandem );
-    const overheadDoubleSlitNode = new OverheadDoubleSlitNode( model.sceneProperty );
+    const slitColumnNode = new ExperimentSlitColumnNode( model, this, options.tandem );
+    this.addChild( slitColumnNode );
 
-    const whichPathDetectorNode = new WhichPathDetectorIndicatorNode( model, overheadDoubleSlitNode );
-
-    const updateWhichPathDetectorLayout = () => {
-      whichPathDetectorNode.updateLayout();
-    };
-    model.sceneProperty.link( ( newScene, oldScene ) => {
-      if ( oldScene ) {
-        oldScene.slitSeparationProperty.unlink( updateWhichPathDetectorLayout );
-      }
-      newScene.slitSeparationProperty.link( updateWhichPathDetectorLayout );
-    } );
-
-    const overheadDetectorScreenNode = new OverheadDetectorScreenNode(
-      model.sceneProperty,
-      model.detectorScreenScaleIndexProperty,
-      overheadDoubleSlitNode.parallelogramNode
+    this.detectorColumnNode = new ExperimentDetectorColumnNode(
+      model,
+      this.layoutBounds.maxX,
+      () => overheadApparatusNode.startSnapshotFlash(),
+      options.tandem
     );
-    const overheadBeamNode = new OverheadBeamNode(
-      model.sceneProperty,
-      overheadEmitterNode,
-      overheadDoubleSlitNode,
-      overheadDetectorScreenNode
+    this.addChild( this.detectorColumnNode );
+    overheadApparatusNode.setFrontFacingScreenBounds(
+      this.detectorColumnNode.detectorScreenLeft,
+      this.detectorColumnNode.detectorScreenRight
     );
 
-    // Top-row stacking order (back to front):
-    // fan beam -> double slit -> detector shadow -> incident beam -> detector/indicator -> emitter.
-    // The incident beam (emitter to slit) is in front of the double slit but behind the laser.
-    this.addChild( overheadBeamNode );
-    this.addChild( overheadDoubleSlitNode );
-    this.addChild( overheadBeamNode.detectorScreenShadowNode );
-    this.addChild( overheadBeamNode.emitterBeamNode );
-    this.addChild( overheadDetectorScreenNode );
-    this.addChild( whichPathDetectorNode );
-    this.addChild( overheadEmitterNode );
-
-    const alignOverheadElements = () => {
-      const activeEmitter = model.sceneProperty.value.sourceType === 'photons'
-                            ? overheadEmitterNode.laserPointerNode
-                            : overheadEmitterNode.particleEmitterNode;
-
-      // Keep the slit centered on the active emitter's beam centerline.
-      overheadDoubleSlitNode.parallelogramNode.centerY = activeEmitter.centerY;
-
-      // Keep the hit-cap message centered in the horizontal gap between the active emitter and the visible black slit
-      // background, not the larger transparent parallelogram bounds.
-      overheadEmitterNode.maxHitsReachedPanel.centerX = ( activeEmitter.right + overheadDoubleSlitNode.getVisibleBackgroundLeftX() ) / 2;
-      overheadEmitterNode.maxHitsReachedPanel.centerY = activeEmitter.centerY;
-
-      whichPathDetectorNode.updateLayout();
-
-      // Recompute beams after vertical alignment changes.
-      overheadBeamNode.updateBeam();
-    };
-    model.sceneProperty.link( alignOverheadElements );
-
-    // ==============================
-    // Middle Row: Source controls, front-facing slits, front-facing screen, graph
-    // ==============================
-
-    // Front-facing slit view - one per scene, with visibility toggling
-    const frontFacingSlitTandem = options.tandem.createTandem( 'frontFacingSlitNodes' );
-    const frontFacingSlitNodes = model.scenes.map( ( scene, index ) => {
-      const slitNode = new FrontFacingSlitNode( scene, {
-        tandem: frontFacingSlitTandem.createTandem( `frontFacingSlitNode${index}` )
-      } );
-      slitNode.y = ExperimentConstants.FRONT_FACING_ROW_TOP;
-      this.addChild( slitNode );
-      return slitNode;
-    } );
-
-    // Front-facing detector screen - one per scene, with visibility toggling.
-    const controlsRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
-    const detectorScreenTandem = options.tandem.createTandem( 'detectorScreenNodes' );
-    const detectorScreenNodes = model.scenes.map( ( scene, index ) => {
-      return new DetectorScreenNode( scene, model.detectorScreenScaleIndexProperty, model.isPlayingProperty, {
-        onSnapshotCaptured: () => overheadDetectorScreenNode.startSnapshotFlash(),
-        tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
-      } );
-    } );
-
-    const maxLocalRight = Math.max( ...detectorScreenNodes.map( ds => ds.localBounds.maxX ) );
-    const detectorScreenX = controlsRight - maxLocalRight;
-    for ( const detectorScreen of detectorScreenNodes ) {
-      detectorScreen.x = detectorScreenX;
-      detectorScreen.y = ExperimentConstants.FRONT_FACING_ROW_TOP;
-      this.addChild( detectorScreen );
-    }
-
-    // Set overhead parallelogram positioning bounds and trigger initial updates
-    const frontFacingScreenLeft = detectorScreenNodes[ 0 ].x;
-    const frontFacingScreenRight = detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH;
-    const detectorScreenCenterX = detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
-    overheadDetectorScreenNode.setFrontFacingScreenBounds(
-      frontFacingScreenLeft,
-      frontFacingScreenRight
-    );
-    overheadBeamNode.updateBeam();
-
-    // Shared expanded property for the graph accordion box
-    this.graphExpandedProperty = new BooleanProperty( false, {
-      tandem: options.tandem.createTandem( 'graphExpandedProperty' )
-    } );
-
-    // Graph accordion box - one per scene
-    const graphTandem = options.tandem.createTandem( 'graphAccordionBoxes' );
-    this.graphAccordionBoxes = model.scenes.map( ( scene, index ) => {
-      const graphBox = new GraphAccordionBox( scene, {
-        expandedProperty: this.graphExpandedProperty,
-        isRulerVisibleProperty: model.isRulerVisibleProperty,
-        detectorScreenScaleIndexProperty: model.detectorScreenScaleIndexProperty,
-        tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
-      } );
-      graphBox.x = detectorScreenCenterX - graphBox.getChartAreaLocalBounds().centerX;
-      graphBox.top = detectorScreenNodes[ 0 ].bottom + 8;
-      this.addChild( graphBox );
-      return graphBox;
-    } );
-
-    const layoutGraphAccordionBoxes = () => {
-      this.graphAccordionBoxes.forEach( graphBox => {
-        graphBox.x = detectorScreenCenterX - graphBox.getChartAreaLocalBounds().centerX;
-        graphBox.top = screenSettingsPanel.bottom + 8;
-      } );
-    };
-
-    // Toggle visibility of front-facing slits, detector screens, and graphs based on the selected scene
-    model.sceneProperty.link( selectedScene => {
-      model.scenes.forEach( ( scene, index ) => {
-        const isSelected = scene === selectedScene;
-        frontFacingSlitNodes[ index ].visible = isSelected;
-        detectorScreenNodes[ index ].visible = isSelected;
-        this.graphAccordionBoxes[ index ].visible = isSelected;
-      } );
-    } );
-
-    // Source controls panel (beneath the emitter)
     const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
       tandem: options.tandem.createTandem( 'sourceControlPanel' )
     } );
-    sourceControlPanel.left = overheadEmitterNode.laserPointerNode.left;
+    sourceControlPanel.left = overheadApparatusNode.overheadEmitterNode.laserPointerNode.left;
     this.addChild( sourceControlPanel );
 
     const updateSourceControlPanelPosition = () => {
@@ -227,8 +81,7 @@ export default class ExperimentScreenView extends ScreenView {
     model.sceneProperty.link( updateSourceControlPanelPosition );
 
     const updateEmitterAlignment = () => {
-      overheadEmitterNode.setEmitterCenterX( sourceControlPanel.centerX );
-      alignOverheadElements();
+      overheadApparatusNode.setEmitterCenterX( sourceControlPanel.centerX );
     };
     sourceControlPanel.localBoundsProperty.link( updateEmitterAlignment );
     updateEmitterAlignment();
@@ -253,57 +106,12 @@ export default class ExperimentScreenView extends ScreenView {
     sceneRadioButtonGroup.centerY = QuantumWaveInterferenceConstants.SCENE_BUTTON_GROUP_CENTER_Y;
     this.addChild( sceneRadioButtonGroup );
 
-    // Slit controls panel, top-justified directly beneath the front-facing slit view
-    const slitControlPanel = new SlitControlPanel( model.sceneProperty, model.scenes, this, {
-      tandem: options.tandem.createTandem( 'slitControlPanel' )
-    } );
-
     // Center the slit-view/slit-panel middle column between the left and right columns.
     const leftColumnRight = Math.max( sourceControlPanel.right, sceneRadioButtonGroup.right );
-    const rightColumnLeft = detectorScreenNodes[ 0 ].left;
+    const rightColumnLeft = this.detectorColumnNode.detectorScreenLeft;
     const middleColumnCenterX = ( leftColumnRight + rightColumnLeft ) / 2 - MIDDLE_COLUMN_LEFT_SHIFT;
-    frontFacingSlitNodes.forEach( node => {
-      node.setViewCenterX( middleColumnCenterX );
-    } );
-    overheadDoubleSlitNode.setParallelogramCenterX( middleColumnCenterX );
-    whichPathDetectorNode.updateLayout();
-    overheadDetectorScreenNode.updatePosition();
-    overheadBeamNode.updateBeam();
-    slitControlPanel.centerX = middleColumnCenterX;
-    slitControlPanel.top = frontFacingSlitNodes[ 0 ].bottom + 8;
-    this.addChild( slitControlPanel );
-
-    // Move front-facing slit nodes above the slit control panel so the slit separation span below the view is not
-    // obscured by the panel's background.
-    frontFacingSlitNodes.forEach( n => n.moveToFront() );
-
-    // Screen settings panel (detection mode + brightness), directly below the detector screen.
-    const screenSettingsPanel = new ScreenSettingsPanel(
-      model.currentDetectionModeProperty,
-      model.currentScreenBrightnessProperty,
-      model.currentIsEmittingProperty, {
-        tandem: options.tandem.createTandem( 'screenSettingsPanel' )
-      }
-    );
-
-    const layoutScreenSettingsPanel = () => {
-      screenSettingsPanel.centerX = detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
-      screenSettingsPanel.top = detectorScreenNodes[ 0 ].bottom + 8;
-    };
-
-    layoutScreenSettingsPanel();
-    this.addChild( screenSettingsPanel );
-
-    // Keep the graph below the screen settings panel to avoid overlap and align the chart rectangle to the detector
-    // screen rectangle even if labels or scale change.
-    screenSettingsPanel.localBoundsProperty.link( () => {
-      layoutScreenSettingsPanel();
-      layoutGraphAccordionBoxes();
-    } );
-    this.graphAccordionBoxes.forEach( graphBox => {
-      graphBox.localBoundsProperty.link( layoutGraphAccordionBoxes );
-    } );
-    layoutGraphAccordionBoxes();
+    slitColumnNode.setColumnCenterX( middleColumnCenterX );
+    overheadApparatusNode.setSlitCenterX( middleColumnCenterX );
 
     const resetAllButton = new ResetAllButton( {
       listener: () => {
@@ -353,7 +161,7 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( timeControlNode );
 
-    const bottomRowLeft = this.graphAccordionBoxes[ 0 ].left;
+    const bottomRowLeft = this.detectorColumnNode.bottomControlsLeft;
     const bottomRowRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
     const totalBottomControlsWidth = checkboxGroup.width + timeControlNode.width + resetAllButton.width;
     const bottomRowSpaceBetween = Math.max(
@@ -370,7 +178,7 @@ export default class ExperimentScreenView extends ScreenView {
     checkboxGroup.centerY = resetAllButton.centerY;
 
     // Nudge the slit control panel slightly lower than the checkbox group.
-    slitControlPanel.bottom = checkboxGroup.bottom + 2;
+    slitColumnNode.slitControlPanel.bottom = checkboxGroup.bottom + 2;
 
     // Draggable ruler. The ruler's horizontal scale is calibrated to the active detector screen: its full width maps to
     // the scene's full detector width in mm.
@@ -383,9 +191,9 @@ export default class ExperimentScreenView extends ScreenView {
         model.detectorScreenScaleIndexProperty,
         model.rulerPositionProperty,
         this.visibleBoundsProperty,
-        this.graphExpandedProperty,
-        detectorScreenNodes[ index ],
-        this.graphAccordionBoxes[ index ],
+        this.detectorColumnNode.graphExpandedProperty,
+        this.detectorColumnNode.detectorScreenNodes[ index ],
+        this.detectorColumnNode.graphAccordionBoxes[ index ],
         this,
         rulerNodesTandem.createTandem( `rulerNode${index}` )
       );
@@ -426,16 +234,12 @@ export default class ExperimentScreenView extends ScreenView {
 
     const experimentScreenViewDescription = new ExperimentScreenViewDescription(
       model,
-      overheadEmitterNode,
+      overheadApparatusNode.overheadEmitterNode,
       sourceControlPanel,
       sceneRadioButtonGroup,
-      slitControlPanel,
-      detectorScreenNodes.flatMap( detectorScreen => [
-        detectorScreen.eraserButton,
-        detectorScreen.snapshotButton,
-        detectorScreen.viewSnapshotsButton
-      ] ),
-      screenSettingsPanel
+      slitColumnNode.slitControlPanel,
+      this.detectorColumnNode.getDetectorScreenButtonNodes(),
+      this.detectorColumnNode.screenSettingsPanel
     );
     this.addChild( experimentScreenViewDescription );
 
@@ -444,7 +248,7 @@ export default class ExperimentScreenView extends ScreenView {
       experimentScreenViewDescription.sourceHeadingNode,
       experimentScreenViewDescription.slitsHeadingNode,
       experimentScreenViewDescription.detectorScreenHeadingNode,
-      ...this.graphAccordionBoxes,
+      ...this.detectorColumnNode.graphAccordionBoxes,
       ...rulerNodes,
       stopwatchNode
     ];
@@ -463,8 +267,7 @@ export default class ExperimentScreenView extends ScreenView {
    * Resets the view.
    */
   private reset(): void {
-    this.graphExpandedProperty.reset();
-    this.graphAccordionBoxes.forEach( box => box.reset() );
+    this.detectorColumnNode.reset();
     this.centerRulerOnDetectorScreen();
   }
 
