@@ -45,11 +45,11 @@ import DetectorScreenScaleIndicatorNode from './DetectorScreenScaleIndicatorNode
 
 const EXPERIMENT_SLIT_DISPLAY_MAP: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>> = {
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
-  leftCovered: QuantumWaveInterferenceFluent.leftCoveredStringProperty,
-  rightCovered: QuantumWaveInterferenceFluent.rightCoveredStringProperty,
-  leftDetector: QuantumWaveInterferenceFluent.leftDetectorStringProperty,
-  rightDetector: QuantumWaveInterferenceFluent.rightDetectorStringProperty,
-  bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty
+  leftCovered: QuantumWaveInterferenceFluent.coverLeftStringProperty,
+  rightCovered: QuantumWaveInterferenceFluent.coverRightStringProperty,
+  leftDetector: QuantumWaveInterferenceFluent.detectorLeftStringProperty,
+  rightDetector: QuantumWaveInterferenceFluent.detectorRightStringProperty,
+  bothDetectors: QuantumWaveInterferenceFluent.detectorBothStringProperty
 };
 
 const formatExperimentSlitSeparation = ( slitSepMM: number ): string => {

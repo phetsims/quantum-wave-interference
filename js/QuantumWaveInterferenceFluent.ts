@@ -55,11 +55,11 @@ addToMapIfDefined( 'slitSeparation', 'slitSeparationStringProperty' );
 addToMapIfDefined( 'screenDistance', 'screenDistanceStringProperty' );
 addToMapIfDefined( 'slitConfiguration', 'slitConfigurationStringProperty' );
 addToMapIfDefined( 'bothOpen', 'bothOpenStringProperty' );
-addToMapIfDefined( 'leftCovered', 'leftCoveredStringProperty' );
-addToMapIfDefined( 'rightCovered', 'rightCoveredStringProperty' );
-addToMapIfDefined( 'leftDetector', 'leftDetectorStringProperty' );
-addToMapIfDefined( 'rightDetector', 'rightDetectorStringProperty' );
-addToMapIfDefined( 'bothDetectors', 'bothDetectorsStringProperty' );
+addToMapIfDefined( 'coverLeft', 'coverLeftStringProperty' );
+addToMapIfDefined( 'coverRight', 'coverRightStringProperty' );
+addToMapIfDefined( 'detectorLeft', 'detectorLeftStringProperty' );
+addToMapIfDefined( 'detectorRight', 'detectorRightStringProperty' );
+addToMapIfDefined( 'detectorBoth', 'detectorBothStringProperty' );
 addToMapIfDefined( 'noBarrier', 'noBarrierStringProperty' );
 addToMapIfDefined( 'hits', 'hitsStringProperty' );
 addToMapIfDefined( 'screenBrightness', 'screenBrightnessStringProperty' );
@@ -82,12 +82,10 @@ addToMapIfDefined( 'electricField', 'electricFieldStringProperty' );
 addToMapIfDefined( 'amplitude', 'amplitudeStringProperty' );
 addToMapIfDefined( 'realPart', 'realPartStringProperty' );
 addToMapIfDefined( 'imaginaryPart', 'imaginaryPartStringProperty' );
-addToMapIfDefined( 'topCovered', 'topCoveredStringProperty' );
-addToMapIfDefined( 'bottomCovered', 'bottomCoveredStringProperty' );
-addToMapIfDefined( 'topClosed', 'topClosedStringProperty' );
-addToMapIfDefined( 'bottomClosed', 'bottomClosedStringProperty' );
-addToMapIfDefined( 'topDetector', 'topDetectorStringProperty' );
-addToMapIfDefined( 'bottomDetector', 'bottomDetectorStringProperty' );
+addToMapIfDefined( 'coverTop', 'coverTopStringProperty' );
+addToMapIfDefined( 'coverBottom', 'coverBottomStringProperty' );
+addToMapIfDefined( 'detectorTop', 'detectorTopStringProperty' );
+addToMapIfDefined( 'detectorBottom', 'detectorBottomStringProperty' );
 addToMapIfDefined( 'autoRepeat', 'autoRepeatStringProperty' );
 addToMapIfDefined( 'timeScaleLabel', 'timeScaleLabelStringProperty' );
 addToMapIfDefined( 'detectorSize', 'detectorSizeStringProperty' );
@@ -261,11 +259,11 @@ const QuantumWaveInterferenceFluent = {
   screenDistanceStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistanceStringProperty' ),
   slitConfigurationStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitConfigurationStringProperty' ),
   bothOpenStringProperty: _.get( QuantumWaveInterferenceStrings, 'bothOpenStringProperty' ),
-  leftCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'leftCoveredStringProperty' ),
-  rightCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'rightCoveredStringProperty' ),
-  leftDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'leftDetectorStringProperty' ),
-  rightDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'rightDetectorStringProperty' ),
-  bothDetectorsStringProperty: _.get( QuantumWaveInterferenceStrings, 'bothDetectorsStringProperty' ),
+  coverLeftStringProperty: _.get( QuantumWaveInterferenceStrings, 'coverLeftStringProperty' ),
+  coverRightStringProperty: _.get( QuantumWaveInterferenceStrings, 'coverRightStringProperty' ),
+  detectorLeftStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorLeftStringProperty' ),
+  detectorRightStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorRightStringProperty' ),
+  detectorBothStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorBothStringProperty' ),
   noBarrierStringProperty: _.get( QuantumWaveInterferenceStrings, 'noBarrierStringProperty' ),
   hitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsStringProperty' ),
   hitsCountPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsCountPatternStringProperty' ),
@@ -290,12 +288,10 @@ const QuantumWaveInterferenceFluent = {
   amplitudeStringProperty: _.get( QuantumWaveInterferenceStrings, 'amplitudeStringProperty' ),
   realPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'realPartStringProperty' ),
   imaginaryPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'imaginaryPartStringProperty' ),
-  topCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'topCoveredStringProperty' ),
-  bottomCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomCoveredStringProperty' ),
-  topClosedStringProperty: _.get( QuantumWaveInterferenceStrings, 'topClosedStringProperty' ),
-  bottomClosedStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomClosedStringProperty' ),
-  topDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'topDetectorStringProperty' ),
-  bottomDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'bottomDetectorStringProperty' ),
+  coverTopStringProperty: _.get( QuantumWaveInterferenceStrings, 'coverTopStringProperty' ),
+  coverBottomStringProperty: _.get( QuantumWaveInterferenceStrings, 'coverBottomStringProperty' ),
+  detectorTopStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorTopStringProperty' ),
+  detectorBottomStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorBottomStringProperty' ),
   autoRepeatStringProperty: _.get( QuantumWaveInterferenceStrings, 'autoRepeatStringProperty' ),
   timeScaleLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeScaleLabelStringProperty' ),
   detectorSizeStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorSizeStringProperty' ),

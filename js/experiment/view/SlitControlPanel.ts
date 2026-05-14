@@ -251,7 +251,7 @@ export default class SlitControlPanel extends Panel {
       {
         value: 'leftCovered',
         createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.leftCoveredStringProperty, {
+          new Text( QuantumWaveInterferenceFluent.coverLeftStringProperty, {
             font: COMBO_BOX_FONT,
             maxWidth: 150
           } ),
@@ -261,7 +261,7 @@ export default class SlitControlPanel extends Panel {
       {
         value: 'rightCovered',
         createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.rightCoveredStringProperty, {
+          new Text( QuantumWaveInterferenceFluent.coverRightStringProperty, {
             font: COMBO_BOX_FONT,
             maxWidth: 150
           } ),
@@ -270,7 +270,7 @@ export default class SlitControlPanel extends Panel {
       {
         value: 'leftDetector',
         createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.leftDetectorStringProperty, {
+          new Text( QuantumWaveInterferenceFluent.detectorLeftStringProperty, {
             font: COMBO_BOX_FONT,
             maxWidth: 150
           } ),
@@ -280,7 +280,7 @@ export default class SlitControlPanel extends Panel {
       {
         value: 'rightDetector',
         createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.rightDetectorStringProperty, {
+          new Text( QuantumWaveInterferenceFluent.detectorRightStringProperty, {
             font: COMBO_BOX_FONT,
             maxWidth: 150
           } ),
@@ -289,7 +289,7 @@ export default class SlitControlPanel extends Panel {
       {
         value: 'bothDetectors',
         createNode: () =>
-          new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, {
+          new Text( QuantumWaveInterferenceFluent.detectorBothStringProperty, {
             font: COMBO_BOX_FONT,
             maxWidth: 150
           } ),

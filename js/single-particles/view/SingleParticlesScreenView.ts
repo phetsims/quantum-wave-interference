@@ -169,11 +169,11 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const slitConfigItems: ComboBoxItem<SlitConfigurationWithNoBarrier>[] = [
       { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
-      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.topClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topClosedItem', separatorBefore: true },
-      { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomClosedStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomClosedItem' },
-      { value: 'leftDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.topDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topDetectorItem', separatorBefore: true },
-      { value: 'rightDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.bottomDetectorStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomDetectorItem' },
-      { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.bothDetectorsStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' },
+      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.coverTopStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topClosedItem', separatorBefore: true },
+      { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.coverBottomStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomClosedItem' },
+      { value: 'leftDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.detectorTopStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topDetectorItem', separatorBefore: true },
+      { value: 'rightDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.detectorBottomStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomDetectorItem' },
+      { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.detectorBothStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' },
       { value: 'noBarrier', createNode: () => new Text( QuantumWaveInterferenceFluent.noBarrierStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'noBarrierItem', separatorBefore: true }
     ];
 
@@ -247,11 +247,11 @@ export default class SingleParticlesScreenView extends ScreenView {
       },
       slitSettingDisplayMap: {
         bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
-        leftCovered: QuantumWaveInterferenceFluent.topClosedStringProperty,
-        rightCovered: QuantumWaveInterferenceFluent.bottomClosedStringProperty,
-        leftDetector: QuantumWaveInterferenceFluent.topDetectorStringProperty,
-        rightDetector: QuantumWaveInterferenceFluent.bottomDetectorStringProperty,
-        bothDetectors: QuantumWaveInterferenceFluent.bothDetectorsStringProperty,
+        leftCovered: QuantumWaveInterferenceFluent.coverTopStringProperty,
+        rightCovered: QuantumWaveInterferenceFluent.coverBottomStringProperty,
+        leftDetector: QuantumWaveInterferenceFluent.detectorTopStringProperty,
+        rightDetector: QuantumWaveInterferenceFluent.detectorBottomStringProperty,
+        bothDetectors: QuantumWaveInterferenceFluent.detectorBothStringProperty,
         noBarrier: QuantumWaveInterferenceFluent.noBarrierStringProperty
       }
     } );

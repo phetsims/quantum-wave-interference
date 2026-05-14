@@ -86,19 +86,19 @@
   "bothOpen": {
     "value": "Both Open"
   },
-  "leftCovered": {
+  "coverLeft": {
     "value": "Cover Left"
   },
-  "rightCovered": {
+  "coverRight": {
     "value": "Cover Right"
   },
-  "leftDetector": {
+  "detectorLeft": {
     "value": "Detector Left"
   },
-  "rightDetector": {
+  "detectorRight": {
     "value": "Detector Right"
   },
-  "bothDetectors": {
+  "detectorBoth": {
     "value": "Detector Both"
   },
   "noBarrier": {
@@ -173,22 +173,16 @@
   "imaginaryPart": {
     "value": "Imaginary Part"
   },
-  "topCovered": {
+  "coverTop": {
     "value": "Cover Top"
   },
-  "bottomCovered": {
+  "coverBottom": {
     "value": "Cover Bottom"
   },
-  "topClosed": {
-    "value": "Cover Top"
-  },
-  "bottomClosed": {
-    "value": "Cover Bottom"
-  },
-  "topDetector": {
+  "detectorTop": {
     "value": "Detector Top"
   },
-  "bottomDetector": {
+  "detectorBottom": {
     "value": "Detector Bottom"
   },
   "autoRepeat": {

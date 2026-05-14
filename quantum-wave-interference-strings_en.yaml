@@ -27,11 +27,11 @@ slitSeparation:                        Slit Separation
 screenDistance:                        Screen Distance
 slitConfiguration:                     Slit Configuration
 bothOpen:                              Both Open
-leftCovered:                           Cover Left
-rightCovered:                          Cover Right
-leftDetector:                          Detector Left
-rightDetector:                         Detector Right
-bothDetectors:                         Detector Both
+coverLeft:                             Cover Left
+coverRight:                            Cover Right
+detectorLeft:                          Detector Left
+detectorRight:                         Detector Right
+detectorBoth:                          Detector Both
 noBarrier:                             No Barrier
 hits:                                  Hits
 hitsCountPattern:                      'Hits: {{count}}'
@@ -56,12 +56,10 @@ electricField:                         Electric Field
 amplitude:                             Amplitude
 realPart:                              Real Part
 imaginaryPart:                         Imaginary Part
-topCovered:                            Cover Top
-bottomCovered:                         Cover Bottom
-topClosed:                             Cover Top
-bottomClosed:                          Cover Bottom
-topDetector:                           Detector Top
-bottomDetector:                        Detector Bottom
+coverTop:                              Cover Top
+coverBottom:                           Cover Bottom
+detectorTop:                           Detector Top
+detectorBottom:                        Detector Bottom
 autoRepeat:                            Auto-repeat
 timeScaleLabel:                        '1 fs = 10⁻¹⁵ s'
 detectorSize:                          Detector Size
