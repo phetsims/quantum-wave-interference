@@ -9,7 +9,9 @@
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type DecoherenceEvent, type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
+import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
+import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import SingleParticlesSceneModel, { SCREEN_DETECTION_TIMING_PARAMETERS } from './SingleParticlesSceneModel.js';
 
@@ -46,13 +48,23 @@ type PrivateSingleParticlesSceneModelState = {
   targetDetectionTime: number;
 };
 
-const createScene = (): TestSingleParticlesSceneModel => {
+const createScene = ( sourceType: SourceType = 'photons' ): TestSingleParticlesSceneModel => {
   const scene = new TestSingleParticlesSceneModel( {
-    sourceType: 'photons',
+    sourceType: sourceType,
     tandem: Tandem.OPT_OUT
   } );
   scene.slitConfigurationProperty.value = 'leftDetector';
   return scene;
+};
+
+const getVisualSlitSeparation = ( scene: SingleParticlesSceneModel, slitSeparation: number ): number => {
+  const { viewSlitSep } = getViewSlitLayout(
+    slitSeparation * 1e-3,
+    scene.slitSeparationRange.min * 1e-3,
+    scene.slitSeparationRange.max * 1e-3,
+    scene.regionHeight
+  );
+  return viewSlitSep / scene.regionHeight * QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 };
 
 const getDeterministicSlitArrivalTime = ( scene: SingleParticlesSceneModel ): number => {
@@ -136,6 +148,50 @@ QUnit.test( 'on-slit detector sample is centered on deterministic slit arrival',
     deterministicSlitArrivalTime,
     'zero Gaussian deviation samples the deterministic slit arrival time'
   );
+} );
+
+QUnit.test( 'single-particles slit separation ranges use requested values', assert => {
+  const photonsScene = createScene( 'photons' );
+  const electronsScene = createScene( 'electrons' );
+
+  assertApproximately( assert, photonsScene.slitSeparationRange.min, 0.001, 'photon min is 1 um' );
+  assertApproximately( assert, photonsScene.slitSeparationRange.max, 0.004, 'photon max is 4 um' );
+  assertApproximately( assert, photonsScene.slitSeparationProperty.value, 0.0025, 'photon default is 2.5 um' );
+
+  assertApproximately( assert, electronsScene.slitSeparationRange.min, 1e-6, 'electron min is 1 nm' );
+  assertApproximately( assert, electronsScene.slitSeparationRange.max, 4e-6, 'electron max is 4 nm' );
+  assertApproximately( assert, electronsScene.slitSeparationProperty.value, 2.5e-6, 'electron default is 2.5 nm' );
+} );
+
+QUnit.test( 'neutron and helium atom slit separations visually match electrons', assert => {
+  const electronsScene = createScene( 'electrons' );
+  const neutronsScene = createScene( 'neutrons' );
+  const heliumAtomsScene = createScene( 'heliumAtoms' );
+
+  const electronMinVisualSeparation = getVisualSlitSeparation( electronsScene, electronsScene.slitSeparationRange.min );
+  const electronDefaultVisualSeparation = getVisualSlitSeparation( electronsScene, electronsScene.slitSeparationProperty.value );
+  const electronMaxVisualSeparation = getVisualSlitSeparation( electronsScene, electronsScene.slitSeparationRange.max );
+
+  for ( const scene of [ neutronsScene, heliumAtomsScene ] ) {
+    assertApproximately(
+      assert,
+      getVisualSlitSeparation( scene, scene.slitSeparationRange.min ),
+      electronMinVisualSeparation,
+      `${scene.sourceType} minimum visual separation matches electrons`
+    );
+    assertApproximately(
+      assert,
+      getVisualSlitSeparation( scene, scene.slitSeparationProperty.value ),
+      electronDefaultVisualSeparation,
+      `${scene.sourceType} default visual separation matches electrons`
+    );
+    assertApproximately(
+      assert,
+      getVisualSlitSeparation( scene, scene.slitSeparationRange.max ),
+      electronMaxVisualSeparation,
+      `${scene.sourceType} maximum visual separation matches electrons`
+    );
+  }
 } );
 
 QUnit.test( 'on-slit detector waits for sampled time instead of center arrival', assert => {

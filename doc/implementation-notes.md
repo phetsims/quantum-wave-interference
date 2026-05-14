@@ -132,6 +132,8 @@ coherence with the other slit, eliminating interference from that slit's contrib
 The Single Particles screen (`js/single-particles/`) shows one-particle-at-a-time quantum wave
 packets. Each emission produces a visible wave packet that propagates, spreads, and eventually
 collapses to a single hit on the detector screen. The detector screen always operates in Hits mode.
+Its slit separation ranges differ from High Intensity: photons use 1-4 um, electrons use 1-4 nm,
+and neutrons/helium atoms use physical ranges that visually match the electrons scene.
 
 ### Model
 

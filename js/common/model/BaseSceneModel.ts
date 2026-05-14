@@ -89,9 +89,15 @@ type SelfOptions = {
   sourceType: SourceType;
   defaultPhotonWaveDisplayMode?: PhotonWaveDisplayMode;
   defaultMatterWaveDisplayMode?: MatterWaveDisplayMode;
+  slitSeparationConfig?: SlitSeparationConfig | ( ( regionHeight: number ) => SlitSeparationConfig ) | null;
 };
 
 export type BaseSceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
+
+export type SlitSeparationConfig = {
+  range: Range;
+  defaultValue: number;
+};
 
 type BaseSceneModelStateObject = {
   waveSolverState: WaveSolverState;
@@ -141,6 +147,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       isDisposable: false,
       defaultPhotonWaveDisplayMode: 'electricField',
       defaultMatterWaveDisplayMode: 'magnitude',
+      slitSeparationConfig: null,
       phetioType: BaseSceneModel.BaseSceneModelIO
       //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Should this be phetioState: false, or does it have state of its own?
     }, providedOptions );
@@ -175,9 +182,14 @@ export default abstract class BaseSceneModel extends PhetioObject {
                               this.regionHeight * 1e3;
     const slitSeparationMax = MAX_VIEW_SEPARATION / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
                               this.regionHeight * 1e3;
-    const defaultSlitSeparation = slitSeparationMin +
-                                  DEFAULT_SLIT_SEPARATION_FRACTION * ( slitSeparationMax - slitSeparationMin );
-    this.slitSeparationRange = new Range( slitSeparationMin, slitSeparationMax );
+    const defaultSlitSeparationConfig = {
+      range: new Range( slitSeparationMin, slitSeparationMax ),
+      defaultValue: slitSeparationMin + DEFAULT_SLIT_SEPARATION_FRACTION * ( slitSeparationMax - slitSeparationMin )
+    };
+    const slitSeparationConfig = typeof options.slitSeparationConfig === 'function' ?
+                                 options.slitSeparationConfig( this.regionHeight ) :
+                                 options.slitSeparationConfig || defaultSlitSeparationConfig;
+    this.slitSeparationRange = slitSeparationConfig.range;
     this.slitWidth = SLIT_VIEW_HEIGHT / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
                      this.regionHeight * 1e3;
     this.defaultWaveSpeed = this.sourceType === 'photons' ? 3e8 : config.defaultVelocity;
@@ -217,7 +229,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
 
     // NOTE: identical implementation in quantum-wave-interference/js/experiment/model/SceneModel.ts
-    this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
+    this.slitSeparationProperty = new NumberProperty( slitSeparationConfig.defaultValue, {
       range: this.slitSeparationRange,
       units: millimetersUnit,
       tandem: tandem.createTandem( 'slitSeparationProperty' )

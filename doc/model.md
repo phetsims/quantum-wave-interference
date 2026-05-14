@@ -137,8 +137,13 @@ The _Single Particles_ screen models one wave packet at a time. Each packet prop
 wave region and eventually collapses to a localized detection event unless the detector tool detects
 it first.
 
-There are 4 source-type scenes. Source ranges, wave-region scales, slit widths, and slit separation
-ranges are the same as the _High Intensity_ screen.
+There are 4 source-type scenes. Source ranges, wave-region scales, and slit widths are the same as
+the _High Intensity_ screen. Slit separation ranges are Single Particles-specific:
+
+* Photons: 1-4 um, default 2.5 um.
+* Electrons: 1-4 nm, default 2.5 nm.
+* Neutrons and helium atoms: physical values chosen so their minimum, maximum, and default visual
+  slit spacing match the electrons scene.
 
 In each scene:
 

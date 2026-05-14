@@ -23,10 +23,11 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
-import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
+import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
-import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
+import { getViewSlitLayout, MAX_VIEW_SEPARATION, MIN_VIEW_SEPARATION } from '../../common/model/getViewSlitLayout.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
+import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 
 export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as const;
@@ -68,6 +69,40 @@ const DETECTION_TIME_TRUNCATION_SIGMAS = 3;
 // Display-only gain for the wave visualization on the Single Particles screen. This intentionally
 // affects canvas brightness/saturation without changing wave propagation, detector probabilities, or hits.
 const SINGLE_PARTICLES_WAVE_DISPLAY_GAIN = 1.75;
+const MICROMETER_TO_MM = 1e-3;
+const NANOMETER_TO_MM = 1e-6;
+
+const PHOTON_SLIT_SEPARATION_RANGE = new Range( 1 * MICROMETER_TO_MM, 4 * MICROMETER_TO_MM );
+const PHOTON_DEFAULT_SLIT_SEPARATION = 2.5 * MICROMETER_TO_MM;
+const ELECTRON_SLIT_SEPARATION_RANGE = new Range( 1 * NANOMETER_TO_MM, 4 * NANOMETER_TO_MM );
+const ELECTRON_DEFAULT_SLIT_SEPARATION = 2.5 * NANOMETER_TO_MM;
+const ELECTRON_DEFAULT_VIEW_SEPARATION = ( MIN_VIEW_SEPARATION + MAX_VIEW_SEPARATION ) / 2;
+
+const getSlitSeparationFromViewSeparation = ( viewSeparation: number, regionHeight: number ): number =>
+  viewSeparation / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * regionHeight * 1e3;
+
+const getSingleParticlesSlitSeparationConfig = ( sourceType: SourceType, regionHeight: number ): SlitSeparationConfig => {
+  if ( sourceType === 'photons' ) {
+    return {
+      range: PHOTON_SLIT_SEPARATION_RANGE,
+      defaultValue: PHOTON_DEFAULT_SLIT_SEPARATION
+    };
+  }
+  if ( sourceType === 'electrons' ) {
+    return {
+      range: ELECTRON_SLIT_SEPARATION_RANGE,
+      defaultValue: ELECTRON_DEFAULT_SLIT_SEPARATION
+    };
+  }
+
+  return {
+    range: new Range(
+      getSlitSeparationFromViewSeparation( MIN_VIEW_SEPARATION, regionHeight ),
+      getSlitSeparationFromViewSeparation( MAX_VIEW_SEPARATION, regionHeight )
+    ),
+    defaultValue: getSlitSeparationFromViewSeparation( ELECTRON_DEFAULT_VIEW_SEPARATION, regionHeight )
+  };
+};
 
 export type SingleParticlesSceneModelOptions = BaseSceneModelOptions;
 
@@ -117,7 +152,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public constructor( providedOptions: SingleParticlesSceneModelOptions ) {
 
-    super( createWavePacketSolver(), combineOptions<BaseSceneModelOptions>( {}, providedOptions ) );
+    super( createWavePacketSolver(), combineOptions<BaseSceneModelOptions>( {
+      slitSeparationConfig: regionHeight => getSingleParticlesSlitSeparationConfig( providedOptions.sourceType, regionHeight )
+    }, providedOptions ) );
 
     const tandem = providedOptions.tandem;
 
