@@ -29,8 +29,6 @@ import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.j
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import AccessibleList from '../../../../scenery-phet/js/accessibility/AccessibleList.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
-import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
-import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboardDragListener.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
@@ -59,7 +57,6 @@ import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
 import RulerCheckbox from './RulerCheckbox.js';
-import RulerDragBoundsProperty from './RulerDragBoundsProperty.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
 import StopwatchCheckbox from './StopwatchCheckbox.js';
@@ -69,8 +66,6 @@ type SelfOptions = EmptySelfOptions;
 
 type ExperimentScreenViewOptions = SelfOptions & Pick<ScreenViewOptions, 'tandem'>;
 
-const RULER_KEYBOARD_DRAG_DELTA = 5;
-const RULER_KEYBOARD_SHIFT_DRAG_DELTA = 1;
 const MIDDLE_COLUMN_LEFT_SHIFT = 3;
 
 export default class ExperimentScreenView extends ScreenView {
@@ -398,65 +393,28 @@ export default class ExperimentScreenView extends ScreenView {
     // Draggable ruler. The ruler's horizontal scale is calibrated to the active detector screen: its full width maps to
     // the scene's full detector width in mm.
     const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
-
-    const rulerNodes = model.scenes.map( ( _scene, index ) => {
+    const rulerNodes = model.scenes.map( ( scene, index ) => {
       const rulerNode = new DetectorRulerNode(
+        scene,
+        model.sceneProperty,
+        model.isRulerVisibleProperty,
         model.detectorScreenScaleIndexProperty,
+        model.rulerPositionProperty,
+        this.visibleBoundsProperty,
+        this.graphExpandedProperty,
+        detectorScreenNodes[ index ],
+        this.graphAccordionBoxes[ index ],
+        this,
         rulerNodesTandem.createTandem( `rulerNode${index}` )
       );
       this.addChild( rulerNode );
       return rulerNode;
     } );
-
-    const updateRulerVisibility = () => {
-      const activeScene = model.sceneProperty.value;
-      const isRulerVisible = model.isRulerVisibleProperty.value;
-      model.scenes.forEach( ( scene, index ) => {
-        rulerNodes[ index ].visible = isRulerVisible && scene === activeScene;
-      } );
-    };
-    model.sceneProperty.link( updateRulerVisibility );
-    model.isRulerVisibleProperty.link( updateRulerVisibility );
-
-    model.rulerPositionProperty.link( position => {
-      rulerNodes.forEach( rulerNode => {
-        rulerNode.translation = position;
-      } );
-    } );
-
-    const rulerDragBoundsProperty = new RulerDragBoundsProperty( this.visibleBoundsProperty, model.sceneProperty,
-      this.graphExpandedProperty, model.scenes, detectorScreenNodes, this.graphAccordionBoxes, rulerNodes, this );
-    rulerDragBoundsProperty.constrainRulerPositionProperty( model.rulerPositionProperty );
-
     this.centerRulerOnDetectorScreen = () => {
-      model.rulerPositionProperty.value = rulerDragBoundsProperty.getCenteredRulerPosition();
+      const activeSceneIndex = model.scenes.indexOf( model.sceneProperty.value );
+      rulerNodes[ activeSceneIndex ].centerRulerOnDetectorScreen();
     };
     this.centerRulerOnDetectorScreen();
-
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Why is there no ruler class that is responsible for adding input listener?
-
-    rulerNodes.forEach( ( rulerNode, index ) => {
-      const rulerTandem = rulerNodesTandem.createTandem( `rulerNode${index}` );
-
-      rulerNode.addInputListener(
-        new SoundDragListener( {
-          positionProperty: model.rulerPositionProperty,
-          dragBoundsProperty: rulerDragBoundsProperty.dragBoundsProperty,
-          tandem: rulerTandem.createTandem( 'dragListener' )
-        } )
-      );
-
-      rulerNode.addInputListener(
-        new SoundKeyboardDragListener( {
-          positionProperty: model.rulerPositionProperty,
-          dragBoundsProperty: rulerDragBoundsProperty.dragBoundsProperty,
-          keyboardDragDirection: 'upDown',
-          dragDelta: RULER_KEYBOARD_DRAG_DELTA,
-          shiftDragDelta: RULER_KEYBOARD_SHIFT_DRAG_DELTA,
-          tandem: rulerTandem.createTandem( 'keyboardDragListener' )
-        } )
-      );
-    } );
 
     // Draggable stopwatch for timing experiments
     const stopwatchNode = new StopwatchNode( model.stopwatch, {

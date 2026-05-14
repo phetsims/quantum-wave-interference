@@ -14,7 +14,6 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import DetectorRulerNode from './DetectorRulerNode.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
 
@@ -23,48 +22,41 @@ const RULER_X_OFFSET = 0.5;
 export default class RulerDragBoundsProperty {
   public readonly dragBoundsProperty: TReadOnlyProperty<Bounds2 | null>;
 
-  private readonly scenes: SceneModel[];
+  private readonly scene: SceneModel;
   private readonly sceneProperty: TReadOnlyProperty<SceneModel>;
-  private readonly detectorScreenNodes: DetectorScreenNode[];
-  private readonly graphAccordionBoxes: GraphAccordionBox[];
-  private readonly rulerNodes: DetectorRulerNode[];
+  private readonly detectorScreenNode: DetectorScreenNode;
+  private readonly graphAccordionBox: GraphAccordionBox;
+  private readonly rulerNode: Node;
 
   public constructor(
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
+    scene: SceneModel,
     sceneProperty: TReadOnlyProperty<SceneModel>,
     graphExpandedProperty: TReadOnlyProperty<boolean>,
-    scenes: SceneModel[],
-    detectorScreenNodes: DetectorScreenNode[],
-    graphAccordionBoxes: GraphAccordionBox[],
-    rulerNodes: DetectorRulerNode[],
+    detectorScreenNode: DetectorScreenNode,
+    graphAccordionBox: GraphAccordionBox,
+    rulerNode: Node,
     localRootNode: Node
   ) {
-    const getActiveSceneIndex = () => scenes.indexOf( sceneProperty.value );
-
     this.dragBoundsProperty = new DerivedProperty(
       [ visibleBoundsProperty, sceneProperty, graphExpandedProperty ],
       ( visibleBounds: Bounds2 ) => {
-        const activeSceneIndex = getActiveSceneIndex();
-        const activeDetectorScreen = detectorScreenNodes[ activeSceneIndex ];
-        const activeGraphBox = graphAccordionBoxes[ activeSceneIndex ];
-        const activeRulerNode = rulerNodes[ activeSceneIndex ];
-
-        const detectorRectCenterX = activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
-        const fixedLeft = detectorRectCenterX - activeRulerNode.width / 2 + RULER_X_OFFSET;
+        const detectorRectCenterX = detectorScreenNode.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+        const fixedLeft = detectorRectCenterX - rulerNode.width / 2 + RULER_X_OFFSET;
 
         const detectorScreenRectBounds = localRootNode.globalToLocalBounds(
-          activeDetectorScreen.getScreenRectangleGlobalBounds()
+          detectorScreenNode.getScreenRectangleGlobalBounds()
         );
         const minTopFromScreen = detectorScreenRectBounds.top;
         const graphChartBounds = localRootNode.globalToLocalBounds(
-          activeGraphBox.getChartAreaGlobalBounds()
+          graphAccordionBox.getChartAreaGlobalBounds()
         );
-        const maxTopFromGraph = graphChartBounds.bottom - activeRulerNode.height + activeGraphBox.getChartAreaStrokeLineWidth();
+        const maxTopFromGraph = graphChartBounds.bottom - rulerNode.height + graphAccordionBox.getChartAreaStrokeLineWidth();
 
         const minTop = Math.max( minTopFromScreen, visibleBounds.minY );
         const maxTop = Math.max(
           minTop,
-          Math.min( maxTopFromGraph, visibleBounds.maxY - activeRulerNode.height )
+          Math.min( maxTopFromGraph, visibleBounds.maxY - rulerNode.height )
         );
 
         // Lock X to detector screen center by setting minX === maxX.
@@ -72,16 +64,16 @@ export default class RulerDragBoundsProperty {
       }
     );
 
-    this.scenes = scenes;
+    this.scene = scene;
     this.sceneProperty = sceneProperty;
-    this.detectorScreenNodes = detectorScreenNodes;
-    this.graphAccordionBoxes = graphAccordionBoxes;
-    this.rulerNodes = rulerNodes;
+    this.detectorScreenNode = detectorScreenNode;
+    this.graphAccordionBox = graphAccordionBox;
+    this.rulerNode = rulerNode;
   }
 
   public constrainRulerPositionProperty( rulerPositionProperty: Property<Vector2> ): void {
     this.dragBoundsProperty.link( dragBounds => {
-      if ( dragBounds ) {
+      if ( dragBounds && this.sceneProperty.value === this.scene ) {
         rulerPositionProperty.value = dragBounds.closestPointTo(
           rulerPositionProperty.value
         );
@@ -90,19 +82,12 @@ export default class RulerDragBoundsProperty {
   }
 
   public getCenteredRulerPosition(): Vector2 {
-    const activeSceneIndex = this.getActiveSceneIndex();
-    const activeDetectorScreen = this.detectorScreenNodes[ activeSceneIndex ];
-    const activeRulerNode = this.rulerNodes[ activeSceneIndex ];
-    const centeredTop = activeDetectorScreen.centerY - activeRulerNode.height / 2;
-    const detectorRectCenterX = activeDetectorScreen.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
-    const centeredLeft = detectorRectCenterX - activeRulerNode.width / 2 + RULER_X_OFFSET;
+    const centeredTop = this.detectorScreenNode.centerY - this.rulerNode.height / 2;
+    const detectorRectCenterX = this.detectorScreenNode.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+    const centeredLeft = detectorRectCenterX - this.rulerNode.width / 2 + RULER_X_OFFSET;
 
     const dragBounds = this.dragBoundsProperty.value;
     assert && assert( dragBounds, 'Ruler drag bounds should be available' );
     return dragBounds!.closestPointTo( new Vector2( centeredLeft, centeredTop ) );
-  }
-
-  private getActiveSceneIndex(): number {
-    return this.scenes.indexOf( this.sceneProperty.value );
   }
 }
