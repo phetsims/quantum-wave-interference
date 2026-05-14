@@ -31,6 +31,7 @@ import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
+import createDetectorZoomLevelResponseProperty from '../../common/view/createDetectorZoomLevelResponseProperty.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
 import SnapshotIndicatorDotsNode from '../../common/view/SnapshotIndicatorDotsNode.js';
 import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
@@ -175,13 +176,7 @@ export default class DetectorScreenNode extends Node {
       flashAnimation.start();
     };
 
-    const horizontalZoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
-      level: new DerivedProperty(
-        [ detectorScreenScaleIndexProperty ],
-        detectorScreenScaleIndex => detectorScreenScaleIndex + 1
-      ),
-      max: detectorScreenScaleIndexProperty.range.max + 1
-    } );
+    const horizontalZoomLevelResponseProperty = createDetectorZoomLevelResponseProperty( detectorScreenScaleIndexProperty );
 
     const horizontalZoomButtonGroup = new PlusMinusZoomButtonGroup( detectorScreenScaleIndexProperty, {
       orientation: 'horizontal',

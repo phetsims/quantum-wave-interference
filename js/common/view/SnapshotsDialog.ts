@@ -8,7 +8,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
@@ -21,6 +20,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import type { Snapshot } from '../model/Snapshot.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import createDetectorZoomLevelResponseProperty from './createDetectorZoomLevelResponseProperty.js';
 import SnapshotNode from './SnapshotNode.js';
 
 const SNAPSHOT_ZOOM_BUTTON_MARGIN = 6;
@@ -90,11 +90,7 @@ export default class SnapshotsDialog extends Dialog {
     // Property and the matching visual scale indicator factory are provided.
     if ( detectorScreenScaleIndexProperty && providedOptions?.createScaleIndicatorNode ) {
 
-      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same as horizontalZoomLevelResponseProperty in DetectorScreenNode
-      const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
-        level: new DerivedProperty( [ detectorScreenScaleIndexProperty ], detectorScreenScaleIndex => detectorScreenScaleIndex + 1 ),
-        max: detectorScreenScaleIndexProperty.range.max + 1
-      } );
+      const zoomLevelResponseProperty = createDetectorZoomLevelResponseProperty( detectorScreenScaleIndexProperty );
 
       const zoomButtonGroup = new PlusMinusZoomButtonGroup( detectorScreenScaleIndexProperty, {
         orientation: 'horizontal',

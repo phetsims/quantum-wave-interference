@@ -20,6 +20,7 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
 import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import SceneModel from '../../model/SceneModel.js';
 import BandAnalysis from './BandAnalysis.js';
+import { formatIntensityDescription, formatLiveHitsDescription } from './DetectorScreenDescriptionFormatter.js';
 
 export default class DetectorScreenDescriber {
 
@@ -59,12 +60,7 @@ export default class DetectorScreenDescriber {
                                    BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, isRulerVisible, false ) :
                                    BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
-        descriptionProperty.value = isDoubleSlit
-                                    ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
-            bandCount: analysis.bandCount,
-            spatialDescription: spatialDescription
-          } )
-                                    : QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( { spatialDescription: spatialDescription } );
+        descriptionProperty.value = formatIntensityDescription( isDoubleSlit, analysis, spatialDescription );
         return;
       }
 
@@ -84,21 +80,7 @@ export default class DetectorScreenDescriber {
       );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
-      if ( isDoubleSlit ) {
-        descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsNoneStringProperty.value :
-                                    newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsFewStringProperty.value :
-                                    newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty.value :
-                                    newStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDeveloping.format( { spatialDescription: spatialDescription } ) :
-                                    newStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( { spatialDescription: spatialDescription } ) :
-                                    ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
-      }
-      else {
-        descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsNoneStringProperty.value :
-                                    newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsFewStringProperty.value :
-                                    newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value :
-                                    ( newStage === 'developing' || newStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } ) :
-                                    ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
-      }
+      descriptionProperty.value = formatLiveHitsDescription( newStage, isDoubleSlit, spatialDescription );
     };
 
     // Force a full update when any physics parameter or display setting changes.
