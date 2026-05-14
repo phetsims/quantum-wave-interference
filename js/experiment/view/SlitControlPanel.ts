@@ -17,10 +17,10 @@ import Range from '../../../../dot/js/Range.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
+import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -127,21 +127,17 @@ export default class SlitControlPanel extends Panel {
       slitSeparationNumberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
           const valueUM = valueMM * 1000;
+          const numberFormatOptions = {
+            decimalPlaces: mmToMicrometerDecimalPlaces,
+            showTrailingZeros: true
+          };
           return {
-            visualString: StringUtils.fillIn(
-              QuantumWaveInterferenceFluent.slitSeparationMicrometerPatternStringProperty.value,
-              {
-                value: toFixed( valueUM, mmToMicrometerDecimalPlaces )
-              }
-            ),
-            accessibleString: QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
-              value: toFixed( valueUM, mmToMicrometerDecimalPlaces )
-            } )
+            visualString: micrometersUnit.getVisualSymbolPatternString( valueUM, numberFormatOptions ),
+            accessibleString: micrometersUnit.getAccessibleString( valueUM, numberFormatOptions )
           };
         },
         numberFormatterDependencies: [
-          QuantumWaveInterferenceFluent.slitSeparationMicrometerPatternStringProperty,
-          ...QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.getDependentProperties()
+          ...micrometersUnit.getDependentProperties()
         ],
         textOptions: {
           font: new PhetFont( 14 )
@@ -156,7 +152,7 @@ export default class SlitControlPanel extends Panel {
       slitSeparationNumberDisplayOptions = {
         decimalPlaces: slitSeparationDecimalPlaces,
         valuePattern: {
-          visualPattern: QuantumWaveInterferenceFluent.slitSeparationPatternStringProperty,
+          visualPattern: millimetersUnit.visualSymbolPatternStringProperty!,
           accessiblePattern: millimetersUnit.accessiblePattern!
         },
         textOptions: {
@@ -211,7 +207,7 @@ export default class SlitControlPanel extends Panel {
         numberDisplayOptions: {
           decimalPlaces: SCREEN_DISTANCE_DECIMAL_PLACES,
           valuePattern: {
-            visualPattern: QuantumWaveInterferenceFluent.screenDistancePatternStringProperty,
+            visualPattern: metersUnit.visualSymbolPatternStringProperty!,
             accessiblePattern: metersUnit.accessiblePattern!
           },
           textOptions: {

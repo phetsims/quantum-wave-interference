@@ -14,13 +14,13 @@ import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
+import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -54,10 +54,10 @@ const EXPERIMENT_SLIT_DISPLAY_MAP: Partial<Record<SlitConfigurationWithNoBarrier
 
 const formatExperimentSlitSeparation = ( slitSepMM: number ): string => {
   const slitSepUM = slitSepMM * 1000;
-  return StringUtils.fillIn(
-    QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
-    { value: toFixed( slitSepUM, ExperimentConstants.getDecimalPlacesForValue( slitSepUM ) ) }
-  );
+  return micrometersUnit.getVisualSymbolPatternString( slitSepUM, {
+    decimalPlaces: ExperimentConstants.getDecimalPlacesForValue( slitSepUM ),
+    showTrailingZeros: true
+  } );
 };
 
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.

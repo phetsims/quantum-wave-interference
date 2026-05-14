@@ -8,14 +8,12 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 
 const TARGET_SCALE_WIDTH_MM = 5;
@@ -44,18 +42,20 @@ export default class DetectorScreenScaleIndicatorNode extends Node {
     spanArrowY = DEFAULT_SPAN_ARROW_Y
   ) {
 
-    const scaleLabelStringProperty = new DerivedProperty(
+    const scaleLabelStringProperty = DerivedProperty.deriveAny(
       [
         detectorScreenScaleIndexProperty,
-        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty
+        ...millimetersUnit.getDependentProperties()
       ],
-      ( detectorScreenScaleIndex, pattern ) => {
+      () => {
+        const detectorScreenScaleIndex = detectorScreenScaleIndexProperty.value;
         const fullPhysicalWidthMM = getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndex ) * 2 * 1e3;
         const scalePhysicalWidthMM = fullPhysicalWidthMM >= TARGET_SCALE_WIDTH_MM ?
                                      TARGET_SCALE_WIDTH_MM :
                                      fullPhysicalWidthMM * 0.25;
-        return StringUtils.fillIn( pattern, {
-          value: toFixed( scalePhysicalWidthMM, getScaleLabelDecimalPlaces( scalePhysicalWidthMM ) )
+        return millimetersUnit.getVisualSymbolPatternString( scalePhysicalWidthMM, {
+          decimalPlaces: getScaleLabelDecimalPlaces( scalePhysicalWidthMM ),
+          showTrailingZeros: true
         } );
       }
     );

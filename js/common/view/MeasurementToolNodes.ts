@@ -11,17 +11,25 @@ import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import ReadOnlyProperty from '../../../../axon/js/ReadOnlyProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import MeasuringTapeNode from '../../../../scenery-phet/js/MeasuringTapeNode.js';
+import PhetUnit from '../../../../scenery-phet/js/PhetUnit.js';
+import SceneryPhetFluent from '../../../../scenery-phet/js/SceneryPhetFluent.js';
 import Stopwatch from '../../../../scenery-phet/js/Stopwatch.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
+import { femtosecondsUnit } from '../../../../scenery-phet/js/units/femtosecondsUnit.js';
+import { microsecondsUnit } from '../../../../scenery-phet/js/units/microsecondsUnit.js';
+import { millisecondsUnit } from '../../../../scenery-phet/js/units/millisecondsUnit.js';
+import { nanosecondsUnit } from '../../../../scenery-phet/js/units/nanosecondsUnit.js';
+import { picosecondsUnit } from '../../../../scenery-phet/js/units/picosecondsUnit.js';
+import { secondsUnit } from '../../../../scenery-phet/js/units/secondsUnit.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import PositionPlotNode from './PositionPlotNode.js';
@@ -59,8 +67,8 @@ export default class MeasurementToolNodes extends Node {
       numberDisplayOptions: {
         numberFormatter: createPhysicalStopwatchFormatter(),
         numberFormatterDependencies: [
-          QuantumWaveInterferenceFluent.stopwatchValueUnitsPatternStringProperty,
-          ...STOPWATCH_TIME_UNITS.flatMap( unit => [ unit.symbolStringProperty, unit.accessibleNameStringProperty ] )
+          SceneryPhetFluent.stopwatchValueUnitsPatternStringProperty,
+          ...STOPWATCH_TIME_UNITS.flatMap( timeUnit => timeUnit.unit.getDependentProperties() )
         ],
         useRichText: true,
         maxWidth: 150
@@ -113,46 +121,39 @@ export default class MeasurementToolNodes extends Node {
 type StopwatchTimeUnit = {
   threshold: number;
   multiplier: number;
-  symbolStringProperty: TReadOnlyProperty<string>;
-  accessibleNameStringProperty: TReadOnlyProperty<string>;
+  unit: PhetUnit<ReadOnlyProperty<string>>;
 };
 
 const STOPWATCH_TIME_UNITS: StopwatchTimeUnit[] = [
   {
     threshold: 1e-12,
     multiplier: 1e15,
-    symbolStringProperty: QuantumWaveInterferenceFluent.timeUnits.femtoseconds.symbolStringProperty,
-    accessibleNameStringProperty: QuantumWaveInterferenceFluent.timeUnits.femtoseconds.accessibleNameStringProperty
+    unit: femtosecondsUnit
   },
   {
     threshold: 1e-9,
     multiplier: 1e12,
-    symbolStringProperty: QuantumWaveInterferenceFluent.timeUnits.picoseconds.symbolStringProperty,
-    accessibleNameStringProperty: QuantumWaveInterferenceFluent.timeUnits.picoseconds.accessibleNameStringProperty
+    unit: picosecondsUnit
   },
   {
     threshold: 1e-6,
     multiplier: 1e9,
-    symbolStringProperty: QuantumWaveInterferenceFluent.timeUnits.nanoseconds.symbolStringProperty,
-    accessibleNameStringProperty: QuantumWaveInterferenceFluent.timeUnits.nanoseconds.accessibleNameStringProperty
+    unit: nanosecondsUnit
   },
   {
     threshold: 1e-3,
     multiplier: 1e6,
-    symbolStringProperty: QuantumWaveInterferenceFluent.timeUnits.microseconds.symbolStringProperty,
-    accessibleNameStringProperty: QuantumWaveInterferenceFluent.timeUnits.microseconds.accessibleNameStringProperty
+    unit: microsecondsUnit
   },
   {
     threshold: 1,
     multiplier: 1e3,
-    symbolStringProperty: QuantumWaveInterferenceFluent.timeUnits.milliseconds.symbolStringProperty,
-    accessibleNameStringProperty: QuantumWaveInterferenceFluent.timeUnits.milliseconds.accessibleNameStringProperty
+    unit: millisecondsUnit
   },
   {
     threshold: Number.POSITIVE_INFINITY,
     multiplier: 1,
-    symbolStringProperty: QuantumWaveInterferenceFluent.timeUnits.seconds.symbolStringProperty,
-    accessibleNameStringProperty: QuantumWaveInterferenceFluent.timeUnits.seconds.accessibleNameStringProperty
+    unit: secondsUnit
   }
 ];
 
@@ -166,16 +167,16 @@ const createPhysicalStopwatchFormatter = (): ( time: number ) => DualString => {
     const valueString = toFixed( scaledTime, decimalPlaces );
 
     const valueMarkup = StringUtils.wrapLTR( `<span style='font-size: 20px; font-family:${StopwatchNode.NUMBER_FONT_FAMILY};'>${valueString}</span>` );
-    const unitsMarkup = `<span style='font-size: 14px; font-family:${StopwatchNode.NUMBER_FONT_FAMILY};'>${timeUnit.symbolStringProperty.value}</span>`;
+    const unitsMarkup = `<span style='font-size: 14px; font-family:${StopwatchNode.NUMBER_FONT_FAMILY};'>${timeUnit.unit.getVisualSymbolString()}</span>`;
 
     return {
-      visualString: StringUtils.fillIn( QuantumWaveInterferenceFluent.stopwatchValueUnitsPatternStringProperty.value, {
+      visualString: StringUtils.fillIn( SceneryPhetFluent.stopwatchValueUnitsPatternStringProperty.value, {
         value: valueMarkup,
         units: unitsMarkup
       } ),
-      accessibleString: StringUtils.fillIn( QuantumWaveInterferenceFluent.stopwatchValueUnitsPatternStringProperty.value, {
-        value: valueString,
-        units: timeUnit.accessibleNameStringProperty.value
+      accessibleString: timeUnit.unit.getAccessibleString( scaledTime, {
+        decimalPlaces: decimalPlaces,
+        showTrailingZeros: true
       } )
     };
   };

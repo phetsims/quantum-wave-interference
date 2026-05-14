@@ -14,11 +14,10 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Shape from '../../../../kite/js/Shape.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import type SceneryEvent from '../../../../scenery/js/input/SceneryEvent.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
@@ -210,7 +209,6 @@ export default class DetectorToolNode extends Node {
     const updateProbabilityLabel = () => {
       const state = model.currentDetectorToolStateProperty.value;
       const probability = model.currentDetectorToolProbabilityProperty.value;
-      const patternString = QuantumWaveInterferenceFluent.detectorPercentPatternStringProperty.value;
 
       if ( state === 'detected' ) {
         probabilityText.string = '';
@@ -223,8 +221,9 @@ export default class DetectorToolNode extends Node {
         circleNode.fill = CIRCLE_FILL_NOT_DETECTED;
       }
       else {
-        probabilityText.string = StringUtils.fillIn( patternString, {
-          value: toFixed( probability * 100, 1 )
+        probabilityText.string = percentUnit.getVisualSymbolPatternString( probability * 100, {
+          decimalPlaces: 1,
+          showTrailingZeros: true
         } );
         stateText.string = '';
         circleNode.fill = CIRCLE_FILL_READY;
@@ -232,13 +231,13 @@ export default class DetectorToolNode extends Node {
       circleLabelsNode.center = Vector2.ZERO;
     };
 
-    Multilink.multilink(
+    Multilink.multilinkAny(
       [
         model.currentDetectorToolStateProperty,
         model.currentDetectorToolProbabilityProperty,
         QuantumWaveInterferenceFluent.particleDetectedStringProperty,
         QuantumWaveInterferenceFluent.notDetectedStringProperty,
-        QuantumWaveInterferenceFluent.detectorPercentPatternStringProperty
+        ...percentUnit.getDependentProperties()
       ],
       () => updateProbabilityLabel()
     );

@@ -12,8 +12,10 @@ import Multilink from '../../../../axon/js/Multilink.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
+import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
+import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -74,21 +76,15 @@ const computeNiceScale = ( regionWidthMeters: number, regionWidthPixels: number 
 const formatDistance = ( meters: number ): string => {
   if ( meters >= 1e-3 ) {
     const mm = meters * 1e3;
-    return StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value, {
-      value: mm >= 10 ? roundSymmetric( mm ) : parseFloat( mm.toPrecision( 2 ) )
-    } );
+    return millimetersUnit.getVisualSymbolPatternString( mm >= 10 ? roundSymmetric( mm ) : parseFloat( mm.toPrecision( 2 ) ) );
   }
   else if ( meters >= 1e-6 ) {
     const um = meters * 1e6;
-    return StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value, {
-      value: um >= 10 ? roundSymmetric( um ) : parseFloat( um.toPrecision( 2 ) )
-    } );
+    return micrometersUnit.getVisualSymbolPatternString( um >= 10 ? roundSymmetric( um ) : parseFloat( um.toPrecision( 2 ) ) );
   }
   else {
     const nm = meters * 1e9;
-    return StringUtils.fillIn( QuantumWaveInterferenceFluent.valueNanometersPatternStringProperty.value, {
-      value: nm >= 10 ? roundSymmetric( nm ) : parseFloat( nm.toPrecision( 2 ) )
-    } );
+    return nanometersUnit.getVisualSymbolPatternString( nm >= 10 ? roundSymmetric( nm ) : parseFloat( nm.toPrecision( 2 ) ) );
   }
 };
 
@@ -154,15 +150,14 @@ export default class WaveVisualizationNode extends Node {
     } );
     this.addChild( distanceScaleNode );
 
-    // Update scale bar and label when the scene or locale changes. formatDistance reads from
-    // valueMillimetersPatternStringProperty and valueMicrometersPatternStringProperty, so both
-    // must be dependencies to re-render on locale change.
-    Multilink.multilink(
+    // Update scale bar and label when the scene or locale changes.
+    Multilink.multilinkAny(
       [ sceneProperty,
-        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty,
-        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty,
-        QuantumWaveInterferenceFluent.valueNanometersPatternStringProperty ],
-      scene => {
+        ...millimetersUnit.getDependentProperties(),
+        ...micrometersUnit.getDependentProperties(),
+        ...nanometersUnit.getDependentProperties() ],
+      () => {
+        const scene = sceneProperty.value;
         const { distanceMeters, barPixels } = computeNiceScale( scene.regionWidth, width );
         bar.setX2( barPixels );
         rightTick.left = bar.right;

@@ -10,10 +10,11 @@
 
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
+import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
@@ -48,28 +49,29 @@ export default class SlitSeparationNumberControl extends NumberControl {
     if ( usesNanometers ) {
       const minNM = range.min * 1e6;
       const maxNM = range.max * 1e6;
-      const dp = getCompactDecimalPlaces( maxNM );
-      delta = Math.pow( 10, -dp ) / 1e6;
+      const decimalPlaces = getCompactDecimalPlaces( maxNM );
+      delta = Math.pow( 10, -decimalPlaces ) / 1e6;
       numberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
           const valueNM = valueMM * 1e6;
+          const numberFormatOptions = {
+            decimalPlaces: decimalPlaces,
+            showTrailingZeros: true
+          };
           return {
-            visualString: StringUtils.fillIn(
-              QuantumWaveInterferenceFluent.valueNanometersPatternStringProperty.value,
-              { value: toFixed( valueNM, dp ) }
-            ),
-            accessibleString: `${toFixed( valueNM, dp )} nanometers`
+            visualString: nanometersUnit.getVisualSymbolPatternString( valueNM, numberFormatOptions ),
+            accessibleString: nanometersUnit.getAccessibleString( valueNM, numberFormatOptions )
           };
         },
         numberFormatterDependencies: [
-          QuantumWaveInterferenceFluent.valueNanometersPatternStringProperty
+          ...nanometersUnit.getDependentProperties()
         ],
         textOptions: { font: new PhetFont( 14 ) },
         maxWidth: 100
       };
       ticks = [
-        { value: range.min, label: new Text( toFixed( minNM, dp ), { font: TICK_LABEL_FONT, maxWidth: 40 } ) },
-        { value: range.max, label: new Text( toFixed( maxNM, dp ), { font: TICK_LABEL_FONT, maxWidth: 40 } ) }
+        { value: range.min, label: new Text( toFixed( minNM, decimalPlaces ), { font: TICK_LABEL_FONT, maxWidth: 40 } ) },
+        { value: range.max, label: new Text( toFixed( maxNM, decimalPlaces ), { font: TICK_LABEL_FONT, maxWidth: 40 } ) }
       ];
     }
     else if ( usesMicrometers ) {
@@ -80,16 +82,17 @@ export default class SlitSeparationNumberControl extends NumberControl {
       numberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
           const valueUM = valueMM * 1000;
+          const numberFormatOptions = {
+            decimalPlaces: dp,
+            showTrailingZeros: true
+          };
           return {
-            visualString: StringUtils.fillIn(
-              QuantumWaveInterferenceFluent.slitSeparationMicrometerPatternStringProperty.value,
-              { value: toFixed( valueUM, dp ) }
-            ),
-            accessibleString: `${toFixed( valueUM, dp )} micrometers`
+            visualString: micrometersUnit.getVisualSymbolPatternString( valueUM, numberFormatOptions ),
+            accessibleString: micrometersUnit.getAccessibleString( valueUM, numberFormatOptions )
           };
         },
         numberFormatterDependencies: [
-          QuantumWaveInterferenceFluent.slitSeparationMicrometerPatternStringProperty
+          ...micrometersUnit.getDependentProperties()
         ],
         textOptions: { font: new PhetFont( 14 ) },
         maxWidth: 100
@@ -105,7 +108,7 @@ export default class SlitSeparationNumberControl extends NumberControl {
       numberDisplayOptions = {
         decimalPlaces: dp,
         valuePattern: {
-          visualPattern: QuantumWaveInterferenceFluent.slitSeparationPatternStringProperty,
+          visualPattern: millimetersUnit.visualSymbolPatternStringProperty!,
           accessiblePattern: millimetersUnit.accessiblePattern!
         },
         textOptions: { font: new PhetFont( 14 ) },

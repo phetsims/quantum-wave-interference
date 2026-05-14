@@ -41,14 +41,6 @@ type StringsType = {
   'sourceIntensityStringProperty': LocalizedStringProperty;
   'particleSpeedStringProperty': LocalizedStringProperty;
   'emissionRateStringProperty': LocalizedStringProperty;
-  'particleSpeedKmPerSecondPatternStringProperty': LocalizedStringProperty;
-  'particleSpeedMeterPerSecondPatternStringProperty': LocalizedStringProperty;
-  'wavelengthNanometersPatternStringProperty': LocalizedStringProperty;
-  'valueMillimetersPatternStringProperty': LocalizedStringProperty;
-  'valueMicrometersPatternStringProperty': LocalizedStringProperty;
-  'valueNanometersPatternStringProperty': LocalizedStringProperty;
-  'valueMetersPatternStringProperty': LocalizedStringProperty;
-  'rulerUnitsStringProperty': LocalizedStringProperty;
   'slitsLabelPatternStringProperty': LocalizedStringProperty;
   'snapshotLabelValuePatternStringProperty': LocalizedStringProperty;
   'electronMassLabelStringProperty': LocalizedStringProperty;
@@ -58,9 +50,6 @@ type StringsType = {
   'slitSeparationStringProperty': LocalizedStringProperty;
   'screenDistanceStringProperty': LocalizedStringProperty;
   'slitConfigurationStringProperty': LocalizedStringProperty;
-  'slitSeparationPatternStringProperty': LocalizedStringProperty;
-  'slitSeparationMicrometerPatternStringProperty': LocalizedStringProperty;
-  'screenDistancePatternStringProperty': LocalizedStringProperty;
   'bothOpenStringProperty': LocalizedStringProperty;
   'leftCoveredStringProperty': LocalizedStringProperty;
   'rightCoveredStringProperty': LocalizedStringProperty;
@@ -77,7 +66,6 @@ type StringsType = {
   'snapshotNumberPatternStringProperty': LocalizedStringProperty;
   'rulerStringProperty': LocalizedStringProperty;
   'stopwatchStringProperty': LocalizedStringProperty;
-  'stopwatchValueUnitsPatternStringProperty': LocalizedStringProperty;
   'detectorStringProperty': LocalizedStringProperty;
   'tapeMeasureStringProperty': LocalizedStringProperty;
   'timePlotStringProperty': LocalizedStringProperty;
@@ -105,33 +93,6 @@ type StringsType = {
   'resetDetectorStringProperty': LocalizedStringProperty;
   'particleDetectedStringProperty': LocalizedStringProperty;
   'notDetectedStringProperty': LocalizedStringProperty;
-  'detectorPercentPatternStringProperty': LocalizedStringProperty;
-  'timeUnits': {
-    'femtoseconds': {
-      'symbolStringProperty': LocalizedStringProperty;
-      'accessibleNameStringProperty': LocalizedStringProperty;
-    };
-    'picoseconds': {
-      'symbolStringProperty': LocalizedStringProperty;
-      'accessibleNameStringProperty': LocalizedStringProperty;
-    };
-    'nanoseconds': {
-      'symbolStringProperty': LocalizedStringProperty;
-      'accessibleNameStringProperty': LocalizedStringProperty;
-    };
-    'microseconds': {
-      'symbolStringProperty': LocalizedStringProperty;
-      'accessibleNameStringProperty': LocalizedStringProperty;
-    };
-    'milliseconds': {
-      'symbolStringProperty': LocalizedStringProperty;
-      'accessibleNameStringProperty': LocalizedStringProperty;
-    };
-    'seconds': {
-      'symbolStringProperty': LocalizedStringProperty;
-      'accessibleNameStringProperty': LocalizedStringProperty;
-    }
-  };
   'a11y': {
     'screenSummary': {
       'playAreaStringProperty': LocalizedStringProperty;

@@ -9,11 +9,10 @@
  */
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Shape from '../../../../kite/js/Shape.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
@@ -197,8 +196,9 @@ export default class OverheadDetectorScreenNode extends Node {
       distanceSpanRightTick.x = rightX;
       distanceSpanRightTick.centerY = spanY;
 
-      distanceText.string = StringUtils.fillIn( QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value, {
-        value: toFixed( distance, 2 )
+      distanceText.string = metersUnit.getVisualSymbolPatternString( distance, {
+        decimalPlaces: 2,
+        showTrailingZeros: true
       } );
       distanceText.centerX = ( leftX + rightX ) / 2;
       distanceText.bottom = spanY - SPAN_TICK_LENGTH / 2;
@@ -226,6 +226,9 @@ export default class OverheadDetectorScreenNode extends Node {
       newScene.screenDistanceProperty.link( this.updateDetectorScreenPosition );
     } );
     detectorScreenScaleIndexProperty.link( this.updateDetectorScreenPosition );
+    metersUnit.getDependentProperties().forEach( property => {
+      property.link( this.updateDetectorScreenPosition );
+    } );
   }
 
   public getVisibleDetectorSizeFraction(): number {

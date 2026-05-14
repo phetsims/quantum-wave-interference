@@ -13,12 +13,17 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import TrashButton from '../../../../scenery-phet/js/buttons/TrashButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import SceneryPhetFluent from '../../../../scenery-phet/js/SceneryPhetFluent.js';
 import SceneryPhetStrings from '../../../../scenery-phet/js/SceneryPhetStrings.js';
+import { kilometersPerSecondUnit } from '../../../../scenery-phet/js/units/kilometersPerSecondUnit.js';
+import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
+import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
+import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
+import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
+import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
@@ -112,14 +117,14 @@ export default class SnapshotNode extends Node {
 
     const defaultFormatSlitSeparation = ( slitSepMM: number ): string => {
       return slitSepMM < 0.1
-             ? StringUtils.fillIn(
-          QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.value,
-          { value: toFixed( slitSepMM * 1000, 1 ) }
-        )
-             : StringUtils.fillIn(
-          QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty.value,
-          { value: toFixed( slitSepMM, 2 ) }
-        );
+             ? micrometersUnit.getVisualSymbolPatternString( slitSepMM * 1000, {
+          decimalPlaces: 1,
+          showTrailingZeros: true
+        } )
+             : millimetersUnit.getVisualSymbolPatternString( slitSepMM, {
+          decimalPlaces: 2,
+          showTrailingZeros: true
+        } );
     };
     const formatSlitSeparation = options.formatSlitSeparation || defaultFormatSlitSeparation;
 
@@ -169,36 +174,37 @@ export default class SnapshotNode extends Node {
       { label: label, value: value }
     );
 
-    const slitSeparationProperty = new DerivedProperty(
+    const slitSeparationProperty = DerivedProperty.deriveAny(
       [
         snapshotProperty,
         QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
         QuantumWaveInterferenceFluent.slitSeparationStringProperty,
-        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty,
-        QuantumWaveInterferenceFluent.valueMillimetersPatternStringProperty
+        ...micrometersUnit.getDependentProperties(),
+        ...millimetersUnit.getDependentProperties()
       ],
-      ifSnapshot( snapshot => formatLabelValue(
-        QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
-        formatSlitSeparation( snapshot.slitSeparation )
-      ), '' )
+      () => ifSnapshot( snapshot => formatLabelValue(
+          QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
+          formatSlitSeparation( snapshot.slitSeparation )
+        ), '' )( snapshotProperty.value )
     );
 
-    const wavelengthOrSpeedProperty = new DerivedProperty(
+    const wavelengthOrSpeedProperty = DerivedProperty.deriveAny(
       [
         snapshotProperty,
         QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
         SceneryPhetFluent.wavelengthStringProperty,
         QuantumWaveInterferenceFluent.particleSpeedStringProperty,
-        QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty,
-        QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty,
-        QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty
+        ...nanometersUnit.getDependentProperties(),
+        ...kilometersPerSecondUnit.getDependentProperties(),
+        ...metersPerSecondUnit.getDependentProperties()
       ],
-      ifSnapshot( snapshot => {
+      () => ifSnapshot( snapshot => {
         if ( snapshot.sourceType === 'photons' ) {
-          const wavelengthValue = StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty.value,
-            { value: roundSymmetric( snapshot.wavelength ) }
-          );
+          const wavelengthValue = nanometersUnit.getVisualSymbolPatternString( roundSymmetric( snapshot.wavelength ), {
+            decimalPlaces: 0,
+            showTrailingZeros: false,
+            showIntegersAsIntegers: true
+          } );
           return formatLabelValue( SceneryPhetFluent.wavelengthStringProperty.value, wavelengthValue );
         }
         const sourceType = snapshot.sourceType;
@@ -208,16 +214,18 @@ export default class SnapshotNode extends Node {
                              ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
         const speed = snapshot.effectiveWavelength === 0 ? 0 : QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
         const speedValue = speed >= 10000
-                           ? StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value,
-            { value: roundSymmetric( speed / 1000 ) }
-          )
-                           : StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty.value,
-            { value: roundSymmetric( speed ) }
-          );
+                           ? kilometersPerSecondUnit.getVisualSymbolPatternString( roundSymmetric( speed / 1000 ), {
+            decimalPlaces: 0,
+            showTrailingZeros: false,
+            showIntegersAsIntegers: true
+          } )
+                           : metersPerSecondUnit.getVisualSymbolPatternString( roundSymmetric( speed ), {
+            decimalPlaces: 0,
+            showTrailingZeros: false,
+            showIntegersAsIntegers: true
+        } );
         return formatLabelValue( QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, speedValue );
-      }, '' )
+      }, '' )( snapshotProperty.value )
     );
 
     const slitSettingProperty = new DerivedProperty(
@@ -290,23 +298,23 @@ export default class SnapshotNode extends Node {
     // Conditionally include screen distance row (used by the Experiment screen).
     let screenDistanceProperty: TReadOnlyProperty<string> | null = null;
     if ( options.showScreenDistance ) {
-      screenDistanceProperty = new DerivedProperty(
+      screenDistanceProperty = DerivedProperty.deriveAny(
         [
           snapshotProperty,
           QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
           QuantumWaveInterferenceFluent.screenDistanceStringProperty,
-          QuantumWaveInterferenceFluent.valueMetersPatternStringProperty
+          ...metersUnit.getDependentProperties()
         ],
-        ifSnapshot( snapshot => {
-          const screenDistValue = StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.valueMetersPatternStringProperty.value,
-            { value: toFixed( snapshot.screenDistance, 2 ) }
-          );
+        () => ifSnapshot( snapshot => {
+          const screenDistValue = metersUnit.getVisualSymbolPatternString( snapshot.screenDistance, {
+            decimalPlaces: 2,
+            showTrailingZeros: true
+          } );
           return formatLabelValue(
             QuantumWaveInterferenceFluent.screenDistanceStringProperty.value,
             screenDistValue
           );
-        }, '' )
+        }, '' )( snapshotProperty.value )
       );
       parameterLabelsChildren.push( new Text( screenDistanceProperty, {
         font: PARAM_FONT,

@@ -14,6 +14,7 @@ import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import AccessibleDraggableOptions from '../../../../scenery-phet/js/accessibility/grab-drag/AccessibleDraggableOptions.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import RulerNode from '../../../../scenery-phet/js/RulerNode.js';
+import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import InteractiveHighlightingNode from '../../../../scenery/js/accessibility/voicing/nodes/InteractiveHighlightingNode.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
@@ -64,7 +65,7 @@ export default class DetectorRulerNode extends InteractiveHighlightingNode {
         RULER_HEIGHT,
         majorTickWidth,
         majorTickLabels,
-        QuantumWaveInterferenceFluent.rulerUnitsStringProperty,
+        millimetersUnit.visualSymbolStringProperty!,
         {
           minorTicksPerMajorTick: RULER_MINOR_TICKS_PER_MAJOR,
           unitsMajorTickIndex: centerLabeledTickIndex,

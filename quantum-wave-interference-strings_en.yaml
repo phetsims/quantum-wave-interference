@@ -17,14 +17,6 @@ intensity:                             Intensity
 sourceIntensity:                       Source Intensity
 particleSpeed:                         Particle Speed
 emissionRate:                          Emission Rate
-particleSpeedKmPerSecondPattern:       '{{value}} km/s'
-particleSpeedMeterPerSecondPattern:    '{{value}} m/s'
-wavelengthNanometersPattern:           '{{value}} nm'
-valueMillimetersPattern:               '{{value}} mm'
-valueMicrometersPattern:               '{{value}} μm'
-valueNanometersPattern:                '{{value}} nm'
-valueMetersPattern:                    '{{value}} m'
-rulerUnits:                            mm
 slitsLabelPattern:                     'Slits: {{setting}}'
 snapshotLabelValuePattern:             '{{label}}: {{value}}'
 electronMassLabel:                     'm<sub>e</sub> = 9.1×10<sup>−31</sup> kg'
@@ -34,9 +26,6 @@ max:                                   Max
 slitSeparation:                        Slit Separation
 screenDistance:                        Screen Distance
 slitConfiguration:                     Slit Configuration
-slitSeparationPattern:                 '{{value}} mm'
-slitSeparationMicrometerPattern:       '{{value}} μm'
-screenDistancePattern:                 '{{value}} m'
 bothOpen:                              Both Open
 leftCovered:                           Cover Left
 rightCovered:                          Cover Right
@@ -53,7 +42,6 @@ count:                                 Count
 snapshotNumberPattern:                 'Snapshot {{number}}'
 ruler:                                 Ruler
 stopwatch:                             Stopwatch
-stopwatchValueUnitsPattern:            '{{value}} {{units}}'
 detector:                              Detector
 tapeMeasure:                           Tape Measure
 timePlot:                              Time Plot
@@ -81,19 +69,6 @@ detect:                                Detect
 resetDetector:                         Reset
 particleDetected:                      Particle detected
 notDetected:                           Not detected
-detectorPercentPattern:                '{{value}}%'
-timeUnits.femtoseconds.symbol:         fs
-timeUnits.femtoseconds.accessibleName: femtoseconds
-timeUnits.picoseconds.symbol:          ps
-timeUnits.picoseconds.accessibleName:  picoseconds
-timeUnits.nanoseconds.symbol:          ns
-timeUnits.nanoseconds.accessibleName:  nanoseconds
-timeUnits.microseconds.symbol:         μs
-timeUnits.microseconds.accessibleName: microseconds
-timeUnits.milliseconds.symbol:         ms
-timeUnits.milliseconds.accessibleName: milliseconds
-timeUnits.seconds.symbol:              s
-timeUnits.seconds.accessibleName:      seconds
 
 # Accessibility strings
 a11y:

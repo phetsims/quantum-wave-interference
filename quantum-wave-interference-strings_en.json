@@ -56,30 +56,6 @@
   "emissionRate": {
     "value": "Emission Rate"
   },
-  "particleSpeedKmPerSecondPattern": {
-    "value": "{{value}} km/s"
-  },
-  "particleSpeedMeterPerSecondPattern": {
-    "value": "{{value}} m/s"
-  },
-  "wavelengthNanometersPattern": {
-    "value": "{{value}} nm"
-  },
-  "valueMillimetersPattern": {
-    "value": "{{value}} mm"
-  },
-  "valueMicrometersPattern": {
-    "value": "{{value}} μm"
-  },
-  "valueNanometersPattern": {
-    "value": "{{value}} nm"
-  },
-  "valueMetersPattern": {
-    "value": "{{value}} m"
-  },
-  "rulerUnits": {
-    "value": "mm"
-  },
   "slitsLabelPattern": {
     "value": "Slits: {{setting}}"
   },
@@ -106,15 +82,6 @@
   },
   "slitConfiguration": {
     "value": "Slit Configuration"
-  },
-  "slitSeparationPattern": {
-    "value": "{{value}} mm"
-  },
-  "slitSeparationMicrometerPattern": {
-    "value": "{{value}} μm"
-  },
-  "screenDistancePattern": {
-    "value": "{{value}} m"
   },
   "bothOpen": {
     "value": "Both Open"
@@ -163,9 +130,6 @@
   },
   "stopwatch": {
     "value": "Stopwatch"
-  },
-  "stopwatchValueUnitsPattern": {
-    "value": "{{value}} {{units}}"
   },
   "detector": {
     "value": "Detector"
@@ -247,45 +211,6 @@
   },
   "notDetected": {
     "value": "Not detected"
-  },
-  "detectorPercentPattern": {
-    "value": "{{value}}%"
-  },
-  "timeUnits.femtoseconds.symbol": {
-    "value": "fs"
-  },
-  "timeUnits.femtoseconds.accessibleName": {
-    "value": "femtoseconds"
-  },
-  "timeUnits.picoseconds.symbol": {
-    "value": "ps"
-  },
-  "timeUnits.picoseconds.accessibleName": {
-    "value": "picoseconds"
-  },
-  "timeUnits.nanoseconds.symbol": {
-    "value": "ns"
-  },
-  "timeUnits.nanoseconds.accessibleName": {
-    "value": "nanoseconds"
-  },
-  "timeUnits.microseconds.symbol": {
-    "value": "μs"
-  },
-  "timeUnits.microseconds.accessibleName": {
-    "value": "microseconds"
-  },
-  "timeUnits.milliseconds.symbol": {
-    "value": "ms"
-  },
-  "timeUnits.milliseconds.accessibleName": {
-    "value": "milliseconds"
-  },
-  "timeUnits.seconds.symbol": {
-    "value": "s"
-  },
-  "timeUnits.seconds.accessibleName": {
-    "value": "seconds"
   },
   "a11y": {
     "screenSummary": {

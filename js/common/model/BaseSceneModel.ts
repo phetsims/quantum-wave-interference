@@ -28,6 +28,9 @@ import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ObjectLiteralIO from '../../../../tandem/js/types/ObjectLiteralIO.js';
+import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
+import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
+import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKernel.js';
 import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
@@ -198,13 +201,13 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? DEFAULT_PHOTON_WAVELENGTH_NM : 0, {
       range: options.sourceType === 'photons' ? new Range( 380, 780 ) : new Range( 0, 0 ),
-      units: 'nm', //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Use PhetUnit
+      units: nanometersUnit,
       tandem: tandem.createTandem( 'wavelengthProperty' )
     } );
 
     this.velocityProperty = new NumberProperty( config.defaultVelocity, {
       range: this.velocityRange,
-      units: 'm/s', //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Use PhetUnit
+      units: metersPerSecondUnit,
       tandem: tandem.createTandem( 'velocityProperty' )
     } );
 
@@ -215,7 +218,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
       range: this.slitSeparationRange,
-      units: 'mm', //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Use PhetUnit
+      units: millimetersUnit,
       tandem: tandem.createTandem( 'slitSeparationProperty' )
     } );
 

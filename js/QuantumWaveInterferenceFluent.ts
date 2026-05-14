@@ -5,7 +5,7 @@
 /* eslint-disable */
 /* @formatter:off */
 
-import {TReadOnlyProperty} from '../../axon/js/TReadOnlyProperty.js';
+import { TReadOnlyProperty } from '../../axon/js/TReadOnlyProperty.js';
 import FluentLibrary from '../../chipper/js/browser-and-node/FluentLibrary.js';
 import FluentComment from '../../chipper/js/browser/FluentComment.js';
 import FluentConstant from '../../chipper/js/browser/FluentConstant.js';
@@ -47,7 +47,6 @@ addToMapIfDefined( 'intensity', 'intensityStringProperty' );
 addToMapIfDefined( 'sourceIntensity', 'sourceIntensityStringProperty' );
 addToMapIfDefined( 'particleSpeed', 'particleSpeedStringProperty' );
 addToMapIfDefined( 'emissionRate', 'emissionRateStringProperty' );
-addToMapIfDefined( 'rulerUnits', 'rulerUnitsStringProperty' );
 addToMapIfDefined( 'electronMassLabel', 'electronMassLabelStringProperty' );
 addToMapIfDefined( 'neutronMassLabel', 'neutronMassLabelStringProperty' );
 addToMapIfDefined( 'heliumAtomMassLabel', 'heliumAtomMassLabelStringProperty' );
@@ -96,18 +95,6 @@ addToMapIfDefined( 'detect', 'detectStringProperty' );
 addToMapIfDefined( 'resetDetector', 'resetDetectorStringProperty' );
 addToMapIfDefined( 'particleDetected', 'particleDetectedStringProperty' );
 addToMapIfDefined( 'notDetected', 'notDetectedStringProperty' );
-addToMapIfDefined( 'timeUnits_femtoseconds_symbol', 'timeUnits.femtoseconds.symbolStringProperty' );
-addToMapIfDefined( 'timeUnits_femtoseconds_accessibleName', 'timeUnits.femtoseconds.accessibleNameStringProperty' );
-addToMapIfDefined( 'timeUnits_picoseconds_symbol', 'timeUnits.picoseconds.symbolStringProperty' );
-addToMapIfDefined( 'timeUnits_picoseconds_accessibleName', 'timeUnits.picoseconds.accessibleNameStringProperty' );
-addToMapIfDefined( 'timeUnits_nanoseconds_symbol', 'timeUnits.nanoseconds.symbolStringProperty' );
-addToMapIfDefined( 'timeUnits_nanoseconds_accessibleName', 'timeUnits.nanoseconds.accessibleNameStringProperty' );
-addToMapIfDefined( 'timeUnits_microseconds_symbol', 'timeUnits.microseconds.symbolStringProperty' );
-addToMapIfDefined( 'timeUnits_microseconds_accessibleName', 'timeUnits.microseconds.accessibleNameStringProperty' );
-addToMapIfDefined( 'timeUnits_milliseconds_symbol', 'timeUnits.milliseconds.symbolStringProperty' );
-addToMapIfDefined( 'timeUnits_milliseconds_accessibleName', 'timeUnits.milliseconds.accessibleNameStringProperty' );
-addToMapIfDefined( 'timeUnits_seconds_symbol', 'timeUnits.seconds.symbolStringProperty' );
-addToMapIfDefined( 'timeUnits_seconds_accessibleName', 'timeUnits.seconds.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playArea', 'a11y.screenSummary.playAreaStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_controlArea', 'a11y.screenSummary.controlAreaStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_maxHitsReachedHint', 'a11y.screenSummary.maxHitsReachedHintStringProperty' );
@@ -264,14 +251,6 @@ const QuantumWaveInterferenceFluent = {
   sourceIntensityStringProperty: _.get( QuantumWaveInterferenceStrings, 'sourceIntensityStringProperty' ),
   particleSpeedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedStringProperty' ),
   emissionRateStringProperty: _.get( QuantumWaveInterferenceStrings, 'emissionRateStringProperty' ),
-  particleSpeedKmPerSecondPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedKmPerSecondPatternStringProperty' ),
-  particleSpeedMeterPerSecondPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleSpeedMeterPerSecondPatternStringProperty' ),
-  wavelengthNanometersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'wavelengthNanometersPatternStringProperty' ),
-  valueMillimetersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueMillimetersPatternStringProperty' ),
-  valueMicrometersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueMicrometersPatternStringProperty' ),
-  valueNanometersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueNanometersPatternStringProperty' ),
-  valueMetersPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'valueMetersPatternStringProperty' ),
-  rulerUnitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerUnitsStringProperty' ),
   slitsLabelPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitsLabelPatternStringProperty' ),
   snapshotLabelValuePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotLabelValuePatternStringProperty' ),
   electronMassLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'electronMassLabelStringProperty' ),
@@ -281,9 +260,6 @@ const QuantumWaveInterferenceFluent = {
   slitSeparationStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationStringProperty' ),
   screenDistanceStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistanceStringProperty' ),
   slitConfigurationStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitConfigurationStringProperty' ),
-  slitSeparationPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationPatternStringProperty' ),
-  slitSeparationMicrometerPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitSeparationMicrometerPatternStringProperty' ),
-  screenDistancePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenDistancePatternStringProperty' ),
   bothOpenStringProperty: _.get( QuantumWaveInterferenceStrings, 'bothOpenStringProperty' ),
   leftCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'leftCoveredStringProperty' ),
   rightCoveredStringProperty: _.get( QuantumWaveInterferenceStrings, 'rightCoveredStringProperty' ),
@@ -300,7 +276,6 @@ const QuantumWaveInterferenceFluent = {
   snapshotNumberPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotNumberPatternStringProperty' ),
   rulerStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerStringProperty' ),
   stopwatchStringProperty: _.get( QuantumWaveInterferenceStrings, 'stopwatchStringProperty' ),
-  stopwatchValueUnitsPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'stopwatchValueUnitsPatternStringProperty' ),
   detectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorStringProperty' ),
   tapeMeasureStringProperty: _.get( QuantumWaveInterferenceStrings, 'tapeMeasureStringProperty' ),
   timePlotStringProperty: _.get( QuantumWaveInterferenceStrings, 'timePlotStringProperty' ),
@@ -328,33 +303,6 @@ const QuantumWaveInterferenceFluent = {
   resetDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'resetDetectorStringProperty' ),
   particleDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleDetectedStringProperty' ),
   notDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'notDetectedStringProperty' ),
-  detectorPercentPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorPercentPatternStringProperty' ),
-  timeUnits: {
-    femtoseconds: {
-      symbolStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.femtoseconds.symbolStringProperty' ),
-      accessibleNameStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.femtoseconds.accessibleNameStringProperty' )
-    },
-    picoseconds: {
-      symbolStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.picoseconds.symbolStringProperty' ),
-      accessibleNameStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.picoseconds.accessibleNameStringProperty' )
-    },
-    nanoseconds: {
-      symbolStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.nanoseconds.symbolStringProperty' ),
-      accessibleNameStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.nanoseconds.accessibleNameStringProperty' )
-    },
-    microseconds: {
-      symbolStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.microseconds.symbolStringProperty' ),
-      accessibleNameStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.microseconds.accessibleNameStringProperty' )
-    },
-    milliseconds: {
-      symbolStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.milliseconds.symbolStringProperty' ),
-      accessibleNameStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.milliseconds.accessibleNameStringProperty' )
-    },
-    seconds: {
-      symbolStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.seconds.symbolStringProperty' ),
-      accessibleNameStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeUnits.seconds.accessibleNameStringProperty' )
-    }
-  },
   _comment_0: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
   a11y: {
     screenSummary: {

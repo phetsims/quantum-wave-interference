@@ -22,7 +22,6 @@ import Range from '../../../../dot/js/Range.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { kilometersPerSecondUnit } from '../../../../scenery-phet/js/units/kilometersPerSecondUnit.js';
@@ -182,10 +181,11 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
             const roundedValue = roundSymmetric( value );
             const colorZone = getWavelengthColorZone( roundedValue );
             return {
-              visualString: StringUtils.fillIn(
-                QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty.value,
-                { value: roundedValue }
-              ),
+              visualString: nanometersUnit.getVisualSymbolPatternString( roundedValue, {
+                decimalPlaces: 0,
+                showTrailingZeros: false,
+                showIntegersAsIntegers: true
+              } ),
               accessibleString: QuantumWaveInterferenceFluent.a11y.wavelengthSlider.accessibleValue.format( {
                 value: nanometersUnit.getAccessibleString( roundedValue, {
                   decimalPlaces: 0,
@@ -197,7 +197,6 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
             };
           },
           numberFormatterDependencies: [
-            QuantumWaveInterferenceFluent.wavelengthNanometersPatternStringProperty,
             ...nanometersUnit.getDependentProperties(),
             ...QuantumWaveInterferenceFluent.a11y.wavelengthSlider.accessibleValue.getDependentProperties(),
             QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty,
@@ -237,12 +236,11 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
           const kmPerS = value / 1000;
           const roundedValue = roundSymmetric( kmPerS );
           return {
-            visualString: StringUtils.fillIn(
-              QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty.value,
-              {
-                value: roundedValue
-              }
-            ),
+            visualString: speedUnit.getVisualSymbolPatternString( roundedValue, {
+              decimalPlaces: 0,
+              showTrailingZeros: false,
+              showIntegersAsIntegers: true
+            } ),
             accessibleString: speedUnit.getAccessibleString( roundedValue, {
               decimalPlaces: 0,
               showTrailingZeros: false,
@@ -253,12 +251,11 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
 
         const roundedValue = roundSymmetric( value );
         return {
-          visualString: StringUtils.fillIn(
-            QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty.value,
-            {
-              value: roundedValue
-            }
-          ),
+          visualString: speedUnit.getVisualSymbolPatternString( roundedValue, {
+            decimalPlaces: 0,
+            showTrailingZeros: false,
+            showIntegersAsIntegers: true
+          } ),
           accessibleString: speedUnit.getAccessibleString( roundedValue, {
             decimalPlaces: 0,
             showTrailingZeros: false,
@@ -289,12 +286,9 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
           numberDisplayOptions: {
             numberFormatter: formatSpeed,
 
-            // Retrigger the formatter when the unit Properties or the locale-dependent pattern strings change,
-            // since formatSpeed reads both.
+            // Retrigger the formatter when locale-dependent unit strings change.
             numberFormatterDependencies: [
-              ...speedUnit.getDependentProperties(),
-              QuantumWaveInterferenceFluent.particleSpeedKmPerSecondPatternStringProperty,
-              QuantumWaveInterferenceFluent.particleSpeedMeterPerSecondPatternStringProperty
+              ...speedUnit.getDependentProperties()
             ],
             textOptions: {
               font: new PhetFont( 14 )

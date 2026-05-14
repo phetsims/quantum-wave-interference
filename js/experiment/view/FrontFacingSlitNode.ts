@@ -12,12 +12,11 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -25,7 +24,6 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 
@@ -219,22 +217,30 @@ export default class FrontFacingSlitNode extends Node {
     // so it re-renders on locale change.
     const slitWidthMM = sceneModel.slitWidth;
     const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
-    const slitWidthLabelStringProperty = QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty.derived(
-      pattern => StringUtils.fillIn( pattern, { value: toFixed( slitWidthUM, decimalPlaces ) } )
+    const slitWidthLabelStringProperty = DerivedProperty.deriveAny(
+      micrometersUnit.getDependentProperties(),
+      () => micrometersUnit.getVisualSymbolPatternString( slitWidthUM, {
+        decimalPlaces: decimalPlaces,
+        showTrailingZeros: true
+      } )
     );
 
     // Slit-separation label: display in μm for all scenes to match the slit-separation control readout. Reactive on
     // both the separation value and the locale-dependent pattern string.
     const slitSeparationRange = sceneModel.slitSeparationRange;
-    const separationLabelStringProperty = new DerivedProperty(
+    const separationLabelStringProperty = DerivedProperty.deriveAny(
       [
         sceneModel.slitSeparationProperty,
-        QuantumWaveInterferenceFluent.valueMicrometersPatternStringProperty
+        ...micrometersUnit.getDependentProperties()
       ],
-      ( separationMM, umPattern ) => {
+      () => {
+        const separationMM = sceneModel.slitSeparationProperty.value;
         const valueUM = separationMM * 1000;
         const decimalPlaces = ExperimentConstants.getRangeDecimalPlaces( slitSeparationRange.min * 1000, slitSeparationRange.max * 1000 );
-        return StringUtils.fillIn( umPattern, { value: toFixed( valueUM, decimalPlaces ) } );
+        return micrometersUnit.getVisualSymbolPatternString( valueUM, {
+          decimalPlaces: decimalPlaces,
+          showTrailingZeros: true
+        } );
       }
     );
 
