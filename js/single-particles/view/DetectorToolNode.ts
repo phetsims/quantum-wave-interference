@@ -49,8 +49,8 @@ const WIRE_STROKE = new Color( 100, 100, 100 );
 export default class DetectorToolNode extends Node {
 
   //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Coupling to SingleParticlesModel suggests that the
-  //REVIEW   model could benefit from having a CurrentDetectorTool class to pull together the 6 (?) related Properties that
-  //REVIEW   are currently at the top-level of SingleParticlesModel.
+  // model could benefit from having a CurrentDetectorTool class to pull together the 6 (?) related Properties that
+  // are currently at the top-level of SingleParticlesModel.
   public constructor(
     model: SingleParticlesModel,
     waveRegionLeft: number,

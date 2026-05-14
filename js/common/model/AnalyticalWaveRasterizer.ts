@@ -68,8 +68,7 @@ export type AnalyticalWaveRaster = {
   };
 };
 
-//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Generated code seems to prefer not to use
-//REVIEW   'function' for defining functions. Might facilitate unintended closures.
+//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Generated code seems to prefer not to use 'function' for defining functions. Might facilitate unintended closures.
 
 export const getFieldSampleRGBA = (
   sample: FieldSample,

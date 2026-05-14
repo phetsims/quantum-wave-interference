@@ -122,7 +122,7 @@ export default class OverheadDoubleSlitNode extends Node {
     this.leftSlitDetectorOverlay.visible = false;
     this.parallelogramNode.addChild( this.leftSlitDetectorOverlay );
 
-    //REVIEW leftSlitDetectorOverlay Identical to leftSlitDetectorOverlay above.
+    // TODO leftSlitDetectorOverlay Identical to leftSlitDetectorOverlay above, see https://github.com/phetsims/quantum-wave-interference/issues/27
     this.rightSlitDetectorOverlay = new ParallelogramNode(
       this.slitOverlayDx,
       this.slitOverlayDy,
