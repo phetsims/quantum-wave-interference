@@ -1,127 +1,188 @@
-# Quantum Wave Interference - Model Description
+# Quantum Wave Interference - model description
 
-## Overview
+This document is a high-level description of the model used in PhET's _Quantum Wave Interference_
+simulation.
 
-This simulation models a double-slit interference experiment for photons and quantum particles (electrons,
-neutrons, helium atoms). An emitter source directs a beam through a double slit onto a detector screen, where
-an interference pattern emerges from the accumulation of many individual detection events.
+Each screen has 4 "scenes", one for each source type: Photons, Electrons, Neutrons, and Helium
+atoms. Selection of the scene is controlled by the source-type radio buttons. Each scene preserves
+its own emitter settings, slit settings, detector-screen data, and snapshots.
 
-The simulation demonstrates that quantum objects arrive at the detector as discrete, localized events, yet
-produce a wave-like interference pattern over time — a hallmark of quantum mechanics.
+For photons, the source wavelength is controlled directly. For matter particles, wavelength is
+derived from particle speed using the de Broglie relation `lambda = h / ( m * v )`, where `lambda`
+is in meters, `h = 6.626e-34 J*s`, `m` is mass in kilograms, and `v` is speed in meters per second.
+Particle masses are:
 
-## Scenes
+* Electron: 9.109e-31 kg
+* Neutron: 1.675e-27 kg
+* Helium atom: 6.646e-27 kg
 
-There are four independent scenes, one per source type: **Photons**, **Electrons**, **Neutrons**, and
-**Helium atoms**. Each scene maintains its own state (emitter settings, slit geometry, accumulated data),
-so switching scenes preserves the user's configuration and data for each source type.
+Across the simulation:
 
-## Key Concepts and Parameters
+* Wavelength is stored in nanometers for photons. The photon range is 380-780 nm, default 650 nm.
+* Particle speed is stored in meters per second, though some UI labels display kilometers per second.
+* Slit separation is the center-to-center slit distance and is stored in millimeters.
+* Screen distance is stored in meters where it is modeled directly.
+* Screen brightness is a dimensionless display value in the range 0-0.25.
+* Each source-type scene can store up to 4 detector-screen snapshots.
 
-### Emitter
+## Experiment screen
 
-- **Wavelength** (photons only): 380–780 nm, directly controlling the photon wavelength and beam color.
-- **Particle Speed** (particles only): Controls velocity, which determines the de Broglie wavelength.
-- **Intensity / Emission Rate**: 0–1, controls the rate at which detection events accumulate and the
-  opacity of the beam visualization. At full intensity, up to 100 hits per second are generated
-  (`MAX_EMISSION_RATE` in `SceneModel`).
+The _Experiment_ screen models a detector-pattern experiment with an overhead apparatus view and a
+front-facing detector screen.
 
-### Double Slit
+There are 4 source-type scenes. In each scene:
 
-- **Slit Width** (a): A fixed constant per source type, not adjustable by the user. Determines the
-  single-slit diffraction envelope.
-- **Slit Separation** (d): Center-to-center distance between slits, adjustable via NumberControl.
-  Ranges vary per source type to reflect realistic experimental scales.
-- **Screen Distance** (L): Distance from the double slit to the detector screen.
+* The emitter can be turned on or off.
+* Photons use wavelength in the range 380-780 nm, default 650 nm.
+* Electrons use speed in the range 2.0e5-1.0e6 m/s, default 6.0e5 m/s.
+* Neutrons and helium atoms use speed in the range 200-1000 m/s, default 600 m/s.
+* Source intensity is dimensionless in the range 0-1, default 0.5.
+* The detector screen can show Average Intensity or Hits.
+* The detector-screen horizontal zoom can show -20..20 mm, -15..15 mm, -10..10 mm, or -5..5 mm.
 
-### Detector Screen
+The barrier always contains slits. The available slit settings are:
 
-- **Average Intensity mode**: Displays the interference pattern as bright/dark bands (continuous glow).
-- **Hits mode**: Displays individual detection events as dots, showing how the pattern emerges
-  statistically from discrete events.
-- **Screen Brightness**: Controls the opacity of the displayed pattern.
+* Both Open
+* Left Covered
+* Right Covered
+* Left Detector
+* Right Detector
+* Both Detectors
 
-### Slit Settings
+Source-specific slit and screen parameters are:
 
-- **Both Open**: Standard double-slit interference (default).
-- **Left/Right Covered**: One slit is blocked, producing a single-slit diffraction pattern.
-- **Left/Right Detector**: A which-path detector monitors one slit. This destroys the interference
-  pattern, producing a sum of two single-slit patterns without cross-terms.
+* Photons: slit width 0.02 mm, slit separation 0.05-0.5 mm, default 0.25 mm.
+* Electrons: slit width 0.00006 mm, slit separation 0.0001-0.002 mm, default 0.001 mm.
+* Neutrons: slit width 0.00006 mm, slit separation 0.0001-0.002 mm, default 0.001 mm.
+* Helium atoms: slit width 0.00006 mm, slit separation 0.0001-0.002 mm, default 0.001 mm.
+* All source types: screen distance 0.4-0.8 m, default 0.6 m.
 
-## Physics Model
+The detector pattern is computed from a Fraunhofer diffraction model:
 
-### Interference Pattern
+* With both slits open, a double-slit `cos^2` interference factor is multiplied by a single-slit
+  `sinc^2` diffraction envelope.
+* With one slit covered, only the single-slit diffraction envelope remains, centered on the open
+  slit, with half the peak transmitted intensity.
+* With a which-path detector, coherence between paths is removed, so the detector screen shows the
+  broad single-slit-like envelope without double-slit fringes.
 
-The intensity at position y on the detector screen is:
+In Hits mode:
 
-    I(y) = cos²(π d sin(θ) / λ) × sinc²(π a sin(θ) / λ)
+* Hit positions are sampled from the analytical detector intensity.
+* Horizontal hit position is normalized to [-1,1] across the full detector screen.
+* Vertical hit position is uniformly sampled in [-1,1].
+* At full intensity, the model attempts up to 100 hits/second.
+* Each scene is capped at 25,000 hits. When the cap is reached, the emitter turns off and remains
+  disabled until the detector screen is cleared.
 
-where:
-- d = slit separation (center-to-center)
-- a = slit width
-- λ = wavelength (photon wavelength or de Broglie wavelength)
-- θ = arctan(y / L), the angle from the central axis
-- sinc(x) = sin(x) / x
+## High Intensity screen
 
-The first factor produces the double-slit interference fringes. The second factor is the single-slit
-diffraction envelope that modulates the fringe intensities.
+The _High Intensity_ screen models a continuous wave passing through a barrier and accumulating a
+detector pattern.
 
-No near-field (Fresnel) corrections are applied; the simulation uses the far-field (Fraunhofer)
-approximation throughout.
+There are 4 source-type scenes. In each scene:
 
-### de Broglie Wavelength
+* The emitter can be turned on or off.
+* Photons use wavelength in the range 380-780 nm, default 650 nm.
+* Electrons use speed in the range 7.0e5-1.5e6 m/s, default 1.1e6 m/s.
+* Neutrons use speed in the range 200-800 m/s, default 500 m/s.
+* Helium atoms use speed in the range 400-2000 m/s, default 1200 m/s.
+* The detector screen can show Average Intensity or Hits.
+* The barrier can be set to None or Double Slit.
+* The barrier position is a dimensionless fraction across the wave region, range 0.25-0.75,
+  default 0.5.
 
-For particles (electrons, neutrons, helium atoms), the effective wavelength is computed from the
-de Broglie relation:
+When the Double Slit barrier is selected, the available slit settings are:
 
-    λ = h / (m × v)
+* Both Open
+* Left Covered
+* Right Covered
+* Left Detector
+* Right Detector
+* Both Detectors
 
-where:
-- h = 6.626 × 10⁻³⁴ J·s (Planck's constant)
-- m = particle mass
-- v = particle velocity
+The wave region is scaled so that about 15 default wavelengths fit across its width. At default
+settings:
 
-### Single-Slit and Which-Path Cases
+* Photons: effective wavelength 650 nm, wave-region width 9.75 um.
+* Electrons: effective wavelength 0.661 nm, wave-region width 9.92 nm.
+* Neutrons: effective wavelength 0.791 nm, wave-region width 11.87 nm.
+* Helium atoms: effective wavelength 0.0831 nm, wave-region width 1.25 nm.
 
-When one slit is covered, the double-slit interference factor is removed and only the single-slit
-diffraction envelope remains:
+Slit widths and separations are derived from the wave-region scale:
 
-    I(y) = sinc²(π a sin(θ) / λ)
+* Photons: slit width 0.511 um, slit separation range 0.929-5.11 um.
+* Electrons: slit width 0.520 nm, slit separation range 0.945-5.20 nm.
+* Neutrons: slit width 0.622 nm, slit separation range 1.13-6.22 nm.
+* Helium atoms: slit width 0.0653 nm, slit separation range 0.119-0.653 nm.
 
-When a which-path detector is active on one slit, the interference is also destroyed. The resulting
-pattern is the incoherent sum of two single-slit patterns (equivalent to a single broad diffraction
-envelope). This models the quantum mechanical principle that acquiring which-path information eliminates
-the coherence needed for interference.
+The continuous-wave solver:
 
-### Hit Generation
+* Evaluates an analytical wave field over the wave region.
+* Accumulates a time-averaged detector probability distribution while the source is on.
+* Starts forming the Average Intensity detector pattern after the wavefront reaches the detector.
+* Forms the Average Intensity detector pattern over 2 seconds of effective model time.
+* Samples Hits from the detector probability distribution after the wavefront reaches the screen.
+* Uses 5 conceptual particles/second for Hits mode and slit-detector decoherence events.
 
-Individual detection events are generated using rejection sampling:
-1. A candidate position is chosen uniformly across the screen width.
-2. The theoretical intensity at that position is evaluated.
-3. The candidate is accepted with probability proportional to the intensity.
-4. Vertical positions are uniformly distributed across the screen height (with small padding).
+When slit detectors are active:
 
-This produces a spatial distribution of hits that converges to the theoretical interference pattern
-as the number of events increases.
+* The model creates decoherence events at the slits.
+* Detector counts track which monitored slit clicked.
+* Which-path information removes coherent interference between the affected paths.
 
-In Hits mode, each scene is capped at 25,000 hits (`ExperimentConstants.MAX_HITS`). When the cap is
-reached, the emitter turns off automatically, its on/off button is disabled, and the user must clear
-the detector screen before collecting more hits in that scene.
+## Single Particles screen
 
-## Source-Specific Parameters
+The _Single Particles_ screen models one wave packet at a time. Each packet propagates through the
+wave region and eventually collapses to a localized detection event unless the detector tool detects
+it first.
 
-| Parameter         | Photons        | Electrons          | Neutrons          | Helium Atoms       |
-|-------------------|----------------|--------------------|-------------------|--------------------|
-| Slit Width        | 20 μm          | 0.03 μm            | 3 μm              | 0.3 μm             |
-| Slit Separation   | 0.05–0.5 mm    | 0.1–0.9 μm         | 10–70 μm          | 1–7 μm             |
-| Screen Distance   | 0.4–0.8 m      | 0.4–0.8 m          | 0.4–0.8 m         | 0.4–0.8 m          |
-| Particle Mass     | —              | 9.109 × 10⁻³¹ kg  | 1.675 × 10⁻²⁷ kg | 6.646 × 10⁻²⁷ kg  |
-| Speed Range       | c (fixed)      | 700–1500 km/s      | 200–800 m/s       | 400–2000 m/s       |
+There are 4 source-type scenes. Source ranges, wave-region scales, slit widths, and slit separation
+ranges are the same as the _High Intensity_ screen.
 
-## Approximations and Assumptions
+In each scene:
 
-- Far-field (Fraunhofer) diffraction only; no near-field corrections.
-- Slit width is constant per source type and not adjustable by the user.
-- The emitter produces a uniform intensity distribution across the beam cross-section.
-- Particle detection is instantaneous (no time-of-flight effects).
-- Which-path detection completely destroys coherence (no partial decoherence).
-- Hit positions along the vertical axis are uniformly random (no vertical interference effects).
+* The emitter creates one packet at a time.
+* Auto Repeat controls whether additional packets are emitted after the previous packet ends.
+* The detector screen is always in Hits mode.
+* The barrier can be set to None or Double Slit.
+* The available Double Slit settings are Both Open, Left Covered, Right Covered, Left Detector,
+  Right Detector, and Both Detectors.
+* The minimum interval between emitted packets is 0.3 seconds.
+* Each scene is capped at 25,000 detector-screen hits.
+
+The wave packet model:
+
+* Uses an analytical Gaussian wave-packet solver.
+* Has a baseline traversal time of 1.5 seconds for the packet center to cross the wave region at
+  the default source speed.
+* Starts the packet center 3 initial `sigma_x` widths to the left of the visible region.
+* Uses initial packet widths `sigma_x = 0.2 * regionWidth` and `sigma_y = 0.2 * regionHeight`.
+* Samples screen-detection timing from the packet's longitudinal probability profile.
+
+When a packet reaches the detector screen:
+
+* The hit position is sampled from the current detector probability distribution.
+* Horizontal hit position is normalized to [-1,1].
+* Vertical hit position is uniformly sampled in [0,1].
+* The packet ends and one detector-screen hit is added.
+
+When slit detectors are active:
+
+* The model samples an on-slit detection time for the packet.
+* If a detector clicks, the corresponding detector count is incremented.
+* The downstream packet is re-emitted from the selected slit to represent the post-measurement
+  state.
+
+The detector tool is unique to the _Single Particles_ screen and is available only when the barrier
+is None.
+
+For the detector tool:
+
+* Position is normalized within the wave region, with x and y in [0,1].
+* Radius is a fraction of the wave-region/grid width, range 0.03-0.3, default 0.1.
+* Probability is dimensionless in the range 0-1 and is computed by integrating `|psi|^2` inside the
+  detector circle.
+* If Detect succeeds, the packet ends.
+* If Detect fails, probability inside the detector circle is removed and the remaining wave function
+  is renormalized.
