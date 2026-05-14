@@ -187,9 +187,17 @@ This table maps those nicknames to the actual class or property name in code:
 
 ## Disposal
 
-No components in this simulation require disposal. All UI elements persist for the lifetime of the
-simulation. Scene model instances are never removed. View components use `isDisposable: false` to
-make this contract explicit and prevent accidental disposal attempts.
+Top-level screens, scene model instances, and persistent view components are not disposed during the
+simulation. Scene model instances are never removed. Persistent view components use
+`isDisposable: false` to make this lifetime contract explicit and prevent accidental disposal
+attempts.
+
+There are two targeted exceptions for transient or rebuilt internals:
+
+- `createRulerNode` rebuilds the child `RulerNode` when the detector screen scale changes. The old
+  `RulerNode` is removed from its container and disposed before the replacement is added.
+- Flash feedback uses short-lived `Animation` instances in detector and snapshot views. Each
+  animation is stopped when superseded, and disposed when its ended listener runs.
 
 ## Time Controls
 
