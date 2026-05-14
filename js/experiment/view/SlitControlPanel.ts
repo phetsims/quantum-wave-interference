@@ -20,8 +20,6 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
-import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
-import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -33,6 +31,7 @@ import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
+import SlitSeparationControl from './SlitSeparationControl.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
@@ -109,86 +108,9 @@ export default class SlitControlPanel extends Panel {
   ): Node {
     const sceneTandemName = scene.sourceType;
 
-    // Slit separation NumberControl. Display in μm for all particle scenes and photons so the control readout uses
-    // the same units as the slit-view annotations.
-    const slitSeparationRange = scene.slitSeparationRange;
-    const usesMicrometers = scene.sourceType === 'photons' || slitSeparationRange.max <= 0.1;
-
-    let slitSeparationNumberDisplayOptions;
-    let slitSeparationTicks;
-    let slitSeparationDelta;
-
-    if ( usesMicrometers ) {
-      // Display in μm: convert mm values to μm (×1000) for the number display and ticks
-      const mmToMicrometerDecimalPlaces = ExperimentConstants.getRangeDecimalPlaces(
-        slitSeparationRange.min * 1000, slitSeparationRange.max * 1000
-      );
-      slitSeparationDelta = scene.sourceType === 'photons' ? SlitControlPanel.getDelta( slitSeparationRange ) : 0.0001;
-      slitSeparationNumberDisplayOptions = {
-        numberFormatter: ( valueMM: number ) => {
-          const valueUM = valueMM * 1000;
-          const numberFormatOptions = {
-            decimalPlaces: mmToMicrometerDecimalPlaces,
-            showTrailingZeros: true
-          };
-          return {
-            visualString: micrometersUnit.getVisualSymbolPatternString( valueUM, numberFormatOptions ),
-            accessibleString: micrometersUnit.getAccessibleString( valueUM, numberFormatOptions )
-          };
-        },
-        numberFormatterDependencies: [
-          ...micrometersUnit.getDependentProperties()
-        ],
-        textOptions: {
-          font: new PhetFont( 14 )
-        },
-        maxWidth: 100
-      };
-      slitSeparationTicks = SlitControlPanel.createMicrometerTicks( slitSeparationRange );
-    }
-    else {
-      const slitSeparationDecimalPlaces = ExperimentConstants.getRangeDecimalPlaces( slitSeparationRange.min, slitSeparationRange.max );
-      slitSeparationDelta = SlitControlPanel.getDelta( slitSeparationRange );
-      slitSeparationNumberDisplayOptions = {
-        decimalPlaces: slitSeparationDecimalPlaces,
-        valuePattern: {
-          visualPattern: millimetersUnit.visualSymbolPatternStringProperty!,
-          accessiblePattern: millimetersUnit.accessiblePattern!
-        },
-        textOptions: {
-          font: new PhetFont( 14 )
-        },
-        maxWidth: 100
-      };
-      slitSeparationTicks = SlitControlPanel.createNumericTicks( slitSeparationRange );
-    }
-
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out SlitSeparationControl extends NumberControl
-    const slitSeparationControl = new NumberControl(
-      QuantumWaveInterferenceFluent.slitSeparationStringProperty,
-      scene.slitSeparationProperty,
-      slitSeparationRange,
-      {
-        delta: slitSeparationDelta,
-        titleNodeOptions: {
-          font: TITLE_FONT,
-          maxWidth: 150
-        },
-        numberDisplayOptions: slitSeparationNumberDisplayOptions,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSeparationSlider.accessibleHelpTextStringProperty,
-        sliderOptions: {
-          trackSize: SLIDER_TRACK_SIZE,
-          thumbSize: new Dimension2( 13, 22 ),
-          majorTickLength: 12,
-          majorTicks: slitSeparationTicks
-        },
-        layoutFunction: NumberControl.createLayoutFunction1( {
-          ySpacing: NUMBER_CONTROL_Y_SPACING,
-          arrowButtonsXSpacing: ARROW_BUTTONS_X_SPACING
-        } ),
-        tandem: tandem.createTandem( `${sceneTandemName}SlitSeparationControl` )
-      }
-    );
+    const slitSeparationControl = new SlitSeparationControl( scene, {
+      tandem: tandem.createTandem( `${sceneTandemName}SlitSeparationControl` )
+    } );
 
     // Screen distance NumberControl
     const screenDistanceRange = scene.screenDistanceRange;
@@ -330,38 +252,6 @@ export default class SlitControlPanel extends Panel {
   }
 
   /**
-   * Creates major tick marks with μm labels for slit separation ranges that are in the micrometer scale.
-   * The range is in mm but the labels display the values converted to μm for readability.
-   */
-  private static createMicrometerTicks( range: Range ): { value: number; label: Node }[] {
-    // Use consistent decimal places across both tick labels so they visually match. E.g., for range 0.5–1.0 μm,
-    // both ticks should show 1 decimal place: "0.5" and "1.0".
-    const minUM = range.min * 1000;
-    const maxUM = range.max * 1000;
-    const decimalPlaces = Math.max(
-      ExperimentConstants.getDecimalPlacesForValue( minUM ),
-      ExperimentConstants.getDecimalPlacesForValue( maxUM )
-    );
-
-    return [
-      {
-        value: range.min,
-        label: new Text( toFixed( minUM, decimalPlaces ), {
-          font: TICK_LABEL_FONT,
-          maxWidth: 40
-        } )
-      },
-      {
-        value: range.max,
-        label: new Text( toFixed( maxUM, decimalPlaces ), {
-          font: TICK_LABEL_FONT,
-          maxWidth: 40
-        } )
-      }
-    ];
-  }
-
-  /**
    * Creates major tick marks with numeric labels showing the min and max values of the range.
    * Uses minimal decimal places needed to represent the values without trailing zeros.
    */
@@ -391,13 +281,4 @@ export default class SlitControlPanel extends Panel {
     ];
   }
 
-  /**
-   * Determines an appropriate delta (step size) for a NumberControl based on the decimal precision of the range
-   * boundaries. The step size is the smallest increment representable at that precision (e.g.,
-   * 1 decimal place → delta = 0.1).
-   */
-  private static getDelta( range: Range ): number {
-    const decimalPlaces = ExperimentConstants.getRangeDecimalPlaces( range.min, range.max );
-    return Math.pow( 10, -decimalPlaces );
-  }
 }
