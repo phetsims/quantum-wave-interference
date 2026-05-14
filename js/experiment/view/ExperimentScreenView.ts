@@ -62,6 +62,7 @@ import OverheadBeamNode from './OverheadBeamNode.js';
 import OverheadDetectorScreenNode from './OverheadDetectorScreenNode.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 import OverheadEmitterNode from './OverheadEmitterNode.js';
+import RulerCheckbox from './RulerCheckbox.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
@@ -85,12 +86,10 @@ export default class ExperimentScreenView extends ScreenView {
   private readonly graphExpandedProperty: BooleanProperty;
 
   public constructor( model: ExperimentModel, providedOptions: ExperimentScreenViewOptions ) {
-    const options = optionize<ExperimentScreenViewOptions, SelfOptions, ScreenViewOptions>()(
-      {
+    const options = optionize<ExperimentScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
         screenSummaryContent: new ExperimentScreenSummaryContent( model )
       },
-      providedOptions
-    );
+      providedOptions );
 
     super( options );
 
@@ -263,8 +262,7 @@ export default class ExperimentScreenView extends ScreenView {
     const sceneRadioButtonGroup = new SceneRadioButtonGroup(
       model.sceneProperty,
       model.scenes,
-      options.tandem.createTandem( 'sceneRadioButtonGroup' ),
-      {
+      options.tandem.createTandem( 'sceneRadioButtonGroup' ), {
         createAccessibleContextResponse: scene => QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleContextResponse.createProperty( {
           sourceType: scene.sourceType,
           isEmitting: scene.isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' ),
@@ -280,8 +278,9 @@ export default class ExperimentScreenView extends ScreenView {
     const slitControlPanel = new SlitControlPanel(
       model.sceneProperty,
       model.scenes,
-      this, // ComboBox list parent
-      {
+
+      // ComboBox list parent
+      this, {
         tandem: options.tandem.createTandem( 'slitControlPanel' )
       }
     );
@@ -309,8 +308,7 @@ export default class ExperimentScreenView extends ScreenView {
     const screenSettingsPanel = new ScreenSettingsPanel(
       model.currentDetectionModeProperty,
       model.currentScreenBrightnessProperty,
-      model.currentIsEmittingProperty,
-      {
+      model.currentIsEmittingProperty, {
         tandem: options.tandem.createTandem( 'screenSettingsPanel' )
       }
     );
@@ -345,19 +343,7 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( resetAllButton );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out everything related to rulerCheckbox, for better encapsulation and less code in the class.
-
-    // Ruler checkbox
-    const rulerCheckboxLabel = new Text( QuantumWaveInterferenceFluent.rulerStringProperty, {
-      font: new PhetFont( 14 ),
-      maxWidth: 80
-    } );
-    const rulerCheckbox = new Checkbox( model.isRulerVisibleProperty, rulerCheckboxLabel, {
-      boxWidth: 16,
-      spacing: 6,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty,
-      accessibleContextResponseChecked: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleContextResponseCheckedStringProperty,
-      accessibleContextResponseUnchecked: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleContextResponseUncheckedStringProperty,
+    const rulerCheckbox = new RulerCheckbox( model.isRulerVisibleProperty, {
       tandem: options.tandem.createTandem( 'rulerCheckbox' )
     } );
 
