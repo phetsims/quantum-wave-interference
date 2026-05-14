@@ -51,8 +51,8 @@ export default class QuantumWaveInterferenceConstants {
 
   // Initial one-sigma packet radius as a fraction of the wave region. Increase both values to make
   // the packet visibly larger; decrease both to make it tighter. The original values were 0.12.
-  public static readonly WAVE_PACKET_SIGMA_X_FRACTION = 0.2;
-  public static readonly WAVE_PACKET_SIGMA_Y_FRACTION = 0.2;
+  public static readonly WAVE_PACKET_SIGMA_X_FRACTION = 0.15;
+  public static readonly WAVE_PACKET_SIGMA_Y_FRACTION = 0.15;
 
   // The packet starts this many sigma_x widths to the left of the visible region so it enters smoothly.
   public static readonly WAVE_PACKET_START_OFFSET_SIGMAS = 3;
