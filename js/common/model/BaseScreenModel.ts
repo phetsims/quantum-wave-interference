@@ -9,7 +9,6 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
-import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -25,6 +24,7 @@ import { type BarrierType } from './BarrierType.js';
 import type BaseSceneModel from './BaseSceneModel.js';
 import type { Snapshot } from './Snapshot.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from './WaveDisplayMode.js';
+import TimeSpeedProperty from './TimeSpeedProperty.js';
 
 const NOMINAL_DT = 1 / 60;
 const SLOW_TIME_SPEED_FACTOR = 0.25;
@@ -52,7 +52,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
 
   // Shared state: time controls (global, not scene-specific)
   public readonly isPlayingProperty: BooleanProperty;
-  public readonly timeSpeedProperty: EnumerationProperty<TimeSpeed>;
+  public readonly timeSpeedProperty: TimeSpeedProperty;
 
   // Tool visibility (shared across both screens)
   public readonly isTapeMeasureVisibleProperty: BooleanProperty;
@@ -137,10 +137,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       tandem: tandem.createTandem( 'isPlayingProperty' )
     } );
 
-    this.timeSpeedProperty = new EnumerationProperty( TimeSpeed.NORMAL, {
-      validValues: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
-      tandem: tandem.createTandem( 'timeSpeedProperty' )
-    } );
+    this.timeSpeedProperty = new TimeSpeedProperty( tandem.createTandem( 'timeSpeedProperty' ) );
 
     this.toolsTandem = tandem.createTandem( 'tools' );
 

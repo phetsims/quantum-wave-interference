@@ -10,7 +10,6 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
-import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import Range from '../../../../dot/js/Range.js';
@@ -26,6 +25,7 @@ import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
+import TimeSpeedProperty from '../../common/model/TimeSpeedProperty.js';
 import { DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, DETECTOR_SCREEN_SCALE_OPTIONS } from './DetectorScreenScale.js';
 import SceneModel from './SceneModel.js';
 
@@ -59,7 +59,7 @@ export default class ExperimentModel implements TModel {
 
   // Shared state: time controls
   public readonly isPlayingProperty: BooleanProperty;
-  public readonly timeSpeedProperty: EnumerationProperty<TimeSpeed>;
+  public readonly timeSpeedProperty: TimeSpeedProperty;
 
   // Shared state: ruler visibility and position
   public readonly isRulerVisibleProperty: BooleanProperty;
@@ -139,11 +139,7 @@ export default class ExperimentModel implements TModel {
       tandem: tandem.createTandem( 'isPlayingProperty' )
     } );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same as BaseScreenModel
-    this.timeSpeedProperty = new EnumerationProperty( TimeSpeed.NORMAL, {
-      validValues: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
-      tandem: tandem.createTandem( 'timeSpeedProperty' )
-    } );
+    this.timeSpeedProperty = new TimeSpeedProperty( tandem.createTandem( 'timeSpeedProperty' ) );
 
     this.isRulerVisibleProperty = new BooleanProperty( false, {
       tandem: tandem.createTandem( 'isRulerVisibleProperty' )
