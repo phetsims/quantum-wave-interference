@@ -196,7 +196,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
               } )
             };
           },
-          numberFormatterDependencies: [
+          numberFormatterDependencies: Array.from( new Set( [
             ...nanometersUnit.getDependentProperties(),
             ...QuantumWaveInterferenceFluent.a11y.wavelengthSlider.accessibleValue.getDependentProperties(),
             QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty,
@@ -206,7 +206,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
             QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty,
             QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty,
             QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty
-          ],
+          ] ) ),
           textOptions: {
             font: new PhetFont( 14 )
           },

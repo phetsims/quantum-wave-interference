@@ -175,13 +175,13 @@ export default class SnapshotNode extends Node {
     );
 
     const slitSeparationProperty = DerivedProperty.deriveAny(
-      [
+      Array.from( new Set( [
         snapshotProperty,
         QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
         QuantumWaveInterferenceFluent.slitSeparationStringProperty,
         ...micrometersUnit.getDependentProperties(),
         ...millimetersUnit.getDependentProperties()
-      ],
+      ] ) ),
       () => ifSnapshot( snapshot => formatLabelValue(
           QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
           formatSlitSeparation( snapshot.slitSeparation )
@@ -189,7 +189,7 @@ export default class SnapshotNode extends Node {
     );
 
     const wavelengthOrSpeedProperty = DerivedProperty.deriveAny(
-      [
+      Array.from( new Set( [
         snapshotProperty,
         QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
         SceneryPhetFluent.wavelengthStringProperty,
@@ -197,7 +197,7 @@ export default class SnapshotNode extends Node {
         ...nanometersUnit.getDependentProperties(),
         ...kilometersPerSecondUnit.getDependentProperties(),
         ...metersPerSecondUnit.getDependentProperties()
-      ],
+      ] ) ),
       () => ifSnapshot( snapshot => {
         if ( snapshot.sourceType === 'photons' ) {
           const wavelengthValue = nanometersUnit.getVisualSymbolPatternString( roundSymmetric( snapshot.wavelength ), {

@@ -66,10 +66,10 @@ export default class MeasurementToolNodes extends Node {
       numberDisplayRange: Stopwatch.ZERO_TO_ALMOST_SIXTY,
       numberDisplayOptions: {
         numberFormatter: createPhysicalStopwatchFormatter(),
-        numberFormatterDependencies: [
+        numberFormatterDependencies: Array.from( new Set( [
           SceneryPhetFluent.stopwatchValueUnitsPatternStringProperty,
           ...STOPWATCH_TIME_UNITS.flatMap( timeUnit => timeUnit.unit.getDependentProperties() )
-        ],
+        ] ) ),
         useRichText: true,
         maxWidth: 150
       },

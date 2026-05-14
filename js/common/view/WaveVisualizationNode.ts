@@ -20,6 +20,7 @@ import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
@@ -152,10 +153,11 @@ export default class WaveVisualizationNode extends Node {
 
     // Update scale bar and label when the scene or locale changes.
     Multilink.multilinkAny(
-      [ sceneProperty,
+      Array.from( new Set( [ sceneProperty,
         ...millimetersUnit.getDependentProperties(),
         ...micrometersUnit.getDependentProperties(),
-        ...nanometersUnit.getDependentProperties() ],
+        ...nanometersUnit.getDependentProperties()
+      ] ) ),
       () => {
         const scene = sceneProperty.value;
         const { distanceMeters, barPixels } = computeNiceScale( scene.regionWidth, width );
@@ -166,7 +168,7 @@ export default class WaveVisualizationNode extends Node {
     );
 
     // Time scale label in the bottom-left corner (e.g., "1 fs = 10⁻¹⁵ s")
-    const timeLabel = new Text( QuantumWaveInterferenceFluent.timeScaleLabelStringProperty, {
+    const timeLabel = new RichText( QuantumWaveInterferenceFluent.timeScaleLabelStringProperty, {
       font: scaleFont,
       fill: scaleLabelColor,
       maxWidth: 120
