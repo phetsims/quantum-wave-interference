@@ -61,7 +61,7 @@ coverBottom:                           Cover Bottom
 detectorTop:                           Detector Top
 detectorBottom:                        Detector Bottom
 autoRepeat:                            Auto-repeat
-timeScaleLabel:                        '1 fs = 10⁻¹⁵ s'
+timeScaleLabel:                        '1 fs = 10<sup>-15</sup> s'
 detectorSize:                          Detector Size
 detect:                                Detect
 resetDetector:                         Reset
