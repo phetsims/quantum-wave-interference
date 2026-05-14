@@ -6,10 +6,13 @@ photons:                               Photons
 electrons:                             Electrons
 neutrons:                              Neutrons
 heliumAtoms:                           Helium Atoms
+
+# Shown above the emitter
 photonSource:                          Photon source
 electronSource:                        Electron source
 neutronSource:                         Neutron source
 heliumAtomSource:                      Helium atom source
+
 doubleSlit:                            Double slit
 detectorScreen:                        Detector screen
 maximumHitsReached:                    Maximum hits reached
