@@ -408,10 +408,10 @@ export default class SceneModel extends PhetioObject {
     this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];
   }
 
-  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same as BaseSceneModel deleteSnapshot
   /**
    * Deletes a specific snapshot and compacts the remaining snapshot labels to match their current display order.
    */
+  // NOTE: identical implementation in quantum-wave-interference/js/common/model/BaseSceneModel.ts
   public deleteSnapshot( snapshot: Snapshot ): void {
     this.snapshotsProperty.value = renumberSnapshots( this.snapshotsProperty.value.filter( s => s !== snapshot ) );
   }

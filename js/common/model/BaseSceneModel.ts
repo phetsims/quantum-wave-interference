@@ -563,11 +563,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.snapshotsProperty.value = [ ...this.snapshotsProperty.value, snapshot ];
   }
 
-  // Delete a specific snapshot and compact the remaining snapshot labels to match their current display order.
+  // Deletes a specific snapshot and compacts the remaining snapshot labels to match their current display order.
+  // NOTE: identical implementation in quantum-wave-interference/js/experiment/model/SceneModel.ts
   public deleteSnapshot( snapshot: Snapshot ): void {
-    this.snapshotsProperty.value = renumberSnapshots(
-      this.snapshotsProperty.value.filter( s => s !== snapshot )
-    );
+    this.snapshotsProperty.value = renumberSnapshots( this.snapshotsProperty.value.filter( s => s !== snapshot ) );
   }
 
   public abstract step( dt: number ): void;
