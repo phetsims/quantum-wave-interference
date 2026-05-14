@@ -74,7 +74,7 @@ Factory functions in `js/common/view/` assemble shared UI patterns:
 - `createMeasurementToolNodes()`: Tape measure, stopwatch, time plot, and position plot.
 - `createSidewaysGraph()`: Intensity/hits graph alongside the detector screen.
 
-## Screen 1: Experiment
+## Experiment Screen
 
 The Experiment screen uses a separate model (`ExperimentModel`) and view (`ExperimentScreenView`)
 in `js/experiment/`. It has a three-row overhead layout: emitter + beam + overhead double slit +
@@ -86,7 +86,7 @@ formula (not the dual-solver architecture) and generates hits via rejection samp
 predates the High Intensity and Single Particles screens and does not use `BaseSceneModel` or
 `BaseScreenModel`.
 
-### Key Differences from Screens 2/3
+### Key Differences from the High Intensity and Single Particles Screens
 
 - Own `SceneModel` class with built-in interference calculation (no solver interface)
 - Own `ExperimentScreenView` layout with overhead perspective row
@@ -94,7 +94,7 @@ predates the High Intensity and Single Particles screens and does not use `BaseS
 - Two time speeds (Normal, Fast) — no Slow option
 - Slit settings include "one slit" option not available on the other screens
 
-## Screen 2: High Intensity
+## High Intensity Screen
 
 The High Intensity screen (`js/high-intensity/`) shows continuous-wave plane-wave interference. The
 emitter produces a steady beam; waves propagate across the visualization region and strike the
@@ -127,7 +127,7 @@ coherence with the other slit, eliminating interference from that slit's contrib
 - Photons: Time-averaged intensity, Electric field
 - Matter particles: Magnitude, Real part, Imaginary part
 
-## Screen 3: Single Particles
+## Single Particles Screen
 
 The Single Particles screen (`js/single-particles/`) shows one-particle-at-a-time quantum wave
 packets. Each emission produces a visible wave packet that propagates, spreads, and eventually
