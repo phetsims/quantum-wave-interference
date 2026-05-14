@@ -67,8 +67,7 @@ import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js'
 
 type SelfOptions = EmptySelfOptions;
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Narrow this interface to omit the ScreenViewOptions that this class controls.
-type ExperimentScreenViewOptions = SelfOptions & ScreenViewOptions;
+type ExperimentScreenViewOptions = SelfOptions & Pick<ScreenViewOptions, 'tandem'>;
 
 const RULER_X_OFFSET = 0.5;
 const RULER_KEYBOARD_DRAG_DELTA = 5;
