@@ -21,15 +21,15 @@ import Vector2, { type Vector2StateObject } from '../../../../dot/js/Vector2.js'
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
+import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
+import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
+import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import GetSetButtonsIO from '../../../../tandem/js/types/GetSetButtonsIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
-import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
-import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
-import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
-import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import { getExactAnalyticalDetectorIntensity } from '../../common/model/AnalyticalDetectorPattern.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
@@ -151,8 +151,8 @@ export default class SceneModel extends PhetioObject {
     const options = optionize<SceneModelOptions, SelfOptions, PhetioObjectOptions>()( {
       isDisposable: false,
       phetioType: SceneModel.SceneModelIO,
-      phetioDocumentation: 'Model for a single source-type scene, including detector screen data.'
-      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Should this be phetioState: false, or does it have state of its own?
+      phetioDocumentation: 'Model for a single source-type scene, including detector screen data.',
+      phetioState: true // provides its own state in the IOType
     }, providedOptions );
 
     super( options );
@@ -547,10 +547,13 @@ export default class SceneModel extends PhetioObject {
     this.hitsChangedEmitter.emit();
   }
 
-  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 IOType documentation is supposed to identify the type of serialization.
   /**
    * IOType for SceneModel that serializes the live detector screen data (hits and hit accumulator)
    * which are plain arrays/numbers not covered by the individual instrumented Properties.
+   *
+   * Uses reference type serialization, which means the SceneModel exists for the life of the simulation and its state
+   * is saved/restored in place when we save/load the simulation state. The hits array and hitAccumulator are included
+   * in the stateSchema and are saved/restored as part of the SceneModel's state, using data-type serialization.
    */
   private static readonly SceneModelIO = new IOType<SceneModel, SceneModelStateObject>( 'SceneModelIO', {
     valueType: SceneModel,

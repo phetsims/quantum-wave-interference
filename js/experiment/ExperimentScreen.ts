@@ -9,6 +9,7 @@
 
 import Screen, { ScreenOptions } from '../../../joist/js/Screen.js';
 import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js';
+import PickRequired from '../../../phet-core/js/types/PickRequired.js';
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceKeyboardHelpContent from '../common/view/QuantumWaveInterferenceKeyboardHelpContent.js';
 import { ExperimentScreenIcon } from '../common/view/ScreenIcons.js';
@@ -18,8 +19,7 @@ import ExperimentScreenView from './view/ExperimentScreenView.js';
 
 type SelfOptions = EmptySelfOptions;
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Narrow this interface to omit the ScreenOptions that this class controls.
-type ExperimentScreenOptions = SelfOptions & ScreenOptions;
+type ExperimentScreenOptions = SelfOptions & PickRequired<ScreenOptions, 'tandem'>;
 
 export default class ExperimentScreen extends Screen<ExperimentModel, ExperimentScreenView> {
 

@@ -92,10 +92,7 @@ export default class SnapshotsDialog extends Dialog {
 
       //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same as horizontalZoomLevelResponseProperty in DetectorScreenNode
       const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
-        level: new DerivedProperty(
-          [ detectorScreenScaleIndexProperty ],
-          detectorScreenScaleIndex => detectorScreenScaleIndex + 1
-        ),
+        level: new DerivedProperty( [ detectorScreenScaleIndexProperty ], detectorScreenScaleIndex => detectorScreenScaleIndex + 1 ),
         max: detectorScreenScaleIndexProperty.range.max + 1
       } );
 

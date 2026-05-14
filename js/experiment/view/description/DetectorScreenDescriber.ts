@@ -109,9 +109,7 @@ export default class DetectorScreenDescriber {
     };
 
     // Listen to scene changes and rewire listeners for the active scene.
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 previousScene is unnecessary, it is provided as the 2nd argument to the sceneProperty callback.
-    let previousScene: SceneModel | null = null;
-    sceneProperty.link( scene => {
+    sceneProperty.link( ( scene, previousScene ) => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( update );
         previousScene.detectionModeProperty.unlink( fullUpdate );
