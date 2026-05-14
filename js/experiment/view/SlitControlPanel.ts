@@ -12,14 +12,9 @@
  */
 
 import Property from '../../../../axon/js/Property.js';
-import Dimension2 from '../../../../dot/js/Dimension2.js';
-import Range from '../../../../dot/js/Range.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
-import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -31,21 +26,15 @@ import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
+import ScreenDistanceControl from './ScreenDistanceControl.js';
 import SlitSeparationControl from './SlitSeparationControl.js';
 
-const TITLE_FONT = new PhetFont( 14 );
-const TICK_LABEL_FONT = new PhetFont( 12 );
-const SLIDER_TRACK_SIZE = new Dimension2( 150, 3 );
 const SLIT_SETTINGS_TITLE_FONT = new PhetFont( 14 );
 const COMBO_BOX_FONT = new PhetFont( 14 );
-const NUMBER_CONTROL_Y_SPACING = 8;
-const ARROW_BUTTONS_X_SPACING = 6;
 const PANEL_CONTENT_SPACING = 20;
 const SLIT_SETTINGS_SECTION_SPACING = 6;
 const PANEL_WIDTH = ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH + 20;
 const PANEL_MIN_HEIGHT = 270;
-const SCREEN_DISTANCE_DECIMAL_PLACES = 2;
-const SCREEN_DISTANCE_DELTA = 0.01;
 
 type SelfOptions = EmptySelfOptions;
 
@@ -112,45 +101,9 @@ export default class SlitControlPanel extends Panel {
       tandem: tandem.createTandem( `${sceneTandemName}SlitSeparationControl` )
     } );
 
-    // Screen distance NumberControl
-    const screenDistanceRange = scene.screenDistanceRange;
-
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out screenDistanceControl extends NumberControl
-    const screenDistanceControl = new NumberControl(
-      QuantumWaveInterferenceFluent.screenDistanceStringProperty,
-      scene.screenDistanceProperty,
-      screenDistanceRange,
-      {
-        delta: SCREEN_DISTANCE_DELTA,
-        titleNodeOptions: {
-          font: TITLE_FONT,
-          maxWidth: 150
-        },
-        numberDisplayOptions: {
-          decimalPlaces: SCREEN_DISTANCE_DECIMAL_PLACES,
-          valuePattern: {
-            visualPattern: metersUnit.visualSymbolPatternStringProperty!,
-            accessiblePattern: metersUnit.accessiblePattern!
-          },
-          textOptions: {
-            font: new PhetFont( 14 )
-          },
-          maxWidth: 100
-        },
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.screenDistanceSlider.accessibleHelpTextStringProperty,
-        sliderOptions: {
-          trackSize: SLIDER_TRACK_SIZE,
-          thumbSize: new Dimension2( 13, 22 ),
-          majorTickLength: 12,
-          majorTicks: SlitControlPanel.createNumericTicks( screenDistanceRange, SCREEN_DISTANCE_DECIMAL_PLACES )
-        },
-        layoutFunction: NumberControl.createLayoutFunction1( {
-          ySpacing: NUMBER_CONTROL_Y_SPACING,
-          arrowButtonsXSpacing: ARROW_BUTTONS_X_SPACING
-        } ),
-        tandem: tandem.createTandem( `${sceneTandemName}ScreenDistanceControl` )
-      }
-    );
+    const screenDistanceControl = new ScreenDistanceControl( scene, {
+      tandem: tandem.createTandem( `${sceneTandemName}ScreenDistanceControl` )
+    } );
 
     //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out SlitSettingsComboBox. There is too much inlined here.
 
@@ -249,36 +202,6 @@ export default class SlitControlPanel extends Panel {
       align: 'center',
       children: [ slitSeparationControl, screenDistanceControl, slitSettingsSection ]
     } );
-  }
-
-  /**
-   * Creates major tick marks with numeric labels showing the min and max values of the range.
-   * Uses minimal decimal places needed to represent the values without trailing zeros.
-   */
-  private static createNumericTicks( range: Range, decimalPlaces?: number ): { value: number; label: Node }[] {
-    // Use consistent decimal places across both tick labels so they visually match. E.g., for range 0.2–1.0 mm,
-    // both ticks should show 1 decimal place: "0.2" and "1.0".
-    const tickDecimalPlaces = decimalPlaces ?? Math.max(
-      ExperimentConstants.getDecimalPlacesForValue( range.min ),
-      ExperimentConstants.getDecimalPlacesForValue( range.max )
-    );
-
-    return [
-      {
-        value: range.min,
-        label: new Text( toFixed( range.min, tickDecimalPlaces ), {
-          font: TICK_LABEL_FONT,
-          maxWidth: 40
-        } )
-      },
-      {
-        value: range.max,
-        label: new Text( toFixed( range.max, tickDecimalPlaces ), {
-          font: TICK_LABEL_FONT,
-          maxWidth: 40
-        } )
-      }
-    ];
   }
 
 }
