@@ -139,15 +139,14 @@ export default class OverheadDetectorScreenNode extends Node {
     } );
     this.addChild( distanceSpanArrow );
 
-    const distanceSpanLeftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
+    const createTick = () => new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
       stroke: 'black', lineWidth: 1
     } );
+
+    const distanceSpanLeftTick = createTick();
     this.addChild( distanceSpanLeftTick );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical to distanceSpanLeftTick
-    const distanceSpanRightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
-      stroke: 'black', lineWidth: 1
-    } );
+    const distanceSpanRightTick = createTick();
     this.addChild( distanceSpanRightTick );
 
     const distanceText = new Text( '', {

@@ -69,22 +69,13 @@ export default class DetectorScreenScaleIndicatorNode extends Node {
       stroke: null
     } );
 
-    const scaleLeftTick = new Line(
-      0,
-      spanArrowY - SPAN_TICK_LENGTH / 2,
-      0,
-      spanArrowY + SPAN_TICK_LENGTH / 2,
-      { stroke: 'black', lineWidth: 1 }
-    );
+    const createTick = () => new Line( 0, spanArrowY - SPAN_TICK_LENGTH / 2, 0, spanArrowY + SPAN_TICK_LENGTH / 2, {
+      stroke: 'black',
+      lineWidth: 1
+    } );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same implementation as scaleLeftTick
-    const scaleRightTick = new Line(
-      0,
-      spanArrowY - SPAN_TICK_LENGTH / 2,
-      0,
-      spanArrowY + SPAN_TICK_LENGTH / 2,
-      { stroke: 'black', lineWidth: 1 }
-    );
+    const scaleLeftTick = createTick();
+    const scaleRightTick = createTick();
 
     const scaleLabelText = new Text( scaleLabelStringProperty, {
       font: new PhetFont( 12 ),

@@ -65,6 +65,8 @@ const SOURCE_TYPE_DISPLAY_MAP: Record<SourceType, TReadOnlyProperty<string>> = {
 
 const DEFAULT_SLIT_SETTING_DISPLAY_MAP: Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>> = {
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
+
+  // TODO: https://github.com/phetsims/quantum-wave-interference/issues/118 document or align this disparity
   leftCovered: QuantumWaveInterferenceFluent.coverTopStringProperty,
   rightCovered: QuantumWaveInterferenceFluent.coverBottomStringProperty,
   leftDetector: QuantumWaveInterferenceFluent.detectorTopStringProperty,

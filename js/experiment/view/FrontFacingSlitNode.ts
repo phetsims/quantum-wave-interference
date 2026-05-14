@@ -89,15 +89,14 @@ const createSpanNode = (
   textMaxWidth: number
 ): SpanNodeParts => {
   const arrow = new ArrowNode( 0, 0, 1, 0, arrowOptions );
-  const leftTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
+
+  const createTick = () => new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
     stroke: 'black',
     lineWidth: 1
   } );
-  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical to leftTick
-  const rightTick = new Line( 0, -SPAN_TICK_LENGTH / 2, 0, SPAN_TICK_LENGTH / 2, {
-    stroke: 'black',
-    lineWidth: 1
-  } );
+
+  const leftTick = createTick();
+  const rightTick = createTick();
   const text = new Text( labelStringProperty, {
     font: SPAN_FONT,
     maxWidth: textMaxWidth
