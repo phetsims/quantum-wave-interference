@@ -17,7 +17,8 @@ export default class TimeSpeedProperty extends EnumerationProperty<TimeSpeed> {
   public constructor( tandem: Tandem ) {
     super( TimeSpeed.NORMAL, {
       validValues: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
-      tandem: tandem
+      tandem: tandem,
+      phetioFeatured: true
     } );
   }
 }

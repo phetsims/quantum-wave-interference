@@ -249,17 +249,20 @@ export default class SceneModel extends PhetioObject {
 
     this.slitSettingProperty = new StringUnionProperty<SlitConfiguration>( 'bothOpen', {
       validValues: SlitConfigurationValues,
-      tandem: tandem.createTandem( 'slitSettingProperty' )
+      tandem: tandem.createTandem( 'slitSettingProperty' ),
+      phetioFeatured: true
     } );
 
     this.detectionModeProperty = new StringUnionProperty<DetectionMode>( 'averageIntensity', {
       validValues: DetectionModeValues,
-      tandem: tandem.createTandem( 'detectionModeProperty' )
+      tandem: tandem.createTandem( 'detectionModeProperty' ),
+      phetioFeatured: true
     } );
 
     this.screenBrightnessProperty = new NumberProperty( SceneModel.SCREEN_BRIGHTNESS_MAX * 0.5, {
       range: new Range( 0, SceneModel.SCREEN_BRIGHTNESS_MAX ),
-      tandem: tandem.createTandem( 'screenBrightnessProperty' )
+      tandem: tandem.createTandem( 'screenBrightnessProperty' ),
+      phetioFeatured: true
     } );
 
     this.totalHitsProperty = new NumberProperty( 0, {

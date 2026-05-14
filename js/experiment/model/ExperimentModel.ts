@@ -22,8 +22,10 @@ import Stopwatch from '../../../../scenery-phet/js/Stopwatch.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
+import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
-import { type DetectionMode } from '../../common/model/DetectionMode.js';
+import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
+import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import TimeSpeedProperty from '../../common/model/TimeSpeedProperty.js';
 import { DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, DETECTOR_SCREEN_SCALE_OPTIONS } from './DetectorScreenScale.js';
@@ -111,6 +113,7 @@ export default class ExperimentModel implements TModel {
     this.sceneProperty = new Property<SceneModel>( this.photonsScene, {
       validValues: this.scenes,
       tandem: tandem.createTandem( 'sceneProperty' ),
+      phetioFeatured: true,
       phetioValueType: ReferenceIO( IOType.ObjectIO )
     } );
 
@@ -120,7 +123,14 @@ export default class ExperimentModel implements TModel {
 
     this.currentDetectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>( this.sceneProperty, {
       derive: 'detectionModeProperty',
-      bidirectional: true
+      bidirectional: true,
+      tandem: tandem.createTandem( 'currentDetectionModeProperty' ),
+      phetioFeatured: true,
+      phetioDocumentation: 'The detector screen display mode for the current source scene.',
+      phetioReadOnly: true,
+      phetioState: false,
+      phetioValueType: StringUnionIO( DetectionModeValues ),
+      validValues: DetectionModeValues
     } );
 
     this.currentIsEmittingProperty = new DynamicProperty<boolean, boolean, SceneModel>( this.sceneProperty, {
@@ -166,7 +176,13 @@ export default class ExperimentModel implements TModel {
 
     this.currentScreenBrightnessProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
       derive: 'screenBrightnessProperty',
-      bidirectional: true
+      bidirectional: true,
+      tandem: tandem.createTandem( 'currentScreenBrightnessProperty' ),
+      phetioFeatured: true,
+      phetioDocumentation: 'The detector screen brightness for the current source scene.',
+      phetioReadOnly: true,
+      phetioState: false,
+      phetioValueType: NumberIO
     } );
 
     this.detectorScreenScaleIndexProperty = new NumberProperty( DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, {
@@ -176,13 +192,15 @@ export default class ExperimentModel implements TModel {
     } );
 
     this.isPlayingProperty = new BooleanProperty( true, {
-      tandem: tandem.createTandem( 'isPlayingProperty' )
+      tandem: tandem.createTandem( 'isPlayingProperty' ),
+      phetioFeatured: true
     } );
 
     this.timeSpeedProperty = new TimeSpeedProperty( tandem.createTandem( 'timeSpeedProperty' ) );
 
     this.isRulerVisibleProperty = new BooleanProperty( false, {
-      tandem: tandem.createTandem( 'isRulerVisibleProperty' )
+      tandem: tandem.createTandem( 'isRulerVisibleProperty' ),
+      phetioFeatured: true
     } );
 
     // Initial ruler position: centered in the layout bounds, below the middle row
