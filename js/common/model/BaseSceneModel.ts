@@ -23,14 +23,14 @@ import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
+import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
+import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ObjectLiteralIO from '../../../../tandem/js/types/ObjectLiteralIO.js';
-import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
-import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
-import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKernel.js';
 import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
@@ -142,7 +142,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       defaultPhotonWaveDisplayMode: 'electricField',
       defaultMatterWaveDisplayMode: 'magnitude',
       phetioType: BaseSceneModel.BaseSceneModelIO
-      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Should this be phetioState: false, or does it have state of its own?
+      //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Should this be phetioState: false, or does it have state of its own?
     }, providedOptions );
 
     super( options );
@@ -223,7 +223,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
 
     this.slitPositionFractionProperty = new NumberProperty( 0.5, {
-      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 units?
+      //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 units?
       range: new Range( 0.25, 0.75 ),
       tandem: tandem.createTandem( 'slitPositionFractionProperty' )
     } );
@@ -571,7 +571,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   public abstract step( dt: number ): void;
 
-  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 IOType documentation is supposed to identify the type of serialization.
+  // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 IOType documentation is supposed to identify the type of serialization.
   public static readonly BaseSceneModelIO = new IOType<BaseSceneModel, BaseSceneModelStateObject>( 'BaseSceneModelIO', {
     valueType: BaseSceneModel,
     documentation: 'Serializes the wave solver state and hit positions for a scene',

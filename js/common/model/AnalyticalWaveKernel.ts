@@ -297,7 +297,7 @@ export const getRepresentativeComplex = ( sample: FieldSample ): Complex => {
     return new Complex( 0, 0 );
   }
 
-  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Duplicate of line 273-279
+  // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate of line 273-279
   const groupSums = new Map<string, Complex>();
   for ( let i = 0; i < sample.components.length; i++ ) {
     const component = sample.components[ i ];

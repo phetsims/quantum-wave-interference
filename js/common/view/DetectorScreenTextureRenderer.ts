@@ -161,7 +161,7 @@ export default class DetectorScreenTextureRenderer {
                        scene.detectorPatternFormationFactorProperty?.value ?? 1 :
                        1;
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 paramsChanged duplicated in getDetectorScreenTexture
+    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 paramsChanged duplicated in getDetectorScreenTexture
     const paramsChanged = cache.lastBrightness !== currentBrightness ||
                           cache.lastWavelength !== currentWavelength ||
                           cache.lastDetectionMode !== currentDetectionMode ||
@@ -169,7 +169,7 @@ export default class DetectorScreenTextureRenderer {
                           cache.lastIsEmitting !== currentIsEmitting;
     const rampFactorChanged = cache.lastRampFactor !== rampFactor;
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Quite a bit of duplication in this if block with getDetectorScreenTexture.ts around line 338
+    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Quite a bit of duplication in this if block with getDetectorScreenTexture.ts around line 338
     if ( paramsChanged || rampFactorChanged ) {
       cache.lastRenderedHitCount = 0;
       cache.hitSprite = null;
@@ -310,7 +310,7 @@ export default class DetectorScreenTextureRenderer {
     return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;
   }
 
-  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Duplicate of hitSpriteParamsMatch in getDetectorScreenTexture.ts
+  // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate of hitSpriteParamsMatch in getDetectorScreenTexture.ts
   private hitSpriteParamsMatch(
     params: HitSpriteParams | null,
     rgb: { r: number; g: number; b: number },
@@ -364,7 +364,7 @@ export default class DetectorScreenTextureRenderer {
     this.fillCircle( ctx, rgb, coreAlpha, this.hitSpriteCenter, this.hitCoreRadius );
 
     cache.hitSprite = spriteCanvas;
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical to implementation in getDetectorScreenTexture.ts
+    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Identical to implementation in getDetectorScreenTexture.ts
     cache.hitSpriteParams = { r: rgb.r, g: rgb.g, b: rgb.b, coreAlpha: coreAlpha, glowAlpha: glowAlpha, glowRadius: glowRadius };
     return spriteCanvas;
   }

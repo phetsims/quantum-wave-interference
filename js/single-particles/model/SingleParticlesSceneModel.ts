@@ -132,7 +132,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       tandem: tandem.createTandem( 'autoRepeatProperty' )
     } );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical to slitConfigurationProperty in HighIntensitySceneModel
+    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Identical to slitConfigurationProperty in HighIntensitySceneModel
     this.slitConfigurationProperty = new StringUnionProperty<SlitConfigurationWithNoBarrier>( 'bothOpen', {
       validValues: SlitConfigurationWithNoBarrierValues,
       tandem: tandem.createTandem( 'slitConfigurationProperty' )
@@ -164,7 +164,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     } );
 
     this.detectorToolRadiusProperty = new NumberProperty( 0.1, {
-      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 units?
+      //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 units?
       range: new Range( 0.03, 0.3 ),
       tandem: tandem.createTandem( 'detectorToolRadiusProperty' )
     } );

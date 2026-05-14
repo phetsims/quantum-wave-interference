@@ -71,7 +71,7 @@ export default class DetectorScreenNode extends Node {
     this.addChild( this.canvasNode );
 
     const invalidateCanvas = () => this.canvasNode.invalidatePaint();
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 previousScene is unnecessary, it is provided as the 2nd argument to the sceneProperty callback.
+    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 previousScene is unnecessary, it is provided as the 2nd argument to the sceneProperty callback.
     let previousScene: DetectorScreenSceneLike | null = null;
     sceneProperty.link( scene => {
       if ( previousScene ) {

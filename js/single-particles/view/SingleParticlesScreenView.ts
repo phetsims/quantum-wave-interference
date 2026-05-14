@@ -38,7 +38,7 @@ import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 
 type SelfOptions = EmptySelfOptions;
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Narrow this interface to omit the ScreenViewOptions that this class controls.
+// TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Narrow this interface to omit the ScreenViewOptions that this class controls.
 type SingleParticlesScreenViewOptions = SelfOptions & ScreenViewOptions;
 
 const LABEL_FONT = new PhetFont( 14 );
@@ -177,7 +177,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       { value: 'noBarrier', createNode: () => new Text( QuantumWaveInterferenceFluent.noBarrierStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'noBarrierItem', separatorBefore: true }
     ];
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical to bottomRow in HighIntensityScreenView
+    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Identical to bottomRow in HighIntensityScreenView
     const bottomRow = new SlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
       slitConfigItems,
@@ -238,7 +238,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       clearScreen: () => model.sceneProperty.value.clearScreen(),
       onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash(),
       onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
-      //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Duplicate of resetView in HighIntensityScreenView
+      // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate of resetView in HighIntensityScreenView
       resetView: () => {
         this.sidewaysGraphNode.reset();
         this.timePlotNode.reset();
@@ -270,7 +270,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.positionPlotNode = toolNodes.positionPlotNode;
   }
 
-  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Duplicate of HighIntensityScreenView.step
+  // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate of HighIntensityScreenView.step
   public override step( dt: number ): void {
     super.step( dt );
     this.waveVisualizationNode.step();

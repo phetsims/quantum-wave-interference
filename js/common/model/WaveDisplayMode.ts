@@ -15,8 +15,8 @@ export type PhotonWaveDisplayMode = typeof PhotonWaveDisplayModeValues[number];
 export const MatterWaveDisplayModeValues = [ 'magnitude', 'realPart', 'imaginaryPart' ] as const;
 export type MatterWaveDisplayMode = typeof MatterWaveDisplayModeValues[number];
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27
-//REVIEW   WebStorm identifies WaveDisplayModeValues as unused.
-//REVIEW   Should WaveDisplayMode = typeof WaveDisplayModeValues[number] ?
+// TODO https://github.com/phetsims/quantum-wave-interference/issues/118
+// TODO https://github.com/phetsims/quantum-wave-interference/issues/118   WebStorm identifies WaveDisplayModeValues as unused.
+// TODO https://github.com/phetsims/quantum-wave-interference/issues/118   Should WaveDisplayMode = typeof WaveDisplayModeValues[number] ?
 export const WaveDisplayModeValues = [ ...PhotonWaveDisplayModeValues, ...MatterWaveDisplayModeValues ] as const;
 export type WaveDisplayMode = PhotonWaveDisplayMode | MatterWaveDisplayMode;

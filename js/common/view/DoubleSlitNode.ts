@@ -110,7 +110,7 @@ export default class DoubleSlitNode extends Node {
         stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
         lineWidth: 2
       } );
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same as implementation of topDetector.
+    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Same as implementation of topDetector.
     const bottomDetector = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
       SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2, CORNER_RADIUS, CORNER_RADIUS, {
         fill: detectorOverlayFillWithAlphaProperty,
@@ -124,7 +124,7 @@ export default class DoubleSlitNode extends Node {
         visible: false,
         pickable: false
       } );
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same as the implementation of topDetectorFlash, subclass or creation function?
+    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Same as the implementation of topDetectorFlash, subclass or creation function?
     const bottomDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
       SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2, CORNER_RADIUS, CORNER_RADIUS, {
         fill: 'white',

@@ -1,6 +1,6 @@
 // Copyright 2026, University of Colorado Boulder
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Documentation is not up to PhET standards.
+// TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Documentation is not up to PhET standards.
 
 /**
  * Minimal pure rasterization harness for analytical wave samples.
@@ -68,7 +68,7 @@ export type AnalyticalWaveRaster = {
   };
 };
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Generated code seems to prefer not to use
+//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Generated code seems to prefer not to use
 //REVIEW   'function' for defining functions. Might facilitate unintended closures.
 
 export const getFieldSampleRGBA = (
@@ -104,7 +104,7 @@ export const getLayeredFieldSampleRGBA = (
   baseColor: RGBColor,
   amplitudeScale: number
 ): RGBAColor => {
-  //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Duplicate if statement at line 79
+  //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate if statement at line 79
   if ( sample.kind !== 'field' ) {
     const gray = sample.kind === 'unreached' ? UNREACHED_VACUUM :
                  sample.kind === 'absorbed' ? ABSORBED_VACUUM :

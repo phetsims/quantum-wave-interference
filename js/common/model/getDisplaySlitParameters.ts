@@ -19,7 +19,7 @@ export type DisplaySlitParameters = {
   displaySlitWidth: number;
 };
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 WebStorm identifies this function as unused.
+// TODO https://github.com/phetsims/quantum-wave-interference/issues/118 WebStorm identifies this function as unused.
 export function getDisplaySlitParameters(
   wavelength: number,
   slitSeparation: number,

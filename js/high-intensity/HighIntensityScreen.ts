@@ -19,7 +19,7 @@ type SelfOptions = EmptySelfOptions;
 
 type HighIntensityScreenOptions = SelfOptions & ScreenOptions;
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Narrow this interface to omit the ScreenOptions that this class controls.
+//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Narrow this interface to omit the ScreenOptions that this class controls.
 export default class HighIntensityScreen extends Screen<HighIntensityModel, HighIntensityScreenView> {
 
   public constructor( providedOptions: HighIntensityScreenOptions ) {

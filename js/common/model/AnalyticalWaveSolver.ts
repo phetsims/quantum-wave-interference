@@ -29,7 +29,7 @@ import { type WaveSolverState } from './WaveSolver.js';
 const DISPLAY_TRAVERSAL_TIME = 2.0;
 const EDGE_TAPER_CELLS = 4;
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Documentation is not up to PhET standards for fields and methods.
+//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Documentation is not up to PhET standards for fields and methods.
 
 export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
 
@@ -90,7 +90,7 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
       maxProb = Math.max( maxProb, avg );
     }
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Duplicate if statement in AnalyticalWavePacketSolver.ts
+    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate if statement in AnalyticalWavePacketSolver.ts
     if ( maxProb > 0 ) {
       for ( let iy = 0; iy < this.gridHeight; iy++ ) {
         this.detectorDistribution[ iy ] /= maxProb;

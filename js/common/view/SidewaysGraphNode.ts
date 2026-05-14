@@ -67,7 +67,7 @@ type SelfOptions = {
   initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
 };
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 ... = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
+//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 ... = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
 type SidewaysGraphNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
 export default class SidewaysGraphNode extends Node {
@@ -115,7 +115,7 @@ export default class SidewaysGraphNode extends Node {
       MAX_ZOOM_LEVEL,
       this.activeDetectionMode ? getModeZoomLevel( this.activeDetectionMode ) : getZoomLevel( options.initialZoomLevel )
     );
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical zoomLevelProperty in GraphAccordionBox
+    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Identical zoomLevelProperty in GraphAccordionBox
     this.zoomLevelProperty = new NumberProperty( zoomRange.defaultValue, {
       range: zoomRange,
       tandem: providedOptions.tandem.createTandem( 'zoomLevelProperty' ),
@@ -217,7 +217,7 @@ export default class SidewaysGraphNode extends Node {
     // Repaint when visibility changes so the graph is current when shown
     this.visibleProperty.link( updateGraph );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 previousScene is unnecessary, it is provided as the 2nd argument to the sceneProperty callback.
+    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 previousScene is unnecessary, it is provided as the 2nd argument to the sceneProperty callback.
     let previousScene: SidewaysGraphSceneLike | null = null;
     sceneProperty.link( scene => {
       if ( previousScene ) {
@@ -341,7 +341,7 @@ export default class SidewaysGraphNode extends Node {
     this.dataPath.shape = shape;
     this.dataPath.lineWidth = 1.5;
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Same if-then-else as line 302, but with different constant values.
+    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Same if-then-else as line 302, but with different constant values.
     if ( scene.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( scene.wavelengthProperty.value );
       this.dataPath.fill = color.withAlpha( 0.3 );

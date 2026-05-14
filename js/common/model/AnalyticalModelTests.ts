@@ -1,6 +1,6 @@
 // Copyright 2026, University of Colorado Boulder
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Documentation is not up to PhET standards.
+// TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Documentation is not up to PhET standards.
 
 /**
  * Unit tests for the pure analytical wave kernel.

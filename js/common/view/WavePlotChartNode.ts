@@ -58,7 +58,7 @@ type SelfOptions = {
   panelRightPadding?: number;
 };
 
-//REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 ... = SelfOptions & StrictOmit<NodeOptions, 'cursor'>
+//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 ... = SelfOptions & StrictOmit<NodeOptions, 'cursor'>
 type WavePlotChartNodeOptions = SelfOptions & NodeOptions;
 
 export default class WavePlotChartNode extends Node {
