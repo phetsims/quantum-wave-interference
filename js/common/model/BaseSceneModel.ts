@@ -216,6 +216,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'barrierTypeProperty' )
     } );
 
+    // NOTE: identical implementation in quantum-wave-interference/js/experiment/model/SceneModel.ts
     this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
       range: this.slitSeparationRange,
       units: millimetersUnit,

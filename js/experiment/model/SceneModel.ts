@@ -234,7 +234,7 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'intensityProperty' )
     } );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Identical to BaseModel.slitSeparationProperty
+    // NOTE: identical implementation in quantum-wave-interference/js/common/model/BaseSceneModel.ts
     this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
       range: this.slitSeparationRange,
       units: millimetersUnit,
