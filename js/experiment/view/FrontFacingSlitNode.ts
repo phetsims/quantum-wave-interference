@@ -23,11 +23,11 @@ import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import { hasDetectorOnSide } from '../../common/model/SlitConfiguration.js';
 
 const VIEW_WIDTH = ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH;
 const VIEW_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
@@ -243,7 +243,7 @@ export default class FrontFacingSlitNode extends Node {
     this.addChild( slitWidthSpan.node );
 
     // --- Slit separation span (below the view) ---
-    const separationSpan = createSpanNode( separationLabelStringProperty, SPAN_ARROW_OPTIONS, 120 );
+    const separationSpan = createSpanNode( separationLabelStringProperty, SPAN_ARROW_OPTIONS, 80 );
     this.addChild( separationSpan.node );
 
     const { arrow: slitWidthArrow, leftTick: slitWidthLeftTick, rightTick: slitWidthRightTick, text: slitWidthText, node: slitWidthSpanNode } = slitWidthSpan;
