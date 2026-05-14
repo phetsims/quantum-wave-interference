@@ -35,6 +35,7 @@ const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number ): number => {
   return 2;
 };
 
+// TODO: Convert to class, see https://github.com/phetsims/quantum-wave-interference/issues/27
 const createRulerNode = (
   detectorScreenScaleIndexProperty: TReadOnlyProperty<number>,
   tandem: Tandem
