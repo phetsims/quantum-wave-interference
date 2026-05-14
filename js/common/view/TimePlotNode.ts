@@ -12,7 +12,6 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
@@ -61,6 +60,7 @@ type TimePlotDataPoint = {
 export default class TimePlotNode extends Node {
 
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
+  private readonly activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   private readonly chartNode: WavePlotChartNode;
   private readonly timeSeries: TimePlotDataPoint[];
   private elapsedTime: number;
@@ -73,6 +73,7 @@ export default class TimePlotNode extends Node {
 
   public constructor(
     sceneProperty: TReadOnlyProperty<WaveVisualizableScene>,
+    activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>,
     waveRegionX: number,
     waveRegionY: number,
     visibleProperty: TReadOnlyProperty<boolean>
@@ -80,6 +81,7 @@ export default class TimePlotNode extends Node {
     super( { isDisposable: false, visibleProperty: visibleProperty } );
 
     this.sceneProperty = sceneProperty;
+    this.activeDisplayModeProperty = activeDisplayModeProperty;
     this.timeSeries = [];
     this.elapsedTime = 0;
     this.previousSolverTime = null;
@@ -89,11 +91,8 @@ export default class TimePlotNode extends Node {
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
     this.waveRegionBounds = new Bounds2( waveRegionX, waveRegionY, waveRegionX + waveRegionWidth, waveRegionY + waveRegionHeight );
 
-    const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( sceneProperty );
-    const polarityProperty = waveDisplayModePolarityProperty( sceneProperty );
-    const activeDisplayModeProperty = new DynamicProperty<WaveDisplayMode, WaveDisplayMode, WaveVisualizableScene>( sceneProperty, {
-      derive: 'activeWaveDisplayModeProperty'
-    } );
+    const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( activeDisplayModeProperty );
+    const polarityProperty = waveDisplayModePolarityProperty( activeDisplayModeProperty );
 
     this.maxDisplayValueProperty = new DerivedProperty(
       [ activeDisplayModeProperty ],
@@ -235,7 +234,7 @@ export default class TimePlotNode extends Node {
     const x = normalizedX * scene.regionWidth;
     const y = normalizedY * scene.regionHeight - scene.regionHeight / 2;
     const value = scene.waveSolver.evaluate( x, y, solverTime );
-    const displayMode = scene.activeWaveDisplayModeProperty.value;
+    const displayMode = this.activeDisplayModeProperty.value;
     const displayValue = getDisplayedWaveValue( value.real, value.imaginary, displayMode );
 
     this.timeSeries.push( { time: plotTime, value: displayValue } );

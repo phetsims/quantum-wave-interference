@@ -10,7 +10,6 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
@@ -31,7 +30,6 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import SceneModel from '../model/SceneModel.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
 const SOURCE_SCALE = OVERHEAD_SCALE * 1.15;
@@ -199,10 +197,6 @@ export default class OverheadEmitterNode extends Node {
     const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
     const isPlayingStringProperty = model.isPlayingProperty.derived( isPlaying => isPlaying ? 'true' : 'false' );
 
-    const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SceneModel>( model.sceneProperty, {
-      derive: scene => scene.isEmitterEnabledProperty
-    } );
-
     const isMaxHitsReachedProperty = model.currentIsMaxHitsReachedProperty;
 
     // Track the active scene's source type for accessible name
@@ -261,7 +255,7 @@ export default class OverheadEmitterNode extends Node {
     } );
     this.addChild( this.particleEmitterNode );
 
-    isEmitterEnabledProperty.link( isEnabled => {
+    model.currentIsEmitterEnabledProperty.link( isEnabled => {
       this.laserPointerNode.enabled = isEnabled;
       this.particleEmitterNode.enabled = isEnabled;
       if ( this.laserPointerNode.onOffButton ) {

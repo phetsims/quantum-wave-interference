@@ -129,6 +129,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   public readonly waveSolver: WaveSolver;
   public abstract readonly isMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
+  public abstract readonly isEmitterEnabledProperty: TReadOnlyProperty<boolean>;
   public readonly leftDetectorHitsProperty: NumberProperty;
   public readonly rightDetectorHitsProperty: NumberProperty;
   public readonly hits: Vector2[];

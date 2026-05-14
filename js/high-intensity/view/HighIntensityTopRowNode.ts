@@ -18,7 +18,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
 import Property from '../../../../axon/js/Property.js';
 import TProperty from '../../../../axon/js/TProperty.js';
@@ -100,8 +99,6 @@ const PARTICLE_EMITTER_PALETTES: Record<Exclude<SourceType, 'photons'>, Particle
 
 type TopRowSceneLike = {
   sourceType: SourceType;
-  wavelengthProperty: TReadOnlyProperty<number>;
-  isEmitterEnabledProperty: TReadOnlyProperty<boolean>;
   slitSeparationRange: Range;
 };
 
@@ -123,10 +120,12 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
   public constructor(
     sceneProperty: Property<T>,
     scenes: T[],
+    currentWavelengthProperty: TReadOnlyProperty<number>,
     barrierTypeProperty: TReadOnlyProperty<BarrierType>,
     slitPositionFractionProperty: TReadOnlyProperty<number>,
     slitSeparationProperty: TReadOnlyProperty<number>,
     currentIsEmittingProperty: TProperty<boolean>,
+    currentIsEmitterEnabledProperty: TReadOnlyProperty<boolean>,
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
     beamRightLimitXProperty: TReadOnlyProperty<number>,
     layout: HighIntensityTopRowLayout,
@@ -288,9 +287,6 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
         .addColorStop( 1, 'white' );
     } );
 
-    const currentWavelengthProperty = new DynamicProperty<number, number, T>( sceneProperty, {
-      derive: scene => scene.wavelengthProperty
-    } );
     Multilink.multilink(
       [ sceneProperty, barrierTypeProperty, slitPositionFractionProperty, slitSeparationProperty ],
       ( scene, barrierType, slitPositionFraction, slitSeparation ) => {
@@ -361,10 +357,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
 
     linkSceneVisibility( sceneProperty, scenes, emitterChildren );
 
-    const currentEnabledProperty = new DynamicProperty<boolean, boolean, T>( sceneProperty, {
-      derive: scene => scene.isEmitterEnabledProperty
-    } );
-    currentEnabledProperty.link( isEnabled => {
+    currentIsEmitterEnabledProperty.link( isEnabled => {
       emitterChildren.forEach( emitter => { emitter.enabled = isEnabled; } );
     } );
   }

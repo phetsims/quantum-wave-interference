@@ -52,6 +52,14 @@ export default class ExperimentModel implements TModel {
   public readonly currentDetectionModeProperty: DynamicProperty<DetectionMode, DetectionMode, SceneModel>;
   public readonly currentIsEmittingProperty: DynamicProperty<boolean, boolean, SceneModel>;
   public readonly currentIsMaxHitsReachedProperty: DynamicProperty<boolean, boolean, SceneModel>;
+  public readonly currentIsEmitterEnabledProperty: DynamicProperty<boolean, boolean, SceneModel>;
+  public readonly currentWavelengthProperty: DynamicProperty<number, number, SceneModel>;
+  public readonly currentVelocityProperty: DynamicProperty<number, number, SceneModel>;
+  public readonly currentSlitSeparationProperty: DynamicProperty<number, number, SceneModel>;
+  public readonly currentScreenDistanceProperty: DynamicProperty<number, number, SceneModel>;
+  public readonly currentTotalHitsProperty: DynamicProperty<number, number, SceneModel>;
+  public readonly currentLeftDetectorHitsProperty: DynamicProperty<number, number, SceneModel>;
+  public readonly currentRightDetectorHitsProperty: DynamicProperty<number, number, SceneModel>;
   public readonly currentScreenBrightnessProperty: DynamicProperty<number, number, SceneModel>;
 
   // Shared horizontal detector-screen zoom level for all Experiment scene views and snapshots.
@@ -122,6 +130,38 @@ export default class ExperimentModel implements TModel {
 
     this.currentIsMaxHitsReachedProperty = new DynamicProperty<boolean, boolean, SceneModel>( this.sceneProperty, {
       derive: 'isMaxHitsReachedProperty'
+    } );
+
+    this.currentIsEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SceneModel>( this.sceneProperty, {
+      derive: 'isEmitterEnabledProperty'
+    } );
+
+    this.currentWavelengthProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
+      derive: 'wavelengthProperty'
+    } );
+
+    this.currentVelocityProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
+      derive: 'velocityProperty'
+    } );
+
+    this.currentSlitSeparationProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
+      derive: 'slitSeparationProperty'
+    } );
+
+    this.currentScreenDistanceProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
+      derive: 'screenDistanceProperty'
+    } );
+
+    this.currentTotalHitsProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
+      derive: 'totalHitsProperty'
+    } );
+
+    this.currentLeftDetectorHitsProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
+      derive: 'leftDetectorHitsProperty'
+    } );
+
+    this.currentRightDetectorHitsProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
+      derive: 'rightDetectorHitsProperty'
     } );
 
     this.currentScreenBrightnessProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {

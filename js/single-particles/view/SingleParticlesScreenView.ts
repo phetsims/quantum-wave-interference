@@ -7,7 +7,6 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -32,7 +31,6 @@ import WaveRegionNodes from '../../common/view/WaveRegionNodes.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
-import SingleParticlesSceneModel from '../model/SingleParticlesSceneModel.js';
 import DetectorToolNode from './DetectorToolNode.js';
 import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 
@@ -88,13 +86,9 @@ export default class SingleParticlesScreenView extends ScreenView {
     } );
 
     // Emitter source with SingleParticleEmitter.svg image and red toggle button
-    const isEmitterEnabledProperty = new DynamicProperty<boolean, boolean, SingleParticlesSceneModel>( model.sceneProperty, {
-      derive: scene => scene.isEmitterEnabledProperty
-    } );
-
     const emitterNode = new SingleParticleEmitterNode(
       model.currentIsEmittingProperty,
-      isEmitterEnabledProperty,
+      model.currentIsEmitterEnabledProperty,
       {
         tandem: tandem.createTandem( 'emitterNode' )
       }
@@ -141,12 +135,8 @@ export default class SingleParticlesScreenView extends ScreenView {
           [ model.currentSlitConfigurationProperty ],
           slitConfig => hasDetectorOnSide( slitConfig, 'right' )
         ),
-        topDetectorCountProperty: new DynamicProperty<number, number, SingleParticlesSceneModel>( model.sceneProperty, {
-          derive: 'leftDetectorHitsProperty'
-        } ),
-        bottomDetectorCountProperty: new DynamicProperty<number, number, SingleParticlesSceneModel>( model.sceneProperty, {
-          derive: 'rightDetectorHitsProperty'
-        } )
+        topDetectorCountProperty: model.currentLeftDetectorHitsProperty,
+        bottomDetectorCountProperty: model.currentRightDetectorHitsProperty
       }
     } );
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {

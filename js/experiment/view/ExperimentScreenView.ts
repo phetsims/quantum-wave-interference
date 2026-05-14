@@ -19,7 +19,6 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import GatedEnabledProperty from '../../../../axon/js/GatedEnabledProperty.js';
 import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
@@ -45,7 +44,6 @@ import { getWavelengthColorZone, getWavelengthColorZoneString } from '../../comm
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import SceneModel from '../model/SceneModel.js';
 import DetectorScreenDescriber from './description/DetectorScreenDescriber.js';
 import SlitViewDescriptionNode from './description/SlitViewDescriptionNode.js';
 import DetectorRulerNode from './DetectorRulerNode.js';
@@ -484,23 +482,6 @@ export default class ExperimentScreenView extends ScreenView {
         sourceType: particleSourceTypeProperty
       } );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Should these DynamicProperties be in the model? Or in some description-related class?
-
-    // DynamicProperties follow the active scene so the setup details read from the same scene-specific controls that
-    // are visible on screen. Each property rewires automatically when the user switches source type.
-    const currentWavelengthProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
-      derive: 'wavelengthProperty'
-    } );
-    const currentVelocityProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
-      derive: 'velocityProperty'
-    } );
-    const currentSlitSeparationProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
-      derive: 'slitSeparationProperty'
-    } );
-    const currentScreenDistanceProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
-      derive: 'screenDistanceProperty'
-    } );
-
     // Booleans are converted to Fluent select keys, and source-type predicates control which scene-specific details
     // are included in the accessible setup list.
     const sourceTypeProperty = model.sceneProperty.derived( scene => scene.sourceType );
@@ -520,8 +501,8 @@ export default class ExperimentScreenView extends ScreenView {
       } );
 
     const wavelengthStringProperty = DerivedProperty.deriveAny(
-      Array.from( new Set( [ currentWavelengthProperty, ...nanometersUnit.getDependentProperties() ] ) ),
-      () => nanometersUnit.getAccessibleString( roundSymmetric( currentWavelengthProperty.value ), {
+      Array.from( new Set( [ model.currentWavelengthProperty, ...nanometersUnit.getDependentProperties() ] ) ),
+      () => nanometersUnit.getAccessibleString( roundSymmetric( model.currentWavelengthProperty.value ), {
         decimalPlaces: 0,
         showTrailingZeros: false,
         showIntegersAsIntegers: true
@@ -530,7 +511,7 @@ export default class ExperimentScreenView extends ScreenView {
 
     const wavelengthColorStringProperty = new DerivedProperty(
       [
-        currentWavelengthProperty,
+        model.currentWavelengthProperty,
         QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty,
         QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty,
         QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty,
@@ -553,7 +534,7 @@ export default class ExperimentScreenView extends ScreenView {
     const particleSpeedStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [
         model.sceneProperty,
-        currentVelocityProperty,
+        model.currentVelocityProperty,
         ...kilometersPerSecondUnit.getDependentProperties(),
         ...metersPerSecondUnit.getDependentProperties()
       ] ) ),
@@ -561,7 +542,7 @@ export default class ExperimentScreenView extends ScreenView {
 
         // Match the visual controls: electrons use km/s, while the slower particle sources use m/s.
         const scene = model.sceneProperty.value;
-        const velocity = currentVelocityProperty.value;
+        const velocity = model.currentVelocityProperty.value;
         const useKmPerSecond = scene.velocityRange.max >= 10000;
         const speedUnit = useKmPerSecond ? kilometersPerSecondUnit : metersPerSecondUnit;
         const speedValue = useKmPerSecond ? velocity / 1000 : velocity;
@@ -586,12 +567,12 @@ export default class ExperimentScreenView extends ScreenView {
     const slitSeparationStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [
         model.sceneProperty,
-        currentSlitSeparationProperty,
+        model.currentSlitSeparationProperty,
         ...QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.getDependentProperties()
       ] ) ),
       () => {
         const scene = model.sceneProperty.value;
-        const slitSeparationMM = currentSlitSeparationProperty.value;
+        const slitSeparationMM = model.currentSlitSeparationProperty.value;
         const slitSeparationUM = slitSeparationMM * 1000;
         const decimalPlaces = ExperimentConstants.getRangeDecimalPlaces(
           scene.slitSeparationRange.min * 1000,
@@ -609,8 +590,8 @@ export default class ExperimentScreenView extends ScreenView {
       } );
 
     const screenDistanceStringProperty = DerivedProperty.deriveAny(
-      Array.from( new Set( [ currentScreenDistanceProperty, ...metersUnit.getDependentProperties() ] ) ),
-      () => metersUnit.getAccessibleString( currentScreenDistanceProperty.value, {
+      Array.from( new Set( [ model.currentScreenDistanceProperty, ...metersUnit.getDependentProperties() ] ) ),
+      () => metersUnit.getAccessibleString( model.currentScreenDistanceProperty.value, {
         decimalPlaces: 2,
         showTrailingZeros: true,
         showIntegersAsIntegers: true

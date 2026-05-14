@@ -11,7 +11,6 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
@@ -56,6 +55,7 @@ const POSITION_PLOT_SAMPLES_PER_PIXEL = 2;
 export default class PositionPlotNode extends Node {
 
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
+  private readonly activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   private readonly chartNode: WavePlotChartNode;
   private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
   private readonly updatePlotLayout: () => void;
@@ -65,6 +65,7 @@ export default class PositionPlotNode extends Node {
 
   public constructor(
     sceneProperty: TReadOnlyProperty<WaveVisualizableScene>,
+    activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>,
     waveRegionX: number,
     waveRegionY: number,
     visibleProperty: TReadOnlyProperty<boolean>
@@ -72,6 +73,7 @@ export default class PositionPlotNode extends Node {
     super( { isDisposable: false, visibleProperty: visibleProperty } );
 
     this.sceneProperty = sceneProperty;
+    this.activeDisplayModeProperty = activeDisplayModeProperty;
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -80,11 +82,8 @@ export default class PositionPlotNode extends Node {
       range: new Range( MIN_Y_FRACTION, MAX_Y_FRACTION )
     } );
 
-    const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( sceneProperty );
-    const polarityProperty = waveDisplayModePolarityProperty( sceneProperty );
-    const activeDisplayModeProperty = new DynamicProperty<WaveDisplayMode, WaveDisplayMode, WaveVisualizableScene>( sceneProperty, {
-      derive: 'activeWaveDisplayModeProperty'
-    } );
+    const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( activeDisplayModeProperty );
+    const polarityProperty = waveDisplayModePolarityProperty( activeDisplayModeProperty );
     this.maxDisplayValueProperty = new DerivedProperty(
       [ activeDisplayModeProperty ],
       displayMode => getMaxDisplayedWaveValue( displayMode )
@@ -218,7 +217,7 @@ export default class PositionPlotNode extends Node {
 
     const scene = this.sceneProperty.value;
     const solver = scene.waveSolver;
-    const displayMode = scene.activeWaveDisplayModeProperty.value;
+    const displayMode = this.activeDisplayModeProperty.value;
     const scale = this.maxDisplayValueProperty.value;
     const chartWidth = this.chartNode.chartWidth;
     const numSamples = chartWidth * POSITION_PLOT_SAMPLES_PER_PIXEL;

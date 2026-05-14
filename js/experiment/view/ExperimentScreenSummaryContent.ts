@@ -8,11 +8,9 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import ScreenSummaryContent from '../../../../joist/js/ScreenSummaryContent.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import SceneModel from '../model/SceneModel.js';
 
 type FluentBoolean = 'true' | 'false';
 
@@ -31,12 +29,8 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
 
     const isMaxHitsReachedStringProperty = model.currentIsMaxHitsReachedProperty.derived( toFluentBoolean );
 
-    const currentTotalHitsProperty = new DynamicProperty<number, number, SceneModel>( model.sceneProperty, {
-      derive: 'totalHitsProperty'
-    } );
-
     // Fluent select expressions use string keys, so derived booleans are normalized through one helper.
-    const hasHitsStringProperty = currentTotalHitsProperty.derived( totalHits => toFluentBoolean( totalHits > 0 ) );
+    const hasHitsStringProperty = model.currentTotalHitsProperty.derived( totalHits => toFluentBoolean( totalHits > 0 ) );
 
     const currentDetailsContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
       sourceType: sourceTypeProperty,

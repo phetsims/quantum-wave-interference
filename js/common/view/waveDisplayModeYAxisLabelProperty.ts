@@ -2,26 +2,19 @@
 
 /**
  * Creates a StringProperty that tracks the y-axis label for wave plot tools based on the active scene's
- * wave display mode. Uses DynamicProperty to correctly subscribe to the scene's activeWaveDisplayModeProperty,
- * ensuring the label updates when either the scene or the display mode changes.
+ * wave display mode.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
-import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 export default function waveDisplayModeYAxisLabelProperty(
-  sceneProperty: TReadOnlyProperty<WaveVisualizableScene>
+  activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>
 ): TReadOnlyProperty<string> {
-
-  const activeDisplayModeProperty = new DynamicProperty<WaveDisplayMode, WaveDisplayMode, WaveVisualizableScene>( sceneProperty, {
-    derive: 'activeWaveDisplayModeProperty'
-  } );
 
   return new DerivedProperty(
     [

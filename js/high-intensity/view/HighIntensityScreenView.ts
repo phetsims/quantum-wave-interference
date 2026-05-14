@@ -11,7 +11,6 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -38,7 +37,6 @@ import WaveRegionNodes from '../../common/view/WaveRegionNodes.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
-import HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityTopRowNode from './HighIntensityTopRowNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -116,10 +114,12 @@ export default class HighIntensityScreenView extends ScreenView {
     const topRowNode = new HighIntensityTopRowNode(
       model.sceneProperty,
       model.scenes,
+      model.currentWavelengthProperty,
       model.currentBarrierTypeProperty,
       model.currentSlitPositionFractionProperty,
       model.currentSlitSeparationProperty,
       model.currentIsEmittingProperty,
+      model.currentIsEmitterEnabledProperty,
       this.visibleBoundsProperty,
       topRowBeamRightLimitXProperty,
       {
@@ -153,12 +153,8 @@ export default class HighIntensityScreenView extends ScreenView {
           [ model.currentSlitConfigurationProperty ],
           slitConfig => hasDetectorOnSide( slitConfig, 'right' )
         ),
-        topDetectorCountProperty: new DynamicProperty<number, number, HighIntensitySceneModel>( model.sceneProperty, {
-          derive: 'leftDetectorHitsProperty'
-        } ),
-        bottomDetectorCountProperty: new DynamicProperty<number, number, HighIntensitySceneModel>( model.sceneProperty, {
-          derive: 'rightDetectorHitsProperty'
-        } )
+        topDetectorCountProperty: model.currentLeftDetectorHitsProperty,
+        bottomDetectorCountProperty: model.currentRightDetectorHitsProperty
       }
     } );
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {

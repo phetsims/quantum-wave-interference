@@ -31,6 +31,7 @@ import { secondsUnit } from '../../../../scenery-phet/js/units/secondsUnit.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
+import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import PositionPlotNode from './PositionPlotNode.js';
 import TimePlotNode from './TimePlotNode.js';
@@ -44,6 +45,7 @@ type MeasurementToolsModel = {
   isTapeMeasureVisibleProperty: BooleanProperty;
   isTimePlotVisibleProperty: BooleanProperty;
   isPositionPlotVisibleProperty: BooleanProperty;
+  currentWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   tapeMeasureBasePositionProperty: Vector2Property;
   tapeMeasureTipPositionProperty: Vector2Property;
 };
@@ -97,6 +99,7 @@ export default class MeasurementToolNodes extends Node {
 
     const timePlotNode = new TimePlotNode(
       model.sceneProperty,
+      model.currentWaveDisplayModeProperty,
       waveRegionLeft,
       waveRegionTop,
       model.isTimePlotVisibleProperty
@@ -104,6 +107,7 @@ export default class MeasurementToolNodes extends Node {
 
     const positionPlotNode = new PositionPlotNode(
       model.sceneProperty,
+      model.currentWaveDisplayModeProperty,
       waveRegionLeft,
       waveRegionTop,
       model.isPositionPlotVisibleProperty

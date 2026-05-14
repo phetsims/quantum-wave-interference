@@ -9,7 +9,6 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import Shape from '../../../../kite/js/Shape.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -21,7 +20,6 @@ import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceC
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import SceneModel from '../model/SceneModel.js';
 import OverheadDoubleSlitNode from './OverheadDoubleSlitNode.js';
 
 const OVERHEAD_SCALE = ExperimentConstants.OVERHEAD_ELEMENT_SCALE;
@@ -69,12 +67,9 @@ class DetectorPanelNode extends Node {
       maxWidth: DETECTOR_BOX_WIDTH - 6 * OVERHEAD_SCALE
     } );
 
-    const detectorHitsProperty = new DynamicProperty<number, number, SceneModel>(
-      model.sceneProperty,
-      {
-        derive: scene => detectorSide === 'left' ? scene.leftDetectorHitsProperty : scene.rightDetectorHitsProperty
-      }
-    );
+    const detectorHitsProperty = detectorSide === 'left' ?
+                                 model.currentLeftDetectorHitsProperty :
+                                 model.currentRightDetectorHitsProperty;
 
     // Reactive: updates on hit count change and on locale change for the "hits" word.
     const detectorHitCountStringProperty = new DerivedProperty( [
