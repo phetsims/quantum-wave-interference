@@ -30,7 +30,6 @@ import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.j
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import AccessibleList from '../../../../scenery-phet/js/accessibility/AccessibleList.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
-import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
 import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboardDragListener.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
@@ -42,8 +41,6 @@ import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
-import Text from '../../../../scenery/js/nodes/Text.js';
-import Checkbox from '../../../../sun/js/Checkbox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
@@ -65,6 +62,7 @@ import OverheadEmitterNode from './OverheadEmitterNode.js';
 import RulerCheckbox from './RulerCheckbox.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import SlitControlPanel from './SlitControlPanel.js';
+import StopwatchCheckbox from './StopwatchCheckbox.js';
 import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -347,26 +345,9 @@ export default class ExperimentScreenView extends ScreenView {
       tandem: options.tandem.createTandem( 'rulerCheckbox' )
     } );
 
-    //REVIEW https://github.com/phetsims/quantum-wave-interference/issues/27 Factor out everything related to stopwatchCheckbox, for better encapsulation and less code in the class.
-
-    // Stopwatch checkbox - positioned below the ruler checkbox
-    const stopwatchCheckboxLabel = new Text( QuantumWaveInterferenceFluent.stopwatchStringProperty, {
-      font: new PhetFont( 14 ),
-      maxWidth: 80
+    const stopwatchCheckbox = new StopwatchCheckbox( model.stopwatch.isVisibleProperty, {
+      tandem: options.tandem.createTandem( 'stopwatchCheckbox' )
     } );
-    const stopwatchCheckbox = new Checkbox(
-      model.stopwatch.isVisibleProperty,
-      stopwatchCheckboxLabel,
-      {
-        boxWidth: 16,
-        spacing: 6,
-        accessibleHelpText:
-        QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleHelpTextStringProperty,
-        accessibleContextResponseChecked: QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleContextResponseCheckedStringProperty,
-        accessibleContextResponseUnchecked: QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty,
-        tandem: options.tandem.createTandem( 'stopwatchCheckbox' )
-      }
-    );
     const checkboxGroup = new VBox( {
       spacing: 6,
       align: 'left',
@@ -537,7 +518,7 @@ export default class ExperimentScreenView extends ScreenView {
         stopwatchCheckbox.localToGlobalBounds( stopwatchCheckbox.localBounds )
       );
       const checkboxLabelBounds = this.globalToLocalBounds(
-        stopwatchCheckboxLabel.localToGlobalBounds( stopwatchCheckboxLabel.localBounds )
+        stopwatchCheckbox.labelNode.localToGlobalBounds( stopwatchCheckbox.labelNode.localBounds )
       );
       const x = checkboxBounds.right + 8;
       const y = checkboxLabelBounds.top - stopwatchNode.height;
