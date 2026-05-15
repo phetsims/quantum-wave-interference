@@ -39,6 +39,8 @@ detectorBoth:                          Detector Both
 noBarrier:                             No Barrier
 hits:                                  Hits
 hitsCountPattern:                      'Hits: {{count}}'
+screenGraphSwitch.screen:             Screen
+screenGraphSwitch.graph:              Graph
 screenBrightness:                      Screen Brightness
 intensityGraph:                        Intensity Graph
 hitsGraph:                             Hits Graph

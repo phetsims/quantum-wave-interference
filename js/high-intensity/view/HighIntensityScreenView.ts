@@ -233,25 +233,15 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     );
 
-    const graphCheckboxStringProperty = new DerivedProperty(
-      [
-        model.currentDetectionModeProperty,
-        QuantumWaveInterferenceFluent.hitsGraphStringProperty,
-        QuantumWaveInterferenceFluent.intensityGraphStringProperty
-      ],
-      ( detectionMode, hitsGraphString, intensityGraphString ) =>
-        detectionMode === 'hits' ? hitsGraphString : intensityGraphString
-    );
-    const intensityGraphCheckbox = new ToolCheckbox( model.isIntensityGraphVisibleProperty, graphCheckboxStringProperty, tandem.createTandem( 'intensityGraphCheckbox' ), ToolIcons.createGraphIcon() );
     const tapeMeasureCheckbox = new ToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ), ToolIcons.createTapeMeasureIcon() );
     const stopwatchCheckbox = new ToolCheckbox( model.isStopwatchVisibleProperty, QuantumWaveInterferenceFluent.stopwatchStringProperty, tandem.createTandem( 'stopwatchCheckbox' ), ToolIcons.createStopwatchIcon() );
     const timePlotCheckbox = new ToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ), ToolIcons.createTimePlotIcon() );
     const positionPlotCheckbox = new ToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ), ToolIcons.createPositionPlotIcon() );
 
     const rightControlsColumn = new RightControlsColumn( model, this, tandem, {
+      screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,
       additionalScreenControlChildren: [ detectionModeRadioButtonGroup ],
       toolCheckboxes: [
-        intensityGraphCheckbox,
         tapeMeasureCheckbox,
         stopwatchCheckbox,
         timePlotCheckbox,

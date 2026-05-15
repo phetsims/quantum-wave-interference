@@ -206,7 +206,6 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     // --- Right controls (shared factory) ---
 
-    const hitsGraphCheckbox = new ToolCheckbox( model.isHitsGraphVisibleProperty, QuantumWaveInterferenceFluent.hitsGraphStringProperty, tandem.createTandem( 'hitsGraphCheckbox' ), ToolIcons.createGraphIcon() );
     const tapeMeasureCheckbox = new ToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ), ToolIcons.createTapeMeasureIcon() );
     const stopwatchCheckbox = new ToolCheckbox( model.isStopwatchVisibleProperty, QuantumWaveInterferenceFluent.stopwatchStringProperty, tandem.createTandem( 'stopwatchCheckbox' ), ToolIcons.createStopwatchIcon() );
     const timePlotCheckbox = new ToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ), ToolIcons.createTimePlotIcon() );
@@ -219,9 +218,9 @@ export default class SingleParticlesScreenView extends ScreenView {
     } );
 
     const rightControlsColumn = new RightControlsColumn( model, this, tandem, {
+      screenGraphVisibleProperty: model.isHitsGraphVisibleProperty,
       additionalScreenControlChildren: [],
       toolCheckboxes: [
-        hitsGraphCheckbox,
         tapeMeasureCheckbox,
         stopwatchCheckbox,
         timePlotCheckbox,

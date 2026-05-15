@@ -60,6 +60,10 @@ type StringsType = {
   'noBarrierStringProperty': LocalizedStringProperty;
   'hitsStringProperty': LocalizedStringProperty;
   'hitsCountPatternStringProperty': LocalizedStringProperty;
+  'screenGraphSwitch': {
+    'screenStringProperty': LocalizedStringProperty;
+    'graphStringProperty': LocalizedStringProperty;
+  };
   'screenBrightnessStringProperty': LocalizedStringProperty;
   'intensityGraphStringProperty': LocalizedStringProperty;
   'hitsGraphStringProperty': LocalizedStringProperty;

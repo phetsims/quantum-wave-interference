@@ -62,6 +62,8 @@ addToMapIfDefined( 'detectorRight', 'detectorRightStringProperty' );
 addToMapIfDefined( 'detectorBoth', 'detectorBothStringProperty' );
 addToMapIfDefined( 'noBarrier', 'noBarrierStringProperty' );
 addToMapIfDefined( 'hits', 'hitsStringProperty' );
+addToMapIfDefined( 'screenGraphSwitch_screen', 'screenGraphSwitch.screenStringProperty' );
+addToMapIfDefined( 'screenGraphSwitch_graph', 'screenGraphSwitch.graphStringProperty' );
 addToMapIfDefined( 'screenBrightness', 'screenBrightnessStringProperty' );
 addToMapIfDefined( 'intensityGraph', 'intensityGraphStringProperty' );
 addToMapIfDefined( 'hitsGraph', 'hitsGraphStringProperty' );
@@ -271,6 +273,10 @@ const QuantumWaveInterferenceFluent = {
   noBarrierStringProperty: _.get( QuantumWaveInterferenceStrings, 'noBarrierStringProperty' ),
   hitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsStringProperty' ),
   hitsCountPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsCountPatternStringProperty' ),
+  screenGraphSwitch: {
+    screenStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenGraphSwitch.screenStringProperty' ),
+    graphStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenGraphSwitch.graphStringProperty' )
+  },
   screenBrightnessStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenBrightnessStringProperty' ),
   intensityGraphStringProperty: _.get( QuantumWaveInterferenceStrings, 'intensityGraphStringProperty' ),
   hitsGraphStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsGraphStringProperty' ),

@@ -113,6 +113,12 @@
   "hitsCountPattern": {
     "value": "Hits: {{count}}"
   },
+  "screenGraphSwitch.screen": {
+    "value": "Screen"
+  },
+  "screenGraphSwitch.graph": {
+    "value": "Graph"
+  },
   "screenBrightness": {
     "value": "Screen Brightness"
   },

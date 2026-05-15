@@ -3,7 +3,7 @@
 /**
  * RightControlsColumn is the right-side controls column shared by the High Intensity and
  * Single Particles screens. The column contains (top to bottom):
- * - Screen controls panel (erase, camera, snapshots buttons + optional extra children + brightness)
+ * - Screen controls panel (screen/graph switch + optional extra children + brightness + screen buttons)
  * - Tools panel (screen-specific checkboxes)
  * - Wave display / wave function display combo box
  * - Time controls (play/pause + speed radio buttons)
@@ -19,15 +19,20 @@ import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import Dimension2 from '../../../../dot/js/Dimension2.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
+import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
+import Text from '../../../../scenery/js/nodes/Text.js';
+import ABSwitch from '../../../../sun/js/ABSwitch.js';
 import Panel from '../../../../sun/js/Panel.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import type { Snapshot } from '../model/Snapshot.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../model/WaveDisplayMode.js';
@@ -57,7 +62,10 @@ export type RightControlsModel = {
 
 export type RightControlsColumnOptions = {
 
-  // Extra children placed between the button row and the brightness control in the screen controls panel.
+  // false = detector screen, true = graph
+  screenGraphVisibleProperty: BooleanProperty;
+
+  // Extra children placed between the screen/graph switch and the brightness control in the screen controls panel.
   // For example, High Intensity puts its detection mode radio buttons here.
   additionalScreenControlChildren: Node[];
 
@@ -94,6 +102,30 @@ export default class RightControlsColumn extends VBox {
     const rightPanelWidth = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH;
 
     // --- Screen controls panel ---
+
+    const screenGraphSwitchTandem = tandem.createTandem( 'screenGraphSwitch' );
+    const screenGraphSwitch = new ABSwitch<boolean>(
+      options.screenGraphVisibleProperty,
+      false,
+      new Text( QuantumWaveInterferenceFluent.screenGraphSwitch.screenStringProperty, {
+        font: new PhetFont( 14 ),
+        maxWidth: 70,
+        tandem: screenGraphSwitchTandem.createTandem( 'screenLabel' )
+      } ),
+      true,
+      new Text( QuantumWaveInterferenceFluent.screenGraphSwitch.graphStringProperty, {
+        font: new PhetFont( 14 ),
+        maxWidth: 70,
+        tandem: screenGraphSwitchTandem.createTandem( 'graphLabel' )
+      } ),
+      {
+        layoutOptions: { align: 'center' },
+        tandem: screenGraphSwitchTandem,
+        toggleSwitchOptions: {
+          size: new Dimension2( 37, 17 )
+        }
+      }
+    );
 
     const eraseButton = new EraserButton( {
       listener: options.clearScreen,
@@ -143,10 +175,17 @@ export default class RightControlsColumn extends VBox {
 
     const brightnessControl = new BrightnessControl( model.currentScreenBrightnessProperty, tandem );
 
+    options.screenGraphVisibleProperty.link( isGraphVisible => {
+      brightnessControl.visible = !isGraphVisible;
+      snapshotButtonWithDots.visible = !isGraphVisible;
+      viewSnapshotsButton.visible = !isGraphVisible;
+    } );
+
     const screenControlsChildren: Node[] = [
-      screenButtonsRow,
+      screenGraphSwitch,
       ...options.additionalScreenControlChildren,
-      brightnessControl
+      brightnessControl,
+      screenButtonsRow
     ];
 
     const screenControlsPanel = new Panel( new VBox( {
