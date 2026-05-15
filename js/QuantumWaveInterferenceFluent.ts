@@ -252,6 +252,7 @@ const QuantumWaveInterferenceFluent = {
   emissionRateStringProperty: _.get( QuantumWaveInterferenceStrings, 'emissionRateStringProperty' ),
   slitsLabelPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'slitsLabelPatternStringProperty' ),
   snapshotLabelValuePatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotLabelValuePatternStringProperty' ),
+  snapshotHeadingPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotHeadingPatternStringProperty' ),
   electronMassLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'electronMassLabelStringProperty' ),
   neutronMassLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'neutronMassLabelStringProperty' ),
   heliumAtomMassLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'heliumAtomMassLabelStringProperty' ),

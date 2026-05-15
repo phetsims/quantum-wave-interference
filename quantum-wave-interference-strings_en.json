@@ -62,6 +62,9 @@
   "snapshotLabelValuePattern": {
     "value": "{{label}}: {{value}}"
   },
+  "snapshotHeadingPattern": {
+    "value": "{{snapshot}}: {{scene}}"
+  },
   "electronMassLabel": {
     "value": "m<sub>e</sub> = 9.1×10<sup>−31</sup> kg"
   },

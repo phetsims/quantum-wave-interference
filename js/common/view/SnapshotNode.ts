@@ -22,7 +22,7 @@ import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
-import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
+import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -156,8 +156,11 @@ export default class SnapshotNode extends Node {
     );
 
     const headingProperty = new DerivedProperty(
-      [ titleProperty, sceneNameProperty ],
-      ( title, sceneName ) => title ? `${title}: ${sceneName}` : ''
+      [ titleProperty, sceneNameProperty, QuantumWaveInterferenceFluent.snapshotHeadingPatternStringProperty ],
+      ( title, sceneName, pattern ) => title ? StringUtils.fillIn( pattern, {
+        snapshot: title,
+        scene: sceneName
+      } ) : ''
     );
 
     const formatLabelValue = ( label: string, value: string ): string => StringUtils.fillIn(
@@ -231,6 +234,26 @@ export default class SnapshotNode extends Node {
       ), '' )
     );
 
+    const screenBrightnessProperty = DerivedProperty.deriveAny(
+      [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+        QuantumWaveInterferenceFluent.screenBrightnessStringProperty,
+        ...percentUnit.getDependentProperties()
+      ],
+      () => ifSnapshot( snapshot => {
+        const percentValue = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100;
+        return formatLabelValue(
+          QuantumWaveInterferenceFluent.screenBrightnessStringProperty.value,
+          percentUnit.getVisualSymbolPatternString( percentValue, {
+            decimalPlaces: 0,
+            showTrailingZeros: false,
+            showIntegersAsIntegers: true
+          } )
+        );
+      }, '' )( snapshotProperty.value )
+    );
+
     const trashButtonAccessibleNameProperty = new DerivedProperty(
       [ snapshotProperty, SceneryPhetStrings.key.deleteStringProperty, titleProperty ],
       ( snapshot, deleteString, title ) => snapshot ? `${deleteString} ${title}` : ''
@@ -257,17 +280,12 @@ export default class SnapshotNode extends Node {
     snapshotProperty.link( () => canvasNode.invalidatePaint() );
     options.detectorScreenScaleIndexProperty?.link( () => canvasNode.invalidatePaint() );
 
-    const titleText = new Text( titleProperty, {
+    const titleText = new Text( headingProperty, {
       font: TITLE_FONT,
       fill: 'black',
       maxWidth: METADATA_WIDTH
     } );
 
-    const sceneNameText = new Text( sceneNameProperty, {
-      font: PARAM_FONT,
-      fill: 'black',
-      maxWidth: METADATA_WIDTH
-    } );
     const wavelengthOrSpeedText = new Text( wavelengthOrSpeedProperty, {
       font: PARAM_FONT,
       fill: 'black',
@@ -284,7 +302,13 @@ export default class SnapshotNode extends Node {
       maxWidth: METADATA_WIDTH
     } );
 
-    const parameterLabelsChildren: Node[] = [ sceneNameText, wavelengthOrSpeedText, slitSepText ];
+    const screenBrightnessText = new Text( screenBrightnessProperty, {
+      font: PARAM_FONT,
+      fill: 'black',
+      maxWidth: METADATA_WIDTH
+    } );
+
+    const parameterLabelsChildren: Node[] = [ wavelengthOrSpeedText, slitSepText ];
 
     // Conditionally include screen distance row (used by the Experiment screen).
     let screenDistanceProperty: TReadOnlyProperty<string> | null = null;
@@ -314,7 +338,7 @@ export default class SnapshotNode extends Node {
       } ) );
     }
 
-    parameterLabelsChildren.push( slitSettingText );
+    parameterLabelsChildren.push( slitSettingText, screenBrightnessText );
 
     const parameterLabels = new VBox( {
       spacing: 2,
@@ -371,13 +395,11 @@ export default class SnapshotNode extends Node {
       ]
     } );
 
-    const contentBox = new HBox( {
-      spacing: 10,
-      align: 'top',
-      children: [
-        detectorSnapshotSlot,
-        metadataColumn
-      ]
+    metadataColumn.left = SNAPSHOT_WIDTH + 10;
+    metadataColumn.top = 0;
+
+    const contentBox = new Node( {
+      children: [ detectorSnapshotSlot, metadataColumn ]
     } );
     trashButton.left = SNAPSHOT_WIDTH + 10;
     trashButton.bottom = SNAPSHOT_HEIGHT;
@@ -399,19 +421,6 @@ export default class SnapshotNode extends Node {
       const descriptionNode = new Node( {
         accessibleParagraph: descriptionProperty
       } );
-
-      const experimentTypeListItemProperty = new DerivedProperty(
-        [
-          snapshotProperty,
-          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
-          QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleNameStringProperty,
-          ...sourceTypeDisplayDeps
-        ],
-        ifSnapshot( snapshot => formatLabelValue(
-          QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.accessibleNameStringProperty.value,
-          SOURCE_TYPE_DISPLAY_MAP[ snapshot.sourceType ].value
-        ), '' )
-      );
 
       const detectionModeListItemProperty = new DerivedProperty(
         [
@@ -443,7 +452,6 @@ export default class SnapshotNode extends Node {
       );
 
       const metadataListChildren: Node[] = [
-        new Node( { tagName: 'li', innerContent: experimentTypeListItemProperty } ),
         new Node( { tagName: 'li', innerContent: detectionModeListItemProperty } ),
         new Node( { tagName: 'li', innerContent: wavelengthOrSpeedProperty } ),
         new Node( { tagName: 'li', innerContent: slitSeparationProperty } )
@@ -454,6 +462,7 @@ export default class SnapshotNode extends Node {
       }
 
       metadataListChildren.push( new Node( { tagName: 'li', innerContent: slitSettingListItemProperty } ) );
+      metadataListChildren.push( new Node( { tagName: 'li', innerContent: screenBrightnessProperty } ) );
 
       const metadataListNode = new Node( {
         tagName: 'ul',

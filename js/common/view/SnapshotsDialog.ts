@@ -24,6 +24,12 @@ import createDetectorZoomLevelResponseProperty from './createDetectorZoomLevelRe
 import SnapshotNode from './SnapshotNode.js';
 
 const SNAPSHOT_ZOOM_BUTTON_MARGIN = 6;
+const CONTENT_TOP_MARGIN = 18;
+const CONTENT_BOTTOM_MARGIN = 18;
+const CONTENT_LEFT_MARGIN = 20;
+const CONTENT_TO_CLOSE_BUTTON_SPACING = 20;
+const CLOSE_BUTTON_TOP_MARGIN = 10;
+const CLOSE_BUTTON_RIGHT_MARGIN = 10;
 
 type SnapshotsDialogOptions = {
 
@@ -126,9 +132,12 @@ export default class SnapshotsDialog extends Dialog {
 
     super( content, {
       isDisposable: false,
-      topMargin: 10,
-      bottomMargin: 10,
-      leftMargin: 10,
+      xSpacing: CONTENT_TO_CLOSE_BUTTON_SPACING,
+      topMargin: CONTENT_TOP_MARGIN,
+      bottomMargin: CONTENT_BOTTOM_MARGIN,
+      leftMargin: CONTENT_LEFT_MARGIN,
+      closeButtonTopMargin: CLOSE_BUTTON_TOP_MARGIN,
+      closeButtonRightMargin: CLOSE_BUTTON_RIGHT_MARGIN,
       closedSoundPlayer: {
         play: () => {
           if ( suppressNextCloseSound ) {

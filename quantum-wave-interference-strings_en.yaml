@@ -22,6 +22,7 @@ particleSpeed:                         Particle Speed
 emissionRate:                          Emission Rate
 slitsLabelPattern:                     'Slits: {{setting}}'
 snapshotLabelValuePattern:             '{{label}}: {{value}}'
+snapshotHeadingPattern:                '{{snapshot}}: {{scene}}'
 electronMassLabel:                     'm<sub>e</sub> = 9.1×10<sup>−31</sup> kg'
 neutronMassLabel:                      'm<sub>n</sub> = 1.7×10<sup>−27</sup> kg'
 heliumAtomMassLabel:                   'm<sub>He</sub> = 6.6×10<sup>−27</sup> kg'

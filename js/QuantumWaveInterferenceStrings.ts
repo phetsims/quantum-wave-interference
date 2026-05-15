@@ -43,6 +43,7 @@ type StringsType = {
   'emissionRateStringProperty': LocalizedStringProperty;
   'slitsLabelPatternStringProperty': LocalizedStringProperty;
   'snapshotLabelValuePatternStringProperty': LocalizedStringProperty;
+  'snapshotHeadingPatternStringProperty': LocalizedStringProperty;
   'electronMassLabelStringProperty': LocalizedStringProperty;
   'neutronMassLabelStringProperty': LocalizedStringProperty;
   'heliumAtomMassLabelStringProperty': LocalizedStringProperty;
