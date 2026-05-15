@@ -117,6 +117,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
     const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const waveRegionLeft = X_MARGIN + leftColumnWidth + 20;
+    const waveRegionRight = waveRegionLeft + WAVE_REGION_WIDTH;
     const slitControlsBottom = this.layoutBounds.maxY - Y_MARGIN;
 
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -140,7 +141,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       }
     } );
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
-      x: waveRegionLeft + WAVE_REGION_WIDTH - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
+      x: waveRegionRight - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
       y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
     this.addChild( this.detectorScreenNode );
@@ -185,7 +186,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       model.sceneProperty,
       this.detectorScreenNode,
       model.isHitsGraphVisibleProperty,
-      waveRegionLeft + WAVE_REGION_WIDTH,
+      waveRegionRight,
       waveRegionTop,
       tandem.createTandem( 'sidewaysGraphNode' ),
       { initialZoomLevel: 'max' }
@@ -197,6 +198,8 @@ export default class SingleParticlesScreenView extends ScreenView {
       model,
       waveRegionLeft,
       waveRegionTop,
+      () => bottomRow.getSlitSeparationControlCenterX(),
+      () => bottomRow.getSlitSeparationControlCenterY(),
       tandem.createTandem( 'detectorToolNode' )
     );
     this.addChild( detectorToolNode );

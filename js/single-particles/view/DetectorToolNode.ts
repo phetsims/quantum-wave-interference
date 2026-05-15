@@ -4,14 +4,15 @@
  * DetectorToolNode is the detector tool for the Single Particles screen. It consists of:
  * - A draggable circular detector overlaid on the wave visualization region
  * - A probability percentage label inside the circle
- * - A curved wire connecting the circle to a control panel below the wave region
- * - A control panel with a Detect/Reset button and a detector size slider
+ * - A curved wire connecting the circle to a control panel
+ * - A control panel with a Detect/Reset button, detector size slider, and detector mode radio buttons
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
+import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -27,6 +28,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Color from '../../../../scenery/js/util/Color.js';
+import AquaRadioButtonGroup, { type AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel from '../../../../sun/js/Panel.js';
@@ -46,6 +48,9 @@ const CIRCLE_FILL_NOT_DETECTED = new Color( 80, 80, 80, 0.5 );
 const CIRCLE_STROKE = new Color( 50, 50, 50 );
 const WIRE_STROKE = new Color( 100, 100, 100 );
 
+const DetectorModeValues = [ 'destructive', 'nonDestructive' ] as const;
+type DetectorMode = typeof DetectorModeValues[number];
+
 export default class DetectorToolNode extends Node {
 
   //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Coupling to SingleParticlesModel suggests that the
@@ -55,6 +60,8 @@ export default class DetectorToolNode extends Node {
     model: SingleParticlesModel,
     waveRegionLeft: number,
     waveRegionTop: number,
+    getControlPanelCenterX: () => number,
+    getControlPanelCenterY: () => number,
     tandem: Tandem
   ) {
     super( { isDisposable: false } );
@@ -145,8 +152,40 @@ export default class DetectorToolNode extends Node {
       align: 'center'
     } );
 
+    const detectorModeProperty = new StringUnionProperty<DetectorMode>( 'destructive', {
+      validValues: DetectorModeValues,
+      tandem: tandem.createTandem( 'detectorModeProperty' )
+    } );
+
+    const detectorModeItems: AquaRadioButtonGroupItem<DetectorMode>[] = [
+      {
+        value: 'destructive',
+        createNode: () => new Text( QuantumWaveInterferenceFluent.destructiveStringProperty, {
+          font: LABEL_FONT,
+          maxWidth: 100
+        } ),
+        tandemName: 'destructiveRadioButton'
+      },
+      {
+        value: 'nonDestructive',
+        createNode: () => new Text( QuantumWaveInterferenceFluent.nonDestructiveStringProperty, {
+          font: LABEL_FONT,
+          maxWidth: 100
+        } ),
+        tandemName: 'nonDestructiveRadioButton'
+      }
+    ];
+
+    const detectorModeRadioButtonGroup = new AquaRadioButtonGroup<DetectorMode>( detectorModeProperty, detectorModeItems, {
+      spacing: 8,
+      align: 'left',
+      orientation: 'vertical',
+      radioButtonOptions: { radius: 7 },
+      tandem: tandem.createTandem( 'detectorModeRadioButtonGroup' )
+    } );
+
     const panelContent = new HBox( {
-      children: [ detectButton, sizeControl ],
+      children: [ detectButton, sizeControl, detectorModeRadioButtonGroup ],
       spacing: 15,
       align: 'center'
     } );
@@ -159,9 +198,6 @@ export default class DetectorToolNode extends Node {
       cornerRadius: 6
     } );
     this.addChild( controlPanel );
-
-    controlPanel.centerX = waveRegionLeft + WAVE_REGION_WIDTH / 2;
-    controlPanel.top = waveRegionTop + WAVE_REGION_HEIGHT + 10;
 
     // --- Update circle position, size, and wire from model ---
 
@@ -187,6 +223,13 @@ export default class DetectorToolNode extends Node {
         .cubicCurveTo( viewX, midY, panelCX, midY, panelCX, panelTY );
       wirePath.shape = wireShape;
     };
+
+    const updateControlPanelPosition = () => {
+      controlPanel.centerX = getControlPanelCenterX();
+      controlPanel.centerY = getControlPanelCenterY();
+      updateCircle();
+    };
+    controlPanel.localBoundsProperty.link( updateControlPanelPosition );
 
     // --- Drag listener for the circle ---
 

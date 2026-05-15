@@ -25,6 +25,8 @@ const TITLE_FONT = new PhetFont( 14 );
 
 export default class SlitConfigurationControlsRow<T extends string> extends Node {
 
+  private readonly slitSeparationContainer: Node;
+
   public constructor(
     slitConfigurationProperty: PhetioProperty<T>,
     slitConfigItems: ComboBoxItem<T>[],
@@ -71,18 +73,31 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
       children: [ slitConfigSection, slitSeparationContainer ],
       excludeInvisibleChildrenFromBounds: false
     } );
+    this.slitSeparationContainer = slitSeparationContainer;
 
     slitConfigurationProperty.link( slitConfiguration => {
       slitSeparationContainer.visible = slitConfiguration !== 'noBarrier';
     } );
 
-    slitConfigSection.left = 0;
-    slitConfigSection.bottom = 0;
+    const updateLayout = () => {
+      slitSeparationContainer.right = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
+      slitSeparationContainer.bottom = 0;
 
-    slitSeparationContainer.right = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
-    slitSeparationContainer.bottom = 0;
+      slitConfigSection.left = 0;
+      slitConfigSection.centerY = slitSeparationContainer.centerY;
 
-    this.left = waveRegionLeft;
-    this.bottom = controlsBottom;
+      this.left = waveRegionLeft;
+      this.bottom = controlsBottom;
+    };
+    slitConfigSection.localBoundsProperty.link( updateLayout );
+    slitSeparationContainer.localBoundsProperty.link( updateLayout );
+  }
+
+  public getSlitSeparationControlCenterY(): number {
+    return this.y + this.slitSeparationContainer.centerY;
+  }
+
+  public getSlitSeparationControlCenterX(): number {
+    return this.x + this.slitSeparationContainer.centerX;
   }
 }

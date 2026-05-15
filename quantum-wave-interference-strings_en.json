@@ -197,6 +197,12 @@
   "detectorSize": {
     "value": "Detector Size"
   },
+  "destructive": {
+    "value": "Destructive"
+  },
+  "nonDestructive": {
+    "value": "Non-destructive"
+  },
   "detect": {
     "value": "Detect"
   },
