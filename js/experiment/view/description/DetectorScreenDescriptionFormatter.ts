@@ -16,11 +16,11 @@ import { type BandAnalysisResult, type HitStage } from './BandAnalysis.js';
  * @param spatialDescription - localized spatial description of the visible pattern
  * @returns localized accessible paragraph text
  */
-export const formatIntensityDescription = (
+export function formatIntensityDescription(
   isDoubleSlit: boolean,
   analysis: BandAnalysisResult,
   spatialDescription: string
-): string => {
+): string {
   return isDoubleSlit ?
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
            bandCount: analysis.bandCount,
@@ -29,7 +29,7 @@ export const formatIntensityDescription = (
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( {
            spatialDescription: spatialDescription
          } );
-};
+}
 
 /**
  * Formats the accessible detector-screen description for the live detector screen in hits mode.
@@ -38,11 +38,11 @@ export const formatIntensityDescription = (
  * @param spatialDescription - localized spatial description of the visible pattern
  * @returns localized accessible paragraph text
  */
-export const formatLiveHitsDescription = (
+export function formatLiveHitsDescription(
   hitStage: HitStage,
   isDoubleSlit: boolean,
   spatialDescription: string
-): string => {
+): string {
   if ( hitStage === 'none' ) {
     return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsNoneStringProperty.value;
   }
@@ -61,7 +61,7 @@ export const formatLiveHitsDescription = (
            ( hitStage === 'developing' || hitStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
-};
+}
 
 /**
  * Formats the accessible detector-screen description for a saved snapshot in hits mode.
@@ -71,12 +71,12 @@ export const formatLiveHitsDescription = (
  * @param spatialDescription - localized spatial description of the visible pattern
  * @returns localized accessible paragraph text
  */
-export const formatSnapshotHitsDescription = (
+export function formatSnapshotHitsDescription(
   hitStage: HitStage,
   isDoubleSlit: boolean,
   hitCount: number,
   spatialDescription: string
-): string => {
+): string {
   if ( hitStage === 'none' ) {
     return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNone.format( { hitCount: hitCount } );
   }
@@ -104,4 +104,4 @@ export const formatSnapshotHitsDescription = (
                                                                  } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
-};
+}

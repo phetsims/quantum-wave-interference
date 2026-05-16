@@ -64,7 +64,7 @@ export const SnapshotIO = new SchemaOrientedIOType<Snapshot, typeof SNAPSHOT_SCH
 
 // Snapshots are captured-value objects. When snapshot labels need to be renumbered after one is deleted, create
 // replacement Snapshot instances rather than mutating existing snapshots.
-export const renumberSnapshots = ( snapshots: Snapshot[] ): Snapshot[] => {
+export function renumberSnapshots( snapshots: Snapshot[] ): Snapshot[] {
   return snapshots.map( ( snapshot, index ) => _.assign( {}, snapshot, {
     snapshotNumber: index + 1,
 
@@ -72,4 +72,4 @@ export const renumberSnapshots = ( snapshots: Snapshot[] ): Snapshot[] => {
     hits: [ ...snapshot.hits ],
     intensityDistribution: [ ...snapshot.intensityDistribution ]
   } ) );
-};
+}

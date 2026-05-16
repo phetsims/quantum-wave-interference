@@ -162,7 +162,7 @@ type ApertureTransfer = {
   support: number;
 };
 
-const smoothStep = ( edge0: number, edge1: number, x: number ): number => {
+function smoothStep( edge0: number, edge1: number, x: number ): number {
   if ( x <= edge0 ) {
     return 0;
   }
@@ -171,11 +171,11 @@ const smoothStep = ( edge0: number, edge1: number, x: number ): number => {
   }
   const u = ( x - edge0 ) / ( edge1 - edge0 );
   return u * u * ( 3 - 2 * u );
-};
+}
 
 // Fast Abramowitz-Stegun style approximation for Fresnel integrals. The max error is small enough
 // for rendering/unit-test invariants, and it avoids per-cell numerical quadrature in the canvas.
-const fresnelIntegral = ( x: number ): Complex => {
+function fresnelIntegral( x: number ): Complex {
   const sign = x < 0 ? -1 : 1;
   const ax = Math.abs( x );
 
@@ -193,24 +193,24 @@ const fresnelIntegral = ( x: number ): Complex => {
     sign * ( 0.5 + f * sinPhase - g * cosPhase ),
     sign * ( 0.5 - f * cosPhase - g * sinPhase )
   );
-};
+}
 
 const blendComplex = ( a: Complex, b: Complex, t: number ): Complex => new Complex(
   a.real + ( b.real - a.real ) * t,
   a.imaginary + ( b.imaginary - a.imaginary ) * t
 );
 
-const getApertureMaskTransfer = ( y: number, slit: AnalyticalSlit ): Complex => {
+function getApertureMaskTransfer( y: number, slit: AnalyticalSlit ): Complex {
   const halfWidth = slit.width / 2;
   return Math.abs( y - slit.centerY ) <= halfWidth ? new Complex( 1, 0 ) : new Complex( 0, 0 );
-};
+}
 
-const getFresnelApertureTransfer = (
+function getFresnelApertureTransfer(
   waveNumber: number,
   xPastBarrier: number,
   y: number,
   slit: AnalyticalSlit
-): ApertureTransfer => {
+): ApertureTransfer {
   const halfWidth = slit.width / 2;
   const yMin = slit.centerY - halfWidth;
   const yMax = slit.centerY + halfWidth;
@@ -256,16 +256,16 @@ const getFresnelApertureTransfer = (
     value: fresnelTransfer,
     support: 1
   };
-};
+}
 
-const getClosestYOnSlit = ( y: number, slit: AnalyticalSlit ): number => {
+function getClosestYOnSlit( y: number, slit: AnalyticalSlit ): number {
   const halfWidth = slit.width / 2;
   const yMin = slit.centerY - halfWidth;
   const yMax = slit.centerY + halfWidth;
   return Math.max( yMin, Math.min( yMax, y ) );
-};
+}
 
-export const computeSampleIntensity = ( sample: FieldSample ): number => {
+export function computeSampleIntensity( sample: FieldSample ): number {
   if ( sample.kind !== 'field' ) {
     return 0;
   }
@@ -283,7 +283,7 @@ export const computeSampleIntensity = ( sample: FieldSample ): number => {
     intensity += sum.magnitudeSquared;
   } );
   return intensity;
-};
+}
 
 /**
  * Legacy display adapter: produce one complex value from a physically richer FieldSample.
@@ -292,7 +292,7 @@ export const computeSampleIntensity = ( sample: FieldSample ): number => {
  * returned phase is taken from the strongest group and the magnitude is scaled to the total
  * decoherent intensity. That keeps old real/imaginary displays finite while preserving intensity.
  */
-export const getRepresentativeComplex = ( sample: FieldSample ): Complex => {
+export function getRepresentativeComplex( sample: FieldSample ): Complex {
   if ( sample.kind !== 'field' ) {
     return new Complex( 0, 0 );
   }
@@ -325,20 +325,20 @@ export const getRepresentativeComplex = ( sample: FieldSample ): Complex => {
 
   const scale = Math.sqrt( totalIntensity / strongestIntensity );
   return strongest.timesScalar( scale );
-};
+}
 
-export const evaluateAnalyticalSample = (
+export function evaluateAnalyticalSample(
   parameters: AnalyticalWaveParameters,
   x: number,
   y: number,
   t: number
-): FieldSample => {
+): FieldSample {
   let sample = evaluateUndecoheredAnalyticalSample( parameters, x, y, t );
 
   sample = applyDecoherenceEvent( sample, parameters, x, y, t );
 
   return applyMeasurementProjections( sample, parameters.projections || [], parameters.source, x, y, t );
-};
+}
 
 /**
  * Rendering-oriented companion to evaluateAnalyticalSample.
@@ -350,12 +350,12 @@ export const evaluateAnalyticalSample = (
  * bands as transparent layers with z ordering. For packet sources, measurement projections are applied
  * to the base packet layer so layered rendering matches the model-facing FieldSample.
  */
-export const evaluateAnalyticalLayeredSample = (
+export function evaluateAnalyticalLayeredSample(
   parameters: AnalyticalWaveParameters,
   x: number,
   y: number,
   t: number
-): LayeredFieldSample => {
+): LayeredFieldSample {
   const sample = evaluateUndecoheredAnalyticalSample( parameters, x, y, t );
 
   if ( sample.kind !== 'field' ) {
@@ -375,15 +375,15 @@ export const evaluateAnalyticalLayeredSample = (
   }
 
   return applyPlaneWaveDecoherenceEventLayers( sample, parameters, x, y, t );
-};
+}
 
-const applyGaussianPacketMeasurementProjectionLayers = (
+function applyGaussianPacketMeasurementProjectionLayers(
   sample: Extract<FieldSample, { kind: 'field' }>,
   parameters: AnalyticalWaveParameters,
   x: number,
   y: number,
   t: number
-): LayeredFieldSample => {
+): LayeredFieldSample {
   const source = parameters.source;
   if ( source.kind !== 'gaussianPacket' ) {
     return {
@@ -411,7 +411,7 @@ const applyGaussianPacketMeasurementProjectionLayers = (
     kind: 'field',
     layers: layers
   };
-};
+}
 
 /**
  * Computes the raw analytical field before detector-record decoherence or measurement projections.
@@ -421,12 +421,12 @@ const applyGaussianPacketMeasurementProjectionLayers = (
  * failure mode where the rendered particle bands and detector/graph math drift because they each
  * approximate diffraction or source reachability independently.
  */
-const evaluateUndecoheredAnalyticalSample = (
+function evaluateUndecoheredAnalyticalSample(
   parameters: AnalyticalWaveParameters,
   x: number,
   y: number,
   t: number
-): FieldSample => {
+): FieldSample {
   const { source, barrier } = parameters;
 
   if ( parameters.packetReEmission && source.kind === 'gaussianPacket' ) {
@@ -440,19 +440,19 @@ const evaluateUndecoheredAnalyticalSample = (
   else {
     return evaluateDoubleSlitSample( source, barrier, x, y, t );
   }
-};
+}
 
-export const getDecoherenceEventAtPassTime = (
+export function getDecoherenceEventAtPassTime(
   events: readonly DecoherenceEvent[],
   passTime: number
-): DecoherenceEvent | null => {
+): DecoherenceEvent | null {
   for ( let i = events.length - 1; i >= 0; i-- ) {
     if ( events[ i ].time <= passTime + EPSILON ) {
       return events[ i ];
     }
   }
   return null;
-};
+}
 
 /**
  * A same-slit run of plane-wave detector records that should be treated as one visual chain.
@@ -476,10 +476,10 @@ type DecoherenceChain = {
  * their windows touch, they are merged before the strength is computed. This is what makes bottom,
  * bottom, bottom look like one continuous bottom-selected plane wave instead of three visible packets.
  */
-const getPlaneWaveDecoherenceChainAtPassTime = (
+function getPlaneWaveDecoherenceChainAtPassTime(
   events: readonly DecoherenceEvent[],
   passTime: number
-): DecoherenceChain | null => {
+): DecoherenceChain | null {
   for ( let i = events.length - 1; i >= 0; i-- ) {
     const event = events[ i ];
     if ( passTime < event.time - EPSILON ) {
@@ -524,13 +524,13 @@ const getPlaneWaveDecoherenceChainAtPassTime = (
     };
   }
   return null;
-};
+}
 
-const getPlaneWaveDecoherenceChainStrength = (
+function getPlaneWaveDecoherenceChainStrength(
   passTime: number,
   chainStartTime: number,
   chainEndTime: number
-): number => {
+): number {
   if ( passTime <= chainStartTime + EPSILON || passTime >= chainEndTime - EPSILON ) {
     return 0;
   }
@@ -548,9 +548,9 @@ const getPlaneWaveDecoherenceChainStrength = (
     passTime
   );
   return Math.min( leadingStrength, trailingStrength );
-};
+}
 
-const getPlaneWaveComponentDecoherenceChain = (
+function getPlaneWaveComponentDecoherenceChain(
   component: FieldComponent,
   events: readonly DecoherenceEvent[],
   barrier: Extract<AnalyticalBarrier, { kind: 'doubleSlit' }>,
@@ -558,7 +558,7 @@ const getPlaneWaveComponentDecoherenceChain = (
   x: number,
   y: number,
   t: number
-): DecoherenceChain | null => {
+): DecoherenceChain | null {
   if ( component.source !== 'topSlit' && component.source !== 'bottomSlit' ) {
     return null;
   }
@@ -578,7 +578,7 @@ const getPlaneWaveComponentDecoherenceChain = (
   );
   const passTime = t - downstreamDistance / source.speed;
   return getPlaneWaveDecoherenceChainAtPassTime( events, passTime );
-};
+}
 
 /**
  * Converts an undecohereed plane-wave field sample into renderable particle-chain layers.
@@ -589,13 +589,13 @@ const getPlaneWaveComponentDecoherenceChain = (
  * the taper fades to transparent over the black wave-region background. FieldSample projection still
  * handles model-facing attenuation separately in applyDecoherenceEvent.
  */
-const applyPlaneWaveDecoherenceEventLayers = (
+function applyPlaneWaveDecoherenceEventLayers(
   sample: Extract<FieldSample, { kind: 'field' }>,
   parameters: AnalyticalWaveParameters,
   x: number,
   y: number,
   t: number
-): LayeredFieldSample => {
+): LayeredFieldSample {
   const events = parameters.decoherenceEvents;
   const barrier = parameters.barrier;
   const source = parameters.source;
@@ -646,15 +646,15 @@ const applyPlaneWaveDecoherenceEventLayers = (
     kind: 'field',
     layers: layers
   };
-};
+}
 
-const applyDecoherenceEvent = (
+function applyDecoherenceEvent(
   sample: FieldSample,
   parameters: AnalyticalWaveParameters,
   x: number,
   y: number,
   t: number
-): FieldSample => {
+): FieldSample {
   const events = parameters.decoherenceEvents;
   const barrier = parameters.barrier;
 
@@ -719,15 +719,15 @@ const applyDecoherenceEvent = (
     kind: 'field',
     components: components
   };
-};
+}
 
-const evaluateGaussianPacketReEmissionSample = (
+function evaluateGaussianPacketReEmissionSample(
   source: GaussianPacketSource,
   reEmission: GaussianPacketReEmission,
   x: number,
   y: number,
   t: number
-): FieldSample => {
+): FieldSample {
   if ( !source.isActive || t < reEmission.eventTime - EPSILON || x < reEmission.sourceX - EPSILON ) {
     return { kind: 'unreached' };
   }
@@ -792,15 +792,15 @@ const evaluateGaussianPacketReEmissionSample = (
   return isPathReachable( localSource, distanceFromAperture, localTime ) ?
     { kind: 'field', components: [] } :
     { kind: 'unreached' };
-};
+}
 
-const evaluateDoubleSlitSample = (
+function evaluateDoubleSlitSample(
   source: AnalyticalSource,
   barrier: Extract<AnalyticalBarrier, { kind: 'doubleSlit' }>,
   x: number,
   y: number,
   t: number
-): FieldSample => {
+): FieldSample {
   if ( x < barrier.barrierX - EPSILON ) {
     const component = evaluateSourceComponent( source, 'incident', 'incident', x, y, x, t );
     return component ? { kind: 'field', components: [ component ] } : { kind: 'unreached' };
@@ -861,9 +861,9 @@ const evaluateDoubleSlitSample = (
   }
 
   return hasReachablePath ? { kind: 'field', components: [] } : { kind: 'unreached' };
-};
+}
 
-const evaluateDiffractedComponent = (
+function evaluateDiffractedComponent(
   source: AnalyticalSource,
   slit: AnalyticalSlit,
   barrierX: number,
@@ -872,7 +872,7 @@ const evaluateDiffractedComponent = (
   reachPathLength: number,
   closestApertureY: number,
   t: number
-): FieldComponent | null => {
+): FieldComponent | null {
   if ( xPastBarrier <= EPSILON ) {
     return null;
   }
@@ -933,9 +933,9 @@ const evaluateDiffractedComponent = (
     support: envelope * apertureTransfer.support,
     value: Complex.createPolar( envelope, phase ).times( apertureTransfer.value )
   };
-};
+}
 
-const evaluateSourceComponent = (
+function evaluateSourceComponent(
   source: AnalyticalSource,
   componentSource: FieldComponentSource,
   coherenceGroup: string,
@@ -943,7 +943,7 @@ const evaluateSourceComponent = (
   y: number,
   pathLength: number,
   t: number
-): FieldComponent | null => {
+): FieldComponent | null {
   if ( source.kind === 'plane' ) {
     const sourceEnvelope = getPlaneEmissionEnvelope( source, pathLength, t );
     if ( sourceEnvelope <= 0 ) {
@@ -992,9 +992,9 @@ const evaluateSourceComponent = (
     support: envelope,
     value: Complex.createPolar( envelope, phase )
   };
-};
+}
 
-const getGaussianPacketState = ( source: GaussianPacketSource, t: number ): GaussianPacketState => {
+function getGaussianPacketState( source: GaussianPacketSource, t: number ): GaussianPacketState {
   const longitudinalSpreadTime = Math.max( source.longitudinalSpreadTime, EPSILON );
   const transverseSpreadTime = Math.max( source.transverseSpreadTime, EPSILON );
   const spreadX = t / longitudinalSpreadTime;
@@ -1010,9 +1010,9 @@ const getGaussianPacketState = ( source: GaussianPacketSource, t: number ): Gaus
     chirpX: spreadX / ( 2 * sigmaX * sigmaX ),
     chirpY: spreadY / ( 2 * sigmaY * sigmaY )
   };
-};
+}
 
-const getPlaneEmissionEnvelope = ( source: PlaneWaveSource, pathLength: number, t: number ): number => {
+function getPlaneEmissionEnvelope( source: PlaneWaveSource, pathLength: number, t: number ): number {
   if ( source.startTime === null || source.speed <= 0 ) {
     return 0;
   }
@@ -1028,24 +1028,24 @@ const getPlaneEmissionEnvelope = ( source: PlaneWaveSource, pathLength: number, 
   }
 
   return smoothStep( 0, taperTime, emissionTime - source.startTime );
-};
+}
 
-const isPathReachable = ( source: AnalyticalSource, pathLength: number, t: number ): boolean => {
+function isPathReachable( source: AnalyticalSource, pathLength: number, t: number ): boolean {
   if ( source.kind === 'gaussianPacket' ) {
     return source.isActive;
   }
 
   return getPlaneEmissionEnvelope( source, pathLength, t ) > 0;
-};
+}
 
-const applyMeasurementProjections = (
+function applyMeasurementProjections(
   sample: FieldSample,
   projections: MeasurementProjection[],
   source: AnalyticalSource,
   x: number,
   y: number,
   t: number
-): FieldSample => {
+): FieldSample {
   if ( sample.kind !== 'field' || projections.length === 0 || source.kind !== 'gaussianPacket' ) {
     return sample;
   }
@@ -1086,15 +1086,15 @@ const applyMeasurementProjections = (
       return projectedComponent;
     } )
   };
-};
+}
 
-const getMeasurementProjectionMask = (
+function getMeasurementProjectionMask(
   projection: MeasurementProjection,
   source: GaussianPacketSource,
   x: number,
   y: number,
   t: number
-): number => {
+): number {
   const dt = Math.max( 0, t - projection.measurementTime );
   const projectionCenterX = projection.centerX + source.speed * dt;
   const spreadTime = Math.max( source.longitudinalSpreadTime, EPSILON );
@@ -1133,4 +1133,4 @@ const getMeasurementProjectionMask = (
                         smoothStep( Math.max( 0, projectionRadius - edgeFeather ), projectionRadius, distance ) :
                         0;
   return localMask + ( 1 - localMask ) * boundaryBlend;
-};
+}

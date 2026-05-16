@@ -44,7 +44,7 @@ export const HITS_GLOW_START_FRACTION = 0.5;
 /**
  * Maps the intensity-mode brightness slider (0–1) to a screen brightness multiplier.
  */
-export const getIntensityScreenBrightnessMultiplier = ( sliderBrightness: number ): number => {
+export function getIntensityScreenBrightnessMultiplier( sliderBrightness: number ): number {
   const clampedBrightness = clamp( sliderBrightness, 0, 1 );
   return linear(
     0,
@@ -53,12 +53,12 @@ export const getIntensityScreenBrightnessMultiplier = ( sliderBrightness: number
     INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
     clampedBrightness
   );
-};
+}
 
 /**
  * Maps the hits-mode brightness slider to a display gain multiplier.
  */
-export const getHitsDisplayGain = ( brightness: number, sliderMax: number = QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ): number => {
+export function getHitsDisplayGain( brightness: number, sliderMax: number = QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ): number {
   const clampedBrightness = clamp( brightness, 0, sliderMax );
   return linear(
     0,
@@ -67,21 +67,21 @@ export const getHitsDisplayGain = ( brightness: number, sliderMax: number = Quan
     HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
     clampedBrightness
   );
-};
+}
 
 /**
  * Converts a raw brightness value to a 0–1 fraction of the maximum brightness.
  */
-export const getHitsBrightnessFraction = ( brightness: number ): number => {
+export function getHitsBrightnessFraction( brightness: number ): number {
   return clamp( brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX, 0, 1 );
-};
+}
 
 /**
  * Returns the core alpha for a hit dot at the given brightness fraction.
  * The core alpha ramps from HITS_CORE_ALPHA_MIN to HITS_CORE_ALPHA_MIDPOINT_MAX over the first half of the brightness
  * range, then stays at maximum.
  */
-export const getHitsCoreAlpha = ( brightnessFraction: number ): number => {
+export function getHitsCoreAlpha( brightnessFraction: number ): number {
   const clampedFraction = clamp( brightnessFraction, 0, 1 );
   if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {
     return linear(
@@ -93,35 +93,35 @@ export const getHitsCoreAlpha = ( brightnessFraction: number ): number => {
     );
   }
   return HITS_CORE_ALPHA_MIDPOINT_MAX;
-};
+}
 
 /**
  * Returns the glow alpha for a hit dot at the given brightness fraction. Glow is zero until the brightness exceeds
  * HITS_GLOW_START_FRACTION, then ramps up.
  */
-export const getHitsGlowAlpha = ( brightnessFraction: number ): number => {
+export function getHitsGlowAlpha( brightnessFraction: number ): number {
   const clampedFraction = clamp( brightnessFraction, 0, 1 );
   if ( clampedFraction <= HITS_GLOW_START_FRACTION ) {
     return 0;
   }
   return linear( HITS_GLOW_START_FRACTION, 1, 0, HITS_GLOW_ALPHA_MAX, clampedFraction );
-};
+}
 
 /**
  * Computes the overall intensity display gain from brightness slider and current intensity.
  */
-export const getIntensityDisplayGain = ( brightness: number, intensity: number ): number => {
+export function getIntensityDisplayGain( brightness: number, intensity: number ): number {
   return (
     getIntensityScreenBrightnessMultiplier( brightness ) *
     clamp( intensity, 0, 1 ) *
     INTENSITY_BRIGHTNESS_MAX_MULTIPLIER
   );
-};
+}
 
 /**
  * Returns the RGB color for a scene's particles (wavelength-dependent for photons, white for matter).
  */
-export const getSceneRGB = ( sourceType: SourceType, wavelength: number ): RGB => {
+export function getSceneRGB( sourceType: SourceType, wavelength: number ): RGB {
   if ( sourceType === 'photons' ) {
     const color = VisibleColor.wavelengthToColor( wavelength );
     return { r: color.red, g: color.green, b: color.blue };
@@ -129,20 +129,20 @@ export const getSceneRGB = ( sourceType: SourceType, wavelength: number ): RGB =
   else {
     return { r: 255, g: 255, b: 255 };
   }
-};
+}
 
 /**
  * Returns the detector screen background RGB. Black so that the intensity interpolation
  * goes from black to the wavelength color, matching the wave visualization's color scheme.
  */
-export const getWaveAndDetectorBackgroundRGB = (): RGB => {
+export function getWaveAndDetectorBackgroundRGB(): RGB {
   return { r: 0, g: 0, b: 0 };
-};
+}
 
 /**
  * Samples a detector distribution with linear interpolation between solver-cell centers.
  */
-export const sampleIntensityDistribution = ( distribution: ArrayLike<number>, fraction: number ): number => {
+export function sampleIntensityDistribution( distribution: ArrayLike<number>, fraction: number ): number {
   const length = distribution.length;
   if ( length === 0 ) {
     return 0;
@@ -162,16 +162,16 @@ export const sampleIntensityDistribution = ( distribution: ArrayLike<number>, fr
   const lowerIndex = Math.floor( sampleIndex );
   const upperWeight = sampleIndex - lowerIndex;
   return linear( 0, 1, distribution[ lowerIndex ], distribution[ lowerIndex + 1 ], upperWeight );
-};
+}
 
 /**
  * Samples a detector distribution with a small triangular smoothing kernel, where radius is measured in solver bins.
  */
-export const sampleSmoothedIntensityDistribution = (
+export function sampleSmoothedIntensityDistribution(
   distribution: ArrayLike<number>,
   fraction: number,
   radius: number
-): number => {
+): number {
   if ( radius <= 0 || distribution.length <= 1 ) {
     return sampleIntensityDistribution( distribution, fraction );
   }
@@ -193,17 +193,17 @@ export const sampleSmoothedIntensityDistribution = (
   }
 
   return totalWeight > 0 ? weightedIntensity / totalWeight : sampleIntensityDistribution( distribution, fraction );
-};
+}
 
 /**
  * Interpolates between two RGB colors and returns integer RGB components.
  */
-export const getInterpolatedRGB = (
+export function getInterpolatedRGB(
   startRGB: RGB,
   endRGB: RGB,
   fraction: number,
   result?: RGB
-): RGB => {
+): RGB {
   const outputRGB = result || { r: 0, g: 0, b: 0 };
 
   if ( fraction < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
@@ -218,17 +218,17 @@ export const getInterpolatedRGB = (
   outputRGB.g = clamp( roundSymmetric( linear( 0, 1, startRGB.g, endRGB.g, clampedFraction ) ), 0, 255 );
   outputRGB.b = clamp( roundSymmetric( linear( 0, 1, startRGB.b, endRGB.b, clampedFraction ) ), 0, 255 );
   return outputRGB;
-};
+}
 
 /**
  * Interpolates between two RGB colors and returns an rgb(...) fill style string.
  * Values below the perceptual threshold are rendered as the background color.
  */
-export const getInterpolatedRGBFillStyle = (
+export function getInterpolatedRGBFillStyle(
   startRGB: RGB,
   endRGB: RGB,
   fraction: number
-): string => {
+): string {
   const rgb = getInterpolatedRGB( startRGB, endRGB, fraction );
   return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
-};
+}

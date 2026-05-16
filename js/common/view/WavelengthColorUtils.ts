@@ -11,7 +11,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 
 export type WavelengthColorZone = 'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red';
 
-export const getWavelengthColorZone = ( wavelength: number ): WavelengthColorZone => {
+export function getWavelengthColorZone( wavelength: number ): WavelengthColorZone {
   return wavelength <= 450 ? 'violet' :
          wavelength <= 485 ? 'blue' :
          wavelength <= 500 ? 'indigo' :
@@ -19,9 +19,9 @@ export const getWavelengthColorZone = ( wavelength: number ): WavelengthColorZon
          wavelength <= 590 ? 'yellow' :
          wavelength <= 625 ? 'orange' :
          'red';
-};
+}
 
-export const getWavelengthColorZoneString = ( colorZone: WavelengthColorZone ): string => {
+export function getWavelengthColorZoneString( colorZone: WavelengthColorZone ): string {
   return colorZone === 'violet' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty.value :
          colorZone === 'blue' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty.value :
          colorZone === 'indigo' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty.value :
@@ -30,4 +30,4 @@ export const getWavelengthColorZoneString = ( colorZone: WavelengthColorZone ): 
          colorZone === 'orange' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty.value :
          colorZone === 'red' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty.value :
          ( () => { throw new Error( `Unrecognized colorZone: ${colorZone}` ); } )();
-};
+}

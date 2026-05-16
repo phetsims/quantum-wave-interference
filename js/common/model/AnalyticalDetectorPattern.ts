@@ -31,19 +31,19 @@ export type AnalyticalDetectorPatternOptions = {
 
 const SINGLE_OPEN_SLIT_INTENSITY_SCALE = 0.5;
 
-const sincSquared = ( arg: number ): number => {
+function sincSquared( arg: number ): number {
   return arg === 0 ? 1 : Math.pow( Math.sin( arg ) / arg, 2 );
-};
+}
 
 /**
  * Returns the single-slit diffraction envelope at the given detector position.
  */
-export const getAnalyticalSingleSlitEnvelopeIntensity = (
+export function getAnalyticalSingleSlitEnvelopeIntensity(
   positionOnScreen: number,
   effectiveWavelength: number,
   screenDistance: number,
   slitWidth: number
-): number => {
+): number {
   if ( effectiveWavelength === 0 ) {
     return 0;
   }
@@ -54,12 +54,12 @@ export const getAnalyticalSingleSlitEnvelopeIntensity = (
   // Single-slit diffraction envelope: sinc^2(pi * a * sin(theta) / lambda).
   const singleSlitArg = Math.PI * slitWidth * sinTheta / effectiveWavelength;
   return sincSquared( singleSlitArg );
-};
+}
 
 /**
  * Returns the local spacing between neighboring double-slit bright fringes, in meters.
  */
-export const getLocalDoubleSlitFringeSpacing = ( options: AnalyticalDetectorPatternOptions ): number => {
+export function getLocalDoubleSlitFringeSpacing( options: AnalyticalDetectorPatternOptions ): number {
   if (
     options.slitSetting !== 'bothOpen' ||
     options.effectiveWavelength === 0 ||
@@ -76,12 +76,12 @@ export const getLocalDoubleSlitFringeSpacing = ( options: AnalyticalDetectorPatt
   return options.effectiveWavelength *
          Math.pow( positionSquared + screenDistanceSquared, 1.5 ) /
          ( options.slitSeparation * screenDistanceSquared );
-};
+}
 
 /**
  * Exact detector intensity from the Experiment screen's Fraunhofer formulas.
  */
-export const getExactAnalyticalDetectorIntensity = ( options: AnalyticalDetectorPatternOptions ): number => {
+export function getExactAnalyticalDetectorIntensity( options: AnalyticalDetectorPatternOptions ): number {
   const lambda = options.effectiveWavelength;
   if ( lambda === 0 ) {
     return 0;
@@ -124,4 +124,4 @@ export const getExactAnalyticalDetectorIntensity = ( options: AnalyticalDetector
   // Both open: double-slit interference cos^2(pi * d * sin(theta) / lambda) modulates the diffraction envelope.
   const doubleSlitArg = Math.PI * options.slitSeparation * sinTheta / lambda;
   return Math.pow( Math.cos( doubleSlitArg ), 2 ) * envelope;
-};
+}

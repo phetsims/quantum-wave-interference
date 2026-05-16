@@ -30,19 +30,19 @@ export const DetectorSideValues = [ 'left', 'right' ] as const;
 
 export type DetectorSide = typeof DetectorSideValues[number];
 
-export const hasDetectorOnSide = ( slitConfiguration: SlitConfigurationWithNoBarrier, detectorSide: DetectorSide ): boolean => {
+export function hasDetectorOnSide( slitConfiguration: SlitConfigurationWithNoBarrier, detectorSide: DetectorSide ): boolean {
   return ( slitConfiguration === 'bothDetectors' ) ||
          ( slitConfiguration === 'leftDetector' && detectorSide === 'left' ) ||
          ( slitConfiguration === 'rightDetector' && detectorSide === 'right' );
-};
+}
 
-export const hasAnyDetector = ( slitConfiguration: SlitConfigurationWithNoBarrier ): boolean => {
+export function hasAnyDetector( slitConfiguration: SlitConfigurationWithNoBarrier ): boolean {
   return slitConfiguration === 'bothDetectors' ||
          slitConfiguration === 'leftDetector' ||
          slitConfiguration === 'rightDetector';
-};
+}
 
 // True when the configuration preserves coherent paths through both open slits, producing interference fringes.
-export const showsDoubleSlitInterferencePattern = ( slitConfiguration: SlitConfigurationWithNoBarrier ): boolean => {
+export function showsDoubleSlitInterferencePattern( slitConfiguration: SlitConfigurationWithNoBarrier ): boolean {
   return slitConfiguration === 'bothOpen';
-};
+}

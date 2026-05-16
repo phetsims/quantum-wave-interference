@@ -29,17 +29,17 @@ export type ApparentAnalyticalDetectorPatternOptions = AnalyticalDetectorPattern
  * bright-biased envelope. Its zero slope at both endpoints keeps the blend stable at the fully resolved and fully
  * unresolved boundaries.
  */
-const smootherStep = ( t: number ): number => {
+function smootherStep( t: number ): number {
   const clampedT = clamp( t, 0, 1 );
 
   // Ken Perlin's smootherstep polynomial: 6t^5 - 15t^4 + 10t^3.
   return clampedT * clampedT * clampedT * ( clampedT * ( clampedT * 6 - 15 ) + 10 );
-};
+}
 
 /**
  * View-only detector intensity with bright-biased filtering for unresolved double-slit fringes.
  */
-export const getApparentAnalyticalDetectorIntensity = ( options: ApparentAnalyticalDetectorPatternOptions ): number => {
+export function getApparentAnalyticalDetectorIntensity( options: ApparentAnalyticalDetectorPatternOptions ): number {
   const exactIntensity = getExactAnalyticalDetectorIntensity( options );
 
   if ( !showsDoubleSlitInterferencePattern( options.slitSetting ) || options.sampleWidthOnScreen <= 0 ) {
@@ -73,4 +73,4 @@ export const getApparentAnalyticalDetectorIntensity = ( options: ApparentAnalyti
   );
 
   return exactIntensity + ( envelopeIntensity - exactIntensity ) * unresolvedBlend;
-};
+}

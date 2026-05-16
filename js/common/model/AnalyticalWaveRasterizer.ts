@@ -70,12 +70,12 @@ export type AnalyticalWaveRaster = {
 
 //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Generated code seems to prefer not to use 'function' for defining functions. Might facilitate unintended closures.
 
-export const getFieldSampleRGBA = (
+export function getFieldSampleRGBA(
   sample: FieldSample,
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
   amplitudeScale: number
-): RGBAColor => {
+): RGBAColor {
   if ( sample.kind !== 'field' ) {
     const gray = sample.kind === 'unreached' ? UNREACHED_VACUUM :
                  sample.kind === 'absorbed' ? ABSORBED_VACUUM :
@@ -86,7 +86,7 @@ export const getFieldSampleRGBA = (
   const groupStates = getCoherenceGroupDisplayStates( sample );
   const displayState = getDisplayState( sample, groupStates, amplitudeScale );
   return getDisplayStateRGBA( displayState, displayMode, baseColor, amplitudeScale );
-};
+}
 
 /**
  * Maps a LayeredFieldSample to one RGBA pixel by source-over compositing its layers.
@@ -97,12 +97,12 @@ export const getFieldSampleRGBA = (
  * into opaque black pixels. The order value comes from the kernel and is the hook for z-order
  * experimentation.
  */
-export const getLayeredFieldSampleRGBA = (
+export function getLayeredFieldSampleRGBA(
   sample: LayeredFieldSample,
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
   amplitudeScale: number
-): RGBAColor => {
+): RGBAColor {
   //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate if statement at line 79
   if ( sample.kind !== 'field' ) {
     const gray = sample.kind === 'unreached' ? UNREACHED_VACUUM :
@@ -139,14 +139,14 @@ export const getLayeredFieldSampleRGBA = (
     blue: roundSymmetric( blue ),
     alpha: roundSymmetric( alpha )
   };
-};
+}
 
-const getFieldLayerRGBA = (
+function getFieldLayerRGBA(
   layer: FieldLayer,
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
   amplitudeScale: number
-): RGBAColor => {
+): RGBAColor {
   const layerSample: Extract<FieldSample, { kind: 'field' }> = {
     kind: 'field',
     components: layer.components
@@ -154,14 +154,14 @@ const getFieldLayerRGBA = (
   const groupStates = getCoherenceGroupDisplayStates( layerSample );
   const displayState = getDisplayState( layerSample, groupStates, amplitudeScale );
   return getDisplayStateTransparentRGBA( displayState, displayMode, baseColor, amplitudeScale, layer.alpha );
-};
+}
 
-const getDisplayStateRGBA = (
+function getDisplayStateRGBA(
   displayState: FieldDisplayState,
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
   amplitudeScale: number
-): RGBAColor => {
+): RGBAColor {
   const real = displayState.value.real * amplitudeScale;
   const imaginary = displayState.value.imaginary * amplitudeScale;
 
@@ -200,7 +200,7 @@ const getDisplayStateRGBA = (
     blue: roundSymmetric( blend( UNREACHED_VACUUM, fieldColor.blue, displayState.visibility ) ),
     alpha: 255
   };
-};
+}
 
 /**
  * Converts one layer's display state into a transparent pixel.
@@ -211,13 +211,13 @@ const getDisplayStateRGBA = (
  * displayState.visibility and layerAlpha control transparency. The black backing node supplies the
  * vacuum color during canvas compositing.
  */
-const getDisplayStateTransparentRGBA = (
+function getDisplayStateTransparentRGBA(
   displayState: FieldDisplayState,
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
   amplitudeScale: number,
   layerAlpha: number
-): RGBAColor => {
+): RGBAColor {
   const real = displayState.value.real * amplitudeScale;
   const imaginary = displayState.value.imaginary * amplitudeScale;
 
@@ -251,7 +251,7 @@ const getDisplayStateTransparentRGBA = (
     blue: roundSymmetric( baseColor.blue * intensity ),
     alpha: roundSymmetric( 255 * clamp( displayState.visibility * layerAlpha, 0, 1 ) )
   };
-};
+}
 
 const blend = ( a: number, b: number, t: number ): number => a + ( b - a ) * t;
 
@@ -270,11 +270,11 @@ type FieldDisplayState = {
   visibility: number;
 };
 
-const getDisplayState = (
+function getDisplayState(
   sample: Extract<FieldSample, { kind: 'field' }>,
   groupStates: CoherenceGroupDisplayState[],
   amplitudeScale: number
-): FieldDisplayState => {
+): FieldDisplayState {
   if ( groupStates.length === 0 ) {
     return {
       value: new Complex( 0, 0 ),
@@ -301,9 +301,9 @@ const getDisplayState = (
     intensity: computeSampleIntensity( sample ),
     visibility: getSampleVisibility( groupStates, amplitudeScale )
   };
-};
+}
 
-const getCoherenceGroupDisplayStates = ( sample: Extract<FieldSample, { kind: 'field' }> ): CoherenceGroupDisplayState[] => {
+function getCoherenceGroupDisplayStates( sample: Extract<FieldSample, { kind: 'field' }> ): CoherenceGroupDisplayState[] {
   const groupStates: CoherenceGroupDisplayState[] = [];
   const groupIndexMap = new Map<string, number>();
 
@@ -332,18 +332,18 @@ const getCoherenceGroupDisplayStates = ( sample: Extract<FieldSample, { kind: 'f
   }
 
   return groupStates;
-};
+}
 
-const addComponentToGroupState = ( groupState: CoherenceGroupDisplayState, component: FieldComponent ): void => {
+function addComponentToGroupState( groupState: CoherenceGroupDisplayState, component: FieldComponent ): void {
   groupState.value.add( component.value );
   groupState.componentIntensity += component.value.magnitudeSquared;
   if ( component.support !== undefined ) {
     groupState.hasExplicitSupport = true;
     groupState.support = Math.max( groupState.support, component.support );
   }
-};
+}
 
-const getSampleVisibility = ( groupStates: CoherenceGroupDisplayState[], amplitudeScale: number ): number => {
+function getSampleVisibility( groupStates: CoherenceGroupDisplayState[], amplitudeScale: number ): number {
   let hasExplicitSupport = false;
   let explicitSupport = 0;
   let componentIntensity = 0;
@@ -361,9 +361,9 @@ const getSampleVisibility = ( groupStates: CoherenceGroupDisplayState[], amplitu
   }
 
   return clamp( Math.sqrt( componentIntensity ) * amplitudeScale, 0, 1 );
-};
+}
 
-export const rasterizeAnalyticalWave = ( options: AnalyticalWaveRasterOptions ): AnalyticalWaveRaster => {
+export function rasterizeAnalyticalWave( options: AnalyticalWaveRasterOptions ): AnalyticalWaveRaster {
   const pixels = new Uint8ClampedArray( options.width * options.height * 4 );
   const statusCounts = {
     field: 0,
@@ -399,4 +399,4 @@ export const rasterizeAnalyticalWave = ( options: AnalyticalWaveRasterOptions ):
     pixels: pixels,
     statusCounts: statusCounts
   };
-};
+}
