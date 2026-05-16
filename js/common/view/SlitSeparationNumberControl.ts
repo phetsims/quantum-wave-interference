@@ -13,7 +13,6 @@ import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
-import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -107,10 +106,6 @@ export default class SlitSeparationNumberControl extends NumberControl {
       delta = 0.1;
       numberDisplayOptions = {
         decimalPlaces: dp,
-        valuePattern: {
-          visualPattern: millimetersUnit.visualSymbolPatternStringProperty!,
-          accessiblePattern: millimetersUnit.accessiblePattern!
-        },
         textOptions: { font: new PhetFont( 14 ) },
         maxWidth: 100
       };

@@ -15,7 +15,6 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import NumberControl, { NumberControlOptions } from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
-import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -76,10 +75,6 @@ export default class SlitSeparationControl extends NumberControl {
       delta = SlitSeparationControl.getDelta( slitSeparationRange );
       numberDisplayOptions = {
         decimalPlaces: slitSeparationDecimalPlaces,
-        valuePattern: {
-          visualPattern: millimetersUnit.visualSymbolPatternStringProperty!,
-          accessiblePattern: millimetersUnit.accessiblePattern!
-        },
         textOptions: {
           font: new PhetFont( 14 )
         },

@@ -25,7 +25,6 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { kilometersPerSecondUnit } from '../../../../scenery-phet/js/units/kilometersPerSecondUnit.js';
-import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import WavelengthNumberControl from '../../../../scenery-phet/js/WavelengthNumberControl.js';
@@ -35,7 +34,6 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
-import SunConstants from '../../../../sun/js/SunConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
@@ -176,7 +174,6 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
           maxWidth: 100
         },
         numberDisplayOptions: {
-          valuePattern: SunConstants.VALUE_NAMED_PLACEHOLDER,
           numberFormatter: ( value: number ) => {
             const roundedValue = roundSymmetric( value );
             const colorZone = getWavelengthColorZone( roundedValue );
@@ -229,34 +226,17 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
                             ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
 
       const useKmPerSecond = velocityRange.max >= 10000;
-      const speedUnit = useKmPerSecond ? kilometersPerSecondUnit : metersPerSecondUnit;
 
       const formatSpeed = ( value: number ) => {
-        if ( useKmPerSecond ) {
-          const kmPerS = value / 1000;
-          const roundedValue = roundSymmetric( kmPerS );
-          return {
-            visualString: speedUnit.getVisualSymbolPatternString( roundedValue, {
-              decimalPlaces: 0,
-              showTrailingZeros: false,
-              showIntegersAsIntegers: true
-            } ),
-            accessibleString: speedUnit.getAccessibleString( roundedValue, {
-              decimalPlaces: 0,
-              showTrailingZeros: false,
-              showIntegersAsIntegers: true
-            } )
-          };
-        }
-
-        const roundedValue = roundSymmetric( value );
+        const kmPerS = value / 1000;
+        const roundedValue = roundSymmetric( kmPerS );
         return {
-          visualString: speedUnit.getVisualSymbolPatternString( roundedValue, {
+          visualString: kilometersPerSecondUnit.getVisualSymbolPatternString( roundedValue, {
             decimalPlaces: 0,
             showTrailingZeros: false,
             showIntegersAsIntegers: true
           } ),
-          accessibleString: speedUnit.getAccessibleString( roundedValue, {
+          accessibleString: kilometersPerSecondUnit.getAccessibleString( roundedValue, {
             decimalPlaces: 0,
             showTrailingZeros: false,
             showIntegersAsIntegers: true
@@ -283,13 +263,19 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
             font: TITLE_FONT,
             maxWidth: 100
           },
-          numberDisplayOptions: {
+          numberDisplayOptions: useKmPerSecond ? {
             numberFormatter: formatSpeed,
 
             // Retrigger the formatter when locale-dependent unit strings change.
             numberFormatterDependencies: [
-              ...speedUnit.getDependentProperties()
+              ...kilometersPerSecondUnit.getDependentProperties()
             ],
+            textOptions: {
+              font: new PhetFont( 14 )
+            },
+            maxWidth: 120
+          } : {
+            decimalPlaces: 0,
             textOptions: {
               font: new PhetFont( 14 )
             },

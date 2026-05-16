@@ -13,7 +13,6 @@ import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import NumberControl, { NumberControlOptions } from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -45,10 +44,6 @@ export default class ScreenDistanceControl extends NumberControl {
       },
       numberDisplayOptions: {
         decimalPlaces: SCREEN_DISTANCE_DECIMAL_PLACES,
-        valuePattern: {
-          visualPattern: metersUnit.visualSymbolPatternStringProperty!,
-          accessiblePattern: metersUnit.accessiblePattern!
-        },
         textOptions: {
           font: new PhetFont( 14 )
         },
