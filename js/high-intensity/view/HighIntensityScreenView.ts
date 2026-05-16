@@ -22,7 +22,7 @@ import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { hasDetectorOnSide, type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
-import MeasurementToolNodes from '../../common/view/MeasurementToolNodes.js';
+import MeasurementToolsNode from '../../common/view/MeasurementToolsNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import RightControlsColumn from '../../common/view/RightControlsColumn.js';
@@ -33,7 +33,7 @@ import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 import ToolCheckbox from '../../common/view/ToolCheckbox.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
-import WaveRegionNodes from '../../common/view/WaveRegionNodes.js';
+import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
@@ -141,7 +141,7 @@ export default class HighIntensityScreenView extends ScreenView {
     updateParticleMassAnnotationPosition();
     this.addChild( particleMassAnnotation );
 
-    const waveRegionNodes = new WaveRegionNodes( model, {
+    const waveRegionNode = new WaveRegionNode( model, {
       waveRegionLeft: waveRegionLeft,
       waveRegionTop: waveRegionTop,
       additionalDoubleSlitOptions: {
@@ -163,8 +163,8 @@ export default class HighIntensityScreenView extends ScreenView {
     } );
     this.addChild( this.detectorScreenNode );
 
-    this.waveVisualizationNode = waveRegionNodes.waveVisualizationNode;
-    this.addChild( waveRegionNodes );
+    this.waveVisualizationNode = waveRegionNode.waveVisualizationNode;
+    this.addChild( waveRegionNode );
 
     // --- Bottom row: barrier, slit configuration, slit separation ---
     const slitConfigItems: ComboBoxItem<SlitConfigurationWithNoBarrier>[] = [
@@ -267,10 +267,10 @@ export default class HighIntensityScreenView extends ScreenView {
     rightControlsColumn.timeAndResetRow.bottom = this.layoutBounds.maxY - Y_MARGIN;
     this.addChild( rightControlsColumn.timeAndResetRow );
 
-    const toolNodes = new MeasurementToolNodes( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
-    this.addChild( toolNodes );
-    this.timePlotNode = toolNodes.timePlotNode;
-    this.positionPlotNode = toolNodes.positionPlotNode;
+    const measurementToolsNode = new MeasurementToolsNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
+    this.addChild( measurementToolsNode );
+    this.timePlotNode = measurementToolsNode.timePlotNode;
+    this.positionPlotNode = measurementToolsNode.positionPlotNode;
   }
 
   public override step( dt: number ): void {

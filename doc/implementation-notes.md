@@ -65,14 +65,14 @@ screens:
 - **ParticleMassAnnotationNode**: Shows mass label for matter particles, hidden for photons.
 - **SnapshotIndicatorDotsNode**: Row of indicator dots showing how many snapshot slots are used.
 
-Factory functions in `js/common/view/` assemble shared UI patterns:
-- `createWaveRegionNodes()`: Wave visualization + double slit for any screen.
-- `createRightControlsColumn()`: Right-side control panel with screen controls, tools, wave
+Shared parent Nodes in `js/common/view/` assemble shared UI patterns:
+- `WaveRegionNode`: Wave visualization + double slit for any screen.
+- `RightControlsColumn`: Right-side control panel with screen controls, tools, wave
   display, time controls, and reset.
-- `createBarrierControlsRow()`: Barrier combo box + slit controls, positioned below the wave
+- `SlitConfigurationControlsRow`: Barrier combo box + slit controls, positioned below the wave
   region.
-- `createMeasurementToolNodes()`: Tape measure, stopwatch, time plot, and position plot.
-- `createSidewaysGraph()`: Intensity/hits graph alongside the detector screen.
+- `MeasurementToolsNode`: Tape measure, stopwatch, time plot, and position plot.
+- `SidewaysGraph`: Intensity/hits graph alongside the detector screen.
 
 ## Experiment Screen
 

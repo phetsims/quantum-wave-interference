@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * MeasurementToolNodes creates measurement tool nodes (stopwatch, measuring tape, time plot,
+ * MeasurementToolsNode creates measurement tool nodes (stopwatch, measuring tape, time plot,
  * position plot). These tools are identical between the High Intensity and Single Particles screens.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -36,21 +36,35 @@ import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import PositionPlotNode from './PositionPlotNode.js';
 import TimePlotNode from './TimePlotNode.js';
 
+// Scene state needed by the measuring tape and plot tools. The structural type keeps this shared Node
+// independent of the concrete High Intensity and Single Particles scene model classes.
 type MeasurementSceneLike = WaveVisualizableScene & { sourceType: string; regionWidth: number };
 
+// Structural model type for the shared measurement tools parent Node. It includes only the active
+// scene, visibility Properties, and model-backed tool state needed to construct and synchronize the tools.
 type MeasurementToolsModel = {
-  sceneProperty: TReadOnlyProperty<MeasurementSceneLike>;
-  stopwatch: Stopwatch;
-  isStopwatchVisibleProperty: BooleanProperty;
-  isTapeMeasureVisibleProperty: BooleanProperty;
-  isTimePlotVisibleProperty: BooleanProperty;
-  isPositionPlotVisibleProperty: BooleanProperty;
-  currentWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
-  tapeMeasureBasePositionProperty: Vector2Property;
-  tapeMeasureTipPositionProperty: Vector2Property;
+
+  // Active scene, used for scene-specific units and plot data.
+  readonly sceneProperty: TReadOnlyProperty<MeasurementSceneLike>;
+
+  // Model-owned stopwatch so elapsed time persists independently of the view Node.
+  readonly stopwatch: Stopwatch;
+
+  // Tool visibility toggles controlled by the Tools panel.
+  readonly isStopwatchVisibleProperty: BooleanProperty;
+  readonly isTapeMeasureVisibleProperty: BooleanProperty;
+  readonly isTimePlotVisibleProperty: BooleanProperty;
+  readonly isPositionPlotVisibleProperty: BooleanProperty;
+
+  // Active wave display quantity used by the time and position plots.
+  readonly currentWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
+
+  // Model-owned measuring tape endpoints so tape placement persists with scene state.
+  readonly tapeMeasureBasePositionProperty: Vector2Property;
+  readonly tapeMeasureTipPositionProperty: Vector2Property;
 };
 
-export default class MeasurementToolNodes extends Node {
+export default class MeasurementToolsNode extends Node {
 
   public readonly timePlotNode: TimePlotNode;
   public readonly positionPlotNode: PositionPlotNode;
