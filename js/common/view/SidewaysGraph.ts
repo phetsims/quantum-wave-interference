@@ -68,7 +68,6 @@ export default class SidewaysGraph extends SidewaysGraphNode {
       this.visible = isVisible;
       detectorScreenNode.visible = !isVisible;
 
-      detectorScreenNode.setScaleMagnitude( 1, 1 );
       detectorScreenNode.centerX = detectorScreenCenterX;
 
       if ( isVisible ) {
