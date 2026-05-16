@@ -17,7 +17,6 @@ import BaseAnalyticalWaveSolver from './BaseAnalyticalWaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
 const EPSILON = 1e-12;
-const MEASUREMENT_BITE_SHRINK_DURATION = 0.75;
 
 // Designer-tunable width of the smooth transition from blanked detector interior to untouched wave,
 // in view pixels. This feather is applied inside the detector edge only, so failed-detection effects
@@ -77,8 +76,7 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
         radius: projection.radius,
         edgeFeather: projection.edgeFeather,
         measurementTime: projection.measurementTime,
-        renormScale: projection.renormScale,
-        shrinkDuration: projection.shrinkDuration
+        renormScale: projection.renormScale
       } ) ),
       packetReEmission: this.packetReEmission ? copyPacketReEmission( this.packetReEmission ) : null
     };
@@ -96,8 +94,7 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
         radius: projection.radius ?? Math.sqrt( 1 / projection.invSigmaSq ),
         edgeFeather: projection.edgeFeather ?? this.getMeasurementBiteEdgeFeather(),
         measurementTime: projection.measurementTime,
-        renormScale: projection.renormScale ?? 1,
-        shrinkDuration: projection.shrinkDuration ?? MEASUREMENT_BITE_SHRINK_DURATION
+        renormScale: projection.renormScale ?? 1
       } );
     }
 
@@ -112,8 +109,7 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
       radius: radiusNorm * this.regionWidth,
       edgeFeather: this.getMeasurementBiteEdgeFeather(),
       measurementTime: this.time,
-      renormScale: 1,
-      shrinkDuration: MEASUREMENT_BITE_SHRINK_DURATION
+      renormScale: 1
     } );
 
     this.dirty = true;

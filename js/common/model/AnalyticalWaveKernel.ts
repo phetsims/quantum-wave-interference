@@ -41,6 +41,13 @@ const PLANE_WAVE_DECOHERENCE_BAND_DURATION = 0.2;
 const PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION = PLANE_WAVE_DECOHERENCE_BAND_DURATION / 2;
 const MEASUREMENT_BITE_INITIAL_SATURATION = Math.exp( 0.5 );
 
+// The detector tool's default radius is 0.1 of the wave-region width while the packet starts with
+// sigmaX0 = 0.15 of that width. Keeping this ratio here lets the pure kernel derive the reference
+// detector radius from the packet parameters it already receives.
+const MEASUREMENT_BITE_REFERENCE_RADIUS_TO_PACKET_SIGMA_X = 2 / 3;
+const MEASUREMENT_BITE_REFERENCE_SPREAD_TIME = 0.75;
+const MEASUREMENT_BITE_MAX_SPREAD_TIME = 2.0;
+
 export type FieldComponentSource = 'incident' | 'topSlit' | 'bottomSlit';
 
 export type DecoherenceSlit = 'topSlit' | 'bottomSlit';
@@ -135,6 +142,9 @@ export type MeasurementProjection = {
   edgeFeather?: number;
   measurementTime: number;
   renormScale: number;
+
+  // Kept only so legacy saved states and hand-authored test parameters can be read harmlessly.
+  // Radius-dependent spreading ignores this field.
   shrinkDuration?: number;
 };
 
@@ -1097,34 +1107,30 @@ function getMeasurementProjectionMask(
 ): number {
   const dt = Math.max( 0, t - projection.measurementTime );
   const projectionCenterX = projection.centerX + source.speed * dt;
-  const spreadTime = Math.max( source.longitudinalSpreadTime, EPSILON );
-  const spreadingProjectionRadius = projection.radius * Math.sqrt( 1 + ( dt / spreadTime ) ** 2 );
-  const projectionRadius = projection.shrinkDuration === undefined ? spreadingProjectionRadius : projection.radius;
+  const projectionRadius = Math.max( projection.radius, EPSILON );
   const distance = Math.sqrt( ( x - projectionCenterX ) ** 2 + ( y - projection.centerY ) ** 2 );
-  const edgeFeather = projection.shrinkDuration === undefined ? 0 : Math.max( projection.edgeFeather ?? 0, 0 );
-
-  if ( projection.shrinkDuration === undefined ) {
-    return dt <= EPSILON ? ( distance <= projection.radius ? 0 : 1 ) :
-           smoothStep( spreadingProjectionRadius * 0.82, spreadingProjectionRadius * 1.18, distance );
-  }
+  const edgeFeather = Math.max( projection.edgeFeather ?? 0, 0 );
 
   if ( distance >= projectionRadius ) {
-    return 1;
+    if ( dt <= EPSILON ) {
+      return 1;
+    }
+
+    const referenceRadius = Math.max( source.sigmaX0 * MEASUREMENT_BITE_REFERENCE_RADIUS_TO_PACKET_SIGMA_X, EPSILON );
+    const proportionalSpreadTime = MEASUREMENT_BITE_REFERENCE_SPREAD_TIME * projectionRadius / referenceRadius;
+    const spreadTime = Math.max( EPSILON, Math.min( proportionalSpreadTime, MEASUREMENT_BITE_MAX_SPREAD_TIME ) );
+    const sigma = projectionRadius * Math.sqrt( 1 + ( dt / spreadTime ) ** 2 );
+    const spreadWidth = Math.max( sigma - projectionRadius, EPSILON );
+    const outsideDistance = distance - projectionRadius;
+    return 1 - Math.exp( -0.5 * ( outsideDistance / spreadWidth ) ** 2 );
   }
 
-  if ( projection.shrinkDuration <= EPSILON ) {
-    return 1;
+  if ( dt > EPSILON ) {
+    return 0;
   }
 
-  const biteStrength = 1 - smoothStep( 0, projection.shrinkDuration, dt );
-  if ( biteStrength <= EPSILON ) {
-    return 1;
-  }
-
-  const shrinkScale = 0.2 + 0.8 * biteStrength;
-  const sigma = Math.max( projectionRadius * shrinkScale, EPSILON );
-  const saturatedGaussian = MEASUREMENT_BITE_INITIAL_SATURATION * biteStrength *
-                            Math.exp( -0.5 * ( distance / sigma ) ** 2 );
+  const saturatedGaussian = MEASUREMENT_BITE_INITIAL_SATURATION *
+                            Math.exp( -0.5 * ( distance / projectionRadius ) ** 2 );
   const localMask = Math.max( 0, 1 - saturatedGaussian );
 
   // Keep failed-detection effects local to the detector: the designer-tunable feather is applied

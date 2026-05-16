@@ -547,7 +547,7 @@ QUnit.test( 'measurement projection zeros detector region and renormalizes outsi
   );
 } );
 
-QUnit.test( 'shrinking measurement projection is spatially local to detector region', assert => {
+QUnit.test( 'measurement projection is initially spatially local to detector region', assert => {
   const unprojected = createGaussianPacketParameters();
   const projected = createGaussianPacketParameters( {
     projections: [ {
@@ -556,8 +556,7 @@ QUnit.test( 'shrinking measurement projection is spatially local to detector reg
       radius: 0.2,
       edgeFeather: 0.02,
       measurementTime: 1,
-      renormScale: 1,
-      shrinkDuration: 0.5
+      renormScale: 1
     } ]
   } );
 
@@ -565,24 +564,87 @@ QUnit.test( 'shrinking measurement projection is spatially local to detector reg
     assert,
     intensityAt( projected, 0.67, 0, 1 ),
     0,
-    'shrinking projection blanks the detector interior'
+    'projection blanks the detector interior immediately'
   );
   const featherIntensity = intensityAt( projected, 0.69, 0, 1 );
   const unprojectedFeatherIntensity = intensityAt( unprojected, 0.69, 0, 1 );
   assert.ok(
     featherIntensity > 0 && featherIntensity < unprojectedFeatherIntensity,
-    'shrinking projection feathers the inside edge of the detector region'
+    'projection feathers the inside edge of the detector region immediately'
   );
   assertApproximately(
     assert,
     intensityAt( projected, 0.71, 0, 1 ),
     intensityAt( unprojected, 0.71, 0, 1 ),
-    'shrinking projection does not attenuate samples outside the detector region',
+    'projection does not attenuate samples outside the detector region at the measurement time',
     1e-10
   );
 } );
 
-QUnit.test( 'wave-packet measurement bite shrinks while preserving grid probability', assert => {
+QUnit.test( 'measurement projection spreads outside detector region with radius-dependent diffraction', assert => {
+  const unprojected = createGaussianPacketParameters();
+  const measurementTime = 1;
+  const dt = 0.4;
+  const smallRadius = 0.03;
+  const largeRadius = 0.3;
+  const outsideOffset = 0.02;
+
+  const smallProjection = createGaussianPacketParameters( {
+    projections: [ {
+      centerX: 0.5,
+      centerY: 0,
+      radius: smallRadius,
+      measurementTime: measurementTime,
+      renormScale: 1
+    } ]
+  } );
+  const largeProjection = createGaussianPacketParameters( {
+    projections: [ {
+      centerX: 0.5,
+      centerY: 0,
+      radius: largeRadius,
+      measurementTime: measurementTime,
+      renormScale: 1
+    } ]
+  } );
+  const largestProjection = createGaussianPacketParameters( {
+    projections: [ {
+      centerX: 0.5,
+      centerY: 0,
+      radius: largeRadius,
+      measurementTime: measurementTime,
+      renormScale: 1
+    } ]
+  } );
+  const sampleTime = measurementTime + dt;
+  const centerX = 0.5 + sampleTime - measurementTime;
+  const smallOutsideX = centerX + smallRadius + outsideOffset;
+  const largeOutsideX = centerX + largeRadius + outsideOffset;
+  const traversalSampleTime = measurementTime + 1.5;
+  const traversalCenterX = 0.5 + traversalSampleTime - measurementTime;
+  const largestOutsideX = traversalCenterX + largeRadius + 0.04;
+  const smallTransmission = intensityAt( smallProjection, smallOutsideX, 0, sampleTime ) /
+                            intensityAt( unprojected, smallOutsideX, 0, sampleTime );
+  const largeTransmission = intensityAt( largeProjection, largeOutsideX, 0, sampleTime ) /
+                            intensityAt( unprojected, largeOutsideX, 0, sampleTime );
+  const largestTransmission = intensityAt( largestProjection, largestOutsideX, 0, traversalSampleTime ) /
+                              intensityAt( unprojected, largestOutsideX, 0, traversalSampleTime );
+
+  assert.ok(
+    smallTransmission < 0.2,
+    'small detector bite attenuates outside the original detector footprint after time advances'
+  );
+  assert.ok(
+    smallTransmission < largeTransmission,
+    'smaller detector radius produces faster outward bite spread than larger detector radius'
+  );
+  assert.ok(
+    largestTransmission < 0.95,
+    'largest detector bite still grows during a normal packet traversal'
+  );
+} );
+
+QUnit.test( 'wave-packet measurement bite spreads while preserving grid probability', assert => {
   const projectedSolver = new AnalyticalWavePacketSolver( 80, 80 );
   const controlSolver = new AnalyticalWavePacketSolver( 80, 80 );
   projectedSolver.setParameters( { isSourceOn: true } );
@@ -616,24 +678,52 @@ QUnit.test( 'wave-packet measurement bite shrinks while preserving grid probabil
     'failed-detection bite blanks the interior of the detector region immediately'
   );
 
-  const fillTime = 0.4;
-  projectedSolver.step( fillTime );
-  controlSolver.step( fillTime );
+  const spreadTime = 0.5;
+  projectedSolver.step( spreadTime );
+  controlSolver.step( spreadTime );
 
-  const movingDetectorInteriorX = detectorInteriorX + projectedSolver.getDisplayPropagationSpeed() * fillTime;
-  const laterProjectedDetectorInterior = getGridProbabilityAtNorm( projectedSolver, movingDetectorInteriorX, measurementCenter.y );
-  const laterControlDetectorInterior = getGridProbabilityAtNorm( controlSolver, movingDetectorInteriorX, measurementCenter.y );
+  const movingOutsideDetectorX = measurementCenter.x +
+                                 projectedSolver.getDisplayPropagationSpeed() * spreadTime +
+                                 measurementRadius + 0.03;
+  const laterProjectedOutsideDetector = getGridProbabilityAtNorm( projectedSolver, movingOutsideDetectorX, measurementCenter.y );
+  const laterControlOutsideDetector = getGridProbabilityAtNorm( controlSolver, movingOutsideDetectorX, measurementCenter.y );
 
   assert.ok(
-    laterProjectedDetectorInterior > laterControlDetectorInterior * 0.2,
-    'shrinking bite lets probability fill back into the measured region'
+    laterProjectedOutsideDetector < laterControlOutsideDetector * 0.5,
+    'failed-detection bite spreads outside the original detector footprint'
   );
   assertApproximately(
     assert,
     sumAmplitudeProbability( projectedSolver.getAmplitudeField() ) /
     sumAmplitudeProbability( controlSolver.getAmplitudeField() ),
     1,
-    'projected packet remains normalized as the bite shrinks'
+    'projected packet remains normalized as the bite spreads'
+  );
+} );
+
+QUnit.test( 'wave-packet measurement projection state ignores legacy shrink duration', assert => {
+  const solver = new AnalyticalWavePacketSolver( 12, 12 );
+
+  solver.setState( {
+    time: 1,
+    biteGaussians: [ {
+      worldX0: 0.5,
+      worldY: 0,
+      invSigmaSq: 100,
+      measurementTime: 1,
+      renormScale: 1,
+      shrinkDuration: 0.5
+    } ],
+    packetReEmission: null
+  } );
+
+  const state = solver.getState();
+
+  assert.strictEqual( state.measurementProjections.length, 1, 'legacy bite gaussian is restored as a measurement projection' );
+  assertApproximately( assert, state.measurementProjections[ 0 ].radius, 0.1, 'legacy inverse sigma maps to projection radius' );
+  assert.notOk(
+    'shrinkDuration' in state.measurementProjections[ 0 ],
+    'new state does not serialize legacy shrink duration'
   );
 } );
 
