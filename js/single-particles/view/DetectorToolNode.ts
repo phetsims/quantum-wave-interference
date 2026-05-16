@@ -12,14 +12,15 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
+import Property from '../../../../axon/js/Property.js';
 import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
+import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
-import { clamp } from '../../../../dot/js/util/clamp.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Shape from '../../../../kite/js/Shape.js';
+import ModelViewTransform2 from '../../../../phetcommon/js/view/ModelViewTransform2.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
-import type SceneryEvent from '../../../../scenery/js/input/SceneryEvent.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
@@ -47,6 +48,7 @@ const CIRCLE_FILL_DETECTED = new Color( 100, 255, 100, 0.5 );
 const CIRCLE_FILL_NOT_DETECTED = new Color( 80, 80, 80, 0.5 );
 const CIRCLE_STROKE = new Color( 50, 50, 50 );
 const WIRE_STROKE = new Color( 100, 100, 100 );
+const DETECTOR_TOOL_DRAG_BOUNDS = new Bounds2( 0.05, 0.05, 0.95, 0.95 );
 
 const DetectorModeValues = [ 'destructive', 'nonDestructive' ] as const;
 type DetectorMode = typeof DetectorModeValues[number];
@@ -233,16 +235,14 @@ export default class DetectorToolNode extends Node {
 
     // --- Drag listener for the circle ---
 
+    const detectorToolModelViewTransform = ModelViewTransform2.createRectangleMapping(
+      new Bounds2( 0, 0, 1, 1 ),
+      new Bounds2( waveRegionLeft, waveRegionTop, waveRegionLeft + WAVE_REGION_WIDTH, waveRegionTop + WAVE_REGION_HEIGHT )
+    );
     const dragListener = new DragListener( {
-      drag: ( event: SceneryEvent ) => {
-        const parentPoint = circleContainer.globalToParentPoint( event.pointer.point );
-        const normalizedX = ( parentPoint.x - waveRegionLeft ) / WAVE_REGION_WIDTH;
-        const normalizedY = ( parentPoint.y - waveRegionTop ) / WAVE_REGION_HEIGHT;
-        model.currentDetectorToolPositionProperty.value = new Vector2(
-          clamp( normalizedX, 0.05, 0.95 ),
-          clamp( normalizedY, 0.05, 0.95 )
-        );
-      },
+      positionProperty: model.currentDetectorToolPositionProperty,
+      transform: detectorToolModelViewTransform,
+      dragBoundsProperty: new Property( DETECTOR_TOOL_DRAG_BOUNDS ),
       tandem: tandem.createTandem( 'dragListener' )
     } );
     circleContainer.addInputListener( dragListener );
