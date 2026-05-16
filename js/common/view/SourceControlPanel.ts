@@ -34,6 +34,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import SunConstants from '../../../../sun/js/SunConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
@@ -174,6 +175,10 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
           maxWidth: 100
         },
         numberDisplayOptions: {
+
+          // WavelengthNumberControl supplies a wavelength-specific valuePattern by default. This custom
+          // formatter adds the color zone to the accessible value, so clear that default pattern.
+          valuePattern: SunConstants.VALUE_NAMED_PLACEHOLDER,
           numberFormatter: ( value: number ) => {
             const roundedValue = roundSymmetric( value );
             const colorZone = getWavelengthColorZone( roundedValue );
