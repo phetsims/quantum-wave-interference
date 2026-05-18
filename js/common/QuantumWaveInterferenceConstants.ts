@@ -83,7 +83,12 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly DETECTOR_SCREEN_ANGLE_DEGREES = 20;
   public static readonly DETECTOR_SCREEN_SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH *
                                                 Math.tan( QuantumWaveInterferenceConstants.DETECTOR_SCREEN_ANGLE_DEGREES * Math.PI / 180 );
+
+  // Shared right controls panel dimensions.
   public static readonly RIGHT_PANEL_WIDTH = 180;
+  public static readonly RIGHT_PANEL_X_MARGIN = 10;
+  public static readonly RIGHT_PANEL_CONTENT_WIDTH = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH -
+                                                     2 * QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN;
 
   // Shared eraser button dimensions for the bottom-right screen controls. The background is shorter than it is wide
   // by design, while the icon remains full size so the eraser glyph stays visually consistent.

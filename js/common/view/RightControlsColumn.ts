@@ -23,6 +23,7 @@ import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.j
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -100,14 +101,12 @@ export default class RightControlsColumn extends VBox {
   ) {
 
     const rightPanelWidth = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH;
-    const rightPanelXMargin = 10;
     const screenGraphSwitchSize = new Dimension2( 37, 17 );
 
     // ToggleSwitch stroke extends 0.5 px on both sides beyond the requested size.
     const screenGraphSwitchRenderedWidth = screenGraphSwitchSize.width + 1;
     const screenGraphSwitchLabelToggleSpacing = 6;
-    const screenGraphSwitchPanelContentWidth = rightPanelWidth - 2 * rightPanelXMargin;
-    const screenGraphSwitchLabelMaxWidth = ( screenGraphSwitchPanelContentWidth -
+    const screenGraphSwitchLabelMaxWidth = ( QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH -
                                              screenGraphSwitchRenderedWidth -
                                              2 * screenGraphSwitchLabelToggleSpacing ) / 2;
 
@@ -212,7 +211,7 @@ export default class RightControlsColumn extends VBox {
     } ), {
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-      xMargin: rightPanelXMargin,
+      xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
       minWidth: rightPanelWidth
     } );
@@ -226,9 +225,18 @@ export default class RightControlsColumn extends VBox {
     } ), {
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-      xMargin: rightPanelXMargin,
+      xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
       minWidth: rightPanelWidth
+    } );
+
+    // Keep right-panel backgrounds width-matched when localization makes either panel wider.
+    const rightPanelAlignGroup = new AlignGroup( { matchVertical: false } );
+    const screenControlsPanelBox = rightPanelAlignGroup.createBox( screenControlsPanel, {
+      xAlign: 'stretch'
+    } );
+    const toolsPanelBox = rightPanelAlignGroup.createBox( toolsPanel, {
+      xAlign: 'stretch'
     } );
 
     // --- Wave display combo box ---
@@ -286,8 +294,8 @@ export default class RightControlsColumn extends VBox {
       spacing: 16,
       align: 'center',
       children: [
-        screenControlsPanel,
-        toolsPanel
+        screenControlsPanelBox,
+        toolsPanelBox
       ]
     } );
 

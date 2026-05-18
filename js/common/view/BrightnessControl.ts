@@ -26,7 +26,7 @@ export default class BrightnessControl extends VBox {
   public constructor( screenBrightnessProperty: PhetioProperty<number>, tandem: Tandem ) {
     const brightnessLabel = new Text( QuantumWaveInterferenceFluent.screenBrightnessStringProperty, {
       font: LABEL_FONT,
-      maxWidth: 140
+      maxWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH
     } );
     const brightnessRange = new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX );
     const brightnessSlider = new HSlider( screenBrightnessProperty, brightnessRange, {
@@ -36,11 +36,15 @@ export default class BrightnessControl extends VBox {
         value / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100,
         { decimalPlaces: 0, showTrailingZeros: false, showIntegersAsIntegers: true }
       ),
+      layoutOptions: { stretch: true },
       tandem: tandem.createTandem( 'brightnessSlider' )
     } );
 
     super( {
       spacing: 2,
+      stretch: true,
+      align: 'center',
+      layoutOptions: { stretch: true },
       children: [ brightnessLabel, brightnessSlider ]
     } );
   }

@@ -239,7 +239,7 @@ export default class HighIntensityScreenView extends ScreenView {
       xAlign: 'center',
       yAlign: 'center',
       yMargin: 4,
-      preferredWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH - 20,
+      preferredWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH,
       layoutOptions: { align: 'center' }
     } );
 
