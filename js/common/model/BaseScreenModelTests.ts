@@ -14,6 +14,8 @@ QUnit.module( 'BaseScreenModel' );
 
 const EPSILON = 1e-12;
 const ANTI_STROBE_FRAME_RATE = 30;
+
+// Leave margin below the 0.5 cycles/frame Nyquist threshold to avoid visible phase strobing.
 const MAX_HIGH_INTENSITY_CYCLES_PER_FRAME = 0.46;
 
 const assertApproximately = (
