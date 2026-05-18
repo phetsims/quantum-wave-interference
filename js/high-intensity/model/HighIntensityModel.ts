@@ -17,7 +17,8 @@ import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import HighIntensitySceneModel from './HighIntensitySceneModel.js';
 
-const FAST_TIME_SPEED_FACTOR = 1.25;
+// Keep the highest-frequency High Intensity continuous waves below the 30 FPS Nyquist limit.
+const FAST_TIME_SPEED_FACTOR = 0.65;
 
 type HighIntensityModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 

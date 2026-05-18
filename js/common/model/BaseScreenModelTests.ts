@@ -13,6 +13,8 @@ import HighIntensityModel from '../../high-intensity/model/HighIntensityModel.js
 QUnit.module( 'BaseScreenModel' );
 
 const EPSILON = 1e-12;
+const ANTI_STROBE_FRAME_RATE = 30;
+const MAX_HIGH_INTENSITY_CYCLES_PER_FRAME = 0.46;
 
 const assertApproximately = (
   assert: Assert,
@@ -62,6 +64,32 @@ QUnit.test( 'time speeds preserve measured physical wave speed', assert => {
       effectiveWaveSpeed,
       `${timeSpeed.name} display distance divided by stopwatch time equals physical speed`
     );
+  } );
+} );
+
+QUnit.test( 'High Intensity time speeds stay below anti-strobe phase budget', assert => {
+  const model = new HighIntensityModel( { tandem: Tandem.OPT_OUT } );
+  const frameDt = 1 / ANTI_STROBE_FRAME_RATE;
+
+  model.scenes.forEach( scene => {
+    if ( scene.sourceType === 'photons' ) {
+      scene.wavelengthProperty.value = scene.wavelengthProperty.range.min;
+    }
+    else {
+      scene.velocityProperty.value = scene.velocityRange.max;
+    }
+
+    [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ].forEach( timeSpeed => {
+      model.timeSpeedProperty.value = timeSpeed;
+      const cyclesPerFrame = scene.waveSolver.getDisplayPropagationSpeed() *
+                             model.getEffectiveDt( frameDt ) /
+                             scene.getEffectiveWavelength();
+
+      assert.ok(
+        cyclesPerFrame < MAX_HIGH_INTENSITY_CYCLES_PER_FRAME,
+        `${scene.sourceType} ${timeSpeed.name} advances ${cyclesPerFrame} cycles per ${ANTI_STROBE_FRAME_RATE} FPS frame`
+      );
+    } );
   } );
 } );
 
