@@ -100,6 +100,16 @@ export default class RightControlsColumn extends VBox {
   ) {
 
     const rightPanelWidth = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH;
+    const rightPanelXMargin = 10;
+    const screenGraphSwitchSize = new Dimension2( 37, 17 );
+
+    // ToggleSwitch stroke extends 0.5 px on both sides beyond the requested size.
+    const screenGraphSwitchRenderedWidth = screenGraphSwitchSize.width + 1;
+    const screenGraphSwitchLabelToggleSpacing = 6;
+    const screenGraphSwitchPanelContentWidth = rightPanelWidth - 2 * rightPanelXMargin;
+    const screenGraphSwitchLabelMaxWidth = ( screenGraphSwitchPanelContentWidth -
+                                             screenGraphSwitchRenderedWidth -
+                                             2 * screenGraphSwitchLabelToggleSpacing ) / 2;
 
     // --- Screen controls panel ---
 
@@ -109,20 +119,23 @@ export default class RightControlsColumn extends VBox {
       false,
       new Text( QuantumWaveInterferenceFluent.screenGraphSwitch.screenStringProperty, {
         font: new PhetFont( 14 ),
-        maxWidth: 70,
+        maxWidth: screenGraphSwitchLabelMaxWidth,
         tandem: screenGraphSwitchTandem.createTandem( 'screenLabel' )
       } ),
       true,
       new Text( QuantumWaveInterferenceFluent.screenGraphSwitch.graphStringProperty, {
         font: new PhetFont( 14 ),
-        maxWidth: 70,
+        maxWidth: screenGraphSwitchLabelMaxWidth,
         tandem: screenGraphSwitchTandem.createTandem( 'graphLabel' )
       } ),
       {
+        spacing: screenGraphSwitchLabelToggleSpacing,
+        justify: 'center',
+        centerOnSwitch: true,
         layoutOptions: { align: 'center' },
         tandem: screenGraphSwitchTandem,
         toggleSwitchOptions: {
-          size: new Dimension2( 37, 17 )
+          size: screenGraphSwitchSize
         }
       }
     );
@@ -199,7 +212,7 @@ export default class RightControlsColumn extends VBox {
     } ), {
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-      xMargin: 10,
+      xMargin: rightPanelXMargin,
       yMargin: 10,
       minWidth: rightPanelWidth
     } );
@@ -213,7 +226,7 @@ export default class RightControlsColumn extends VBox {
     } ), {
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-      xMargin: 10,
+      xMargin: rightPanelXMargin,
       yMargin: 10,
       minWidth: rightPanelWidth
     } );

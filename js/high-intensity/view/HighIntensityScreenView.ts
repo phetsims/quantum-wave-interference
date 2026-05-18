@@ -15,6 +15,7 @@ import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
@@ -228,10 +229,19 @@ export default class HighIntensityScreenView extends ScreenView {
         spacing: 8,
         align: 'left',
         orientation: 'vertical',
+        stretch: false,
         radioButtonOptions: { radius: 7 },
         tandem: tandem.createTandem( 'detectionModeRadioButtonGroup' )
       }
     );
+
+    const detectionModeRadioButtonGroupBox = new AlignBox( detectionModeRadioButtonGroup, {
+      xAlign: 'center',
+      yAlign: 'center',
+      yMargin: 4,
+      preferredWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH - 20,
+      layoutOptions: { align: 'center' }
+    } );
 
     const tapeMeasureCheckbox = new ToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ), ToolIcons.createTapeMeasureIcon() );
     const stopwatchCheckbox = new ToolCheckbox( model.isStopwatchVisibleProperty, QuantumWaveInterferenceFluent.stopwatchStringProperty, tandem.createTandem( 'stopwatchCheckbox' ), ToolIcons.createStopwatchIcon() );
@@ -240,7 +250,7 @@ export default class HighIntensityScreenView extends ScreenView {
 
     const rightControlsColumn = new RightControlsColumn( model, this, tandem, {
       screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,
-      additionalScreenControlChildren: [ detectionModeRadioButtonGroup ],
+      additionalScreenControlChildren: [ detectionModeRadioButtonGroupBox ],
       toolCheckboxes: [
         tapeMeasureCheckbox,
         stopwatchCheckbox,
