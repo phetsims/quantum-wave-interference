@@ -21,6 +21,7 @@ import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -29,7 +30,6 @@ import ExperimentScreenViewDescription from './description/ExperimentScreenViewD
 import DetectorRulerNode from './DetectorRulerNode.js';
 import ExperimentDetectorColumnNode from './ExperimentDetectorColumnNode.js';
 import ExperimentOverheadApparatusNode from './ExperimentOverheadApparatusNode.js';
-import ExperimentScreenSummaryContent from './ExperimentScreenSummaryContent.js';
 import ExperimentSlitColumnNode from './ExperimentSlitColumnNode.js';
 import RulerCheckbox from './RulerCheckbox.js';
 import StopwatchCheckbox from './StopwatchCheckbox.js';
@@ -47,7 +47,13 @@ export default class ExperimentScreenView extends ScreenView {
 
   public constructor( model: ExperimentModel, providedOptions: ExperimentScreenViewOptions ) {
     const options = optionize<ExperimentScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
-        screenSummaryContent: new ExperimentScreenSummaryContent( model )
+        screenSummaryContent: new QuantumWaveInterferenceScreenSummaryContent(
+          model,
+          model.currentSlitSettingProperty,
+          {
+            detectionMode: model.currentDetectionModeProperty
+          }
+        )
       },
       providedOptions );
 

@@ -43,12 +43,14 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   public readonly currentIsMaxHitsReachedProperty: DynamicProperty<boolean, boolean, BaseSceneModel>;
   public readonly currentIsEmitterEnabledProperty: DynamicProperty<boolean, boolean, BaseSceneModel>;
   public readonly currentWavelengthProperty: DynamicProperty<number, number, BaseSceneModel>;
+  public readonly currentVelocityProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentScreenBrightnessProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentWaveDisplayModeProperty: DynamicProperty<WaveDisplayMode, WaveDisplayMode, BaseSceneModel>;
   public readonly currentSlitSeparationProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentSlitPositionFractionProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentLeftDetectorHitsProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentRightDetectorHitsProperty: DynamicProperty<number, number, BaseSceneModel>;
+  public readonly currentTotalHitsProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentPhotonWaveDisplayModeProperty: DynamicProperty<PhotonWaveDisplayMode, PhotonWaveDisplayMode, BaseSceneModel>;
   public readonly currentMatterWaveDisplayModeProperty: DynamicProperty<MatterWaveDisplayMode, MatterWaveDisplayMode, BaseSceneModel>;
   public readonly currentSnapshotsProperty: DynamicProperty<Snapshot[], Snapshot[], BaseSceneModel>;
@@ -107,6 +109,10 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       derive: 'wavelengthProperty'
     } );
 
+    this.currentVelocityProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {
+      derive: 'velocityProperty'
+    } );
+
     this.currentScreenBrightnessProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {
       derive: 'screenBrightnessProperty',
       bidirectional: true
@@ -132,6 +138,10 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
 
     this.currentRightDetectorHitsProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {
       derive: 'rightDetectorHitsProperty'
+    } );
+
+    this.currentTotalHitsProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {
+      derive: 'totalHitsProperty'
     } );
 
     this.currentPhotonWaveDisplayModeProperty = new DynamicProperty<PhotonWaveDisplayMode, PhotonWaveDisplayMode, BaseSceneModel>( this.sceneProperty, {

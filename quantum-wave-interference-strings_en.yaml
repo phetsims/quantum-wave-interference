@@ -163,6 +163,80 @@ a11y:
                             }
                           }
                         }
+    currentDetailsTopBottom: >-
+                        Currently, { $isPlaying ->
+                          [false] sim is paused. { $isMaxHitsReached ->
+                            [true] Source is off. Max number of { $sourceType ->
+                              [photons] photon
+                              [electrons] electron
+                              [neutrons] neutron
+                             *[heliumAtoms] helium atom
+                            } hits reached. Detector screen shows hits pattern.
+                           *[false] { $isEmitting ->
+                              [true] Source emits { $sourceType ->
+                                [photons] photons
+                                [electrons] electrons
+                                [neutrons] neutrons
+                               *[heliumAtoms] helium atoms
+                              } directly at double-slit barrier with { $slitSetting ->
+                                [bothOpen] both slits open
+                                [leftCovered] top slit covered
+                                [rightCovered] bottom slit covered
+                                [leftDetector] detector on top slit
+                                [rightDetector] detector on bottom slit
+                                [noBarrier] no barrier
+                               *[bothDetectors] detectors on both slits
+                              }. { $detectionMode ->
+                                [averageIntensity] Detector screen shows intensity pattern.
+                               *[hits] { $hasHits ->
+                                  [false] Detector screen has no hits.
+                                 *[true] Detector screen shows hits pattern.
+                                }
+                              }
+                             *[false] Source is off. { $detectionMode ->
+                                [averageIntensity] Detector screen is empty.
+                               *[hits] { $hasHits ->
+                                  [false] Detector screen is empty.
+                                 *[true] Detector screen shows hits pattern.
+                                }
+                              }
+                            }
+                          }
+                         *[true] { $isMaxHitsReached ->
+                            [true] source is off. Max number of { $sourceType ->
+                              [photons] photon
+                              [electrons] electron
+                              [neutrons] neutron
+                             *[heliumAtoms] helium atom
+                            } hits reached. Detector screen shows hits pattern.
+                           *[false] { $isEmitting ->
+                              [true] source emits { $sourceType ->
+                                [photons] photons
+                                [electrons] electrons
+                                [neutrons] neutrons
+                               *[heliumAtoms] helium atoms
+                              } directly at double-slit barrier with { $slitSetting ->
+                                [bothOpen] both slits open
+                                [leftCovered] top slit covered
+                                [rightCovered] bottom slit covered
+                                [leftDetector] detector on top slit
+                                [rightDetector] detector on bottom slit
+                                [noBarrier] no barrier
+                               *[bothDetectors] detectors on both slits
+                              }. Detector screen shows { $detectionMode ->
+                                [averageIntensity] intensity
+                               *[hits] hits
+                              } pattern.
+                             *[false] source is off. { $detectionMode ->
+                                [averageIntensity] Detector screen is empty.
+                               *[hits] { $hasHits ->
+                                  [false] Detector screen is empty.
+                                 *[true] Detector screen shows hits pattern.
+                                }
+                              }
+                            }
+                          }
+                        }
     interactionHint:    >-
                         { $isEmitting ->
                           [true] Adjust source or slits and watch for changes on detector screen.
@@ -203,6 +277,16 @@ a11y:
                          [rightCovered] Right slit covered in barrier.
                          [leftDetector] Detector on left slit in barrier.
                          [rightDetector] Detector on right slit in barrier.
+                         [noBarrier] No barrier between source and screen.
+                        *[bothDetectors] Detectors on both slits in barrier.
+                       }
+    slitConfigurationTopBottom: >-
+                       { $slitSetting ->
+                         [bothOpen] Both slits open in barrier.
+                         [leftCovered] Top slit covered in barrier.
+                         [rightCovered] Bottom slit covered in barrier.
+                         [leftDetector] Detector on top slit in barrier.
+                         [rightDetector] Detector on bottom slit in barrier.
                          [noBarrier] No barrier between source and screen.
                         *[bothDetectors] Detectors on both slits in barrier.
                        }

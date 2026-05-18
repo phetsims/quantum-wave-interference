@@ -1,26 +1,48 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * ExperimentScreenSummaryContent provides the screen summary for the Experiment screen, describing the play area,
- * control area, current details, and an interaction hint for screen reader users.
+ * Shared screen-summary content for Quantum Wave Interference screens that use the source, slits, and detector-screen
+ * pattern from the Experiment screen's vetted Core Description.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import ScreenSummaryContent from '../../../../joist/js/ScreenSummaryContent.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import ExperimentModel from '../model/ExperimentModel.js';
+import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
+import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
+import ScreenSummaryContent from '../../../../../joist/js/ScreenSummaryContent.js';
+import { type DetectionMode } from '../../model/DetectionMode.js';
+import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
+import { type SourceType } from '../../model/SourceType.js';
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 
 type FluentBoolean = 'true' | 'false';
+export type SlitOrientation = 'leftRight' | 'topBottom';
 
 const toFluentBoolean = ( value: boolean ): FluentBoolean => value ? 'true' : 'false';
 
-export default class ExperimentScreenSummaryContent extends ScreenSummaryContent {
+type ScreenSummaryModel = {
+  sceneProperty: TReadOnlyProperty<{ sourceType: SourceType }>;
+  currentIsEmittingProperty: TReadOnlyProperty<boolean>;
+  isPlayingProperty: TReadOnlyProperty<boolean>;
+  currentIsMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
+  currentTotalHitsProperty: TReadOnlyProperty<number>;
+};
 
-  public constructor( model: ExperimentModel ) {
+type ScreenSummaryOptions = {
+  detectionMode: DetectionMode | TReadOnlyProperty<DetectionMode>;
+  slitOrientation?: SlitOrientation;
+};
 
-    // Track the active scene's source type (a plain value, not a Property, so derive with a function)
+export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenSummaryContent {
+
+  public constructor(
+    model: ScreenSummaryModel,
+    slitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>,
+    providedOptions: ScreenSummaryOptions
+  ) {
+
+    const slitOrientation = providedOptions.slitOrientation || 'leftRight';
+
     const sourceTypeProperty = model.sceneProperty.derived( scene => scene.sourceType );
 
     const isEmittingStringProperty = model.currentIsEmittingProperty.derived( toFluentBoolean );
@@ -32,15 +54,19 @@ export default class ExperimentScreenSummaryContent extends ScreenSummaryContent
     // Fluent select expressions use string keys, so derived booleans are normalized through one helper.
     const hasHitsStringProperty = model.currentTotalHitsProperty.derived( totalHits => toFluentBoolean( totalHits > 0 ) );
 
-    const currentDetailsContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( {
+    const currentDetailsOptions = {
       sourceType: sourceTypeProperty,
-      slitSetting: model.currentSlitSettingProperty,
-      detectionMode: model.currentDetectionModeProperty,
+      slitSetting: slitSettingProperty,
+      detectionMode: providedOptions.detectionMode,
       isEmitting: isEmittingStringProperty,
       isPlaying: isPlayingStringProperty,
       isMaxHitsReached: isMaxHitsReachedStringProperty,
       hasHits: hasHitsStringProperty
-    } );
+    };
+
+    const currentDetailsContentProperty = slitOrientation === 'topBottom' ?
+      QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetailsTopBottom.createProperty( currentDetailsOptions ) :
+      QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( currentDetailsOptions );
 
     const defaultInteractionHintContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {
       sourceType: sourceTypeProperty,

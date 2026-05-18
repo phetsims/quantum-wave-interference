@@ -8,10 +8,25 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
-import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
-import type { Snapshot } from '../../../common/model/Snapshot.js';
+import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
+import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
+import type { Snapshot } from '../../model/Snapshot.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import SceneModel from '../../model/SceneModel.js';
+
+type TheoreticalPatternScene = {
+  getEffectiveWavelength(): number;
+  slitWidth: number;
+  slitSeparationProperty: TReadOnlyProperty<number>;
+} & (
+  {
+    screenDistanceProperty: TReadOnlyProperty<number>;
+    slitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
+  } | {
+    regionWidth: number;
+    slitPositionFractionProperty: TReadOnlyProperty<number>;
+    slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
+  }
+);
 
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
 // updates so they only fire at pedagogically meaningful thresholds.
@@ -42,13 +57,20 @@ export default class BandAnalysis {
    * For single slit (or which-path detector), only the broad central diffraction maximum is reported.
    * This avoids the resolution and smoothing artifacts of numerical peak detection.
    */
-  public static analyzeTheoreticalPattern( scene: SceneModel, screenHalfWidth: number ): BandAnalysisResult {
+  public static analyzeTheoreticalPattern( scene: TheoreticalPatternScene, screenHalfWidth: number ): BandAnalysisResult {
+    const screenDistance = 'screenDistanceProperty' in scene ?
+                           scene.screenDistanceProperty.value :
+                           scene.slitPositionFractionProperty.value * scene.regionWidth;
+    const slitSetting = 'slitSettingProperty' in scene ?
+                        scene.slitSettingProperty.value :
+                        scene.slitConfigurationProperty.value;
+
     return BandAnalysis.computeTheoreticalPattern(
       scene.getEffectiveWavelength(),
-      scene.screenDistanceProperty.value,
+      screenDistance,
       screenHalfWidth,
       scene.slitWidth * 1e-3, // mm -> m
-      scene.slitSettingProperty.value,
+      slitSetting,
       scene.slitSeparationProperty.value * 1e-3 // mm -> m
     );
   }
@@ -64,7 +86,7 @@ export default class BandAnalysis {
       snapshot.effectiveWavelength,
       snapshot.screenDistance,
       screenHalfWidth,
-      SceneModel.getSlitWidth( snapshot.sourceType ) * 1e-3,
+      snapshot.slitWidth * 1e-3,
       snapshot.slitSetting,
       snapshot.slitSeparation * 1e-3
     );

@@ -43,6 +43,7 @@ import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceC
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 import WaveVisualizationCanvasNode from '../../common/view/WaveVisualizationCanvasNode.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
 const EMITTER_SCALE = 1.5;
 
@@ -228,6 +229,8 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     // One LaserPointerNode per scene with a scene-specific palette. Visibility is toggled per scene
     // so we never recolor nodes at runtime — each emitter is constructed once with its final colors.
     const emittersTandem = tandem.createTandem( 'emitters' );
+    const sourceTypeProperty = sceneProperty.derived( scene => scene.sourceType );
+    const isEmittingStringProperty = currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
 
     const emitterChildren: LaserPointerNode[] = scenes.map( scene => {
       const palette = scene.sourceType === 'photons' ? null : PARTICLE_EMITTER_PALETTES[ scene.sourceType ];
@@ -242,7 +245,14 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
           baseColor: 'red',
           radius: EMITTER_BUTTON_RADIUS,
           valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
-          valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' )
+          valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
+          accessibleName: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleName.createProperty( {
+            sourceType: sourceTypeProperty
+          } ),
+          accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpText.createProperty( {
+            isEmitting: isEmittingStringProperty,
+            sourceType: sourceTypeProperty
+          } )
         },
         visible: false,
         tandem: emittersTandem.createTandem( `${scene.sourceType}EmitterNode` )

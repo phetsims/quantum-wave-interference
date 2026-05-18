@@ -27,6 +27,8 @@ import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import MeasurementToolsNode from '../../common/view/MeasurementToolsNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
+import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
+import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import RightControlsColumn from '../../common/view/RightControlsColumn.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraph from '../../common/view/SidewaysGraph.js';
@@ -71,7 +73,16 @@ export default class HighIntensityScreenView extends ScreenView {
   private readonly positionPlotNode: PositionPlotNode;
 
   public constructor( model: HighIntensityModel, providedOptions: HighIntensityScreenViewOptions ) {
-    const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
+    const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
+      screenSummaryContent: new QuantumWaveInterferenceScreenSummaryContent(
+        model,
+        model.currentSlitConfigurationProperty,
+        {
+          detectionMode: model.currentDetectionModeProperty,
+          slitOrientation: 'topBottom'
+        }
+      )
+    }, providedOptions );
 
     super( options );
 
@@ -297,6 +308,33 @@ export default class HighIntensityScreenView extends ScreenView {
     this.addChild( measurementToolsNode );
     this.timePlotNode = measurementToolsNode.timePlotNode;
     this.positionPlotNode = measurementToolsNode.positionPlotNode;
+
+    const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
+      model,
+      model.currentSlitConfigurationProperty,
+      {
+        detectionModeProperty: model.currentDetectionModeProperty,
+        slitOrientation: 'topBottom',
+        sourceNodes: [ topRowNode, sourceControlPanel, sceneRadioButtonGroup ],
+        slitNodes: [ bottomRow ],
+        detectorScreenControlNodes: [ rightControlsColumn ]
+      }
+    );
+    this.addChild( screenViewDescription );
+
+    this.pdomPlayAreaNode.pdomOrder = [
+      screenViewDescription.experimentSetupHeadingNode,
+      screenViewDescription.sourceHeadingNode,
+      screenViewDescription.slitsHeadingNode,
+      this.sidewaysGraphNode,
+      measurementToolsNode
+    ];
+
+    this.pdomControlAreaNode.pdomOrder = [
+      screenViewDescription.detectorScreenHeadingNode,
+      rightControlsColumn.waveDisplayAndTimeControlsGroup,
+      rightControlsColumn.bottomButtonsRow
+    ];
   }
 
   public override step( dt: number ): void {

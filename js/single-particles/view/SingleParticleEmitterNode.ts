@@ -19,6 +19,8 @@ import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import RoundStickyToggleButton from '../../../../sun/js/buttons/RoundStickyToggleButton.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import singleParticleEmitter_svg from '../../../images/singleParticleEmitter_svg.js';
+import { type SourceType } from '../../common/model/SourceType.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -31,9 +33,12 @@ const BUTTON_RADIUS = 23 * EMITTER_SCALE;
 const BUTTON_CENTER_X_FRACTION = 0.32;
 const BUTTON_CENTER_Y_FRACTION = 0.5;
 
+type SceneLike = { sourceType: SourceType };
+
 export default class SingleParticleEmitterNode extends Node {
 
   public constructor(
+    sceneProperty: TReadOnlyProperty<SceneLike>,
     isEmittingProperty: TProperty<boolean>,
     isEmitterEnabledProperty: TReadOnlyProperty<boolean>,
     providedOptions: SingleParticleEmitterNodeOptions
@@ -50,11 +55,21 @@ export default class SingleParticleEmitterNode extends Node {
     imageNode.setScaleMagnitude( baseScale, baseScale );
     this.addChild( imageNode );
 
+    const sourceTypeProperty = sceneProperty.derived( scene => scene.sourceType );
+    const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
+
     const emitButton = new RoundStickyToggleButton( isEmittingProperty, false, true, {
       baseColor: 'red',
       radius: BUTTON_RADIUS,
       valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
       valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
+      accessibleName: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleName.createProperty( {
+        sourceType: sourceTypeProperty
+      } ),
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpText.createProperty( {
+        isEmitting: isEmittingStringProperty,
+        sourceType: sourceTypeProperty
+      } ),
       tandem: providedOptions.tandem.createTandem( 'emitButton' )
     } );
 

@@ -20,6 +20,8 @@ import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import MeasurementToolsNode from '../../common/view/MeasurementToolsNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
+import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
+import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import RightControlsColumn from '../../common/view/RightControlsColumn.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraph from '../../common/view/SidewaysGraph.js';
@@ -61,7 +63,16 @@ export default class SingleParticlesScreenView extends ScreenView {
   private readonly positionPlotNode: PositionPlotNode;
 
   public constructor( model: SingleParticlesModel, providedOptions: SingleParticlesScreenViewOptions ) {
-    const options = optionize<SingleParticlesScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
+    const options = optionize<SingleParticlesScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
+      screenSummaryContent: new QuantumWaveInterferenceScreenSummaryContent(
+        model,
+        model.currentSlitConfigurationProperty,
+        {
+          detectionMode: 'hits',
+          slitOrientation: 'topBottom'
+        }
+      )
+    }, providedOptions );
 
     super( options );
 
@@ -88,6 +99,7 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     // Emitter source with SingleParticleEmitter.svg image and red toggle button
     const emitterNode = new SingleParticleEmitterNode(
+      model.sceneProperty,
       model.currentIsEmittingProperty,
       model.currentIsEmitterEnabledProperty,
       {
@@ -276,6 +288,33 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( measurementToolsNode );
     this.timePlotNode = measurementToolsNode.timePlotNode;
     this.positionPlotNode = measurementToolsNode.positionPlotNode;
+
+    const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
+      model,
+      model.currentSlitConfigurationProperty,
+      {
+        slitOrientation: 'topBottom',
+        sourceNodes: [ emitterNode, sourceControlPanel, sceneRadioButtonGroup ],
+        slitNodes: [ bottomRow ],
+        detectorScreenControlNodes: [ rightControlsColumn ]
+      }
+    );
+    this.addChild( screenViewDescription );
+
+    this.pdomPlayAreaNode.pdomOrder = [
+      screenViewDescription.experimentSetupHeadingNode,
+      screenViewDescription.sourceHeadingNode,
+      screenViewDescription.slitsHeadingNode,
+      this.sidewaysGraphNode,
+      detectorToolNode,
+      measurementToolsNode
+    ];
+
+    this.pdomControlAreaNode.pdomOrder = [
+      screenViewDescription.detectorScreenHeadingNode,
+      rightControlsColumn.waveDisplayAndTimeControlsGroup,
+      rightControlsColumn.bottomButtonsRow
+    ];
   }
 
   // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate of HighIntensityScreenView.step

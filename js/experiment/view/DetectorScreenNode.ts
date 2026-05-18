@@ -28,6 +28,7 @@ import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConf
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import createDetectorZoomLevelResponseProperty from '../../common/view/createDetectorZoomLevelResponseProperty.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
+import SnapshotDescriber from '../../common/view/description/SnapshotDescriber.js';
 import SnapshotIndicatorDotsNode from '../../common/view/SnapshotIndicatorDotsNode.js';
 import SnapshotsDialog from '../../common/view/SnapshotsDialog.js';
 import ViewSnapshotsButton from '../../common/view/ViewSnapshotsButton.js';
@@ -35,7 +36,6 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 import SceneModel from '../model/SceneModel.js';
-import SnapshotDescriber from './description/SnapshotDescriber.js';
 import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import DetectorScreenScaleIndicatorNode from './DetectorScreenScaleIndicatorNode.js';
 
@@ -256,7 +256,10 @@ export default class DetectorScreenNode extends Node {
         slitSettingDisplayMap: EXPERIMENT_SLIT_DISPLAY_MAP,
         formatSlitSeparation: formatExperimentSlitSeparation,
         showScreenDistance: true,
-        getDescription: snapshot => SnapshotDescriber.getDescription( snapshot, detectorScreenScaleIndexProperty.value ),
+        getDescription: snapshot => SnapshotDescriber.getDescription(
+          snapshot,
+          getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value )
+        ),
         detectorScreenScaleIndexProperty: detectorScreenScaleIndexProperty,
         getVisibleScreenHalfWidth: () => getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value ),
         createScaleIndicatorNode: () => new DetectorScreenScaleIndicatorNode(

@@ -19,7 +19,7 @@ import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitCo
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import SceneModel from '../../model/SceneModel.js';
-import BandAnalysis from './BandAnalysis.js';
+import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
 
 export default class GraphDescriber {
 

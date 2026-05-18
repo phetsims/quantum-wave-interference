@@ -15,21 +15,51 @@
 
 import Property from '../../../../../axon/js/Property.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
-import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
+import { type DetectionMode } from '../../model/DetectionMode.js';
+import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
-import SceneModel from '../../model/SceneModel.js';
 import BandAnalysis from './BandAnalysis.js';
 import { formatIntensityDescription, formatLiveHitsDescription } from './DetectorScreenDescriptionFormatter.js';
+
+export type DetectorScreenDescriberScene = {
+  hitsChangedEmitter: { addListener( listener: () => void ): void; removeListener( listener: () => void ): void };
+  totalHitsProperty: TReadOnlyProperty<number>;
+  isEmittingProperty: TReadOnlyProperty<boolean>;
+  slitSeparationProperty: TReadOnlyProperty<number>;
+  wavelengthProperty: TReadOnlyProperty<number>;
+  velocityProperty: TReadOnlyProperty<number>;
+  getEffectiveWavelength(): number;
+  slitWidth: number;
+} & (
+  {
+    detectionModeProperty: TReadOnlyProperty<DetectionMode>;
+    screenDistanceProperty: TReadOnlyProperty<number>;
+    slitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
+  } | {
+    regionWidth: number;
+    slitPositionFractionProperty: TReadOnlyProperty<number>;
+    slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
+    detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
+  }
+);
+
+const getDetectionMode = ( scene: DetectorScreenDescriberScene ): DetectionMode =>
+  scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
+
+const getSlitSetting = ( scene: DetectorScreenDescriberScene ): SlitConfigurationWithNoBarrier =>
+  'slitSettingProperty' in scene ? scene.slitSettingProperty.value : scene.slitConfigurationProperty.value;
+
+const getDetectorScreenHalfWidth = ( scene: DetectorScreenDescriberScene, detectorScreenHalfWidthProperty?: TReadOnlyProperty<number> ): number =>
+  detectorScreenHalfWidthProperty ? detectorScreenHalfWidthProperty.value : 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2;
 
 export default class DetectorScreenDescriber {
 
   public readonly descriptionProperty: TReadOnlyProperty<string>;
 
   public constructor(
-    sceneProperty: TReadOnlyProperty<SceneModel>,
+    sceneProperty: TReadOnlyProperty<DetectorScreenDescriberScene>,
     isRulerVisibleProperty: TReadOnlyProperty<boolean>,
-    detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+    detectorScreenHalfWidthProperty?: TReadOnlyProperty<number>
   ) {
 
     const descriptionProperty = new Property<string>( '' );
@@ -41,9 +71,9 @@ export default class DetectorScreenDescriber {
 
     const update = () => {
       const scene = sceneProperty.value;
-      const detectionMode = scene.detectionModeProperty.value;
+      const detectionMode = getDetectionMode( scene );
       const isRulerVisible = isRulerVisibleProperty.value;
-      const slitSetting = scene.slitSettingProperty.value;
+      const slitSetting = getSlitSetting( scene );
       const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
 
       if ( detectionMode === 'averageIntensity' ) {
@@ -54,7 +84,7 @@ export default class DetectorScreenDescriber {
 
         const analysis = BandAnalysis.analyzeTheoreticalPattern(
           scene,
-          getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value )
+          getDetectorScreenHalfWidth( scene, detectorScreenHalfWidthProperty )
         );
         const spatialDescription = isDoubleSlit ?
                                    BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, isRulerVisible, false ) :
@@ -76,7 +106,7 @@ export default class DetectorScreenDescriber {
       // rather than jumping with noisy bin data.
       const analysis = BandAnalysis.analyzeTheoreticalPattern(
         scene,
-        getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value )
+        getDetectorScreenHalfWidth( scene, detectorScreenHalfWidthProperty )
       );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
@@ -94,29 +124,40 @@ export default class DetectorScreenDescriber {
     sceneProperty.link( ( scene, previousScene ) => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( update );
-        previousScene.detectionModeProperty.unlink( fullUpdate );
+        previousScene.detectionModeProperty?.unlink( fullUpdate );
         previousScene.isEmittingProperty.unlink( fullUpdate );
-        previousScene.slitSettingProperty.unlink( fullUpdate );
+        if ( 'slitSettingProperty' in previousScene ) {
+          previousScene.slitSettingProperty.unlink( fullUpdate );
+          previousScene.screenDistanceProperty.unlink( fullUpdate );
+        }
+        else {
+          previousScene.slitConfigurationProperty.unlink( fullUpdate );
+          previousScene.slitPositionFractionProperty.unlink( fullUpdate );
+        }
         previousScene.slitSeparationProperty.unlink( fullUpdate );
-        previousScene.screenDistanceProperty.unlink( fullUpdate );
         previousScene.wavelengthProperty.unlink( fullUpdate );
         previousScene.velocityProperty.unlink( fullUpdate );
       }
       scene.hitsChangedEmitter.addListener( update );
-      scene.detectionModeProperty.lazyLink( fullUpdate );
+      scene.detectionModeProperty?.lazyLink( fullUpdate );
       scene.isEmittingProperty.lazyLink( fullUpdate );
-      scene.slitSettingProperty.lazyLink( fullUpdate );
+      if ( 'slitSettingProperty' in scene ) {
+        scene.slitSettingProperty.lazyLink( fullUpdate );
+        scene.screenDistanceProperty.lazyLink( fullUpdate );
+      }
+      else {
+        scene.slitConfigurationProperty.lazyLink( fullUpdate );
+        scene.slitPositionFractionProperty.lazyLink( fullUpdate );
+      }
       scene.slitSeparationProperty.lazyLink( fullUpdate );
-      scene.screenDistanceProperty.lazyLink( fullUpdate );
       scene.wavelengthProperty.lazyLink( fullUpdate );
       scene.velocityProperty.lazyLink( fullUpdate );
-      previousScene = scene;
       fullUpdate();
     } );
 
     // Also update when the ruler visibility changes, since it affects spatial language.
     isRulerVisibleProperty.lazyLink( fullUpdate );
-    detectorScreenScaleIndexProperty.lazyLink( fullUpdate );
+    detectorScreenHalfWidthProperty?.lazyLink( fullUpdate );
 
     // Re-render whenever the Fluent bundle changes (e.g. locale change,
     // or PhET-iO string edits that swap the bundle without changing localeProperty).

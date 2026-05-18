@@ -7,18 +7,16 @@
  * @author Matthew Blackman (PhET Interactive Simulations)
  */
 
-import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
-import type { Snapshot } from '../../../common/model/Snapshot.js';
+import { showsDoubleSlitInterferencePattern } from '../../model/SlitConfiguration.js';
+import type { Snapshot } from '../../model/Snapshot.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import BandAnalysis from './BandAnalysis.js';
 import { formatIntensityDescription, formatSnapshotHitsDescription } from './DetectorScreenDescriptionFormatter.js';
 
 export default class SnapshotDescriber {
 
-  public static getDescription( snapshot: Snapshot, detectorScreenScaleIndex: number ): string {
+  public static getDescription( snapshot: Snapshot, screenHalfWidth = snapshot.screenHalfWidth ): string {
     const isDoubleSlit = showsDoubleSlitInterferencePattern( snapshot.slitSetting );
-    const screenHalfWidth = getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndex );
 
     if ( snapshot.detectionMode === 'averageIntensity' ) {
       if ( !snapshot.isEmitting ) {

@@ -104,6 +104,7 @@ type StringsType = {
       'controlAreaStringProperty': LocalizedStringProperty;
       'maxHitsReachedHintStringProperty': LocalizedStringProperty;
       'currentDetailsStringProperty': LocalizedStringProperty;
+      'currentDetailsTopBottomStringProperty': LocalizedStringProperty;
       'interactionHintStringProperty': LocalizedStringProperty;
     };
     'experimentSetupHeadingStringProperty': LocalizedStringProperty;
@@ -117,6 +118,7 @@ type StringsType = {
       'wavelengthStringProperty': LocalizedStringProperty;
       'particleSpeedStringProperty': LocalizedStringProperty;
       'slitConfigurationStringProperty': LocalizedStringProperty;
+      'slitConfigurationTopBottomStringProperty': LocalizedStringProperty;
       'slitSeparationStringProperty': LocalizedStringProperty;
       'screenDistanceStringProperty': LocalizedStringProperty;
     };
