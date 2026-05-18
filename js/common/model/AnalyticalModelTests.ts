@@ -581,7 +581,7 @@ QUnit.test( 'measurement projection is initially spatially local to detector reg
   );
 } );
 
-QUnit.test( 'measurement projection spreads outside detector region with radius-dependent diffraction', assert => {
+QUnit.test( 'measurement projection smooths from detector disk into fading gaussian deficit', assert => {
   const unprojected = createGaussianPacketParameters();
   const measurementTime = 1;
   const dt = 0.4;
@@ -622,31 +622,46 @@ QUnit.test( 'measurement projection spreads outside detector region with radius-
   const largeOutsideX = centerX + largeRadius + outsideOffset;
   const traversalSampleTime = measurementTime + 1.5;
   const traversalCenterX = 0.5 + traversalSampleTime - measurementTime;
-  const largestOutsideX = traversalCenterX + largeRadius + 0.04;
+  const largeNearRadiusX = centerX + largeRadius - 0.004;
+  const laterOutsideX = traversalCenterX + largeRadius + 0.04;
   const smallTransmission = intensityAt( smallProjection, smallOutsideX, 0, sampleTime ) /
                             intensityAt( unprojected, smallOutsideX, 0, sampleTime );
-  const largeTransmission = intensityAt( largeProjection, largeOutsideX, 0, sampleTime ) /
-                            intensityAt( unprojected, largeOutsideX, 0, sampleTime );
-  const largestTransmission = intensityAt( largestProjection, largestOutsideX, 0, traversalSampleTime ) /
-                              intensityAt( unprojected, largestOutsideX, 0, traversalSampleTime );
+  const earlyOutsideTransmission = intensityAt( largeProjection, largeOutsideX, 0, sampleTime ) /
+                                   intensityAt( unprojected, largeOutsideX, 0, sampleTime );
+  const earlyCenterTransmission = intensityAt( largeProjection, centerX, 0, sampleTime ) /
+                                  intensityAt( unprojected, centerX, 0, sampleTime );
+  const largeNearRadiusTransmission = intensityAt( largeProjection, largeNearRadiusX, 0, sampleTime ) /
+                                      intensityAt( unprojected, largeNearRadiusX, 0, sampleTime );
+  const laterCenterTransmission = intensityAt( largestProjection, traversalCenterX, 0, traversalSampleTime ) /
+                                  intensityAt( unprojected, traversalCenterX, 0, traversalSampleTime );
+  const laterOutsideTransmission = intensityAt( largestProjection, laterOutsideX, 0, traversalSampleTime ) /
+                                   intensityAt( unprojected, laterOutsideX, 0, traversalSampleTime );
 
   assert.ok(
-    smallTransmission < 0.2,
+    smallTransmission < 0.95,
     'small detector bite attenuates outside the original detector footprint after time advances'
   );
   assert.ok(
-    smallTransmission < largeTransmission,
-    'smaller detector radius produces faster outward bite spread than larger detector radius'
+    earlyCenterTransmission > 0 && earlyCenterTransmission < largeNearRadiusTransmission,
+    'bite begins filling in everywhere while remaining darkest at the center'
   );
   assert.ok(
-    largestTransmission < 0.95,
-    'largest detector bite still grows during a normal packet traversal'
+    largeNearRadiusTransmission < earlyOutsideTransmission,
+    'early smoothed bite has no extra-dark ring at the original detector radius'
+  );
+  assert.ok(
+    laterCenterTransmission > earlyCenterTransmission,
+    'center of original detector footprint gradually fades back toward the unprojected packet'
+  );
+  assert.ok(
+    laterOutsideTransmission < earlyOutsideTransmission,
+    'later smoothed bite has broadened outside the original detector footprint'
   );
 } );
 
 QUnit.test( 'wave-packet measurement bite spreads while preserving grid probability', assert => {
-  const projectedSolver = new AnalyticalWavePacketSolver( 80, 80 );
-  const controlSolver = new AnalyticalWavePacketSolver( 80, 80 );
+  const projectedSolver = new AnalyticalWavePacketSolver( 200, 200 );
+  const controlSolver = new AnalyticalWavePacketSolver( 200, 200 );
   projectedSolver.setParameters( { isSourceOn: true } );
   controlSolver.setParameters( { isSourceOn: true } );
 
@@ -678,19 +693,21 @@ QUnit.test( 'wave-packet measurement bite spreads while preserving grid probabil
     'failed-detection bite blanks the interior of the detector region immediately'
   );
 
-  const spreadTime = 0.5;
+  const spreadTime = 0.4;
   projectedSolver.step( spreadTime );
   controlSolver.step( spreadTime );
 
-  const movingOutsideDetectorX = measurementCenter.x +
-                                 projectedSolver.getDisplayPropagationSpeed() * spreadTime +
-                                 measurementRadius + 0.03;
-  const laterProjectedOutsideDetector = getGridProbabilityAtNorm( projectedSolver, movingOutsideDetectorX, measurementCenter.y );
-  const laterControlOutsideDetector = getGridProbabilityAtNorm( controlSolver, movingOutsideDetectorX, measurementCenter.y );
+  const detectorNearEdgeX = measurementCenter.x + measurementRadius - 0.004;
+  const movingDetectorInteriorX = detectorInteriorX + projectedSolver.getDisplayPropagationSpeed() * spreadTime;
+  const movingDetectorNearEdgeX = detectorNearEdgeX + projectedSolver.getDisplayPropagationSpeed() * spreadTime;
+  const laterProjectedDetectorInterior = getGridProbabilityAtNorm( projectedSolver, movingDetectorInteriorX, measurementCenter.y );
+  const laterProjectedDetectorNearEdge = getGridProbabilityAtNorm( projectedSolver, movingDetectorNearEdgeX, measurementCenter.y );
+  const laterControlDetectorNearEdge = getGridProbabilityAtNorm( controlSolver, movingDetectorNearEdgeX, measurementCenter.y );
 
   assert.ok(
-    laterProjectedOutsideDetector < laterControlOutsideDetector * 0.5,
-    'failed-detection bite spreads outside the original detector footprint'
+    laterProjectedDetectorNearEdge > laterControlDetectorNearEdge * 0.05 &&
+    laterProjectedDetectorNearEdge > laterProjectedDetectorInterior,
+    'failed-detection bite interior begins fading back from the original detector edge'
   );
   assertApproximately(
     assert,

@@ -48,6 +48,12 @@ const MEASUREMENT_BITE_REFERENCE_RADIUS_TO_PACKET_SIGMA_X = 2 / 3;
 const MEASUREMENT_BITE_REFERENCE_SPREAD_TIME = 0.75;
 const MEASUREMENT_BITE_MAX_SPREAD_TIME = 2.0;
 
+// After the instantaneous failed-detection disk, evolve the bite as a single centered super-Gaussian
+// deficit. The edge deficit calibrates the falloff scale so the super-Gaussian is nearly zero at the
+// detector radius when steep, and the exponent relaxes toward 2 as the deficit spreads and fades.
+const MEASUREMENT_BITE_EDGE_DEFICIT = 0.02;
+const MEASUREMENT_BITE_MAX_SUPER_GAUSSIAN_EXPONENT = 24;
+
 export type FieldComponentSource = 'incident' | 'topSlit' | 'bottomSlit';
 
 export type DecoherenceSlit = 'topSlit' | 'bottomSlit';
@@ -170,6 +176,12 @@ type GaussianPacketState = {
 type ApertureTransfer = {
   value: Complex;
   support: number;
+};
+
+type MeasurementProjectionSpread = {
+  falloffScale: number;
+  deficitStrength: number;
+  exponent: number;
 };
 
 function smoothStep( edge0: number, edge1: number, x: number ): number {
@@ -1111,24 +1123,24 @@ function getMeasurementProjectionMask(
   const distance = Math.sqrt( ( x - projectionCenterX ) ** 2 + ( y - projection.centerY ) ** 2 );
   const edgeFeather = Math.max( projection.edgeFeather ?? 0, 0 );
 
-  if ( distance >= projectionRadius ) {
-    if ( dt <= EPSILON ) {
-      return 1;
-    }
-
-    const referenceRadius = Math.max( source.sigmaX0 * MEASUREMENT_BITE_REFERENCE_RADIUS_TO_PACKET_SIGMA_X, EPSILON );
-    const proportionalSpreadTime = MEASUREMENT_BITE_REFERENCE_SPREAD_TIME * projectionRadius / referenceRadius;
-    const spreadTime = Math.max( EPSILON, Math.min( proportionalSpreadTime, MEASUREMENT_BITE_MAX_SPREAD_TIME ) );
-    const sigma = projectionRadius * Math.sqrt( 1 + ( dt / spreadTime ) ** 2 );
-    const spreadWidth = Math.max( sigma - projectionRadius, EPSILON );
-    const outsideDistance = distance - projectionRadius;
-    return 1 - Math.exp( -0.5 * ( outsideDistance / spreadWidth ) ** 2 );
-  }
-
   if ( dt > EPSILON ) {
-    return 0;
+    const spread = getMeasurementProjectionSpread( source, projectionRadius, dt );
+    const deficit = spread.deficitStrength * Math.exp( -0.5 * ( distance / spread.falloffScale ) ** spread.exponent );
+    return Math.max( 0, Math.min( 1, 1 - deficit ) );
   }
 
+  if ( distance >= projectionRadius ) {
+    return 1;
+  }
+
+  return getInitialMeasurementProjectionMask( distance, projectionRadius, edgeFeather );
+}
+
+function getInitialMeasurementProjectionMask(
+  distance: number,
+  projectionRadius: number,
+  edgeFeather: number
+): number {
   const saturatedGaussian = MEASUREMENT_BITE_INITIAL_SATURATION *
                             Math.exp( -0.5 * ( distance / projectionRadius ) ** 2 );
   const localMask = Math.max( 0, 1 - saturatedGaussian );
@@ -1139,4 +1151,26 @@ function getMeasurementProjectionMask(
                         smoothStep( Math.max( 0, projectionRadius - edgeFeather ), projectionRadius, distance ) :
                         0;
   return localMask + ( 1 - localMask ) * boundaryBlend;
+}
+
+function getMeasurementProjectionSpread(
+  source: GaussianPacketSource,
+  projectionRadius: number,
+  dt: number
+): MeasurementProjectionSpread {
+  const referenceRadius = Math.max( source.sigmaX0 * MEASUREMENT_BITE_REFERENCE_RADIUS_TO_PACKET_SIGMA_X, EPSILON );
+  const proportionalSpreadTime = MEASUREMENT_BITE_REFERENCE_SPREAD_TIME * projectionRadius / referenceRadius;
+  const spreadTime = Math.max( EPSILON, Math.min( proportionalSpreadTime, MEASUREMENT_BITE_MAX_SPREAD_TIME ) );
+  const sigma = projectionRadius * Math.sqrt( 1 + ( dt / spreadTime ) ** 2 );
+  const spreadRatio = projectionRadius / sigma;
+  const exponent = 2 + ( MEASUREMENT_BITE_MAX_SUPER_GAUSSIAN_EXPONENT - 2 ) * spreadRatio * spreadRatio;
+
+  return {
+    falloffScale: sigma / Math.pow( -2 * Math.log( MEASUREMENT_BITE_EDGE_DEFICIT ), 1 / exponent ),
+
+    // A single centered deficit avoids making the original detector radius a persistent visual feature,
+    // and the peak decays like a spreading two-dimensional deficit so the bite fills in everywhere at once.
+    deficitStrength: spreadRatio * spreadRatio,
+    exponent: exponent
+  };
 }
