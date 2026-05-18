@@ -74,6 +74,11 @@ export default class WaveDisplaySection extends VBox {
       { tandem: tandem.createTandem( 'matterWaveDisplayComboBox' ), xMargin: 10, yMargin: 6 }
     );
 
+    // Center both alternate combo boxes in the same bounds so the visible one lines up with the time controls.
+    const comboBoxWidth = Math.max( photonWaveDisplayComboBox.width, matterWaveDisplayComboBox.width );
+    photonWaveDisplayComboBox.centerX = comboBoxWidth / 2;
+    matterWaveDisplayComboBox.centerX = comboBoxWidth / 2;
+
     isPhotonsProperty.link( isPhotons => {
       photonWaveDisplayComboBox.visible = isPhotons;
       matterWaveDisplayComboBox.visible = !isPhotons;
@@ -86,7 +91,7 @@ export default class WaveDisplaySection extends VBox {
 
     super( {
       spacing: 6,
-      align: 'left',
+      align: 'center',
       children: [ waveDisplayTitle, comboBoxContainer ]
     } );
   }

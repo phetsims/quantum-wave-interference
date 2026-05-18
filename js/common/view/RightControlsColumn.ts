@@ -3,14 +3,12 @@
 /**
  * RightControlsColumn is the right-side controls column shared by the High Intensity and
  * Single Particles screens. The column contains (top to bottom):
- * - Screen controls panel (screen/graph switch + optional extra children + brightness + screen buttons)
+ * - Screen controls panel (screen/graph switch + optional extra children + brightness + snapshot buttons)
  * - Tools panel (screen-specific checkboxes)
- * - Wave display / wave function display combo box
- * - Time controls (play/pause + speed radio buttons)
- * - Reset All button
  *
  * Screen-specific content is injected via options: additional children for the screen controls panel
  * (e.g., detection mode radio buttons on High Intensity) and the tool checkbox list.
+ * The lower-right controls are exposed as separate Nodes so their positions can stay fixed when panel heights change.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -90,7 +88,9 @@ export type RightControlsColumnOptions = {
 
 export default class RightControlsColumn extends VBox {
 
-  public readonly timeAndResetRow: HBox;
+  public readonly bottomButtonsRow: HBox;
+  public readonly waveDisplayAndTimeControlsGroup: VBox;
+  private readonly resetAllButton: ResetAllButton;
 
   public constructor(
     model: RightControlsModel,
@@ -129,7 +129,10 @@ export default class RightControlsColumn extends VBox {
 
     const eraseButton = new EraserButton( {
       listener: options.clearScreen,
-      iconWidth: 20,
+      iconWidth: QuantumWaveInterferenceConstants.ERASER_BUTTON_ICON_WIDTH,
+      minWidth: QuantumWaveInterferenceConstants.ERASER_BUTTON_MIN_WIDTH,
+      minHeight: QuantumWaveInterferenceConstants.ERASER_BUTTON_MIN_HEIGHT,
+      yMargin: 0,
       tandem: tandem.createTandem( 'eraseButton' )
     } );
 
@@ -155,7 +158,7 @@ export default class RightControlsColumn extends VBox {
       model.isPlayingProperty,
       snapshotsDialog,
       snapshotButton.width,
-      eraseButton.height,
+      snapshotButton.height,
       tandem.createTandem( 'viewSnapshotsButton' )
     );
 
@@ -170,7 +173,7 @@ export default class RightControlsColumn extends VBox {
       align: 'bottom',
       justify: 'spaceEvenly',
       layoutOptions: { stretch: true },
-      children: [ eraseButton, snapshotButtonWithDots, viewSnapshotsButton ]
+      children: [ snapshotButtonWithDots, viewSnapshotsButton ]
     } );
 
     const brightnessControl = new BrightnessControl( model.currentScreenBrightnessProperty, tandem );
@@ -248,12 +251,20 @@ export default class RightControlsColumn extends VBox {
       tandem: tandem.createTandem( 'resetAllButton' )
     } );
 
-    // --- Bottom row: time controls to the left of reset all ---
+    // --- Bottom row: eraser button to the left of reset all ---
 
-    const bottomRow = new HBox( {
+    const bottomButtonsRow = new HBox( {
       spacing: 15,
       align: 'center',
-      children: [ timeControlNode, resetAllButton ]
+      children: [ eraseButton, resetAllButton ]
+    } );
+
+    // Keep wave display and time controls together, but outside this VBox's flowing panel layout.
+    // This prevents right-panel content changes from pushing these controls toward the bottom buttons.
+    const waveDisplayAndTimeControlsGroup = new VBox( {
+      spacing: QuantumWaveInterferenceConstants.WAVE_DISPLAY_AND_TIME_CONTROLS_SPACING,
+      align: 'center',
+      children: [ waveDisplaySection, timeControlNode ]
     } );
 
     // --- Assemble column ---
@@ -263,11 +274,29 @@ export default class RightControlsColumn extends VBox {
       align: 'center',
       children: [
         screenControlsPanel,
-        toolsPanel,
-        waveDisplaySection
+        toolsPanel
       ]
     } );
 
-    this.timeAndResetRow = bottomRow;
+    this.bottomButtonsRow = bottomButtonsRow;
+    this.waveDisplayAndTimeControlsGroup = waveDisplayAndTimeControlsGroup;
+    this.resetAllButton = resetAllButton;
+  }
+
+  /**
+   * Aligns Reset All exactly to the screen margin, even though the neighboring eraser button has a shorter background.
+   */
+  public positionBottomButtonsRow( right: number, resetAllButtonBottom: number ): void {
+    this.bottomButtonsRow.right = right;
+    this.bottomButtonsRow.centerY = resetAllButtonBottom - this.resetAllButton.height / 2;
+  }
+
+  /**
+   * Positions the non-panel lower controls from the bottom button row so panel height changes do not affect them.
+   */
+  public positionWaveDisplayAndTimeControlsGroup( centerX: number ): void {
+    this.waveDisplayAndTimeControlsGroup.centerX = centerX;
+    this.waveDisplayAndTimeControlsGroup.bottom = this.bottomButtonsRow.top -
+                                                  QuantumWaveInterferenceConstants.WAVE_DISPLAY_AND_TIME_CONTROLS_BOTTOM_OFFSET;
   }
 }

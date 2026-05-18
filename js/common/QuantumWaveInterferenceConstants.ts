@@ -85,6 +85,16 @@ export default class QuantumWaveInterferenceConstants {
                                                 Math.tan( QuantumWaveInterferenceConstants.DETECTOR_SCREEN_ANGLE_DEGREES * Math.PI / 180 );
   public static readonly RIGHT_PANEL_WIDTH = 180;
 
+  // Shared eraser button dimensions for the bottom-right screen controls. The background is shorter than it is wide
+  // by design, while the icon remains full size so the eraser glyph stays visually consistent.
+  public static readonly ERASER_BUTTON_ICON_WIDTH = 22.7;
+  public static readonly ERASER_BUTTON_MIN_WIDTH = 41.4;
+  public static readonly ERASER_BUTTON_MIN_HEIGHT = 28.98;
+
+  // Fixed spacing for the High Intensity and Single Particles bottom-right controls.
+  public static readonly WAVE_DISPLAY_AND_TIME_CONTROLS_SPACING = 24;
+  public static readonly WAVE_DISPLAY_AND_TIME_CONTROLS_BOTTOM_OFFSET = 30;
+
   // Shared vertical placement for the source-type scene button group.
   public static readonly SCENE_BUTTON_GROUP_CENTER_Y = 470;
 

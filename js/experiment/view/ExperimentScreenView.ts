@@ -14,6 +14,7 @@ import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
@@ -38,6 +39,7 @@ type SelfOptions = EmptySelfOptions;
 type ExperimentScreenViewOptions = SelfOptions & Pick<ScreenViewOptions, 'tandem'>;
 
 const MIDDLE_COLUMN_LEFT_SHIFT = 3;
+const BOTTOM_CONTROLS_SPACING = 15;
 
 export default class ExperimentScreenView extends ScreenView {
   private readonly detectorColumnNode: ExperimentDetectorColumnNode;
@@ -161,19 +163,42 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( timeControlNode );
 
-    const bottomRowLeft = this.detectorColumnNode.bottomControlsLeft;
-    const bottomRowRight = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
-    const totalBottomControlsWidth = checkboxGroup.width + timeControlNode.width + resetAllButton.width;
-    const bottomRowSpaceBetween = Math.max(
-      0,
-      ( bottomRowRight - bottomRowLeft - totalBottomControlsWidth ) / 2
+    const eraserButtonTandem = options.tandem.createTandem( 'eraserButton' );
+    const eraserButtonVisibleProperty = new GatedVisibleProperty(
+      model.currentDetectionModeProperty.derived( detectionMode => detectionMode === 'hits' ),
+      eraserButtonTandem
     );
+    const clearScreenContextResponseProperty =
+      QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleContextResponse.createProperty( {
+        isEmitting: model.currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' ),
+        isPlaying: model.isPlayingProperty.derived( isPlaying => isPlaying ? 'true' : 'false' )
+      } );
 
-    checkboxGroup.left = bottomRowLeft;
-    timeControlNode.left = checkboxGroup.right + bottomRowSpaceBetween;
-    resetAllButton.left = timeControlNode.right + bottomRowSpaceBetween;
-    resetAllButton.right = bottomRowRight;
+    const eraserButton = new EraserButton( {
+      iconWidth: QuantumWaveInterferenceConstants.ERASER_BUTTON_ICON_WIDTH,
+      minWidth: QuantumWaveInterferenceConstants.ERASER_BUTTON_MIN_WIDTH,
+      minHeight: QuantumWaveInterferenceConstants.ERASER_BUTTON_MIN_HEIGHT,
+      yMargin: 0,
+      listener: () => model.sceneProperty.value.clearScreen(),
+      touchAreaXDilation: 5,
+      touchAreaYDilation: 5,
+      accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty,
+      accessibleContextResponse: clearScreenContextResponseProperty,
+      tandem: eraserButtonTandem,
+      visibleProperty: eraserButtonVisibleProperty
+    } );
+    this.addChild( eraserButton );
 
+    checkboxGroup.left = this.detectorColumnNode.bottomControlsLeft;
+    eraserButton.right = resetAllButton.left - BOTTOM_CONTROLS_SPACING;
+
+    // Center time controls on the detector graph instead of spacing them from the checkbox group. This leaves a
+    // stable gap for the eraser button while preserving the visual relationship with the graph below the screen.
+    timeControlNode.centerX = this.detectorColumnNode.graphAccordionBoxes[ 0 ].centerX;
+
+    resetAllButton.right = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
+    eraserButton.centerY = resetAllButton.centerY;
     timeControlNode.centerY = resetAllButton.centerY;
     checkboxGroup.centerY = resetAllButton.centerY;
 
@@ -259,6 +284,7 @@ export default class ExperimentScreenView extends ScreenView {
       rulerCheckbox,
       stopwatchCheckbox,
       timeControlNode,
+      eraserButton,
       resetAllButton
     ];
   }

@@ -263,9 +263,15 @@ export default class HighIntensityScreenView extends ScreenView {
     topRowBeamRightLimitXProperty.value = rightControlsColumn.left - TOP_ROW_BEAM_RIGHT_PANEL_GAP;
     this.addChild( rightControlsColumn );
 
-    rightControlsColumn.timeAndResetRow.right = this.layoutBounds.maxX - X_MARGIN;
-    rightControlsColumn.timeAndResetRow.bottom = this.layoutBounds.maxY - Y_MARGIN;
-    this.addChild( rightControlsColumn.timeAndResetRow );
+    rightControlsColumn.positionBottomButtonsRow(
+      this.layoutBounds.maxX - X_MARGIN,
+      this.layoutBounds.maxY - Y_MARGIN
+    );
+    this.addChild( rightControlsColumn.bottomButtonsRow );
+
+    const rightPanelCenterX = this.layoutBounds.maxX - X_MARGIN - QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH / 2;
+    rightControlsColumn.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX );
+    this.addChild( rightControlsColumn.waveDisplayAndTimeControlsGroup );
 
     const measurementToolsNode = new MeasurementToolsNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
     this.addChild( measurementToolsNode );

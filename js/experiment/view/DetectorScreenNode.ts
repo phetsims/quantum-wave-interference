@@ -8,8 +8,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
@@ -17,7 +15,6 @@ import Bounds2 from '../../../../dot/js/Bounds2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
-import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
@@ -25,8 +22,6 @@ import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
-import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
@@ -83,7 +78,6 @@ export default class DetectorScreenNode extends Node {
   private readonly screenCanvasNode: DetectorScreenCanvasNode;
   private readonly screenBackgroundRect: Rectangle;
 
-  public readonly eraserButton: EraserButton;
   public readonly snapshotButton: SnapshotButton;
   public readonly viewSnapshotsButton: ViewSnapshotsButton;
   private readonly snapshotButtonGroup: VBox;
@@ -253,16 +247,6 @@ export default class DetectorScreenNode extends Node {
     sceneModel.screenDistanceProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.slitSettingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
-    // Eraser button to clear the screen
-    const eraserButtonEnabledProperty = new DerivedProperty(
-      [ sceneModel.detectionModeProperty, sceneModel.totalHitsProperty ],
-      ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits > 0,
-      {
-        tandem: providedOptions.tandem.createTandem( 'eraserButtonEnabledProperty' ),
-        phetioValueType: BooleanIO
-      }
-    );
-
     // Snapshot dialog (one per scene)
     const snapshotsDialog = new SnapshotsDialog(
       sceneModel.snapshotsProperty,
@@ -297,33 +281,6 @@ export default class DetectorScreenNode extends Node {
     // Match detector-side action button dimensions to the camera button without scaling icons.
     const detectorActionButtonMinHeight = this.snapshotButton.height;
     const detectorActionButtonMinWidth = DETECTOR_ACTION_BUTTON_MIN_WIDTH;
-    const eraserButtonTandem = providedOptions.tandem.createTandem( 'eraserButton' );
-    const eraserButtonVisibleProperty = new GatedVisibleProperty(
-      sceneModel.detectionModeProperty.derived( detectionMode => detectionMode === 'hits' ),
-      eraserButtonTandem
-    );
-    const clearScreenContextResponseProperty =
-      QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleContextResponse.createProperty( {
-        isEmitting: sceneModel.isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' ),
-        isPlaying: isPlayingProperty.derived( isPlaying => isPlaying ? 'true' : 'false' )
-      } );
-
-    // Eraser button to clear the screen
-    this.eraserButton = new EraserButton( {
-      iconWidth: 18,
-      minWidth: detectorActionButtonMinWidth,
-      minHeight: detectorActionButtonMinHeight,
-      listener: () => sceneModel.clearScreen(),
-      soundPlayer: sharedSoundPlayers.get( 'erase' ),
-      enabledProperty: eraserButtonEnabledProperty,
-      touchAreaXDilation: 5,
-      touchAreaYDilation: 5,
-      accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty,
-      accessibleContextResponse: clearScreenContextResponseProperty,
-      tandem: eraserButtonTandem,
-      visibleProperty: eraserButtonVisibleProperty
-    } );
 
     // Eye button to view snapshots
     this.viewSnapshotsButton = new ViewSnapshotsButton(
@@ -363,13 +320,8 @@ export default class DetectorScreenNode extends Node {
       children: [ indicatorDotsBox, this.snapshotButton, this.viewSnapshotsButton ]
     } );
 
-    // Left-align both button groups so their left edges match,
-    // with reduced horizontal gap from the detector screen to the button column.
+    // Align the snapshot buttons with a reduced horizontal gap from the detector screen.
     const buttonsLeft = SCREEN_WIDTH + BUTTON_COLUMN_GAP;
-    this.eraserButton.left = buttonsLeft;
-    this.eraserButton.top = 0;
-    this.addChild( this.eraserButton );
-
     this.snapshotButtonGroup.left = buttonsLeft;
     this.snapshotButtonGroup.bottom = SCREEN_HEIGHT;
     this.addChild( this.snapshotButtonGroup );

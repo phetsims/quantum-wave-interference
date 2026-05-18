@@ -115,7 +115,6 @@ export default class ExperimentDetectorColumnNode extends Node {
 
   public getDetectorScreenButtonNodes(): Node[] {
     return this.detectorScreenNodes.flatMap( detectorScreen => [
-      detectorScreen.eraserButton,
       detectorScreen.snapshotButton,
       detectorScreen.viewSnapshotsButton
     ] );
