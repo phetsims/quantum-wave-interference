@@ -10,6 +10,7 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
@@ -248,19 +249,28 @@ export default class SingleParticlesScreenView extends ScreenView {
       }
     } );
 
-    rightControlsColumn.right = this.layoutBounds.maxX - X_MARGIN;
-    rightControlsColumn.top = Y_MARGIN;
     this.addChild( rightControlsColumn );
 
-    rightControlsColumn.positionBottomButtonsRow(
-      this.layoutBounds.maxX - X_MARGIN,
-      this.layoutBounds.maxY - Y_MARGIN
-    );
+    ManualConstraint.create( this, [ rightControlsColumn ], rightControlsColumnProxy => {
+      rightControlsColumnProxy.right = this.layoutBounds.maxX - X_MARGIN;
+      rightControlsColumnProxy.top = Y_MARGIN;
+    } );
+
     this.addChild( rightControlsColumn.bottomButtonsRow );
 
     const rightPanelCenterX = this.layoutBounds.maxX - X_MARGIN - QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH / 2;
-    rightControlsColumn.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX );
     this.addChild( rightControlsColumn.waveDisplayAndTimeControlsGroup );
+
+    ManualConstraint.create( this, [ rightControlsColumn.bottomButtonsRow ], () => {
+      rightControlsColumn.positionBottomButtonsRow(
+        this.layoutBounds.maxX - X_MARGIN,
+        this.layoutBounds.maxY - Y_MARGIN
+      );
+    } );
+
+    ManualConstraint.create( this, [ rightControlsColumn.bottomButtonsRow, rightControlsColumn.waveDisplayAndTimeControlsGroup ], () => {
+      rightControlsColumn.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN );
+    } );
 
     const measurementToolsNode = new MeasurementToolsNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
     this.addChild( measurementToolsNode );

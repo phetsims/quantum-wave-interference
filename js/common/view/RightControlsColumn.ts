@@ -314,10 +314,21 @@ export default class RightControlsColumn extends VBox {
 
   /**
    * Positions the non-panel lower controls from the bottom button row so panel height changes do not affect them.
+   * Locale changes can make the time-speed radio buttons wider than the right panels, so maxRight keeps the group
+   * within the screen's right padding while preserving the normal centered placement when there is enough room.
    */
-  public positionWaveDisplayAndTimeControlsGroup( centerX: number ): void {
-    this.waveDisplayAndTimeControlsGroup.centerX = centerX;
+  public positionWaveDisplayAndTimeControlsGroup( centerX: number, maxRight: number ): void {
     this.waveDisplayAndTimeControlsGroup.bottom = this.bottomButtonsRow.top -
                                                   QuantumWaveInterferenceConstants.WAVE_DISPLAY_AND_TIME_CONTROLS_BOTTOM_OFFSET;
+
+    // Choose one horizontal position per constraint update. Centering and then clamping would oscillate because the
+    // ManualConstraint observes this group's bounds and would immediately re-run after each position change.
+    const centeredRight = centerX + this.waveDisplayAndTimeControlsGroup.width / 2;
+    if ( centeredRight > maxRight ) {
+      this.waveDisplayAndTimeControlsGroup.right = maxRight;
+    }
+    else {
+      this.waveDisplayAndTimeControlsGroup.centerX = centerX;
+    }
   }
 }

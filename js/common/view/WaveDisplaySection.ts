@@ -13,6 +13,7 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -74,10 +75,14 @@ export default class WaveDisplaySection extends VBox {
       { tandem: tandem.createTandem( 'matterWaveDisplayComboBox' ), xMargin: 10, yMargin: 6 }
     );
 
-    // Center both alternate combo boxes in the same bounds so the visible one lines up with the time controls.
-    const comboBoxWidth = Math.max( photonWaveDisplayComboBox.width, matterWaveDisplayComboBox.width );
-    photonWaveDisplayComboBox.centerX = comboBoxWidth / 2;
-    matterWaveDisplayComboBox.centerX = comboBoxWidth / 2;
+    // Center both alternate combo boxes in the same dynamic bounds so the visible one lines up with the time controls.
+    const comboBoxAlignGroup = new AlignGroup( { matchVertical: false } );
+    const photonWaveDisplayComboBoxBox = comboBoxAlignGroup.createBox( photonWaveDisplayComboBox, {
+      xAlign: 'center'
+    } );
+    const matterWaveDisplayComboBoxBox = comboBoxAlignGroup.createBox( matterWaveDisplayComboBox, {
+      xAlign: 'center'
+    } );
 
     isPhotonsProperty.link( isPhotons => {
       photonWaveDisplayComboBox.visible = isPhotons;
@@ -85,7 +90,7 @@ export default class WaveDisplaySection extends VBox {
     } );
 
     const comboBoxContainer = new Node( {
-      children: [ photonWaveDisplayComboBox, matterWaveDisplayComboBox ],
+      children: [ photonWaveDisplayComboBoxBox, matterWaveDisplayComboBoxBox ],
       excludeInvisibleChildrenFromBounds: false
     } );
 

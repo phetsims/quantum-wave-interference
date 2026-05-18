@@ -15,6 +15,7 @@ import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
@@ -268,20 +269,29 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     } );
 
-    rightControlsColumn.right = this.layoutBounds.maxX - X_MARGIN;
-    rightControlsColumn.top = Y_MARGIN;
-    topRowBeamRightLimitXProperty.value = rightControlsColumn.left - TOP_ROW_BEAM_RIGHT_PANEL_GAP;
     this.addChild( rightControlsColumn );
 
-    rightControlsColumn.positionBottomButtonsRow(
-      this.layoutBounds.maxX - X_MARGIN,
-      this.layoutBounds.maxY - Y_MARGIN
-    );
+    ManualConstraint.create( this, [ rightControlsColumn ], rightControlsColumnProxy => {
+      rightControlsColumnProxy.right = this.layoutBounds.maxX - X_MARGIN;
+      rightControlsColumnProxy.top = Y_MARGIN;
+      topRowBeamRightLimitXProperty.value = rightControlsColumnProxy.left - TOP_ROW_BEAM_RIGHT_PANEL_GAP;
+    } );
+
     this.addChild( rightControlsColumn.bottomButtonsRow );
 
     const rightPanelCenterX = this.layoutBounds.maxX - X_MARGIN - QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH / 2;
-    rightControlsColumn.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX );
     this.addChild( rightControlsColumn.waveDisplayAndTimeControlsGroup );
+
+    ManualConstraint.create( this, [ rightControlsColumn.bottomButtonsRow ], () => {
+      rightControlsColumn.positionBottomButtonsRow(
+        this.layoutBounds.maxX - X_MARGIN,
+        this.layoutBounds.maxY - Y_MARGIN
+      );
+    } );
+
+    ManualConstraint.create( this, [ rightControlsColumn.bottomButtonsRow, rightControlsColumn.waveDisplayAndTimeControlsGroup ], () => {
+      rightControlsColumn.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN );
+    } );
 
     const measurementToolsNode = new MeasurementToolsNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
     this.addChild( measurementToolsNode );
