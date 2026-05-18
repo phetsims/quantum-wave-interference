@@ -4,7 +4,7 @@
  * DoubleSlitNode renders the double slit barrier in the wave visualization region. It consists of:
  * - Three gray barrier rectangles (top, central, bottom) with gaps for two slits
  * - Covered slit overlays (darker fill when a slit is covered)
- * - Detector slit overlays (yellow stroke when a detector is on a slit, High Intensity only)
+ * - Detector slit overlays (yellow stroke when a detector is on a slit)
  * - A green draggable double-headed arrow below the wave region for adjusting slit-to-screen distance
  *
  * The barrier position is set by slitPositionFractionProperty (fraction of wave region width).
@@ -27,6 +27,7 @@ import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import Panel from '../../../../sun/js/Panel.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import { type BarrierType } from '../model/BarrierType.js';
@@ -43,9 +44,16 @@ const BARRIER_FILL = '#939393';
 const ARROW_WIDTH = 40;
 const WAVE_REGION_FILL_INSET = 0.5;
 
-const DETECTOR_OVERLAY_PADDING = 4;
+const DETECTOR_OVERLAY_LINE_WIDTH = 2;
+const DETECTOR_OVERLAY_RECT_WIDTH = BARRIER_VIEW_WIDTH - DETECTOR_OVERLAY_LINE_WIDTH;
+const DETECTOR_OVERLAY_RECT_HEIGHT = SLIT_VIEW_HEIGHT - DETECTOR_OVERLAY_LINE_WIDTH;
 const DETECTOR_OVERLAY_ALPHA = 0.4;
-const DETECTOR_COUNT_FONT = new PhetFont( 13 );
+const DETECTOR_COUNT_FONT = new PhetFont( 12 );
+const DETECTOR_COUNT_PANEL_X_MARGIN = 3;
+const DETECTOR_COUNT_PANEL_Y_MARGIN = 2;
+const DETECTOR_COUNT_PANEL_CORNER_RADIUS = 3;
+const DETECTOR_COUNT_PANEL_OFFSET = 7;
+const DETECTOR_COUNT_TEXT_MAX_WIDTH = 40;
 const DETECTOR_FLASH_OPACITY = 0.85;
 const DETECTOR_FLASH_DURATION = 0.18;
 
@@ -104,29 +112,27 @@ export default class DoubleSlitNode extends Node {
       color => color.withAlpha( DETECTOR_OVERLAY_ALPHA )
     );
 
-    const topDetector = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
-      SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2, CORNER_RADIUS, CORNER_RADIUS, {
+    const topDetector = new Rectangle( 0, 0, DETECTOR_OVERLAY_RECT_WIDTH, DETECTOR_OVERLAY_RECT_HEIGHT,
+      CORNER_RADIUS, CORNER_RADIUS, {
         fill: detectorOverlayFillWithAlphaProperty,
         stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
-        lineWidth: 2
+        lineWidth: DETECTOR_OVERLAY_LINE_WIDTH
       } );
     //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Same as implementation of topDetector.
-    const bottomDetector = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
-      SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2, CORNER_RADIUS, CORNER_RADIUS, {
+    const bottomDetector = new Rectangle( 0, 0, DETECTOR_OVERLAY_RECT_WIDTH, DETECTOR_OVERLAY_RECT_HEIGHT,
+      CORNER_RADIUS, CORNER_RADIUS, {
         fill: detectorOverlayFillWithAlphaProperty,
         stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
-        lineWidth: 2
+        lineWidth: DETECTOR_OVERLAY_LINE_WIDTH
       } );
-    const topDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
-      SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2, CORNER_RADIUS, CORNER_RADIUS, {
+    const topDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS, {
         fill: 'white',
         opacity: 0,
         visible: false,
         pickable: false
       } );
     //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Same as the implementation of topDetectorFlash, subclass or creation function?
-    const bottomDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
-      SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2, CORNER_RADIUS, CORNER_RADIUS, {
+    const bottomDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS, {
         fill: 'white',
         opacity: 0,
         visible: false,
@@ -145,12 +151,28 @@ export default class DoubleSlitNode extends Node {
     const topDetectorCountText = new Text( topDetectorCountStringProperty, {
       font: DETECTOR_COUNT_FONT,
       fill: 'black',
-      maxWidth: BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2 - 2
+      maxWidth: DETECTOR_COUNT_TEXT_MAX_WIDTH
     } );
     const bottomDetectorCountText = new Text( bottomDetectorCountStringProperty, {
       font: DETECTOR_COUNT_FONT,
       fill: 'black',
-      maxWidth: BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2 - 2
+      maxWidth: DETECTOR_COUNT_TEXT_MAX_WIDTH
+    } );
+    const topDetectorCountPanel = new Panel( topDetectorCountText, {
+      fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty,
+      stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
+      xMargin: DETECTOR_COUNT_PANEL_X_MARGIN,
+      yMargin: DETECTOR_COUNT_PANEL_Y_MARGIN,
+      cornerRadius: DETECTOR_COUNT_PANEL_CORNER_RADIUS,
+      align: 'center'
+    } );
+    const bottomDetectorCountPanel = new Panel( bottomDetectorCountText, {
+      fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty,
+      stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
+      xMargin: DETECTOR_COUNT_PANEL_X_MARGIN,
+      yMargin: DETECTOR_COUNT_PANEL_Y_MARGIN,
+      cornerRadius: DETECTOR_COUNT_PANEL_CORNER_RADIUS,
+      align: 'center'
     } );
 
     const barrierContainer = new Node( {
@@ -164,8 +186,8 @@ export default class DoubleSlitNode extends Node {
         bottomDetector,
         topDetectorFlash,
         bottomDetectorFlash,
-        topDetectorCountText,
-        bottomDetectorCountText
+        topDetectorCountPanel,
+        bottomDetectorCountPanel
       ]
     } );
     barrierContainer.clipArea = Shape.rectangle(
@@ -262,7 +284,8 @@ export default class DoubleSlitNode extends Node {
     Multilink.multilink(
       [ barrierTypeProperty, slitPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
         options.isTopSlitCoveredProperty, options.isBottomSlitCoveredProperty,
-        options.isTopSlitDetectorProperty, options.isBottomSlitDetectorProperty ],
+        options.isTopSlitDetectorProperty, options.isBottomSlitDetectorProperty,
+        options.topDetectorCountProperty, options.bottomDetectorCountProperty ],
       ( barrierType, slitPositionFraction, slitSeparation, slitSeparationRange,
         isTopCovered, isBottomCovered, isTopDetectorOn, isBottomDetectorOn ) => {
 
@@ -318,17 +341,17 @@ export default class DoubleSlitNode extends Node {
         bottomCover.visible = isBottomCovered;
 
         topDetector.setRect(
-          barrierX - DETECTOR_OVERLAY_PADDING,
-          topBarrierBottom - DETECTOR_OVERLAY_PADDING,
-          BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
-          SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2,
+          barrierX + DETECTOR_OVERLAY_LINE_WIDTH / 2,
+          topBarrierBottom + DETECTOR_OVERLAY_LINE_WIDTH / 2,
+          DETECTOR_OVERLAY_RECT_WIDTH,
+          DETECTOR_OVERLAY_RECT_HEIGHT,
           CORNER_RADIUS, CORNER_RADIUS
         );
         bottomDetector.setRect(
-          barrierX - DETECTOR_OVERLAY_PADDING,
-          centralBarrierBottom - DETECTOR_OVERLAY_PADDING,
-          BARRIER_VIEW_WIDTH + DETECTOR_OVERLAY_PADDING * 2,
-          SLIT_VIEW_HEIGHT + DETECTOR_OVERLAY_PADDING * 2,
+          barrierX + DETECTOR_OVERLAY_LINE_WIDTH / 2,
+          centralBarrierBottom + DETECTOR_OVERLAY_LINE_WIDTH / 2,
+          DETECTOR_OVERLAY_RECT_WIDTH,
+          DETECTOR_OVERLAY_RECT_HEIGHT,
           CORNER_RADIUS, CORNER_RADIUS
         );
         topDetector.visible = isTopDetectorOn;
@@ -349,12 +372,12 @@ export default class DoubleSlitNode extends Node {
         );
         topDetectorFlash.visible = isTopDetectorOn && topDetectorFlash.opacity > 0;
         bottomDetectorFlash.visible = isBottomDetectorOn && bottomDetectorFlash.opacity > 0;
-        topDetectorCountText.visible = isTopDetectorOn;
-        bottomDetectorCountText.visible = isBottomDetectorOn;
-        topDetectorCountText.centerX = topDetector.centerX;
-        topDetectorCountText.centerY = topDetector.centerY;
-        bottomDetectorCountText.centerX = bottomDetector.centerX;
-        bottomDetectorCountText.centerY = bottomDetector.centerY;
+        topDetectorCountPanel.visible = isTopDetectorOn;
+        bottomDetectorCountPanel.visible = isBottomDetectorOn;
+        topDetectorCountPanel.centerX = topDetector.centerX;
+        topDetectorCountPanel.bottom = topDetector.top - DETECTOR_COUNT_PANEL_OFFSET;
+        bottomDetectorCountPanel.centerX = bottomDetector.centerX;
+        bottomDetectorCountPanel.top = bottomDetector.bottom + DETECTOR_COUNT_PANEL_OFFSET;
 
         const arrowY = WAVE_REGION_HEIGHT + 12;
         const barrierCenterX = barrierX + BARRIER_VIEW_WIDTH / 2;
