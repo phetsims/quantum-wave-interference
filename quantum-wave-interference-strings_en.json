@@ -414,14 +414,9 @@
         "value": "Experiment stopped."
       }
     },
-    "ruler": {
-      "accessibleHelpText": {
-        "value": "Move ruler up or down with keyboard shortcuts to take measurements."
-      }
-    },
     "rulerCheckbox": {
       "accessibleHelpText": {
-        "value": "Use added ruler to measure distances across detector screen or graph."
+        "value": "Add ruler to measure distances across detector screen or graph. Once added, move ruler up or down with keyboard shortcuts."
       },
       "accessibleContextResponseChecked": {
         "value": "Ruler added near detector screen."

@@ -111,7 +111,6 @@ export default class DetectorRulerNode extends InteractiveHighlightingNode {
       cursor: 'pointer',
       opacity: 0.8,
       accessibleName: QuantumWaveInterferenceFluent.rulerStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.ruler.accessibleHelpTextStringProperty,
       tagName: AccessibleDraggableOptions.tagName,
       focusable: AccessibleDraggableOptions.focusable,
       ariaRole: AccessibleDraggableOptions.ariaRole,

@@ -630,10 +630,8 @@ a11y:
                                     }
                                   }
     accessibleContextResponseOff: Experiment stopped.
-  ruler:
-    accessibleHelpText: Move ruler up or down with keyboard shortcuts to take measurements.
   rulerCheckbox:
-    accessibleHelpText:                 Use added ruler to measure distances across detector screen or graph.
+    accessibleHelpText:                 Add ruler to measure distances across detector screen or graph. Once added, move ruler up or down with keyboard shortcuts.
     accessibleContextResponseChecked:   Ruler added near detector screen.
     accessibleContextResponseUnchecked: Ruler removed.
   stopwatchCheckbox:

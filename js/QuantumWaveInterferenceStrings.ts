@@ -171,9 +171,6 @@ type StringsType = {
       'accessibleContextResponseOnStringProperty': LocalizedStringProperty;
       'accessibleContextResponseOffStringProperty': LocalizedStringProperty;
     };
-    'ruler': {
-      'accessibleHelpTextStringProperty': LocalizedStringProperty;
-    };
     'rulerCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;

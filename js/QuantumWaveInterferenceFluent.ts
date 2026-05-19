@@ -157,7 +157,6 @@ addToMapIfDefined( 'a11y_emitterButton_accessibleName', 'a11y.emitterButton.acce
 addToMapIfDefined( 'a11y_emitterButton_accessibleHelpText', 'a11y.emitterButton.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleContextResponseOn', 'a11y.emitterButton.accessibleContextResponseOnStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleContextResponseOff', 'a11y.emitterButton.accessibleContextResponseOffStringProperty' );
-addToMapIfDefined( 'a11y_ruler_accessibleHelpText', 'a11y.ruler.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleHelpText', 'a11y.rulerCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleContextResponseChecked', 'a11y.rulerCheckbox.accessibleContextResponseCheckedStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleContextResponseUnchecked', 'a11y.rulerCheckbox.accessibleContextResponseUncheckedStringProperty' );
@@ -427,9 +426,6 @@ const QuantumWaveInterferenceFluent = {
       accessibleHelpText: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleHelpTextStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
       accessibleContextResponseOn: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'>, isPlaying: 'false' | 'true' | TReadOnlyProperty<'false' | 'true'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleContextResponseOn', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleContextResponseOnStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]},{"name":"isPlaying","variants":["false","true"]}] ),
       accessibleContextResponseOffStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleContextResponseOff', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleContextResponseOffStringProperty' ) )
-    },
-    ruler: {
-      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_ruler_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.ruler.accessibleHelpTextStringProperty' ) )
     },
     rulerCheckbox: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_rulerCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.rulerCheckbox.accessibleHelpTextStringProperty' ) ),
