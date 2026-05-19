@@ -441,6 +441,16 @@
         "value": "Stopwatch removed."
       }
     },
+    "timePlotCheckbox": {
+      "accessibleHelpText": {
+        "value": "Use added time plot to graph wave value at a position over time."
+      }
+    },
+    "positionPlotCheckbox": {
+      "accessibleHelpText": {
+        "value": "Use added position plot to graph wave value across positions in the wave area."
+      }
+    },
     "slitSeparationSlider": {
       "accessibleHelpText": {
         "value": "Change distance between centers of slits in barrier in micrometers."
@@ -566,6 +576,21 @@
       },
       "accessibleContextResponse": {
         "value": "{ $slitSetting ->\n  [bothOpen] In barrier, both slits open.\n  [leftCovered] In barrier, left slit covered.\n  [rightCovered] In barrier, right slit covered.\n  [leftDetector] Detector added to left slit in barrier.\n  [rightDetector] Detector added to right slit in barrier.\n  [noBarrier] No barrier.\n *[bothDetectors] Detectors added to both slits in barrier.\n}"
+      }
+    },
+    "screenGraphSwitch": {
+      "accessibleHelpText": {
+        "value": "Switch between detector screen and graph views."
+      }
+    },
+    "photonWaveDisplayComboBox": {
+      "accessibleHelpText": {
+        "value": "Choose Electric Field or Amplitude display for photon wave."
+      }
+    },
+    "matterWaveDisplayComboBox": {
+      "accessibleHelpText": {
+        "value": "Choose real part, imaginary part, or amplitude display for matter wave function."
       }
     },
     "slitWidthMicrometersPattern": {

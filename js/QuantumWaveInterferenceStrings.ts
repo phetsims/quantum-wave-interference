@@ -184,6 +184,12 @@ type StringsType = {
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseUncheckedStringProperty': LocalizedStringProperty;
     };
+    'timePlotCheckbox': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
+    'positionPlotCheckbox': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'slitSeparationSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
@@ -248,6 +254,15 @@ type StringsType = {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleContextResponseStringProperty': LocalizedStringProperty;
+    };
+    'screenGraphSwitch': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
+    'photonWaveDisplayComboBox': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
+    'matterWaveDisplayComboBox': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
     'slitWidthMicrometersPatternStringProperty': LocalizedStringProperty;
     'slitView': {

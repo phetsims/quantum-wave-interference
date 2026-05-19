@@ -24,7 +24,8 @@ export default class ToolCheckbox extends Checkbox {
     property: BooleanProperty,
     stringProperty: TReadOnlyProperty<string>,
     tandem: Tandem,
-    icon?: Node
+    icon?: Node,
+    accessibleHelpText?: TReadOnlyProperty<string>
   ) {
     const label = new Text( stringProperty, { font: LABEL_FONT, maxWidth: 120, layoutOptions: { grow: 1 } } );
     const content = icon ?
@@ -34,6 +35,7 @@ export default class ToolCheckbox extends Checkbox {
     super( property, content, {
       boxWidth: 16,
       spacing: 6,
+      accessibleHelpText: accessibleHelpText,
       layoutOptions: { stretch: true },
       tandem: tandem
     } );

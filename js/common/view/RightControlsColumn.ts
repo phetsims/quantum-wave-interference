@@ -132,6 +132,7 @@ export default class RightControlsColumn extends VBox {
         justify: 'center',
         centerOnSwitch: true,
         layoutOptions: { align: 'center' },
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.screenGraphSwitch.accessibleHelpTextStringProperty,
         tandem: screenGraphSwitchTandem,
         toggleSwitchOptions: {
           size: screenGraphSwitchSize

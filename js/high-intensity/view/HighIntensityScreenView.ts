@@ -264,10 +264,34 @@ export default class HighIntensityScreenView extends ScreenView {
       layoutOptions: { align: 'center' }
     } );
 
-    const tapeMeasureCheckbox = new ToolCheckbox( model.isTapeMeasureVisibleProperty, QuantumWaveInterferenceFluent.tapeMeasureStringProperty, tandem.createTandem( 'tapeMeasureCheckbox' ), ToolIcons.createTapeMeasureIcon() );
-    const stopwatchCheckbox = new ToolCheckbox( model.isStopwatchVisibleProperty, QuantumWaveInterferenceFluent.stopwatchStringProperty, tandem.createTandem( 'stopwatchCheckbox' ), ToolIcons.createStopwatchIcon() );
-    const timePlotCheckbox = new ToolCheckbox( model.isTimePlotVisibleProperty, QuantumWaveInterferenceFluent.timePlotStringProperty, tandem.createTandem( 'timePlotCheckbox' ), ToolIcons.createTimePlotIcon() );
-    const positionPlotCheckbox = new ToolCheckbox( model.isPositionPlotVisibleProperty, QuantumWaveInterferenceFluent.positionPlotStringProperty, tandem.createTandem( 'positionPlotCheckbox' ), ToolIcons.createPositionPlotIcon() );
+    const tapeMeasureCheckbox = new ToolCheckbox(
+      model.isTapeMeasureVisibleProperty,
+      QuantumWaveInterferenceFluent.tapeMeasureStringProperty,
+      tandem.createTandem( 'tapeMeasureCheckbox' ),
+      ToolIcons.createTapeMeasureIcon(),
+      QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty
+    );
+    const stopwatchCheckbox = new ToolCheckbox(
+      model.isStopwatchVisibleProperty,
+      QuantumWaveInterferenceFluent.stopwatchStringProperty,
+      tandem.createTandem( 'stopwatchCheckbox' ),
+      ToolIcons.createStopwatchIcon(),
+      QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleHelpTextStringProperty
+    );
+    const timePlotCheckbox = new ToolCheckbox(
+      model.isTimePlotVisibleProperty,
+      QuantumWaveInterferenceFluent.timePlotStringProperty,
+      tandem.createTandem( 'timePlotCheckbox' ),
+      ToolIcons.createTimePlotIcon(),
+      QuantumWaveInterferenceFluent.a11y.timePlotCheckbox.accessibleHelpTextStringProperty
+    );
+    const positionPlotCheckbox = new ToolCheckbox(
+      model.isPositionPlotVisibleProperty,
+      QuantumWaveInterferenceFluent.positionPlotStringProperty,
+      tandem.createTandem( 'positionPlotCheckbox' ),
+      ToolIcons.createPositionPlotIcon(),
+      QuantumWaveInterferenceFluent.a11y.positionPlotCheckbox.accessibleHelpTextStringProperty
+    );
 
     const rightControlsColumn = new RightControlsColumn( model, this, tandem, {
       screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,

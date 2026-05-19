@@ -164,6 +164,8 @@ addToMapIfDefined( 'a11y_rulerCheckbox_accessibleContextResponseUnchecked', 'a11
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleHelpText', 'a11y.stopwatchCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseChecked', 'a11y.stopwatchCheckbox.accessibleContextResponseCheckedStringProperty' );
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', 'a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty' );
+addToMapIfDefined( 'a11y_timePlotCheckbox_accessibleHelpText', 'a11y.timePlotCheckbox.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_positionPlotCheckbox_accessibleHelpText', 'a11y.positionPlotCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitSeparationSlider_accessibleHelpText', 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_screenDistanceSlider_accessibleHelpText', 'a11y.screenDistanceSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_accessibleHelpText', 'a11y.wavelengthSlider.accessibleHelpTextStringProperty' );
@@ -195,6 +197,9 @@ addToMapIfDefined( 'a11y_sceneRadioButtonGroup_heliumAtomsRadioButton_accessible
 addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleName', 'a11y.slitSettingsComboBox.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleHelpText', 'a11y.slitSettingsComboBox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleContextResponse', 'a11y.slitSettingsComboBox.accessibleContextResponseStringProperty' );
+addToMapIfDefined( 'a11y_screenGraphSwitch_accessibleHelpText', 'a11y.screenGraphSwitch.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_photonWaveDisplayComboBox_accessibleHelpText', 'a11y.photonWaveDisplayComboBox.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_matterWaveDisplayComboBox_accessibleHelpText', 'a11y.matterWaveDisplayComboBox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitWidthMicrometersPattern', 'a11y.slitWidthMicrometersPatternStringProperty' );
 addToMapIfDefined( 'a11y_slitView_accessibleParagraph', 'a11y.slitView.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_zoomInButton_accessibleName', 'a11y.zoomInButton.accessibleNameStringProperty' );
@@ -436,6 +441,12 @@ const QuantumWaveInterferenceFluent = {
       accessibleContextResponseCheckedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_stopwatchCheckbox_accessibleContextResponseChecked', _.get( QuantumWaveInterferenceStrings, 'a11y.stopwatchCheckbox.accessibleContextResponseCheckedStringProperty' ) ),
       accessibleContextResponseUncheckedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', _.get( QuantumWaveInterferenceStrings, 'a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty' ) )
     },
+    timePlotCheckbox: {
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_timePlotCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.timePlotCheckbox.accessibleHelpTextStringProperty' ) )
+    },
+    positionPlotCheckbox: {
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_positionPlotCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlotCheckbox.accessibleHelpTextStringProperty' ) )
+    },
     slitSeparationSlider: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSeparationSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' ) )
     },
@@ -500,6 +511,15 @@ const QuantumWaveInterferenceFluent = {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSettingsComboBox_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSettingsComboBox.accessibleNameStringProperty' ) ),
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSettingsComboBox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSettingsComboBox.accessibleHelpTextStringProperty' ) ),
       accessibleContextResponse: new FluentPattern<{ slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors'> }>( fluentSupport.bundleProperty, 'a11y_slitSettingsComboBox_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSettingsComboBox.accessibleContextResponseStringProperty' ), [{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","noBarrier","bothDetectors"]}] )
+    },
+    screenGraphSwitch: {
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenGraphSwitch_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.screenGraphSwitch.accessibleHelpTextStringProperty' ) )
+    },
+    photonWaveDisplayComboBox: {
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_photonWaveDisplayComboBox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.photonWaveDisplayComboBox.accessibleHelpTextStringProperty' ) )
+    },
+    matterWaveDisplayComboBox: {
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_matterWaveDisplayComboBox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.matterWaveDisplayComboBox.accessibleHelpTextStringProperty' ) )
     },
     slitWidthMicrometersPattern: new FluentPattern<{ value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitWidthMicrometersPattern', _.get( QuantumWaveInterferenceStrings, 'a11y.slitWidthMicrometersPatternStringProperty' ), [{"name":"value"}] ),
     slitView: {

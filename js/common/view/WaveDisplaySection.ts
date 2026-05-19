@@ -59,7 +59,12 @@ export default class WaveDisplaySection extends VBox {
       model.currentPhotonWaveDisplayModeProperty,
       photonWaveDisplayItems,
       listParent,
-      { tandem: tandem.createTandem( 'photonWaveDisplayComboBox' ), xMargin: 10, yMargin: 6 }
+      {
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.photonWaveDisplayComboBox.accessibleHelpTextStringProperty,
+        tandem: tandem.createTandem( 'photonWaveDisplayComboBox' ),
+        xMargin: 10,
+        yMargin: 6
+      }
     );
 
     const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
@@ -72,7 +77,12 @@ export default class WaveDisplaySection extends VBox {
       model.currentMatterWaveDisplayModeProperty,
       matterWaveDisplayItems,
       listParent,
-      { tandem: tandem.createTandem( 'matterWaveDisplayComboBox' ), xMargin: 10, yMargin: 6 }
+      {
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.matterWaveDisplayComboBox.accessibleHelpTextStringProperty,
+        tandem: tandem.createTandem( 'matterWaveDisplayComboBox' ),
+        xMargin: 10,
+        yMargin: 6
+      }
     );
 
     // Center both alternate combo boxes in the same dynamic bounds so the visible one lines up with the time controls.

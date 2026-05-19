@@ -636,6 +636,10 @@ a11y:
     accessibleHelpText:                 Use added stopwatch to time experiment.
     accessibleContextResponseChecked:   Stopwatch added near detector screen.
     accessibleContextResponseUnchecked: Stopwatch removed.
+  timePlotCheckbox:
+    accessibleHelpText: Use added time plot to graph wave value at a position over time.
+  positionPlotCheckbox:
+    accessibleHelpText: Use added position plot to graph wave value across positions in the wave area.
   slitSeparationSlider:
     accessibleHelpText: Change distance between centers of slits in barrier in micrometers.
   screenDistanceSlider:
@@ -755,6 +759,12 @@ a11y:
                                  [noBarrier] No barrier.
                                 *[bothDetectors] Detectors added to both slits in barrier.
                                }
+  screenGraphSwitch:
+    accessibleHelpText: Switch between detector screen and graph views.
+  photonWaveDisplayComboBox:
+    accessibleHelpText: Choose Electric Field or Amplitude display for photon wave.
+  matterWaveDisplayComboBox:
+    accessibleHelpText: Choose real part, imaginary part, or amplitude display for matter wave function.
   slitWidthMicrometersPattern: '{ $value } micrometers'
   slitView:
     accessibleParagraph: >-
