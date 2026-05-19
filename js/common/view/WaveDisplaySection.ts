@@ -71,6 +71,7 @@ export default class WaveDisplaySection extends VBox {
       photonWaveDisplayItems,
       listParent,
       {
+        accessibleName: QuantumWaveInterferenceFluent.waveDisplayStringProperty,
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.photonWaveDisplayComboBox.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( 'photonWaveDisplayComboBox' ),
         xMargin: COMBO_BOX_X_MARGIN,

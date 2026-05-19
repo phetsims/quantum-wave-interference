@@ -585,7 +585,7 @@
     },
     "photonWaveDisplayComboBox": {
       "accessibleHelpText": {
-        "value": "Choose Electric Field or Amplitude display for photon wave."
+        "value": "Choose Amplitude or Electric Field display for photon wave."
       }
     },
     "matterWaveDisplayComboBox": {

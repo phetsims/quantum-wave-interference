@@ -254,6 +254,8 @@ export default class HighIntensityScreenView extends ScreenView {
         orientation: 'vertical',
         stretch: false,
         radioButtonOptions: { radius: 7 },
+        accessibleName: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( 'detectionModeRadioButtonGroup' )
       }
     );
