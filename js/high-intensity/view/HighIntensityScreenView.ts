@@ -104,7 +104,11 @@ export default class HighIntensityScreenView extends ScreenView {
     const sceneRadioButtonGroup = new SceneRadioButtonGroup(
       model.sceneProperty,
       model.scenes,
-      tandem.createTandem( 'sceneRadioButtonGroup' )
+      tandem.createTandem( 'sceneRadioButtonGroup' ),
+      {
+        // HighIntensityAccessibleResponses describes the full scene transition.
+        createAccessibleContextResponse: () => null
+      }
     );
 
     const particleMassAnnotation = new ParticleMassAnnotationNode( model.sceneProperty );

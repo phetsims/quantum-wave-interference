@@ -8,6 +8,7 @@
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type QWIAccessibleState, type QWIValueTrend } from './QWIAccessibleStateDescriber.js';
+import { formatDetectorDescription, formatSourceBeamDescription } from './QWIAccessibleStateFormatters.js';
 
 export type QWITransitionAction =
   { type: 'sourceChanged' } |
@@ -43,13 +44,6 @@ const getTrend = ( before: number, after: number ): QWIValueTrend =>
   after > before ? 'increased' :
   'decreased';
 
-const getSpacingTrend = ( before: QWIAccessibleState, after: QWIAccessibleState ): 'closer' | 'farther' | 'unchanged' => {
-  const trend = getTrend( before.bandAnalysis.averageSpacingMM, after.bandAnalysis.averageSpacingMM );
-  return trend === 'increased' ? 'farther' :
-         trend === 'decreased' ? 'closer' :
-         'unchanged';
-};
-
 export default class QWITransitionDescriber {
 
   public static describe( action: QWITransitionAction, before: QWIAccessibleState, after: QWIAccessibleState ): QWIResponsePlan {
@@ -58,7 +52,8 @@ export default class QWITransitionDescriber {
     if ( action.type === 'sourceChanged' ) {
       contextResponse = after.isEmitting ?
                         QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
-                          isPlaying: after.isPlaying ? 'true' : 'false'
+                          isPlaying: after.isPlaying ? 'true' : 'false',
+                          beamDescription: formatSourceBeamDescription( after )
                         } ) :
                         QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStoppedStringProperty.value;
     }
@@ -74,26 +69,23 @@ export default class QWITransitionDescriber {
     }
     else if ( action.type === 'slitConfigurationChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
+        isEmitting: after.isEmitting ? 'true' : 'false',
         slitSetting: after.slitConfiguration
       } );
     }
     else if ( action.type === 'slitSeparationChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitSeparationChanged.format( {
-        isEmitting: after.isEmitting ? 'true' : 'false',
-        spacingTrend: getSpacingTrend( before, after )
+        isEmitting: after.isEmitting ? 'true' : 'false'
       } );
     }
     else if ( action.type === 'wavelengthChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.wavelengthChanged.format( {
-        isEmitting: after.isEmitting ? 'true' : 'false',
-        spacingTrend: getSpacingTrend( before, after )
+        isEmitting: after.isEmitting ? 'true' : 'false'
       } );
     }
     else if ( action.type === 'speedChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.speedChanged.format( {
-        isEmitting: after.isEmitting ? 'true' : 'false',
-        speedTrend: getTrend( before.particleSpeedMetersPerSecond, after.particleSpeedMetersPerSecond ),
-        spacingTrend: getSpacingTrend( before, after )
+        isEmitting: after.isEmitting ? 'true' : 'false'
       } );
     }
     else if ( action.type === 'displayModeChanged' ) {
@@ -148,16 +140,10 @@ export default class QWITransitionDescriber {
       } );
     }
     else if ( action.type === 'patternFormationStarted' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.patternFormationStarted.format( {
-        patternKind: after.patternKind,
-        detectionMode: after.detectionMode
-      } );
+      contextResponse = formatDetectorDescription( after );
     }
     else if ( action.type === 'patternFormationComplete' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.patternFormationComplete.format( {
-        patternKind: after.patternKind,
-        bandCount: after.bandAnalysis.bandCount
-      } );
+      contextResponse = formatDetectorDescription( after );
     }
     else if ( action.type === 'maxHitsReached' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.maxHitsReachedStringProperty.value;

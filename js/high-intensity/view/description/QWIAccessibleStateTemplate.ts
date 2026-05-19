@@ -8,51 +8,14 @@
 
 import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
-import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import type { AccessibleTemplateValue } from '../../../../../scenery/js/accessibility/pdom/ParallelDOM.js';
+import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
+import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 import { html } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { getWavelengthColorZoneString } from '../../../common/view/WavelengthColorUtils.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
-import QWIAccessibleStateDescriber, { type QWIAccessibleState, type QWIPatternKind } from './QWIAccessibleStateDescriber.js';
-
-type FluentBoolean = 'true' | 'false';
-
-const toFluentBoolean = ( value: boolean ): FluentBoolean => value ? 'true' : 'false';
-
-const getPatternKindKey = ( patternKind: QWIPatternKind ): QWIPatternKind => patternKind;
-
-const formatSlitDescription = ( state: QWIAccessibleState ): string =>
-  QuantumWaveInterferenceFluent.a11y.highIntensityState.slits.format( {
-    slitSetting: state.slitConfiguration,
-    separation: state.slitSeparationMicrometers === null ? 0 : state.slitSeparationMicrometers
-  } );
-
-const formatDetectorDescription = ( state: QWIAccessibleState ): string =>
-    QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.format( {
-      detectionMode: state.detectionMode,
-      patternKind: getPatternKindKey( state.patternKind ),
-      hitStage: state.hitStage,
-      hitCount: state.totalHits,
-      bandCount: state.bandAnalysis.bandCount,
-      spacing: Number( toFixed( state.bandAnalysis.averageSpacingMM, 2 ) ),
-      centralWidth: Number( toFixed( state.bandAnalysis.centralWidthMM, 2 ) )
-    } );
-
-const formatParticleDescription = ( state: QWIAccessibleState ): string => {
-  if ( state.sourceType === 'photons' ) {
-    return QuantumWaveInterferenceFluent.a11y.highIntensityState.photonDetail.format( {
-      wavelength: state.wavelengthNM,
-      color: getWavelengthColorZoneString( state.wavelengthColorZone! )
-    } );
-  }
-
-  return QuantumWaveInterferenceFluent.a11y.highIntensityState.particleDetail.format( {
-    sourceType: state.sourceType,
-    speed: state.particleSpeedMetersPerSecond,
-    wavelength: state.effectiveWavelengthPicometers
-  } );
-};
+import QWIAccessibleStateDescriber from './QWIAccessibleStateDescriber.js';
+import { formatDetectorDescription, formatParticleDescription, formatSlitDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
 
 export default class QWIAccessibleStateTemplate {
 
@@ -93,6 +56,7 @@ export default class QWIAccessibleStateTemplate {
       QuantumWaveInterferenceFluent.a11y.highIntensityState.displayToolsLabelStringProperty,
       QuantumWaveInterferenceFluent.a11y.highIntensityState.noticeLabelStringProperty,
       ...QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceStatus.getDependentProperties(),
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceBeam.getDependentProperties(),
       ...QuantumWaveInterferenceFluent.a11y.highIntensityState.photonDetail.getDependentProperties(),
       ...QuantumWaveInterferenceFluent.a11y.highIntensityState.particleDetail.getDependentProperties(),
       ...QuantumWaveInterferenceFluent.a11y.highIntensityState.slits.getDependentProperties(),
@@ -106,7 +70,9 @@ export default class QWIAccessibleStateTemplate {
       QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty,
       QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty,
       QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty,
-      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty
+      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty,
+      ...micrometersUnit.getDependentProperties(),
+      ...nanometersUnit.getDependentProperties()
     ] ) );
 
     return DerivedProperty.deriveAny( dependencies, () => {
@@ -134,7 +100,7 @@ export default class QWIAccessibleStateTemplate {
         positionPlot: toFluentBoolean( state.tools.positionPlot )
       } );
       const notice = QuantumWaveInterferenceFluent.a11y.highIntensityState.notice.format( {
-        patternKind: getPatternKindKey( state.patternKind )
+        patternKind: state.patternKind
       } );
       const waveProgress = QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgress.format( {
         waveProgressStage: state.waveProgress.stage,
@@ -142,6 +108,7 @@ export default class QWIAccessibleStateTemplate {
         progress: state.waveProgress.wavefrontPercent
       } );
       const sourceDescription = formatParticleDescription( state );
+      const sourceBeamDescription = formatSourceBeamDescription( state );
       const slitDescription = formatSlitDescription( state );
       const detectorDescription = formatDetectorDescription( state );
 
@@ -154,6 +121,7 @@ export default class QWIAccessibleStateTemplate {
           <section>
             <h4>${QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceLabelStringProperty.value}</h4>
             <p>${sourceStatus}</p>
+            <p>${sourceBeamDescription}</p>
             <p>${sourceDescription}</p>
           </section>
 

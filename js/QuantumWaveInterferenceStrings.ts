@@ -121,6 +121,7 @@ type StringsType = {
       'noticeLabelStringProperty': LocalizedStringProperty;
       'overviewStringProperty': LocalizedStringProperty;
       'sourceStatusStringProperty': LocalizedStringProperty;
+      'sourceBeamStringProperty': LocalizedStringProperty;
       'photonDetailStringProperty': LocalizedStringProperty;
       'particleDetailStringProperty': LocalizedStringProperty;
       'slitsStringProperty': LocalizedStringProperty;
@@ -147,8 +148,6 @@ type StringsType = {
       'timeChangedStringProperty': LocalizedStringProperty;
       'hitStageChangedStringProperty': LocalizedStringProperty;
       'waveProgressChangedStringProperty': LocalizedStringProperty;
-      'patternFormationStartedStringProperty': LocalizedStringProperty;
-      'patternFormationCompleteStringProperty': LocalizedStringProperty;
       'maxHitsReachedStringProperty': LocalizedStringProperty;
       'resetStringProperty': LocalizedStringProperty;
     };

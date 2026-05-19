@@ -15,6 +15,7 @@ import QWITransitionDescriber, { type QWITransitionAction } from './QWITransitio
 export default class HighIntensityAccessibleResponses extends Node {
 
   private previousState: QWIAccessibleState;
+  private lastContextResponse: string | null;
 
   public constructor(
     model: HighIntensityModel,
@@ -23,6 +24,7 @@ export default class HighIntensityAccessibleResponses extends Node {
     super( { isDisposable: false } );
 
     this.previousState = stateDescriber.getState();
+    this.lastContextResponse = null;
 
     const emitTransition = ( action: QWITransitionAction ) => {
       const before = this.previousState;
@@ -39,6 +41,9 @@ export default class HighIntensityAccessibleResponses extends Node {
         return;
       }
 
+      const waveProgressChanged = before.waveProgress.stage !== after.waveProgress.stage ||
+                                  ( before.waveProgress.checkpoint !== after.waveProgress.checkpoint &&
+                                    ( after.waveProgress.stage === 'travelingToSlits' || after.waveProgress.stage === 'directToScreen' ) );
       const isMeaningful =
         effectiveAction.type === 'sourceChanged' ? before.isEmitting !== after.isEmitting :
         effectiveAction.type === 'particleTypeChanged' ? before.sourceType !== after.sourceType :
@@ -56,8 +61,7 @@ export default class HighIntensityAccessibleResponses extends Node {
         effectiveAction.type === 'screenCleared' ? after.totalHits < before.totalHits :
         effectiveAction.type === 'timeChanged' ? before.isPlaying !== after.isPlaying || before.timeSpeedName !== after.timeSpeedName :
         effectiveAction.type === 'hitStageChanged' ? before.hitStage !== after.hitStage :
-        effectiveAction.type === 'waveProgressChanged' ? before.waveProgress.stage !== after.waveProgress.stage ||
-                                                         before.waveProgress.checkpoint !== after.waveProgress.checkpoint :
+        effectiveAction.type === 'waveProgressChanged' ? waveProgressChanged :
         effectiveAction.type === 'patternFormationStarted' ? before.patternFormation === 'empty' &&
                                                              ( after.patternFormation === 'forming' || after.patternFormation === 'collectingHits' ) :
         effectiveAction.type === 'patternFormationComplete' ? before.patternFormation !== 'complete' &&
@@ -75,6 +79,11 @@ export default class HighIntensityAccessibleResponses extends Node {
       this.previousState = after;
 
       if ( responsePlan.contextResponse ) {
+        if ( effectiveAction.type === 'waveProgressChanged' && responsePlan.contextResponse === this.lastContextResponse ) {
+          return;
+        }
+
+        this.lastContextResponse = responsePlan.contextResponse;
         this.addAccessibleContextResponse( responsePlan.contextResponse, {
           responseGroup: responsePlan.responseGroup
         } );
@@ -138,8 +147,9 @@ export default class HighIntensityAccessibleResponses extends Node {
       else if ( patternComplete ) {
         emitTransition( { type: 'patternFormationComplete' } );
       }
-      else if ( after.waveProgress.checkpoint !== before.waveProgress.checkpoint ||
-                after.waveProgress.stage !== before.waveProgress.stage ) {
+      else if ( after.waveProgress.stage !== before.waveProgress.stage ||
+                ( after.waveProgress.checkpoint !== before.waveProgress.checkpoint &&
+                  ( after.waveProgress.stage === 'travelingToSlits' || after.waveProgress.stage === 'directToScreen' ) ) ) {
         emitTransition( { type: 'waveProgressChanged' } );
       }
       else {

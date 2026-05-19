@@ -15,6 +15,7 @@ import { type DetectionMode } from '../../../common/model/DetectionMode.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../../common/model/SourceType.js';
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
+import QuantumWaveInterferenceConstants from '../../../common/QuantumWaveInterferenceConstants.js';
 import BandAnalysis, { type BandAnalysisResult, type HitStage } from '../../../common/view/description/BandAnalysis.js';
 import { getWavelengthColorZone, type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
@@ -25,6 +26,7 @@ export type QWIDisplayMode = 'screen' | 'graph';
 export type QWIPatternFormation = 'empty' | 'forming' | 'complete' | 'collectingHits' | 'paused' | 'notApplicable';
 export type QWIWaveProgressStage = 'sourceOff' | 'travelingToSlits' | 'atSlits' | 'interferingAfterSlits' | 'diffractingAfterSlits' | 'whichPathAfterSlits' | 'directToScreen' | 'hittingScreen';
 export type QWIWaveProgressCheckpoint = 'none' | 'quarter' | 'half' | 'threeQuarters' | 'full';
+export type QWIWavefrontSpacing = 'tightlyPacked' | 'moderatelySpaced' | 'widelySpaced';
 export type QWIValueTrend = 'increased' | 'decreased' | 'unchanged';
 
 export type QWIAccessibleState = {
@@ -44,6 +46,7 @@ export type QWIAccessibleState = {
   isDoubleSlitInterference: boolean;
   wavelengthNM: number;
   wavelengthColorZone: WavelengthColorZone | null;
+  wavefrontSpacing: QWIWavefrontSpacing;
   particleSpeedMetersPerSecond: number;
   effectiveWavelengthMeters: number;
   effectiveWavelengthPicometers: number;
@@ -98,6 +101,24 @@ const getPatternFormation = ( scene: HighIntensitySceneModel, model: HighIntensi
   return formationFactor >= 1 ? 'complete' :
          formationFactor > 0 ? 'forming' :
          'empty';
+};
+
+const getWavefrontSpacing = (
+  scene: HighIntensitySceneModel,
+  effectiveWavelengthMeters: number,
+  wavelengthColorZone: WavelengthColorZone | null
+): QWIWavefrontSpacing => {
+  if ( scene.sourceType === 'photons' ) {
+    return ( wavelengthColorZone === 'violet' || wavelengthColorZone === 'blue' ) ? 'tightlyPacked' :
+           ( wavelengthColorZone === 'red' || wavelengthColorZone === 'orange' ) ? 'widelySpaced' :
+           'moderatelySpaced';
+  }
+
+  const defaultEffectiveWavelength = scene.regionWidth / QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
+  const relativeWavelength = effectiveWavelengthMeters / defaultEffectiveWavelength;
+  return relativeWavelength <= 0.85 ? 'tightlyPacked' :
+         relativeWavelength >= 1.15 ? 'widelySpaced' :
+         'moderatelySpaced';
 };
 
 const getWaveProgress = ( scene: HighIntensitySceneModel, patternKind: QWIPatternKind ): QWIAccessibleState['waveProgress'] => {
@@ -163,6 +184,7 @@ export default class QWIAccessibleStateDescriber {
     const bandAnalysis = BandAnalysis.analyzeTheoreticalPattern( scene, detectorScreenHalfWidth );
     const hitStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value, isDoubleSlitInterference );
     const effectiveWavelengthMeters = scene.getEffectiveWavelength();
+    const wavelengthColorZone = scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : null;
     const waveProgress = getWaveProgress( scene, patternKind );
 
     return {
@@ -181,7 +203,8 @@ export default class QWIAccessibleStateDescriber {
       patternKind: patternKind,
       isDoubleSlitInterference: isDoubleSlitInterference,
       wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),
-      wavelengthColorZone: scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : null,
+      wavelengthColorZone: wavelengthColorZone,
+      wavefrontSpacing: getWavefrontSpacing( scene, effectiveWavelengthMeters, wavelengthColorZone ),
       particleSpeedMetersPerSecond: roundSymmetric( scene.velocityProperty.value ),
       effectiveWavelengthMeters: effectiveWavelengthMeters,
       effectiveWavelengthPicometers: Number( toFixed( effectiveWavelengthMeters * 1e12, 2 ) ),
