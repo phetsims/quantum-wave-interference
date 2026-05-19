@@ -135,7 +135,11 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly hits: Vector2[];
   public readonly totalHitsProperty: NumberProperty;
   public readonly hitsChangedEmitter: TEmitter;
-  public readonly snapshotsProperty: Property<Snapshot[]>; // TODO: Use ObservableArray? See https://github.com/phetsims/tandem/issues/279
+
+  // Snapshots are captured value records. Keep this as a Property<ArrayIO<SnapshotIO>>
+  // so PhET-iO state save/restore replaces the whole immutable snapshot list and notifies
+  // existing Property/DynamicProperty consumers.
+  public readonly snapshotsProperty: Property<Snapshot[]>;
   public readonly numberOfSnapshotsProperty: TReadOnlyProperty<number>;
 
   // Guard to prevent cascading clearScreen calls during reset
