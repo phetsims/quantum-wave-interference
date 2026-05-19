@@ -16,6 +16,7 @@ export default class HighIntensityAccessibleResponses extends Node {
 
   private previousState: QWIAccessibleState;
   private lastContextResponse: string | null;
+  private isClearingFromButton: boolean;
 
   public constructor(
     model: HighIntensityModel,
@@ -25,8 +26,13 @@ export default class HighIntensityAccessibleResponses extends Node {
 
     this.previousState = stateDescriber.getState();
     this.lastContextResponse = null;
+    this.isClearingFromButton = false;
 
     const emitTransition = ( action: QWITransitionAction ) => {
+      if ( this.isClearingFromButton ) {
+        return;
+      }
+
       const before = this.previousState;
       const after = this.stateDescriber.getState();
 
@@ -156,5 +162,28 @@ export default class HighIntensityAccessibleResponses extends Node {
         updateStateSilently();
       }
     } );
+  }
+
+  public clearScreenAndEmitResponse( clearScreen: () => void ): void {
+    const before = this.previousState;
+
+    try {
+      this.isClearingFromButton = true;
+      clearScreen();
+    }
+    finally {
+      this.isClearingFromButton = false;
+    }
+
+    const after = this.stateDescriber.getState();
+    const responsePlan = QWITransitionDescriber.describe( { type: 'screenCleared' }, before, after );
+    this.previousState = after;
+
+    if ( responsePlan.contextResponse ) {
+      this.lastContextResponse = responsePlan.contextResponse;
+      this.addAccessibleContextResponse( responsePlan.contextResponse, {
+        responseGroup: responsePlan.responseGroup
+      } );
+    }
   }
 }

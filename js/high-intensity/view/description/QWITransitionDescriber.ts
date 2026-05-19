@@ -116,9 +116,15 @@ export default class QWITransitionDescriber {
       } );
     }
     else if ( action.type === 'screenCleared' ) {
+      const isRestarting = after.isPlaying && after.isEmitting;
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.screenCleared.format( {
-        isEmitting: after.isEmitting ? 'true' : 'false',
-        detectionMode: after.detectionMode
+        isRestarting: isRestarting ? 'true' : 'false',
+        sourceStartedResponse: isRestarting ?
+                               QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
+                                 isPlaying: 'true',
+                                 beamDescription: formatSourceBeamDescription( after )
+                               } ) :
+                               ''
       } );
     }
     else if ( action.type === 'timeChanged' ) {

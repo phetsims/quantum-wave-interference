@@ -100,7 +100,7 @@ QUnit.test( 'source started response describes beam appearance', assert => {
   photonScene.isEmittingProperty.value = true;
   const photonResponse = QWITransitionDescriber.describe( { type: 'sourceChanged' }, beforePhotons, describer.getState() ).contextResponse!;
 
-  assert.ok( photonResponse.includes( 'continuous stream of photons' ), 'photon source response describes stream of photons' );
+  assert.ok( photonResponse.includes( 'A beam' ), 'photon source response describes a beam' );
   assert.ok( photonResponse.includes( 'violet and black vertical stripes' ), 'photon source response describes wavelength color' );
   assert.ok( photonResponse.includes( 'tightly packed' ), 'violet photon source response describes tight wavefront spacing' );
 
@@ -114,7 +114,7 @@ QUnit.test( 'source started response describes beam appearance', assert => {
   electronScene.isEmittingProperty.value = true;
   const electronResponse = QWITransitionDescriber.describe( { type: 'sourceChanged' }, beforeElectrons, electronDescriber.getState() ).contextResponse!;
 
-  assert.ok( electronResponse.includes( 'continuous stream of electrons' ), 'electron source response describes stream of electrons' );
+  assert.ok( electronResponse.includes( 'A beam' ), 'electron source response describes a beam' );
   assert.ok( electronResponse.includes( 'gray and black vertical stripes' ), 'massive-particle source response describes gray and black wavefronts' );
   assert.ok( electronResponse.includes( 'somewhat far apart' ), 'slow electron source response describes wide wavefront spacing without comparison wording' );
 } );
@@ -149,6 +149,44 @@ QUnit.test( 'particle type change emits one summary response', assert => {
   const particleTypeResponses = emittedResponses.filter( response => response.includes( 'Now experimenting with electrons' ) );
   assert.strictEqual( particleTypeResponses.length, 1, 'scene switch produces exactly one particle-type summary' );
   assert.ok( particleTypeResponses[ 0 ].includes( 'Source, slits, and screen settings updated.' ), 'summary uses the revised source-change language' );
+} );
+
+QUnit.test( 'clear button response describes wave area and source restart', assert => {
+  const pausedModel = createModel();
+  const pausedDescriber = new QWIAccessibleStateDescriber( pausedModel );
+  const pausedResponses = new HighIntensityAccessibleResponses( pausedModel, pausedDescriber );
+  const pausedEmittedResponses: string[] = [];
+
+  ( pausedResponses as unknown as { addAccessibleContextResponse: ( response: string ) => void } ).addAccessibleContextResponse = response => {
+    pausedEmittedResponses.push( response );
+  };
+
+  pausedModel.isPlayingProperty.value = false;
+  pausedEmittedResponses.length = 0;
+  pausedResponses.clearScreenAndEmitResponse( () => pausedModel.sceneProperty.value.clearScreen() );
+
+  assert.strictEqual( pausedEmittedResponses.length, 1, 'paused clear response is emitted once' );
+  assert.ok( pausedEmittedResponses[ 0 ].includes( 'Wave area cleared.' ), 'paused clear response describes the clear' );
+  assert.notOk( pausedEmittedResponses[ 0 ].includes( 'Source started.' ), 'paused clear response does not restart the source' );
+
+  const runningModel = createModel();
+  const runningDescriber = new QWIAccessibleStateDescriber( runningModel );
+  const runningResponses = new HighIntensityAccessibleResponses( runningModel, runningDescriber );
+  const runningEmittedResponses: string[] = [];
+
+  ( runningResponses as unknown as { addAccessibleContextResponse: ( response: string ) => void } ).addAccessibleContextResponse = response => {
+    runningEmittedResponses.push( response );
+  };
+
+  runningModel.isPlayingProperty.value = true;
+  runningModel.currentIsEmittingProperty.value = true;
+  runningEmittedResponses.length = 0;
+  runningResponses.clearScreenAndEmitResponse( () => runningModel.sceneProperty.value.clearScreen() );
+
+  assert.strictEqual( runningEmittedResponses.length, 1, 'running clear response is emitted once' );
+  assert.ok( runningEmittedResponses[ 0 ].includes( 'Wave area cleared.' ), 'running clear response describes the clear' );
+  assert.ok( runningEmittedResponses[ 0 ].includes( 'Source started.' ), 'running clear response chains the source-start response' );
+  assert.ok( runningEmittedResponses[ 0 ].includes( 'A beam' ), 'running clear response describes the restarted beam' );
 } );
 
 QUnit.test( 'wave progress follows source-on time and screen milestones', assert => {
@@ -190,7 +228,7 @@ QUnit.test( 'wave progress follows source-on time and screen milestones', assert
   const afterInterference = describer.getState();
   assert.strictEqual( afterInterference.waveProgress.stage, 'interferingAfterSlits', 'wave announces interference after both slits' );
   assert.ok(
-    QWITransitionDescriber.describe( { type: 'waveProgressChanged' }, beforeInterference, afterInterference ).contextResponse!.includes( 'interfering' ),
+    QWITransitionDescriber.describe( { type: 'waveProgressChanged' }, beforeInterference, afterInterference ).contextResponse!.includes( 'wavefronts interfere' ),
     'transition response describes the temporal interference event'
   );
 
@@ -214,7 +252,7 @@ QUnit.test( 'interference wave progress response does not repeat for checkpoint-
   stepSceneToWavefrontFraction( model, 0.55 );
   model.accessibleStateStepProperty.value++;
   assert.strictEqual(
-    emittedResponses.filter( response => response.includes( 'Overlapping wavefronts are interfering' ) ).length,
+    emittedResponses.filter( response => response.includes( 'Overlapping wavefronts interfere' ) ).length,
     1,
     'interference response is emitted when the wave first passes both slits'
   );
@@ -222,7 +260,7 @@ QUnit.test( 'interference wave progress response does not repeat for checkpoint-
   stepSceneToWavefrontFraction( model, 0.2 );
   model.accessibleStateStepProperty.value++;
   assert.strictEqual(
-    emittedResponses.filter( response => response.includes( 'Overlapping wavefronts are interfering' ) ).length,
+    emittedResponses.filter( response => response.includes( 'Overlapping wavefronts interfere' ) ).length,
     1,
     'interference response is not repeated when only the progress checkpoint changes'
   );
@@ -260,10 +298,10 @@ QUnit.test( 'pattern complete response describes emerged interference pattern', 
   assert.strictEqual( afterComplete.patternFormation, 'complete', 'pattern can reach the complete formation state' );
 
   const response = QWITransitionDescriber.describe( { type: 'patternFormationComplete' }, beforeComplete, afterComplete ).contextResponse!;
-  assert.ok( response.includes( 'strong central maximum' ), 'complete response describes the central maximum' );
+  assert.ok( response.includes( 'Strong central maximum' ), 'complete response describes the central maximum' );
   assert.ok( response.includes( 'no intensity' ), 'complete response describes dark places beside the center' );
   assert.ok( response.includes( 'bright spots' ), 'complete response describes the bright interference regions' );
-  assert.ok( response.includes( 'fading as you move away from the center' ), 'complete response describes the envelope fading from center' );
+  assert.ok( response.includes( 'fading further from the center' ), 'complete response describes the envelope fading from center' );
 
   const currentDetailsTemplateProperty = QWIAccessibleStateTemplate.createCurrentDetailsTemplateProperty( model, describer );
   const container = document.createElement( 'div' );

@@ -290,7 +290,7 @@ a11y:
                          { $isEmitting ->
                            [false] No beam is visible in the wave area.
                           *[true] { $sourceType ->
-                             [photons] A continuous stream of photons represented as a beam of { $photonColor ->
+                             [photons] A beam of { $photonColor ->
                                [violet] violet
                                [blue] blue
                                [indigo] indigo
@@ -298,14 +298,14 @@ a11y:
                                [yellow] yellow
                                [orange] orange
                               *[red] red
-                             } and black vertical stripes emanates from the source at the left.
-                            *[electrons] A continuous stream of electrons represented as a beam of gray and black vertical stripes emanates from the source at the left.
-                             [neutrons] A continuous stream of neutrons represented as a beam of gray and black vertical stripes emanates from the source at the left.
-                             [heliumAtoms] A continuous stream of helium atoms represented as a beam of gray and black vertical stripes emanates from the source at the left.
+                             } and black vertical stripes emanates from source at left.
+                            *[electrons] A beam of gray and black vertical stripes emanates from source at left.
+                             [neutrons] A beam of gray and black vertical stripes emanates from source at left.
+                             [heliumAtoms] A beam of gray and black vertical stripes emanates from source at left.
                            } { $wavefrontSpacing ->
-                             [tightlyPacked] The wavefronts are tightly packed.
-                             [widelySpaced] The wavefronts are somewhat far apart.
-                            *[moderatelySpaced] The wavefronts are moderately spaced.
+                             [tightlyPacked] Wavefronts tightly packed.
+                             [widelySpaced] Wavefronts somewhat far apart.
+                            *[moderatelySpaced] Wavefronts moderately spaced.
                            }
                          }
     photonDetail:        'Photon wavelength is { $wavelength } nanometers, in the { $color } zone.'
@@ -333,20 +333,20 @@ a11y:
                              [averageIntensity] { $patternFormation ->
                                [empty] No pattern has reached the detector screen yet.
                                [forming] { $patternKind ->
-                                 [doubleSlitInterference] The interference pattern is starting to appear on the detector screen.
-                                 [singleSlitDiffraction] The broad diffraction pattern is starting to appear on the detector screen.
-                                 [whichPathDiffraction] The which-path detector pattern is starting to appear on the detector screen.
-                                *[noBarrier] The direct detector pattern is starting to appear on the detector screen.
+                                 [doubleSlitInterference] Interference pattern starts to appear on detector screen.
+                                 [singleSlitDiffraction] Broad diffraction pattern starts to appear on detector screen.
+                                 [whichPathDiffraction] Which-path detector pattern starts to appear on detector screen.
+                                *[noBarrier] Direct detector pattern starts to appear on detector screen.
                                }
                                [complete] { $patternKind ->
-                                 [doubleSlitInterference] The interference pattern has emerged. There is a strong central maximum,
-                                 then places to either side where there is no intensity, a symmetrical pattern
-                                 with about { $bandCount } bright spots, fading as you move away from the center.
-                                 [singleSlitDiffraction] The diffraction pattern has emerged. There is a strong broad
-                                 central maximum, fading as you move away from the center.
-                                 [whichPathDiffraction] The which-path detector pattern has emerged. It looks like a
-                                 broad single-slit pattern instead of the many-band interference pattern.
-                                *[noBarrier] The direct detector pattern has emerged, brightest along the straight path
+                                 [doubleSlitInterference] Interference pattern emerged. Strong central maximum,
+                                 and places to either side where there is no intensity, a symmetrical pattern
+                                 with about { $bandCount } bright spots, fading further from the center.
+                                 [singleSlitDiffraction] Diffraction pattern emerged. Strong broad central maximum,
+                                 fading further from the center.
+                                 [whichPathDiffraction] Which-path detector pattern emerged. Looks like a broad
+                                 single-slit pattern instead of the many-band interference pattern.
+                                *[noBarrier] Direct detector pattern emerged, brightest along the straight path
                                  from source to detector screen.
                                }
                                [paused] Detector pattern formation is paused.
@@ -366,25 +366,25 @@ a11y:
                          { $waveProgressStage ->
                            [sourceOff] Source is off, so no wave is traveling.
                            [travelingToSlits] { $waveProgressCheckpoint ->
-                             [quarter] Wave has crossed one-quarter of the wave area
-                             [half] Wave has crossed halfway across the wave area
-                             [threeQuarters] Wave has crossed three-quarters of the wave area
-                             [full] Wave has crossed the full wave area
-                            *[none] Wave has crossed about { $progress } percent of the wave area
-                           } and is traveling toward the slits.
+                             [quarter] Wave crossed one-quarter of wave area
+                             [half] Wave crossed halfway across wave area
+                             [threeQuarters] Wave crossed three-quarters of wave area
+                             [full] Wave crossed full wave area
+                            *[none] Wave crossed about { $progress } percent of wave area
+                           } and approaching the slits.
                            [atSlits] Wave has reached the slits. The slit configuration is now shaping the wave.
-                           [interferingAfterSlits] Wave has passed through both slits. Overlapping wavefronts are
-                           interfering in a circular sort of checkerboard pattern.
-                           [diffractingAfterSlits] Wave has passed through one open slit and is spreading out
+                           [interferingAfterSlits] Wave passing through slits. Overlapping wavefronts interfere
+                           in a circular checkerboard pattern.
+                           [diffractingAfterSlits] Wave passed one open slit and is spreading out
                            after the slit.
                            [whichPathAfterSlits] Wave has reached the slit detector region. Which-path information
                            changes the pattern after the slits.
                            [directToScreen] { $waveProgressCheckpoint ->
-                             [quarter] Wave has crossed one-quarter of the wave area
-                             [half] Wave has crossed halfway across the wave area
-                             [threeQuarters] Wave has crossed three-quarters of the wave area
-                             [full] Wave has crossed the full wave area
-                            *[none] Wave has crossed about { $progress } percent of the wave area
+                             [quarter] Wave crossed one-quarter of wave area
+                             [half] Wave crossed halfway across wave area
+                             [threeQuarters] Wave crossed three-quarters of wave area
+                             [full] Wave crossed full wave area
+                            *[none] Wave crossed about { $progress } percent of wave area
                            } and is traveling directly toward the detector screen.
                           *[hittingScreen] Wave has reached the detector screen.
                          }
@@ -503,12 +503,9 @@ a11y:
                          }
     snapshotTaken:       'Snapshot { $snapshotCount } stored.'
     screenCleared:       >-
-                         Detector screen cleared. { $isEmitting ->
-                           [true] New { $detectionMode ->
-                             [averageIntensity] intensity pattern will form.
-                            *[hits] hits will begin accumulating.
-                           }
-                          *[false] Screen is empty.
+                         { $isRestarting ->
+                           [true] Wave area cleared. { $sourceStartedResponse }
+                          *[false] Wave area cleared.
                          }
     timeChanged:         >-
                          Time is { $isPlaying ->
@@ -527,22 +524,22 @@ a11y:
                          { $waveProgressStage ->
                            [sourceOff] Source is off, so no wave is traveling.
                            [travelingToSlits] { $waveProgressCheckpoint ->
-                             [quarter] Wave has crossed one-quarter of the wave area and is traveling toward the slits.
-                             [half] Wave has crossed halfway across the wave area and is traveling toward the slits.
-                             [threeQuarters] Wave has crossed three-quarters of the wave area and is traveling toward the slits.
+                             [quarter] Wave crossed one-quarter of wave area and approaching the slits.
+                             [half] Wave crossed halfway across wave area and approaching the slits.
+                             [threeQuarters] Wave crossed three-quarters of wave area and approaching the slits.
                              [full] Wave crossed the full wave area.
-                            *[none] Wave has crossed about { $progress } percent of the wave area and is traveling toward the slits.
+                            *[none] Wave crossed about { $progress } percent of wave area and approaching the slits.
                            }
                            [atSlits] Wave reached the slits. The barrier is shaping the wave now.
-                           [interferingAfterSlits] Wave passed both slits. Overlapping wavefronts are interfering in a circular sort of checkerboard pattern.
+                           [interferingAfterSlits] Wave passing through slits. Overlapping wavefronts interfere in a circular checkerboard pattern.
                            [diffractingAfterSlits] Wave passed one open slit and is spreading out.
                            [whichPathAfterSlits] Wave reached the slit detector region. Which-path information is active.
                            [directToScreen] { $waveProgressCheckpoint ->
-                             [quarter] Wave has crossed one-quarter of the wave area and is traveling directly toward the detector screen.
-                             [half] Wave has crossed halfway across the wave area and is traveling directly toward the detector screen.
-                             [threeQuarters] Wave has crossed three-quarters of the wave area and is traveling directly toward the detector screen.
+                             [quarter] Wave crossed one-quarter of wave area and traveling directly toward detector screen.
+                             [half] Wave crossed halfway across wave area and traveling directly toward detector screen.
+                             [threeQuarters] Wave crossed three-quarters of wave area and traveling directly toward detector screen.
                              [full] Wave crossed the full wave area.
-                            *[none] Wave has crossed about { $progress } percent of the wave area and is traveling directly toward the detector screen.
+                            *[none] Wave crossed about { $progress } percent of wave area and traveling directly toward detector screen.
                            }
                           *[hittingScreen] Wave reached the detector screen.
                          }

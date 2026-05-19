@@ -95,6 +95,7 @@ export default class HighIntensityScreenView extends ScreenView {
     this.model = model;
 
     const tandem = options.tandem;
+    const accessibleResponses = new HighIntensityAccessibleResponses( model, accessibleStateDescriber );
 
     // This top-level layout intentionally parallels SingleParticlesScreenView while keeping screen-specific
     // controls and tandems explicit.
@@ -303,7 +304,7 @@ export default class HighIntensityScreenView extends ScreenView {
         timePlotCheckbox,
         positionPlotCheckbox
       ],
-      clearScreen: () => model.sceneProperty.value.clearScreen(),
+      clearScreen: () => accessibleResponses.clearScreenAndEmitResponse( () => model.sceneProperty.value.clearScreen() ),
       onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash(),
       onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
       resetView: () => {
@@ -357,7 +358,7 @@ export default class HighIntensityScreenView extends ScreenView {
     );
     this.addChild( screenViewDescription );
 
-    this.addChild( new HighIntensityAccessibleResponses( model, accessibleStateDescriber ) );
+    this.addChild( accessibleResponses );
 
     this.pdomPlayAreaNode.pdomOrder = [
       screenViewDescription.sourceHeadingNode,
