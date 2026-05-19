@@ -222,7 +222,16 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       return;
     }
 
-    const slitArrivalTime = this.slitPositionFractionProperty.value * this.regionWidth / propagationSpeed;
+    // The solver clock can advance while the source is off. Use the source-on time so slit-detector
+    // events are scheduled relative to the emitted wavefront, not absolute solver time.
+    const waveSolverState = this.waveSolver.getState();
+    const sourceOnTime = typeof waveSolverState.sourceOnTime === 'number' ? waveSolverState.sourceOnTime : null;
+    if ( sourceOnTime === null ) {
+      return;
+    }
+
+    // First possible slit-detector event occurs when the wavefront emitted at sourceOnTime reaches the slits.
+    const slitArrivalTime = sourceOnTime + this.slitPositionFractionProperty.value * this.regionWidth / propagationSpeed;
     if ( currentTime < slitArrivalTime ) {
       return;
     }

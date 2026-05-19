@@ -79,6 +79,35 @@ QUnit.test( 'detector pattern formation waits for wavefront and uses model dt', 
   assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 1, 'formation reaches completion after the configured duration' );
 } );
 
+QUnit.test( 'slit-detector hits are scheduled relative to source-on time', assert => {
+  const scene = createScene();
+  scene.slitConfigurationProperty.value = 'bothDetectors';
+
+  // The solver clock advances while the source is off. Slit-detector hit timing must not use this
+  // absolute time as though the wave had been emitted from t=0.
+  scene.step( 2 );
+  scene.isEmittingProperty.value = true;
+  scene.step( 0.05 );
+
+  assert.strictEqual(
+    scene.leftDetectorHitsProperty.value + scene.rightDetectorHitsProperty.value,
+    0,
+    'no slit-detector hits occur shortly after turning on, even when the idle solver time exceeds slit arrival time'
+  );
+
+  const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
+  const slitTravelTime = scene.slitPositionFractionProperty.value * scene.regionWidth / propagationSpeed;
+  const dt = 1 / 60;
+  for ( let elapsedTime = 0; elapsedTime < slitTravelTime + dt; elapsedTime += dt ) {
+    scene.step( dt );
+  }
+
+  assert.ok(
+    scene.leftDetectorHitsProperty.value + scene.rightDetectorHitsProperty.value > 0,
+    'slit-detector hits occur after the wave has had enough source-on time to reach the slits'
+  );
+} );
+
 QUnit.test( 'effective wave speed and wavelength use physical source values', assert => {
   const photonScene = createScene( 'photons' );
   assert.strictEqual( photonScene.getEffectiveWaveSpeed(), 3e8, 'photon wave speed is c' );
