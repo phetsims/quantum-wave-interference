@@ -194,6 +194,9 @@ QUnit.test( 'accessible template is readable and non-interactive', assert => {
   assert.ok( container.textContent.includes( 'Source' ), 'template includes Source section' );
   assert.ok( container.textContent.includes( 'Detector pattern' ), 'template includes detector pattern section' );
   assert.ok( container.textContent.includes( 'Wave progress' ), 'template includes temporal wave progress section' );
+  assert.strictEqual( container.querySelectorAll( 'dl, dt, dd' ).length, 0, 'template does not use definition-list markup' );
+  assert.ok( container.querySelector( 'article' ), 'template reads as a semantic article' );
+  assert.ok( container.querySelectorAll( 'h3' ).length >= 5, 'template uses headings for sections' );
   assert.ok( !PDOMUtils.hasDisallowedTemplateDescendant( container ), 'template has no disallowed interactive descendants' );
 
   templateProperty.dispose();

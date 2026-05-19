@@ -141,25 +141,47 @@ export default class QWIAccessibleStateTemplate {
         waveProgressCheckpoint: state.waveProgress.checkpoint,
         progress: state.waveProgress.wavefrontPercent
       } );
+      const sourceDescription = formatParticleDescription( state );
+      const slitDescription = formatSlitDescription( state );
+      const detectorDescription = formatDetectorDescription( state );
 
       return html`
-        <section>
-          <p>${overview}</p>
-          <dl>
-            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceLabelStringProperty.value}</dt>
-            <dd>${sourceStatus} ${formatParticleDescription( state )}</dd>
-            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.slitsLabelStringProperty.value}</dt>
-            <dd>${formatSlitDescription( state )}</dd>
-            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPatternLabelStringProperty.value}</dt>
-            <dd>${formatDetectorDescription( state )}</dd>
-            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgressLabelStringProperty.value}</dt>
-            <dd>${waveProgress}</dd>
-            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.displayToolsLabelStringProperty.value}</dt>
-            <dd>${displayTools}</dd>
-            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.noticeLabelStringProperty.value}</dt>
-            <dd>${notice}</dd>
-          </dl>
-        </section>
+        <article>
+          <header>
+            <p>${overview}</p>
+          </header>
+
+          <section>
+            <h4>${QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceLabelStringProperty.value}</h4>
+            <p>${sourceStatus}</p>
+            <p>${sourceDescription}</p>
+          </section>
+
+          <section>
+            <h4>${QuantumWaveInterferenceFluent.a11y.highIntensityState.slitsLabelStringProperty.value}</h4>
+            <p>${slitDescription}</p>
+          </section>
+
+          <section>
+            <h4>${QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgressLabelStringProperty.value}</h4>
+            <p>${waveProgress}</p>
+          </section>
+
+          <section>
+            <h4>${QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPatternLabelStringProperty.value}</h4>
+            <p>${detectorDescription}</p>
+          </section>
+
+          <aside>
+            <h4>${QuantumWaveInterferenceFluent.a11y.highIntensityState.noticeLabelStringProperty.value}</h4>
+            <p>${notice}</p>
+          </aside>
+
+          <section>
+            <h4>${QuantumWaveInterferenceFluent.a11y.highIntensityState.displayToolsLabelStringProperty.value}</h4>
+            <p>${displayTools}</p>
+          </section>
+        </article>
       `;
     } );
   }
