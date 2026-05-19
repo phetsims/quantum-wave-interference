@@ -580,7 +580,7 @@
     },
     "screenGraphSwitch": {
       "accessibleHelpText": {
-        "value": "Switch between detector screen and graph views."
+        "value": "Choose graph or screen representation for data analysis."
       }
     },
     "photonWaveDisplayComboBox": {

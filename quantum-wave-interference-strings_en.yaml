@@ -764,7 +764,7 @@ a11y:
                                 *[bothDetectors] Detectors added to both slits in barrier.
                                }
   screenGraphSwitch:
-    accessibleHelpText: Switch between detector screen and graph views.
+    accessibleHelpText: Choose graph or screen representation for data analysis.
   photonWaveDisplayComboBox:
     accessibleHelpText: Choose Amplitude or Electric Field display for photon wave.
   matterWaveDisplayComboBox:
