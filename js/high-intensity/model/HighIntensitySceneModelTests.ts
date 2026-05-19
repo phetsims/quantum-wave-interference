@@ -7,9 +7,10 @@
  */
 
 import Tandem from '../../../../tandem/js/Tandem.js';
+import { MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_DURATION } from './HighIntensitySceneModel.js';
+import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_DURATION, DETECTOR_SCREEN_HIT_RATE, SLIT_DETECTOR_EVENT_RATE } from './HighIntensitySceneModel.js';
 
 QUnit.module( 'HighIntensitySceneModel' );
 
@@ -36,6 +37,15 @@ const createScene = ( sourceType: SourceType = 'photons' ): HighIntensitySceneMo
   tandem: Tandem.OPT_OUT
 } );
 
+const stepSceneInSmallIncrements = ( scene: HighIntensitySceneModel, totalDt: number ): void => {
+  let remainingDt = totalDt;
+  while ( remainingDt > EPSILON ) {
+    const dt = Math.min( 1 / 60, remainingDt );
+    scene.step( dt );
+    remainingDt -= dt;
+  }
+};
+
 const stepUntilWavefrontReachesScreen = ( scene: HighIntensitySceneModel ): void => {
   const dt = 1 / 60;
   for ( let i = 0; i < 600; i++ ) {
@@ -45,6 +55,12 @@ const stepUntilWavefrontReachesScreen = ( scene: HighIntensitySceneModel ): void
     }
   }
   throw new Error( 'wavefront did not reach screen during test setup' );
+};
+
+const prepareSceneForDetectorScreenHits = ( scene: HighIntensitySceneModel ): void => {
+  scene.isEmittingProperty.value = true;
+  stepUntilWavefrontReachesScreen( scene );
+  scene.detectionModeProperty.value = 'hits';
 };
 
 QUnit.test( 'detector pattern formation waits for wavefront and uses model dt', assert => {
@@ -79,6 +95,36 @@ QUnit.test( 'detector pattern formation waits for wavefront and uses model dt', 
   assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 1, 'formation reaches completion after the configured duration' );
 } );
 
+QUnit.test( 'detector-screen hits use increased rate after wavefront reaches screen', assert => {
+  const scene = createScene();
+  prepareSceneForDetectorScreenHits( scene );
+
+  scene.step( 0.2 );
+
+  assert.strictEqual(
+    scene.totalHitsProperty.value,
+    DETECTOR_SCREEN_HIT_RATE * 0.2,
+    'detector-screen hits accumulate at the increased baseline rate'
+  );
+  assert.strictEqual( scene.hits.length, DETECTOR_SCREEN_HIT_RATE * 0.2, 'one hit dot is created for each screen hit' );
+  assert.strictEqual(
+    scene.leftDetectorHitsProperty.value + scene.rightDetectorHitsProperty.value,
+    0,
+    'screen hits do not increment on-slit detector counts when no slit detectors are present'
+  );
+} );
+
+QUnit.test( 'detector-screen hits respect the maximum hit cap', assert => {
+  const scene = createScene();
+  prepareSceneForDetectorScreenHits( scene );
+
+  scene.totalHitsProperty.value = MAX_HITS - 3;
+  scene.step( 0.2 );
+
+  assert.strictEqual( scene.totalHitsProperty.value, MAX_HITS, 'total hits stop at the maximum hit cap' );
+  assert.strictEqual( scene.hits.length, 3, 'only enough hit dots are created to reach the maximum hit cap' );
+} );
+
 QUnit.test( 'slit-detector hits are scheduled relative to source-on time', assert => {
   const scene = createScene();
   scene.slitConfigurationProperty.value = 'bothDetectors';
@@ -106,6 +152,27 @@ QUnit.test( 'slit-detector hits are scheduled relative to source-on time', asser
     scene.leftDetectorHitsProperty.value + scene.rightDetectorHitsProperty.value > 0,
     'slit-detector hits occur after the wave has had enough source-on time to reach the slits'
   );
+} );
+
+QUnit.test( 'slit-detector event rate is independent from detector-screen hit rate', assert => {
+  const scene = createScene();
+  scene.slitConfigurationProperty.value = 'bothDetectors';
+  scene.isEmittingProperty.value = true;
+
+  const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
+  const slitTravelTime = scene.slitPositionFractionProperty.value * scene.regionWidth / propagationSpeed;
+  stepSceneInSmallIncrements( scene, slitTravelTime + 1e-6 );
+
+  const initialSlitDetectorHits = scene.leftDetectorHitsProperty.value + scene.rightDetectorHitsProperty.value;
+  scene.step( 1 / SLIT_DETECTOR_EVENT_RATE );
+  const finalSlitDetectorHits = scene.leftDetectorHitsProperty.value + scene.rightDetectorHitsProperty.value;
+
+  assert.strictEqual(
+    finalSlitDetectorHits - initialSlitDetectorHits,
+    1,
+    'one slit-detector event is created during one slit-detector interval'
+  );
+  assert.strictEqual( scene.totalHitsProperty.value, 0, 'slit-detector events do not create detector-screen hits outside Hits mode' );
 } );
 
 QUnit.test( 'effective wave speed and wavelength use physical source values', assert => {

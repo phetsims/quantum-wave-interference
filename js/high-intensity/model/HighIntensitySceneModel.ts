@@ -25,11 +25,14 @@ import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
 
-// Number of particles per second at max intensity. TODO: This seems off by a factor of https://github.com/phetsims/quantum-wave-interference/issues/63
-const MAX_EMISSION_RATE = 5;
+// Detector-screen hit dots created per model second in Hits mode.
+export const DETECTOR_SCREEN_HIT_RATE = 40;
 
-// Valid model steps are capped at 0.5 seconds, so this is enough to preserve one slit-detector
-// attempt per emitted particle at the maximum emission rate without dropping temporal bands.
+// On-slit detector/decoherence events created per model second for Detector Top/Bottom/Both.
+export const SLIT_DETECTOR_EVENT_RATE = 5;
+
+// Valid model steps are capped at 0.5 seconds, so this is well above the number of slit-detector
+// events that can be created per frame at the current slit-detector event rate.
 const MAX_DECOHERENCE_EVENTS_PER_FRAME = 64;
 
 // The screen model runs at 0.5x in Normal speed, so 2 seconds of effective model time produces
@@ -168,7 +171,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       return;
     }
 
-    const rate = this.getParticleEmissionRate();
+    const rate = this.getDetectorScreenHitRate();
     this.hitAccumulator += rate * dt;
     const numHits = Math.floor( this.hitAccumulator );
     this.hitAccumulator -= numHits;
@@ -208,10 +211,8 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }
 
     const slitConfig = this.slitConfigurationProperty.value;
-    // Slit-detector attempts are tied to the same conceptual particles that create detector-screen
-    // hit dots, so increasing intensity increases both rates in lockstep.
-    const particleRate = this.getParticleEmissionRate();
-    if ( !hasAnyDetector( slitConfig ) || particleRate <= 0 ) {
+    const detectorEventRate = this.getSlitDetectorEventRate();
+    if ( !hasAnyDetector( slitConfig ) || detectorEventRate <= 0 ) {
       this.nextDecoherenceEventTime = null;
       return;
     }
@@ -249,7 +250,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       if ( event ) {
         this.addDecoherenceEvent( event );
       }
-      this.nextDecoherenceEventTime += this.getParticleEmissionInterval( particleRate );
+      this.nextDecoherenceEventTime += this.getIntervalForRate( detectorEventRate );
       eventsCreated++;
     }
 
@@ -257,7 +258,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       this.pruneDecoherenceEvents();
     }
     else if ( eventsCreated >= MAX_DECOHERENCE_EVENTS_PER_FRAME ) {
-      this.nextDecoherenceEventTime = currentTime + this.getParticleEmissionInterval( particleRate );
+      this.nextDecoherenceEventTime = currentTime + this.getIntervalForRate( detectorEventRate );
     }
   }
 
@@ -287,12 +288,16 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this._detectorPatternFormationFactorProperty.value = 0;
   }
 
-  private getParticleEmissionRate(): number {
-    return MAX_EMISSION_RATE;
+  private getDetectorScreenHitRate(): number {
+    return DETECTOR_SCREEN_HIT_RATE;
   }
 
-  private getParticleEmissionInterval( particleRate: number ): number {
-    return 1 / particleRate;
+  private getSlitDetectorEventRate(): number {
+    return SLIT_DETECTOR_EVENT_RATE;
+  }
+
+  private getIntervalForRate( rate: number ): number {
+    return 1 / rate;
   }
 
   public override reset(): void {

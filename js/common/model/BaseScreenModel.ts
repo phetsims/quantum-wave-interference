@@ -27,8 +27,8 @@ import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDispla
 import TimeSpeedProperty from './TimeSpeedProperty.js';
 
 const NOMINAL_DT = 1 / 60;
-const SLOW_TIME_SPEED_FACTOR = 0.25;
-const NORMAL_TIME_SPEED_FACTOR = 0.5;
+const SLOW_TIME_SPEED_FACTOR = 0.15;
+const NORMAL_TIME_SPEED_FACTOR = 0.35;
 
 type BaseScreenModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 

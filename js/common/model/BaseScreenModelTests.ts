@@ -9,6 +9,7 @@
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import HighIntensityModel from '../../high-intensity/model/HighIntensityModel.js';
+import HighIntensitySceneModel, { DETECTOR_SCREEN_HIT_RATE } from '../../high-intensity/model/HighIntensitySceneModel.js';
 
 QUnit.module( 'BaseScreenModel' );
 
@@ -26,6 +27,19 @@ const assertApproximately = (
   epsilon = EPSILON
 ): void => {
   assert.ok( Math.abs( actual - expected ) <= Math.abs( expected ) * epsilon, `${message}: expected ${expected}, got ${actual}` );
+};
+
+const prepareHighIntensitySceneForHits = ( scene: HighIntensitySceneModel ): void => {
+  scene.isEmittingProperty.value = true;
+  const dt = 1 / 60;
+  for ( let i = 0; i < 600; i++ ) {
+    scene.step( dt );
+    if ( scene.hasWavefrontReachedScreen() ) {
+      scene.detectionModeProperty.value = 'hits';
+      return;
+    }
+  }
+  throw new Error( 'wavefront did not reach screen during test setup' );
 };
 
 QUnit.test( 'pause advances neither solver nor stopwatch', assert => {
@@ -92,6 +106,26 @@ QUnit.test( 'High Intensity time speeds stay below anti-strobe phase budget', as
         `${scene.sourceType} ${timeSpeed.name} advances ${cyclesPerFrame} cycles per ${ANTI_STROBE_FRAME_RATE} FPS frame`
       );
     } );
+  } );
+} );
+
+QUnit.test( 'High Intensity Hits mode rate scales with time speed', assert => {
+  const realDt = 0.4;
+
+  [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ].forEach( timeSpeed => {
+    const model = new HighIntensityModel( { tandem: Tandem.OPT_OUT } );
+    const scene = model.sceneProperty.value;
+
+    prepareHighIntensitySceneForHits( scene );
+    model.timeSpeedProperty.value = timeSpeed;
+    model.step( realDt );
+
+    const expectedHits = Math.floor( DETECTOR_SCREEN_HIT_RATE * model.getEffectiveDt( realDt ) );
+    assert.strictEqual(
+      scene.totalHitsProperty.value,
+      expectedHits,
+      `${timeSpeed.name} creates detector-screen hits according to effective dt`
+    );
   } );
 } );
 
