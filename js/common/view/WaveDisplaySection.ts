@@ -21,9 +21,15 @@ import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../model/WaveDisplayMode.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const COMBO_BOX_FONT = new PhetFont( 14 );
+const COMBO_BOX_X_MARGIN = 10;
+const COMBO_BOX_Y_MARGIN = 6;
+
+// ComboBox adds margins, a separator, and an arrow area around item text.
+const COMBO_BOX_ITEM_TEXT_MAX_WIDTH = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH - 50;
 
 type WaveDisplayModel = {
   sceneProperty: TReadOnlyProperty<{ sourceType: string }>;
@@ -47,12 +53,17 @@ export default class WaveDisplaySection extends VBox {
 
     const waveDisplayTitle = new Text( waveDisplayTitleProperty, {
       font: TITLE_FONT,
-      maxWidth: 170
+      maxWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH
+    } );
+
+    const createComboBoxText = ( stringProperty: TReadOnlyProperty<string> ) => new Text( stringProperty, {
+      font: COMBO_BOX_FONT,
+      maxWidth: COMBO_BOX_ITEM_TEXT_MAX_WIDTH
     } );
 
     const photonWaveDisplayItems: ComboBoxItem<PhotonWaveDisplayMode>[] = [
-      { value: 'electricField', createNode: () => new Text( QuantumWaveInterferenceFluent.electricFieldStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'electricFieldItem' },
-      { value: 'timeAveragedIntensity', createNode: () => new Text( QuantumWaveInterferenceFluent.amplitudeStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'timeAveragedIntensityItem' }
+      { value: 'electricField', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.electricFieldStringProperty ), tandemName: 'electricFieldItem' },
+      { value: 'timeAveragedIntensity', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.amplitudeStringProperty ), tandemName: 'timeAveragedIntensityItem' }
     ];
 
     const photonWaveDisplayComboBox = new ComboBox(
@@ -62,15 +73,15 @@ export default class WaveDisplaySection extends VBox {
       {
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.photonWaveDisplayComboBox.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( 'photonWaveDisplayComboBox' ),
-        xMargin: 10,
-        yMargin: 6
+        xMargin: COMBO_BOX_X_MARGIN,
+        yMargin: COMBO_BOX_Y_MARGIN
       }
     );
 
     const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
-      { value: 'realPart', createNode: () => new Text( QuantumWaveInterferenceFluent.realPartStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'realPartItem' },
-      { value: 'imaginaryPart', createNode: () => new Text( QuantumWaveInterferenceFluent.imaginaryPartStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'imaginaryPartItem' },
-      { value: 'magnitude', createNode: () => new Text( QuantumWaveInterferenceFluent.amplitudeStringProperty, { font: COMBO_BOX_FONT, maxWidth: 160 } ), tandemName: 'magnitudeItem' }
+      { value: 'realPart', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.realPartStringProperty ), tandemName: 'realPartItem' },
+      { value: 'imaginaryPart', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.imaginaryPartStringProperty ), tandemName: 'imaginaryPartItem' },
+      { value: 'magnitude', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.amplitudeStringProperty ), tandemName: 'magnitudeItem' }
     ];
 
     const matterWaveDisplayComboBox = new ComboBox(
@@ -80,8 +91,8 @@ export default class WaveDisplaySection extends VBox {
       {
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.matterWaveDisplayComboBox.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( 'matterWaveDisplayComboBox' ),
-        xMargin: 10,
-        yMargin: 6
+        xMargin: COMBO_BOX_X_MARGIN,
+        yMargin: COMBO_BOX_Y_MARGIN
       }
     );
 

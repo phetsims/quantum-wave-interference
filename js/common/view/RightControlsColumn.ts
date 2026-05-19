@@ -102,13 +102,28 @@ export default class RightControlsColumn extends VBox {
 
     const rightPanelWidth = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH;
     const screenGraphSwitchSize = new Dimension2( 37, 17 );
+    const playPauseButtonRadius = 22;
+    const stepForwardButtonRadius = 15;
+    const playPauseStepButtonSpacing = 10;
+    const timeControlFlowBoxSpacing = 15;
+    const timeSpeedRadioButtonChromeWidth = 25;
+    const timeSpeedLabelMaxWidth = Math.max( 1, rightPanelWidth -
+                                                2 * playPauseButtonRadius -
+                                                2 * stepForwardButtonRadius -
+                                                playPauseStepButtonSpacing -
+                                                timeControlFlowBoxSpacing -
+                                                timeSpeedRadioButtonChromeWidth );
 
     // ToggleSwitch stroke extends 0.5 px on both sides beyond the requested size.
     const screenGraphSwitchRenderedWidth = screenGraphSwitchSize.width + 1;
     const screenGraphSwitchLabelToggleSpacing = 6;
+
+    // ABSwitch's centered AlignBoxes add a small amount beyond the Text maxWidth.
+    const screenGraphSwitchLabelLayoutAllowance = 4;
     const screenGraphSwitchLabelMaxWidth = ( QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH -
                                              screenGraphSwitchRenderedWidth -
-                                             2 * screenGraphSwitchLabelToggleSpacing ) / 2;
+                                             2 * screenGraphSwitchLabelToggleSpacing -
+                                             screenGraphSwitchLabelLayoutAllowance ) / 2;
 
     // --- Screen controls panel ---
 
@@ -249,16 +264,24 @@ export default class RightControlsColumn extends VBox {
     const timeControlNode = new TimeControlNode( model.isPlayingProperty, {
       timeSpeedProperty: model.timeSpeedProperty,
       timeSpeeds: [ TimeSpeed.SLOW, TimeSpeed.NORMAL, TimeSpeed.FAST ],
-      flowBoxSpacing: 15,
+      flowBoxSpacing: timeControlFlowBoxSpacing,
+      speedRadioButtonGroupOptions: {
+        labelOptions: {
+          font: new PhetFont( 14 ),
+          maxWidth: timeSpeedLabelMaxWidth
+        }
+      },
       playPauseStepButtonOptions: {
         includeStepForwardButton: true,
+        playPauseStepXSpacing: playPauseStepButtonSpacing,
         stepForwardButtonOptions: {
+          radius: stepForwardButtonRadius,
           listener: () => {
             model.stepOnce();
             options.onStepForward?.();
           }
         },
-        playPauseButtonOptions: { radius: 22 }
+        playPauseButtonOptions: { radius: playPauseButtonRadius }
       },
       tandem: tandem.createTandem( 'timeControlNode' )
     } );
