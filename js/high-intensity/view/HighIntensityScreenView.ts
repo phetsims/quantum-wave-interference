@@ -18,6 +18,7 @@ import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import Node from '../../../../scenery/js/nodes/Node.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
@@ -41,6 +42,9 @@ import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
+import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
+import QWIAccessibleStateDescriber from './description/QWIAccessibleStateDescriber.js';
+import QWIAccessibleStateTemplate from './description/QWIAccessibleStateTemplate.js';
 import HighIntensityTopRowNode from './HighIntensityTopRowNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -89,6 +93,7 @@ export default class HighIntensityScreenView extends ScreenView {
     this.model = model;
 
     const tandem = options.tandem;
+    const accessibleStateDescriber = new QWIAccessibleStateDescriber( model );
 
     // This top-level layout intentionally parallels SingleParticlesScreenView while keeping screen-specific
     // controls and tandems explicit.
@@ -315,6 +320,7 @@ export default class HighIntensityScreenView extends ScreenView {
       {
         detectionModeProperty: model.currentDetectionModeProperty,
         slitOrientation: 'topBottom',
+        includeExperimentSetupDetails: false,
         sourceNodes: [ topRowNode, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow ],
         detectorScreenControlNodes: [ rightControlsColumn ]
@@ -322,8 +328,16 @@ export default class HighIntensityScreenView extends ScreenView {
     );
     this.addChild( screenViewDescription );
 
+    const currentStateSectionNode = new Node( {
+      accessibleHeading: QuantumWaveInterferenceFluent.a11y.highIntensityState.headingStringProperty,
+      accessibleTemplate: QWIAccessibleStateTemplate.createTemplateProperty( model, accessibleStateDescriber )
+    } );
+    this.addChild( currentStateSectionNode );
+
+    this.addChild( new HighIntensityAccessibleResponses( model, accessibleStateDescriber ) );
+
     this.pdomPlayAreaNode.pdomOrder = [
-      screenViewDescription.experimentSetupHeadingNode,
+      currentStateSectionNode,
       screenViewDescription.sourceHeadingNode,
       screenViewDescription.slitsHeadingNode,
       this.sidewaysGraphNode,

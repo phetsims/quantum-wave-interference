@@ -34,6 +34,7 @@ type SharedDescriptionModel = {
 type SharedDescriptionOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   slitOrientation?: SlitOrientation;
+  includeExperimentSetupDetails?: boolean;
   sourceNodes: Node[];
   slitNodes: Node[];
   detectorScreenControlNodes: Node[];
@@ -54,25 +55,31 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
     super();
 
-    const detectorScreenDescriber = new DetectorScreenDescriber(
-      model.sceneProperty,
-      new BooleanProperty( false ),
-      model.sceneProperty.derived( scene => 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2 )
-    );
-    const detectorScreenDescriptionNode = new Node( {
-      accessibleParagraph: detectorScreenDescriber.descriptionProperty
-    } );
-    this.addChild( detectorScreenDescriptionNode );
+    const includeExperimentSetupDetails = providedOptions.includeExperimentSetupDetails !== false;
 
-    const experimentSetupDetailsNode = new ExperimentSetupDetailsNode( model, slitSettingProperty, {
-      detectionModeProperty: providedOptions.detectionModeProperty,
-      slitOrientation: providedOptions.slitOrientation
-    } );
-    this.addChild( experimentSetupDetailsNode );
+    let detectorScreenDescriptionNode: Node | null = null;
+    let experimentSetupDetailsNode: Node | null = null;
+    if ( includeExperimentSetupDetails ) {
+      const detectorScreenDescriber = new DetectorScreenDescriber(
+        model.sceneProperty,
+        new BooleanProperty( false ),
+        model.sceneProperty.derived( scene => 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2 )
+      );
+      detectorScreenDescriptionNode = new Node( {
+        accessibleParagraph: detectorScreenDescriber.descriptionProperty
+      } );
+      this.addChild( detectorScreenDescriptionNode );
 
-    this.experimentSetupHeadingNode = new Node( {
+      experimentSetupDetailsNode = new ExperimentSetupDetailsNode( model, slitSettingProperty, {
+        detectionModeProperty: providedOptions.detectionModeProperty,
+        slitOrientation: providedOptions.slitOrientation
+      } );
+      this.addChild( experimentSetupDetailsNode );
+    }
+
+    this.experimentSetupHeadingNode = new Node( includeExperimentSetupDetails ? {
       accessibleHeading: QuantumWaveInterferenceFluent.a11y.experimentSetupHeadingStringProperty
-    } );
+    } : {} );
     this.addChild( this.experimentSetupHeadingNode );
 
     this.sourceHeadingNode = new Node( {
@@ -90,10 +97,10 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
     } );
     this.addChild( this.detectorScreenHeadingNode );
 
-    this.experimentSetupHeadingNode.pdomOrder = [
+    this.experimentSetupHeadingNode.pdomOrder = detectorScreenDescriptionNode && experimentSetupDetailsNode ? [
       detectorScreenDescriptionNode,
       experimentSetupDetailsNode
-    ];
+    ] : [];
 
     this.sourceHeadingNode.pdomOrder = providedOptions.sourceNodes;
     this.slitsHeadingNode.pdomOrder = providedOptions.slitNodes;

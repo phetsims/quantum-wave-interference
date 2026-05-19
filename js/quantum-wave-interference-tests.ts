@@ -12,6 +12,7 @@ import './common/model/BaseScreenModelTests.js';
 import './common/view/ApparentDetectorPatternTests.js';
 import './common/view/MeasuringTapeUnitsTests.js';
 import './high-intensity/model/HighIntensitySceneModelTests.js';
+import './high-intensity/view/description/QWIAccessibleStateTests.js';
 import './single-particles/model/SingleParticlesSceneModelTests.js';
 
 // Since our tests are loaded asynchronously, we must direct QUnit to begin the tests

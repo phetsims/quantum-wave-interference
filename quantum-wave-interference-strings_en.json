@@ -254,6 +254,121 @@
     "detectorScreenHeading": {
       "value": "Detector Screen Controls"
     },
+    "highIntensityState": {
+      "heading": {
+        "value": "Current Experiment State"
+      },
+      "sourceLabel": {
+        "value": "Source"
+      },
+      "slitsLabel": {
+        "value": "Slits"
+      },
+      "detectorPatternLabel": {
+        "value": "Detector pattern"
+      },
+      "waveProgressLabel": {
+        "value": "Wave progress"
+      },
+      "displayToolsLabel": {
+        "value": "Display and tools"
+      },
+      "noticeLabel": {
+        "value": "What to notice"
+      },
+      "overview": {
+        "value": "{ $isPlaying ->\n  [false] Sim is paused. \n *[true] Sim is running. \n} { $sourceType ->\n  [photons] Photons\n  [electrons] Electrons\n  [neutrons] Neutrons\n *[heliumAtoms] Helium atoms\n} { $isEmitting ->\n  [true] are being emitted\n *[false] are not being emitted\n}. { $displayMode ->\n  [graph] The graph is shown\n *[screen] The detector screen is shown\n} in { $detectionMode ->\n  [averageIntensity] Average Intensity mode.\n *[hits] Hits mode.\n}"
+      },
+      "sourceStatus": {
+        "value": "Source is { $isEmitting ->\n  [true] on\n *[false] off\n}. Time is { $isPlaying ->\n  [true] running\n *[false] paused\n} at { $timeSpeed } speed."
+      },
+      "photonDetail": {
+        "value": "Photon wavelength is { $wavelength } nanometers, in the { $color } zone."
+      },
+      "particleDetail": {
+        "value": "{ $sourceType ->\n  [electrons] Electron\n  [neutrons] Neutron\n *[heliumAtoms] Helium atom\n} speed is { $speed } meters per second. Effective matter wavelength is about { $wavelength } picometers."
+      },
+      "slits": {
+        "value": "{ $slitSetting ->\n  [bothOpen] Both slits are open. Slit separation is { $separation } micrometers.\n  [leftCovered] Top slit is covered. One open slit creates a broad diffraction pattern.\n  [rightCovered] Bottom slit is covered. One open slit creates a broad diffraction pattern.\n  [leftDetector] Top slit has a detector. Which-path information removes double-slit interference.\n  [rightDetector] Bottom slit has a detector. Which-path information removes double-slit interference.\n  [noBarrier] No barrier is between source and detector screen.\n *[bothDetectors] Both slits have detectors. Which-path information removes double-slit interference.\n}"
+      },
+      "detectorPattern": {
+        "value": "{ $patternKind ->\n  [doubleSlitInterference] { $detectionMode ->\n    [averageIntensity] Double-slit interference pattern has { $bandCount } bright bands\n    spaced about { $spacing } millimeters apart.\n   *[hits] Hits are in the { $hitStage } stage, building toward double-slit interference.\n    Total hits: { $hitCount }.\n  }\n  [singleSlitDiffraction] Pattern is a broad single-slit diffraction band about\n  { $centralWidth } millimeters wide.\n  [whichPathDiffraction] Which-path measurement is active, so the detector pattern is\n  single-slit-like instead of double-slit interference.\n *[noBarrier] With no barrier, particles travel directly toward the detector screen.\n}"
+      },
+      "waveProgress": {
+        "value": "{ $waveProgressStage ->\n  [sourceOff] Source is off, so no wave is traveling.\n  [travelingToSlits] { $waveProgressCheckpoint ->\n    [quarter] Wave has crossed one-quarter of the wave area\n    [half] Wave has crossed halfway across the wave area\n    [threeQuarters] Wave has crossed three-quarters of the wave area\n    [full] Wave has crossed the full wave area\n   *[none] Wave has crossed about { $progress } percent of the wave area\n  } and is traveling toward the slits.\n  [atSlits] Wave has reached the slits. The slit configuration is now shaping the wave.\n  [interferingAfterSlits] Wave has passed through both slits. Overlapping wavefronts are\n  interfering in a circular sort of checkerboard pattern.\n  [diffractingAfterSlits] Wave has passed through one open slit and is spreading out\n  after the slit.\n  [whichPathAfterSlits] Wave has reached the slit detector region. Which-path information\n  changes the pattern after the slits.\n  [directToScreen] { $waveProgressCheckpoint ->\n    [quarter] Wave has crossed one-quarter of the wave area\n    [half] Wave has crossed halfway across the wave area\n    [threeQuarters] Wave has crossed three-quarters of the wave area\n    [full] Wave has crossed the full wave area\n   *[none] Wave has crossed about { $progress } percent of the wave area\n  } and is traveling directly toward the detector screen.\n *[hittingScreen] Wave has reached the detector screen. The detector pattern can now build.\n}"
+      },
+      "displayTools": {
+        "value": "{ $displayMode ->\n  [graph] Graph view is active\n *[screen] Detector screen view is active\n}. Wave display mode is { $waveDisplayMode ->\n  [electricField] Electric Field\n  [timeAveragedIntensity] Amplitude\n  [realPart] Real Part\n  [imaginaryPart] Imaginary Part\n *[magnitude] Amplitude\n}. Screen brightness is { $brightness } percent. Stored snapshots: { $snapshotCount }. Tools shown: { $tapeMeasure ->\n  [true] tape measure\n *[false] no tape measure\n}, { $stopwatch ->\n  [true] stopwatch\n *[false] no stopwatch\n}, { $timePlot ->\n  [true] time plot\n *[false] no time plot\n}, { $positionPlot ->\n  [true] position plot.\n *[false] no position plot.\n}"
+      },
+      "notice": {
+        "value": "{ $patternKind ->\n  [doubleSlitInterference] Watch how wavelength and slit separation change the spacing of\n  the interference bands.\n  [singleSlitDiffraction] With one open slit, compare the broad central band to the\n  many-band double-slit pattern.\n  [whichPathDiffraction] The slit detector tells which path the particles take, so the\n  double-slit interference pattern disappears.\n *[noBarrier] With no barrier, compare direct travel to patterns made by slits.\n}"
+      }
+    },
+    "highIntensityResponses": {
+      "sourceStarted": {
+        "value": "{ $isPlaying ->\n  [false] Source started. Sim is paused.\n *[true] Source started. The beam is emanating from the source at the left.\n}"
+      },
+      "sourceStopped": {
+        "value": "Source stopped. Current detector pattern remains."
+      },
+      "particleTypeChanged": {
+        "value": "Now experimenting with { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n}. Source, slits, and screen settings updated."
+      },
+      "detectionModeChanged": {
+        "value": "{ $detectionMode ->\n  [averageIntensity] Average Intensity selected. The predicted pattern is shown continuously.\n *[hits] Hits selected. Individual particle impacts build the pattern statistically.\n}"
+      },
+      "slitConfigurationChanged": {
+        "value": "{ $slitSetting ->\n  [bothOpen] Both slits open. Double-slit interference bands can form.\n  [leftCovered] Top slit covered. The pattern changes to single-slit diffraction.\n  [rightCovered] Bottom slit covered. The pattern changes to single-slit diffraction.\n  [leftDetector] Top slit detector added. Which-path information removes double-slit interference.\n  [rightDetector] Bottom slit detector added. Which-path information removes double-slit interference.\n  [noBarrier] Barrier removed. Particles travel directly toward the detector screen.\n *[bothDetectors] Detectors added to both slits. Which-path information removes double-slit interference.\n}"
+      },
+      "slitSeparationChanged": {
+        "value": "{ $isEmitting ->\n  [true] Slit separation changed. Interference bands are { $spacingTrend ->\n    [closer] closer together.\n    [farther] farther apart.\n   *[unchanged] about the same distance apart.\n  }\n *[false] Slit separation changed. Turn on the source to see how the detector pattern changes.\n}"
+      },
+      "wavelengthChanged": {
+        "value": "{ $isEmitting ->\n  [true] Wavelength changed. Interference bands are { $spacingTrend ->\n    [closer] closer together.\n    [farther] farther apart.\n   *[unchanged] about the same distance apart.\n  }\n *[false] Wavelength changed. Turn on the source to see how the detector pattern changes.\n}"
+      },
+      "speedChanged": {
+        "value": "{ $isEmitting ->\n  [true] Particle speed { $speedTrend ->\n    [increased] increased\n    [decreased] decreased\n   *[unchanged] changed\n  }. Matter wavelength changed, and interference bands are { $spacingTrend ->\n    [closer] closer together.\n    [farther] farther apart.\n   *[unchanged] about the same distance apart.\n  }\n *[false] Particle speed changed. Turn on the source to see how the detector pattern changes.\n}"
+      },
+      "displayModeChanged": {
+        "value": "{ $displayMode ->\n  [graph] Graph shown. It represents the detector pattern as { $detectionMode ->\n    [averageIntensity] an intensity curve.\n   *[hits] a hits histogram.\n  }\n *[screen] Detector screen shown.\n}"
+      },
+      "brightnessChanged": {
+        "value": "Screen brightness { $brightnessTrend ->\n  [increased] increased.\n  [decreased] decreased.\n *[unchanged] unchanged.\n}"
+      },
+      "waveDisplayChanged": {
+        "value": "Wave display changed to { $waveDisplayMode ->\n  [electricField] Electric Field.\n  [timeAveragedIntensity] Amplitude.\n  [realPart] Real Part.\n  [imaginaryPart] Imaginary Part.\n *[magnitude] Amplitude.\n}"
+      },
+      "toolChanged": {
+        "value": "{ $tool ->\n  [tapeMeasure] Tape measure\n  [stopwatch] Stopwatch\n  [timePlot] Time plot\n *[positionPlot] Position plot\n} { $isVisible ->\n  [true] shown.\n *[false] hidden.\n}"
+      },
+      "snapshotTaken": {
+        "value": "Snapshot { $snapshotCount } stored."
+      },
+      "screenCleared": {
+        "value": "Detector screen cleared. { $isEmitting ->\n  [true] New { $detectionMode ->\n    [averageIntensity] intensity pattern will form.\n   *[hits] hits will begin accumulating.\n  }\n *[false] Screen is empty.\n}"
+      },
+      "timeChanged": {
+        "value": "Time is { $isPlaying ->\n  [true] running\n *[false] paused\n} at { $timeSpeed } speed."
+      },
+      "hitStageChanged": {
+        "value": "Hits pattern is now { $hitStage ->\n  [none] empty.\n  [few] just beginning with a few scattered hits.\n  [emerging] showing faint repeated stripes.\n  [developing] developing distinct interference bands.\n *[clear] showing a clear interference pattern.\n}"
+      },
+      "waveProgressChanged": {
+        "value": "{ $waveProgressStage ->\n  [sourceOff] Source is off, so no wave is traveling.\n  [travelingToSlits] { $waveProgressCheckpoint ->\n    [quarter] Wave has crossed one-quarter of the wave area and is traveling toward the slits.\n    [half] Wave has crossed halfway across the wave area and is traveling toward the slits.\n    [threeQuarters] Wave has crossed three-quarters of the wave area and is traveling toward the slits.\n    [full] Wave crossed the full wave area.\n   *[none] Wave has crossed about { $progress } percent of the wave area and is traveling toward the slits.\n  }\n  [atSlits] Wave reached the slits. The barrier is shaping the wave now.\n  [interferingAfterSlits] Wave passed both slits. Overlapping wavefronts are interfering in a circular sort of checkerboard pattern.\n  [diffractingAfterSlits] Wave passed one open slit and is spreading out.\n  [whichPathAfterSlits] Wave reached the slit detector region. Which-path information is active.\n  [directToScreen] { $waveProgressCheckpoint ->\n    [quarter] Wave has crossed one-quarter of the wave area and is traveling directly toward the detector screen.\n    [half] Wave has crossed halfway across the wave area and is traveling directly toward the detector screen.\n    [threeQuarters] Wave has crossed three-quarters of the wave area and is traveling directly toward the detector screen.\n    [full] Wave crossed the full wave area.\n   *[none] Wave has crossed about { $progress } percent of the wave area and is traveling directly toward the detector screen.\n  }\n *[hittingScreen] Wave reached the detector screen. The detector pattern can build now.\n}"
+      },
+      "patternFormationStarted": {
+        "value": "{ $detectionMode ->\n  [averageIntensity] { $patternKind ->\n    [doubleSlitInterference] The interference pattern is starting to appear on the detector screen.\n    [singleSlitDiffraction] The broad diffraction pattern is starting to appear on the detector screen.\n    [whichPathDiffraction] The which-path detector pattern is starting to appear on the detector screen.\n   *[noBarrier] The direct detector pattern is starting to appear on the detector screen.\n  }\n *[hits] Hits are starting to accumulate on the detector screen.\n}"
+      },
+      "patternFormationComplete": {
+        "value": "{ $patternKind ->\n  [doubleSlitInterference] The interference pattern has emerged. There is a strong central maximum,\n  then places to either side where there is no intensity, a symmetrical pattern\n  with about { $bandCount } bright spots, fading as you move away from the center.\n  [singleSlitDiffraction] The diffraction pattern has emerged. There is a strong broad\n  central maximum, fading as you move away from the center.\n  [whichPathDiffraction] The which-path detector pattern has emerged. It looks like a\n  broad single-slit pattern instead of the many-band interference pattern.\n *[noBarrier] The direct detector pattern has emerged, brightest along the straight path\n  from source to detector screen.\n}"
+      },
+      "maxHitsReached": {
+        "value": "Maximum number of hits reached. Source is off. Clear detector screen to make more observations."
+      },
+      "reset": {
+        "value": "Experiment reset. Source is off and detector screen is empty."
+      }
+    },
     "experimentSetupDetails": {
       "leadingParagraph": {
         "value": "Current experimental details:"

@@ -111,6 +111,47 @@ type StringsType = {
     'sourceHeadingStringProperty': LocalizedStringProperty;
     'slitsHeadingStringProperty': LocalizedStringProperty;
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;
+    'highIntensityState': {
+      'headingStringProperty': LocalizedStringProperty;
+      'sourceLabelStringProperty': LocalizedStringProperty;
+      'slitsLabelStringProperty': LocalizedStringProperty;
+      'detectorPatternLabelStringProperty': LocalizedStringProperty;
+      'waveProgressLabelStringProperty': LocalizedStringProperty;
+      'displayToolsLabelStringProperty': LocalizedStringProperty;
+      'noticeLabelStringProperty': LocalizedStringProperty;
+      'overviewStringProperty': LocalizedStringProperty;
+      'sourceStatusStringProperty': LocalizedStringProperty;
+      'photonDetailStringProperty': LocalizedStringProperty;
+      'particleDetailStringProperty': LocalizedStringProperty;
+      'slitsStringProperty': LocalizedStringProperty;
+      'detectorPatternStringProperty': LocalizedStringProperty;
+      'waveProgressStringProperty': LocalizedStringProperty;
+      'displayToolsStringProperty': LocalizedStringProperty;
+      'noticeStringProperty': LocalizedStringProperty;
+    };
+    'highIntensityResponses': {
+      'sourceStartedStringProperty': LocalizedStringProperty;
+      'sourceStoppedStringProperty': LocalizedStringProperty;
+      'particleTypeChangedStringProperty': LocalizedStringProperty;
+      'detectionModeChangedStringProperty': LocalizedStringProperty;
+      'slitConfigurationChangedStringProperty': LocalizedStringProperty;
+      'slitSeparationChangedStringProperty': LocalizedStringProperty;
+      'wavelengthChangedStringProperty': LocalizedStringProperty;
+      'speedChangedStringProperty': LocalizedStringProperty;
+      'displayModeChangedStringProperty': LocalizedStringProperty;
+      'brightnessChangedStringProperty': LocalizedStringProperty;
+      'waveDisplayChangedStringProperty': LocalizedStringProperty;
+      'toolChangedStringProperty': LocalizedStringProperty;
+      'snapshotTakenStringProperty': LocalizedStringProperty;
+      'screenClearedStringProperty': LocalizedStringProperty;
+      'timeChangedStringProperty': LocalizedStringProperty;
+      'hitStageChangedStringProperty': LocalizedStringProperty;
+      'waveProgressChangedStringProperty': LocalizedStringProperty;
+      'patternFormationStartedStringProperty': LocalizedStringProperty;
+      'patternFormationCompleteStringProperty': LocalizedStringProperty;
+      'maxHitsReachedStringProperty': LocalizedStringProperty;
+      'resetStringProperty': LocalizedStringProperty;
+    };
     'experimentSetupDetails': {
       'leadingParagraphStringProperty': LocalizedStringProperty;
       'sourceEmitterStringProperty': LocalizedStringProperty;

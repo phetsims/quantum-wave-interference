@@ -10,6 +10,7 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import BaseScreenModel from '../../common/model/BaseScreenModel.js';
@@ -19,6 +20,7 @@ import HighIntensitySceneModel from './HighIntensitySceneModel.js';
 
 // Keep the highest-frequency High Intensity continuous waves below the 30 FPS Nyquist limit.
 const FAST_TIME_SPEED_FACTOR = 0.65;
+const ACCESSIBLE_STATE_STEP_INTERVAL = 10;
 
 type HighIntensityModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
@@ -30,6 +32,8 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
 
   // Tool visibility specific to this screen
   public readonly isIntensityGraphVisibleProperty: BooleanProperty;
+  public readonly accessibleStateStepProperty: NumberProperty;
+  private accessibleStateStepFrameCount: number;
 
   public constructor( providedOptions: HighIntensityModelOptions ) {
 
@@ -45,6 +49,8 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
 
     super( scenes, FAST_TIME_SPEED_FACTOR, providedOptions );
 
+    this.accessibleStateStepFrameCount = 0;
+
     this.currentSlitConfigurationProperty = new DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, HighIntensitySceneModel>( this.sceneProperty, {
       derive: 'slitConfigurationProperty',
       bidirectional: true
@@ -58,6 +64,12 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
     this.isIntensityGraphVisibleProperty = new BooleanProperty( false, {
       tandem: this.toolsTandem.createTandem( 'isIntensityGraphVisibleProperty' )
     } );
+
+    this.accessibleStateStepProperty = new NumberProperty( 0, {
+      numberType: 'Integer',
+      phetioReadOnly: true,
+      tandem: tandem.createTandem( 'accessibleStateStepProperty' )
+    } );
   }
 
   public override takeSnapshot(): void {
@@ -66,5 +78,35 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
 
   protected override resetToolVisibility(): void {
     this.isIntensityGraphVisibleProperty.reset();
+  }
+
+  public override reset(): void {
+    super.reset();
+    this.accessibleStateStepFrameCount = 0;
+    this.accessibleStateStepProperty.reset();
+  }
+
+  private stepAccessibleState(): void {
+    this.accessibleStateStepFrameCount++;
+    if ( this.accessibleStateStepFrameCount >= ACCESSIBLE_STATE_STEP_INTERVAL ) {
+      this.accessibleStateStepFrameCount = 0;
+      this.accessibleStateStepProperty.value++;
+    }
+  }
+
+  public override stepOnce(): void {
+    super.stepOnce();
+    if ( this.currentIsEmittingProperty.value ) {
+      this.stepAccessibleState();
+    }
+  }
+
+  public override step( dt: number ): void {
+    const effectiveDt = this.getEffectiveDt( dt );
+    super.step( dt );
+
+    if ( effectiveDt > 0 && this.currentIsEmittingProperty.value ) {
+      this.stepAccessibleState();
+    }
   }
 }

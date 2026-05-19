@@ -1,0 +1,166 @@
+// Copyright 2026, University of Colorado Boulder
+
+/**
+ * Renders QWIAccessibleState as one non-interactive accessibleTemplate section for the High Intensity screen.
+ *
+ * @author Sam Reid (PhET Interactive Simulations)
+ */
+
+import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
+import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
+import { toFixed } from '../../../../../dot/js/util/toFixed.js';
+import type { AccessibleTemplateValue } from '../../../../../scenery/js/accessibility/pdom/ParallelDOM.js';
+import { html } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
+import { getWavelengthColorZoneString } from '../../../common/view/WavelengthColorUtils.js';
+import HighIntensityModel from '../../model/HighIntensityModel.js';
+import QWIAccessibleStateDescriber, { type QWIAccessibleState, type QWIPatternKind } from './QWIAccessibleStateDescriber.js';
+
+type FluentBoolean = 'true' | 'false';
+
+const toFluentBoolean = ( value: boolean ): FluentBoolean => value ? 'true' : 'false';
+
+const getPatternKindKey = ( patternKind: QWIPatternKind ): QWIPatternKind => patternKind;
+
+const formatSlitDescription = ( state: QWIAccessibleState ): string =>
+  QuantumWaveInterferenceFluent.a11y.highIntensityState.slits.format( {
+    slitSetting: state.slitConfiguration,
+    separation: state.slitSeparationMicrometers === null ? 0 : state.slitSeparationMicrometers
+  } );
+
+const formatDetectorDescription = ( state: QWIAccessibleState ): string =>
+    QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.format( {
+      detectionMode: state.detectionMode,
+      patternKind: getPatternKindKey( state.patternKind ),
+      hitStage: state.hitStage,
+      hitCount: state.totalHits,
+      bandCount: state.bandAnalysis.bandCount,
+      spacing: Number( toFixed( state.bandAnalysis.averageSpacingMM, 2 ) ),
+      centralWidth: Number( toFixed( state.bandAnalysis.centralWidthMM, 2 ) )
+    } );
+
+const formatParticleDescription = ( state: QWIAccessibleState ): string => {
+  if ( state.sourceType === 'photons' ) {
+    return QuantumWaveInterferenceFluent.a11y.highIntensityState.photonDetail.format( {
+      wavelength: state.wavelengthNM,
+      color: getWavelengthColorZoneString( state.wavelengthColorZone! )
+    } );
+  }
+
+  return QuantumWaveInterferenceFluent.a11y.highIntensityState.particleDetail.format( {
+    sourceType: state.sourceType,
+    speed: state.particleSpeedMetersPerSecond,
+    wavelength: state.effectiveWavelengthPicometers
+  } );
+};
+
+export default class QWIAccessibleStateTemplate {
+
+  public static createTemplateProperty(
+    model: HighIntensityModel,
+    stateDescriber: QWIAccessibleStateDescriber
+  ): TReadOnlyProperty<AccessibleTemplateValue> {
+
+    const dependencies = Array.from( new Set( [
+      model.sceneProperty,
+      model.currentIsEmittingProperty,
+      model.currentIsEmitterEnabledProperty,
+      model.currentIsMaxHitsReachedProperty,
+      model.currentDetectionModeProperty,
+      model.isIntensityGraphVisibleProperty,
+      model.currentScreenBrightnessProperty,
+      model.currentWaveDisplayModeProperty,
+      model.currentSlitConfigurationProperty,
+      model.currentWavelengthProperty,
+      model.currentVelocityProperty,
+      model.currentSlitSeparationProperty,
+      model.currentLeftDetectorHitsProperty,
+      model.currentRightDetectorHitsProperty,
+      model.currentTotalHitsProperty,
+      model.currentNumberOfSnapshotsProperty,
+      model.accessibleStateStepProperty,
+      model.isTapeMeasureVisibleProperty,
+      model.isStopwatchVisibleProperty,
+      model.isTimePlotVisibleProperty,
+      model.isPositionPlotVisibleProperty,
+      model.isPlayingProperty,
+      model.timeSpeedProperty,
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.overview.getDependentProperties(),
+      QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceLabelStringProperty,
+      QuantumWaveInterferenceFluent.a11y.highIntensityState.slitsLabelStringProperty,
+      QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPatternLabelStringProperty,
+      QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgressLabelStringProperty,
+      QuantumWaveInterferenceFluent.a11y.highIntensityState.displayToolsLabelStringProperty,
+      QuantumWaveInterferenceFluent.a11y.highIntensityState.noticeLabelStringProperty,
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceStatus.getDependentProperties(),
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.photonDetail.getDependentProperties(),
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.particleDetail.getDependentProperties(),
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.slits.getDependentProperties(),
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.getDependentProperties(),
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgress.getDependentProperties(),
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.displayTools.getDependentProperties(),
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.notice.getDependentProperties(),
+      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty,
+      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty,
+      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty,
+      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty,
+      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty,
+      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty,
+      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty
+    ] ) );
+
+    return DerivedProperty.deriveAny( dependencies, () => {
+      const state = stateDescriber.getState();
+      const overview = QuantumWaveInterferenceFluent.a11y.highIntensityState.overview.format( {
+        sourceType: state.sourceType,
+        isEmitting: toFluentBoolean( state.isEmitting ),
+        isPlaying: toFluentBoolean( state.isPlaying ),
+        detectionMode: state.detectionMode,
+        displayMode: state.displayMode
+      } );
+      const sourceStatus = QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceStatus.format( {
+        isEmitting: toFluentBoolean( state.isEmitting ),
+        isPlaying: toFluentBoolean( state.isPlaying ),
+        timeSpeed: state.timeSpeedName
+      } );
+      const displayTools = QuantumWaveInterferenceFluent.a11y.highIntensityState.displayTools.format( {
+        displayMode: state.displayMode,
+        waveDisplayMode: state.waveDisplayMode,
+        brightness: state.screenBrightnessPercent,
+        snapshotCount: state.numberOfSnapshots,
+        tapeMeasure: toFluentBoolean( state.tools.tapeMeasure ),
+        stopwatch: toFluentBoolean( state.tools.stopwatch ),
+        timePlot: toFluentBoolean( state.tools.timePlot ),
+        positionPlot: toFluentBoolean( state.tools.positionPlot )
+      } );
+      const notice = QuantumWaveInterferenceFluent.a11y.highIntensityState.notice.format( {
+        patternKind: getPatternKindKey( state.patternKind )
+      } );
+      const waveProgress = QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgress.format( {
+        waveProgressStage: state.waveProgress.stage,
+        waveProgressCheckpoint: state.waveProgress.checkpoint,
+        progress: state.waveProgress.wavefrontPercent
+      } );
+
+      return html`
+        <section>
+          <p>${overview}</p>
+          <dl>
+            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceLabelStringProperty.value}</dt>
+            <dd>${sourceStatus} ${formatParticleDescription( state )}</dd>
+            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.slitsLabelStringProperty.value}</dt>
+            <dd>${formatSlitDescription( state )}</dd>
+            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPatternLabelStringProperty.value}</dt>
+            <dd>${formatDetectorDescription( state )}</dd>
+            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgressLabelStringProperty.value}</dt>
+            <dd>${waveProgress}</dd>
+            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.displayToolsLabelStringProperty.value}</dt>
+            <dd>${displayTools}</dd>
+            <dt>${QuantumWaveInterferenceFluent.a11y.highIntensityState.noticeLabelStringProperty.value}</dt>
+            <dd>${notice}</dd>
+          </dl>
+        </section>
+      `;
+    } );
+  }
+}
