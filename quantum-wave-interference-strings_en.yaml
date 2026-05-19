@@ -635,7 +635,7 @@ a11y:
     accessibleContextResponseChecked:   Ruler added near detector screen.
     accessibleContextResponseUnchecked: Ruler removed.
   stopwatchCheckbox:
-    accessibleHelpText:                 Use added stopwatch to time experiment.
+    accessibleHelpText:                 Add stopwatch to time experiment. Once added, Start, Pause, Reset Stopwatch, and move with keyboard shortcuts.
     accessibleContextResponseChecked:   Stopwatch added near detector screen.
     accessibleContextResponseUnchecked: Stopwatch removed.
   timePlotCheckbox:

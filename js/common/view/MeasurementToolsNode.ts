@@ -79,6 +79,7 @@ export default class MeasurementToolsNode extends Node {
 
     const stopwatchNode = new StopwatchNode( model.stopwatch, {
       dragBoundsProperty: visibleBoundsProperty,
+      accessibleHelpText: null,
       numberDisplayRange: Stopwatch.ZERO_TO_ALMOST_SIXTY,
       numberDisplayOptions: {
         numberFormatter: createPhysicalStopwatchFormatter(),

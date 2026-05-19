@@ -240,6 +240,7 @@ export default class ExperimentScreenView extends ScreenView {
     // Draggable stopwatch for timing experiments
     const stopwatchNode = new StopwatchNode( model.stopwatch, {
       dragBoundsProperty: this.visibleBoundsProperty,
+      accessibleHelpText: null,
       tandem: options.tandem.createTandem( 'stopwatchNode' )
     } );
     this.addChild( stopwatchNode );
