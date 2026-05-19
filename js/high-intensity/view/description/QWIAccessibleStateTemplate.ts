@@ -15,7 +15,7 @@ import { html } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import QWIAccessibleStateDescriber from './QWIAccessibleStateDescriber.js';
-import { formatDetectorDescription, formatParticleDescription, formatSlitDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
+import { formatDetectorDescription, formatParticleDescription, formatSlitDescription, formatSourceBeamDescription, toDetectorSlitSetting, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
 
 export default class QWIAccessibleStateTemplate {
 
@@ -101,6 +101,7 @@ export default class QWIAccessibleStateTemplate {
     const waveProgress = QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgress.format( {
       waveProgressStage: state.waveProgress.stage,
       waveProgressCheckpoint: state.waveProgress.checkpoint,
+      slitSetting: state.waveProgress.stage === 'whichPathAfterSlits' ? toDetectorSlitSetting( state.slitConfiguration ) : 'bothDetectors',
       progress: state.waveProgress.wavefrontPercent
     } );
     const sourceDescription = formatParticleDescription( state );

@@ -8,7 +8,7 @@
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type QWIAccessibleState, type QWIValueTrend } from './QWIAccessibleStateDescriber.js';
-import { formatDetectorDescription, formatSourceBeamDescription } from './QWIAccessibleStateFormatters.js';
+import { formatDetectorDescription, formatSourceBeamDescription, toDetectorSlitSetting } from './QWIAccessibleStateFormatters.js';
 
 export type QWITransitionAction =
   { type: 'sourceChanged' } |
@@ -142,6 +142,7 @@ export default class QWITransitionDescriber {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
         waveProgressStage: after.waveProgress.stage,
         waveProgressCheckpoint: after.waveProgress.checkpoint,
+        slitSetting: after.waveProgress.stage === 'whichPathAfterSlits' ? toDetectorSlitSetting( after.slitConfiguration ) : 'bothDetectors',
         progress: after.waveProgress.wavefrontPercent
       } );
     }

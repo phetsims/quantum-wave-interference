@@ -377,8 +377,11 @@ a11y:
                            in a circular checkerboard pattern.
                            [diffractingAfterSlits] Wave passed one open slit and is spreading out
                            after the slit.
-                           [whichPathAfterSlits] Wave has reached the slit detector region. Which-path information
-                           changes the pattern after the slits.
+                           [whichPathAfterSlits] Wave reached the slits, { $slitSetting ->
+                             [leftDetector] with detector over top slit
+                             [rightDetector] with detector over bottom slit
+                            *[bothDetectors] with detectors over both slits
+                           }. Non-interfering circular wavefronts emanate from the slits.
                            [directToScreen] { $waveProgressCheckpoint ->
                              [quarter] Wave crossed one-quarter of wave area
                              [half] Wave crossed halfway across wave area
@@ -505,7 +508,7 @@ a11y:
     screenCleared:       >-
                          { $isRestarting ->
                            [true] Wave area cleared. { $sourceStartedResponse }
-                          *[false] Wave area cleared.
+                          *[false] Wave area cleared. Sim still paused.
                          }
     timeChanged:         >-
                          Time is { $isPlaying ->
@@ -533,7 +536,11 @@ a11y:
                            [atSlits] Wave reached the slits. The barrier is shaping the wave now.
                            [interferingAfterSlits] Wave passing through slits. Overlapping wavefronts interfere in a circular checkerboard pattern.
                            [diffractingAfterSlits] Wave passed one open slit and is spreading out.
-                           [whichPathAfterSlits] Wave reached the slit detector region. Which-path information is active.
+                           [whichPathAfterSlits] Wave reached the slits, { $slitSetting ->
+                             [leftDetector] with detector over top slit
+                             [rightDetector] with detector over bottom slit
+                            *[bothDetectors] with detectors over both slits
+                           }. Non-interfering circular wavefronts emanate from the slits.
                            [directToScreen] { $waveProgressCheckpoint ->
                              [quarter] Wave crossed one-quarter of wave area and traveling directly toward detector screen.
                              [half] Wave crossed halfway across wave area and traveling directly toward detector screen.

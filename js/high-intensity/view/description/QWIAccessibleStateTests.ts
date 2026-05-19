@@ -167,6 +167,7 @@ QUnit.test( 'clear button response describes wave area and source restart', asse
 
   assert.strictEqual( pausedEmittedResponses.length, 1, 'paused clear response is emitted once' );
   assert.ok( pausedEmittedResponses[ 0 ].includes( 'Wave area cleared.' ), 'paused clear response describes the clear' );
+  assert.ok( pausedEmittedResponses[ 0 ].includes( 'Sim still paused.' ), 'paused clear response confirms paused state' );
   assert.notOk( pausedEmittedResponses[ 0 ].includes( 'Source started.' ), 'paused clear response does not restart the source' );
 
   const runningModel = createModel();
@@ -234,6 +235,23 @@ QUnit.test( 'wave progress follows source-on time and screen milestones', assert
 
   stepSceneToWavefrontFraction( model, 1 );
   assert.strictEqual( describer.getState().waveProgress.stage, 'hittingScreen', 'wave announces when it reaches the detector screen' );
+} );
+
+QUnit.test( 'slit detector wave progress describes visible setup without explaining', assert => {
+  const model = createModel();
+  const describer = new QWIAccessibleStateDescriber( model );
+  const scene = model.sceneProperty.value;
+
+  scene.slitConfigurationProperty.value = 'leftDetector';
+  scene.isEmittingProperty.value = true;
+
+  const beforeDetectorRegion = describer.getState();
+  stepSceneToWavefrontFraction( model, 0.7 );
+  const response = QWITransitionDescriber.describe( { type: 'waveProgressChanged' }, beforeDetectorRegion, describer.getState() ).contextResponse!;
+
+  assert.ok( response.includes( 'detector over top slit' ), 'response describes detector position' );
+  assert.ok( response.includes( 'Non-interfering circular wavefronts emanate from the slits.' ), 'response describes the visible wave behavior' );
+  assert.notOk( response.includes( 'Which-path information' ), 'response does not explain the concept for the student' );
 } );
 
 QUnit.test( 'interference wave progress response does not repeat for checkpoint-only changes', assert => {

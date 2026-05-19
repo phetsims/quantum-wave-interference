@@ -8,14 +8,22 @@
  */
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
+import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import { getWavelengthColorZoneString } from '../../../common/view/WavelengthColorUtils.js';
 import { type QWIAccessibleState, type QWIPatternKind } from './QWIAccessibleStateDescriber.js';
 import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 
 export type FluentBoolean = 'true' | 'false';
+export type DetectorSlitSetting = 'leftDetector' | 'rightDetector' | 'bothDetectors';
 
 export const toFluentBoolean = ( value: boolean ): FluentBoolean => value ? 'true' : 'false';
+
+export const toDetectorSlitSetting = ( slitSetting: SlitConfigurationWithNoBarrier ): DetectorSlitSetting =>
+  slitSetting === 'leftDetector' ? 'leftDetector' :
+  slitSetting === 'rightDetector' ? 'rightDetector' :
+  slitSetting === 'bothDetectors' ? 'bothDetectors' :
+  ( () => { throw new Error( `Unrecognized slitSetting: ${slitSetting}` ); } )();
 
 const getPatternKindKey = ( patternKind: QWIPatternKind ): QWIPatternKind => patternKind;
 
