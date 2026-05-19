@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Tests for High Intensity semantic accessibility state, transition descriptions, and template rendering.
+ * Tests for High Intensity semantic accessibility state, transition descriptions, and current-details rendering.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -265,30 +265,38 @@ QUnit.test( 'pattern complete response describes emerged interference pattern', 
   assert.ok( response.includes( 'bright spots' ), 'complete response describes the bright interference regions' );
   assert.ok( response.includes( 'fading as you move away from the center' ), 'complete response describes the envelope fading from center' );
 
-  const templateProperty = QWIAccessibleStateTemplate.createTemplateProperty( model, describer );
+  const currentDetailsTemplateProperty = QWIAccessibleStateTemplate.createCurrentDetailsTemplateProperty( model, describer );
   const container = document.createElement( 'div' );
-  litRender( templateProperty.value, container );
-  assert.ok( container.textContent.includes( response ), 'template detector section includes the same emerged-pattern description as the context response' );
+  litRender( currentDetailsTemplateProperty.value, container );
 
-  templateProperty.dispose();
+  assert.ok(
+    container.textContent.includes( response ),
+    'summary current details include the same emerged-pattern description as the context response'
+  );
+
+  currentDetailsTemplateProperty.dispose();
 } );
 
-QUnit.test( 'accessible template is readable and non-interactive', assert => {
+QUnit.test( 'summary current details are readable template content', assert => {
   const model = createModel();
   const describer = new QWIAccessibleStateDescriber( model );
-  const templateProperty = QWIAccessibleStateTemplate.createTemplateProperty( model, describer );
+  const currentDetailsTemplateProperty = QWIAccessibleStateTemplate.createCurrentDetailsTemplateProperty( model, describer );
   const container = document.createElement( 'div' );
 
-  litRender( templateProperty.value, container );
+  litRender( currentDetailsTemplateProperty.value, container );
 
-  assert.ok( container.textContent.includes( 'Source' ), 'template includes Source section' );
-  assert.ok( container.textContent.includes( 'Detector pattern' ), 'template includes detector pattern section' );
-  assert.ok( container.textContent.includes( 'Wave progress' ), 'template includes temporal wave progress section' );
-  assert.ok( container.textContent.includes( 'Source is off, so there is no pattern on the detector.' ), 'source-off template does not describe a visible detector pattern' );
-  assert.strictEqual( container.querySelectorAll( 'dl, dt, dd' ).length, 0, 'template does not use definition-list markup' );
-  assert.ok( container.querySelector( 'article' ), 'template reads as a semantic article' );
-  assert.ok( container.querySelectorAll( 'h3, h4' ).length >= 5, 'template uses headings for sections' );
-  assert.ok( !PDOMUtils.hasDisallowedTemplateDescendant( container ), 'template has no disallowed interactive descendants' );
+  const currentDetails = container.textContent;
 
-  templateProperty.dispose();
+  assert.ok( currentDetails.includes( 'Currently,' ), 'current details begin as summary state content' );
+  assert.ok( currentDetails.includes( 'Source is off, so no wave is traveling.' ), 'current details include temporal wave progress' );
+  assert.ok( currentDetails.includes( 'Source is off, so there is no pattern on the detector.' ), 'source-off current details do not describe a visible detector pattern' );
+  assert.ok( currentDetails.includes( 'Detector screen view is active.' ), 'current details include display and tools state' );
+  assert.notOk( currentDetails.includes( 'Current Experiment State' ), 'current details omit the former Play Area heading' );
+  assert.notOk( currentDetails.includes( 'What to notice' ), 'current details omit the former notice heading' );
+  assert.strictEqual( container.querySelectorAll( 'p' ).length, 6, 'current details use paragraph formatting' );
+  assert.ok( container.querySelector( 'br' ), 'current details can use line break formatting inside a paragraph' );
+  assert.strictEqual( container.querySelectorAll( 'h3, h4' ).length, 0, 'current details omit section headings' );
+  assert.ok( !PDOMUtils.hasDisallowedTemplateDescendant( container ), 'current details template has no disallowed interactive descendants' );
+
+  currentDetailsTemplateProperty.dispose();
 } );

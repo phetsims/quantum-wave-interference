@@ -277,7 +277,7 @@
         "value": "What to notice"
       },
       "overview": {
-        "value": "{ $isPlaying ->\n  [false] Sim is paused. \n *[true] Sim is running. \n} { $sourceType ->\n  [photons] Photons\n  [electrons] Electrons\n  [neutrons] Neutrons\n *[heliumAtoms] Helium atoms\n} { $isEmitting ->\n  [true] are being emitted\n *[false] are not being emitted\n}. { $displayMode ->\n  [graph] The graph is shown\n *[screen] The detector screen is shown\n} in { $detectionMode ->\n  [averageIntensity] Average Intensity mode.\n *[hits] Hits mode.\n}"
+        "value": "Currently, { $isPlaying ->\n  [false] sim is paused.\n *[true] sim is running.\n} { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} { $isEmitting ->\n  [true] are being emitted\n *[false] are not being emitted\n}. { $displayMode ->\n  [graph] The graph is shown\n *[screen] The detector screen is shown\n} in { $detectionMode ->\n  [averageIntensity] Average Intensity mode.\n *[hits] Hits mode.\n}"
       },
       "sourceStatus": {
         "value": "Source is { $isEmitting ->\n  [true] on\n *[false] off\n}. Time is { $isPlaying ->\n  [true] running\n *[false] paused\n} at { $timeSpeed } speed."

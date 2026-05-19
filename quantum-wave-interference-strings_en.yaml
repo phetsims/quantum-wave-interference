@@ -260,14 +260,14 @@ a11y:
     displayToolsLabel:    Display and tools
     noticeLabel:          What to notice
     overview:             >-
-                          { $isPlaying ->
-                            [false] Sim is paused. 
-                           *[true] Sim is running. 
+                          Currently, { $isPlaying ->
+                            [false] sim is paused.
+                           *[true] sim is running.
                           } { $sourceType ->
-                            [photons] Photons
-                            [electrons] Electrons
-                            [neutrons] Neutrons
-                           *[heliumAtoms] Helium atoms
+                            [photons] photons
+                            [electrons] electrons
+                            [neutrons] neutrons
+                           *[heliumAtoms] helium atoms
                           } { $isEmitting ->
                             [true] are being emitted
                            *[false] are not being emitted

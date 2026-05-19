@@ -9,7 +9,7 @@
 
 import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
-import ScreenSummaryContent from '../../../../../joist/js/ScreenSummaryContent.js';
+import ScreenSummaryContent, { type SectionContent } from '../../../../../joist/js/ScreenSummaryContent.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
@@ -31,6 +31,7 @@ type ScreenSummaryModel = {
 type ScreenSummaryOptions = {
   detectionMode: DetectionMode | TReadOnlyProperty<DetectionMode>;
   slitOrientation?: SlitOrientation;
+  currentDetailsContent?: SectionContent;
 };
 
 export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenSummaryContent {
@@ -86,7 +87,7 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
     super( {
       playAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.controlAreaStringProperty,
-      currentDetailsContent: currentDetailsContentProperty,
+      currentDetailsContent: providedOptions.currentDetailsContent || currentDetailsContentProperty,
       interactionHintContent: interactionHintContentProperty
     } );
   }
