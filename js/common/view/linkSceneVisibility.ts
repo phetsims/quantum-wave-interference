@@ -13,7 +13,9 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 const linkSceneVisibility = <T>( sceneProperty: TReadOnlyProperty<T>, scenes: T[], sceneNodes: Node[] ): void => {
   sceneProperty.link( activeScene => {
     for ( let i = 0; i < scenes.length; i++ ) {
-      sceneNodes[ i ].visible = scenes[ i ] === activeScene;
+      const active = scenes[ i ] === activeScene;
+      sceneNodes[ i ].visible = active;
+      sceneNodes[ i ].setAccessibleVisible( active );
     }
   } );
 };
