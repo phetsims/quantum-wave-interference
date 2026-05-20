@@ -115,6 +115,10 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     this.dirty = true;
   }
 
+  public override usesLayeredFieldSamples(): boolean {
+    return true;
+  }
+
   protected override clearAdditionalFieldStateWhenSourceOff(): void {
     this.detectorDistribution.fill( 0 );
   }

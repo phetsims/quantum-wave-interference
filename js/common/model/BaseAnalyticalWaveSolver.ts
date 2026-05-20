@@ -124,9 +124,26 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     return this.fieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_SAMPLE;
   }
 
+  public usesLayeredFieldSamples(): boolean {
+    return false;
+  }
+
   public getLayeredFieldSampleAtGridCell( gridX: number, gridY: number ): LayeredFieldSample {
     this.ensureComputed();
-    return this.layeredFieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_LAYERED_SAMPLE;
+    const cellIndex = gridY * this.gridWidth + gridX;
+    if ( this.usesLayeredFieldSamples() ) {
+      return this.layeredFieldSamples[ cellIndex ] || UNREACHED_LAYERED_SAMPLE;
+    }
+
+    const sample = this.fieldSamples[ cellIndex ] || UNREACHED_SAMPLE;
+    return sample.kind === 'field' ? {
+      kind: 'field',
+      layers: [ {
+        order: 0,
+        alpha: 1,
+        components: sample.components
+      } ]
+    } : sample;
   }
 
   public getDetectorProbabilityDistribution(): Float64Array {
@@ -177,6 +194,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     }
 
     const parameters = this.createKernelParameters();
+    const usesLayeredFieldSamples = this.usesLayeredFieldSamples();
     this.beforeFieldSampleLoop( parameters );
 
     for ( let ix = 0; ix < gridWidth; ix++ ) {
@@ -185,11 +203,12 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
         const y = this.getGridCellY( iy );
         const sample = evaluateAnalyticalSample( parameters, x, y, this.time );
         const value = getRepresentativeComplex( sample );
-        const layeredSample = evaluateAnalyticalLayeredSample( parameters, x, y, this.time );
         const cellIndex = iy * gridWidth + ix;
         const idx = cellIndex * 2;
         fieldSamples[ cellIndex ] = sample;
-        layeredFieldSamples[ cellIndex ] = layeredSample;
+        if ( usesLayeredFieldSamples ) {
+          layeredFieldSamples[ cellIndex ] = evaluateAnalyticalLayeredSample( parameters, x, y, this.time );
+        }
         amplitudeField[ idx ] = value.real;
         amplitudeField[ idx + 1 ] = value.imaginary;
       }

@@ -441,6 +441,26 @@ QUnit.test( 'continuous wave solver restarts source after reset while source rem
   assert.ok( hasNonZeroAmplitude( solver.getAmplitudeField() ), 'source produces a field after reset without toggling off first' );
 } );
 
+QUnit.test( 'continuous wave solver only enables layered samples for decoherence events', assert => {
+  const solver = new AnalyticalWaveSolver( 12, 12 );
+
+  assert.false( solver.usesLayeredFieldSamples(), 'continuous wave base case uses field samples' );
+
+  solver.setParameters( {
+    decoherenceEvents: [
+      { time: 1, selectedSlit: 'topSlit' }
+    ]
+  } );
+
+  assert.true( solver.usesLayeredFieldSamples(), 'continuous wave decoherence events use layered samples' );
+
+  solver.setParameters( {
+    decoherenceEvents: []
+  } );
+
+  assert.false( solver.usesLayeredFieldSamples(), 'continuous wave solver returns to field samples when events are cleared' );
+} );
+
 QUnit.test( 'wave packet solver reset clears source state', assert => {
   const solver = new AnalyticalWavePacketSolver();
   solver.setParameters( { isSourceOn: true } );
@@ -799,6 +819,7 @@ QUnit.test( 'wave packet solver exposes layered samples without changing amplitu
 
   assert.ok( hasNonZeroAmplitude( amplitudeBeforeProjection ), 'packet solver has amplitude before projection' );
   assert.ok( hasNonZeroAmplitude( amplitudeAfterProjection ), 'packet solver still has amplitude after projection' );
+  assert.true( solver.usesLayeredFieldSamples(), 'packet solver keeps layered rendering available' );
   assert.strictEqual( layeredSample.kind, 'field', 'packet solver exposes layered field samples' );
 } );
 

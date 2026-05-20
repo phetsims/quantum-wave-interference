@@ -130,6 +130,10 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
     return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
   }
 
+  public override usesLayeredFieldSamples(): boolean {
+    return this.decoherenceEvents.length > 0;
+  }
+
   private computeInstantaneousDetectorDistribution(): void {
     const parameters = this.createKernelParameters( false );
     const dy = this.regionHeight / this.gridHeight;

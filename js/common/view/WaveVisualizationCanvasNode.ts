@@ -106,13 +106,14 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
       green: baseG,
       blue: baseB
     };
+    const usesLayeredFieldSamples = solver.usesLayeredFieldSamples?.() === true;
 
     for ( let gy = 0; gy < gridHeight; gy++ ) {
       for ( let gx = 0; gx < gridWidth; gx++ ) {
         const cellIdx = gy * gridWidth + gx;
         const pixelIdx = cellIdx * 4;
 
-        const color = solver.getLayeredFieldSampleAtGridCell ?
+        const color = usesLayeredFieldSamples && solver.getLayeredFieldSampleAtGridCell ?
                       getLayeredFieldSampleRGBA( solver.getLayeredFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale ) :
                       getFieldSampleRGBA( solver.getFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale );
         data[ pixelIdx ] = color.red;
