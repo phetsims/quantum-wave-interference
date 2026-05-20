@@ -18,6 +18,7 @@ import TEmitter from '../../../../axon/js/TEmitter.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
 import { linear } from '../../../../dot/js/util/linear.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
@@ -37,6 +38,8 @@ import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
+import { sampleIntensityDistribution } from './ScreenBrightnessUtils.js';
 
 // Preserve the previous right edge while moving the graph left edge to the wave visualizer's right edge.
 const GRAPH_WIDTH = 80 + QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 4;
@@ -47,6 +50,7 @@ const ZOOM_BUTTON_GROUP_MARGIN = 4;
 const MIN_ZOOM_LEVEL = 1;
 const DEFAULT_ZOOM_LEVEL = 4;
 const MAX_ZOOM_LEVEL = 6;
+const INTENSITY_SAMPLE_SCALE = QuantumWaveInterferenceQueryParameters.sidewaysGraphSampleScale;
 
 type ZoomLevelOption = number | 'default' | 'max';
 
@@ -318,7 +322,7 @@ export default class SidewaysGraphNode extends Node {
 
     const distribution = scene.waveSolver.getDetectorProbabilityDistribution();
     const solverHeight = scene.waveSolver.gridHeight;
-    const NUM_SAMPLES = solverHeight;
+    const NUM_SAMPLES = Math.max( 2, roundSymmetric( solverHeight * INTENSITY_SAMPLE_SCALE ) );
     const shape = new Shape();
 
     const firstY = ( 0.5 / NUM_SAMPLES ) * GRAPH_HEIGHT;
@@ -326,7 +330,7 @@ export default class SidewaysGraphNode extends Node {
 
     for ( let i = 0; i < NUM_SAMPLES; i++ ) {
       const fraction = ( i + 0.5 ) / NUM_SAMPLES;
-      const intensity = distribution[ i ];
+      const intensity = NUM_SAMPLES === solverHeight ? distribution[ i ] : sampleIntensityDistribution( distribution, fraction );
 
       const viewY = fraction * GRAPH_HEIGHT;
       const viewX = intensity * sourceIntensity * detectorPatternFormationFactor * GRAPH_WIDTH * zoomScale;

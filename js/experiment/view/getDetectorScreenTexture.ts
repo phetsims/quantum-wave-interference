@@ -9,6 +9,7 @@
  */
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import renderDetectorScreenTexture, { type DetectorScreenHitRenderCache, resetDetectorScreenHitRenderCache } from '../../common/view/renderDetectorScreenTexture.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
@@ -20,7 +21,7 @@ const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 
 // Target displayed supersample factor for the front-facing detector screen. The backing texture scales with the
 // front-facing zoom so the cropped visible region is still downsampled by this factor at every zoom level.
-const SUPERSAMPLE = 2;
+const SUPERSAMPLE = QuantumWaveInterferenceQueryParameters.experimentDetectorTextureScale;
 
 type SceneTextureCache = {
   canvas: HTMLCanvasElement;

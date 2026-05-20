@@ -29,6 +29,7 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AccordionBox from '../../../../sun/js/AccordionBox.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
+import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
@@ -45,7 +46,7 @@ const ACCORDION_CONTENT_X_MARGIN = 4;
 
 // Intensity curve samples per chart pixel. This keeps narrow extrema from looking chopped without
 // requiring every frame to solve for analytical peak positions.
-const INTENSITY_CURVE_SAMPLES_PER_PIXEL = 8;
+const INTENSITY_CURVE_SAMPLES_PER_PIXEL = QuantumWaveInterferenceQueryParameters.experimentGraphSamplesPerPixel;
 
 // Number of bins for the histogram in Hits mode
 const HISTOGRAM_BINS = 100;

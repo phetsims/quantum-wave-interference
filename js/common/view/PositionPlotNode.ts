@@ -28,6 +28,7 @@ import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
 import WavePlotChartNode from './WavePlotChartNode.js';
@@ -50,7 +51,7 @@ const POSITION_PLOT_PANEL_RIGHT_PADDING = 12;
 
 // Position curve samples per chart pixel. Sampling analytically at view resolution avoids stretching
 // the solver visualization grid into visibly jagged chart segments.
-const POSITION_PLOT_SAMPLES_PER_PIXEL = 2;
+const POSITION_PLOT_SAMPLES_PER_PIXEL = QuantumWaveInterferenceQueryParameters.positionPlotSamplesPerPixel;
 
 export default class PositionPlotNode extends Node {
 

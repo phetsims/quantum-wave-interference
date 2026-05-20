@@ -30,6 +30,7 @@ import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
 import WavePlotChartNode from './WavePlotChartNode.js';
@@ -42,7 +43,7 @@ const WIRE_LINE_WIDTH = 3;
 const WIRE_NORMAL_DISTANCE = 25;
 const WIRE_PANEL_ATTACHMENT_ABOVE_BOTTOM = 20;
 const MAX_TIME_WINDOW = 1; // seconds of data shown
-const MAX_SAMPLES = 600;
+const MAX_SAMPLES = QuantumWaveInterferenceQueryParameters.timePlotMaxSamples;
 const TIME_SAMPLE_INTERVAL = MAX_TIME_WINDOW / MAX_SAMPLES;
 const TIME_EPSILON = 1e-12;
 const TIME_PLOT_CHART_WIDTH = 190;
