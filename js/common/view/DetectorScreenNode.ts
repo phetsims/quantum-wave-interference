@@ -19,6 +19,7 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import DetectorScreenTextureRenderer, { type DetectorScreenSceneLike } from './DetectorScreenTextureRenderer.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
 
@@ -46,7 +47,12 @@ export default class DetectorScreenNode extends Node {
 
     super( options );
 
-    const textureRenderer = new DetectorScreenTextureRenderer( SCREEN_WIDTH, SCREEN_HEIGHT + SKEW, SKEW );
+    const textureRenderer = new DetectorScreenTextureRenderer(
+      SCREEN_WIDTH,
+      SCREEN_HEIGHT + SKEW,
+      SKEW,
+      QuantumWaveInterferenceQueryParameters.detectorScreenTextureScale
+    );
 
     const shape = new Shape()
       .moveTo( 0, SKEW )

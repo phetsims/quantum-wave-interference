@@ -19,7 +19,7 @@ import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGB, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, sampleIntensityDistribution } from './ScreenBrightnessUtils.js';
 
-const SUPERSAMPLE = 2;
+const DEFAULT_TEXTURE_SCALE = 2;
 const MAX_RENDERED_HITS = 10000;
 const HIT_SIZE_SCALE = 1.2;
 
@@ -73,13 +73,13 @@ export default class DetectorScreenTextureRenderer {
   private readonly hitSpriteSize: number;
   private readonly cacheMap = new WeakMap<DetectorScreenSceneLike, TextureCache>();
 
-  public constructor( screenWidth: number, screenHeight: number, skew = 0 ) {
-    this.textureWidth = screenWidth * SUPERSAMPLE;
-    this.textureHeight = screenHeight * SUPERSAMPLE;
-    this.skewOffset = skew * SUPERSAMPLE;
-    this.faceHeight = ( screenHeight - skew ) * SUPERSAMPLE;
-    this.hitCoreRadius = BASE_HIT_CORE_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
-    this.hitGlowRadius = BASE_HIT_GLOW_RADIUS * SUPERSAMPLE * HIT_SIZE_SCALE;
+  public constructor( screenWidth: number, screenHeight: number, skew = 0, textureScale = DEFAULT_TEXTURE_SCALE ) {
+    this.textureWidth = Math.ceil( screenWidth * textureScale );
+    this.textureHeight = Math.ceil( screenHeight * textureScale );
+    this.skewOffset = skew * textureScale;
+    this.faceHeight = ( screenHeight - skew ) * textureScale;
+    this.hitCoreRadius = BASE_HIT_CORE_RADIUS * textureScale * HIT_SIZE_SCALE;
+    this.hitGlowRadius = BASE_HIT_GLOW_RADIUS * textureScale * HIT_SIZE_SCALE;
 
     const maxGlowRadius = this.hitGlowRadius *
                           Math.min( 2, Math.sqrt( Math.max( 1, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER ) ) );
