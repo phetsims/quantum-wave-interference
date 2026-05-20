@@ -7,9 +7,9 @@
  * - stored particle hits from hits mode
  * - intensity snapshots, either captured from the wave solver or reconstructed from analytical metadata
  *
- * The node owns a reusable offscreen texture canvas for intensity rendering so repainting a snapshot does not allocate
- * canvas resources every frame. Hit rendering draws directly to the display canvas because the newest hits and zoom
- * crop are cheap to project for the small snapshot preview.
+ * The node owns a reusable offscreen texture canvas for intensity rendering and Experiment snapshot rendering so
+ * repainting a snapshot does not allocate canvas resources every frame. Non-Experiment hit rendering draws directly to
+ * the display canvas because the newest hits and zoom crop are cheap to project for the small snapshot preview.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -20,6 +20,8 @@ import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import type { Snapshot } from '../model/Snapshot.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { getApparentAnalyticalDetectorIntensity } from './ApparentDetectorPattern.js';
+import { createDetectorScreenRenderStateFromSnapshot } from './DetectorScreenRenderState.js';
+import renderDetectorScreenTexture from './renderDetectorScreenTexture.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, sampleSmoothedIntensityDistribution } from './ScreenBrightnessUtils.js';
 
 const MAX_RENDERED_SNAPSHOT_HITS = 100000;
@@ -29,6 +31,7 @@ const ANALYTICAL_TEXTURE_WIDTH = 376;
 const ANALYTICAL_TEXTURE_HEIGHT = 155;
 const CAPTURED_INTENSITY_SUPERSAMPLE = 4;
 const CAPTURED_INTENSITY_SMOOTHING_RADIUS = 1.5;
+const EXPERIMENT_SNAPSHOT_SUPERSAMPLE = 2;
 
 export default class SnapshotCanvasNode extends CanvasNode {
   private readonly snapshotProperty: TReadOnlyProperty<Snapshot | null>;
@@ -83,12 +86,55 @@ export default class SnapshotCanvasNode extends CanvasNode {
       return;
     }
 
-    if ( snapshot.detectionMode === 'hits' ) {
+    if ( this.isExperimentSnapshot( snapshot ) ) {
+      this.paintExperimentSnapshot( context, snapshot );
+    }
+    else if ( snapshot.detectionMode === 'hits' ) {
       this.paintHits( context, snapshot );
     }
     else {
       this.paintIntensity( context, snapshot );
     }
+  }
+
+  /**
+   * Experiment snapshots have no captured solver distribution and provide a zoom callback so their visible crop stays
+   * synchronized with the live detector zoom.
+   */
+  private isExperimentSnapshot( snapshot: Snapshot ): boolean {
+    return this.getZoomedScreenHalfWidth !== null && snapshot.intensityDistribution.length === 0;
+  }
+
+  /**
+   * Renders Experiment snapshots from the same frozen render state used by the live detector screen.
+   */
+  private paintExperimentSnapshot( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
+    const displayBounds = this.canvasBounds;
+    const textureWidth = Math.ceil( displayBounds.width * EXPERIMENT_SNAPSHOT_SUPERSAMPLE );
+    const textureHeight = Math.ceil( displayBounds.height * EXPERIMENT_SNAPSHOT_SUPERSAMPLE );
+    this.setIntensityTextureSize( textureWidth, textureHeight );
+
+    const textureContext = this.intensityTextureContext;
+    const visibleScreenHalfWidth = this.getVisibleScreenHalfWidth( snapshot );
+    renderDetectorScreenTexture( textureContext, createDetectorScreenRenderStateFromSnapshot( snapshot ), {
+      outputWidth: textureWidth,
+      outputHeight: textureHeight,
+      visibleScreenHalfWidth: visibleScreenHalfWidth,
+      renderScale: EXPERIMENT_SNAPSHOT_SUPERSAMPLE,
+      intensitySampleWidthOnScreen: 2 * visibleScreenHalfWidth / ANALYTICAL_TEXTURE_WIDTH
+    } );
+
+    context.save();
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+    context.drawImage(
+      this.intensityTextureCanvas,
+      displayBounds.left,
+      displayBounds.top,
+      displayBounds.width,
+      displayBounds.height
+    );
+    context.restore();
   }
 
   /**
