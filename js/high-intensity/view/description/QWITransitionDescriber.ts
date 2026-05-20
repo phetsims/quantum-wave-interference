@@ -24,7 +24,6 @@ export type QWITransitionAction =
   { type: 'toolChanged'; tool: 'tapeMeasure' | 'stopwatch' | 'timePlot' | 'positionPlot' } |
   { type: 'snapshotTaken' } |
   { type: 'screenCleared' } |
-  { type: 'timeChanged' } |
   { type: 'hitStageChanged' } |
   { type: 'waveProgressChanged' } |
   { type: 'patternFormationStarted' } |
@@ -53,6 +52,7 @@ export default class QWITransitionDescriber {
       contextResponse = after.isEmitting ?
                         QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
                           isPlaying: after.isPlaying ? 'true' : 'false',
+                          timeSpeed: after.clockSpeedDescription,
                           beamDescription: formatSourceBeamDescription( after )
                         } ) :
                         QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStoppedStringProperty.value;
@@ -122,15 +122,10 @@ export default class QWITransitionDescriber {
         sourceStartedResponse: isRestarting ?
                                QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
                                  isPlaying: 'true',
+                                 timeSpeed: after.clockSpeedDescription,
                                  beamDescription: formatSourceBeamDescription( after )
                                } ) :
                                ''
-      } );
-    }
-    else if ( action.type === 'timeChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.timeChanged.format( {
-        isPlaying: after.isPlaying ? 'true' : 'false',
-        timeSpeed: after.timeSpeedName
       } );
     }
     else if ( action.type === 'hitStageChanged' ) {
@@ -142,6 +137,7 @@ export default class QWITransitionDescriber {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
         waveProgressStage: after.waveProgress.stage,
         waveProgressCheckpoint: after.waveProgress.checkpoint,
+        waveSpeed: after.waveSpeedDescription,
         slitSetting: after.waveProgress.stage === 'whichPathAfterSlits' ? toDetectorSlitSetting( after.slitConfiguration ) : 'bothDetectors',
         progress: after.waveProgress.wavefrontPercent
       } );

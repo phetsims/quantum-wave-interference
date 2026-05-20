@@ -11,6 +11,7 @@
 import { roundSymmetric } from '../../../../../dot/js/util/roundSymmetric.js';
 import { clamp } from '../../../../../dot/js/util/clamp.js';
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
+import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
 import { type DetectionMode } from '../../../common/model/DetectionMode.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../../common/model/SourceType.js';
@@ -27,12 +28,15 @@ export type QWIPatternFormation = 'empty' | 'forming' | 'complete' | 'collecting
 export type QWIWaveProgressStage = 'sourceOff' | 'travelingToSlits' | 'atSlits' | 'interferingAfterSlits' | 'diffractingAfterSlits' | 'whichPathAfterSlits' | 'directToScreen' | 'hittingScreen';
 export type QWIWaveProgressCheckpoint = 'none' | 'quarter' | 'half' | 'threeQuarters' | 'full';
 export type QWIWavefrontSpacing = 'tightlyPacked' | 'moderatelySpaced' | 'widelySpaced';
+export type QWIWaveSpeedDescription = 'slow' | 'medium' | 'fast';
+export type QWIClockSpeedDescription = 'slow' | 'normal' | 'fast';
+export type QWIBandSpacingDescription = 'farApart' | 'mediumSpaced' | 'closelySpaced';
 export type QWIValueTrend = 'increased' | 'decreased' | 'unchanged';
 
 export type QWIAccessibleState = {
   sourceType: SourceType;
   isPlaying: boolean;
-  timeSpeedName: string;
+  clockSpeedDescription: QWIClockSpeedDescription;
   isEmitting: boolean;
   isEmitterEnabled: boolean;
   isMaxHitsReached: boolean;
@@ -48,11 +52,13 @@ export type QWIAccessibleState = {
   wavelengthColorZone: WavelengthColorZone | null;
   wavefrontSpacing: QWIWavefrontSpacing;
   particleSpeedMetersPerSecond: number;
+  waveSpeedDescription: QWIWaveSpeedDescription;
   effectiveWavelengthMeters: number;
   effectiveWavelengthPicometers: number;
   slitSeparationMM: number | null;
   slitSeparationMicrometers: number | null;
   bandAnalysis: BandAnalysisResult;
+  bandSpacingDescription: QWIBandSpacingDescription;
   hitStage: HitStage;
   totalHits: number;
   patternFormation: QWIPatternFormation;
@@ -98,9 +104,17 @@ const getPatternFormation = ( scene: HighIntensitySceneModel, model: HighIntensi
   }
 
   const formationFactor = scene.detectorPatternFormationFactorProperty.value;
-  return formationFactor >= 1 ? 'complete' :
+  return formationFactor >= 0.7 ? 'complete' :
          formationFactor > 0 ? 'forming' :
          'empty';
+};
+
+const getClockSpeedDescription = ( model: HighIntensityModel ): QWIClockSpeedDescription => {
+  const timeSpeed = model.timeSpeedProperty.value;
+  return timeSpeed === TimeSpeed.SLOW ? 'slow' :
+         timeSpeed === TimeSpeed.NORMAL ? 'normal' :
+         timeSpeed === TimeSpeed.FAST ? 'fast' :
+         ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
 };
 
 const getWavefrontSpacing = (
@@ -120,6 +134,23 @@ const getWavefrontSpacing = (
          relativeWavelength >= 1.15 ? 'widelySpaced' :
          'moderatelySpaced';
 };
+
+const getWaveSpeedDescription = ( scene: HighIntensitySceneModel ): QWIWaveSpeedDescription => {
+  if ( scene.sourceType === 'photons' ) {
+    return 'fast';
+  }
+
+  const speedRange = scene.velocityProperty.range;
+  const speedFraction = ( scene.velocityProperty.value - speedRange.min ) / speedRange.getLength();
+  return speedFraction <= 1 / 3 ? 'slow' :
+         speedFraction >= 2 / 3 ? 'fast' :
+         'medium';
+};
+
+const getBandSpacingDescription = ( bandCount: number ): QWIBandSpacingDescription =>
+  bandCount <= 5 ? 'farApart' :
+  bandCount >= 13 ? 'closelySpaced' :
+  'mediumSpaced';
 
 const getWaveProgress = ( scene: HighIntensitySceneModel, patternKind: QWIPatternKind ): QWIAccessibleState['waveProgress'] => {
   if ( !scene.isEmittingProperty.value ) {
@@ -142,6 +173,8 @@ const getWaveProgress = ( scene: HighIntensitySceneModel, patternKind: QWIPatter
   const wavefrontFraction = clamp( wavefrontX / scene.regionWidth, 0, 1 );
   const slitFraction = scene.slitPositionFractionProperty.value;
   const slitWindow = 0.04;
+  const slitSeparationFraction = scene.slitSeparationProperty.value * 1e-3 / scene.regionWidth;
+  const circularWavesOverlapFraction = slitFraction + Math.max( slitWindow, slitSeparationFraction / 2 );
   const hasReachedSlits = wavefrontFraction >= slitFraction;
   const hasPassedSlits = wavefrontFraction > slitFraction + slitWindow;
   const hasReachedScreen = wavefrontFraction >= 1;
@@ -156,6 +189,7 @@ const getWaveProgress = ( scene: HighIntensitySceneModel, patternKind: QWIPatter
     patternKind === 'noBarrier' ? 'directToScreen' :
     Math.abs( wavefrontFraction - slitFraction ) <= slitWindow ? 'atSlits' :
     !hasReachedSlits ? 'travelingToSlits' :
+    patternKind === 'doubleSlitInterference' && wavefrontFraction < circularWavesOverlapFraction ? 'atSlits' :
     patternKind === 'doubleSlitInterference' ? 'interferingAfterSlits' :
     patternKind === 'whichPathDiffraction' ? 'whichPathAfterSlits' :
     'diffractingAfterSlits';
@@ -190,7 +224,7 @@ export default class QWIAccessibleStateDescriber {
     return {
       sourceType: scene.sourceType,
       isPlaying: this.model.isPlayingProperty.value,
-      timeSpeedName: this.model.timeSpeedProperty.value.name,
+      clockSpeedDescription: getClockSpeedDescription( this.model ),
       isEmitting: scene.isEmittingProperty.value,
       isEmitterEnabled: scene.isEmitterEnabledProperty.value,
       isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
@@ -206,11 +240,13 @@ export default class QWIAccessibleStateDescriber {
       wavelengthColorZone: wavelengthColorZone,
       wavefrontSpacing: getWavefrontSpacing( scene, effectiveWavelengthMeters, wavelengthColorZone ),
       particleSpeedMetersPerSecond: roundSymmetric( scene.velocityProperty.value ),
+      waveSpeedDescription: getWaveSpeedDescription( scene ),
       effectiveWavelengthMeters: effectiveWavelengthMeters,
       effectiveWavelengthPicometers: Number( toFixed( effectiveWavelengthMeters * 1e12, 2 ) ),
       slitSeparationMM: slitConfiguration === 'noBarrier' ? null : scene.slitSeparationProperty.value,
       slitSeparationMicrometers: slitConfiguration === 'noBarrier' ? null : Number( toFixed( scene.slitSeparationProperty.value * 1000, 2 ) ),
       bandAnalysis: bandAnalysis,
+      bandSpacingDescription: getBandSpacingDescription( bandAnalysis.bandCount ),
       hitStage: hitStage,
       totalHits: scene.totalHitsProperty.value,
       patternFormation: getPatternFormation( scene, this.model ),

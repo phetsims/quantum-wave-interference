@@ -145,7 +145,6 @@ type StringsType = {
       'toolChangedStringProperty': LocalizedStringProperty;
       'snapshotTakenStringProperty': LocalizedStringProperty;
       'screenClearedStringProperty': LocalizedStringProperty;
-      'timeChangedStringProperty': LocalizedStringProperty;
       'hitStageChangedStringProperty': LocalizedStringProperty;
       'waveProgressChangedStringProperty': LocalizedStringProperty;
       'maxHitsReachedStringProperty': LocalizedStringProperty;

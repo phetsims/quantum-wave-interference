@@ -65,7 +65,6 @@ export default class HighIntensityAccessibleResponses extends Node {
         effectiveAction.type === 'toolChanged' ? before.tools[ effectiveAction.tool ] !== after.tools[ effectiveAction.tool ] :
         effectiveAction.type === 'snapshotTaken' ? after.numberOfSnapshots > before.numberOfSnapshots :
         effectiveAction.type === 'screenCleared' ? after.totalHits < before.totalHits :
-        effectiveAction.type === 'timeChanged' ? before.isPlaying !== after.isPlaying || before.timeSpeedName !== after.timeSpeedName :
         effectiveAction.type === 'hitStageChanged' ? before.hitStage !== after.hitStage :
         effectiveAction.type === 'waveProgressChanged' ? waveProgressChanged :
         effectiveAction.type === 'patternFormationStarted' ? before.patternFormation === 'empty' &&
@@ -114,8 +113,8 @@ export default class HighIntensityAccessibleResponses extends Node {
     model.isStopwatchVisibleProperty.lazyLink( () => emitTransition( { type: 'toolChanged', tool: 'stopwatch' } ) );
     model.isTimePlotVisibleProperty.lazyLink( () => emitTransition( { type: 'toolChanged', tool: 'timePlot' } ) );
     model.isPositionPlotVisibleProperty.lazyLink( () => emitTransition( { type: 'toolChanged', tool: 'positionPlot' } ) );
-    model.isPlayingProperty.lazyLink( () => emitTransition( { type: 'timeChanged' } ) );
-    model.timeSpeedProperty.lazyLink( () => emitTransition( { type: 'timeChanged' } ) );
+    model.isPlayingProperty.lazyLink( updateStateSilently );
+    model.timeSpeedProperty.lazyLink( updateStateSilently );
     model.currentNumberOfSnapshotsProperty.lazyLink( () => {
       const after = this.stateDescriber.getState();
       if ( after.numberOfSnapshots > this.previousState.numberOfSnapshots ) {

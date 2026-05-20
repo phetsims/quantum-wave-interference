@@ -86,7 +86,7 @@ export default class QWIAccessibleStateTemplate {
     const sourceStatus = QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceStatus.format( {
       isEmitting: toFluentBoolean( state.isEmitting ),
       isPlaying: toFluentBoolean( state.isPlaying ),
-      timeSpeed: state.timeSpeedName
+      timeSpeed: state.clockSpeedDescription
     } );
     const displayTools = QuantumWaveInterferenceFluent.a11y.highIntensityState.displayTools.format( {
       displayMode: state.displayMode,
@@ -101,6 +101,7 @@ export default class QWIAccessibleStateTemplate {
     const waveProgress = QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgress.format( {
       waveProgressStage: state.waveProgress.stage,
       waveProgressCheckpoint: state.waveProgress.checkpoint,
+      waveSpeed: state.waveSpeedDescription,
       slitSetting: state.waveProgress.stage === 'whichPathAfterSlits' ? toDetectorSlitSetting( state.slitConfiguration ) : 'bothDetectors',
       progress: state.waveProgress.wavefrontPercent
     } );

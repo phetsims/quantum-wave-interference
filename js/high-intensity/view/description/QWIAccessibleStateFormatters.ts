@@ -67,5 +67,6 @@ export const formatDetectorDescription = ( state: QWIAccessibleState ): string =
     patternKind: getPatternKindKey( state.patternKind ),
     hitStage: state.hitStage,
     hitCount: state.totalHits,
-    bandCount: state.bandAnalysis.bandCount
+    bandCount: state.bandAnalysis.bandCount,
+    bandSpacing: state.bandSpacingDescription
   } );
