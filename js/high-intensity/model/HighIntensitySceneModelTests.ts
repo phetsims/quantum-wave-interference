@@ -32,6 +32,29 @@ const PARTICLE_MASSES: Partial<Record<SourceType, number>> = {
   heliumAtoms: QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS
 };
 
+const EXPECTED_SLIT_SEPARATIONS: Record<SourceType, { min: number; max: number; defaultValue: number }> = {
+  photons: {
+    min: 0.001,
+    max: 0.005,
+    defaultValue: 0.003
+  },
+  electrons: {
+    min: 1e-6,
+    max: 5e-6,
+    defaultValue: 3e-6
+  },
+  neutrons: {
+    min: 1e-6,
+    max: 5e-6,
+    defaultValue: 3e-6
+  },
+  heliumAtoms: {
+    min: 0.10e-6,
+    max: 0.60e-6,
+    defaultValue: 0.40e-6
+  }
+};
+
 const createScene = ( sourceType: SourceType = 'photons' ): HighIntensitySceneModel => new HighIntensitySceneModel( {
   sourceType: sourceType,
   tandem: Tandem.OPT_OUT
@@ -62,6 +85,33 @@ const prepareSceneForDetectorScreenHits = ( scene: HighIntensitySceneModel ): vo
   stepUntilWavefrontReachesScreen( scene );
   scene.detectionModeProperty.value = 'hits';
 };
+
+QUnit.test( 'slit separation ranges use requested values', assert => {
+  ( Object.keys( EXPECTED_SLIT_SEPARATIONS ) as SourceType[] ).forEach( sourceType => {
+    const scene = createScene( sourceType );
+    const expected = EXPECTED_SLIT_SEPARATIONS[ sourceType ];
+
+    assertApproximately( assert, scene.slitSeparationRange.min, expected.min, `${sourceType} slit separation minimum` );
+    assertApproximately( assert, scene.slitSeparationRange.max, expected.max, `${sourceType} slit separation maximum` );
+    assertApproximately( assert, scene.slitSeparationProperty.value, expected.defaultValue, `${sourceType} slit separation default` );
+  } );
+} );
+
+QUnit.test( 'neutron wave visualizer scale matches electrons without changing physics', assert => {
+  const electronsScene = createScene( 'electrons' );
+  const neutronsScene = createScene( 'neutrons' );
+
+  assert.strictEqual( neutronsScene.regionWidth, electronsScene.regionWidth, 'neutron region width matches electron region width' );
+  assert.strictEqual( neutronsScene.regionHeight, electronsScene.regionHeight, 'neutron region height matches electron region height' );
+
+  assertApproximately(
+    assert,
+    neutronsScene.getEffectiveWavelength(),
+    QuantumWaveInterferenceConstants.PLANCK_CONSTANT /
+    ( QuantumWaveInterferenceConstants.NEUTRON_MASS * neutronsScene.velocityProperty.value ),
+    'neutron wavelength still follows neutron mass and velocity'
+  );
+} );
 
 QUnit.test( 'detector pattern formation waits for wavefront and uses model dt', assert => {
   const scene = createScene();

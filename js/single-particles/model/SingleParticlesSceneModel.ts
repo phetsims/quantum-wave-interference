@@ -25,7 +25,7 @@ import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
-import { getViewSlitLayout, MAX_VIEW_SEPARATION, MIN_VIEW_SEPARATION } from '../../common/model/getViewSlitLayout.js';
+import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
@@ -72,36 +72,23 @@ const SINGLE_PARTICLES_WAVE_DISPLAY_GAIN = 1.75;
 const MICROMETER_TO_MM = 1e-3;
 const NANOMETER_TO_MM = 1e-6;
 
-const PHOTON_SLIT_SEPARATION_RANGE = new Range( 1 * MICROMETER_TO_MM, 4 * MICROMETER_TO_MM );
-const PHOTON_DEFAULT_SLIT_SEPARATION = 2.5 * MICROMETER_TO_MM;
-const ELECTRON_SLIT_SEPARATION_RANGE = new Range( 1 * NANOMETER_TO_MM, 4 * NANOMETER_TO_MM );
-const ELECTRON_DEFAULT_SLIT_SEPARATION = 2.5 * NANOMETER_TO_MM;
-const ELECTRON_DEFAULT_VIEW_SEPARATION = ( MIN_VIEW_SEPARATION + MAX_VIEW_SEPARATION ) / 2;
-
-const getSlitSeparationFromViewSeparation = ( viewSeparation: number, regionHeight: number ): number =>
-  viewSeparation / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT * regionHeight * 1e3;
-
-const getSingleParticlesSlitSeparationConfig = ( sourceType: SourceType, regionHeight: number ): SlitSeparationConfig => {
-  if ( sourceType === 'photons' ) {
-    return {
-      range: PHOTON_SLIT_SEPARATION_RANGE,
-      defaultValue: PHOTON_DEFAULT_SLIT_SEPARATION
-    };
+const SINGLE_PARTICLES_SLIT_SEPARATION_CONFIGS: Record<SourceType, SlitSeparationConfig> = {
+  photons: {
+    range: new Range( 1 * MICROMETER_TO_MM, 3 * MICROMETER_TO_MM ),
+    defaultValue: 2 * MICROMETER_TO_MM
+  },
+  electrons: {
+    range: new Range( 1 * NANOMETER_TO_MM, 3 * NANOMETER_TO_MM ),
+    defaultValue: 2 * NANOMETER_TO_MM
+  },
+  neutrons: {
+    range: new Range( 1 * NANOMETER_TO_MM, 3 * NANOMETER_TO_MM ),
+    defaultValue: 2 * NANOMETER_TO_MM
+  },
+  heliumAtoms: {
+    range: new Range( 0.10 * NANOMETER_TO_MM, 0.50 * NANOMETER_TO_MM ),
+    defaultValue: 0.30 * NANOMETER_TO_MM
   }
-  if ( sourceType === 'electrons' ) {
-    return {
-      range: ELECTRON_SLIT_SEPARATION_RANGE,
-      defaultValue: ELECTRON_DEFAULT_SLIT_SEPARATION
-    };
-  }
-
-  return {
-    range: new Range(
-      getSlitSeparationFromViewSeparation( MIN_VIEW_SEPARATION, regionHeight ),
-      getSlitSeparationFromViewSeparation( MAX_VIEW_SEPARATION, regionHeight )
-    ),
-    defaultValue: getSlitSeparationFromViewSeparation( ELECTRON_DEFAULT_VIEW_SEPARATION, regionHeight )
-  };
 };
 
 export type SingleParticlesSceneModelOptions = BaseSceneModelOptions;
@@ -153,7 +140,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   public constructor( providedOptions: SingleParticlesSceneModelOptions ) {
 
     super( createWavePacketSolver(), combineOptions<BaseSceneModelOptions>( {
-      slitSeparationConfig: regionHeight => getSingleParticlesSlitSeparationConfig( providedOptions.sourceType, regionHeight )
+      slitSeparationConfig: SINGLE_PARTICLES_SLIT_SEPARATION_CONFIGS[ providedOptions.sourceType ]
     }, providedOptions ) );
 
     const tandem = providedOptions.tandem;

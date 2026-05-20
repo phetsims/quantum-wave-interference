@@ -19,6 +19,29 @@ QUnit.module( 'SingleParticlesSceneModel' );
 
 const EPSILON = 1e-10;
 
+const EXPECTED_SLIT_SEPARATIONS: Record<SourceType, { min: number; max: number; defaultValue: number }> = {
+  photons: {
+    min: 0.001,
+    max: 0.003,
+    defaultValue: 0.002
+  },
+  electrons: {
+    min: 1e-6,
+    max: 3e-6,
+    defaultValue: 2e-6
+  },
+  neutrons: {
+    min: 1e-6,
+    max: 3e-6,
+    defaultValue: 2e-6
+  },
+  heliumAtoms: {
+    min: 0.10e-6,
+    max: 0.50e-6,
+    defaultValue: 0.30e-6
+  }
+};
+
 const assertApproximately = (
   assert: Assert,
   actual: number,
@@ -151,16 +174,22 @@ QUnit.test( 'on-slit detector sample is centered on deterministic slit arrival',
 } );
 
 QUnit.test( 'single-particles slit separation ranges use requested values', assert => {
-  const photonsScene = createScene( 'photons' );
+  ( Object.keys( EXPECTED_SLIT_SEPARATIONS ) as SourceType[] ).forEach( sourceType => {
+    const scene = createScene( sourceType );
+    const expected = EXPECTED_SLIT_SEPARATIONS[ sourceType ];
+
+    assertApproximately( assert, scene.slitSeparationRange.min, expected.min, `${sourceType} slit separation minimum` );
+    assertApproximately( assert, scene.slitSeparationRange.max, expected.max, `${sourceType} slit separation maximum` );
+    assertApproximately( assert, scene.slitSeparationProperty.value, expected.defaultValue, `${sourceType} slit separation default` );
+  } );
+} );
+
+QUnit.test( 'neutron wave visualizer scale matches electrons', assert => {
   const electronsScene = createScene( 'electrons' );
+  const neutronsScene = createScene( 'neutrons' );
 
-  assertApproximately( assert, photonsScene.slitSeparationRange.min, 0.001, 'photon min is 1 um' );
-  assertApproximately( assert, photonsScene.slitSeparationRange.max, 0.004, 'photon max is 4 um' );
-  assertApproximately( assert, photonsScene.slitSeparationProperty.value, 0.0025, 'photon default is 2.5 um' );
-
-  assertApproximately( assert, electronsScene.slitSeparationRange.min, 1e-6, 'electron min is 1 nm' );
-  assertApproximately( assert, electronsScene.slitSeparationRange.max, 4e-6, 'electron max is 4 nm' );
-  assertApproximately( assert, electronsScene.slitSeparationProperty.value, 2.5e-6, 'electron default is 2.5 nm' );
+  assert.strictEqual( neutronsScene.regionWidth, electronsScene.regionWidth, 'neutron region width matches electron region width' );
+  assert.strictEqual( neutronsScene.regionHeight, electronsScene.regionHeight, 'neutron region height matches electron region height' );
 } );
 
 QUnit.test( 'neutron and helium atom slit separations visually match electrons', assert => {

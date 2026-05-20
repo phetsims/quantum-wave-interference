@@ -85,6 +85,13 @@ const SOURCE_TYPE_CONFIG: Record<SourceType, SourceTypeConfig> = {
   }
 };
 
+const getDefaultEffectiveWavelength = ( sourceType: SourceType ): number => {
+  const config = SOURCE_TYPE_CONFIG[ sourceType ];
+  return sourceType === 'photons' ?
+         DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
+         QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( config.particleMass * config.defaultVelocity );
+};
+
 type SelfOptions = {
   sourceType: SourceType;
   defaultPhotonWaveDisplayMode?: PhotonWaveDisplayMode;
@@ -114,7 +121,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly slitSeparationRange: Range;
   public readonly regionWidth: number;
   public readonly regionHeight: number;
-  private readonly defaultEffectiveWavelength: number;
   protected readonly defaultWaveSpeed: number;
 
   public readonly isEmittingProperty: BooleanProperty;
@@ -169,15 +175,17 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.velocityRange = new Range( ...config.velocityRange );
     this.decoherenceEvents = [];
 
-    this.defaultEffectiveWavelength = this.sourceType === 'photons' ?
-                                      DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
-                                      QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * config.defaultVelocity );
+    const defaultEffectiveWavelength = getDefaultEffectiveWavelength( this.sourceType );
+    const displayScaleEffectiveWavelength = this.sourceType === 'neutrons' ?
+                                            getDefaultEffectiveWavelength( 'electrons' ) :
+                                            defaultEffectiveWavelength;
 
     // Size the region so that ~DEFAULT_DISPLAY_WAVELENGTHS wavelengths are visible at the default
     // wavelength. The model aspect ratio matches the view so the measuring tape has the same scale
     // horizontally and vertically. For photons this is ~10 μm wide; for matter waves it auto-scales
-    // down to the nm range.
-    const regionSize = this.defaultEffectiveWavelength * DEFAULT_DISPLAY_WAVELENGTHS;
+    // down to the nm range. Neutrons intentionally use the electron display scale so equal
+    // nanometer distances occupy equal view distances in both matter-particle scenes.
+    const regionSize = displayScaleEffectiveWavelength * DEFAULT_DISPLAY_WAVELENGTHS;
     this.regionWidth = regionSize;
     this.regionHeight = regionSize *
                         QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT /

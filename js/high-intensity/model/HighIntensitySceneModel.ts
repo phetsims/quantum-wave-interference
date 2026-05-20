@@ -20,10 +20,12 @@ import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
-import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS } from '../../common/model/BaseSceneModel.js';
+import { combineOptions } from '../../../../phet-core/js/optionize.js';
+import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
+import { type SourceType } from '../../common/model/SourceType.js';
 
 // Detector-screen hit dots created per model second in Hits mode.
 export const DETECTOR_SCREEN_HIT_RATE = 40;
@@ -38,6 +40,28 @@ const MAX_DECOHERENCE_EVENTS_PER_FRAME = 64;
 // The screen model runs at 0.5x in Normal speed, so 2 seconds of effective model time produces
 // a 4-second detector pattern formation time in Normal speed.
 export const DETECTOR_PATTERN_FORMATION_DURATION = 2;
+
+const MICROMETER_TO_MM = 1e-3;
+const NANOMETER_TO_MM = 1e-6;
+
+const HIGH_INTENSITY_SLIT_SEPARATION_CONFIGS: Record<SourceType, SlitSeparationConfig> = {
+  photons: {
+    range: new Range( 1 * MICROMETER_TO_MM, 5 * MICROMETER_TO_MM ),
+    defaultValue: 3 * MICROMETER_TO_MM
+  },
+  electrons: {
+    range: new Range( 1 * NANOMETER_TO_MM, 5 * NANOMETER_TO_MM ),
+    defaultValue: 3 * NANOMETER_TO_MM
+  },
+  neutrons: {
+    range: new Range( 1 * NANOMETER_TO_MM, 5 * NANOMETER_TO_MM ),
+    defaultValue: 3 * NANOMETER_TO_MM
+  },
+  heliumAtoms: {
+    range: new Range( 0.10 * NANOMETER_TO_MM, 0.60 * NANOMETER_TO_MM ),
+    defaultValue: 0.40 * NANOMETER_TO_MM
+  }
+};
 
 export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 
@@ -67,7 +91,9 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   public constructor( providedOptions: HighIntensitySceneModelOptions ) {
 
-    super( createContinuousWaveSolver(), providedOptions );
+    super( createContinuousWaveSolver(), combineOptions<BaseSceneModelOptions>( {
+      slitSeparationConfig: HIGH_INTENSITY_SLIT_SEPARATION_CONFIGS[ providedOptions.sourceType ]
+    }, providedOptions ) );
 
     const tandem = providedOptions.tandem;
 
