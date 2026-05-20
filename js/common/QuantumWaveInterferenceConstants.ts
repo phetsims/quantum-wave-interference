@@ -54,8 +54,9 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly WAVE_PACKET_SIGMA_X_FRACTION = 0.15;
   public static readonly WAVE_PACKET_SIGMA_Y_FRACTION = 0.15;
 
-  // The packet starts this many sigma_x widths to the left of the visible region so it enters smoothly.
-  public static readonly WAVE_PACKET_START_OFFSET_SIGMAS = 3;
+  // The packet starts this many sigma_x widths to the left of the visible region. Keep this close
+  // enough that Single Particles packets appear promptly after emission while still entering smoothly.
+  public static readonly WAVE_PACKET_START_OFFSET_SIGMAS = 2;
 
   // Slit-detector re-emission starts with this many sigma_x of packet history already elapsed. This
   // keeps the source-side packet reset, while avoiding a long wait before the new packet is visible

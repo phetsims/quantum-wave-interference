@@ -10,6 +10,7 @@ import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import HighIntensityModel from '../../high-intensity/model/HighIntensityModel.js';
 import HighIntensitySceneModel, { DETECTOR_SCREEN_HIT_RATE } from '../../high-intensity/model/HighIntensitySceneModel.js';
+import SingleParticlesModel from '../../single-particles/model/SingleParticlesModel.js';
 
 QUnit.module( 'BaseScreenModel' );
 
@@ -41,6 +42,24 @@ const prepareHighIntensitySceneForHits = ( scene: HighIntensitySceneModel ): voi
   }
   throw new Error( 'wavefront did not reach screen during test setup' );
 };
+
+QUnit.test( 'screen-specific time speed factors', assert => {
+  const realDt = 2;
+
+  const highIntensityModel = new HighIntensityModel( { tandem: Tandem.OPT_OUT } );
+  highIntensityModel.timeSpeedProperty.value = TimeSpeed.NORMAL;
+  assert.strictEqual( highIntensityModel.getEffectiveDt( realDt ), realDt * 0.35, 'High Intensity Normal speed is unchanged' );
+  highIntensityModel.timeSpeedProperty.value = TimeSpeed.FAST;
+  assert.strictEqual( highIntensityModel.getEffectiveDt( realDt ), realDt * 0.65, 'High Intensity Fast speed is unchanged' );
+
+  const singleParticlesModel = new SingleParticlesModel( { tandem: Tandem.OPT_OUT } );
+  singleParticlesModel.timeSpeedProperty.value = TimeSpeed.NORMAL;
+  assert.strictEqual( singleParticlesModel.getEffectiveDt( realDt ), realDt * 0.7, 'Single Particles Normal speed is faster' );
+  singleParticlesModel.timeSpeedProperty.value = TimeSpeed.FAST;
+  assert.strictEqual( singleParticlesModel.getEffectiveDt( realDt ), realDt * 8, 'Single Particles Fast speed is unchanged' );
+  singleParticlesModel.timeSpeedProperty.value = TimeSpeed.SLOW;
+  assert.strictEqual( singleParticlesModel.getEffectiveDt( realDt ), realDt * 0.15, 'Single Particles Slow speed is unchanged' );
+} );
 
 QUnit.test( 'pause advances neither solver nor stopwatch', assert => {
   const model = new HighIntensityModel( { tandem: Tandem.OPT_OUT } );

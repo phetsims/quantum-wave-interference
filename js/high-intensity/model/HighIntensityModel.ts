@@ -19,6 +19,7 @@ import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConf
 import HighIntensitySceneModel from './HighIntensitySceneModel.js';
 
 // Keep the highest-frequency High Intensity continuous waves below the 30 FPS Nyquist limit.
+const NORMAL_TIME_SPEED_FACTOR = 0.35;
 const FAST_TIME_SPEED_FACTOR = 0.65;
 const ACCESSIBLE_STATE_STEP_INTERVAL = 10;
 
@@ -47,7 +48,10 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
       new HighIntensitySceneModel( { sourceType: 'heliumAtoms', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'heliumAtomsScene' ) } )
     ];
 
-    super( scenes, FAST_TIME_SPEED_FACTOR, providedOptions );
+    super( scenes, {
+      normal: NORMAL_TIME_SPEED_FACTOR,
+      fast: FAST_TIME_SPEED_FACTOR
+    }, providedOptions );
 
     this.accessibleStateStepFrameCount = 0;
 

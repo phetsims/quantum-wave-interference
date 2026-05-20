@@ -28,9 +28,13 @@ import TimeSpeedProperty from './TimeSpeedProperty.js';
 
 const NOMINAL_DT = 1 / 60;
 const SLOW_TIME_SPEED_FACTOR = 0.15;
-const NORMAL_TIME_SPEED_FACTOR = 0.35;
 
 type BaseScreenModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
+
+type TimeSpeedFactors = {
+  normal: number;
+  fast: number;
+};
 
 export default abstract class BaseScreenModel<T extends BaseSceneModel> implements TModel {
 
@@ -72,14 +76,16 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   public readonly stopwatch: Stopwatch;
 
   protected readonly toolsTandem;
+  private readonly normalTimeSpeedFactor: number;
   private readonly fastTimeSpeedFactor: number;
 
-  protected constructor( scenes: T[], fastTimeSpeedFactor: number, providedOptions: BaseScreenModelOptions ) {
+  protected constructor( scenes: T[], timeSpeedFactors: TimeSpeedFactors, providedOptions: BaseScreenModelOptions ) {
 
     const tandem = providedOptions.tandem;
 
     this.scenes = scenes;
-    this.fastTimeSpeedFactor = fastTimeSpeedFactor;
+    this.normalTimeSpeedFactor = timeSpeedFactors.normal;
+    this.fastTimeSpeedFactor = timeSpeedFactors.fast;
 
     this.sceneProperty = new Property<T>( scenes[ 0 ], {
       validValues: scenes,
@@ -243,7 +249,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     const timeSpeed = this.timeSpeedProperty.value;
     return timeSpeed === TimeSpeed.SLOW ? dt * SLOW_TIME_SPEED_FACTOR :
            timeSpeed === TimeSpeed.FAST ? dt * this.fastTimeSpeedFactor :
-           timeSpeed === TimeSpeed.NORMAL ? dt * NORMAL_TIME_SPEED_FACTOR :
+           timeSpeed === TimeSpeed.NORMAL ? dt * this.normalTimeSpeedFactor :
            ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
   }
 

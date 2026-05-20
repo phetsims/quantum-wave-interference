@@ -173,6 +173,27 @@ QUnit.test( 'on-slit detector sample is centered on deterministic slit arrival',
   );
 } );
 
+QUnit.test( 'packet timing uses configured start offset', assert => {
+  const scene = createScene();
+  const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
+  const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * scene.regionWidth;
+  const startOffset = QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
+
+  assert.strictEqual( QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS, 2, 'packet starts two sigma widths before the visible region' );
+  assertApproximately(
+    assert,
+    getDeterministicSlitArrivalTime( scene ),
+    ( scene.slitPositionFractionProperty.value * scene.regionWidth + startOffset ) / propagationSpeed,
+    'slit arrival includes the configured start offset'
+  );
+  assertApproximately(
+    assert,
+    getDeterministicScreenArrivalTime( scene ),
+    ( scene.regionWidth + startOffset ) / propagationSpeed,
+    'screen arrival includes the configured start offset'
+  );
+} );
+
 QUnit.test( 'single-particles slit separation ranges use requested values', assert => {
   ( Object.keys( EXPECTED_SLIT_SEPARATIONS ) as SourceType[] ).forEach( sourceType => {
     const scene = createScene( sourceType );

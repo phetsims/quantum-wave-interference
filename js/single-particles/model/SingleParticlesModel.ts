@@ -18,6 +18,7 @@ import BaseScreenModel from '../../common/model/BaseScreenModel.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import SingleParticlesSceneModel, { type DetectorToolState } from './SingleParticlesSceneModel.js';
 
+const NORMAL_TIME_SPEED_FACTOR = 0.7;
 const FAST_TIME_SPEED_FACTOR = 8;
 
 type SingleParticlesModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
@@ -56,7 +57,10 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
       new SingleParticlesSceneModel( { sourceType: 'heliumAtoms', defaultMatterWaveDisplayMode: 'realPart', tandem: scenesTandem.createTandem( 'heliumAtomsScene' ) } )
     ];
 
-    super( scenes, FAST_TIME_SPEED_FACTOR, providedOptions );
+    super( scenes, {
+      normal: NORMAL_TIME_SPEED_FACTOR,
+      fast: FAST_TIME_SPEED_FACTOR
+    }, providedOptions );
 
     this.photonsScene = photonsScene;
 
