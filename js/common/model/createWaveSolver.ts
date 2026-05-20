@@ -11,12 +11,19 @@
 
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
+import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import type WaveSolver from './WaveSolver.js';
 
 export function createContinuousWaveSolver(): WaveSolver {
-  return new AnalyticalWaveSolver();
+  return new AnalyticalWaveSolver(
+    QuantumWaveInterferenceQueryParameters.waveSolverGridSize,
+    QuantumWaveInterferenceQueryParameters.waveSolverGridSize
+  );
 }
 
 export function createWavePacketSolver(): WaveSolver {
-  return new AnalyticalWavePacketSolver();
+  return new AnalyticalWavePacketSolver(
+    QuantumWaveInterferenceQueryParameters.waveSolverGridSize,
+    QuantumWaveInterferenceQueryParameters.waveSolverGridSize
+  );
 }
