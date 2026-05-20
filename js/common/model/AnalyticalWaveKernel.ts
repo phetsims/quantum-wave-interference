@@ -45,8 +45,8 @@ const MEASUREMENT_BITE_INITIAL_SATURATION = Math.exp( 0.5 );
 // sigmaX0 = 0.15 of that width. Keeping this ratio here lets the pure kernel derive the reference
 // detector radius from the packet parameters it already receives.
 const MEASUREMENT_BITE_REFERENCE_RADIUS_TO_PACKET_SIGMA_X = 2 / 3;
-const MEASUREMENT_BITE_REFERENCE_SPREAD_TIME = 0.75;
-const MEASUREMENT_BITE_MAX_SPREAD_TIME = 2.0;
+const MEASUREMENT_BITE_REFERENCE_SPREAD_TIME = 0.5;
+const MEASUREMENT_BITE_MAX_SPREAD_TIME = 1.1;
 
 // After the instantaneous failed-detection disk, evolve the bite as a single centered super-Gaussian
 // deficit. The edge deficit calibrates the falloff scale so the super-Gaussian is nearly zero at the
