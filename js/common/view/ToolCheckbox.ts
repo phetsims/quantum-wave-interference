@@ -34,10 +34,15 @@ export default class ToolCheckbox extends Checkbox {
     icon?: Node,
     accessibleHelpText?: TReadOnlyProperty<string>
   ) {
-    const labelMaxWidth = Math.max( 1, QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH -
-                                       CHECKBOX_LAYOUT_BOX_WIDTH -
-                                       CHECKBOX_LABEL_SPACING -
-                                       ( icon ? LABEL_ICON_SPACING + icon.width : 0 ) );
+    const iconAndSpacingWidth = icon ? LABEL_ICON_SPACING + icon.width : 0;
+    const availableLabelWidth = QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH -
+                                CHECKBOX_LAYOUT_BOX_WIDTH -
+                                CHECKBOX_LABEL_SPACING -
+                                iconAndSpacingWidth;
+    assert && assert( availableLabelWidth > 0,
+      `ToolCheckbox icon width leaves no label room: availableLabelWidth=${availableLabelWidth}` );
+
+    const labelMaxWidth = Math.max( 1, availableLabelWidth );
     const label = new Text( stringProperty, { font: LABEL_FONT, maxWidth: labelMaxWidth, layoutOptions: { grow: 1 } } );
     const content = icon ?
                     new HBox( { children: [ label, icon ], spacing: LABEL_ICON_SPACING } ) :

@@ -106,11 +106,15 @@ export default class RightControlsColumn extends VBox {
     const stepForwardButtonRadius = 15;
     const playPauseStepButtonSpacing = 10;
     const timeControlFlowBoxSpacing = 15;
+
+    const playPauseStepButtonGroupWidth = 2 * playPauseButtonRadius +
+                                          2 * stepForwardButtonRadius +
+                                          playPauseStepButtonSpacing;
+
+    // Aqua radio button circle, stroke, and label spacing.
     const timeSpeedRadioButtonChromeWidth = 25;
     const timeSpeedLabelMaxWidth = Math.max( 1, rightPanelWidth -
-                                                2 * playPauseButtonRadius -
-                                                2 * stepForwardButtonRadius -
-                                                playPauseStepButtonSpacing -
+                                                playPauseStepButtonGroupWidth -
                                                 timeControlFlowBoxSpacing -
                                                 timeSpeedRadioButtonChromeWidth );
 
@@ -285,6 +289,8 @@ export default class RightControlsColumn extends VBox {
       },
       tandem: tandem.createTandem( 'timeControlNode' )
     } );
+    assert && assert( timeControlNode.width <= rightPanelWidth + 1e-6,
+      `timeControlNode.width=${timeControlNode.width} exceeds rightPanelWidth=${rightPanelWidth}` );
 
     // --- Reset All ---
 

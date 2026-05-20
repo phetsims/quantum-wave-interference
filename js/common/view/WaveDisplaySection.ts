@@ -27,9 +27,13 @@ const TITLE_FONT = new PhetFont( 14 );
 const COMBO_BOX_FONT = new PhetFont( 14 );
 const COMBO_BOX_X_MARGIN = 10;
 const COMBO_BOX_Y_MARGIN = 6;
+const COMBO_BOX_LINE_WIDTH = 1;
 
-// ComboBox adds margins, a separator, and an arrow area around item text.
-const COMBO_BOX_ITEM_TEXT_MAX_WIDTH = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH - 50;
+// ComboBoxButton lays out text, x margins, a separator, and a square arrow area based on item height.
+const COMBO_BOX_ITEM_HEIGHT = new Text( 'test', { font: COMBO_BOX_FONT } ).height;
+const COMBO_BOX_ARROW_AREA_WIDTH = COMBO_BOX_ITEM_HEIGHT + 2 * COMBO_BOX_Y_MARGIN;
+const COMBO_BOX_CHROME_WIDTH = 2 * COMBO_BOX_X_MARGIN + COMBO_BOX_LINE_WIDTH + COMBO_BOX_ARROW_AREA_WIDTH;
+const COMBO_BOX_ITEM_TEXT_MAX_WIDTH = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH - COMBO_BOX_CHROME_WIDTH;
 
 type WaveDisplayModel = {
   sceneProperty: TReadOnlyProperty<{ sourceType: string }>;
@@ -78,6 +82,8 @@ export default class WaveDisplaySection extends VBox {
         yMargin: COMBO_BOX_Y_MARGIN
       }
     );
+    assert && assert( photonWaveDisplayComboBox.width <= QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH + 1e-6,
+      `photonWaveDisplayComboBox.width=${photonWaveDisplayComboBox.width} exceeds RIGHT_PANEL_WIDTH=${QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH}` );
 
     const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
       { value: 'realPart', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.realPartStringProperty ), tandemName: 'realPartItem' },
@@ -96,6 +102,8 @@ export default class WaveDisplaySection extends VBox {
         yMargin: COMBO_BOX_Y_MARGIN
       }
     );
+    assert && assert( matterWaveDisplayComboBox.width <= QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH + 1e-6,
+      `matterWaveDisplayComboBox.width=${matterWaveDisplayComboBox.width} exceeds RIGHT_PANEL_WIDTH=${QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH}` );
 
     // Center both alternate combo boxes in the same dynamic bounds so the visible one lines up with the time controls.
     const comboBoxAlignGroup = new AlignGroup( { matchVertical: false } );
