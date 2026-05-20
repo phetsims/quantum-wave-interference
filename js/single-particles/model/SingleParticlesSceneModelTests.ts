@@ -223,6 +223,60 @@ QUnit.test( 'neutron and helium atom slit separations visually match electrons',
   }
 } );
 
+QUnit.test( 'clearScreen stops non-auto-repeat packet without re-emitting', assert => {
+  const scene = createScene();
+  scene.isEmittingProperty.value = true;
+  scene.emitPacket();
+
+  assert.true( scene.isPacketActiveProperty.value, 'packet is active before clearing' );
+  assert.false( scene.isEmitterEnabledProperty.value, 'emitter button is disabled while non-auto-repeat packet is active' );
+
+  scene.clearScreen();
+
+  assert.false( scene.isEmittingProperty.value, 'clearing turns off source when auto-repeat is disabled' );
+  assert.false( scene.isPacketActiveProperty.value, 'clearing cancels the active packet' );
+  assert.true( scene.isEmitterEnabledProperty.value, 'emitter button is re-enabled after clearing' );
+
+  scene.step( 1 );
+
+  assert.false( scene.isPacketActiveProperty.value, 'packet is not re-emitted on the next step' );
+  assert.strictEqual( scene.totalHitsProperty.value, 0, 'detector screen remains clear' );
+} );
+
+QUnit.test( 'clearScreen preserves auto-repeat re-emission', assert => {
+  const scene = createScene();
+  scene.autoRepeatProperty.value = true;
+  scene.isEmittingProperty.value = true;
+  scene.emitPacket();
+
+  scene.clearScreen();
+
+  assert.true( scene.isEmittingProperty.value, 'clearing keeps source on when auto-repeat is enabled' );
+  assert.false( scene.isPacketActiveProperty.value, 'clearing cancels the current packet before the next repeat' );
+  assert.true( scene.isEmitterEnabledProperty.value, 'emitter button remains enabled in auto-repeat mode' );
+
+  scene.step( 0 );
+
+  assert.true( scene.isPacketActiveProperty.value, 'auto-repeat emits a new packet on the next step' );
+} );
+
+QUnit.test( 'slit configuration clear stops non-auto-repeat packet without re-emitting', assert => {
+  const scene = createScene();
+  scene.isEmittingProperty.value = true;
+  scene.emitPacket();
+
+  scene.slitConfigurationProperty.value = 'rightDetector';
+
+  assert.false( scene.isEmittingProperty.value, 'slit configuration clear turns off source when auto-repeat is disabled' );
+  assert.false( scene.isPacketActiveProperty.value, 'slit configuration clear cancels the active packet' );
+  assert.true( scene.isEmitterEnabledProperty.value, 'emitter button is re-enabled after slit configuration clear' );
+
+  scene.step( 1 );
+
+  assert.false( scene.isPacketActiveProperty.value, 'packet is not re-emitted after slit configuration clear' );
+  assert.strictEqual( scene.totalHitsProperty.value, 0, 'detector screen remains clear after slit configuration change' );
+} );
+
 QUnit.test( 'on-slit detector waits for sampled time instead of center arrival', assert => {
   const scene = createScene();
   const deterministicSlitArrivalTime = getDeterministicSlitArrivalTime( scene );

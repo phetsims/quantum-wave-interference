@@ -244,6 +244,11 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.deterministicOnSlitArrivalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
     this.hasCreatedPacketDecoherenceEvent = false;
     this.packetReEmission = null;
+
+    if ( !this.autoRepeatProperty.value ) {
+      this.isEmittingProperty.value = false;
+    }
+
     super.clearScreen();
   }
 
