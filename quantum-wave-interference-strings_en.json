@@ -311,26 +311,29 @@
       "sourceStarted": {
         "value": "{ $isPlaying ->\n  [false] Source started. Sim is paused.\n *[true] Source started on { $timeSpeed } speed. { $beamDescription }\n}"
       },
+      "sourceRestarted": {
+        "value": "Source restarted. { $beamDescription }"
+      },
       "sourceStopped": {
         "value": "Source stopped. The wave area and detector screens clear."
       },
       "particleTypeChanged": {
-        "value": "Now experimenting with { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n}. Source, slits, and screen settings updated."
+        "value": "{ $isEmitting ->\n  [true] { $sourceRestartedResponse }\n *[false] Now experimenting with { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }. Source, slits, and screen settings updated.\n}"
       },
       "detectionModeChanged": {
         "value": "{ $detectionMode ->\n  [averageIntensity] Average Intensity selected. The predicted pattern is shown continuously.\n *[hits] Hits selected. Individual particle impacts build the pattern statistically.\n}"
       },
       "slitConfigurationChanged": {
-        "value": "{ $isEmitting ->\n  [true] Slit setting changed. The wave area and detector screen clear, and the source starts emanating from the left again.\n *[false] { $slitSetting ->\n    [bothOpen] Both slits open.\n    [leftCovered] Top slit covered.\n    [rightCovered] Bottom slit covered.\n    [leftDetector] Top slit detector added.\n    [rightDetector] Bottom slit detector added.\n    [noBarrier] Barrier removed.\n   *[bothDetectors] Detectors added to both slits.\n  }\n}"
+        "value": "{ $isEmitting ->\n  [true] { $sourceRestartedResponse }\n *[false] { $slitSetting ->\n    [bothOpen] Both slits open.\n    [leftCovered] Top slit covered.\n    [rightCovered] Bottom slit covered.\n    [leftDetector] Top slit detector added.\n    [rightDetector] Bottom slit detector added.\n    [noBarrier] Barrier removed.\n   *[bothDetectors] Detectors added to both slits.\n  }\n}"
       },
       "slitSeparationChanged": {
-        "value": "{ $isEmitting ->\n  [true] Slit separation changed. The wave area and detector screen clear, and the source starts emanating from the left again.\n *[false] Slit separation changed.\n}"
+        "value": "{ $isEmitting ->\n  [true] { $sourceRestartedResponse }\n *[false] Slit separation changed.\n}"
       },
       "wavelengthChanged": {
-        "value": "{ $isEmitting ->\n  [true] Source restarted. { $beamDescription }\n *[false] Wavelength changed.\n}"
+        "value": "{ $isEmitting ->\n  [true] { $sourceRestartedResponse }\n *[false] Wavelength changed.\n}"
       },
       "speedChanged": {
-        "value": "{ $isEmitting ->\n  [true] Particle speed changed. The wave area and detector screen clear, and the source starts emanating from the left again.\n *[false] Particle speed changed.\n}"
+        "value": "{ $isEmitting ->\n  [true] { $sourceRestartedResponse }\n *[false] Particle speed changed.\n}"
       },
       "displayModeChanged": {
         "value": "{ $displayMode ->\n  [graph] Graph shown. It represents the detector pattern as { $detectionMode ->\n    [averageIntensity] an intensity curve.\n   *[hits] a hits histogram.\n  }\n *[screen] Detector screen shown.\n}"
@@ -348,7 +351,7 @@
         "value": "Snapshot { $snapshotCount } stored."
       },
       "screenCleared": {
-        "value": "{ $isRestarting ->\n  [true] Wave area cleared. { $sourceStartedResponse }\n *[false] Wave area cleared. Sim still paused.\n}"
+        "value": "{ $isRestarting ->\n  [true] Wave area cleared. { $sourceRestartedResponse }\n *[false] Wave area cleared. Sim still paused.\n}"
       },
       "hitStageChanged": {
         "value": "Hits pattern is now { $hitStage ->\n  [none] empty.\n  [few] just beginning with a few scattered hits.\n  [emerging] showing faint repeated stripes.\n  [developing] developing distinct interference bands.\n *[clear] showing a clear interference pattern.\n}"

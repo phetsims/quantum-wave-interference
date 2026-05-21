@@ -436,14 +436,18 @@ a11y:
                            [false] Source started. Sim is paused.
                           *[true] Source started on { $timeSpeed } speed. { $beamDescription }
                          }
+    sourceRestarted:     Source restarted. { $beamDescription }
     sourceStopped:       Source stopped. The wave area and detector screens clear.
     particleTypeChanged: >-
-                         Now experimenting with { $sourceType ->
-                           [photons] photons
-                           [electrons] electrons
-                           [neutrons] neutrons
-                          *[heliumAtoms] helium atoms
-                         }. Source, slits, and screen settings updated.
+                         { $isEmitting ->
+                           [true] { $sourceRestartedResponse }
+                          *[false] Now experimenting with { $sourceType ->
+                             [photons] photons
+                             [electrons] electrons
+                             [neutrons] neutrons
+                            *[heliumAtoms] helium atoms
+                           }. Source, slits, and screen settings updated.
+                         }
     detectionModeChanged: >-
                          { $detectionMode ->
                            [averageIntensity] Average Intensity selected. The predicted pattern is shown continuously.
@@ -451,7 +455,7 @@ a11y:
                          }
     slitConfigurationChanged: >-
                          { $isEmitting ->
-                           [true] Slit setting changed. The wave area and detector screen clear, and the source starts emanating from the left again.
+                           [true] { $sourceRestartedResponse }
                           *[false] { $slitSetting ->
                              [bothOpen] Both slits open.
                              [leftCovered] Top slit covered.
@@ -464,17 +468,17 @@ a11y:
                          }
     slitSeparationChanged: >-
                          { $isEmitting ->
-                           [true] Slit separation changed. The wave area and detector screen clear, and the source starts emanating from the left again.
+                           [true] { $sourceRestartedResponse }
                           *[false] Slit separation changed.
                          }
     wavelengthChanged:   >-
                          { $isEmitting ->
-                           [true] Source restarted. { $beamDescription }
+                           [true] { $sourceRestartedResponse }
                           *[false] Wavelength changed.
                          }
     speedChanged:        >-
                          { $isEmitting ->
-                           [true] Particle speed changed. The wave area and detector screen clear, and the source starts emanating from the left again.
+                           [true] { $sourceRestartedResponse }
                           *[false] Particle speed changed.
                          }
     displayModeChanged:  >-
@@ -512,7 +516,7 @@ a11y:
     snapshotTaken:       'Snapshot { $snapshotCount } stored.'
     screenCleared:       >-
                          { $isRestarting ->
-                           [true] Wave area cleared. { $sourceStartedResponse }
+                           [true] Wave area cleared. { $sourceRestartedResponse }
                           *[false] Wave area cleared. Sim still paused.
                          }
     hitStageChanged:     >-

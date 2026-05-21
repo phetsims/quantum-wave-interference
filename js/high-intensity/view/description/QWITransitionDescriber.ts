@@ -47,6 +47,9 @@ export default class QWITransitionDescriber {
 
   public static describe( action: QWITransitionAction, before: QWIAccessibleState, after: QWIAccessibleState ): QWIResponsePlan {
     let contextResponse: string | null = null;
+    const sourceRestartedResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestarted.format( {
+      beamDescription: formatSourceBeamDescription( after )
+    } );
 
     if ( action.type === 'sourceChanged' ) {
       contextResponse = after.isEmitting ?
@@ -58,9 +61,13 @@ export default class QWITransitionDescriber {
                         QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStoppedStringProperty.value;
     }
     else if ( action.type === 'particleTypeChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.particleTypeChanged.format( {
-        sourceType: after.sourceType
-      } );
+      contextResponse = after.isEmitting ?
+                        sourceRestartedResponse :
+                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.particleTypeChanged.format( {
+                          isEmitting: 'false',
+                          sourceRestartedResponse: sourceRestartedResponse,
+                          sourceType: after.sourceType
+                        } );
     }
     else if ( action.type === 'detectionModeChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.detectionModeChanged.format( {
@@ -68,26 +75,37 @@ export default class QWITransitionDescriber {
       } );
     }
     else if ( action.type === 'slitConfigurationChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
-        isEmitting: after.isEmitting ? 'true' : 'false',
-        slitSetting: after.slitConfiguration
-      } );
+      contextResponse = after.isEmitting ?
+                        sourceRestartedResponse :
+                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
+                          isEmitting: 'false',
+                          slitSetting: after.slitConfiguration,
+                          sourceRestartedResponse: sourceRestartedResponse
+                        } );
     }
     else if ( action.type === 'slitSeparationChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitSeparationChanged.format( {
-        isEmitting: after.isEmitting ? 'true' : 'false'
-      } );
+      contextResponse = after.isEmitting ?
+                        sourceRestartedResponse :
+                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitSeparationChanged.format( {
+                          isEmitting: 'false',
+                          sourceRestartedResponse: sourceRestartedResponse
+                        } );
     }
     else if ( action.type === 'wavelengthChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.wavelengthChanged.format( {
-        isEmitting: after.isEmitting ? 'true' : 'false',
-        beamDescription: formatSourceBeamDescription( after )
-      } );
+      contextResponse = after.isEmitting ?
+                        sourceRestartedResponse :
+                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.wavelengthChanged.format( {
+                          isEmitting: 'false',
+                          sourceRestartedResponse: sourceRestartedResponse
+                        } );
     }
     else if ( action.type === 'speedChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.speedChanged.format( {
-        isEmitting: after.isEmitting ? 'true' : 'false'
-      } );
+      contextResponse = after.isEmitting ?
+                        sourceRestartedResponse :
+                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.speedChanged.format( {
+                          isEmitting: 'false',
+                          sourceRestartedResponse: sourceRestartedResponse
+                        } );
     }
     else if ( action.type === 'displayModeChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.displayModeChanged.format( {
@@ -118,16 +136,12 @@ export default class QWITransitionDescriber {
     }
     else if ( action.type === 'screenCleared' ) {
       const isRestarting = after.isPlaying && after.isEmitting;
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.screenCleared.format( {
-        isRestarting: isRestarting ? 'true' : 'false',
-        sourceStartedResponse: isRestarting ?
-                               QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
-                                 isPlaying: 'true',
-                                 timeSpeed: after.clockSpeedDescription,
-                                 beamDescription: formatSourceBeamDescription( after )
-                               } ) :
-                               ''
-      } );
+      contextResponse = isRestarting ?
+                        `Wave area cleared. ${sourceRestartedResponse}` :
+                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.screenCleared.format( {
+                          isRestarting: 'false',
+                          sourceRestartedResponse: sourceRestartedResponse
+                        } );
     }
     else if ( action.type === 'hitStageChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.hitStageChanged.format( {

@@ -19,6 +19,14 @@ import QWITransitionDescriber from './QWITransitionDescriber.js';
 
 QUnit.module( 'QWIAccessibleState' );
 
+const SOURCE_RESTARTED_TEXT = 'Source restarted.';
+const GREEN_BEAM_TEXT = 'Green and black plane waves emanate from left.';
+const RED_BEAM_TEXT = 'Red and black plane waves emanate from left.';
+const GRAY_BEAM_TEXT = 'Gray and black plane waves emanate from left.';
+const MODERATE_SPACING_TEXT = 'Wave peaks moderately spaced.';
+const WIDE_SPACING_TEXT = 'Wave peaks somewhat far apart.';
+const GREEN_WAVELENGTH_NM = 550;
+
 const createModel = (): HighIntensityModel => new HighIntensityModel( { tandem: Tandem.OPT_OUT } );
 
 const stepSceneToWavefrontFraction = ( model: HighIntensityModel, wavefrontFraction: number ): void => {
@@ -59,12 +67,15 @@ QUnit.test( 'temporally chained parameter changes describe reset instead of fina
   const describer = new QWIAccessibleStateDescriber( model );
   const scene = model.sceneProperty.value;
 
+  scene.wavelengthProperty.value = GREEN_WAVELENGTH_NM;
   scene.isEmittingProperty.value = true;
   const beforeSeparation = describer.getState();
   scene.slitSeparationProperty.value = scene.slitSeparationProperty.range.max;
   const afterSeparation = describer.getState();
   const slitSeparationResponse = QWITransitionDescriber.describe( { type: 'slitSeparationChanged' }, beforeSeparation, afterSeparation ).contextResponse!;
-  assert.ok( slitSeparationResponse.includes( 'wave area and detector screen clear' ), 'source-on slit separation response describes the immediate reset' );
+  assert.ok( slitSeparationResponse.includes( SOURCE_RESTARTED_TEXT ), 'source-on slit separation response describes the immediate restart' );
+  assert.ok( slitSeparationResponse.includes( GREEN_BEAM_TEXT ), 'source-on slit separation response describes the restarted beam' );
+  assert.ok( slitSeparationResponse.includes( MODERATE_SPACING_TEXT ), 'source-on slit separation response describes the restarted spacing' );
   assert.notOk( slitSeparationResponse.includes( 'Interference bands' ), 'source-on slit separation response does not predict final band spacing' );
 
   scene.slitSeparationProperty.reset();
@@ -73,8 +84,9 @@ QUnit.test( 'temporally chained parameter changes describe reset instead of fina
   scene.wavelengthProperty.value = scene.wavelengthProperty.range.max;
   const afterWavelength = describer.getState();
   const wavelengthResponse = QWITransitionDescriber.describe( { type: 'wavelengthChanged' }, beforeWavelength, afterWavelength ).contextResponse!;
-  assert.ok( wavelengthResponse.includes( 'Source restarted.' ), 'source-on wavelength response describes the immediate restart' );
-  assert.ok( wavelengthResponse.includes( 'Red and black plane waves emanate from left.' ), 'source-on wavelength response describes the restarted beam' );
+  assert.ok( wavelengthResponse.includes( SOURCE_RESTARTED_TEXT ), 'source-on wavelength response describes the immediate restart' );
+  assert.ok( wavelengthResponse.includes( RED_BEAM_TEXT ), 'source-on wavelength response describes the restarted beam based on the new wavelength' );
+  assert.ok( wavelengthResponse.includes( WIDE_SPACING_TEXT ), 'source-on wavelength response describes the restarted spacing based on the new wavelength' );
   assert.notOk( wavelengthResponse.includes( 'Interference bands' ), 'source-on wavelength response does not predict final band spacing' );
 } );
 
@@ -125,13 +137,15 @@ QUnit.test( 'source-on slit detector response does not spoil pattern outcome', a
   const describer = new QWIAccessibleStateDescriber( model );
   const scene = model.sceneProperty.value;
 
+  scene.wavelengthProperty.value = GREEN_WAVELENGTH_NM;
   scene.isEmittingProperty.value = true;
   const before = describer.getState();
   scene.slitConfigurationProperty.value = 'leftDetector';
   const response = QWITransitionDescriber.describe( { type: 'slitConfigurationChanged' }, before, describer.getState() ).contextResponse!;
 
-  assert.ok( response.includes( 'wave area and detector screen clear' ), 'source-on slit change describes the immediate reset' );
-  assert.ok( response.includes( 'source starts emanating from the left again' ), 'source-on slit change describes the immediate beam restart' );
+  assert.ok( response.includes( SOURCE_RESTARTED_TEXT ), 'source-on slit change describes the immediate restart' );
+  assert.ok( response.includes( GREEN_BEAM_TEXT ), 'source-on slit change describes the restarted beam' );
+  assert.ok( response.includes( MODERATE_SPACING_TEXT ), 'source-on slit change describes the restarted spacing' );
   assert.notOk( response.includes( 'removes double-slit interference' ), 'source-on slit detector response does not spoil the final pattern' );
 } );
 
@@ -150,6 +164,20 @@ QUnit.test( 'particle type change emits one summary response', assert => {
   const particleTypeResponses = emittedResponses.filter( response => response.includes( 'Now experimenting with electrons' ) );
   assert.strictEqual( particleTypeResponses.length, 1, 'scene switch produces exactly one particle-type summary' );
   assert.ok( particleTypeResponses[ 0 ].includes( 'Source, slits, and screen settings updated.' ), 'summary uses the revised source-change language' );
+} );
+
+QUnit.test( 'source-on particle type change uses restart response', assert => {
+  const model = createModel();
+  const describer = new QWIAccessibleStateDescriber( model );
+
+  model.scenes[ 1 ].isEmittingProperty.value = true;
+  const before = describer.getState();
+  model.sceneProperty.value = model.scenes[ 1 ];
+  const response = QWITransitionDescriber.describe( { type: 'particleTypeChanged' }, before, describer.getState() ).contextResponse!;
+
+  assert.ok( response.includes( SOURCE_RESTARTED_TEXT ), 'source-on particle type change describes the immediate restart' );
+  assert.ok( response.includes( GRAY_BEAM_TEXT ), 'source-on particle type change describes the restarted beam based on the new source type' );
+  assert.ok( response.includes( MODERATE_SPACING_TEXT ), 'source-on particle type change describes the restarted spacing' );
 } );
 
 QUnit.test( 'time speed remains in current details without context response', assert => {
@@ -205,6 +233,7 @@ QUnit.test( 'clear button response describes wave area and source restart', asse
     runningEmittedResponses.push( response );
   };
 
+  runningModel.sceneProperty.value.wavelengthProperty.value = GREEN_WAVELENGTH_NM;
   runningModel.isPlayingProperty.value = true;
   runningModel.currentIsEmittingProperty.value = true;
   runningEmittedResponses.length = 0;
@@ -212,8 +241,9 @@ QUnit.test( 'clear button response describes wave area and source restart', asse
 
   assert.strictEqual( runningEmittedResponses.length, 1, 'running clear response is emitted once' );
   assert.ok( runningEmittedResponses[ 0 ].includes( 'Wave area cleared.' ), 'running clear response describes the clear' );
-  assert.ok( runningEmittedResponses[ 0 ].includes( 'Source started on normal speed.' ), 'running clear response chains the source-start response' );
-  assert.ok( runningEmittedResponses[ 0 ].includes( 'plane waves emanate from left' ), 'running clear response describes the restarted waves' );
+  assert.ok( runningEmittedResponses[ 0 ].includes( SOURCE_RESTARTED_TEXT ), 'running clear response describes the immediate restart' );
+  assert.ok( runningEmittedResponses[ 0 ].includes( GREEN_BEAM_TEXT ), 'running clear response describes the restarted beam' );
+  assert.ok( runningEmittedResponses[ 0 ].includes( MODERATE_SPACING_TEXT ), 'running clear response describes the restarted spacing' );
 } );
 
 QUnit.test( 'wave progress follows source-on time and screen milestones', assert => {
