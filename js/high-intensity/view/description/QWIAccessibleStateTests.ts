@@ -73,7 +73,8 @@ QUnit.test( 'temporally chained parameter changes describe reset instead of fina
   scene.wavelengthProperty.value = scene.wavelengthProperty.range.max;
   const afterWavelength = describer.getState();
   const wavelengthResponse = QWITransitionDescriber.describe( { type: 'wavelengthChanged' }, beforeWavelength, afterWavelength ).contextResponse!;
-  assert.ok( wavelengthResponse.includes( 'wave area and detector screen clear' ), 'source-on wavelength response describes the immediate reset' );
+  assert.ok( wavelengthResponse.includes( 'Source restarted.' ), 'source-on wavelength response describes the immediate restart' );
+  assert.ok( wavelengthResponse.includes( 'Red and black plane waves emanate from left.' ), 'source-on wavelength response describes the restarted beam' );
   assert.notOk( wavelengthResponse.includes( 'Interference bands' ), 'source-on wavelength response does not predict final band spacing' );
 } );
 

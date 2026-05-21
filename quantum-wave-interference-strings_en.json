@@ -327,7 +327,7 @@
         "value": "{ $isEmitting ->\n  [true] Slit separation changed. The wave area and detector screen clear, and the source starts emanating from the left again.\n *[false] Slit separation changed.\n}"
       },
       "wavelengthChanged": {
-        "value": "{ $isEmitting ->\n  [true] Wavelength changed. The wave area and detector screen clear, and the source starts emanating from the left again.\n *[false] Wavelength changed.\n}"
+        "value": "{ $isEmitting ->\n  [true] Source restarted. { $beamDescription }\n *[false] Wavelength changed.\n}"
       },
       "speedChanged": {
         "value": "{ $isEmitting ->\n  [true] Particle speed changed. The wave area and detector screen clear, and the source starts emanating from the left again.\n *[false] Particle speed changed.\n}"

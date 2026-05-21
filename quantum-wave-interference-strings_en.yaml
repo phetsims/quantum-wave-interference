@@ -469,7 +469,7 @@ a11y:
                          }
     wavelengthChanged:   >-
                          { $isEmitting ->
-                           [true] Wavelength changed. The wave area and detector screen clear, and the source starts emanating from the left again.
+                           [true] Source restarted. { $beamDescription }
                           *[false] Wavelength changed.
                          }
     speedChanged:        >-

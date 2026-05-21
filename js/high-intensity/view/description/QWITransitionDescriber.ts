@@ -80,7 +80,8 @@ export default class QWITransitionDescriber {
     }
     else if ( action.type === 'wavelengthChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.wavelengthChanged.format( {
-        isEmitting: after.isEmitting ? 'true' : 'false'
+        isEmitting: after.isEmitting ? 'true' : 'false',
+        beamDescription: formatSourceBeamDescription( after )
       } );
     }
     else if ( action.type === 'speedChanged' ) {
