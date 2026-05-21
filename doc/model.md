@@ -130,8 +130,9 @@ The continuous-wave solver:
 * Accumulates a time-averaged detector probability distribution while the source is on.
 * Starts forming the Average Intensity detector pattern after the wavefront reaches the detector.
 * Forms the Average Intensity detector pattern over 2 seconds of effective model time.
-* Samples Hits from the detector probability distribution after the wavefront reaches the screen.
-* Uses 5 conceptual particles/second for Hits mode and slit-detector decoherence events.
+* Samples Hits from the detector probability distribution after the wavefront reaches the screen,
+  at 40 detector-screen hits per model second.
+* Uses 5 conceptual particles/second for slit-detector decoherence events.
 
 When slit detectors are active:
 
@@ -169,9 +170,11 @@ The wave packet model:
 * Uses an analytical Gaussian wave-packet solver.
 * Has a baseline traversal time of 1.5 seconds for the packet center to cross the wave region at
   the default source speed.
-* Starts the packet center 3 initial `sigma_x` widths to the left of the visible region.
-* Uses initial packet widths `sigma_x = 0.2 * regionWidth` and `sigma_y = 0.2 * regionHeight`.
+* Starts the packet center 2 initial `sigma_x` widths to the left of the visible region.
+* Uses initial packet widths `sigma_x = 0.15 * regionWidth` and `sigma_y = 0.15 * regionHeight`.
 * Samples screen-detection timing from the packet's longitudinal probability profile.
+* Advances slit-detector re-emission by 1.5 initial `sigma_x` widths of packet history.
+* Uses longitudinal and transverse spread time constants of 2.5 and 1.5 traversal times.
 
 When a packet reaches the detector screen:
 
