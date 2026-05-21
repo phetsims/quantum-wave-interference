@@ -1,0 +1,1358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quantum Wave Interference Model Atlas</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #fbf8ef;
+      --paper-2: #f1efe4;
+      --ink: #162229;
+      --muted: #59636a;
+      --panel: #fffdf8;
+      --panel-strong: #ffffff;
+      --line: #c9d0ca;
+      --line-dark: #81918a;
+      --teal: #0b6f78;
+      --teal-dark: #06464e;
+      --gold: #b36b13;
+      --gold-soft: #f7e6c3;
+      --indigo: #3f4f8f;
+      --rose: #9d4144;
+      --green: #2f7149;
+      --violet: #66519c;
+      --shadow: 0 18px 45px rgba(22, 34, 41, 0.12);
+      --small-shadow: 0 8px 24px rgba(22, 34, 41, 0.08);
+      --radius: 8px;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Avenir, "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(11, 111, 120, 0.07) 1px, transparent 1px),
+        linear-gradient(rgba(63, 79, 143, 0.06) 1px, transparent 1px),
+        linear-gradient(135deg, #fffaf0 0%, #eef5f1 48%, #f6f0e4 100%);
+      background-size: 34px 34px, 34px 34px, auto;
+      font: 16px/1.55 var(--sans);
+    }
+
+    a {
+      color: var(--teal-dark);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 3px;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 16px;
+      top: -60px;
+      z-index: 10;
+      padding: 10px 14px;
+      color: white;
+      background: var(--teal-dark);
+      border-radius: 4px;
+    }
+
+    .skip-link:focus {
+      top: 16px;
+    }
+
+    .page {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 28px;
+      width: min(1440px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 28px 0 72px;
+    }
+
+    .nav {
+      position: sticky;
+      top: 22px;
+      align-self: start;
+      max-height: calc(100vh - 44px);
+      overflow: auto;
+      padding: 18px;
+      background: rgba(255, 253, 248, 0.94);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--small-shadow);
+    }
+
+    .nav-title {
+      margin: 0 0 12px;
+      color: var(--teal-dark);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .nav a {
+      display: block;
+      margin: 2px 0;
+      padding: 8px 9px 8px 12px;
+      color: var(--ink);
+      border-left: 3px solid transparent;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      background: #edf4f1;
+      border-left-color: var(--teal);
+      outline: none;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 520px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      gap: 24px;
+      align-items: stretch;
+      padding: 42px;
+      color: white;
+      background:
+        linear-gradient(120deg, rgba(6, 70, 78, 0.96), rgba(63, 79, 143, 0.9) 58%, rgba(157, 65, 68, 0.84)),
+        #0b2f38;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.28;
+      background:
+        linear-gradient(90deg, transparent 0 44px, rgba(255, 255, 255, 0.36) 45px, transparent 46px),
+        linear-gradient(0deg, transparent 0 44px, rgba(255, 255, 255, 0.22) 45px, transparent 46px);
+      background-size: 92px 92px;
+      pointer-events: none;
+    }
+
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #ffe7ad;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 920px;
+      margin-bottom: 18px;
+      font-size: clamp(42px, 6.2vw, 82px);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 820px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 19px;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 28px;
+      max-width: 720px;
+    }
+
+    .metric {
+      min-height: 96px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 6px;
+      backdrop-filter: blur(8px);
+    }
+
+    .metric b {
+      display: block;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 13px;
+    }
+
+    .constellation {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      min-height: 430px;
+      background: rgba(9, 28, 38, 0.58);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .constellation svg {
+      width: 100%;
+      height: 100%;
+      min-height: 330px;
+      display: block;
+    }
+
+    .legend-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .legend-strip span {
+      padding: 11px 12px;
+      color: rgba(255, 255, 255, 0.88);
+      border-right: 1px solid rgba(255, 255, 255, 0.14);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    section {
+      margin-top: 22px;
+      padding: 30px;
+      background: rgba(255, 253, 248, 0.96);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 28px rgba(22, 34, 41, 0.07);
+    }
+
+    h2 {
+      margin-bottom: 14px;
+      color: var(--teal-dark);
+      font-size: clamp(27px, 3vw, 42px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 22px 0 8px;
+      color: var(--gold);
+      font-size: 19px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin-bottom: 14px;
+    }
+
+    .lede {
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .panel,
+    .tile,
+    .callout,
+    details {
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .panel,
+    .tile {
+      padding: 18px;
+    }
+
+    .tile {
+      min-height: 146px;
+    }
+
+    .tile b,
+    .panel b {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--teal-dark);
+      font-size: 13px;
+      font-weight: 850;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .tile p,
+    .panel p {
+      margin-bottom: 0;
+    }
+
+    .callout {
+      display: grid;
+      grid-template-columns: 12px minmax(0, 1fr);
+      gap: 16px;
+      margin: 18px 0;
+      overflow: hidden;
+      background: #f6fbf8;
+    }
+
+    .callout::before {
+      content: "";
+      background: linear-gradient(var(--teal), var(--gold));
+    }
+
+    .callout div {
+      padding: 18px 18px 18px 0;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 9px;
+      color: white;
+      background: var(--teal);
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .badge.gold {
+      background: var(--gold);
+    }
+
+    .badge.indigo {
+      background: var(--indigo);
+    }
+
+    .badge.rose {
+      background: var(--rose);
+    }
+
+    .badge.green {
+      background: var(--green);
+    }
+
+    table {
+      width: 100%;
+      margin: 16px 0 22px;
+      border-collapse: collapse;
+      background: var(--panel-strong);
+      font-size: 14px;
+    }
+
+    caption {
+      padding: 0 0 8px;
+      color: var(--muted);
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      color: white;
+      background: var(--teal-dark);
+      font-weight: 800;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f7faf7;
+    }
+
+    code,
+    .mono {
+      font-family: var(--mono);
+      font-size: 0.94em;
+    }
+
+    code {
+      padding: 1px 5px;
+      background: #edf2f0;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+    }
+
+    .equation {
+      padding: 18px;
+      color: white;
+      background: #172a34;
+      border-left: 6px solid var(--gold);
+      border-radius: 6px;
+      font-family: var(--mono);
+      overflow-x: auto;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 18px 0;
+    }
+
+    .segmented {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 4px;
+      background: #e8eee9;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    button,
+    select,
+    input {
+      font: inherit;
+    }
+
+    button {
+      min-height: 38px;
+      padding: 8px 12px;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button[aria-pressed="true"] {
+      color: white;
+      background: var(--teal-dark);
+      border-color: var(--teal-dark);
+    }
+
+    button:hover,
+    button:focus-visible {
+      outline: 3px solid rgba(11, 111, 120, 0.28);
+      outline-offset: 2px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      min-width: 210px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    select,
+    input[type="range"] {
+      min-height: 38px;
+      accent-color: var(--teal);
+    }
+
+    select {
+      width: 100%;
+      padding: 7px 9px;
+      color: var(--ink);
+      background: white;
+      border: 1px solid var(--line-dark);
+      border-radius: 4px;
+    }
+
+    .interactive {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(310px, 0.95fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 14px;
+    }
+
+    .viewer {
+      min-height: 420px;
+      padding: 16px;
+      background: #0e2730;
+      border: 1px solid #31515b;
+      border-radius: var(--radius);
+      color: white;
+    }
+
+    canvas {
+      width: 100%;
+      height: 330px;
+      display: block;
+      background: #102832;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 6px;
+    }
+
+    .canvas-caption {
+      margin: 10px 0 0;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 13px;
+    }
+
+    .readout {
+      display: grid;
+      gap: 12px;
+    }
+
+    .readout-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .readout-row b {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .readout-row span {
+      min-width: 0;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .stage {
+      min-height: 128px;
+      padding: 15px;
+      background: #fff8e8;
+      border: 1px solid #dfc995;
+      border-radius: var(--radius);
+    }
+
+    .stage b {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--gold);
+    }
+
+    details {
+      margin: 10px 0;
+      padding: 0;
+    }
+
+    summary {
+      padding: 14px 16px;
+      color: var(--teal-dark);
+      cursor: pointer;
+      font-weight: 850;
+    }
+
+    details > div {
+      padding: 0 16px 16px;
+    }
+
+    .screen-sheet {
+      display: none;
+    }
+
+    .screen-sheet.active {
+      display: block;
+    }
+
+    .note {
+      padding: 16px;
+      background: #fff7e7;
+      border: 1px solid #dfc995;
+      border-radius: var(--radius);
+    }
+
+    .footer {
+      margin-top: 22px;
+      padding: 22px 30px;
+      color: var(--muted);
+      background: rgba(255, 253, 248, 0.76);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    @media (max-width: 1100px) {
+      .page {
+        display: block;
+        width: min(100% - 28px, 980px);
+      }
+
+      .nav {
+        position: static;
+        max-height: none;
+        margin-bottom: 16px;
+      }
+
+      .nav a {
+        display: inline-block;
+      }
+
+      .hero,
+      .interactive {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 30px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .hero,
+      section,
+      .footer {
+        padding: 22px;
+      }
+
+      .hero-metrics,
+      .grid,
+      .grid.two,
+      .timeline,
+      .legend-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .readout-row {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .page {
+        display: block;
+        width: auto;
+        padding: 0;
+      }
+
+      .nav,
+      .toolbar,
+      .interactive {
+        display: none;
+      }
+
+      .hero,
+      section,
+      .footer {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+
+      .hero {
+        color: var(--ink);
+        background: white;
+      }
+
+      .hero-copy,
+      .metric span {
+        color: var(--muted);
+      }
+    }
+  </style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to model atlas</a>
+<div class="page">
+  <nav class="nav" aria-label="Model atlas sections">
+    <p class="nav-title">Atlas Index</p>
+    <a href="#overview">Overview</a>
+    <a href="#dashboard">Interactive Lens</a>
+    <a href="#shared">Shared Model Grammar</a>
+    <a href="#screens">Screen Sheets</a>
+    <a href="#sources">Source Constants</a>
+    <a href="#solvers">Solvers and Detection</a>
+    <a href="#state">State, Resets, Snapshots</a>
+    <a href="#accessibility">Accessible Reading</a>
+  </nav>
+
+  <main id="main">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Quantum Wave Interference model atlas</p>
+        <h1>Three laboratories, four sources, one wave grammar.</h1>
+        <p class="hero-copy">
+          A redesigned reference for the Quantum Wave Interference model. It tracks the Experiment,
+          High Intensity, and Single Particles screens as related instruments: each scene keeps its
+          own source, slits, detector data, and snapshots while sharing the same core story of
+          wavelength, measurement, coherence, and hits.
+        </p>
+        <div class="hero-metrics" aria-label="Model summary metrics">
+          <div class="metric"><b>3</b><span>screens with distinct experimental tempos</span></div>
+          <div class="metric"><b>4</b><span>source scenes preserved independently per screen</span></div>
+          <div class="metric"><b>25,000</b><span>maximum detector-screen hits per scene</span></div>
+        </div>
+      </div>
+
+      <figure class="constellation" aria-label="Stylized map from source to slits to detector">
+        <svg viewBox="0 0 640 460" role="img" aria-labelledby="hero-map-title hero-map-desc">
+          <title id="hero-map-title">Model constellation</title>
+          <desc id="hero-map-desc">A stylized source emits layered waves through double slits toward a detector screen.</desc>
+          <defs>
+            <linearGradient id="beam" x1="0" x2="1">
+              <stop offset="0%" stop-color="#ffe2a6" stop-opacity="0.95"></stop>
+              <stop offset="52%" stop-color="#7bd1d7" stop-opacity="0.72"></stop>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.18"></stop>
+            </linearGradient>
+            <filter id="soft-glow">
+              <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
+              <feMerge>
+                <feMergeNode in="blur"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+              </feMerge>
+            </filter>
+          </defs>
+          <rect x="0" y="0" width="640" height="460" fill="#0a2430"></rect>
+          <g opacity="0.35" stroke="#ffffff" stroke-width="1">
+            <path d="M45 70H595M45 150H595M45 230H595M45 310H595M45 390H595"></path>
+            <path d="M90 38V420M190 38V420M290 38V420M390 38V420M490 38V420M590 38V420"></path>
+          </g>
+          <g filter="url(#soft-glow)">
+            <circle cx="88" cy="230" r="28" fill="#ffe2a6"></circle>
+            <circle cx="88" cy="230" r="44" fill="none" stroke="#ffe2a6" stroke-opacity="0.45" stroke-width="2"></circle>
+            <path d="M105 230C180 135 275 138 350 200C405 245 472 290 565 230" fill="none" stroke="url(#beam)" stroke-width="14" stroke-linecap="round"></path>
+            <path d="M105 230C190 310 276 314 350 260C414 213 476 170 565 230" fill="none" stroke="url(#beam)" stroke-width="14" stroke-linecap="round"></path>
+            <path d="M105 230C195 230 300 230 565 230" fill="none" stroke="url(#beam)" stroke-width="8" stroke-linecap="round" opacity="0.85"></path>
+          </g>
+          <g fill="#e9eef0">
+            <rect x="335" y="78" width="18" height="112" rx="3"></rect>
+            <rect x="335" y="270" width="18" height="112" rx="3"></rect>
+            <rect x="335" y="190" width="18" height="80" fill="#667883"></rect>
+          </g>
+          <g>
+            <path d="M566 74L612 100V360L566 386Z" fill="#f8fbff" opacity="0.9"></path>
+            <path d="M576 126L602 141M576 176L602 188M576 226L602 232M576 276L602 270M576 326L602 312" stroke="#0b6f78" stroke-width="7" stroke-linecap="round"></path>
+          </g>
+          <g fill="#ffffff" opacity="0.78">
+            <circle cx="144" cy="96" r="3"></circle>
+            <circle cx="246" cy="64" r="2"></circle>
+            <circle cx="438" cy="88" r="3"></circle>
+            <circle cx="510" cy="396" r="2"></circle>
+            <circle cx="205" cy="402" r="3"></circle>
+          </g>
+        </svg>
+        <div class="legend-strip" aria-hidden="true">
+          <span>source</span>
+          <span>wave</span>
+          <span>slits</span>
+          <span>detector</span>
+        </div>
+      </figure>
+    </header>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p class="lede">
+        The simulation is organized as source-type scenes. A scene is not merely a selected label:
+        it owns source settings, slit settings, detector-screen data, and up to four snapshots.
+        Changing from photons to electrons switches to a different preserved scene.
+      </p>
+      <div class="grid">
+        <div class="tile">
+          <b>Experiment</b>
+          <p>Detector-pattern experiment with overhead apparatus, front-facing slits, screen distance, intensity, and detector-screen zoom.</p>
+        </div>
+        <div class="tile">
+          <b>High Intensity</b>
+          <p>Continuous analytical waves through none or double slit barriers, accumulating average intensity or sampled hits.</p>
+        </div>
+        <div class="tile">
+          <b>Single Particles</b>
+          <p>One Gaussian packet at a time, with packet timing, auto-repeat, detector tool probability, and localized hits.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <div>
+          <p><strong>Common physics hinge:</strong> photons use the wavelength slider directly. Matter particles derive wavelength from the de Broglie relation.</p>
+          <p class="equation">lambda = h / ( m * v ), h = 6.626e-34 J*s</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="dashboard">
+      <h2>Interactive Lens</h2>
+      <p class="lede">
+        Use this compact model viewer to compare screens and sources. The drawing is schematic; the
+        readout is the authoritative part and follows current model constants.
+      </p>
+      <div class="toolbar" aria-label="Interactive model controls">
+        <div class="segmented" role="group" aria-label="Screen">
+          <button type="button" class="screen-button" data-screen="experiment" aria-pressed="true">Experiment</button>
+          <button type="button" class="screen-button" data-screen="highIntensity" aria-pressed="false">High Intensity</button>
+          <button type="button" class="screen-button" data-screen="singleParticles" aria-pressed="false">Single Particles</button>
+        </div>
+        <div class="field">
+          <label for="source-select">Source</label>
+          <select id="source-select">
+            <option value="photons">Photons</option>
+            <option value="electrons">Electrons</option>
+            <option value="neutrons">Neutrons</option>
+            <option value="heliumAtoms">Helium atoms</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="slit-slider">Slit separation position</label>
+          <input id="slit-slider" type="range" min="0" max="100" value="50">
+        </div>
+      </div>
+
+      <div class="interactive">
+        <figure class="viewer">
+          <canvas id="model-canvas" width="900" height="420" aria-label="Schematic of the selected model state"></canvas>
+          <figcaption id="canvas-caption" class="canvas-caption">
+            Schematic of source, wave region, slits, and detector screen.
+          </figcaption>
+        </figure>
+        <div class="readout" aria-live="polite" aria-atomic="true">
+          <div class="readout-row"><b>Screen</b><span id="readout-screen"></span></div>
+          <div class="readout-row"><b>Source</b><span id="readout-source"></span></div>
+          <div class="readout-row"><b>Control</b><span id="readout-control"></span></div>
+          <div class="readout-row"><b>Slits</b><span id="readout-slits"></span></div>
+          <div class="readout-row"><b>Detector</b><span id="readout-detector"></span></div>
+          <div class="readout-row"><b>Time</b><span id="readout-time"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="shared">
+      <h2>Shared Model Grammar</h2>
+      <p class="lede">The screens differ in presentation and timing, but they speak a common model language.</p>
+      <div class="grid">
+        <div class="tile">
+          <b>Source Scenes</b>
+          <p>Each screen has photons, electrons, neutrons, and helium atoms. Scene state is preserved independently.</p>
+        </div>
+        <div class="tile">
+          <b>Slits</b>
+          <p>Slit separation is the center-to-center distance. It is stored in millimeters and converted to meters for the solvers.</p>
+        </div>
+        <div class="tile">
+          <b>Snapshots</b>
+          <p>Each scene can store up to four detector-screen snapshots, including hits and screen context.</p>
+        </div>
+      </div>
+      <table>
+        <caption>Shared quantities and units</caption>
+        <thead>
+        <tr><th>Quantity</th><th>Storage unit</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+        <tr><td>Photon wavelength</td><td>nanometers</td><td>Range 380-780 nm, default 650 nm.</td></tr>
+        <tr><td>Matter wavelength</td><td>meters, derived</td><td>Computed from particle mass and speed.</td></tr>
+        <tr><td>Particle speed</td><td>meters per second</td><td>Some UI labels display kilometers per second.</td></tr>
+        <tr><td>Slit separation</td><td>millimeters</td><td>Center-to-center distance between slits.</td></tr>
+        <tr><td>Screen brightness</td><td>dimensionless</td><td>Shared range 0-0.25.</td></tr>
+        <tr><td>Hit cap</td><td>count</td><td>25,000 detector-screen hits per scene.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="screens">
+      <h2>Screen Sheets</h2>
+      <p class="lede">Choose a sheet for a focused model summary. These sheets are also printable.</p>
+      <div class="toolbar">
+        <div class="segmented" role="group" aria-label="Screen sheet">
+          <button type="button" class="sheet-button" data-sheet="experiment-sheet" aria-pressed="true">Experiment</button>
+          <button type="button" class="sheet-button" data-sheet="high-sheet" aria-pressed="false">High Intensity</button>
+          <button type="button" class="sheet-button" data-sheet="single-sheet" aria-pressed="false">Single Particles</button>
+        </div>
+      </div>
+
+      <article id="experiment-sheet" class="screen-sheet active">
+        <h3>Experiment Screen</h3>
+        <div class="grid two">
+          <div class="panel">
+            <b>Purpose</b>
+            <p>Models a detector-pattern experiment with an overhead apparatus and front-facing detector screen.</p>
+            <div class="badge-row">
+              <span class="badge">average intensity</span>
+              <span class="badge gold">hits</span>
+              <span class="badge indigo">screen zoom</span>
+            </div>
+          </div>
+          <div class="panel">
+            <b>Distinct state</b>
+            <p>Source intensity, screen distance, detector-screen zoom, ruler, stopwatch, and Experiment-specific slit dimensions.</p>
+          </div>
+        </div>
+        <table>
+          <caption>Experiment source ranges</caption>
+          <thead><tr><th>Source</th><th>Wavelength or speed</th><th>Slit width</th><th>Slit separation</th></tr></thead>
+          <tbody>
+          <tr><td>Photons</td><td>380-780 nm, default 650 nm</td><td>0.02 mm</td><td>0.05-0.5 mm, default 0.25 mm</td></tr>
+          <tr><td>Electrons</td><td>2.0e5-1.0e6 m/s, default 6.0e5 m/s</td><td>0.00006 mm</td><td>0.0001-0.002 mm, default 0.001 mm</td></tr>
+          <tr><td>Neutrons</td><td>200-1000 m/s, default 600 m/s</td><td>0.00006 mm</td><td>0.0001-0.002 mm, default 0.001 mm</td></tr>
+          <tr><td>Helium atoms</td><td>200-1000 m/s, default 600 m/s</td><td>0.00006 mm</td><td>0.0001-0.002 mm, default 0.001 mm</td></tr>
+          </tbody>
+        </table>
+        <p>Screen distance is 0.4-0.8 m, default 0.6 m. Hits mode samples from an analytical detector intensity and attempts up to 100 hits per second at full source intensity.</p>
+      </article>
+
+      <article id="high-sheet" class="screen-sheet">
+        <h3>High Intensity Screen</h3>
+        <div class="grid two">
+          <div class="panel">
+            <b>Purpose</b>
+            <p>Models continuous wave propagation through no barrier or a double slit, then accumulates detector patterns.</p>
+            <div class="badge-row">
+              <span class="badge">continuous wave</span>
+              <span class="badge gold">40 hits/s</span>
+              <span class="badge green">5 slit events/s</span>
+            </div>
+          </div>
+          <div class="panel">
+            <b>Detector formation</b>
+            <p>Average Intensity starts forming after the wavefront reaches the detector and completes over 2 seconds of effective model time.</p>
+          </div>
+        </div>
+        <table>
+          <caption>High Intensity display scale and slits</caption>
+          <thead><tr><th>Source</th><th>Default effective wavelength</th><th>Wave-region width</th><th>Slit width</th><th>Slit separation</th></tr></thead>
+          <tbody>
+          <tr><td>Photons</td><td>650 nm</td><td>9.75 um</td><td>0.511 um</td><td>1-5 um, default 3 um</td></tr>
+          <tr><td>Electrons</td><td>0.661 nm</td><td>9.92 nm</td><td>0.520 nm</td><td>1-5 nm, default 3 nm</td></tr>
+          <tr><td>Neutrons</td><td>0.791 nm</td><td>9.92 nm</td><td>0.520 nm</td><td>1-5 nm, default 3 nm</td></tr>
+          <tr><td>Helium atoms</td><td>0.0831 nm</td><td>1.25 nm</td><td>0.0653 nm</td><td>0.10-0.60 nm, default 0.40 nm</td></tr>
+          </tbody>
+        </table>
+        <p>Neutrons keep neutron wavelength physics, but use the electron display scale so equal nanometer distances have equal visual size.</p>
+      </article>
+
+      <article id="single-sheet" class="screen-sheet">
+        <h3>Single Particles Screen</h3>
+        <div class="grid two">
+          <div class="panel">
+            <b>Purpose</b>
+            <p>Models one Gaussian packet at a time. The detector screen is always in Hits mode.</p>
+            <div class="badge-row">
+              <span class="badge">packet</span>
+              <span class="badge gold">auto-repeat</span>
+              <span class="badge rose">detector tool</span>
+            </div>
+          </div>
+          <div class="panel">
+            <b>Packet timing</b>
+            <p>Traversal baseline is 1.5 s. Initial sigma_x and sigma_y are 0.15 of the wave region, and the packet starts 2 sigma_x widths before the visible region.</p>
+          </div>
+        </div>
+        <table>
+          <caption>Single Particles slit separation ranges</caption>
+          <thead><tr><th>Source</th><th>Range</th><th>Default</th></tr></thead>
+          <tbody>
+          <tr><td>Photons</td><td>1-3 um</td><td>2 um</td></tr>
+          <tr><td>Electrons</td><td>1-3 nm</td><td>2 nm</td></tr>
+          <tr><td>Neutrons</td><td>1-3 nm</td><td>2 nm</td></tr>
+          <tr><td>Helium atoms</td><td>0.10-0.50 nm</td><td>0.30 nm</td></tr>
+          </tbody>
+        </table>
+        <p>Auto Repeat emits another packet after the previous one ends, subject to a 0.3 s minimum emission interval.</p>
+      </article>
+    </section>
+
+    <section id="sources">
+      <h2>Source Constants</h2>
+      <p class="lede">Source scenes use fixed masses and screen-specific speed ranges. Photons are controlled by wavelength instead of speed.</p>
+      <table>
+        <caption>Particle masses and source controls</caption>
+        <thead><tr><th>Source</th><th>Mass</th><th>Experiment control</th><th>High Intensity / Single Particles control</th></tr></thead>
+        <tbody>
+        <tr><td>Photons</td><td>not modeled as mass</td><td>380-780 nm, default 650 nm</td><td>380-780 nm, default 650 nm</td></tr>
+        <tr><td>Electrons</td><td>9.109e-31 kg</td><td>2.0e5-1.0e6 m/s, default 6.0e5 m/s</td><td>7.0e5-1.5e6 m/s, default 1.1e6 m/s</td></tr>
+        <tr><td>Neutrons</td><td>1.675e-27 kg</td><td>200-1000 m/s, default 600 m/s</td><td>200-800 m/s, default 500 m/s</td></tr>
+        <tr><td>Helium atoms</td><td>6.646e-27 kg</td><td>200-1000 m/s, default 600 m/s</td><td>400-2000 m/s, default 1200 m/s</td></tr>
+        </tbody>
+      </table>
+      <div class="note">
+        Matter wavelength changes inversely with speed. Increasing particle speed shortens wavelength and changes the detector pattern.
+      </div>
+    </section>
+
+    <section id="solvers">
+      <h2>Solvers and Detection</h2>
+      <p class="lede">The model intentionally separates visual scale, physical quantities, and detector sampling.</p>
+      <div class="timeline" aria-label="Model computation flow">
+        <div class="stage"><b>1. Source</b><span>Photon wavelength or particle speed determines effective wavelength.</span></div>
+        <div class="stage"><b>2. Scale</b><span>Wave region is sized for about 15 default wavelengths on High Intensity and Single Particles.</span></div>
+        <div class="stage"><b>3. Slits</b><span>Physical slit values are mapped into display geometry for the analytical solvers.</span></div>
+        <div class="stage"><b>4. Field</b><span>Analytical solvers evaluate continuous waves or Gaussian wave packets.</span></div>
+        <div class="stage"><b>5. Detection</b><span>Intensity or probability distributions produce detector-screen patterns and hits.</span></div>
+      </div>
+      <details open>
+        <summary>Experiment detector pattern</summary>
+        <div>
+          <p>Uses a Fraunhofer model. Both slits open multiply a double-slit cos^2 interference factor by a single-slit sinc^2 diffraction envelope. One covered slit leaves the single-slit diffraction envelope. Which-path detectors remove coherence and eliminate double-slit fringes.</p>
+        </div>
+      </details>
+      <details>
+        <summary>High Intensity detection</summary>
+        <div>
+          <p>Average Intensity accumulates after the wavefront reaches the detector. Hits mode samples from the detector probability distribution at 40 detector-screen hits per model second. Slit detectors create decoherence events at 5 conceptual particles per model second.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Single Particles detection</summary>
+        <div>
+          <p>Screen detection timing is sampled from the packet's longitudinal probability profile. Slit detectors sample an on-slit detection time; a click re-emits a downstream packet from the selected slit. The detector tool integrates probability inside a circular region and can either detect or remove that probability from the packet.</p>
+        </div>
+      </details>
+    </section>
+
+    <section id="state">
+      <h2>State, Resets, Snapshots</h2>
+      <div class="grid">
+        <div class="tile">
+          <b>Preserved scene state</b>
+          <p>Emitter settings, source controls, slit settings, detector-screen data, and snapshots are scene-specific.</p>
+        </div>
+        <div class="tile">
+          <b>Clear screen behavior</b>
+          <p>Slit/source changes clear wave and detector state so the next pattern corresponds to the current setup.</p>
+        </div>
+        <div class="tile">
+          <b>Snapshots</b>
+          <p>Snapshots store detector hits or intensity context, source type, wavelength, slits, brightness, and geometry.</p>
+        </div>
+      </div>
+      <table>
+        <caption>Time controls</caption>
+        <thead><tr><th>Screen</th><th>Slow</th><th>Normal</th><th>Fast</th></tr></thead>
+        <tbody>
+        <tr><td>Experiment</td><td>0.25x in model; not exposed in the main UI</td><td>1x</td><td>4x</td></tr>
+        <tr><td>High Intensity</td><td>0.15x</td><td>0.35x</td><td>0.65x</td></tr>
+        <tr><td>Single Particles</td><td>0.15x</td><td>0.7x</td><td>8x</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="accessibility">
+      <h2>Accessible Reading</h2>
+      <p class="lede">
+        The model is shaped to support both visual rendering and nonvisual explanation. Dynamic descriptions can read the same facts a teacher would point to visually: source type, slit setting, detector mode, hit stage, and pattern kind.
+      </p>
+      <div class="grid two">
+        <div class="panel">
+          <b>Stable state</b>
+          <p>Screen summaries and current details can describe what exists now: selected source, setup, detector pattern, tools, and hit count.</p>
+        </div>
+        <div class="panel">
+          <b>Responsive state</b>
+          <p>Context responses can describe what changed: source started, slit separation changed, packet detected, or detector screen cleared.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <div>
+          <p><strong>Useful invariant:</strong> if visual state changes because of a source, slit, or detection action, the accessible model should expose the same conceptual change: pattern kind, detector progress, hit count, or packet state.</p>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer">
+      This document is a standalone model atlas generated from the current Quantum Wave Interference model structure and constants.
+      Open it directly from <span class="mono">quantum-wave-interference/doc/model.html</span>.
+    </p>
+  </main>
+</div>
+
+<script>
+  const SOURCES = {
+    photons: {
+      label: 'Photons',
+      mass: 'not modeled as mass',
+      hue: '#f0b44b',
+      controlExperiment: 'Wavelength 380-780 nm, default 650 nm',
+      controlCommon: 'Wavelength 380-780 nm, default 650 nm'
+    },
+    electrons: {
+      label: 'Electrons',
+      mass: '9.109e-31 kg',
+      hue: '#4f8fc5',
+      controlExperiment: 'Speed 2.0e5-1.0e6 m/s, default 6.0e5 m/s',
+      controlCommon: 'Speed 7.0e5-1.5e6 m/s, default 1.1e6 m/s'
+    },
+    neutrons: {
+      label: 'Neutrons',
+      mass: '1.675e-27 kg',
+      hue: '#66a96d',
+      controlExperiment: 'Speed 200-1000 m/s, default 600 m/s',
+      controlCommon: 'Speed 200-800 m/s, default 500 m/s'
+    },
+    heliumAtoms: {
+      label: 'Helium atoms',
+      mass: '6.646e-27 kg',
+      hue: '#b875b7',
+      controlExperiment: 'Speed 200-1000 m/s, default 600 m/s',
+      controlCommon: 'Speed 400-2000 m/s, default 1200 m/s'
+    }
+  };
+
+  const SCREEN_DATA = {
+    experiment: {
+      label: 'Experiment',
+      detector: 'Average Intensity or Hits; detector-screen zoom has four spans',
+      time: 'Normal 1x, Fast 4x in the UI',
+      barrier: 'Always contains slits',
+      slits: {
+        photons: [ '0.05 mm', '0.5 mm', '0.25 mm' ],
+        electrons: [ '0.0001 mm', '0.002 mm', '0.001 mm' ],
+        neutrons: [ '0.0001 mm', '0.002 mm', '0.001 mm' ],
+        heliumAtoms: [ '0.0001 mm', '0.002 mm', '0.001 mm' ]
+      }
+    },
+    highIntensity: {
+      label: 'High Intensity',
+      detector: 'Average Intensity or Hits; 40 detector-screen hits/s in Hits mode',
+      time: 'Slow 0.15x, Normal 0.35x, Fast 0.65x',
+      barrier: 'None or Double Slit',
+      slits: {
+        photons: [ '1 um', '5 um', '3 um' ],
+        electrons: [ '1 nm', '5 nm', '3 nm' ],
+        neutrons: [ '1 nm', '5 nm', '3 nm' ],
+        heliumAtoms: [ '0.10 nm', '0.60 nm', '0.40 nm' ]
+      }
+    },
+    singleParticles: {
+      label: 'Single Particles',
+      detector: 'Hits only; one packet ends in one detector-screen hit unless the detector tool detects first',
+      time: 'Slow 0.15x, Normal 0.7x, Fast 8x',
+      barrier: 'None or Double Slit',
+      slits: {
+        photons: [ '1 um', '3 um', '2 um' ],
+        electrons: [ '1 nm', '3 nm', '2 nm' ],
+        neutrons: [ '1 nm', '3 nm', '2 nm' ],
+        heliumAtoms: [ '0.10 nm', '0.50 nm', '0.30 nm' ]
+      }
+    }
+  };
+
+  let activeScreen = 'experiment';
+
+  const sourceSelect = document.querySelector( '#source-select' );
+  const slitSlider = document.querySelector( '#slit-slider' );
+  const canvas = document.querySelector( '#model-canvas' );
+  const context = canvas.getContext( '2d' );
+
+  function lerp( a, b, t ) {
+    return a + ( b - a ) * t;
+  }
+
+  function drawWavePath( y, amplitude, color, phase ) {
+    context.beginPath();
+    for ( let x = 115; x <= 760; x += 5 ) {
+      const progress = ( x - 115 ) / 645;
+      const envelope = 0.35 + progress * 0.65;
+      const waveY = y + Math.sin( progress * Math.PI * 10 + phase ) * amplitude * envelope;
+      if ( x === 115 ) {
+        context.moveTo( x, waveY );
+      }
+      else {
+        context.lineTo( x, waveY );
+      }
+    }
+    context.strokeStyle = color;
+    context.lineWidth = 5;
+    context.lineCap = 'round';
+    context.stroke();
+  }
+
+  function drawCanvas() {
+    const source = sourceSelect.value;
+    const screen = SCREEN_DATA[ activeScreen ];
+    const sourceInfo = SOURCES[ source ];
+    const sliderValue = Number( slitSlider.value ) / 100;
+    const separation = lerp( 46, 142, sliderValue );
+
+    context.clearRect( 0, 0, canvas.width, canvas.height );
+    const gradient = context.createLinearGradient( 0, 0, canvas.width, canvas.height );
+    gradient.addColorStop( 0, '#0b2430' );
+    gradient.addColorStop( 0.58, '#132f3b' );
+    gradient.addColorStop( 1, '#211f3d' );
+    context.fillStyle = gradient;
+    context.fillRect( 0, 0, canvas.width, canvas.height );
+
+    context.strokeStyle = 'rgba(255,255,255,0.09)';
+    context.lineWidth = 1;
+    for ( let x = 50; x < canvas.width; x += 70 ) {
+      context.beginPath();
+      context.moveTo( x, 30 );
+      context.lineTo( x, 390 );
+      context.stroke();
+    }
+    for ( let y = 54; y < canvas.height; y += 58 ) {
+      context.beginPath();
+      context.moveTo( 40, y );
+      context.lineTo( 850, y );
+      context.stroke();
+    }
+
+    context.fillStyle = sourceInfo.hue;
+    context.beginPath();
+    context.arc( 90, 210, 30, 0, Math.PI * 2 );
+    context.fill();
+    context.strokeStyle = 'rgba(255,255,255,0.65)';
+    context.lineWidth = 2;
+    context.beginPath();
+    context.arc( 90, 210, 45, 0, Math.PI * 2 );
+    context.stroke();
+
+    const waveColor = activeScreen === 'singleParticles' ? 'rgba(255, 226, 166, 0.82)' :
+                      activeScreen === 'experiment' ? 'rgba(137, 214, 218, 0.76)' :
+                      'rgba(255, 255, 255, 0.72)';
+    drawWavePath( 210 - separation / 2, 18, waveColor, 0.2 );
+    drawWavePath( 210 + separation / 2, 18, waveColor, 1.7 );
+    if ( activeScreen !== 'singleParticles' ) {
+      drawWavePath( 210, 12, 'rgba(240, 180, 75, 0.62)', 0.9 );
+    }
+    else {
+      context.fillStyle = 'rgba(240, 180, 75, 0.32)';
+      context.beginPath();
+      context.ellipse( 310 + sliderValue * 150, 210, 72, 42, 0, 0, Math.PI * 2 );
+      context.fill();
+    }
+
+    const barrierX = 430;
+    context.fillStyle = '#dce4e5';
+    context.fillRect( barrierX, 60, 20, 120 );
+    context.fillRect( barrierX, 240, 20, 120 );
+    context.fillStyle = '#6f8088';
+    context.fillRect( barrierX, 180, 20, 60 );
+    context.fillStyle = '#f8fbff';
+    context.fillRect( 780, 70, 42, 280 );
+    context.fillStyle = sourceInfo.hue;
+    for ( let i = 0; i < 7; i++ ) {
+      const stripeY = 105 + i * 36;
+      const width = activeScreen === 'singleParticles' ? 7 : 18 - Math.abs( i - 3 ) * 2;
+      context.fillRect( 790, stripeY, width, 16 );
+    }
+
+    context.fillStyle = '#ffffff';
+    context.font = 'bold 18px Avenir, sans-serif';
+    context.fillText( sourceInfo.label, 48, 285 );
+    context.fillText( screen.label, 48, 326 );
+    context.font = '14px Avenir, sans-serif';
+    context.fillStyle = 'rgba(255,255,255,0.76)';
+    context.fillText( screen.barrier, 392, 385 );
+    context.fillText( 'Detector', 760, 385 );
+  }
+
+  function updateReadout() {
+    const source = sourceSelect.value;
+    const screen = SCREEN_DATA[ activeScreen ];
+    const sourceInfo = SOURCES[ source ];
+    const slit = screen.slits[ source ];
+    const sliderValue = Number( slitSlider.value );
+
+    document.querySelector( '#readout-screen' ).textContent = screen.label;
+    document.querySelector( '#readout-source' ).textContent = sourceInfo.label + '; mass: ' + sourceInfo.mass;
+    document.querySelector( '#readout-control' ).textContent = activeScreen === 'experiment' ? sourceInfo.controlExperiment : sourceInfo.controlCommon;
+    document.querySelector( '#readout-slits' ).textContent = screen.barrier + '; range ' + slit[ 0 ] + ' to ' + slit[ 1 ] + ', default ' + slit[ 2 ] + '. Slider position: ' + sliderValue + '%.';
+    document.querySelector( '#readout-detector' ).textContent = screen.detector;
+    document.querySelector( '#readout-time' ).textContent = screen.time;
+    document.querySelector( '#canvas-caption' ).textContent = 'Schematic for ' + screen.label + ' using ' + sourceInfo.label + '. Slit separation is shown at ' + sliderValue + '% of its screen-specific range.';
+    drawCanvas();
+  }
+
+  document.querySelectorAll( '.screen-button' ).forEach( button => {
+    button.addEventListener( 'click', () => {
+      activeScreen = button.dataset.screen;
+      document.querySelectorAll( '.screen-button' ).forEach( other => {
+        other.setAttribute( 'aria-pressed', String( other === button ) );
+      } );
+      updateReadout();
+    } );
+  } );
+
+  document.querySelectorAll( '.sheet-button' ).forEach( button => {
+    button.addEventListener( 'click', () => {
+      const target = button.dataset.sheet;
+      document.querySelectorAll( '.sheet-button' ).forEach( other => {
+        other.setAttribute( 'aria-pressed', String( other === button ) );
+      } );
+      document.querySelectorAll( '.screen-sheet' ).forEach( sheet => {
+        sheet.classList.toggle( 'active', sheet.id === target );
+      } );
+    } );
+  } );
+
+  sourceSelect.addEventListener( 'change', updateReadout );
+  slitSlider.addEventListener( 'input', updateReadout );
+  updateReadout();
+</script>
+</body>
+</html>
