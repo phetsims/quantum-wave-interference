@@ -106,15 +106,23 @@ settings:
 
 * Photons: effective wavelength 650 nm, wave-region width 9.75 um.
 * Electrons: effective wavelength 0.661 nm, wave-region width 9.92 nm.
-* Neutrons: effective wavelength 0.791 nm, wave-region width 11.87 nm.
+* Neutrons: effective wavelength 0.791 nm, wave-region width 9.92 nm. The display scale matches
+  electrons so equal nanometer distances occupy equal view distances.
 * Helium atoms: effective wavelength 0.0831 nm, wave-region width 1.25 nm.
 
-Slit widths and separations are derived from the wave-region scale:
+Slit widths are derived from the wave-region scale:
 
-* Photons: slit width 0.511 um, slit separation range 0.929-5.11 um.
-* Electrons: slit width 0.520 nm, slit separation range 0.945-5.20 nm.
-* Neutrons: slit width 0.622 nm, slit separation range 1.13-6.22 nm.
-* Helium atoms: slit width 0.0653 nm, slit separation range 0.119-0.653 nm.
+* Photons: slit width 0.511 um.
+* Electrons: slit width 0.520 nm.
+* Neutrons: slit width 0.520 nm.
+* Helium atoms: slit width 0.0653 nm.
+
+High Intensity slit separation ranges are:
+
+* Photons: 1-5 um, default 3 um.
+* Electrons: 1-5 nm, default 3 nm.
+* Neutrons: 1-5 nm, default 3 nm.
+* Helium atoms: 0.10-0.60 nm, default 0.40 nm.
 
 The continuous-wave solver:
 
@@ -140,10 +148,10 @@ it first.
 There are 4 source-type scenes. Source ranges, wave-region scales, and slit widths are the same as
 the _High Intensity_ screen. Slit separation ranges are Single Particles-specific:
 
-* Photons: 1-4 um, default 2.5 um.
-* Electrons: 1-4 nm, default 2.5 nm.
-* Neutrons and helium atoms: physical values chosen so their minimum, maximum, and default visual
-  slit spacing match the electrons scene.
+* Photons: 1-3 um, default 2 um.
+* Electrons: 1-3 nm, default 2 nm.
+* Neutrons: 1-3 nm, default 2 nm.
+* Helium atoms: 0.10-0.50 nm, default 0.30 nm.
 
 In each scene:
 
