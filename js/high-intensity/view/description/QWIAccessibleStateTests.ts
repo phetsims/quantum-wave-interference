@@ -11,6 +11,7 @@ import PDOMUtils from '../../../../../scenery/js/accessibility/pdom/PDOMUtils.js
 import { render as litRender } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
 import Tandem from '../../../../../tandem/js/Tandem.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
+import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_EASE_POWER, DETECTOR_PATTERN_FORMATION_TIME_CONSTANT } from '../../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './HighIntensityAccessibleResponses.js';
 import QWIAccessibleStateDescriber from './QWIAccessibleStateDescriber.js';
 import { formatSlitDescription } from './QWIAccessibleStateFormatters.js';
@@ -33,6 +34,31 @@ const stepSceneToWavefrontFraction = ( model: HighIntensityModel, wavefrontFract
   const scene = model.sceneProperty.value;
   const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
   scene.step( wavefrontFraction * scene.regionWidth / propagationSpeed );
+};
+
+const stepSceneUntilWavefrontReachesScreen = ( model: HighIntensityModel ): void => {
+  const scene = model.sceneProperty.value;
+  const dt = model.getNominalStepDt();
+  for ( let i = 0; i < 600; i++ ) {
+    scene.step( dt );
+    if ( scene.hasWavefrontReachedScreen() ) {
+      return;
+    }
+  }
+  throw new Error( 'wavefront did not reach screen during test setup' );
+};
+
+const stepDetectorPatternFormationToFactor = ( model: HighIntensityModel, targetFactor: number ): void => {
+  const scene = model.sceneProperty.value;
+  const currentEasedFactor = Math.pow(
+    scene.detectorPatternFormationFactorProperty.value,
+    1 / DETECTOR_PATTERN_FORMATION_EASE_POWER
+  );
+  const targetEasedFactor = Math.pow( targetFactor, 1 / DETECTOR_PATTERN_FORMATION_EASE_POWER );
+  const dt = -DETECTOR_PATTERN_FORMATION_TIME_CONSTANT * Math.log(
+    ( 1 - targetEasedFactor ) / ( 1 - currentEasedFactor )
+  );
+  scene.step( dt );
 };
 
 QUnit.test( 'pattern kind follows slit configuration', assert => {
@@ -388,12 +414,12 @@ QUnit.test( 'pattern complete response describes emerged interference pattern', 
   const scene = model.sceneProperty.value;
 
   scene.isEmittingProperty.value = true;
-  stepSceneToWavefrontFraction( model, 0.99 );
-  scene.step( 0.05 );
+  stepSceneUntilWavefrontReachesScreen( model );
+  stepDetectorPatternFormationToFactor( model, DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD - 1e-3 );
   const beforeComplete = describer.getState();
   assert.strictEqual( beforeComplete.patternFormation, 'forming', 'pattern is forming after the wave reaches the screen' );
 
-  scene.step( 1.35 );
+  stepDetectorPatternFormationToFactor( model, DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD + 1e-3 );
   const afterComplete = describer.getState();
   assert.strictEqual( afterComplete.patternFormation, 'complete', 'pattern can reach the complete formation state' );
 

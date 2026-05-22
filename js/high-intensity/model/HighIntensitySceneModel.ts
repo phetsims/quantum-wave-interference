@@ -38,9 +38,12 @@ export const SLIT_DETECTOR_EVENT_RATE = 5;
 // events that can be created per frame at the current slit-detector event rate.
 const MAX_DECOHERENCE_EVENTS_PER_FRAME = 64;
 
-// The screen model runs at 0.5x in Normal speed, so 2 seconds of effective model time produces
-// a 4-second detector pattern formation time in Normal speed.
-export const DETECTOR_PATTERN_FORMATION_DURATION = 2;
+// Eased exponential detector-pattern formation timing, in model seconds. At Normal speed (0.35x),
+// the pattern reaches visual stability at about 2.6 seconds of wall-clock time after detector arrival.
+export const DETECTOR_PATTERN_FORMATION_TIME_CONSTANT = 0.245;
+export const DETECTOR_PATTERN_FORMATION_EASE_POWER = 2;
+export const DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD = 0.95;
+export const DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD = 0.995;
 
 const MICROMETER_TO_MM = 1e-3;
 const NANOMETER_TO_MM = 1e-6;
@@ -307,10 +310,16 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       return;
     }
 
-    this._detectorPatternFormationFactorProperty.value = Math.min(
-      1,
-      this._detectorPatternFormationFactorProperty.value + dt / DETECTOR_PATTERN_FORMATION_DURATION
+    const easedFormationFactor = Math.pow(
+      this._detectorPatternFormationFactorProperty.value,
+      1 / DETECTOR_PATTERN_FORMATION_EASE_POWER
     );
+    const nextEasedFormationFactor = 1 - ( 1 - easedFormationFactor ) *
+                                          Math.exp( -dt / DETECTOR_PATTERN_FORMATION_TIME_CONSTANT );
+    const nextFormationFactor = Math.pow( nextEasedFormationFactor, DETECTOR_PATTERN_FORMATION_EASE_POWER );
+
+    this._detectorPatternFormationFactorProperty.value =
+      nextFormationFactor >= DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD ? 1 : nextFormationFactor;
   }
 
   private resetDetectorPatternFormation(): void {

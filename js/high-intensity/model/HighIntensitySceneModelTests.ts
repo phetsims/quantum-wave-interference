@@ -9,7 +9,7 @@
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_DURATION, DETECTOR_SCREEN_HIT_RATE, SLIT_DETECTOR_EVENT_RATE } from './HighIntensitySceneModel.js';
+import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_EASE_POWER, DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_TIME_CONSTANT, DETECTOR_SCREEN_HIT_RATE, SLIT_DETECTOR_EVENT_RATE } from './HighIntensitySceneModel.js';
 
 QUnit.module( 'HighIntensitySceneModel' );
 
@@ -85,6 +85,15 @@ const prepareSceneForDetectorScreenHits = ( scene: HighIntensitySceneModel ): vo
   scene.detectionModeProperty.value = 'hits';
 };
 
+const getDetectorPatternFormationDt = ( initialFactor: number, targetFactor: number ): number => {
+  const initialEasedFactor = Math.pow( initialFactor, 1 / DETECTOR_PATTERN_FORMATION_EASE_POWER );
+  const targetEasedFactor = Math.pow( targetFactor, 1 / DETECTOR_PATTERN_FORMATION_EASE_POWER );
+
+  return -DETECTOR_PATTERN_FORMATION_TIME_CONSTANT * Math.log(
+    ( 1 - targetEasedFactor ) / ( 1 - initialEasedFactor )
+  );
+};
+
 QUnit.test( 'slit separation ranges use requested values', assert => {
   ( Object.keys( EXPECTED_SLIT_SEPARATIONS ) as SourceType[] ).forEach( sourceType => {
     const scene = createScene( sourceType );
@@ -112,7 +121,7 @@ QUnit.test( 'neutron wave visualizer scale matches electrons without changing ph
   );
 } );
 
-QUnit.test( 'detector pattern formation waits for wavefront and uses model dt', assert => {
+QUnit.test( 'detector pattern formation waits for wavefront and uses eased exponential model dt', assert => {
   const scene = createScene();
 
   scene.isEmittingProperty.value = true;
@@ -132,16 +141,34 @@ QUnit.test( 'detector pattern formation waits for wavefront and uses model dt', 
   scene.step( 0 );
   assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 0, 'zero dt does not advance formation' );
 
-  scene.step( DETECTOR_PATTERN_FORMATION_DURATION / 2 );
+  scene.step( DETECTOR_PATTERN_FORMATION_TIME_CONSTANT );
   assertApproximately(
     assert,
     scene.detectorPatternFormationFactorProperty.value,
-    0.5,
-    'formation advances according to effective model dt'
+    Math.pow( 1 - Math.exp( -1 ), DETECTOR_PATTERN_FORMATION_EASE_POWER ),
+    'formation advances by one eased exponential time constant'
+  );
+  assert.ok(
+    scene.detectorPatternFormationFactorProperty.value < 0.5,
+    'formation starts more gradually than the previous direct exponential'
   );
 
-  scene.step( DETECTOR_PATTERN_FORMATION_DURATION / 2 );
-  assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 1, 'formation reaches completion after the configured duration' );
+  scene.detectionModeProperty.value = 'hits';
+  scene.detectionModeProperty.value = 'averageIntensity';
+  assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 0, 're-entering intensity mode restarts nonzero formation' );
+
+  const justBelowSnapFactor = DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD - 1e-4;
+  scene.step( getDetectorPatternFormationDt( 0, justBelowSnapFactor ) );
+  assertApproximately(
+    assert,
+    scene.detectorPatternFormationFactorProperty.value,
+    justBelowSnapFactor,
+    'formation does not snap below the snap-to-complete threshold'
+  );
+
+  const justAboveSnapFactor = DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD + 1e-4;
+  scene.step( getDetectorPatternFormationDt( justBelowSnapFactor, justAboveSnapFactor ) );
+  assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 1, 'formation snaps to completion after the threshold' );
 } );
 
 QUnit.test( 'detector-screen hits use increased rate after wavefront reaches screen', assert => {

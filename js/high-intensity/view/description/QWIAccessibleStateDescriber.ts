@@ -20,7 +20,7 @@ import QuantumWaveInterferenceConstants from '../../../common/QuantumWaveInterfe
 import BandAnalysis, { type BandAnalysisResult, type HitStage } from '../../../common/view/description/BandAnalysis.js';
 import { getWavelengthColorZone, type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
-import HighIntensitySceneModel from '../../model/HighIntensitySceneModel.js';
+import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../../model/HighIntensitySceneModel.js';
 
 export type QWIPatternKind = 'doubleSlitInterference' | 'singleSlitDiffraction' | 'whichPathDiffraction' | 'noBarrier';
 export type QWIDisplayMode = 'screen' | 'graph';
@@ -104,7 +104,7 @@ const getPatternFormation = ( scene: HighIntensitySceneModel, model: HighIntensi
   }
 
   const formationFactor = scene.detectorPatternFormationFactorProperty.value;
-  return formationFactor >= 0.7 ? 'complete' :
+  return formationFactor >= DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD ? 'complete' :
          formationFactor > 0 ? 'forming' :
          'empty';
 };
