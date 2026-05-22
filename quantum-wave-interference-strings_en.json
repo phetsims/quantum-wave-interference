@@ -113,6 +113,9 @@
   "hitsCountPattern": {
     "value": "Hits: {{count}}"
   },
+  "detectorHitsCountPattern": {
+    "value": "{{count}} Hits"
+  },
   "screenGraphSwitch.screen": {
     "value": "Screen"
   },
@@ -240,6 +243,11 @@
       },
       "interactionHint": {
         "value": "{ $isEmitting ->\n  [true] Adjust source or slits and watch for changes on detector screen.\n *[false] Turn on { $sourceType ->\n    [photons] photon\n    [electrons] electron\n    [neutrons] neutron\n   *[heliumAtoms] helium atom\n  } source and observe detector screen.\n}"
+      }
+    },
+    "snapshotNode": {
+      "deleteSnapshotAccessibleName": {
+        "value": "Delete { $snapshotTitle }"
       }
     },
     "experimentSetupHeading": {

@@ -39,6 +39,7 @@ detectorBoth:                    Detector Both
 noBarrier:                       No Barrier
 hits:                            Hits
 hitsCountPattern:                'Hits: {{count}}'
+detectorHitsCountPattern:        '{{count}} Hits'
 screenGraphSwitch.screen:        Screen
 screenGraphSwitch.graph:         Graph
 screenBrightness:                Screen Brightness
@@ -247,6 +248,8 @@ a11y:
                                 *[heliumAtoms] helium atom
                                } source and observe detector screen.
                              }
+  snapshotNode:
+    deleteSnapshotAccessibleName: 'Delete { $snapshotTitle }'
   experimentSetupHeading:      Detector Screen and Experiment Setup
   sourceHeading:               Source Controls
   slitsHeading:                Slits and Screen Configuration

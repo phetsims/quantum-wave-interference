@@ -5,7 +5,7 @@
 /* eslint-disable */
 /* @formatter:off */
 
-import {TReadOnlyProperty} from '../../axon/js/TReadOnlyProperty.js';
+import { TReadOnlyProperty } from '../../axon/js/TReadOnlyProperty.js';
 import FluentLibrary from '../../chipper/js/browser-and-node/FluentLibrary.js';
 import FluentComment from '../../chipper/js/browser/FluentComment.js';
 import FluentConstant from '../../chipper/js/browser/FluentConstant.js';
@@ -103,6 +103,7 @@ addToMapIfDefined( 'a11y_screenSummary_maxHitsReachedHint', 'a11y.screenSummary.
 addToMapIfDefined( 'a11y_screenSummary_currentDetails', 'a11y.screenSummary.currentDetailsStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_currentDetailsTopBottom', 'a11y.screenSummary.currentDetailsTopBottomStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_interactionHint', 'a11y.screenSummary.interactionHintStringProperty' );
+addToMapIfDefined( 'a11y_snapshotNode_deleteSnapshotAccessibleName', 'a11y.snapshotNode.deleteSnapshotAccessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_experimentSetupHeading', 'a11y.experimentSetupHeadingStringProperty' );
 addToMapIfDefined( 'a11y_sourceHeading', 'a11y.sourceHeadingStringProperty' );
 addToMapIfDefined( 'a11y_slitsHeading', 'a11y.slitsHeadingStringProperty' );
@@ -315,6 +316,7 @@ const QuantumWaveInterferenceFluent = {
   noBarrierStringProperty: _.get( QuantumWaveInterferenceStrings, 'noBarrierStringProperty' ),
   hitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsStringProperty' ),
   hitsCountPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsCountPatternStringProperty' ),
+  detectorHitsCountPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorHitsCountPatternStringProperty' ),
   screenGraphSwitch: {
     screenStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenGraphSwitch.screenStringProperty' ),
     graphStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenGraphSwitch.graphStringProperty' )
@@ -362,6 +364,9 @@ const QuantumWaveInterferenceFluent = {
       currentDetails: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'>, hasHits: 'false' | 'true' | TReadOnlyProperty<'false' | 'true'>, isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isMaxHitsReached: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isPlaying: 'false' | 'true' | TReadOnlyProperty<'false' | 'true'>, slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_screenSummary_currentDetails', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.currentDetailsStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]},{"name":"hasHits","variants":["false","true"]},{"name":"isEmitting","variants":["true","false"]},{"name":"isMaxHitsReached","variants":["true","false"]},{"name":"isPlaying","variants":["false","true"]},{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","noBarrier","bothDetectors"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
       currentDetailsTopBottom: new FluentPattern<{ detectionMode: 'averageIntensity' | 'hits' | TReadOnlyProperty<'averageIntensity' | 'hits'>, hasHits: 'false' | 'true' | TReadOnlyProperty<'false' | 'true'>, isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isMaxHitsReached: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isPlaying: 'false' | 'true' | TReadOnlyProperty<'false' | 'true'>, slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_screenSummary_currentDetailsTopBottom', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.currentDetailsTopBottomStringProperty' ), [{"name":"detectionMode","variants":["averageIntensity","hits"]},{"name":"hasHits","variants":["false","true"]},{"name":"isEmitting","variants":["true","false"]},{"name":"isMaxHitsReached","variants":["true","false"]},{"name":"isPlaying","variants":["false","true"]},{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","noBarrier","bothDetectors"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
       interactionHint: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_screenSummary_interactionHint', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.interactionHintStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] )
+    },
+    snapshotNode: {
+      deleteSnapshotAccessibleName: new FluentPattern<{ snapshotTitle: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_snapshotNode_deleteSnapshotAccessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotNode.deleteSnapshotAccessibleNameStringProperty' ), [{"name":"snapshotTitle"}] )
     },
     experimentSetupHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_experimentSetupHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupHeadingStringProperty' ) ),
     sourceHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sourceHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceHeadingStringProperty' ) ),

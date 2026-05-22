@@ -15,7 +15,6 @@ import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import TrashButton from '../../../../scenery-phet/js/buttons/TrashButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import SceneryPhetFluent from '../../../../scenery-phet/js/SceneryPhetFluent.js';
-import SceneryPhetStrings from '../../../../scenery-phet/js/SceneryPhetStrings.js';
 import { kilometersPerSecondUnit } from '../../../../scenery-phet/js/units/kilometersPerSecondUnit.js';
 import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
 import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
@@ -251,9 +250,17 @@ export default class SnapshotNode extends Node {
       }, '' )( snapshotProperty.value )
     );
 
-    const trashButtonAccessibleNameProperty = new DerivedProperty(
-      [ snapshotProperty, SceneryPhetStrings.key.deleteStringProperty, titleProperty ],
-      ( snapshot, deleteString, title ) => snapshot ? `${deleteString} ${title}` : ''
+    const trashButtonAccessibleNameProperty = DerivedProperty.deriveAny(
+      [
+        snapshotProperty,
+        titleProperty,
+        ...QuantumWaveInterferenceFluent.a11y.snapshotNode.deleteSnapshotAccessibleName.getDependentProperties()
+      ],
+      () => snapshotProperty.value ?
+            QuantumWaveInterferenceFluent.a11y.snapshotNode.deleteSnapshotAccessibleName.format( {
+              snapshotTitle: titleProperty.value
+            } ) :
+            ''
     );
 
     const background = new Rectangle(

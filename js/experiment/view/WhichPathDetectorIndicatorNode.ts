@@ -10,6 +10,7 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Shape from '../../../../kite/js/Shape.js';
+import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
@@ -71,11 +72,11 @@ class DetectorPanelNode extends Node {
                                  model.currentLeftDetectorHitsProperty :
                                  model.currentRightDetectorHitsProperty;
 
-    // Reactive: updates on hit count change and on locale change for the "hits" word.
+    // Reactive: updates on hit count change and on locale change for the hit-count pattern.
     const detectorHitCountStringProperty = new DerivedProperty( [
         detectorHitsProperty,
-        QuantumWaveInterferenceFluent.hitsStringProperty
-      ], ( hits, hitsLabel ) => `${hits} ${hitsLabel}`
+        QuantumWaveInterferenceFluent.detectorHitsCountPatternStringProperty
+      ], ( hits, pattern ) => StringUtils.fillIn( pattern, { count: hits } )
     );
 
     const detectorHitCountText = new Text( detectorHitCountStringProperty, {

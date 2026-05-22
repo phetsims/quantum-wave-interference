@@ -60,6 +60,7 @@ type StringsType = {
   'noBarrierStringProperty': LocalizedStringProperty;
   'hitsStringProperty': LocalizedStringProperty;
   'hitsCountPatternStringProperty': LocalizedStringProperty;
+  'detectorHitsCountPatternStringProperty': LocalizedStringProperty;
   'screenGraphSwitch': {
     'screenStringProperty': LocalizedStringProperty;
     'graphStringProperty': LocalizedStringProperty;
@@ -106,6 +107,9 @@ type StringsType = {
       'currentDetailsStringProperty': LocalizedStringProperty;
       'currentDetailsTopBottomStringProperty': LocalizedStringProperty;
       'interactionHintStringProperty': LocalizedStringProperty;
+    };
+    'snapshotNode': {
+      'deleteSnapshotAccessibleNameStringProperty': LocalizedStringProperty;
     };
     'experimentSetupHeadingStringProperty': LocalizedStringProperty;
     'sourceHeadingStringProperty': LocalizedStringProperty;
