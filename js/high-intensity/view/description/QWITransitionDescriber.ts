@@ -136,6 +136,8 @@ export default class QWITransitionDescriber {
     }
     else if ( action.type === 'screenCleared' ) {
       const isRestarting = after.isPlaying && after.isEmitting;
+
+      // TODO: https://github.com/phetsims/quantum-wave-interference/issues/135 move strings to YAML file
       contextResponse = isRestarting ?
                         `Wave area cleared. ${sourceRestartedResponse}` :
                         QuantumWaveInterferenceFluent.a11y.highIntensityResponses.screenCleared.format( {
