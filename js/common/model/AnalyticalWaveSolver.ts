@@ -24,7 +24,7 @@
 import type Complex from '../../../../dot/js/Complex.js';
 import { type AnalyticalSource, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import BaseAnalyticalWaveSolver from './BaseAnalyticalWaveSolver.js';
-import { type WaveSolverState } from './WaveSolver.js';
+import { type AnalyticalWaveSolverState, type WaveSolverState } from './WaveSolver.js';
 
 const DISPLAY_TRAVERSAL_TIME = 2.0;
 const EDGE_TAPER_CELLS = 4;
@@ -107,7 +107,7 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
     this.detectorAccumulatorCount = 0;
   }
 
-  public getState(): WaveSolverState {
+  public getState(): AnalyticalWaveSolverState {
     return {
       time: this.time,
       sourceOnTime: this.sourceOnTime,
@@ -118,8 +118,8 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
 
   public setState( state: WaveSolverState ): void {
     this.time = state.time;
-    this.sourceOnTime = state.sourceOnTime;
-    if ( state.detectorAccumulator ) {
+    this.sourceOnTime = 'sourceOnTime' in state ? state.sourceOnTime : null;
+    if ( 'detectorAccumulator' in state ) {
       this.detectorAccumulator.set( state.detectorAccumulator );
       this.detectorAccumulatorCount = state.detectorAccumulatorCount;
     }

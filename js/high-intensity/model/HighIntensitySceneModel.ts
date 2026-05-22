@@ -253,7 +253,9 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     // The solver clock can advance while the source is off. Use the source-on time so slit-detector
     // events are scheduled relative to the emitted wavefront, not absolute solver time.
     const waveSolverState = this.waveSolver.getState();
-    const sourceOnTime = typeof waveSolverState.sourceOnTime === 'number' ? waveSolverState.sourceOnTime : null;
+    const sourceOnTime = 'sourceOnTime' in waveSolverState && typeof waveSolverState.sourceOnTime === 'number' ?
+                         waveSolverState.sourceOnTime :
+                         null;
     if ( sourceOnTime === null ) {
       return;
     }

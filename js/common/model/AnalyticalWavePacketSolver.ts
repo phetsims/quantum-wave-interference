@@ -14,7 +14,7 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type AnalyticalSource, type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalSample, type GaussianPacketReEmission, type MeasurementProjection } from './AnalyticalWaveKernel.js';
 import BaseAnalyticalWaveSolver from './BaseAnalyticalWaveSolver.js';
-import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
+import { type AnalyticalWavePacketSolverState, type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
 const EPSILON = 1e-12;
 
@@ -67,7 +67,7 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     this.packetReEmission = null;
   }
 
-  public getState(): WaveSolverState {
+  public getState(): AnalyticalWavePacketSolverState {
     return {
       time: this.time,
       measurementProjections: this.measurementProjections.map( projection => ( {
@@ -86,19 +86,32 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     this.time = state.time;
     this.measurementProjections.length = 0;
 
-    const projections = state.measurementProjections || state.biteGaussians || [];
-    for ( const projection of projections ) {
-      this.measurementProjections.push( {
-        centerX: projection.centerX ?? projection.worldX0,
-        centerY: projection.centerY ?? projection.worldY,
-        radius: projection.radius ?? Math.sqrt( 1 / projection.invSigmaSq ),
-        edgeFeather: projection.edgeFeather ?? this.getMeasurementBiteEdgeFeather(),
-        measurementTime: projection.measurementTime,
-        renormScale: projection.renormScale ?? 1
-      } );
+    if ( 'measurementProjections' in state ) {
+      for ( const projection of state.measurementProjections ) {
+        this.measurementProjections.push( {
+          centerX: projection.centerX,
+          centerY: projection.centerY,
+          radius: projection.radius,
+          edgeFeather: projection.edgeFeather,
+          measurementTime: projection.measurementTime,
+          renormScale: projection.renormScale
+        } );
+      }
+    }
+    else if ( 'biteGaussians' in state ) {
+      for ( const projection of state.biteGaussians ) {
+        this.measurementProjections.push( {
+          centerX: projection.worldX0,
+          centerY: projection.worldY,
+          radius: Math.sqrt( 1 / projection.invSigmaSq ),
+          edgeFeather: projection.edgeFeather ?? this.getMeasurementBiteEdgeFeather(),
+          measurementTime: projection.measurementTime,
+          renormScale: projection.renormScale ?? 1
+        } );
+      }
     }
 
-    this.packetReEmission = state.packetReEmission ? copyPacketReEmission( state.packetReEmission ) : null;
+    this.packetReEmission = 'packetReEmission' in state && state.packetReEmission ? copyPacketReEmission( state.packetReEmission ) : null;
     this.dirty = true;
   }
 

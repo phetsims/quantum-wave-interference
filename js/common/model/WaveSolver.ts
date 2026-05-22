@@ -12,11 +12,48 @@
 
 import type Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
-import IntentionalAny from '../../../../phet-core/js/types/IntentionalAny.js';
 import { type DecoherenceEvent, type FieldSample, type GaussianPacketReEmission, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type BarrierType } from './BarrierType.js';
 
-export type WaveSolverState = Record<string, IntentionalAny>;
+export type WaveSolverMeasurementProjectionState = {
+  centerX: number;
+  centerY: number;
+  radius: number;
+  edgeFeather?: number;
+  measurementTime: number;
+  renormScale: number;
+};
+
+export type LegacyWaveSolverMeasurementProjectionState = {
+  worldX0: number;
+  worldY: number;
+  invSigmaSq: number;
+  edgeFeather?: number;
+  measurementTime: number;
+  renormScale?: number;
+  shrinkDuration?: number;
+};
+
+export type AnalyticalWaveSolverState = {
+  time: number;
+  sourceOnTime: number | null;
+  detectorAccumulator: number[];
+  detectorAccumulatorCount: number;
+};
+
+export type AnalyticalWavePacketSolverState = {
+  time: number;
+  measurementProjections: WaveSolverMeasurementProjectionState[];
+  packetReEmission: GaussianPacketReEmission | null;
+};
+
+export type LegacyAnalyticalWavePacketSolverState = {
+  time: number;
+  biteGaussians: LegacyWaveSolverMeasurementProjectionState[];
+  packetReEmission?: GaussianPacketReEmission | null;
+};
+
+export type WaveSolverState = AnalyticalWaveSolverState | AnalyticalWavePacketSolverState | LegacyAnalyticalWavePacketSolverState;
 
 export type WaveSolverParameters = {
   wavelength?: number;

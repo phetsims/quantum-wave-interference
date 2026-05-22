@@ -168,7 +168,9 @@ const getWaveProgress = ( scene: HighIntensitySceneModel, patternKind: QWIPatter
   const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
   const waveSolverState = scene.waveSolver.getState();
   const solverTime = scene.waveSolver.getTime();
-  const sourceOnTime = typeof waveSolverState.sourceOnTime === 'number' ? waveSolverState.sourceOnTime : solverTime;
+  const sourceOnTime = 'sourceOnTime' in waveSolverState && typeof waveSolverState.sourceOnTime === 'number' ?
+                       waveSolverState.sourceOnTime :
+                       solverTime;
   const wavefrontX = propagationSpeed * Math.max( 0, solverTime - sourceOnTime );
   const wavefrontFraction = clamp( wavefrontX / scene.regionWidth, 0, 1 );
   const slitFraction = scene.slitPositionFractionProperty.value;
