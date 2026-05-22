@@ -10,7 +10,6 @@
 
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { linear } from '../../../../dot/js/util/linear.js';
-import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
@@ -232,10 +231,15 @@ export function getInterpolatedRGB(
     return outputRGB;
   }
 
-  const clampedFraction = clamp( fraction, 0, 1 );
-  outputRGB.r = clamp( roundSymmetric( linear( 0, 1, startRGB.r, endRGB.r, clampedFraction ) ), 0, 255 );
-  outputRGB.g = clamp( roundSymmetric( linear( 0, 1, startRGB.g, endRGB.g, clampedFraction ) ), 0, 255 );
-  outputRGB.b = clamp( roundSymmetric( linear( 0, 1, startRGB.b, endRGB.b, clampedFraction ) ), 0, 255 );
+  const clampedFraction = fraction > 1 ? 1 : fraction;
+
+  // This is a hot spot for performance since it's over N^2 on the grid, so we must optimize here. https://github.com/phetsims/quantum-wave-interference/issues/130
+  const r = Math.round( startRGB.r + ( endRGB.r - startRGB.r ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
+  const g = Math.round( startRGB.g + ( endRGB.g - startRGB.g ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
+  const b = Math.round( startRGB.b + ( endRGB.b - startRGB.b ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
+  outputRGB.r = r < 0 ? 0 : r > 255 ? 255 : r;
+  outputRGB.g = g < 0 ? 0 : g > 255 ? 255 : g;
+  outputRGB.b = b < 0 ? 0 : b > 255 ? 255 : b;
   return outputRGB;
 }
 
