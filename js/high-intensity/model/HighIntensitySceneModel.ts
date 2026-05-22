@@ -39,8 +39,8 @@ export const SLIT_DETECTOR_EVENT_RATE = 5;
 const MAX_DECOHERENCE_EVENTS_PER_FRAME = 64;
 
 // Eased exponential detector-pattern formation timing, in model seconds. At Normal speed (0.35x),
-// the pattern reaches visual stability at about 2.6 seconds of wall-clock time after detector arrival.
-export const DETECTOR_PATTERN_FORMATION_TIME_CONSTANT = 0.245;
+// the pattern reaches visual stability at about 2.1 seconds of wall-clock time after detector arrival.
+export const DETECTOR_PATTERN_FORMATION_TIME_CONSTANT = 0.20;
 export const DETECTOR_PATTERN_FORMATION_EASE_POWER = 2;
 export const DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD = 0.95;
 export const DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD = 0.995;

@@ -9,7 +9,7 @@
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_EASE_POWER, DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_TIME_CONSTANT, DETECTOR_SCREEN_HIT_RATE, SLIT_DETECTOR_EVENT_RATE } from './HighIntensitySceneModel.js';
+import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_EASE_POWER, DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_TIME_CONSTANT, DETECTOR_SCREEN_HIT_RATE, SLIT_DETECTOR_EVENT_RATE } from './HighIntensitySceneModel.js';
 
 QUnit.module( 'HighIntensitySceneModel' );
 
@@ -140,6 +140,14 @@ QUnit.test( 'detector pattern formation waits for wavefront and uses eased expon
 
   scene.step( 0 );
   assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 0, 'zero dt does not advance formation' );
+
+  assertApproximately(
+    assert,
+    getDetectorPatternFormationDt( 0, DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD ),
+    0.74,
+    'formation reaches visual stability after the intended model time',
+    0.01
+  );
 
   scene.step( DETECTOR_PATTERN_FORMATION_TIME_CONSTANT );
   assertApproximately(
