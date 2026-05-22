@@ -31,9 +31,6 @@ export default class ExperimentConstants {
   // Relative skew amount for overhead parallelograms (1 = original skew, 0.5 = 50% less skew).
   public static readonly OVERHEAD_SKEW_SCALE = 0.5;
 
-  // Maximum number of hits allowed in Hits mode before the source is shut off.
-  public static readonly MAX_HITS = 25000;
-
   /**
    * Determines the number of decimal places needed to display a value without trailing zeros.
    * For example, 0.2 -> 1, 0.002 -> 3, 5 -> 0, 0.1 -> 1.

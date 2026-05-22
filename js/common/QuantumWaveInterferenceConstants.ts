@@ -28,11 +28,23 @@ export default class QuantumWaveInterferenceConstants {
 
   // Physical constants
   public static readonly PLANCK_CONSTANT = 6.626e-34; // J·s
+  public static readonly SPEED_OF_LIGHT = 3e8; // m/s
 
   // Particle masses in kg
   public static readonly ELECTRON_MASS = 9.109e-31;
   public static readonly NEUTRON_MASS = 1.675e-27;
   public static readonly HELIUM_ATOM_MASS = 6.646e-27;
+
+  // Use a function here so we can map SourceType => particle mass
+  public static getParticleMass( sourceType: SourceType ): number {
+    return sourceType === 'photons' ? 0 :
+           sourceType === 'electrons' ? QuantumWaveInterferenceConstants.ELECTRON_MASS :
+           sourceType === 'neutrons' ? QuantumWaveInterferenceConstants.NEUTRON_MASS :
+           sourceType === 'heliumAtoms' ? QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS :
+           ( () => { throw new Error( `Unrecognized sourceType: ${sourceType}` ); } )();
+  }
+
+  public static readonly DEFAULT_PHOTON_WAVELENGTH_NM = 650;
 
   // Number of display-scale wavelengths visible across the wave region at default settings.
   // Shared between the continuous-wave and wave-packet solvers so both screens show matching wavelengths.
@@ -69,6 +81,9 @@ export default class QuantumWaveInterferenceConstants {
 
   // Maximum value for the screen brightness slider, shared across all screens
   public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
+
+  // Maximum number of hits allowed in Hits mode before the source is shut off.
+  public static readonly MAX_HITS = 25000;
 
   // Maximum number of snapshots that can be saved per scene
   public static readonly MAX_SNAPSHOTS = 4;

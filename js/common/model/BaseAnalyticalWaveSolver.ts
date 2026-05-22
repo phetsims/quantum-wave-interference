@@ -31,8 +31,8 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   public readonly gridHeight: number;
   public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
 
-  protected wavelength = 650e-9;
-  protected waveSpeed = 3e8;
+  protected wavelength = QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9;
+  protected waveSpeed = QuantumWaveInterferenceConstants.SPEED_OF_LIGHT;
   protected displaySpeedScale = 1;
   protected displayWavelengths = DISPLAY_WAVELENGTHS;
   protected barrierType: BarrierType = 'none';

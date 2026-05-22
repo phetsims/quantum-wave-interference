@@ -21,11 +21,12 @@ import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
-import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
+import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 
 // Detector-screen hit dots created per model second in Hits mode.
 export const DETECTOR_SCREEN_HIT_RATE = 40;
@@ -122,7 +123,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.detectionModeProperty, this.totalHitsProperty ],
-      ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits >= MAX_HITS
+      ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceConstants.MAX_HITS
     );
 
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMax => !isMax );
@@ -210,7 +211,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     let actualHits = 0;
 
     for ( let i = 0; i < numHits; i++ ) {
-      if ( this.totalHitsProperty.value + actualHits >= MAX_HITS ) {
+      if ( this.totalHitsProperty.value + actualHits >= QuantumWaveInterferenceConstants.MAX_HITS ) {
         break;
       }
 

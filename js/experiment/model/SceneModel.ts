@@ -36,7 +36,6 @@ import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigur
 import { renumberSnapshots, type Snapshot, SnapshotIO } from '../../common/model/Snapshot.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import ExperimentConstants from '../ExperimentConstants.js';
 import { getFullDetectorScreenHalfWidth } from './DetectorScreenScale.js';
 
 // Maximum emission rate in hits per second at full intensity
@@ -63,8 +62,6 @@ type SelfOptions = {
 export type SceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class SceneModel extends PhetioObject {
-
-  public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
 
   /**
    * Slit width in mm for a given source type.
@@ -170,21 +167,21 @@ export default class SceneModel extends PhetioObject {
     const defaultScreenDistance = 0.6;
 
     if ( options.sourceType === 'photons' ) {
-      this.particleMass = 0;
+      this.particleMass = QuantumWaveInterferenceConstants.getParticleMass( 'photons' );
       this.velocityRange = new Range( 0, 0 ); // Not used for photons
       this.slitSeparationRange = new Range( 0.05, 0.5 ); // mm
       defaultVelocity = 0;
       defaultSlitSeparation = 0.25;
     }
     else if ( options.sourceType === 'electrons' ) {
-      this.particleMass = QuantumWaveInterferenceConstants.ELECTRON_MASS;
+      this.particleMass = QuantumWaveInterferenceConstants.getParticleMass( 'electrons' );
       this.velocityRange = new Range( 2e5, 1e6 ); // m/s (200–1000 km/s)
       this.slitSeparationRange = new Range( 0.0001, 0.002 ); // mm (0.1–2.0 μm)
       defaultVelocity = 6e5; // 600 km/s
       defaultSlitSeparation = 0.001; // 1 μm
     }
     else if ( options.sourceType === 'neutrons' ) {
-      this.particleMass = QuantumWaveInterferenceConstants.NEUTRON_MASS;
+      this.particleMass = QuantumWaveInterferenceConstants.getParticleMass( 'neutrons' );
 
       // NOTE: The settings are similar to Helium by design
       this.velocityRange = new Range( 200, 1000 ); // m/s
@@ -194,7 +191,7 @@ export default class SceneModel extends PhetioObject {
     }
     else {
       // Helium atoms
-      this.particleMass = QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS;
+      this.particleMass = QuantumWaveInterferenceConstants.getParticleMass( 'heliumAtoms' );
 
       // NOTE: The settings are similar to Neutrons by design
       this.velocityRange = new Range( 200, 1000 ); // m/s
@@ -217,7 +214,10 @@ export default class SceneModel extends PhetioObject {
     // not used directly — the effective wavelength is computed from velocity via de Broglie relation.
     // For non-photons, the wavelength is derived from velocity via de Broglie (see getEffectiveWavelength),
     // so this property's range is [0,0] and its value is unused directly.
-    this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? 650 : 0, {
+    const defaultWavelengthNM = options.sourceType === 'photons' ?
+                                QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM :
+                                0;
+    this.wavelengthProperty = new NumberProperty( defaultWavelengthNM, {
       range: QuantumWaveInterferenceConstants.createWavelengthRangeNM( options.sourceType ),
       units: nanometersUnit,
       tandem: tandem.createTandem( 'wavelengthProperty' )
@@ -259,8 +259,8 @@ export default class SceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
-    this.screenBrightnessProperty = new NumberProperty( SceneModel.SCREEN_BRIGHTNESS_MAX * 0.5, {
-      range: new Range( 0, SceneModel.SCREEN_BRIGHTNESS_MAX ),
+    this.screenBrightnessProperty = new NumberProperty( QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 0.5, {
+      range: new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ),
       tandem: tandem.createTandem( 'screenBrightnessProperty' ),
       phetioFeatured: true
     } );
@@ -288,7 +288,7 @@ export default class SceneModel extends PhetioObject {
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.detectionModeProperty, this.totalHitsProperty ],
       ( detectionMode, totalHits ) =>
-        detectionMode === 'hits' && totalHits >= ExperimentConstants.MAX_HITS
+        detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceConstants.MAX_HITS
     );
 
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMaxHitsReached => !isMaxHitsReached );
@@ -383,7 +383,7 @@ export default class SceneModel extends PhetioObject {
    * Takes a snapshot of the current detector screen state. Maximum of 4 snapshots per scene.
    */
   public takeSnapshot(): void {
-    if ( this.snapshotsProperty.value.length >= SceneModel.MAX_SNAPSHOTS ) {
+    if ( this.snapshotsProperty.value.length >= QuantumWaveInterferenceConstants.MAX_SNAPSHOTS ) {
       return;
     }
 
@@ -418,9 +418,6 @@ export default class SceneModel extends PhetioObject {
   public deleteSnapshot( snapshot: Snapshot ): void {
     this.snapshotsProperty.value = renumberSnapshots( this.snapshotsProperty.value.filter( s => s !== snapshot ) );
   }
-
-  // Maximum number of snapshots that can be stored per scene
-  public static readonly MAX_SNAPSHOTS = 4;
 
   /**
    * Resets all scene state to initial values: Properties, accumulated data, and snapshots.
@@ -503,7 +500,7 @@ export default class SceneModel extends PhetioObject {
 
     for ( let i = 0; i < numHits; i++ ) {
 
-      if ( this.totalHitsProperty.value + actualHitsAddedThisFrame >= ExperimentConstants.MAX_HITS ) {
+      if ( this.totalHitsProperty.value + actualHitsAddedThisFrame >= QuantumWaveInterferenceConstants.MAX_HITS ) {
         break;
       }
 

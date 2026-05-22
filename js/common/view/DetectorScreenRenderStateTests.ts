@@ -13,6 +13,7 @@ import SceneModel from '../../experiment/model/SceneModel.js';
 import createDetectorScreenRenderStateFromSceneModel from '../../experiment/view/createDetectorScreenRenderStateFromSceneModel.js';
 import { type SlitConfiguration } from '../model/SlitConfiguration.js';
 import { type SourceType } from '../model/SourceType.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { createDetectorScreenRenderStateFromSnapshot, type DetectorScreenRenderState } from './DetectorScreenRenderState.js';
 import renderDetectorScreenTexture from './renderDetectorScreenTexture.js';
 
@@ -79,7 +80,7 @@ const prepareAverageIntensityScene = ( sourceType: SourceType, slitSetting: Slit
   scene.detectionModeProperty.value = 'averageIntensity';
   scene.isEmittingProperty.value = true;
   scene.intensityProperty.value = 1;
-  scene.screenBrightnessProperty.value = SceneModel.SCREEN_BRIGHTNESS_MAX;
+  scene.screenBrightnessProperty.value = QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
   scene.slitSettingProperty.value = slitSetting;
 
   if ( sourceType === 'photons' ) {
@@ -114,7 +115,7 @@ QUnit.test( 'snapshot and live render states match for experiment hits', assert 
   const scene = createScene( 'photons' );
   scene.detectionModeProperty.value = 'hits';
   scene.wavelengthProperty.value = 594;
-  scene.screenBrightnessProperty.value = SceneModel.SCREEN_BRIGHTNESS_MAX;
+  scene.screenBrightnessProperty.value = QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
   scene.hits.push(
     new Vector2( -0.5, -0.3 ),
     new Vector2( 0, 0 ),

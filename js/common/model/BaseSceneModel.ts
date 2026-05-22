@@ -45,13 +45,6 @@ import { type WaveSolverState } from './WaveSolver.js';
 
 // Full normalized detector-screen half-span used by High Intensity and Single Particles hit scatter.
 export const HIT_VERTICAL_EXTENT = 1;
-export const MAX_HITS = 25000;
-const MAX_SNAPSHOTS = 4;
-const DEFAULT_PHOTON_WAVELENGTH_NM = 650;
-
-// Number of wavelengths visible across the region at the default wavelength, used to size each
-// scene's physical region. Photons end up at ~10 μm, matter waves scale down to nm-scale regions.
-const DEFAULT_DISPLAY_WAVELENGTHS = 15;
 
 // Preserve the former default visual slit spacing when converting the control range to physical units.
 const DEFAULT_SLIT_SEPARATION_FRACTION = 9 / 19;
@@ -64,22 +57,22 @@ type SourceTypeConfig = {
 
 const SOURCE_TYPE_CONFIG: Record<SourceType, SourceTypeConfig> = {
   photons: {
-    particleMass: 0,
+    particleMass: QuantumWaveInterferenceConstants.getParticleMass( 'photons' ),
     velocityRange: [ 0, 0 ],
     defaultVelocity: 0
   },
   electrons: {
-    particleMass: QuantumWaveInterferenceConstants.ELECTRON_MASS,
+    particleMass: QuantumWaveInterferenceConstants.getParticleMass( 'electrons' ),
     velocityRange: [ 7e5, 1.5e6 ],
     defaultVelocity: 1.1e6
   },
   neutrons: {
-    particleMass: QuantumWaveInterferenceConstants.NEUTRON_MASS,
+    particleMass: QuantumWaveInterferenceConstants.getParticleMass( 'neutrons' ),
     velocityRange: [ 200, 800 ],
     defaultVelocity: 500
   },
   heliumAtoms: {
-    particleMass: QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS,
+    particleMass: QuantumWaveInterferenceConstants.getParticleMass( 'heliumAtoms' ),
     velocityRange: [ 400, 2000 ],
     defaultVelocity: 1200
   }
@@ -88,7 +81,7 @@ const SOURCE_TYPE_CONFIG: Record<SourceType, SourceTypeConfig> = {
 const getDefaultEffectiveWavelength = ( sourceType: SourceType ): number => {
   const config = SOURCE_TYPE_CONFIG[ sourceType ];
   return sourceType === 'photons' ?
-         DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
+         QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
          QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( config.particleMass * config.defaultVelocity );
 };
 
@@ -180,12 +173,12 @@ export default abstract class BaseSceneModel extends PhetioObject {
                                             getDefaultEffectiveWavelength( 'electrons' ) :
                                             defaultEffectiveWavelength;
 
-    // Size the region so that ~DEFAULT_DISPLAY_WAVELENGTHS wavelengths are visible at the default
+    // Size the region so that ~DISPLAY_WAVELENGTHS wavelengths are visible at the default
     // wavelength. The model aspect ratio matches the view so the measuring tape has the same scale
     // horizontally and vertically. For photons this is ~10 μm wide; for matter waves it auto-scales
     // down to the nm range. Neutrons intentionally use the electron display scale so equal
     // nanometer distances occupy equal view distances in both matter-particle scenes.
-    const regionSize = displayScaleEffectiveWavelength * DEFAULT_DISPLAY_WAVELENGTHS;
+    const regionSize = displayScaleEffectiveWavelength * QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
     this.regionWidth = regionSize;
     this.regionHeight = regionSize *
                         QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT /
@@ -205,7 +198,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.slitSeparationRange = slitSeparationConfig.range;
     this.slitWidth = SLIT_VIEW_HEIGHT / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
                      this.regionHeight * 1e3;
-    this.defaultWaveSpeed = this.sourceType === 'photons' ? 3e8 : config.defaultVelocity;
+    this.defaultWaveSpeed = this.sourceType === 'photons' ? QuantumWaveInterferenceConstants.SPEED_OF_LIGHT : config.defaultVelocity;
 
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
@@ -224,7 +217,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'isEmittingProperty' )
     } );
 
-    this.wavelengthProperty = new NumberProperty( options.sourceType === 'photons' ? DEFAULT_PHOTON_WAVELENGTH_NM : 0, {
+    const defaultWavelengthNM = options.sourceType === 'photons' ?
+                                QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM :
+                                0;
+    this.wavelengthProperty = new NumberProperty( defaultWavelengthNM, {
       range: QuantumWaveInterferenceConstants.createWavelengthRangeNM( options.sourceType ),
       units: nanometersUnit,
       tandem: tandem.createTandem( 'wavelengthProperty' )
@@ -254,8 +250,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'slitPositionFractionProperty' )
     } );
 
-    this.screenBrightnessProperty = new NumberProperty( 0.125, {
-      range: new Range( 0, 0.25 ),
+    this.screenBrightnessProperty = new NumberProperty( QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 0.5, {
+      range: new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ),
       tandem: tandem.createTandem( 'screenBrightnessProperty' )
     } );
 
@@ -305,7 +301,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   }
 
   public getEffectiveWaveSpeed(): number {
-    return this.sourceType === 'photons' ? 3e8 : this.velocityProperty.value;
+    return this.sourceType === 'photons' ? QuantumWaveInterferenceConstants.SPEED_OF_LIGHT : this.velocityProperty.value;
   }
 
   public getPhysicalDt( visualDt: number ): number {
@@ -557,7 +553,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   }
 
   public takeSnapshot( detectionMode: DetectionMode, slitSetting: SlitConfigurationWithNoBarrier, intensity: number ): void {
-    if ( this.snapshotsProperty.value.length >= MAX_SNAPSHOTS ) {
+    if ( this.snapshotsProperty.value.length >= QuantumWaveInterferenceConstants.MAX_SNAPSHOTS ) {
       return;
     }
 

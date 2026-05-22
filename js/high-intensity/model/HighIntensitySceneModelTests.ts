@@ -7,7 +7,6 @@
  */
 
 import Tandem from '../../../../tandem/js/Tandem.js';
-import { MAX_HITS } from '../../common/model/BaseSceneModel.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_DURATION, DETECTOR_SCREEN_HIT_RATE, SLIT_DETECTOR_EVENT_RATE } from './HighIntensitySceneModel.js';
@@ -27,9 +26,9 @@ const assertApproximately = (
 };
 
 const PARTICLE_MASSES: Partial<Record<SourceType, number>> = {
-  electrons: QuantumWaveInterferenceConstants.ELECTRON_MASS,
-  neutrons: QuantumWaveInterferenceConstants.NEUTRON_MASS,
-  heliumAtoms: QuantumWaveInterferenceConstants.HELIUM_ATOM_MASS
+  electrons: QuantumWaveInterferenceConstants.getParticleMass( 'electrons' ),
+  neutrons: QuantumWaveInterferenceConstants.getParticleMass( 'neutrons' ),
+  heliumAtoms: QuantumWaveInterferenceConstants.getParticleMass( 'heliumAtoms' )
 };
 
 const EXPECTED_SLIT_SEPARATIONS: Record<SourceType, { min: number; max: number; defaultValue: number }> = {
@@ -168,10 +167,10 @@ QUnit.test( 'detector-screen hits respect the maximum hit cap', assert => {
   const scene = createScene();
   prepareSceneForDetectorScreenHits( scene );
 
-  scene.totalHitsProperty.value = MAX_HITS - 3;
+  scene.totalHitsProperty.value = QuantumWaveInterferenceConstants.MAX_HITS - 3;
   scene.step( 0.2 );
 
-  assert.strictEqual( scene.totalHitsProperty.value, MAX_HITS, 'total hits stop at the maximum hit cap' );
+  assert.strictEqual( scene.totalHitsProperty.value, QuantumWaveInterferenceConstants.MAX_HITS, 'total hits stop at the maximum hit cap' );
   assert.strictEqual( scene.hits.length, 3, 'only enough hit dots are created to reach the maximum hit cap' );
 } );
 
@@ -227,7 +226,7 @@ QUnit.test( 'slit-detector event rate is independent from detector-screen hit ra
 
 QUnit.test( 'effective wave speed and wavelength use physical source values', assert => {
   const photonScene = createScene( 'photons' );
-  assert.strictEqual( photonScene.getEffectiveWaveSpeed(), 3e8, 'photon wave speed is c' );
+  assert.strictEqual( photonScene.getEffectiveWaveSpeed(), QuantumWaveInterferenceConstants.SPEED_OF_LIGHT, 'photon wave speed is c' );
   assertApproximately(
     assert,
     photonScene.getEffectiveWavelength(),

@@ -9,6 +9,7 @@
  */
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import renderDetectorScreenTexture, { type DetectorScreenHitRenderCache, resetDetectorScreenHitRenderCache } from '../../common/view/renderDetectorScreenTexture.js';
 import ExperimentConstants from '../ExperimentConstants.js';
@@ -125,12 +126,12 @@ function renderSceneTexture(
     visibleScreenHalfWidth: renderState.fullScreenHalfWidth,
     renderScale: cache.renderScale,
     hitRenderCache: cache.hitRenderCache,
-    maxRenderedHits: ExperimentConstants.MAX_HITS,
+    maxRenderedHits: QuantumWaveInterferenceConstants.MAX_HITS,
     onRenderCapReached: () => {
       if ( !hasLoggedRenderCap ) {
         hasLoggedRenderCap = true;
         phet.log && phet.log(
-          `[DetectorScreen] Render cap reached: only the most recent ${ExperimentConstants.MAX_HITS} hits are drawn. Hit counter continues to accumulate.`
+          `[DetectorScreen] Render cap reached: only the most recent ${QuantumWaveInterferenceConstants.MAX_HITS} hits are drawn. Hit counter continues to accumulate.`
         );
       }
     }

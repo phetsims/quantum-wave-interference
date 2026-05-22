@@ -24,7 +24,7 @@ import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
-import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
+import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
@@ -172,7 +172,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.totalHitsProperty ],
-      totalHits => totalHits >= MAX_HITS
+      totalHits => totalHits >= QuantumWaveInterferenceConstants.MAX_HITS
     );
 
     this.isEmitterEnabledProperty = new DerivedProperty(
