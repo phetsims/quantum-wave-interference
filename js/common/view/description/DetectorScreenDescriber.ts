@@ -15,9 +15,9 @@
 
 import Property from '../../../../../axon/js/Property.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
-import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import BandAnalysis from './BandAnalysis.js';
 import { formatIntensityDescription, formatLiveHitsDescription } from './DetectorScreenDescriptionFormatter.js';
 
@@ -36,12 +36,12 @@ export type DetectorScreenDescriberScene = {
     screenDistanceProperty: TReadOnlyProperty<number>;
     slitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
   } | {
-    regionWidth: number;
-    slitPositionFractionProperty: TReadOnlyProperty<number>;
-    slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
-    detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
-  }
-);
+  regionWidth: number;
+  slitPositionFractionProperty: TReadOnlyProperty<number>;
+  slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
+  detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
+}
+  );
 
 const getDetectionMode = ( scene: DetectorScreenDescriberScene ): DetectionMode =>
   scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';

@@ -8,9 +8,9 @@
 
 import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
-import type { AccessibleTemplateValue } from '../../../../../scenery/js/accessibility/pdom/ParallelDOM.js';
 import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
+import type { AccessibleTemplateValue } from '../../../../../scenery/js/accessibility/pdom/ParallelDOM.js';
 import { html } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';

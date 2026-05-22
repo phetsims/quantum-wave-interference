@@ -1,5 +1,6 @@
 // Copyright 2026, University of Colorado Boulder
 
+import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 /**
  * Shared utility for analyzing interference/diffraction patterns in intensity data. Used by both
  * DetectorScreenDescriber and GraphDescriber to extract band counts, peak positions, spacing, and central band width
@@ -8,10 +9,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
-import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import type { Snapshot } from '../../model/Snapshot.js';
-import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 
 type TheoreticalPatternScene = {
   getEffectiveWavelength(): number;
@@ -22,11 +22,11 @@ type TheoreticalPatternScene = {
     screenDistanceProperty: TReadOnlyProperty<number>;
     slitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
   } | {
-    regionWidth: number;
-    slitPositionFractionProperty: TReadOnlyProperty<number>;
-    slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
-  }
-);
+  regionWidth: number;
+  slitPositionFractionProperty: TReadOnlyProperty<number>;
+  slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
+}
+  );
 
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
 // updates so they only fire at pedagogically meaningful thresholds.

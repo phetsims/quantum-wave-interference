@@ -6,8 +6,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import PDOMUtils from '../../../../../scenery/js/accessibility/pdom/PDOMUtils.js';
 import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
+import PDOMUtils from '../../../../../scenery/js/accessibility/pdom/PDOMUtils.js';
 import { render as litRender } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
 import Tandem from '../../../../../tandem/js/Tandem.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';

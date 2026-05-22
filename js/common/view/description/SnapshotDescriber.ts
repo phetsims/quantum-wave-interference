@@ -7,9 +7,9 @@
  * @author Matthew Blackman (PhET Interactive Simulations)
  */
 
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { showsDoubleSlitInterferencePattern } from '../../model/SlitConfiguration.js';
 import type { Snapshot } from '../../model/Snapshot.js';
-import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import BandAnalysis from './BandAnalysis.js';
 import { formatIntensityDescription, formatSnapshotHitsDescription } from './DetectorScreenDescriptionFormatter.js';
 

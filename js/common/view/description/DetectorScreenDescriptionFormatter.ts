@@ -87,8 +87,8 @@ export function formatSnapshotHitsDescription(
   if ( isDoubleSlit ) {
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsEmerging.format( { hitCount: hitCount } ) :
            hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsDeveloping.format( {
-             hitCount: hitCount,
-             spatialDescription: spatialDescription
+                                       hitCount: hitCount,
+                                       spatialDescription: spatialDescription
                                      } ) :
            hitStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsClear.format( {
                                   hitCount: hitCount,
@@ -99,8 +99,8 @@ export function formatSnapshotHitsDescription(
   else {
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitEmerging.format( { hitCount: hitCount } ) :
            ( hitStage === 'developing' || hitStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitClear.format( {
-             hitCount: hitCount,
-             spatialDescription: spatialDescription
+                                                                   hitCount: hitCount,
+                                                                   spatialDescription: spatialDescription
                                                                  } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }

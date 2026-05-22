@@ -8,8 +8,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { roundSymmetric } from '../../../../../dot/js/util/roundSymmetric.js';
 import { clamp } from '../../../../../dot/js/util/clamp.js';
+import { roundSymmetric } from '../../../../../dot/js/util/roundSymmetric.js';
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
 import { type DetectionMode } from '../../../common/model/DetectionMode.js';

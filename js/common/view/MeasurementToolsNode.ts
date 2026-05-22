@@ -30,8 +30,8 @@ import { picosecondsUnit } from '../../../../scenery-phet/js/units/picosecondsUn
 import { secondsUnit } from '../../../../scenery-phet/js/units/secondsUnit.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
+import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import PositionPlotNode from './PositionPlotNode.js';
 import TimePlotNode from './TimePlotNode.js';

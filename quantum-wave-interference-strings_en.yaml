@@ -1,252 +1,252 @@
-quantum-wave-interference.title:       'Quantum Wave Interference'
-screen.experiment.name:                Experiment
-screen.highIntensity.name:             'High Intensity'
-screen.singleParticles.name:           'Single Particles'
-photons:                               Photons
-electrons:                             Electrons
-neutrons:                              Neutrons
-heliumAtoms:                           Helium Atoms
+quantum-wave-interference.title: 'Quantum Wave Interference'
+screen.experiment.name:          Experiment
+screen.highIntensity.name:       'High Intensity'
+screen.singleParticles.name:     'Single Particles'
+photons:                         Photons
+electrons:                       Electrons
+neutrons:                        Neutrons
+heliumAtoms:                     Helium Atoms
 
 # Shown above the emitter
-photonSource:                          Photon source
-electronSource:                        Electron source
-neutronSource:                         Neutron source
-heliumAtomSource:                      Helium atom source
+photonSource:                    Photon source
+electronSource:                  Electron source
+neutronSource:                   Neutron source
+heliumAtomSource:                Helium atom source
 
-doubleSlit:                            Double slit
-detectorScreen:                        Detector screen
-maximumHitsReached:                    Maximum hits reached
-intensity:                             Intensity
-sourceIntensity:                       Source Intensity
-particleSpeed:                         Particle Speed
-emissionRate:                          Emission Rate
-slitsLabelPattern:                     'Slits: {{setting}}'
-snapshotLabelValuePattern:             '{{label}}: {{value}}'
-snapshotHeadingPattern:                '{{snapshot}}: {{scene}}'
-electronMassLabel:                     'm<sub>e</sub> = 9.1×10<sup>−31</sup> kg'
-neutronMassLabel:                      'm<sub>n</sub> = 1.7×10<sup>−27</sup> kg'
-heliumAtomMassLabel:                   'm<sub>He</sub> = 6.6×10<sup>−27</sup> kg'
-max:                                   Max
-slitSeparation:                        Slit Separation
-screenDistance:                        Screen Distance
-slitConfiguration:                     Slit Configuration
-bothOpen:                              Both Open
-coverLeft:                             Cover Left
-coverRight:                            Cover Right
-detectorLeft:                          Detector Left
-detectorRight:                         Detector Right
-detectorBoth:                          Detector Both
-noBarrier:                             No Barrier
-hits:                                  Hits
-hitsCountPattern:                      'Hits: {{count}}'
-screenGraphSwitch.screen:             Screen
-screenGraphSwitch.graph:              Graph
-screenBrightness:                      Screen Brightness
-intensityGraph:                        Intensity Graph
-hitsGraph:                             Hits Graph
-count:                                 Count
-snapshotNumberPattern:                 'Snapshot {{number}}'
-ruler:                                 Ruler
-stopwatch:                             Stopwatch
-detector:                              Detector
-tapeMeasure:                           Tape Measure
-timePlot:                              Time Plot
-positionPlot:                          Position Plot
-time:                                  Time
-position:                              Position
-barrier:                               Barrier
-none:                                  None
-waveDisplay:                           Wave Display
-waveFunctionDisplay:                   Wave Function Display
-electricField:                         Electric Field
-amplitude:                             Amplitude
-realPart:                              Real Part
-imaginaryPart:                         Imaginary Part
-coverTop:                              Cover Top
-coverBottom:                           Cover Bottom
-detectorTop:                           Detector Top
-detectorBottom:                        Detector Bottom
-autoRepeat:                            Auto-repeat
-timeScaleLabel:                        '1 fs = 10<sup>-15</sup> s'
-detectorSize:                          Detector Size
-destructive:                           Destructive
-nonDestructive:                        Non-destructive
-detect:                                Detect
-resetDetector:                         Reset
-particleDetected:                      Particle detected
-notDetected:                           Not detected
+doubleSlit:                      Double slit
+detectorScreen:                  Detector screen
+maximumHitsReached:              Maximum hits reached
+intensity:                       Intensity
+sourceIntensity:                 Source Intensity
+particleSpeed:                   Particle Speed
+emissionRate:                    Emission Rate
+slitsLabelPattern:               'Slits: {{setting}}'
+snapshotLabelValuePattern:       '{{label}}: {{value}}'
+snapshotHeadingPattern:          '{{snapshot}}: {{scene}}'
+electronMassLabel:               'm<sub>e</sub> = 9.1×10<sup>−31</sup> kg'
+neutronMassLabel:                'm<sub>n</sub> = 1.7×10<sup>−27</sup> kg'
+heliumAtomMassLabel:             'm<sub>He</sub> = 6.6×10<sup>−27</sup> kg'
+max:                             Max
+slitSeparation:                  Slit Separation
+screenDistance:                  Screen Distance
+slitConfiguration:               Slit Configuration
+bothOpen:                        Both Open
+coverLeft:                       Cover Left
+coverRight:                      Cover Right
+detectorLeft:                    Detector Left
+detectorRight:                   Detector Right
+detectorBoth:                    Detector Both
+noBarrier:                       No Barrier
+hits:                            Hits
+hitsCountPattern:                'Hits: {{count}}'
+screenGraphSwitch.screen:        Screen
+screenGraphSwitch.graph:         Graph
+screenBrightness:                Screen Brightness
+intensityGraph:                  Intensity Graph
+hitsGraph:                       Hits Graph
+count:                           Count
+snapshotNumberPattern:           'Snapshot {{number}}'
+ruler:                           Ruler
+stopwatch:                       Stopwatch
+detector:                        Detector
+tapeMeasure:                     Tape Measure
+timePlot:                        Time Plot
+positionPlot:                    Position Plot
+time:                            Time
+position:                        Position
+barrier:                         Barrier
+none:                            None
+waveDisplay:                     Wave Display
+waveFunctionDisplay:             Wave Function Display
+electricField:                   Electric Field
+amplitude:                       Amplitude
+realPart:                        Real Part
+imaginaryPart:                   Imaginary Part
+coverTop:                        Cover Top
+coverBottom:                     Cover Bottom
+detectorTop:                     Detector Top
+detectorBottom:                  Detector Bottom
+autoRepeat:                      Auto-repeat
+timeScaleLabel:                  '1 fs = 10<sup>-15</sup> s'
+detectorSize:                    Detector Size
+destructive:                     Destructive
+nonDestructive:                  Non-destructive
+detect:                          Detect
+resetDetector:                   Reset
+particleDetected:                Particle detected
+notDetected:                     Not detected
 
 # Accessibility strings
 a11y:
   screenSummary:
-    playArea:           >-
-                        A highly configurable three-part experimental setup includes a particle source emitter,
-                        double-slit barrier, and detector screen. When experiment is running, particles pass through
-                        available slits in barrier to land on detector screen and build patterns. You can choose and
-                        adjust source particles, configure slits in barrier, observe and take snapshots of resulting
-                        patterns on detector screen.
-    controlArea:        >-
-                        Measurement tools can be added or removed to assist with data collection and analysis.
-                        Reset sim to start over.
-    maxHitsReachedHint: Clear detector screen to make more observations.
-    currentDetails:     >-
-                        Currently, { $isPlaying ->
-                          [false] sim is paused. { $isMaxHitsReached ->
-                            [true] Source is off. Max number of { $sourceType ->
-                              [photons] photon
-                              [electrons] electron
-                              [neutrons] neutron
-                             *[heliumAtoms] helium atom
-                            } hits reached. Detector screen shows hits pattern.
-                           *[false] { $isEmitting ->
-                              [true] Source emits { $sourceType ->
-                                [photons] photons
-                                [electrons] electrons
-                                [neutrons] neutrons
-                               *[heliumAtoms] helium atoms
-                              } directly at double-slit barrier with { $slitSetting ->
-                                [bothOpen] both slits open
-                                [leftCovered] left slit covered
-                                [rightCovered] right slit covered
-                                [leftDetector] detector on left slit
-                                [rightDetector] detector on right slit
-                                [noBarrier] no barrier
-                               *[bothDetectors] detectors on both slits
-                              }. { $detectionMode ->
-                                [averageIntensity] Detector screen is set to show intensity pattern.
-                               *[hits] { $hasHits ->
-                                  [false] Detector screen has no hits.
-                                 *[true] Detector screen shows hits pattern.
-                                }
-                              }
-                             *[false] Source is off. { $detectionMode ->
-                                [averageIntensity] Detector screen is empty.
-                               *[hits] { $hasHits ->
-                                  [false] Detector screen is empty.
-                                 *[true] Detector screen shows hits pattern.
-                                }
-                              }
-                            }
-                          }
-                         *[true] { $isMaxHitsReached ->
-                            [true] source is off. Max number of { $sourceType ->
-                              [photons] photon
-                              [electrons] electron
-                              [neutrons] neutron
-                             *[heliumAtoms] helium atom
-                            } hits reached. Detector screen shows hits pattern.
-                           *[false] { $isEmitting ->
-                              [true] source emits { $sourceType ->
-                                [photons] photons
-                                [electrons] electrons
-                                [neutrons] neutrons
-                               *[heliumAtoms] helium atoms
-                              } directly at double-slit barrier with { $slitSetting ->
-                                [bothOpen] both slits open
-                                [leftCovered] left slit covered
-                                [rightCovered] right slit covered
-                                [leftDetector] detector on left slit
-                                [rightDetector] detector on right slit
-                                [noBarrier] no barrier
-                               *[bothDetectors] detectors on both slits
-                              }. { $detectionMode ->
-                                [averageIntensity] Detector screen is set to show intensity pattern.
-                               *[hits] Detector screen shows hits pattern.
-                              }
-                             *[false] source is off. { $detectionMode ->
-                                [averageIntensity] Detector screen is empty.
-                               *[hits] { $hasHits ->
-                                  [false] Detector screen is empty.
-                                 *[true] Detector screen shows hits pattern.
-                                }
-                              }
-                            }
-                          }
-                        }
+    playArea:                >-
+                             A highly configurable three-part experimental setup includes a particle source emitter,
+                             double-slit barrier, and detector screen. When experiment is running, particles pass through
+                             available slits in barrier to land on detector screen and build patterns. You can choose and
+                             adjust source particles, configure slits in barrier, observe and take snapshots of resulting
+                             patterns on detector screen.
+    controlArea:             >-
+                             Measurement tools can be added or removed to assist with data collection and analysis.
+                             Reset sim to start over.
+    maxHitsReachedHint:      Clear detector screen to make more observations.
+    currentDetails:          >-
+                             Currently, { $isPlaying ->
+                               [false] sim is paused. { $isMaxHitsReached ->
+                                 [true] Source is off. Max number of { $sourceType ->
+                                   [photons] photon
+                                   [electrons] electron
+                                   [neutrons] neutron
+                                  *[heliumAtoms] helium atom
+                                 } hits reached. Detector screen shows hits pattern.
+                                *[false] { $isEmitting ->
+                                   [true] Source emits { $sourceType ->
+                                     [photons] photons
+                                     [electrons] electrons
+                                     [neutrons] neutrons
+                                    *[heliumAtoms] helium atoms
+                                   } directly at double-slit barrier with { $slitSetting ->
+                                     [bothOpen] both slits open
+                                     [leftCovered] left slit covered
+                                     [rightCovered] right slit covered
+                                     [leftDetector] detector on left slit
+                                     [rightDetector] detector on right slit
+                                     [noBarrier] no barrier
+                                    *[bothDetectors] detectors on both slits
+                                   }. { $detectionMode ->
+                                     [averageIntensity] Detector screen is set to show intensity pattern.
+                                    *[hits] { $hasHits ->
+                                       [false] Detector screen has no hits.
+                                      *[true] Detector screen shows hits pattern.
+                                     }
+                                   }
+                                  *[false] Source is off. { $detectionMode ->
+                                     [averageIntensity] Detector screen is empty.
+                                    *[hits] { $hasHits ->
+                                       [false] Detector screen is empty.
+                                      *[true] Detector screen shows hits pattern.
+                                     }
+                                   }
+                                 }
+                               }
+                              *[true] { $isMaxHitsReached ->
+                                 [true] source is off. Max number of { $sourceType ->
+                                   [photons] photon
+                                   [electrons] electron
+                                   [neutrons] neutron
+                                  *[heliumAtoms] helium atom
+                                 } hits reached. Detector screen shows hits pattern.
+                                *[false] { $isEmitting ->
+                                   [true] source emits { $sourceType ->
+                                     [photons] photons
+                                     [electrons] electrons
+                                     [neutrons] neutrons
+                                    *[heliumAtoms] helium atoms
+                                   } directly at double-slit barrier with { $slitSetting ->
+                                     [bothOpen] both slits open
+                                     [leftCovered] left slit covered
+                                     [rightCovered] right slit covered
+                                     [leftDetector] detector on left slit
+                                     [rightDetector] detector on right slit
+                                     [noBarrier] no barrier
+                                    *[bothDetectors] detectors on both slits
+                                   }. { $detectionMode ->
+                                     [averageIntensity] Detector screen is set to show intensity pattern.
+                                    *[hits] Detector screen shows hits pattern.
+                                   }
+                                  *[false] source is off. { $detectionMode ->
+                                     [averageIntensity] Detector screen is empty.
+                                    *[hits] { $hasHits ->
+                                       [false] Detector screen is empty.
+                                      *[true] Detector screen shows hits pattern.
+                                     }
+                                   }
+                                 }
+                               }
+                             }
     currentDetailsTopBottom: >-
-                        Currently, { $isPlaying ->
-                          [false] sim is paused. { $isMaxHitsReached ->
-                            [true] Source is off. Max number of { $sourceType ->
-                              [photons] photon
-                              [electrons] electron
-                              [neutrons] neutron
-                             *[heliumAtoms] helium atom
-                            } hits reached. Detector screen shows hits pattern.
-                           *[false] { $isEmitting ->
-                              [true] Source emits { $sourceType ->
-                                [photons] photons
-                                [electrons] electrons
-                                [neutrons] neutrons
-                               *[heliumAtoms] helium atoms
-                              } directly at double-slit barrier with { $slitSetting ->
-                                [bothOpen] both slits open
-                                [leftCovered] top slit covered
-                                [rightCovered] bottom slit covered
-                                [leftDetector] detector on top slit
-                                [rightDetector] detector on bottom slit
-                                [noBarrier] no barrier
-                               *[bothDetectors] detectors on both slits
-                              }. { $detectionMode ->
-                                [averageIntensity] Detector screen is set to show intensity pattern.
-                               *[hits] { $hasHits ->
-                                  [false] Detector screen has no hits.
-                                 *[true] Detector screen shows hits pattern.
-                                }
-                              }
-                             *[false] Source is off. { $detectionMode ->
-                                [averageIntensity] Detector screen is empty.
-                               *[hits] { $hasHits ->
-                                  [false] Detector screen is empty.
-                                 *[true] Detector screen shows hits pattern.
-                                }
-                              }
-                            }
-                          }
-                         *[true] { $isMaxHitsReached ->
-                            [true] source is off. Max number of { $sourceType ->
-                              [photons] photon
-                              [electrons] electron
-                              [neutrons] neutron
-                             *[heliumAtoms] helium atom
-                            } hits reached. Detector screen shows hits pattern.
-                           *[false] { $isEmitting ->
-                              [true] source emits { $sourceType ->
-                                [photons] photons
-                                [electrons] electrons
-                                [neutrons] neutrons
-                               *[heliumAtoms] helium atoms
-                              } directly at double-slit barrier with { $slitSetting ->
-                                [bothOpen] both slits open
-                                [leftCovered] top slit covered
-                                [rightCovered] bottom slit covered
-                                [leftDetector] detector on top slit
-                                [rightDetector] detector on bottom slit
-                                [noBarrier] no barrier
-                               *[bothDetectors] detectors on both slits
-                              }. { $detectionMode ->
-                                [averageIntensity] Detector screen is set to show intensity pattern.
-                               *[hits] Detector screen shows hits pattern.
-                              }
-                             *[false] source is off. { $detectionMode ->
-                                [averageIntensity] Detector screen is empty.
-                               *[hits] { $hasHits ->
-                                  [false] Detector screen is empty.
-                                 *[true] Detector screen shows hits pattern.
-                                }
-                              }
-                            }
-                          }
-                        }
-    interactionHint:    >-
-                        { $isEmitting ->
-                          [true] Adjust source or slits and watch for changes on detector screen.
-                         *[false] Turn on { $sourceType ->
-                            [photons] photon
-                            [electrons] electron
-                            [neutrons] neutron
-                           *[heliumAtoms] helium atom
-                          } source and observe detector screen.
-                        }
+                             Currently, { $isPlaying ->
+                               [false] sim is paused. { $isMaxHitsReached ->
+                                 [true] Source is off. Max number of { $sourceType ->
+                                   [photons] photon
+                                   [electrons] electron
+                                   [neutrons] neutron
+                                  *[heliumAtoms] helium atom
+                                 } hits reached. Detector screen shows hits pattern.
+                                *[false] { $isEmitting ->
+                                   [true] Source emits { $sourceType ->
+                                     [photons] photons
+                                     [electrons] electrons
+                                     [neutrons] neutrons
+                                    *[heliumAtoms] helium atoms
+                                   } directly at double-slit barrier with { $slitSetting ->
+                                     [bothOpen] both slits open
+                                     [leftCovered] top slit covered
+                                     [rightCovered] bottom slit covered
+                                     [leftDetector] detector on top slit
+                                     [rightDetector] detector on bottom slit
+                                     [noBarrier] no barrier
+                                    *[bothDetectors] detectors on both slits
+                                   }. { $detectionMode ->
+                                     [averageIntensity] Detector screen is set to show intensity pattern.
+                                    *[hits] { $hasHits ->
+                                       [false] Detector screen has no hits.
+                                      *[true] Detector screen shows hits pattern.
+                                     }
+                                   }
+                                  *[false] Source is off. { $detectionMode ->
+                                     [averageIntensity] Detector screen is empty.
+                                    *[hits] { $hasHits ->
+                                       [false] Detector screen is empty.
+                                      *[true] Detector screen shows hits pattern.
+                                     }
+                                   }
+                                 }
+                               }
+                              *[true] { $isMaxHitsReached ->
+                                 [true] source is off. Max number of { $sourceType ->
+                                   [photons] photon
+                                   [electrons] electron
+                                   [neutrons] neutron
+                                  *[heliumAtoms] helium atom
+                                 } hits reached. Detector screen shows hits pattern.
+                                *[false] { $isEmitting ->
+                                   [true] source emits { $sourceType ->
+                                     [photons] photons
+                                     [electrons] electrons
+                                     [neutrons] neutrons
+                                    *[heliumAtoms] helium atoms
+                                   } directly at double-slit barrier with { $slitSetting ->
+                                     [bothOpen] both slits open
+                                     [leftCovered] top slit covered
+                                     [rightCovered] bottom slit covered
+                                     [leftDetector] detector on top slit
+                                     [rightDetector] detector on bottom slit
+                                     [noBarrier] no barrier
+                                    *[bothDetectors] detectors on both slits
+                                   }. { $detectionMode ->
+                                     [averageIntensity] Detector screen is set to show intensity pattern.
+                                    *[hits] Detector screen shows hits pattern.
+                                   }
+                                  *[false] source is off. { $detectionMode ->
+                                     [averageIntensity] Detector screen is empty.
+                                    *[hits] { $hasHits ->
+                                       [false] Detector screen is empty.
+                                      *[true] Detector screen shows hits pattern.
+                                     }
+                                   }
+                                 }
+                               }
+                             }
+    interactionHint:         >-
+                             { $isEmitting ->
+                               [true] Adjust source or slits and watch for changes on detector screen.
+                              *[false] Turn on { $sourceType ->
+                                 [photons] photon
+                                 [electrons] electron
+                                 [neutrons] neutron
+                                *[heliumAtoms] helium atom
+                               } source and observe detector screen.
+                             }
   experimentSetupHeading:      Detector Screen and Experiment Setup
   sourceHeading:               Source Controls
   slitsHeading:                Slits and Screen Configuration
@@ -278,329 +278,329 @@ a11y:
                             [averageIntensity] Average Intensity mode.
                            *[hits] Hits mode.
                           }
-    sourceStatus:        >-
-                         Source is { $isEmitting ->
-                           [true] on
-                          *[false] off
-                         }. Time is { $isPlaying ->
-                           [true] running
-                          *[false] paused
-                         } at { $timeSpeed } speed.
-    sourceBeam:          >-
-                         { $isEmitting ->
-                           [false] No beam is visible in the wave area.
-                          *[true] { $sourceType ->
-                             [photons] { $photonColor ->
-                               [violet] Violet
-                               [blue] Blue
-                               [indigo] Indigo
-                               [green] Green
-                               [yellow] Yellow
-                               [orange] Orange
-                              *[red] Red
-                             } and black plane waves emanate from left.
-                            *[electrons] Gray and black plane waves emanate from left.
-                             [neutrons] Gray and black plane waves emanate from left.
-                             [heliumAtoms] Gray and black plane waves emanate from left.
-                           } { $wavefrontSpacing ->
-                             [tightlyPacked] Wave peaks closely spaced.
-                             [widelySpaced] Wave peaks somewhat far apart.
-                            *[moderatelySpaced] Wave peaks moderately spaced.
-                           }
-                         }
-    photonDetail:        'Photon wavelength is { $wavelength } nanometers, in the { $color } zone.'
-    particleDetail:      >-
-                         { $sourceType ->
-                           [electrons] Electron
-                           [neutrons] Neutron
-                          *[heliumAtoms] Helium atom
-                         } speed is { $speed } meters per second. Effective matter wavelength is about
-                         { $wavelength } picometers.
-    slits:               >-
-                         { $slitSetting ->
-                           [bothOpen] Both slits are open. Slit separation is { $separation }.
-                           [leftCovered] Top slit is covered. One open slit creates a broad diffraction pattern.
-                           [rightCovered] Bottom slit is covered. One open slit creates a broad diffraction pattern.
-                           [leftDetector] Top slit has a detector that can identify which path particles take.
-                           [rightDetector] Bottom slit has a detector that can identify which path particles take.
-                           [noBarrier] No barrier is between source and detector screen.
-                          *[bothDetectors] Both slits have detectors that can identify which path particles take.
-                         }
-    detectorPattern:     >-
-                         { $isEmitting ->
-                           [false] Source is off, so there is no pattern on the detector.
-                          *[true] { $detectionMode ->
-                             [averageIntensity] { $patternFormation ->
-                               [empty] No pattern has reached the detector screen yet.
-                               [forming] { $patternKind ->
-                                 [doubleSlitInterference] Pattern forming on detector screen.
-                                 [singleSlitDiffraction] Broad diffraction pattern on detector screen.
-                                 [whichPathDiffraction] Which-path detector pattern on detector screen.
-                                *[noBarrier] Direct detector pattern on detector screen.
-                               }
-                               [complete] { $patternKind ->
-                                 [doubleSlitInterference] Detector screen stable, { $bandCount } { $bandSpacing ->
-                                   [farApart] far-apart
-                                   [closelySpaced] closely spaced
-                                 *[mediumSpaced] medium-spaced
-                                 } equidistant bright spots form pattern, brightest at center.
-                                 [singleSlitDiffraction] Diffraction pattern forming on detector screen, brightest at
-                                 center and fading further from the center.
-                                 [whichPathDiffraction] Which-path detector pattern forming on detector screen, broad
-                                 like a single-slit pattern.
-                                *[noBarrier] Direct detector pattern forming on detector screen, brightest along the straight path
-                                 from source to detector screen.
-                               }
-                               [paused] Detector pattern formation is paused.
-                               [notApplicable] Detector pattern does not apply to the current setup.
-                              *[collectingHits] Detector pattern is collecting hits.
-                             }
-                            *[hits] { $hitStage ->
-                               [none] Hits are starting to accumulate on the detector screen.
-                               [few] Hits pattern is just beginning with a few scattered hits. Total hits: { $hitCount }.
-                               [emerging] Hits pattern is showing faint repeated stripes. Total hits: { $hitCount }.
-                               [developing] Hits pattern is developing distinct interference bands. Total hits: { $hitCount }.
-                              *[clear] Hits pattern is showing a clear interference pattern. Total hits: { $hitCount }.
-                             }
-                           }
-                         }
-    waveProgress:        >-
-                         { $waveProgressStage ->
-                           [sourceOff] Source is off, so no wave is traveling.
-                           [travelingToSlits] { $waveProgressCheckpoint ->
-                             [quarter] Wave approaching slits
-                             [half] Wave approaching slits
-                             [threeQuarters] Wave approaching slits
-                             [full] Wave approaching slits
-                            *[none] Wave approaching slits
-                           } { $waveSpeed ->
-                             [slow] at slow speed.
-                             [fast] at fast speed.
-                            *[medium] at medium speed.
-                           }
-                           [atSlits] Wave passing through slits, emerging as circular waves.
-                           [interferingAfterSlits] Circular waves overlap, creating checkered interference pattern where
-                           waves cancel or combine.
-                           [diffractingAfterSlits] Wave passing through one open slit, emerging as a circular wave.
-                           [whichPathAfterSlits] Wave passing through slits, { $slitSetting ->
-                             [leftDetector] with detector over top slit
-                             [rightDetector] with detector over bottom slit
-                            *[bothDetectors] with detectors over both slits
-                           }. Non-interfering circular waves emanate from the slits.
-                           [directToScreen] { $waveProgressCheckpoint ->
-                             [quarter] Wave crossed one-quarter of wave area
-                             [half] Wave crossed halfway across wave area
-                             [threeQuarters] Wave crossed three-quarters of wave area
-                             [full] Wave crossed full wave area
-                            *[none] Wave crossed about { $progress } percent of wave area
-                           } and is traveling directly toward the detector screen.
-                          *[hittingScreen] Wave has reached the detector screen.
-                         }
-    displayTools:        >-
-                         { $displayMode ->
-                           [graph] Graph view is active
-                          *[screen] Detector screen view is active
-                         }. Wave display mode is { $waveDisplayMode ->
-                           [electricField] Electric Field
-                           [timeAveragedIntensity] Amplitude
-                           [realPart] Real Part
-                           [imaginaryPart] Imaginary Part
-                          *[magnitude] Amplitude
-                         }. Screen brightness is { $brightness } percent. Stored snapshots: { $snapshotCount }.
-                         Tools shown: { $tapeMeasure ->
-                           [true] tape measure
-                          *[false] no tape measure
-                         }, { $stopwatch ->
-                           [true] stopwatch
-                          *[false] no stopwatch
-                         }, { $timePlot ->
-                           [true] time plot
-                          *[false] no time plot
-                         }, { $positionPlot ->
-                           [true] position plot.
-                          *[false] no position plot.
-                         }
-    notice:              >-
-                         { $patternKind ->
-                           [doubleSlitInterference] Watch how wavelength and slit separation change the spacing of
-                           the interference bands.
-                           [singleSlitDiffraction] With one open slit, compare the broad central band to the
-                           many-band double-slit pattern.
-                           [whichPathDiffraction] The slit detector tells which path the particles take, so the
-                           double-slit interference pattern disappears.
-                          *[noBarrier] With no barrier, compare direct travel to patterns made by slits.
-                         }
+    sourceStatus:         >-
+                          Source is { $isEmitting ->
+                            [true] on
+                           *[false] off
+                          }. Time is { $isPlaying ->
+                            [true] running
+                           *[false] paused
+                          } at { $timeSpeed } speed.
+    sourceBeam:           >-
+                          { $isEmitting ->
+                            [false] No beam is visible in the wave area.
+                           *[true] { $sourceType ->
+                              [photons] { $photonColor ->
+                                [violet] Violet
+                                [blue] Blue
+                                [indigo] Indigo
+                                [green] Green
+                                [yellow] Yellow
+                                [orange] Orange
+                               *[red] Red
+                              } and black plane waves emanate from left.
+                             *[electrons] Gray and black plane waves emanate from left.
+                              [neutrons] Gray and black plane waves emanate from left.
+                              [heliumAtoms] Gray and black plane waves emanate from left.
+                            } { $wavefrontSpacing ->
+                              [tightlyPacked] Wave peaks closely spaced.
+                              [widelySpaced] Wave peaks somewhat far apart.
+                             *[moderatelySpaced] Wave peaks moderately spaced.
+                            }
+                          }
+    photonDetail:         'Photon wavelength is { $wavelength } nanometers, in the { $color } zone.'
+    particleDetail:       >-
+                          { $sourceType ->
+                            [electrons] Electron
+                            [neutrons] Neutron
+                           *[heliumAtoms] Helium atom
+                          } speed is { $speed } meters per second. Effective matter wavelength is about
+                          { $wavelength } picometers.
+    slits:                >-
+                          { $slitSetting ->
+                            [bothOpen] Both slits are open. Slit separation is { $separation }.
+                            [leftCovered] Top slit is covered. One open slit creates a broad diffraction pattern.
+                            [rightCovered] Bottom slit is covered. One open slit creates a broad diffraction pattern.
+                            [leftDetector] Top slit has a detector that can identify which path particles take.
+                            [rightDetector] Bottom slit has a detector that can identify which path particles take.
+                            [noBarrier] No barrier is between source and detector screen.
+                           *[bothDetectors] Both slits have detectors that can identify which path particles take.
+                          }
+    detectorPattern:      >-
+                          { $isEmitting ->
+                            [false] Source is off, so there is no pattern on the detector.
+                           *[true] { $detectionMode ->
+                              [averageIntensity] { $patternFormation ->
+                                [empty] No pattern has reached the detector screen yet.
+                                [forming] { $patternKind ->
+                                  [doubleSlitInterference] Pattern forming on detector screen.
+                                  [singleSlitDiffraction] Broad diffraction pattern on detector screen.
+                                  [whichPathDiffraction] Which-path detector pattern on detector screen.
+                                 *[noBarrier] Direct detector pattern on detector screen.
+                                }
+                                [complete] { $patternKind ->
+                                  [doubleSlitInterference] Detector screen stable, { $bandCount } { $bandSpacing ->
+                                    [farApart] far-apart
+                                    [closelySpaced] closely spaced
+                                  *[mediumSpaced] medium-spaced
+                                  } equidistant bright spots form pattern, brightest at center.
+                                  [singleSlitDiffraction] Diffraction pattern forming on detector screen, brightest at
+                                  center and fading further from the center.
+                                  [whichPathDiffraction] Which-path detector pattern forming on detector screen, broad
+                                  like a single-slit pattern.
+                                 *[noBarrier] Direct detector pattern forming on detector screen, brightest along the straight path
+                                  from source to detector screen.
+                                }
+                                [paused] Detector pattern formation is paused.
+                                [notApplicable] Detector pattern does not apply to the current setup.
+                               *[collectingHits] Detector pattern is collecting hits.
+                              }
+                             *[hits] { $hitStage ->
+                                [none] Hits are starting to accumulate on the detector screen.
+                                [few] Hits pattern is just beginning with a few scattered hits. Total hits: { $hitCount }.
+                                [emerging] Hits pattern is showing faint repeated stripes. Total hits: { $hitCount }.
+                                [developing] Hits pattern is developing distinct interference bands. Total hits: { $hitCount }.
+                               *[clear] Hits pattern is showing a clear interference pattern. Total hits: { $hitCount }.
+                              }
+                            }
+                          }
+    waveProgress:         >-
+                          { $waveProgressStage ->
+                            [sourceOff] Source is off, so no wave is traveling.
+                            [travelingToSlits] { $waveProgressCheckpoint ->
+                              [quarter] Wave approaching slits
+                              [half] Wave approaching slits
+                              [threeQuarters] Wave approaching slits
+                              [full] Wave approaching slits
+                             *[none] Wave approaching slits
+                            } { $waveSpeed ->
+                              [slow] at slow speed.
+                              [fast] at fast speed.
+                             *[medium] at medium speed.
+                            }
+                            [atSlits] Wave passing through slits, emerging as circular waves.
+                            [interferingAfterSlits] Circular waves overlap, creating checkered interference pattern where
+                            waves cancel or combine.
+                            [diffractingAfterSlits] Wave passing through one open slit, emerging as a circular wave.
+                            [whichPathAfterSlits] Wave passing through slits, { $slitSetting ->
+                              [leftDetector] with detector over top slit
+                              [rightDetector] with detector over bottom slit
+                             *[bothDetectors] with detectors over both slits
+                            }. Non-interfering circular waves emanate from the slits.
+                            [directToScreen] { $waveProgressCheckpoint ->
+                              [quarter] Wave crossed one-quarter of wave area
+                              [half] Wave crossed halfway across wave area
+                              [threeQuarters] Wave crossed three-quarters of wave area
+                              [full] Wave crossed full wave area
+                             *[none] Wave crossed about { $progress } percent of wave area
+                            } and is traveling directly toward the detector screen.
+                           *[hittingScreen] Wave has reached the detector screen.
+                          }
+    displayTools:         >-
+                          { $displayMode ->
+                            [graph] Graph view is active
+                           *[screen] Detector screen view is active
+                          }. Wave display mode is { $waveDisplayMode ->
+                            [electricField] Electric Field
+                            [timeAveragedIntensity] Amplitude
+                            [realPart] Real Part
+                            [imaginaryPart] Imaginary Part
+                           *[magnitude] Amplitude
+                          }. Screen brightness is { $brightness } percent. Stored snapshots: { $snapshotCount }.
+                          Tools shown: { $tapeMeasure ->
+                            [true] tape measure
+                           *[false] no tape measure
+                          }, { $stopwatch ->
+                            [true] stopwatch
+                           *[false] no stopwatch
+                          }, { $timePlot ->
+                            [true] time plot
+                           *[false] no time plot
+                          }, { $positionPlot ->
+                            [true] position plot.
+                           *[false] no position plot.
+                          }
+    notice:               >-
+                          { $patternKind ->
+                            [doubleSlitInterference] Watch how wavelength and slit separation change the spacing of
+                            the interference bands.
+                            [singleSlitDiffraction] With one open slit, compare the broad central band to the
+                            many-band double-slit pattern.
+                            [whichPathDiffraction] The slit detector tells which path the particles take, so the
+                            double-slit interference pattern disappears.
+                           *[noBarrier] With no barrier, compare direct travel to patterns made by slits.
+                          }
   highIntensityResponses:
-    sourceStarted:       >-
-                         { $isPlaying ->
-                           [false] Source started. Sim is paused.
-                          *[true] Source started on { $timeSpeed } speed. { $beamDescription }
-                         }
-    sourceRestarted:     Source restarted. { $beamDescription }
-    sourceStopped:       Source stopped. The wave area and detector screens clear.
-    particleTypeChanged: >-
-                         { $isEmitting ->
-                           [true] { $sourceRestartedResponse }
-                          *[false] Now experimenting with { $sourceType ->
-                             [photons] photons
-                             [electrons] electrons
-                             [neutrons] neutrons
-                            *[heliumAtoms] helium atoms
-                           }. Source, slits, and screen settings updated.
-                         }
-    detectionModeChanged: >-
-                         { $detectionMode ->
-                           [averageIntensity] Average Intensity selected. The predicted pattern is shown continuously.
-                          *[hits] Hits selected. Individual particle impacts build the pattern statistically.
-                         }
+    sourceStarted:            >-
+                              { $isPlaying ->
+                                [false] Source started. Sim is paused.
+                               *[true] Source started on { $timeSpeed } speed. { $beamDescription }
+                              }
+    sourceRestarted:          Source restarted. { $beamDescription }
+    sourceStopped:            Source stopped. The wave area and detector screens clear.
+    particleTypeChanged:      >-
+                              { $isEmitting ->
+                                [true] { $sourceRestartedResponse }
+                               *[false] Now experimenting with { $sourceType ->
+                                  [photons] photons
+                                  [electrons] electrons
+                                  [neutrons] neutrons
+                                 *[heliumAtoms] helium atoms
+                                }. Source, slits, and screen settings updated.
+                              }
+    detectionModeChanged:     >-
+                              { $detectionMode ->
+                                [averageIntensity] Average Intensity selected. The predicted pattern is shown continuously.
+                               *[hits] Hits selected. Individual particle impacts build the pattern statistically.
+                              }
     slitConfigurationChanged: >-
-                         { $isEmitting ->
-                           [true] { $sourceRestartedResponse }
-                          *[false] { $slitSetting ->
-                             [bothOpen] Both slits open.
-                             [leftCovered] Top slit covered.
-                             [rightCovered] Bottom slit covered.
-                             [leftDetector] Top slit detector added.
-                             [rightDetector] Bottom slit detector added.
-                             [noBarrier] Barrier removed.
-                            *[bothDetectors] Detectors added to both slits.
-                           }
-                         }
-    slitSeparationChanged: >-
-                         { $isEmitting ->
-                           [true] { $sourceRestartedResponse }
-                          *[false] Slit separation changed.
-                         }
-    wavelengthChanged:   >-
-                         { $isEmitting ->
-                           [true] { $sourceRestartedResponse }
-                          *[false] Wavelength changed.
-                         }
-    speedChanged:        >-
-                         { $isEmitting ->
-                           [true] { $sourceRestartedResponse }
-                          *[false] Particle speed changed.
-                         }
-    displayModeChanged:  >-
-                         { $displayMode ->
-                           [graph] Graph shown. It represents the detector pattern as { $detectionMode ->
-                             [averageIntensity] an intensity curve.
-                            *[hits] a hits histogram.
-                           }
-                          *[screen] Detector screen shown.
-                         }
-    brightnessChanged:   >-
-                         Screen brightness { $brightnessTrend ->
-                           [increased] increased.
-                           [decreased] decreased.
-                          *[unchanged] unchanged.
-                         }
-    waveDisplayChanged:  >-
-                         Wave display changed to { $waveDisplayMode ->
-                           [electricField] Electric Field.
-                           [timeAveragedIntensity] Amplitude.
-                           [realPart] Real Part.
-                           [imaginaryPart] Imaginary Part.
-                          *[magnitude] Amplitude.
-                         }
-    toolChanged:         >-
-                         { $tool ->
-                           [tapeMeasure] Tape measure
-                           [stopwatch] Stopwatch
-                           [timePlot] Time plot
-                          *[positionPlot] Position plot
-                         } { $isVisible ->
-                           [true] shown.
-                          *[false] hidden.
-                         }
-    snapshotTaken:       'Snapshot { $snapshotCount } stored.'
-    screenCleared:       >-
-                         { $isRestarting ->
-                           [true] Wave area cleared. { $sourceRestartedResponse }
-                          *[false] Wave area cleared. Sim still paused.
-                         }
-    hitStageChanged:     >-
-                         Hits pattern is now { $hitStage ->
-                           [none] empty.
-                           [few] just beginning with a few scattered hits.
-                           [emerging] showing faint repeated stripes.
-                           [developing] developing distinct interference bands.
-                          *[clear] showing a clear interference pattern.
-                         }
-    waveProgressChanged: >-
-                         { $waveProgressStage ->
-                           [sourceOff] Source is off, so no wave is traveling.
-                           [travelingToSlits] { $waveProgressCheckpoint ->
-                             [quarter] Wave approaching slits
-                             [half] Wave approaching slits
-                             [threeQuarters] Wave approaching slits
-                             [full] Wave approaching slits
-                            *[none] Wave approaching slits
-                           } { $waveSpeed ->
-                             [slow] at slow speed.
-                             [fast] at fast speed.
-                            *[medium] at medium speed.
-                           }
-                           [atSlits] Wave passing through slits, emerging as circular waves.
-                           [interferingAfterSlits] Circular waves overlap, creating checkered interference pattern where waves cancel or combine.
-                           [diffractingAfterSlits] Wave passing through one open slit, emerging as a circular wave.
-                           [whichPathAfterSlits] Wave passing through slits, { $slitSetting ->
-                             [leftDetector] with detector over top slit
-                             [rightDetector] with detector over bottom slit
-                            *[bothDetectors] with detectors over both slits
-                           }. Non-interfering circular waves emanate from the slits.
-                           [directToScreen] { $waveProgressCheckpoint ->
-                             [quarter] Wave crossed one-quarter of wave area and traveling directly toward detector screen.
-                             [half] Wave crossed halfway across wave area and traveling directly toward detector screen.
-                             [threeQuarters] Wave crossed three-quarters of wave area and traveling directly toward detector screen.
-                             [full] Wave crossed the full wave area.
-                            *[none] Wave crossed about { $progress } percent of wave area and traveling directly toward detector screen.
-                           }
-                          *[hittingScreen] Wave reached the detector screen.
-                         }
-    maxHitsReached:      Maximum number of hits reached. Source is off. Clear detector screen to make more observations.
-    reset:               Experiment reset. Source is off and detector screen is empty.
+                              { $isEmitting ->
+                                [true] { $sourceRestartedResponse }
+                               *[false] { $slitSetting ->
+                                  [bothOpen] Both slits open.
+                                  [leftCovered] Top slit covered.
+                                  [rightCovered] Bottom slit covered.
+                                  [leftDetector] Top slit detector added.
+                                  [rightDetector] Bottom slit detector added.
+                                  [noBarrier] Barrier removed.
+                                 *[bothDetectors] Detectors added to both slits.
+                                }
+                              }
+    slitSeparationChanged:    >-
+                              { $isEmitting ->
+                                [true] { $sourceRestartedResponse }
+                               *[false] Slit separation changed.
+                              }
+    wavelengthChanged:        >-
+                              { $isEmitting ->
+                                [true] { $sourceRestartedResponse }
+                               *[false] Wavelength changed.
+                              }
+    speedChanged:             >-
+                              { $isEmitting ->
+                                [true] { $sourceRestartedResponse }
+                               *[false] Particle speed changed.
+                              }
+    displayModeChanged:       >-
+                              { $displayMode ->
+                                [graph] Graph shown. It represents the detector pattern as { $detectionMode ->
+                                  [averageIntensity] an intensity curve.
+                                 *[hits] a hits histogram.
+                                }
+                               *[screen] Detector screen shown.
+                              }
+    brightnessChanged:        >-
+                              Screen brightness { $brightnessTrend ->
+                                [increased] increased.
+                                [decreased] decreased.
+                               *[unchanged] unchanged.
+                              }
+    waveDisplayChanged:       >-
+                              Wave display changed to { $waveDisplayMode ->
+                                [electricField] Electric Field.
+                                [timeAveragedIntensity] Amplitude.
+                                [realPart] Real Part.
+                                [imaginaryPart] Imaginary Part.
+                               *[magnitude] Amplitude.
+                              }
+    toolChanged:              >-
+                              { $tool ->
+                                [tapeMeasure] Tape measure
+                                [stopwatch] Stopwatch
+                                [timePlot] Time plot
+                               *[positionPlot] Position plot
+                              } { $isVisible ->
+                                [true] shown.
+                               *[false] hidden.
+                              }
+    snapshotTaken:            'Snapshot { $snapshotCount } stored.'
+    screenCleared:            >-
+                              { $isRestarting ->
+                                [true] Wave area cleared. { $sourceRestartedResponse }
+                               *[false] Wave area cleared. Sim still paused.
+                              }
+    hitStageChanged:          >-
+                              Hits pattern is now { $hitStage ->
+                                [none] empty.
+                                [few] just beginning with a few scattered hits.
+                                [emerging] showing faint repeated stripes.
+                                [developing] developing distinct interference bands.
+                               *[clear] showing a clear interference pattern.
+                              }
+    waveProgressChanged:      >-
+                              { $waveProgressStage ->
+                                [sourceOff] Source is off, so no wave is traveling.
+                                [travelingToSlits] { $waveProgressCheckpoint ->
+                                  [quarter] Wave approaching slits
+                                  [half] Wave approaching slits
+                                  [threeQuarters] Wave approaching slits
+                                  [full] Wave approaching slits
+                                 *[none] Wave approaching slits
+                                } { $waveSpeed ->
+                                  [slow] at slow speed.
+                                  [fast] at fast speed.
+                                 *[medium] at medium speed.
+                                }
+                                [atSlits] Wave passing through slits, emerging as circular waves.
+                                [interferingAfterSlits] Circular waves overlap, creating checkered interference pattern where waves cancel or combine.
+                                [diffractingAfterSlits] Wave passing through one open slit, emerging as a circular wave.
+                                [whichPathAfterSlits] Wave passing through slits, { $slitSetting ->
+                                  [leftDetector] with detector over top slit
+                                  [rightDetector] with detector over bottom slit
+                                 *[bothDetectors] with detectors over both slits
+                                }. Non-interfering circular waves emanate from the slits.
+                                [directToScreen] { $waveProgressCheckpoint ->
+                                  [quarter] Wave crossed one-quarter of wave area and traveling directly toward detector screen.
+                                  [half] Wave crossed halfway across wave area and traveling directly toward detector screen.
+                                  [threeQuarters] Wave crossed three-quarters of wave area and traveling directly toward detector screen.
+                                  [full] Wave crossed the full wave area.
+                                 *[none] Wave crossed about { $progress } percent of wave area and traveling directly toward detector screen.
+                                }
+                               *[hittingScreen] Wave reached the detector screen.
+                              }
+    maxHitsReached:           Maximum number of hits reached. Source is off. Clear detector screen to make more observations.
+    reset:                    Experiment reset. Source is off and detector screen is empty.
   experimentSetupDetails:
-    leadingParagraph:  'Current experimental details:'
-    sourceEmitter:     >-
-                       { $sourceType ->
-                         [photons] Photon Source Emitter
-                         [electrons] Electron Source Emitter
-                         [neutrons] Neutron Source Emitter
-                        *[heliumAtoms] Helium Atom Source Emitter
-                       } is { $isEmitting ->
-                         [true] on.
-                        *[false] off.
-                       }
-    detectionMode:     >-
-                       Screen Detection set to { $detectionMode ->
-                         [averageIntensity] Intensity Mode.
-                        *[hits] Hits Mode.
-                       }
-    wavelength:        'Wavelength is { $wavelength }, and in { $color } zone.'
-    particleSpeed:     'Particle Speed is { $speed }.'
-    slitConfiguration: >-
-                       { $slitSetting ->
-                         [bothOpen] Both slits open in barrier.
-                         [leftCovered] Left slit covered in barrier.
-                         [rightCovered] Right slit covered in barrier.
-                         [leftDetector] Detector on left slit in barrier.
-                         [rightDetector] Detector on right slit in barrier.
-                         [noBarrier] No barrier between source and screen.
-                        *[bothDetectors] Detectors on both slits in barrier.
-                       }
+    leadingParagraph:           'Current experimental details:'
+    sourceEmitter:              >-
+                                { $sourceType ->
+                                  [photons] Photon Source Emitter
+                                  [electrons] Electron Source Emitter
+                                  [neutrons] Neutron Source Emitter
+                                 *[heliumAtoms] Helium Atom Source Emitter
+                                } is { $isEmitting ->
+                                  [true] on.
+                                 *[false] off.
+                                }
+    detectionMode:              >-
+                                Screen Detection set to { $detectionMode ->
+                                  [averageIntensity] Intensity Mode.
+                                 *[hits] Hits Mode.
+                                }
+    wavelength:                 'Wavelength is { $wavelength }, and in { $color } zone.'
+    particleSpeed:              'Particle Speed is { $speed }.'
+    slitConfiguration:          >-
+                                { $slitSetting ->
+                                  [bothOpen] Both slits open in barrier.
+                                  [leftCovered] Left slit covered in barrier.
+                                  [rightCovered] Right slit covered in barrier.
+                                  [leftDetector] Detector on left slit in barrier.
+                                  [rightDetector] Detector on right slit in barrier.
+                                  [noBarrier] No barrier between source and screen.
+                                 *[bothDetectors] Detectors on both slits in barrier.
+                                }
     slitConfigurationTopBottom: >-
-                       { $slitSetting ->
-                         [bothOpen] Both slits open in barrier.
-                         [leftCovered] Top slit covered in barrier.
-                         [rightCovered] Bottom slit covered in barrier.
-                         [leftDetector] Detector on top slit in barrier.
-                         [rightDetector] Detector on bottom slit in barrier.
-                         [noBarrier] No barrier between source and screen.
-                        *[bothDetectors] Detectors on both slits in barrier.
-                       }
-    slitSeparation:    'Slit Separation distance is { $distance }.'
-    screenDistance:    'Distance from double-slit barrier to detector screen is { $distance }.'
+                                { $slitSetting ->
+                                  [bothOpen] Both slits open in barrier.
+                                  [leftCovered] Top slit covered in barrier.
+                                  [rightCovered] Bottom slit covered in barrier.
+                                  [leftDetector] Detector on top slit in barrier.
+                                  [rightDetector] Detector on bottom slit in barrier.
+                                  [noBarrier] No barrier between source and screen.
+                                 *[bothDetectors] Detectors on both slits in barrier.
+                                }
+    slitSeparation:             'Slit Separation distance is { $distance }.'
+    screenDistance:             'Distance from double-slit barrier to detector screen is { $distance }.'
   particleMass:
     accessibleParagraph: >-
                          { $sourceType ->

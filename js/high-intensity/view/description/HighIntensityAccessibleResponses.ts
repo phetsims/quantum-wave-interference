@@ -39,7 +39,7 @@ export default class HighIntensityAccessibleResponses extends Node {
       // Scene changes can also notify DynamicProperties such as wavelength or slit separation. If the semantic
       // source type changed, report the scene change once and silence subsequent no-op notifications.
       const effectiveAction: QWITransitionAction = before.sourceType !== after.sourceType && action.type !== 'particleTypeChanged' ?
-                                                   { type: 'particleTypeChanged' } :
+        { type: 'particleTypeChanged' } :
                                                    action;
 
       if ( effectiveAction.type === 'particleTypeChanged' && before.sourceType === after.sourceType ) {

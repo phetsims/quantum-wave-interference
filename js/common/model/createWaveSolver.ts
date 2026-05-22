@@ -9,9 +9,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
-import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import type WaveSolver from './WaveSolver.js';
 
 export function createContinuousWaveSolver(): WaveSolver {

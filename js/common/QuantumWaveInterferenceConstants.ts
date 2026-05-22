@@ -6,8 +6,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { numberOfDecimalPlaces } from '../../../dot/js/util/numberOfDecimalPlaces.js';
 import Range from '../../../dot/js/Range.js';
+import { numberOfDecimalPlaces } from '../../../dot/js/util/numberOfDecimalPlaces.js';
 import { type SourceType } from './model/SourceType.js';
 
 const WAVELENGTH_RANGE_NM_BY_SOURCE_TYPE: Readonly<Record<SourceType, readonly [ number, number ]>> = {

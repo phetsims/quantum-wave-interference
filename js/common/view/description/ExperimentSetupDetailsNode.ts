@@ -17,10 +17,10 @@ import { metersPerSecondUnit } from '../../../../../scenery-phet/js/units/meters
 import { metersUnit } from '../../../../../scenery-phet/js/units/metersUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
-import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { getWavelengthColorZone, getWavelengthColorZoneString } from '../WavelengthColorUtils.js';
 import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryContent.js';
 
@@ -150,12 +150,12 @@ export default class ExperimentSetupDetailsNode extends Node {
       } );
 
     const slitConfigurationDescriptionStringProperty = slitOrientation === 'topBottom' ?
-      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfigurationTopBottom.createProperty( {
-        slitSetting: slitSettingProperty
-      } ) :
-      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.createProperty( {
-        slitSetting: slitSettingProperty
-      } );
+                                                       QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfigurationTopBottom.createProperty( {
+                                                         slitSetting: slitSettingProperty
+                                                       } ) :
+                                                       QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.createProperty( {
+                                                         slitSetting: slitSettingProperty
+                                                       } );
 
     const slitSeparationStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [

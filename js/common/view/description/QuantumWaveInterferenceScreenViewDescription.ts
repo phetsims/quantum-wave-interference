@@ -9,10 +9,10 @@
 import BooleanProperty from '../../../../../axon/js/BooleanProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
-import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import DetectorScreenDescriber, { type DetectorScreenDescriberScene } from './DetectorScreenDescriber.js';
 import ExperimentSetupDetailsNode from './ExperimentSetupDetailsNode.js';
 import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryContent.js';

@@ -126,18 +126,18 @@ export default class DoubleSlitNode extends Node {
         lineWidth: DETECTOR_OVERLAY_LINE_WIDTH
       } );
     const topDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS, {
-        fill: 'white',
-        opacity: 0,
-        visible: false,
-        pickable: false
-      } );
+      fill: 'white',
+      opacity: 0,
+      visible: false,
+      pickable: false
+    } );
     //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Same as the implementation of topDetectorFlash, subclass or creation function?
     const bottomDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS, {
-        fill: 'white',
-        opacity: 0,
-        visible: false,
-        pickable: false
-      } );
+      fill: 'white',
+      opacity: 0,
+      visible: false,
+      pickable: false
+    } );
 
     const topDetectorCountStringProperty = new DerivedProperty(
       [ options.topDetectorCountProperty ],

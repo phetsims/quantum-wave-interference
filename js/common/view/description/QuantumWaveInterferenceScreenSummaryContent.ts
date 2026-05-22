@@ -10,10 +10,10 @@
 import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import ScreenSummaryContent, { type SectionContent } from '../../../../../joist/js/ScreenSummaryContent.js';
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
-import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 
 type FluentBoolean = 'true' | 'false';
 export type SlitOrientation = 'leftRight' | 'topBottom';
@@ -66,8 +66,8 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
     };
 
     const currentDetailsContentProperty = slitOrientation === 'topBottom' ?
-      QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetailsTopBottom.createProperty( currentDetailsOptions ) :
-      QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( currentDetailsOptions );
+                                          QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetailsTopBottom.createProperty( currentDetailsOptions ) :
+                                          QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( currentDetailsOptions );
 
     const defaultInteractionHintContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {
       sourceType: sourceTypeProperty,

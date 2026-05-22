@@ -9,15 +9,15 @@
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import DetectorScreenDescriber from '../../../common/view/description/DetectorScreenDescriber.js';
 import ExperimentSetupDetailsNode from '../../../common/view/description/ExperimentSetupDetailsNode.js';
+import type SceneRadioButtonGroup from '../../../common/view/SceneRadioButtonGroup.js';
+import type SourceControlPanel from '../../../common/view/SourceControlPanel.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import ExperimentModel from '../../model/ExperimentModel.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
+import ExperimentModel from '../../model/ExperimentModel.js';
 import type SceneModel from '../../model/SceneModel.js';
 import type OverheadEmitterNode from '../OverheadEmitterNode.js';
-import type SceneRadioButtonGroup from '../../../common/view/SceneRadioButtonGroup.js';
 import type ScreenSettingsPanel from '../ScreenSettingsPanel.js';
 import type SlitControlPanel from '../SlitControlPanel.js';
-import type SourceControlPanel from '../../../common/view/SourceControlPanel.js';
 import SlitViewDescriptionNode from './SlitViewDescriptionNode.js';
 
 export default class ExperimentScreenViewDescription extends Node {
