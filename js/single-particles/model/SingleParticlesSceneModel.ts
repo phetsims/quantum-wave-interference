@@ -54,9 +54,6 @@ export type ScreenDetectionTimingParameters = {
 // later in the packet lifecycle. Raising peakWeight makes the typical collapse later.
 // Raising endWeight allows later trailing detections. Larger power values make that side
 // of the curve sharper; smaller values make it broader.
-//
-// See doc/screen-detection-timing-tuner.html for an interactive tuning page. Its
-// "Copy these parameters" button produces this object shape.
 export const SCREEN_DETECTION_TIMING_PARAMETERS: ScreenDetectionTimingParameters = {
   startWeight: 0.30,
   peakWeight: 0.50,
