@@ -1,6 +1,5 @@
 // Copyright 2026, University of Colorado Boulder
 
-import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 /**
  * Shared utility for analyzing interference/diffraction patterns in intensity data. Used by both
  * DetectorScreenDescriber and GraphDescriber to extract band counts, peak positions, spacing, and central band width
@@ -8,6 +7,7 @@ import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
+import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
