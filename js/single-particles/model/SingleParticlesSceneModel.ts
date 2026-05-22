@@ -58,12 +58,13 @@ export type ScreenDetectionTimingParameters = {
 // See doc/screen-detection-timing-tuner.html for an interactive tuning page. Its
 // "Copy these parameters" button produces this object shape.
 export const SCREEN_DETECTION_TIMING_PARAMETERS: ScreenDetectionTimingParameters = {
-  startWeight: 0.5,
-  peakWeight: 0.68,
-  endWeight: 0.9,
-  leadingPower: 1.8,
-  trailingPower: 0.8
+  startWeight: 0.30,
+  peakWeight: 0.50,
+  endWeight: 0.70,
+  leadingPower: 1.0,
+  trailingPower: 1.0
 };
+
 const ON_SLIT_DETECTION_TIME_SIGMA_X_FRACTION = 0.5;
 const DETECTION_TIME_TRUNCATION_SIGMAS = 3;
 
@@ -317,6 +318,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       const candidate = parameters.startWeight +
                         dotRandom.nextDouble() * ( parameters.endWeight - parameters.startWeight );
       if ( dotRandom.nextDouble() < this.getScreenDetectionCurveDensity( candidate ) ) {
+        console.log( candidate );
         return candidate;
       }
     }
