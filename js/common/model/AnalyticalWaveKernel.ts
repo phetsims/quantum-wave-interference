@@ -399,6 +399,35 @@ export function evaluateAnalyticalLayeredSample(
   return applyPlaneWaveDecoherenceEventLayers( sample, parameters, x, y, t );
 }
 
+export function evaluateAnalyticalSamples(
+  parameters: AnalyticalWaveParameters,
+  x: number,
+  y: number,
+  t: number
+): { sample: FieldSample; layeredSample: LayeredFieldSample } {
+  const undecoheredSample = evaluateUndecoheredAnalyticalSample( parameters, x, y, t );
+  const decoheredSample = applyDecoherenceEvent( undecoheredSample, parameters, x, y, t );
+  const sample = applyMeasurementProjections( decoheredSample, parameters.projections || [], parameters.source, x, y, t );
+
+  let layeredSample: LayeredFieldSample;
+  if ( undecoheredSample.kind !== 'field' ) {
+    layeredSample = undecoheredSample;
+  }
+  else if ( parameters.source.kind !== 'plane' ) {
+    layeredSample = decoheredSample.kind === 'field' ?
+                    applyGaussianPacketMeasurementProjectionLayers( decoheredSample, parameters, x, y, t ) :
+                    decoheredSample;
+  }
+  else {
+    layeredSample = applyPlaneWaveDecoherenceEventLayers( undecoheredSample, parameters, x, y, t );
+  }
+
+  return {
+    sample: sample,
+    layeredSample: layeredSample
+  };
+}
+
 function applyGaussianPacketMeasurementProjectionLayers(
   sample: Extract<FieldSample, { kind: 'field' }>,
   parameters: AnalyticalWaveParameters,

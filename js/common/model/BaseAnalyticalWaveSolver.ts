@@ -13,7 +13,7 @@ import type Complex from '../../../../dot/js/Complex.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalBarrier, type AnalyticalSource, type AnalyticalWaveParameters, type DecoherenceEvent, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, type FieldSample, getRepresentativeComplex, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
+import { type AnalyticalBarrier, type AnalyticalSource, type AnalyticalWaveParameters, type DecoherenceEvent, evaluateAnalyticalSample, evaluateAnalyticalSamples, type FieldSample, getRepresentativeComplex, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type BarrierType } from './BarrierType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -197,20 +197,35 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     const usesLayeredFieldSamples = this.usesLayeredFieldSamples();
     this.beforeFieldSampleLoop( parameters );
 
-    for ( let ix = 0; ix < gridWidth; ix++ ) {
-      const x = this.getGridCellX( ix );
-      for ( let iy = 0; iy < gridHeight; iy++ ) {
-        const y = this.getGridCellY( iy );
-        const sample = evaluateAnalyticalSample( parameters, x, y, this.time );
-        const value = getRepresentativeComplex( sample );
-        const cellIndex = iy * gridWidth + ix;
-        const idx = cellIndex * 2;
-        fieldSamples[ cellIndex ] = sample;
-        if ( usesLayeredFieldSamples ) {
-          layeredFieldSamples[ cellIndex ] = evaluateAnalyticalLayeredSample( parameters, x, y, this.time );
+    if ( usesLayeredFieldSamples ) {
+      for ( let ix = 0; ix < gridWidth; ix++ ) {
+        const x = this.getGridCellX( ix );
+        for ( let iy = 0; iy < gridHeight; iy++ ) {
+          const y = this.getGridCellY( iy );
+          const samples = evaluateAnalyticalSamples( parameters, x, y, this.time );
+          const value = getRepresentativeComplex( samples.sample );
+          const cellIndex = iy * gridWidth + ix;
+          const idx = cellIndex * 2;
+          fieldSamples[ cellIndex ] = samples.sample;
+          layeredFieldSamples[ cellIndex ] = samples.layeredSample;
+          amplitudeField[ idx ] = value.real;
+          amplitudeField[ idx + 1 ] = value.imaginary;
         }
-        amplitudeField[ idx ] = value.real;
-        amplitudeField[ idx + 1 ] = value.imaginary;
+      }
+    }
+    else {
+      for ( let ix = 0; ix < gridWidth; ix++ ) {
+        const x = this.getGridCellX( ix );
+        for ( let iy = 0; iy < gridHeight; iy++ ) {
+          const y = this.getGridCellY( iy );
+          const sample = evaluateAnalyticalSample( parameters, x, y, this.time );
+          const value = getRepresentativeComplex( sample );
+          const cellIndex = iy * gridWidth + ix;
+          const idx = cellIndex * 2;
+          fieldSamples[ cellIndex ] = sample;
+          amplitudeField[ idx ] = value.real;
+          amplitudeField[ idx + 1 ] = value.imaginary;
+        }
       }
     }
   }

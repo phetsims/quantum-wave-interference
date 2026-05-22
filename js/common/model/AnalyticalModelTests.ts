@@ -11,7 +11,7 @@
 import Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, getDecoherenceEventAtPassTime, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, evaluateAnalyticalSamples, getDecoherenceEventAtPassTime, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
 import { getFieldSampleRGBA, getLayeredFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
@@ -799,6 +799,56 @@ QUnit.test( 'gaussian packet measurement projection returns one projected base l
       assertComplexApproximately( assert, layeredComponent.value, sampleComponent.value, 'base layer component value matches' );
     }
   }
+} );
+
+QUnit.test( 'combined analytical sampling matches separate field and layered evaluators', assert => {
+  const baseColor = { red: 200, green: 200, blue: 200 };
+  const cases = [
+    {
+      parameters: createGaussianPacketParameters( {
+        projections: [ {
+          centerX: 0.5,
+          centerY: 0,
+          radius: 0.2,
+          measurementTime: 1,
+          renormScale: 1.5
+        } ]
+      } ),
+      x: 0.82,
+      y: 0,
+      t: 1.1
+    },
+    {
+      parameters: createPlaneParameters( {
+        speed: 1,
+        barrier: createDoubleSlitBarrier( { coherent: false } )
+      } ),
+      x: 2,
+      y: -0.25,
+      t: 4.1
+    }
+  ];
+  cases[ 1 ].parameters.decoherenceEvents = [
+    { time: 3, selectedSlit: 'topSlit' as const }
+  ];
+
+  cases.forEach( testCase => {
+    const sample = evaluateAnalyticalSample( testCase.parameters, testCase.x, testCase.y, testCase.t );
+    const layeredSample = evaluateAnalyticalLayeredSample( testCase.parameters, testCase.x, testCase.y, testCase.t );
+    const combinedSamples = evaluateAnalyticalSamples( testCase.parameters, testCase.x, testCase.y, testCase.t );
+
+    assert.strictEqual( combinedSamples.sample.kind, sample.kind, 'combined field sample status matches' );
+    assert.deepEqual(
+      getFieldSampleRGBA( combinedSamples.sample, 'magnitude', baseColor, 1 ),
+      getFieldSampleRGBA( sample, 'magnitude', baseColor, 1 ),
+      'combined field sample rasterizes like separate evaluator'
+    );
+    assert.deepEqual(
+      getLayeredFieldSampleRGBA( combinedSamples.layeredSample, 'magnitude', baseColor, 1 ),
+      getLayeredFieldSampleRGBA( layeredSample, 'magnitude', baseColor, 1 ),
+      'combined layered sample rasterizes like separate evaluator'
+    );
+  } );
 } );
 
 QUnit.test( 'wave packet solver exposes layered samples without changing amplitude field', assert => {
