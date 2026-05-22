@@ -9,6 +9,7 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -39,7 +40,7 @@ export default class ToolCheckbox extends Checkbox {
                                 CHECKBOX_LAYOUT_BOX_WIDTH -
                                 CHECKBOX_LABEL_SPACING -
                                 iconAndSpacingWidth;
-    assert && assert( availableLabelWidth > 0,
+    affirm( availableLabelWidth > 0,
       `ToolCheckbox icon width leaves no label room: availableLabelWidth=${availableLabelWidth}` );
 
     const labelMaxWidth = Math.max( 1, availableLabelWidth );

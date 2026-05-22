@@ -18,6 +18,7 @@ import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
+import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -289,7 +290,7 @@ export default class RightControlsColumn extends VBox {
       },
       tandem: tandem.createTandem( 'timeControlNode' )
     } );
-    assert && assert( timeControlNode.width <= rightPanelWidth + 1e-6,
+    affirm( timeControlNode.width <= rightPanelWidth + 1e-6,
       `timeControlNode.width=${timeControlNode.width} exceeds rightPanelWidth=${rightPanelWidth}` );
 
     // --- Reset All ---

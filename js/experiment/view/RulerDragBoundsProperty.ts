@@ -11,6 +11,7 @@ import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
+import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
@@ -87,7 +88,7 @@ export default class RulerDragBoundsProperty {
     const centeredLeft = detectorRectCenterX - this.rulerNode.width / 2 + RULER_X_OFFSET;
 
     const dragBounds = this.dragBoundsProperty.value;
-    assert && assert( dragBounds, 'Ruler drag bounds should be available' );
-    return dragBounds!.closestPointTo( new Vector2( centeredLeft, centeredTop ) );
+    affirm( dragBounds, 'Ruler drag bounds should be available' );
+    return dragBounds.closestPointTo( new Vector2( centeredLeft, centeredTop ) );
   }
 }

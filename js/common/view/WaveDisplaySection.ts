@@ -12,6 +12,7 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
@@ -82,7 +83,7 @@ export default class WaveDisplaySection extends VBox {
         yMargin: COMBO_BOX_Y_MARGIN
       }
     );
-    assert && assert( photonWaveDisplayComboBox.width <= QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH + 1e-6,
+    affirm( photonWaveDisplayComboBox.width <= QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH + 1e-6,
       `photonWaveDisplayComboBox.width=${photonWaveDisplayComboBox.width} exceeds RIGHT_PANEL_WIDTH=${QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH}` );
 
     const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
@@ -102,7 +103,7 @@ export default class WaveDisplaySection extends VBox {
         yMargin: COMBO_BOX_Y_MARGIN
       }
     );
-    assert && assert( matterWaveDisplayComboBox.width <= QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH + 1e-6,
+    affirm( matterWaveDisplayComboBox.width <= QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH + 1e-6,
       `matterWaveDisplayComboBox.width=${matterWaveDisplayComboBox.width} exceeds RIGHT_PANEL_WIDTH=${QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH}` );
 
     // Center both alternate combo boxes in the same dynamic bounds so the visible one lines up with the time controls.

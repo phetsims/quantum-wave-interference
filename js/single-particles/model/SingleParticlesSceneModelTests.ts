@@ -7,6 +7,7 @@
  */
 
 import dotRandom from '../../../../dot/js/dotRandom.js';
+import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type DecoherenceEvent, type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
 import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
@@ -122,7 +123,7 @@ const withStubbedGaussian = ( gaussianValues: number[], callback: () => void ): 
   let index = 0;
 
   dotRandom.nextGaussian = () => {
-    assert && assert( index < gaussianValues.length, 'stubbed gaussian values exhausted' );
+    affirm( index < gaussianValues.length, 'stubbed gaussian values exhausted' );
     const value = gaussianValues[ index ];
     index++;
     return value;
@@ -141,7 +142,7 @@ const withStubbedDoubles = ( doubleValues: number[], callback: () => void ): voi
   let index = 0;
 
   dotRandom.nextDouble = () => {
-    assert && assert( index < doubleValues.length, 'stubbed double values exhausted' );
+    affirm( index < doubleValues.length, 'stubbed double values exhausted' );
     const value = doubleValues[ index ];
     index++;
     return value;

@@ -21,6 +21,7 @@ import Range from '../../../../dot/js/Range.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
+import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, MAX_HITS, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
@@ -326,14 +327,14 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   private sampleScreenDetectionWeight(): number {
     const parameters = SCREEN_DETECTION_TIMING_PARAMETERS;
-    assert && assert(
-    parameters.startWeight > 0 &&
-    parameters.startWeight < parameters.peakWeight &&
-    parameters.peakWeight < parameters.endWeight &&
-    parameters.endWeight < 1,
+    affirm(
+      parameters.startWeight > 0 &&
+      parameters.startWeight < parameters.peakWeight &&
+      parameters.peakWeight < parameters.endWeight &&
+      parameters.endWeight < 1,
       'screen detection weights should be ordered within (0, 1)'
     );
-    assert && assert( parameters.leadingPower > 0 && parameters.trailingPower > 0, 'curve powers should be positive' );
+    affirm( parameters.leadingPower > 0 && parameters.trailingPower > 0, 'curve powers should be positive' );
 
     for ( let i = 0; i < 100; i++ ) {
       const candidate = parameters.startWeight +
