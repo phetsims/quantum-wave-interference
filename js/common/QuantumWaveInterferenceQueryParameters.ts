@@ -44,7 +44,7 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
   },
 
   // Internal performance tuning knob for the vertical detector graph on High Intensity/Single Particles.
-  // The default 1 samples once per solver row. Try 0.5 or 0.25 to reduce graph path work.
+  // The default 1 uses 200 detector-edge samples, decoupled from waveSolverGridSize. Try 0.5 or 0.25 to reduce graph path work.
   sidewaysGraphSampleScale: {
     type: 'number',
     defaultValue: 1,

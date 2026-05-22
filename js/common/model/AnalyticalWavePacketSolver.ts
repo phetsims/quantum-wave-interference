@@ -141,27 +141,11 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
   }
 
   private computeDetectorDistribution(): void {
-    if ( !this.isSourceOn ) {
-      this.detectorDistribution.fill( 0 );
-      return;
-    }
+    this.computeNormalizedDetectorDistribution( this.detectorDistribution, false );
+  }
 
-    const parameters = this.createKernelParameters( false );
-    const dy = this.regionHeight / this.gridHeight;
-    let maxProb = 0;
-
-    for ( let iy = 0; iy < this.gridHeight; iy++ ) {
-      const y = ( iy + 0.5 ) * dy - this.regionHeight / 2;
-      const prob = computeSampleIntensity( evaluateAnalyticalSample( parameters, this.regionWidth, y, this.time ) );
-      this.detectorDistribution[ iy ] = prob;
-      maxProb = Math.max( maxProb, prob );
-    }
-
-    if ( maxProb > 0 ) {
-      for ( let iy = 0; iy < this.gridHeight; iy++ ) {
-        this.detectorDistribution[ iy ] /= maxProb;
-      }
-    }
+  protected override beforeDetectorDistributionSampling(): void {
+    this.updateMeasurementProjectionRenormScales();
   }
 
   protected override createKernelParameters( includeDecoherenceEvents = true ): AnalyticalWaveParameters {

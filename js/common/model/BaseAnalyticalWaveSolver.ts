@@ -13,7 +13,7 @@ import type Complex from '../../../../dot/js/Complex.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalBarrier, type AnalyticalSource, type AnalyticalWaveParameters, type DecoherenceEvent, evaluateAnalyticalSample, evaluateAnalyticalSamples, type FieldSample, getRepresentativeComplex, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
+import { type AnalyticalBarrier, type AnalyticalSource, type AnalyticalWaveParameters, computeSampleIntensity, type DecoherenceEvent, evaluateAnalyticalSample, evaluateAnalyticalSamples, type FieldSample, getRepresentativeComplex, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type BarrierType } from './BarrierType.js';
 import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
@@ -54,6 +54,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   protected readonly fieldSamples: FieldSample[];
   protected readonly layeredFieldSamples: LayeredFieldSample[];
   protected readonly detectorDistribution: Float64Array;
+  private sampledDetectorDistribution: Float64Array | null = null;
   protected decoherenceEvents: readonly DecoherenceEvent[] = [];
   protected dirty = true;
 
@@ -146,9 +147,59 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     } : sample;
   }
 
-  public getDetectorProbabilityDistribution(): Float64Array {
+  public getDetectorProbabilityDistribution( sampleCount = this.gridHeight ): Float64Array {
+    if ( sampleCount !== this.gridHeight ) {
+      return this.getSampledDetectorProbabilityDistribution( sampleCount );
+    }
+
     this.ensureComputed();
     return this.detectorDistribution;
+  }
+
+  protected getSampledDetectorProbabilityDistribution( sampleCount: number ): Float64Array {
+    if ( !this.sampledDetectorDistribution || this.sampledDetectorDistribution.length !== sampleCount ) {
+      this.sampledDetectorDistribution = new Float64Array( sampleCount );
+    }
+
+    this.computeNormalizedDetectorDistribution( this.sampledDetectorDistribution );
+    return this.sampledDetectorDistribution;
+  }
+
+  protected computeNormalizedDetectorDistribution( distribution: Float64Array, updateBeforeSampling = true ): void {
+    if ( !this.isSourceOn ) {
+      distribution.fill( 0 );
+      return;
+    }
+
+    if ( updateBeforeSampling ) {
+      this.beforeDetectorDistributionSampling();
+    }
+
+    const sampleCount = distribution.length;
+    const parameters = this.createKernelParameters( false );
+    const dy = this.regionHeight / sampleCount;
+    let maxProb = 0;
+
+    for ( let iy = 0; iy < sampleCount; iy++ ) {
+      const y = ( iy + 0.5 ) * dy - this.regionHeight / 2;
+      const prob = computeSampleIntensity( evaluateAnalyticalSample( parameters, this.regionWidth, y, this.time ) );
+      distribution[ iy ] = prob;
+      maxProb = Math.max( maxProb, prob );
+    }
+
+    this.normalizeDetectorDistribution( distribution, maxProb );
+  }
+
+  protected normalizeDetectorDistribution( distribution: Float64Array, maxProb: number ): void {
+    if ( maxProb > 0 ) {
+      for ( let i = 0; i < distribution.length; i++ ) {
+        distribution[ i ] /= maxProb;
+      }
+    }
+  }
+
+  protected beforeDetectorDistributionSampling(): void {
+    // Hook for subclasses that update state before detector-edge sampling.
   }
 
   public getDisplayPropagationSpeed(): number {

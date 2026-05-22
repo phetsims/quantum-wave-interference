@@ -108,7 +108,7 @@ type WaveSolver = {
 
   getLayeredFieldSampleAtGridCell?( gridX: number, gridY: number ): LayeredFieldSample;
 
-  getDetectorProbabilityDistribution(): Float64Array;
+  getDetectorProbabilityDistribution( sampleCount?: number ): Float64Array;
 
   getDisplayPropagationSpeed(): number;
 

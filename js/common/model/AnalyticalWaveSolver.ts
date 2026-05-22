@@ -77,7 +77,11 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
     }
   }
 
-  public override getDetectorProbabilityDistribution(): Float64Array {
+  public override getDetectorProbabilityDistribution( sampleCount = this.gridHeight ): Float64Array {
+    if ( sampleCount !== this.gridHeight ) {
+      return this.getSampledDetectorProbabilityDistribution( sampleCount );
+    }
+
     if ( this.detectorAccumulatorCount === 0 ) {
       this.detectorDistribution.fill( 0 );
       return this.detectorDistribution;
@@ -90,12 +94,7 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
       maxProb = Math.max( maxProb, avg );
     }
 
-    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate if statement in AnalyticalWavePacketSolver.ts
-    if ( maxProb > 0 ) {
-      for ( let iy = 0; iy < this.gridHeight; iy++ ) {
-        this.detectorDistribution[ iy ] /= maxProb;
-      }
-    }
+    this.normalizeDetectorDistribution( this.detectorDistribution, maxProb );
 
     return this.detectorDistribution;
   }
