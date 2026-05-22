@@ -44,10 +44,10 @@ export type ScreenDetectionTimingParameters = {
   trailingPower: number;
 };
 
-// Designer tuning for when a packet can collapse at the right-side detector screen.
+// Designer tuning for when a packet can collapse at a detector plane.
 // These weights describe how much of the packet's longitudinal probability has reached
-// the detector screen. Weight 0.5 means the packet midpoint/center is at the screen.
-// Weight 0.85 means about 85% of the packet has reached the screen.
+// that plane. Weight 0.5 means the packet midpoint/center is at the plane.
+// Weight 0.85 means about 85% of the packet has reached the plane.
 //
 // The sampled curve is zero outside [startWeight, endWeight], rises from startWeight to
 // peakWeight, then trails off to endWeight. Raising startWeight prevents collapses until
@@ -61,9 +61,6 @@ export const SCREEN_DETECTION_TIMING_PARAMETERS: ScreenDetectionTimingParameters
   leadingPower: 1.0,
   trailingPower: 1.0
 };
-
-const ON_SLIT_DETECTION_TIME_SIGMA_X_FRACTION = 0.5;
-const DETECTION_TIME_TRUNCATION_SIGMAS = 3;
 
 // Display-only gain for the wave visualization on the Single Particles screen. This intentionally
 // affects canvas brightness/saturation without changing wave propagation, detector probabilities, or hits.
@@ -126,7 +123,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   // Sampled which-slit detection time for the active packet
   private targetOnSlitDetectionTime: number;
 
-  // Deterministic center-arrival time used as the mean for the active packet's on-slit detection sample
+  // Deterministic center-arrival time used as the re-emission timing reference for on-slit detection.
   private deterministicOnSlitArrivalTime: number;
 
   // True while a completed packet is automatically turning the emitter off.
@@ -260,7 +257,10 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.detectorToolStateProperty.value = 'ready';
     this.targetDetectionTime = this.sampleDetectionTime();
     this.deterministicOnSlitArrivalTime = this.getDeterministicSlitArrivalTime();
-    this.targetOnSlitDetectionTime = this.sampleOnSlitDetectionTime( this.deterministicOnSlitArrivalTime );
+    this.targetOnSlitDetectionTime = this.sampleDetectionDelayToTargetX(
+      this.slitPositionFractionProperty.value * this.regionWidth,
+      0
+    );
     this.timeSinceLastEmission = 0;
     this.hasCreatedPacketDecoherenceEvent = false;
     this.packetReEmission = null;
@@ -278,16 +278,16 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   /**
    * Detection times follow the packet's horizontal probability density from the active packet source
-   * to the detector screen. The packet starts at the standard negative sigma offset, so slit
-   * re-emission gets the same envelope/timing as ordinary source emission with a shifted origin.
+   * to a detector plane. The packet starts at the standard negative sigma offset, so slit re-emission
+   * gets the same envelope/timing as ordinary source emission with a shifted origin.
    * The sampled packet weight is intentionally later than the leading edge, documented at
    * SCREEN_DETECTION_TIMING_PARAMETERS.
    */
   private sampleDetectionTime(): number {
-    return this.sampleDetectionDelayFromSourceX( 0 );
+    return this.sampleDetectionDelayToTargetX( this.regionWidth, 0 );
   }
 
-  private sampleDetectionDelayFromSourceX( sourceX: number ): number {
+  private sampleDetectionDelayToTargetX( targetX: number, sourceX: number ): number {
     const propagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
     if ( propagationSpeed <= 0 ) {
       return QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
@@ -295,9 +295,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
     const initialCenterX = -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
-    const sampledScreenWeight = this.sampleScreenDetectionWeight();
-    const sampledCenterOffset = SingleParticlesSceneModel.inverseStandardNormalCDF( sampledScreenWeight ) * sigmaX0;
-    return ( this.regionWidth - sourceX - initialCenterX + sampledCenterOffset ) / propagationSpeed;
+    const detectionWeight = this.sampleScreenDetectionWeight();
+    const sampledCenterOffset = SingleParticlesSceneModel.inverseStandardNormalCDF( detectionWeight ) * sigmaX0;
+    return ( targetX - sourceX - initialCenterX + sampledCenterOffset ) / propagationSpeed;
   }
 
   private sampleScreenDetectionWeight(): number {
@@ -315,7 +315,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       const candidate = parameters.startWeight +
                         dotRandom.nextDouble() * ( parameters.endWeight - parameters.startWeight );
       if ( dotRandom.nextDouble() < this.getScreenDetectionCurveDensity( candidate ) ) {
-        console.log( candidate );
         return candidate;
       }
     }
@@ -343,8 +342,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   }
 
   /**
-   * Approximation for the standard normal quantile. Used to convert "fraction of packet weight
-   * that has reached the screen" back into a packet-center offset in sigma_x units.
+   * Approximation for the standard normal quantile. Used to convert "fraction of packet weight that has
+   * reached a detector plane" back into a packet-center offset in sigma_x units.
    */
   private static inverseStandardNormalCDF( probability: number ): number {
     const p = clamp( probability, 1e-12, 1 - 1e-12 );
@@ -397,17 +396,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
            ( ( ( ( ( b[ 0 ] * r + b[ 1 ] ) * r + b[ 2 ] ) * r + b[ 3 ] ) * r + b[ 4 ] ) * r + 1 );
   }
 
-  private sampleOnSlitDetectionTime( deterministicSlitArrivalTime: number ): number {
-    const propagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
-    if ( propagationSpeed <= 0 ) {
-      return QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
-    }
-
-    const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
-    const sigma = ON_SLIT_DETECTION_TIME_SIGMA_X_FRACTION * sigmaX0 / propagationSpeed;
-    return this.sampleTruncatedGaussianTime( deterministicSlitArrivalTime, sigma );
-  }
-
   private getDeterministicSlitArrivalTime(): number {
     const propagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
     if ( propagationSpeed <= 0 ) {
@@ -417,15 +405,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
     const initialCenterX = -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
     return ( this.slitPositionFractionProperty.value * this.regionWidth - initialCenterX ) / propagationSpeed;
-  }
-
-  private sampleTruncatedGaussianTime( mean: number, sigma: number ): number {
-    const maxDeviation = DETECTION_TIME_TRUNCATION_SIGMAS * sigma;
-    let deviation: number;
-    do {
-      deviation = dotRandom.nextGaussian() * sigma;
-    } while ( Math.abs( deviation ) > maxDeviation );
-    return mean + deviation;
   }
 
   /**
@@ -503,7 +482,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.packetReEmission = packetReEmission;
     this.targetDetectionTime = eventTime + Math.max(
       0,
-      this.sampleDetectionDelayFromSourceX( packetReEmission.sourceX ) - ( packetReEmission.timeAdvance ?? 0 )
+      this.sampleDetectionDelayToTargetX( this.regionWidth, packetReEmission.sourceX ) - ( packetReEmission.timeAdvance ?? 0 )
     );
     this.syncSolverParameters();
   }

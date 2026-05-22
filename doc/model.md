@@ -172,7 +172,7 @@ The wave packet model:
   the default source speed.
 * Starts the packet center 2 initial `sigma_x` widths to the left of the visible region.
 * Uses initial packet widths `sigma_x = 0.15 * regionWidth` and `sigma_y = 0.15 * regionHeight`.
-* Samples screen-detection timing from the packet's longitudinal probability profile.
+* Samples detector-screen and slit-detector timing from the same packet-weight timing curve.
 * Advances slit-detector re-emission by 1.5 initial `sigma_x` widths of packet history.
 * Uses longitudinal and transverse spread time constants of 2.5 and 1.5 traversal times.
 
@@ -185,7 +185,7 @@ When a packet reaches the detector screen:
 
 When slit detectors are active:
 
-* The model samples an on-slit detection time for the packet.
+* The model samples on-slit timing from the same packet-weight timing curve used for detector-screen hits.
 * If a detector clicks, the corresponding detector count is incremented.
 * The downstream packet is re-emitted from the selected slit to represent the post-measurement
   state.

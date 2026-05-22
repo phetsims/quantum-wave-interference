@@ -72,6 +72,10 @@ type PrivateSingleParticlesSceneModelState = {
   targetDetectionTime: number;
 };
 
+type PrivateSingleParticlesSceneModelConstructor = {
+  inverseStandardNormalCDF: ( probability: number ) => number;
+};
+
 const createScene = ( sourceType: SourceType = 'photons' ): TestSingleParticlesSceneModel => {
   const scene = new TestSingleParticlesSceneModel( {
     sourceType: sourceType,
@@ -98,12 +102,6 @@ const getDeterministicSlitArrivalTime = ( scene: SingleParticlesSceneModel ): nu
   return ( scene.slitPositionFractionProperty.value * scene.regionWidth - initialCenterX ) / propagationSpeed;
 };
 
-const getOnSlitDetectionSigmaTime = ( scene: SingleParticlesSceneModel ): number => {
-  const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
-  const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * scene.regionWidth;
-  return 0.5 * sigmaX0 / propagationSpeed;
-};
-
 const getPacketReEmissionBaseAdvance = ( scene: SingleParticlesSceneModel ): number => {
   const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
   return QuantumWaveInterferenceConstants.WAVE_PACKET_RE_EMISSION_TIME_ADVANCE_SIGMAS *
@@ -118,23 +116,41 @@ const getDeterministicScreenArrivalTime = ( scene: SingleParticlesSceneModel, so
   return ( scene.regionWidth - sourceX - initialCenterX ) / propagationSpeed;
 };
 
-const withStubbedGaussian = ( gaussianValues: number[], callback: () => void ): void => {
-  const originalNextGaussian = dotRandom.nextGaussian;
-  let index = 0;
+const getDetectionTimeForWeight = (
+  scene: SingleParticlesSceneModel,
+  targetX: number,
+  sourceX: number,
+  detectionWeight: number
+): number => {
+  const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
+  const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * scene.regionWidth;
+  const initialCenterX = -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
+  const sampledCenterOffset = ( SingleParticlesSceneModel as unknown as PrivateSingleParticlesSceneModelConstructor )
+    .inverseStandardNormalCDF( detectionWeight ) * sigmaX0;
 
-  dotRandom.nextGaussian = () => {
-    affirm( index < gaussianValues.length, 'stubbed gaussian values exhausted' );
-    const value = gaussianValues[ index ];
-    index++;
-    return value;
-  };
+  return ( targetX - sourceX - initialCenterX + sampledCenterOffset ) / propagationSpeed;
+};
 
-  try {
-    callback();
-  }
-  finally {
-    dotRandom.nextGaussian = originalNextGaussian;
-  }
+const getOnSlitDetectionTimeForWeight = (
+  scene: SingleParticlesSceneModel,
+  detectionWeight: number
+): number => {
+  return getDetectionTimeForWeight(
+    scene,
+    scene.slitPositionFractionProperty.value * scene.regionWidth,
+    0,
+    detectionWeight
+  );
+};
+
+const getSampleDoubleForDetectionWeight = ( detectionWeight: number ): number => {
+  const parameters = SCREEN_DETECTION_TIMING_PARAMETERS;
+  affirm(
+    detectionWeight >= parameters.startWeight && detectionWeight <= parameters.endWeight,
+    'stubbed detection weight should be within the configured sampling interval'
+  );
+
+  return ( detectionWeight - parameters.startWeight ) / ( parameters.endWeight - parameters.startWeight );
 };
 
 const withStubbedDoubles = ( doubleValues: number[], callback: () => void ): void => {
@@ -156,11 +172,22 @@ const withStubbedDoubles = ( doubleValues: number[], callback: () => void ): voi
   }
 };
 
-QUnit.test( 'on-slit detector sample is centered on deterministic slit arrival', assert => {
+const withStubbedDetectionWeights = ( detectionWeights: number[], callback: () => void ): void => {
+  const doubleValues: number[] = [];
+  detectionWeights.forEach( detectionWeight => {
+    doubleValues.push( getSampleDoubleForDetectionWeight( detectionWeight ), 0 );
+  } );
+  withStubbedDoubles( doubleValues, callback );
+};
+
+QUnit.test( 'on-slit detector peak sample is centered on deterministic slit arrival', assert => {
   const scene = createScene();
   const deterministicSlitArrivalTime = getDeterministicSlitArrivalTime( scene );
 
-  withStubbedGaussian( [ 0, 0 ], () => {
+  withStubbedDetectionWeights( [
+    SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight,
+    SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight
+  ], () => {
     scene.emitPacket();
     scene.step( deterministicSlitArrivalTime + 1e-6 );
   } );
@@ -170,7 +197,7 @@ QUnit.test( 'on-slit detector sample is centered on deterministic slit arrival',
     assert,
     scene.decoherenceEventTimes[ 0 ],
     deterministicSlitArrivalTime,
-    'zero Gaussian deviation samples the deterministic slit arrival time'
+    'peak packet-weight sample matches the deterministic slit arrival time'
   );
 } );
 
@@ -299,41 +326,85 @@ QUnit.test( 'slit configuration clear stops non-auto-repeat packet without re-em
   assert.strictEqual( scene.totalHitsProperty.value, 0, 'detector screen remains clear after slit configuration change' );
 } );
 
-QUnit.test( 'on-slit detector waits for sampled time instead of center arrival', assert => {
-  const scene = createScene();
-  const deterministicSlitArrivalTime = getDeterministicSlitArrivalTime( scene );
-  const onSlitDetectionSigmaTime = getOnSlitDetectionSigmaTime( scene );
-  const sampledOnSlitDetectionTime = deterministicSlitArrivalTime + 2 * onSlitDetectionSigmaTime;
+QUnit.test( 'on-slit detector uses shared packet-weight timing curve', assert => {
+  const earlyScene = createScene();
+  const earlyDetectionWeight = ( SCREEN_DETECTION_TIMING_PARAMETERS.startWeight +
+                                 SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight ) / 2;
+  const earlyDeterministicSlitArrivalTime = getDeterministicSlitArrivalTime( earlyScene );
+  const earlyOnSlitDetectionTime = getOnSlitDetectionTimeForWeight( earlyScene, earlyDetectionWeight );
 
-  withStubbedGaussian( [ 2 ], () => {
-    scene.emitPacket();
+  assert.ok(
+    earlyOnSlitDetectionTime < earlyDeterministicSlitArrivalTime,
+    'weights before 0.5 produce on-slit detection before packet center arrival'
+  );
 
-    scene.step( deterministicSlitArrivalTime + onSlitDetectionSigmaTime );
-    assert.strictEqual( scene.decoherenceEventTimes.length, 0, 'no event at deterministic center arrival' );
-
-    scene.step( onSlitDetectionSigmaTime + 1e-6 );
+  withStubbedDetectionWeights( [
+    SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight,
+    earlyDetectionWeight
+  ], () => {
+    earlyScene.emitPacket();
+    earlyScene.step( earlyOnSlitDetectionTime + 1e-6 );
   } );
 
-  assert.strictEqual( scene.decoherenceEventTimes.length, 1, 'event occurs after sampled threshold' );
+  assert.strictEqual( earlyScene.decoherenceEventTimes.length, 1, 'early event occurs at sampled threshold' );
   assertApproximately(
     assert,
-    scene.decoherenceEventTimes[ 0 ],
-    sampledOnSlitDetectionTime,
-    'event time is the sampled on-slit detection time'
+    earlyScene.decoherenceEventTimes[ 0 ],
+    earlyOnSlitDetectionTime,
+    'early event time is the sampled on-slit detection time'
+  );
+
+  const lateScene = createScene();
+  const lateDetectionWeight = ( SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight +
+                                SCREEN_DETECTION_TIMING_PARAMETERS.endWeight ) / 2;
+  const lateDeterministicSlitArrivalTime = getDeterministicSlitArrivalTime( lateScene );
+  const lateOnSlitDetectionTime = getOnSlitDetectionTimeForWeight( lateScene, lateDetectionWeight );
+  const beforeLateDetectionTime = lateDeterministicSlitArrivalTime +
+                                  ( lateOnSlitDetectionTime - lateDeterministicSlitArrivalTime ) / 2;
+
+  assert.ok(
+    lateOnSlitDetectionTime > lateDeterministicSlitArrivalTime,
+    'weights after 0.5 produce on-slit detection after packet center arrival'
+  );
+
+  withStubbedDetectionWeights( [
+    SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight,
+    lateDetectionWeight
+  ], () => {
+    lateScene.emitPacket();
+
+    lateScene.step( beforeLateDetectionTime );
+    assert.strictEqual( lateScene.decoherenceEventTimes.length, 0, 'no late event before sampled threshold' );
+
+    lateScene.step( lateOnSlitDetectionTime - beforeLateDetectionTime + 1e-6 );
+  } );
+
+  assert.strictEqual( lateScene.decoherenceEventTimes.length, 1, 'late event occurs at sampled threshold' );
+  assertApproximately(
+    assert,
+    lateScene.decoherenceEventTimes[ 0 ],
+    lateOnSlitDetectionTime,
+    'late event time is the sampled on-slit detection time'
   );
 } );
 
 QUnit.test( 'slit-detector packet re-emission uses sampled event time', assert => {
   const scene = createScene();
   const deterministicSlitArrivalTime = getDeterministicSlitArrivalTime( scene );
-  const sampledOnSlitDetectionTime = deterministicSlitArrivalTime - getOnSlitDetectionSigmaTime( scene );
+  const sampledDetectionWeight = ( SCREEN_DETECTION_TIMING_PARAMETERS.startWeight +
+                                    SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight ) / 2;
+  const sampledOnSlitDetectionTime = getOnSlitDetectionTimeForWeight( scene, sampledDetectionWeight );
   scene.decoherenceEvent = {
     time: -1,
     selectedSlit: 'topSlit',
     clickedDetectorSlit: 'topSlit'
   };
 
-  withStubbedGaussian( [ -1 ], () => {
+  withStubbedDetectionWeights( [
+    SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight,
+    sampledDetectionWeight,
+    SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight
+  ], () => {
     scene.emitPacket();
     scene.step( sampledOnSlitDetectionTime + 1e-6 );
   } );
@@ -354,34 +425,30 @@ QUnit.test( 'slit-detector packet re-emission uses sampled event time', assert =
   );
 } );
 
-QUnit.test( 'screen detection timing waits until after packet midpoint', assert => {
+QUnit.test( 'screen detection timing peak sample matches packet midpoint', assert => {
   const scene = createScene();
   scene.slitConfigurationProperty.value = 'bothOpen';
 
   const deterministicScreenArrivalTime = getDeterministicScreenArrivalTime( scene );
-  const peakWeightFraction = ( SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight -
-                               SCREEN_DETECTION_TIMING_PARAMETERS.startWeight ) /
-                             ( SCREEN_DETECTION_TIMING_PARAMETERS.endWeight -
-                               SCREEN_DETECTION_TIMING_PARAMETERS.startWeight );
 
-  withStubbedDoubles( [ peakWeightFraction, 0 ], () => {
-    withStubbedGaussian( [ 0 ], () => {
-      scene.emitPacket();
-    } );
+  withStubbedDetectionWeights( [
+    SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight,
+    SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight
+  ], () => {
+    scene.emitPacket();
   } );
 
   const targetDetectionTime = ( scene as unknown as PrivateSingleParticlesSceneModelState ).targetDetectionTime;
-  assert.ok(
-    targetDetectionTime > deterministicScreenArrivalTime,
-    'screen hit is sampled after the packet midpoint reaches the screen'
+  assertApproximately(
+    assert,
+    targetDetectionTime,
+    deterministicScreenArrivalTime,
+    'screen hit peak sample matches the packet midpoint arrival'
   );
 
-  scene.step( deterministicScreenArrivalTime + 1e-6 );
-  assert.strictEqual( scene.totalHitsProperty.value, 0, 'no detector-screen hit at midpoint arrival' );
+  scene.step( targetDetectionTime + 1e-6 );
 
-  scene.step( targetDetectionTime - deterministicScreenArrivalTime );
-
-  assert.strictEqual( scene.totalHitsProperty.value, 1, 'detector-screen hit occurs at sampled later threshold' );
+  assert.strictEqual( scene.totalHitsProperty.value, 1, 'detector-screen hit occurs at sampled threshold' );
 } );
 
 QUnit.test( 'packet solver physical time conversion matches effective wave speed', assert => {
