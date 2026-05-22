@@ -239,10 +239,6 @@ export default class OverheadDetectorScreenNode extends Node {
     return DETECTOR_LEFT_HEIGHT + DETECTOR_DY;
   }
 
-  public getFullParallelogramTop(): number {
-    return this.parallelogramNode.centerY - this.getFullParallelogramHeight() / 2;
-  }
-
   public getFullParallelogramBottom(): number {
     return this.parallelogramNode.centerY + this.getFullParallelogramHeight() / 2;
   }

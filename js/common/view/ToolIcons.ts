@@ -85,22 +85,6 @@ function createPositionPlotIcon(): Node {
   return createChartIcon( [ linePath, marker ] );
 }
 
-function createGraphIcon(): Node {
-  const barWidth = 3;
-  const spacing = 2;
-  const startX = 3;
-  const bars = new Node();
-  const heights = [ 0.5, 0.85, 0.35 ];
-  for ( let i = 0; i < heights.length; i++ ) {
-    const barH = heights[ i ] * ( CHART_HEIGHT - 4 );
-    bars.addChild( new Rectangle( startX + i * ( barWidth + spacing ), CHART_HEIGHT - 2 - barH, barWidth, barH, {
-      fill: '#cc6633',
-      cornerRadius: 0.5
-    } ) );
-  }
-  return createChartIcon( [ bars ] );
-}
-
 function createDetectorIcon(): Node {
   return new Circle( 7, {
     stroke: DETECTOR_TOOL_COLOR,
@@ -115,7 +99,6 @@ const ToolIcons = {
   createStopwatchIcon: createStopwatchIcon,
   createTimePlotIcon: createTimePlotIcon,
   createPositionPlotIcon: createPositionPlotIcon,
-  createGraphIcon: createGraphIcon,
   createDetectorIcon: createDetectorIcon
 };
 

@@ -234,7 +234,4 @@ export default class WavePlotChartNode extends Node {
   public mapValueToY( value: number, amplitudeScale: number ): number {
     return this.baselineYProperty.value - ( value / amplitudeScale ) * this.halfAmplitudeHeightProperty.value;
   }
-
-  public static readonly CHART_WIDTH = CHART_WIDTH;
-  public static readonly CHART_HEIGHT = CHART_HEIGHT;
 }
