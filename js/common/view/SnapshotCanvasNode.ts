@@ -22,7 +22,7 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 import { getApparentAnalyticalDetectorIntensity } from './ApparentDetectorPattern.js';
 import { createDetectorScreenRenderStateFromSnapshot } from './DetectorScreenRenderState.js';
 import renderDetectorScreenTexture from './renderDetectorScreenTexture.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, sampleSmoothedIntensityDistribution } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, sampleSmoothedIntensityDistribution } from './ScreenBrightnessUtils.js';
 
 const MAX_RENDERED_SNAPSHOT_HITS = 100000;
 
@@ -225,7 +225,7 @@ export default class SnapshotCanvasNode extends CanvasNode {
     const backgroundRGB = { r: 0, g: 0, b: 0 };
 
     const normalizedBrightness = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
-    const displayGain = getIntensityDisplayGain( normalizedBrightness, snapshot.intensity );
+    const displayGain = getHighIntensityIntensityDisplayGain( normalizedBrightness, snapshot.intensity );
 
     const sourceRGB = getSceneRGB( snapshot.sourceType, snapshot.wavelength );
 

@@ -31,6 +31,11 @@ export const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
 export const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
 export const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
 
+// High Intensity Average Intensity mode uses a dimmer display range than the Experiment screen so bright fringes
+// do not saturate across a wide region.
+export const HIGH_INTENSITY_INTENSITY_DISPLAY_GAIN_MIN = 0.48;
+export const HIGH_INTENSITY_INTENSITY_DISPLAY_GAIN_MAX = 2.88;
+
 // Brightness multiplier range for hits display mode.
 export const HITS_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 0.1;
 export const HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 1.8;
@@ -116,6 +121,20 @@ export function getIntensityDisplayGain( brightness: number, intensity: number )
     clamp( intensity, 0, 1 ) *
     INTENSITY_BRIGHTNESS_MAX_MULTIPLIER
   );
+}
+
+/**
+ * Computes the High Intensity Average Intensity display gain from normalized screen brightness and source intensity.
+ */
+export function getHighIntensityIntensityDisplayGain( brightness: number, intensity: number ): number {
+  const clampedBrightness = clamp( brightness, 0, 1 );
+  return linear(
+    0,
+    1,
+    HIGH_INTENSITY_INTENSITY_DISPLAY_GAIN_MIN,
+    HIGH_INTENSITY_INTENSITY_DISPLAY_GAIN_MAX,
+    clampedBrightness * clampedBrightness
+  ) * clamp( intensity, 0, 1 );
 }
 
 /**

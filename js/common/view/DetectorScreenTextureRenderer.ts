@@ -17,7 +17,7 @@ import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGB, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, sampleIntensityDistribution } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getInterpolatedRGB, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, sampleIntensityDistribution } from './ScreenBrightnessUtils.js';
 
 const DEFAULT_TEXTURE_SCALE = 2;
 const MAX_RENDERED_HITS = 10000;
@@ -193,7 +193,7 @@ export default class DetectorScreenTextureRenderer {
     else {
       context.clearRect( 0, 0, this.textureWidth, this.textureHeight );
       const normalizedBrightness = currentBrightness / scene.screenBrightnessProperty.range.max;
-      const intensityDisplayGain = getIntensityDisplayGain( normalizedBrightness, currentIntensity );
+      const intensityDisplayGain = getHighIntensityIntensityDisplayGain( normalizedBrightness, currentIntensity );
       this.paintIntensity( cache, scene, intensityDisplayGain, rampFactor );
     }
 
