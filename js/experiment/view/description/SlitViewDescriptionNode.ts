@@ -10,6 +10,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
@@ -21,7 +22,11 @@ export default class SlitViewDescriptionNode extends Node {
   public constructor( model: ExperimentModel ) {
 
     const slitSettingProperty = model.currentSlitSettingProperty;
-    const slitWidthStringProperty = model.sceneProperty.derived( scene => {
+    const slitWidthStringProperty = DerivedProperty.deriveAny( [
+      model.sceneProperty,
+      ...QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.getDependentProperties()
+    ], () => {
+      const scene = model.sceneProperty.value;
       const slitWidthMM = scene.slitWidth;
       const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
       return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {

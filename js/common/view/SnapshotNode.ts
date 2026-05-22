@@ -404,14 +404,11 @@ export default class SnapshotNode extends Node {
     if ( options.getDescription ) {
       const getDescription = options.getDescription;
 
-      const descriptionProperty = options.detectorScreenScaleIndexProperty ?
-                                  new DerivedProperty(
-                                    [ snapshotProperty, options.detectorScreenScaleIndexProperty ],
-                                    snapshot => snapshot ? getDescription( snapshot ) : ''
-                                  ) :
-                                  snapshotProperty.derived(
-                                    snapshot => snapshot ? getDescription( snapshot ) : ''
-                                  );
+      const descriptionProperty = DerivedProperty.deriveAny( [
+          snapshotProperty,
+          ...( options.detectorScreenScaleIndexProperty ? [ options.detectorScreenScaleIndexProperty ] : [] ),
+          ...QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.getDependentProperties() ],
+        () => snapshotProperty.value ? getDescription( snapshotProperty.value ) : '' );
       const descriptionNode = new Node( {
         accessibleParagraph: descriptionProperty
       } );
