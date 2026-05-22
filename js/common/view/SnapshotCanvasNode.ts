@@ -124,17 +124,7 @@ export default class SnapshotCanvasNode extends CanvasNode {
       intensitySampleWidthOnScreen: 2 * visibleScreenHalfWidth / ANALYTICAL_TEXTURE_WIDTH
     } );
 
-    context.save();
-    context.imageSmoothingEnabled = true;
-    context.imageSmoothingQuality = 'high';
-    context.drawImage(
-      this.intensityTextureCanvas,
-      displayBounds.left,
-      displayBounds.top,
-      displayBounds.width,
-      displayBounds.height
-    );
-    context.restore();
+    this.drawIntensityTexture( context, true );
   }
 
   /**
@@ -217,7 +207,6 @@ export default class SnapshotCanvasNode extends CanvasNode {
    */
   private paintCapturedIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
     const distribution = snapshot.intensityDistribution;
-    const displayBounds = this.canvasBounds;
     const textureContext = this.intensityTextureContext;
     this.setIntensityTextureSize( this.capturedIntensityTextureWidth, this.capturedIntensityTextureHeight );
     textureContext.clearRect( 0, 0, this.capturedIntensityTextureWidth, this.capturedIntensityTextureHeight );
@@ -238,17 +227,7 @@ export default class SnapshotCanvasNode extends CanvasNode {
       textureContext.fillRect( x, 0, 1, this.capturedIntensityTextureHeight );
     }
 
-    context.save();
-    context.imageSmoothingEnabled = true;
-    context.imageSmoothingQuality = 'high';
-    context.drawImage(
-      this.intensityTextureCanvas,
-      displayBounds.left,
-      displayBounds.top,
-      displayBounds.width,
-      displayBounds.height
-    );
-    context.restore();
+    this.drawIntensityTexture( context, true );
   }
 
   /**
@@ -264,7 +243,6 @@ export default class SnapshotCanvasNode extends CanvasNode {
       return;
     }
 
-    const displayBounds = this.canvasBounds;
     const textureContext = this.intensityTextureContext;
     this.setIntensityTextureSize( ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
     textureContext.clearRect( 0, 0, ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
@@ -301,16 +279,7 @@ export default class SnapshotCanvasNode extends CanvasNode {
       textureContext.fillRect( x, 0, 1, ANALYTICAL_TEXTURE_HEIGHT );
     }
 
-    context.save();
-    context.imageSmoothingEnabled = true;
-    context.drawImage(
-      this.intensityTextureCanvas,
-      displayBounds.left,
-      displayBounds.top,
-      displayBounds.width,
-      displayBounds.height
-    );
-    context.restore();
+    this.drawIntensityTexture( context, false );
   }
 
   /**
@@ -324,6 +293,27 @@ export default class SnapshotCanvasNode extends CanvasNode {
   /**
    * Resizes the reusable offscreen intensity texture canvas only when the rendering path changes dimensions.
    */
+  /**
+   * Draws the intensity texture canvas onto the target context using image smoothing. Used by all three
+   * intensity paint paths (experiment, captured, analytical).
+   */
+  private drawIntensityTexture( context: CanvasRenderingContext2D, highQuality: boolean ): void {
+    const displayBounds = this.canvasBounds;
+    context.save();
+    context.imageSmoothingEnabled = true;
+    if ( highQuality ) {
+      context.imageSmoothingQuality = 'high';
+    }
+    context.drawImage(
+      this.intensityTextureCanvas,
+      displayBounds.left,
+      displayBounds.top,
+      displayBounds.width,
+      displayBounds.height
+    );
+    context.restore();
+  }
+
   private setIntensityTextureSize( width: number, height: number ): void {
     if ( this.intensityTextureCanvas.width !== width ) {
       this.intensityTextureCanvas.width = width;

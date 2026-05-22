@@ -36,7 +36,7 @@ import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKer
 import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
 import { type DetectionMode } from './DetectionMode.js';
 import { MAX_VIEW_SEPARATION, MIN_VIEW_SEPARATION, SLIT_VIEW_HEIGHT } from './getViewSlitLayout.js';
-import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier } from './SlitConfiguration.js';
+import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from './SlitConfiguration.js';
 import { renumberSnapshots, type Snapshot, SnapshotIO } from './Snapshot.js';
 import { type SourceType } from './SourceType.js';
 import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues, type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues, type WaveDisplayMode } from './WaveDisplayMode.js';
@@ -122,6 +122,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly barrierTypeProperty: StringUnionProperty<BarrierType>;
   public readonly slitSeparationProperty: NumberProperty;
   public readonly slitPositionFractionProperty: NumberProperty;
+  public readonly slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>;
   public readonly screenBrightnessProperty: NumberProperty;
   public readonly photonWaveDisplayModeProperty: StringUnionProperty<PhotonWaveDisplayMode>;
   public readonly matterWaveDisplayModeProperty: StringUnionProperty<MatterWaveDisplayMode>;
@@ -250,6 +251,11 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'slitPositionFractionProperty' )
     } );
 
+    this.slitConfigurationProperty = new StringUnionProperty<SlitConfigurationWithNoBarrier>( 'bothOpen', {
+      validValues: SlitConfigurationWithNoBarrierValues,
+      tandem: tandem.createTandem( 'slitConfigurationProperty' )
+    } );
+
     this.screenBrightnessProperty = new NumberProperty( QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 0.5, {
       range: new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ),
       tandem: tandem.createTandem( 'screenBrightnessProperty' )
@@ -317,13 +323,22 @@ export default abstract class BaseSceneModel extends PhetioObject {
            0;
   }
 
-  protected abstract isTopSlitOpen(): boolean;
+  // TODO: top vs left, see https://github.com/phetsims/quantum-wave-interference/issues/135
+  protected isTopSlitOpen(): boolean {
+    return this.slitConfigurationProperty.value !== 'leftCovered';
+  }
 
-  protected abstract isBottomSlitOpen(): boolean;
+  protected isBottomSlitOpen(): boolean {
+    return this.slitConfigurationProperty.value !== 'rightCovered';
+  }
 
-  protected isTopSlitDecoherent(): boolean { return false; }
+  protected isTopSlitDecoherent(): boolean {
+    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'left' );
+  }
 
-  protected isBottomSlitDecoherent(): boolean { return false; }
+  protected isBottomSlitDecoherent(): boolean {
+    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'right' );
+  }
 
   protected syncSolverParameters(): void {
     const effectiveWavelength = this.getEffectiveWavelength();
@@ -630,6 +645,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.barrierTypeProperty.reset();
     this.slitSeparationProperty.reset();
     this.slitPositionFractionProperty.reset();
+    this.slitConfigurationProperty.reset();
     this.screenBrightnessProperty.reset();
     this.photonWaveDisplayModeProperty.reset();
     this.matterWaveDisplayModeProperty.reset();

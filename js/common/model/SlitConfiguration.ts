@@ -6,6 +6,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+
 export const SlitConfigurationValues = [
   'bothOpen',
   'leftCovered',
@@ -34,6 +37,17 @@ export function hasDetectorOnSide( slitConfiguration: SlitConfigurationWithNoBar
   return ( slitConfiguration === 'bothDetectors' ) ||
          ( slitConfiguration === 'leftDetector' && detectorSide === 'left' ) ||
          ( slitConfiguration === 'rightDetector' && detectorSide === 'right' );
+}
+
+export function createSlitDetectorProperties(
+  slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>
+): { isTopSlitDetectorProperty: TReadOnlyProperty<boolean>; isBottomSlitDetectorProperty: TReadOnlyProperty<boolean> } {
+  return {
+    isTopSlitDetectorProperty: new DerivedProperty( [ slitConfigurationProperty ],
+      slitConfig => hasDetectorOnSide( slitConfig, 'left' ) ),
+    isBottomSlitDetectorProperty: new DerivedProperty( [ slitConfigurationProperty ],
+      slitConfig => hasDetectorOnSide( slitConfig, 'right' ) )
+  };
 }
 
 export function hasAnyDetector( slitConfiguration: SlitConfigurationWithNoBarrier ): boolean {

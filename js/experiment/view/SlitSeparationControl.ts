@@ -9,20 +9,16 @@
 
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import NumberControl, { NumberControlOptions } from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
-import Node from '../../../../scenery/js/nodes/Node.js';
-import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 
 const TITLE_FONT = new PhetFont( 14 );
-const TICK_LABEL_FONT = new PhetFont( 12 );
 const SLIDER_TRACK_SIZE = new Dimension2( 150, 3 );
 const NUMBER_CONTROL_Y_SPACING = 8;
 const ARROW_BUTTONS_X_SPACING = 6;
@@ -68,7 +64,10 @@ export default class SlitSeparationControl extends NumberControl {
         },
         maxWidth: 100
       };
-      ticks = SlitSeparationControl.createMicrometerTicks( slitSeparationRange );
+      ticks = ExperimentConstants.createMinMaxTicks(
+        slitSeparationRange.min, slitSeparationRange.max,
+        { labelScale: 1000 }
+      );
     }
     else {
       const slitSeparationDecimalPlaces = ExperimentConstants.getRangeDecimalPlaces( slitSeparationRange.min, slitSeparationRange.max );
@@ -80,7 +79,7 @@ export default class SlitSeparationControl extends NumberControl {
         },
         maxWidth: 100
       };
-      ticks = SlitSeparationControl.createNumericTicks( slitSeparationRange );
+      ticks = ExperimentConstants.createMinMaxTicks( slitSeparationRange.min, slitSeparationRange.max );
     }
 
     const options = optionize<SlitSeparationControlOptions, SelfOptions, NumberControlOptions>()( {
@@ -109,70 +108,6 @@ export default class SlitSeparationControl extends NumberControl {
       slitSeparationRange,
       options
     );
-  }
-
-  /**
-   * Creates major tick marks with μm labels for slit separation ranges that are in the micrometer scale.
-   * The range is in mm but the labels display the values converted to μm for readability.
-   */
-  private static createMicrometerTicks( range: Range ): { value: number; label: Node }[] {
-
-    // Use consistent decimal places across both tick labels so they visually match. E.g., for range 0.5-1.0 μm,
-    // both ticks should show 1 decimal place: "0.5" and "1.0".
-    const minUM = range.min * 1000;
-    const maxUM = range.max * 1000;
-    const decimalPlaces = Math.max(
-      ExperimentConstants.getDecimalPlacesForValue( minUM ),
-      ExperimentConstants.getDecimalPlacesForValue( maxUM )
-    );
-
-    return [
-      {
-        value: range.min,
-        label: new Text( toFixed( minUM, decimalPlaces ), {
-          font: TICK_LABEL_FONT,
-          maxWidth: 40
-        } )
-      },
-      {
-        value: range.max,
-        label: new Text( toFixed( maxUM, decimalPlaces ), {
-          font: TICK_LABEL_FONT,
-          maxWidth: 40
-        } )
-      }
-    ];
-  }
-
-  /**
-   * Creates major tick marks with numeric labels showing the min and max values of the range.
-   * Uses minimal decimal places needed to represent the values without trailing zeros.
-   */
-  private static createNumericTicks( range: Range ): { value: number; label: Node }[] {
-
-    // Use consistent decimal places across both tick labels so they visually match. E.g., for range 0.2-1.0 mm,
-    // both ticks should show 1 decimal place: "0.2" and "1.0".
-    const tickDecimalPlaces = Math.max(
-      ExperimentConstants.getDecimalPlacesForValue( range.min ),
-      ExperimentConstants.getDecimalPlacesForValue( range.max )
-    );
-
-    return [
-      {
-        value: range.min,
-        label: new Text( toFixed( range.min, tickDecimalPlaces ), {
-          font: TICK_LABEL_FONT,
-          maxWidth: 40
-        } )
-      },
-      {
-        value: range.max,
-        label: new Text( toFixed( range.max, tickDecimalPlaces ), {
-          font: TICK_LABEL_FONT,
-          maxWidth: 40
-        } )
-      }
-    ];
   }
 
   /**

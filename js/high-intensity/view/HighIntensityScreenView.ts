@@ -10,7 +10,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -19,9 +18,8 @@ import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualCo
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
-import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
-import { hasDetectorOnSide, type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
+import { createSlitDetectorProperties } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
@@ -35,8 +33,8 @@ import SidewaysGraph from '../../common/view/SidewaysGraph.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
-import ToolCheckbox from '../../common/view/ToolCheckbox.js';
-import ToolIcons from '../../common/view/ToolIcons.js';
+import createSlitConfigComboItems from '../../common/view/createSlitConfigComboItems.js';
+import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -51,7 +49,6 @@ type SelfOptions = EmptySelfOptions;
 type HighIntensityScreenViewOptions = SelfOptions & ScreenViewOptions;
 
 const LABEL_FONT = new PhetFont( 14 );
-const COMBO_BOX_FONT = new PhetFont( 14 );
 
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
@@ -165,18 +162,13 @@ export default class HighIntensityScreenView extends ScreenView {
     updateParticleMassAnnotationPosition();
     this.addChild( particleMassAnnotation );
 
+    const slitDetectorProperties = createSlitDetectorProperties( model.currentSlitConfigurationProperty );
     const waveRegionNode = new WaveRegionNode( model, {
       waveRegionLeft: waveRegionLeft,
       waveRegionTop: waveRegionTop,
       additionalDoubleSlitOptions: {
-        isTopSlitDetectorProperty: new DerivedProperty(
-          [ model.currentSlitConfigurationProperty ],
-          slitConfig => hasDetectorOnSide( slitConfig, 'left' )
-        ),
-        isBottomSlitDetectorProperty: new DerivedProperty(
-          [ model.currentSlitConfigurationProperty ],
-          slitConfig => hasDetectorOnSide( slitConfig, 'right' )
-        ),
+        isTopSlitDetectorProperty: slitDetectorProperties.isTopSlitDetectorProperty,
+        isBottomSlitDetectorProperty: slitDetectorProperties.isBottomSlitDetectorProperty,
 
         // TODO: https://github.com/phetsims/quantum-wave-interference/issues/135 it's confusing to have top/bottom and left/right interchangeability
         topDetectorCountProperty: model.currentLeftDetectorHitsProperty,
@@ -193,15 +185,10 @@ export default class HighIntensityScreenView extends ScreenView {
     this.addChild( waveRegionNode );
 
     // --- Bottom row: barrier, slit configuration, slit separation ---
-    const slitConfigItems: ComboBoxItem<SlitConfigurationWithNoBarrier>[] = [
-      { value: 'bothOpen', createNode: () => new Text( QuantumWaveInterferenceFluent.bothOpenStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothOpenItem' },
-      { value: 'leftCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.coverTopStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topCoveredItem', separatorBefore: true },
-      { value: 'rightCovered', createNode: () => new Text( QuantumWaveInterferenceFluent.coverBottomStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomCoveredItem' },
-      { value: 'leftDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.detectorTopStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'topDetectorItem', separatorBefore: true },
-      { value: 'rightDetector', createNode: () => new Text( QuantumWaveInterferenceFluent.detectorBottomStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bottomDetectorItem' },
-      { value: 'bothDetectors', createNode: () => new Text( QuantumWaveInterferenceFluent.detectorBothStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'bothDetectorsItem' },
-      { value: 'noBarrier', createNode: () => new Text( QuantumWaveInterferenceFluent.noBarrierStringProperty, { font: COMBO_BOX_FONT, maxWidth: 120 } ), tandemName: 'noBarrierItem', separatorBefore: true }
-    ];
+    const slitConfigItems = createSlitConfigComboItems( {
+      topCoveredTandemName: 'topCoveredItem',
+      bottomCoveredTandemName: 'bottomCoveredItem'
+    } );
 
     const bottomRow = new SlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
@@ -270,34 +257,8 @@ export default class HighIntensityScreenView extends ScreenView {
       layoutOptions: { align: 'center' }
     } );
 
-    const tapeMeasureCheckbox = new ToolCheckbox(
-      model.isTapeMeasureVisibleProperty,
-      QuantumWaveInterferenceFluent.tapeMeasureStringProperty,
-      tandem.createTandem( 'tapeMeasureCheckbox' ),
-      ToolIcons.createTapeMeasureIcon(),
-      QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty
-    );
-    const stopwatchCheckbox = new ToolCheckbox(
-      model.isStopwatchVisibleProperty,
-      QuantumWaveInterferenceFluent.stopwatchStringProperty,
-      tandem.createTandem( 'stopwatchCheckbox' ),
-      ToolIcons.createStopwatchIcon(),
-      QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleHelpTextStringProperty
-    );
-    const timePlotCheckbox = new ToolCheckbox(
-      model.isTimePlotVisibleProperty,
-      QuantumWaveInterferenceFluent.timePlotStringProperty,
-      tandem.createTandem( 'timePlotCheckbox' ),
-      ToolIcons.createTimePlotIcon(),
-      QuantumWaveInterferenceFluent.a11y.timePlotCheckbox.accessibleHelpTextStringProperty
-    );
-    const positionPlotCheckbox = new ToolCheckbox(
-      model.isPositionPlotVisibleProperty,
-      QuantumWaveInterferenceFluent.positionPlotStringProperty,
-      tandem.createTandem( 'positionPlotCheckbox' ),
-      ToolIcons.createPositionPlotIcon(),
-      QuantumWaveInterferenceFluent.a11y.positionPlotCheckbox.accessibleHelpTextStringProperty
-    );
+    const { tapeMeasureCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
+      createStandardToolCheckboxes( model, tandem );
 
     const rightControlsColumn = new RightControlsColumn( model, this, tandem, {
       screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,

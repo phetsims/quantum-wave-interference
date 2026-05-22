@@ -6,6 +6,13 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { toFixed } from '../../../dot/js/util/toFixed.js';
+import PhetFont from '../../../scenery-phet/js/PhetFont.js';
+import Node from '../../../scenery/js/nodes/Node.js';
+import Text from '../../../scenery/js/nodes/Text.js';
+
+const TICK_LABEL_FONT = new PhetFont( 12 );
+
 export default class ExperimentConstants {
 
   private constructor() {
@@ -55,6 +62,31 @@ export default class ExperimentConstants {
    * Converts a slit width from millimeters to micrometers and returns the value along with an appropriate number of
    * decimal places: 0 for >=1, 1 for >=0.1, 2 otherwise.
    */
+  /**
+   * Creates a min/max numeric tick pair for an experiment NumberControl, with consistent decimal places.
+   * Pass a scale factor (e.g. 1000 for mm-to-μm) to convert the labeled value while leaving the
+   * tick `value` in model units.
+   */
+  public static createMinMaxTicks( min: number, max: number, options?: {
+    labelScale?: number;
+    decimalPlaces?: number;
+  } ): { value: number; label: Node }[] {
+    const labelScale = options?.labelScale ?? 1;
+    const minLabel = min * labelScale;
+    const maxLabel = max * labelScale;
+    const decimalPlaces = options?.decimalPlaces ?? Math.max(
+      ExperimentConstants.getDecimalPlacesForValue( minLabel ),
+      ExperimentConstants.getDecimalPlacesForValue( maxLabel )
+    );
+
+    const tick = ( value: number, labelValue: number ) => ( {
+      value: value,
+      label: new Text( toFixed( labelValue, decimalPlaces ), { font: TICK_LABEL_FONT, maxWidth: 40 } )
+    } );
+
+    return [ tick( min, minLabel ), tick( max, maxLabel ) ];
+  }
+
   public static slitWidthMMToMicrometers( slitWidthMM: number ): { slitWidthUM: number; decimalPlaces: number } {
     const slitWidthUM = slitWidthMM * 1000;
     const decimalPlaces = slitWidthUM >= 1 ? 0 :

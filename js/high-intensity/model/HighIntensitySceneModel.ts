@@ -24,7 +24,7 @@ import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
-import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
+import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 
@@ -71,7 +71,6 @@ export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 
 export default class HighIntensitySceneModel extends BaseSceneModel {
 
-  public readonly slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>;
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
 
   // True when Hits mode has reached the hit cap
@@ -104,11 +103,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.hitAccumulator = 0;
     this.nextDecoherenceEventTime = null;
 
-    this.slitConfigurationProperty = new StringUnionProperty<SlitConfigurationWithNoBarrier>( 'bothOpen', {
-      validValues: SlitConfigurationWithNoBarrierValues,
-      tandem: tandem.createTandem( 'slitConfigurationProperty' )
-    } );
-
     this.detectionModeProperty = new StringUnionProperty<DetectionMode>( 'averageIntensity', {
       validValues: DetectionModeValues,
       tandem: tandem.createTandem( 'detectionModeProperty' )
@@ -138,22 +132,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       }
     } );
     this.stopEmitterWhenMaxHitsReached();
-  }
-
-  protected override isTopSlitOpen(): boolean {
-    return this.slitConfigurationProperty.value !== 'leftCovered';
-  }
-
-  protected override isBottomSlitOpen(): boolean {
-    return this.slitConfigurationProperty.value !== 'rightCovered';
-  }
-
-  protected override isTopSlitDecoherent(): boolean {
-    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'left' );
-  }
-
-  protected override isBottomSlitDecoherent(): boolean {
-    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'right' );
   }
 
   public override clearScreen(): void {
@@ -340,7 +318,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   public override reset(): void {
     super.reset();
-    this.slitConfigurationProperty.reset();
     this.detectionModeProperty.reset();
     this.hitAccumulator = 0;
     this.nextDecoherenceEventTime = null;

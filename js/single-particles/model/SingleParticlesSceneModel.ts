@@ -27,7 +27,7 @@ import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWave
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
-import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
+import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 
@@ -97,7 +97,6 @@ export type SingleParticlesSceneModelOptions = BaseSceneModelOptions;
 export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public readonly autoRepeatProperty: BooleanProperty;
-  public readonly slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>;
 
   // Single particles have no intensity slider, but use a display-only gain so the post-slit packet
   // remains visible in the wave region. This does not affect detector probabilities or hit sampling.
@@ -157,12 +156,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       tandem: tandem.createTandem( 'autoRepeatProperty' )
     } );
 
-    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Identical to slitConfigurationProperty in HighIntensitySceneModel
-    this.slitConfigurationProperty = new StringUnionProperty<SlitConfigurationWithNoBarrier>( 'bothOpen', {
-      validValues: SlitConfigurationWithNoBarrierValues,
-      tandem: tandem.createTandem( 'slitConfigurationProperty' )
-    } );
-
     this.isPacketActiveProperty = new BooleanProperty( false, {
       tandem: tandem.createTandem( 'isPacketActiveProperty' ),
       phetioReadOnly: true
@@ -219,22 +212,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.detectorToolRadiusProperty.lazyLink( updateDetectorProbability );
   }
 
-
-  protected override isTopSlitOpen(): boolean {
-    return this.slitConfigurationProperty.value !== 'leftCovered';
-  }
-
-  protected override isBottomSlitOpen(): boolean {
-    return this.slitConfigurationProperty.value !== 'rightCovered';
-  }
-
-  protected override isTopSlitDecoherent(): boolean {
-    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'left' );
-  }
-
-  protected override isBottomSlitDecoherent(): boolean {
-    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'right' );
-  }
 
   public override clearScreen(): void {
     this.isPacketActiveProperty.value = false;
@@ -653,7 +630,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   public override reset(): void {
     super.reset();
     this.autoRepeatProperty.reset();
-    this.slitConfigurationProperty.reset();
     this.isPacketActiveProperty.reset();
     this.detectorToolPositionProperty.reset();
     this.detectorToolRadiusProperty.reset();
