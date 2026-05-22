@@ -149,6 +149,8 @@ export default class SingleParticlesScreenView extends ScreenView {
           [ model.currentSlitConfigurationProperty ],
           slitConfig => hasDetectorOnSide( slitConfig, 'right' )
         ),
+
+        // TODO: https://github.com/phetsims/quantum-wave-interference/issues/135 it's confusing to have top/bottom and left/right interchangeability
         topDetectorCountProperty: model.currentLeftDetectorHitsProperty,
         bottomDetectorCountProperty: model.currentRightDetectorHitsProperty
       }
@@ -276,6 +278,8 @@ export default class SingleParticlesScreenView extends ScreenView {
       },
       slitSettingDisplayMap: {
         bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
+
+        // TODO: https://github.com/phetsims/quantum-wave-interference/issues/135 it's confusing to have top/bottom and left/right interchangeability
         leftCovered: QuantumWaveInterferenceFluent.coverTopStringProperty,
         rightCovered: QuantumWaveInterferenceFluent.coverBottomStringProperty,
         leftDetector: QuantumWaveInterferenceFluent.detectorTopStringProperty,

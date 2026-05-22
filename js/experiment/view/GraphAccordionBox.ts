@@ -168,6 +168,8 @@ export default class GraphAccordionBox extends Node {
     const yAxisLabel = new Text( yAxisLabelStringProperty, {
       font: new PhetFont( 12 ),
       rotation: -Math.PI / 2,
+
+      // since it is rotated
       maxWidth: chartBackground.height
     } );
 

@@ -220,10 +220,9 @@ export default class DetectorToolNode extends Node {
       const panelTY = controlPanel.top;
       const midY = ( viewY + viewRadius + panelTY ) / 2;
 
-      const wireShape = new Shape()
+      wirePath.shape = new Shape()
         .moveTo( viewX, viewY + viewRadius )
         .cubicCurveTo( viewX, midY, panelCX, midY, panelCX, panelTY );
-      wirePath.shape = wireShape;
     };
 
     const updateControlPanelPosition = () => {

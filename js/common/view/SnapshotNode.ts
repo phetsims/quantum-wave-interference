@@ -55,6 +55,7 @@ const DEFAULT_SLIT_SETTING_DISPLAY_MAP: Record<SlitConfigurationWithNoBarrier, T
   bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
 
   // TODO: https://github.com/phetsims/quantum-wave-interference/issues/118 document or align this disparity
+  // TODO: https://github.com/phetsims/quantum-wave-interference/issues/135 it's confusing to have top/bottom and left/right interchangeability
   leftCovered: QuantumWaveInterferenceFluent.coverTopStringProperty,
   rightCovered: QuantumWaveInterferenceFluent.coverBottomStringProperty,
   leftDetector: QuantumWaveInterferenceFluent.detectorTopStringProperty,

@@ -177,6 +177,8 @@ export default class HighIntensityScreenView extends ScreenView {
           [ model.currentSlitConfigurationProperty ],
           slitConfig => hasDetectorOnSide( slitConfig, 'right' )
         ),
+
+        // TODO: https://github.com/phetsims/quantum-wave-interference/issues/135 it's confusing to have top/bottom and left/right interchangeability
         topDetectorCountProperty: model.currentLeftDetectorHitsProperty,
         bottomDetectorCountProperty: model.currentRightDetectorHitsProperty
       }
