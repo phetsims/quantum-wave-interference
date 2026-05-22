@@ -67,12 +67,7 @@ export default class DetectorScreenNode extends Node {
       lineWidth: 1
     } ) );
 
-    this.canvasNode = new DetectorScreenCanvasNode(
-      sceneProperty,
-      textureRenderer,
-      SCREEN_WIDTH,
-      SCREEN_HEIGHT + SKEW
-    );
+    this.canvasNode = new DetectorScreenCanvasNode( sceneProperty, textureRenderer, SCREEN_WIDTH, SCREEN_HEIGHT + SKEW );
     this.canvasNode.clipArea = shape;
     this.addChild( this.canvasNode );
 

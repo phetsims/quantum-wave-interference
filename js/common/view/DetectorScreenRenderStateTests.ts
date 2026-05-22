@@ -116,11 +116,7 @@ QUnit.test( 'snapshot and live render states match for experiment hits', assert 
   scene.detectionModeProperty.value = 'hits';
   scene.wavelengthProperty.value = 594;
   scene.screenBrightnessProperty.value = QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX;
-  scene.hits.push(
-    new Vector2( -0.5, -0.3 ),
-    new Vector2( 0, 0 ),
-    new Vector2( 0.35, 0.2 )
-  );
+  scene.hits.push( new Vector2( -0.5, -0.3 ), new Vector2( 0, 0 ), new Vector2( 0.35, 0.2 ) );
 
   assertSnapshotMatchesLiveRenderState(
     assert,

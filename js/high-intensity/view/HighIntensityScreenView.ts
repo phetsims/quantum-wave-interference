@@ -331,10 +331,7 @@ export default class HighIntensityScreenView extends ScreenView {
     this.addChild( rightControlsColumn.waveDisplayAndTimeControlsGroup );
 
     ManualConstraint.create( this, [ rightControlsColumn.bottomButtonsRow ], () => {
-      rightControlsColumn.positionBottomButtonsRow(
-        this.layoutBounds.maxX - X_MARGIN,
-        this.layoutBounds.maxY - Y_MARGIN
-      );
+      rightControlsColumn.positionBottomButtonsRow( this.layoutBounds.maxX - X_MARGIN, this.layoutBounds.maxY - Y_MARGIN );
     } );
 
     ManualConstraint.create( this, [ rightControlsColumn.bottomButtonsRow, rightControlsColumn.waveDisplayAndTimeControlsGroup ], () => {

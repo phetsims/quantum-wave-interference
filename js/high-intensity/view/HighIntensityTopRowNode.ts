@@ -280,12 +280,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
       const rightBeamFadeOverlayLeft = rightBeamLimitX - rightBeamFadeOverlayWidth;
       upperRightBeam.setRect( emitterBeamRight, upperRightBeamTop, rightBranchWidth, upperRightBeamHeight );
       lowerRightBeam.setRect( emitterBeamRight, lowerRightBeamTop, rightBranchWidth, lowerRightBeamHeight );
-      dimRightBeam.setRect(
-        dimRightBeamLeft,
-        miniWaveBoxTop,
-        dimRightBeamWidth,
-        DIM_RIGHT_BEAM_HEIGHT
-      );
+      dimRightBeam.setRect( dimRightBeamLeft, miniWaveBoxTop, dimRightBeamWidth, DIM_RIGHT_BEAM_HEIGHT );
       rightBeamFadeOverlay.setRect(
         rightBeamFadeOverlayLeft,
         emitterBeamTop,

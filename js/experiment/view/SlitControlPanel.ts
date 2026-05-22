@@ -63,11 +63,7 @@ export default class SlitControlPanel extends Panel {
     const sceneNodes: Node[] = [];
 
     for ( const scene of scenes ) {
-      const sceneContent = SlitControlPanel.createSceneContent(
-        scene,
-        comboBoxParent,
-        options.tandem
-      );
+      const sceneContent = SlitControlPanel.createSceneContent( scene, comboBoxParent, options.tandem );
       sceneContent.visible = scene === sceneProperty.value;
       sceneNodes.push( sceneContent );
     }

@@ -206,11 +206,7 @@ export default class DetectorScreenNode extends Node {
     } );
     this.addChild( hitCountText );
 
-    this.addChild( new DetectorScreenScaleIndicatorNode(
-      detectorScreenScaleIndexProperty,
-      SCREEN_WIDTH,
-      SPAN_ARROW_Y
-    ) );
+    this.addChild( new DetectorScreenScaleIndicatorNode( detectorScreenScaleIndexProperty, SCREEN_WIDTH, SPAN_ARROW_Y ) );
 
     // Update the hit count text and canvas when hits change or locale strings change
     const updateDisplay = () => {

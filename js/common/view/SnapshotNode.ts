@@ -322,10 +322,7 @@ export default class SnapshotNode extends Node {
             decimalPlaces: 2,
             showTrailingZeros: true
           } );
-          return formatLabelValue(
-            QuantumWaveInterferenceFluent.screenDistanceStringProperty.value,
-            screenDistValue
-          );
+          return formatLabelValue( QuantumWaveInterferenceFluent.screenDistanceStringProperty.value, screenDistValue );
         }, '' )( snapshotProperty.value )
       );
       parameterLabelsChildren.push( new Text( screenDistanceProperty, {

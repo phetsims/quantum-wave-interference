@@ -49,16 +49,11 @@ export default class RulerDragBoundsProperty {
           detectorScreenNode.getScreenRectangleGlobalBounds()
         );
         const minTopFromScreen = detectorScreenRectBounds.top;
-        const graphChartBounds = localRootNode.globalToLocalBounds(
-          graphAccordionBox.getChartAreaGlobalBounds()
-        );
+        const graphChartBounds = localRootNode.globalToLocalBounds( graphAccordionBox.getChartAreaGlobalBounds() );
         const maxTopFromGraph = graphChartBounds.bottom - rulerNode.height + graphAccordionBox.getChartAreaStrokeLineWidth();
 
         const minTop = Math.max( minTopFromScreen, visibleBounds.minY );
-        const maxTop = Math.max(
-          minTop,
-          Math.min( maxTopFromGraph, visibleBounds.maxY - rulerNode.height )
-        );
+        const maxTop = Math.max( minTop, Math.min( maxTopFromGraph, visibleBounds.maxY - rulerNode.height ) );
 
         // Lock X to detector screen center by setting minX === maxX.
         return new Bounds2( fixedLeft, minTop, fixedLeft, maxTop );
@@ -75,9 +70,7 @@ export default class RulerDragBoundsProperty {
   public constrainRulerPositionProperty( rulerPositionProperty: Property<Vector2> ): void {
     this.dragBoundsProperty.link( dragBounds => {
       if ( dragBounds && this.sceneProperty.value === this.scene ) {
-        rulerPositionProperty.value = dragBounds.closestPointTo(
-          rulerPositionProperty.value
-        );
+        rulerPositionProperty.value = dragBounds.closestPointTo( rulerPositionProperty.value );
       }
     } );
   }
