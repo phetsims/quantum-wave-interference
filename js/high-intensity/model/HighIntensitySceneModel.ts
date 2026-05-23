@@ -69,6 +69,11 @@ const HIGH_INTENSITY_SLIT_SEPARATION_CONFIGS: Record<SourceType, SlitSeparationC
 
 export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 
+type HighIntensitySceneModelStateObject = {
+  hitAccumulator?: number;
+  nextDecoherenceEventTime?: number | null;
+};
+
 export default class HighIntensitySceneModel extends BaseSceneModel {
 
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
@@ -314,6 +319,21 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   private getIntervalForRate( rate: number ): number {
     return 1 / rate;
+  }
+
+  protected override getSubclassState(): HighIntensitySceneModelStateObject {
+    return {
+      hitAccumulator: this.hitAccumulator,
+      nextDecoherenceEventTime: this.nextDecoherenceEventTime
+    };
+  }
+
+  protected override applySubclassState( stateObject: HighIntensitySceneModelStateObject ): void {
+    this.hitAccumulator = typeof stateObject.hitAccumulator === 'number' ? stateObject.hitAccumulator : 0;
+    this.nextDecoherenceEventTime =
+      typeof stateObject.nextDecoherenceEventTime === 'number' || stateObject.nextDecoherenceEventTime === null ?
+      stateObject.nextDecoherenceEventTime :
+      null;
   }
 
   public override reset(): void {

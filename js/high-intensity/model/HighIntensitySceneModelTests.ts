@@ -7,6 +7,7 @@
  */
 
 import Tandem from '../../../../tandem/js/Tandem.js';
+import BaseSceneModel from '../../common/model/BaseSceneModel.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_EASE_POWER, DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_TIME_CONSTANT, DETECTOR_SCREEN_HIT_RATE, SLIT_DETECTOR_EVENT_RATE } from './HighIntensitySceneModel.js';
@@ -285,6 +286,46 @@ QUnit.test( 'effective wave speed and wavelength use physical source values', as
       );
     } );
   } );
+} );
+
+QUnit.test( 'phet-io state restores slit-detector decoherence bands and scheduling', assert => {
+  const scene = createScene();
+  scene.slitConfigurationProperty.value = 'bothDetectors';
+  scene.isEmittingProperty.value = true;
+
+  const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
+  const slitTravelTime = scene.slitPositionFractionProperty.value * scene.regionWidth / propagationSpeed;
+  stepSceneInSmallIncrements( scene, slitTravelTime + 1e-6 );
+
+  const savedState = BaseSceneModel.BaseSceneModelIO.toStateObject( scene );
+  assert.ok( savedState.decoherenceEvents.length > 0, 'state includes the decoherence events that render the bands' );
+
+  const savedSubclassState = savedState.subclassState as { nextDecoherenceEventTime: number | null };
+  const nextDecoherenceEventTime = savedSubclassState.nextDecoherenceEventTime;
+  if ( typeof nextDecoherenceEventTime !== 'number' ) {
+    assert.ok( false, 'state includes the next scheduled decoherence event time' );
+    return;
+  }
+  assert.ok( true, 'state includes the next scheduled decoherence event time' );
+
+  const timeUntilNextEvent = nextDecoherenceEventTime - savedState.waveSolverState.time;
+  assert.ok( timeUntilNextEvent > 0, 'saved before the next scheduled event' );
+
+  const restoredScene = createScene();
+  restoredScene.slitConfigurationProperty.value = 'bothDetectors';
+  restoredScene.isEmittingProperty.value = true;
+  BaseSceneModel.applyBaseSceneModelState( restoredScene, savedState );
+
+  const restoredState = BaseSceneModel.BaseSceneModelIO.toStateObject( restoredScene );
+  assert.deepEqual( restoredState.decoherenceEvents, savedState.decoherenceEvents, 'restored scene has the same visible decoherence bands' );
+  assert.deepEqual( restoredState.subclassState, savedState.subclassState, 'restored scene has the same private scheduler state' );
+
+  restoredScene.step( timeUntilNextEvent / 2 );
+  assert.strictEqual(
+    BaseSceneModel.BaseSceneModelIO.toStateObject( restoredScene ).decoherenceEvents.length,
+    savedState.decoherenceEvents.length,
+    'restored scheduler does not regenerate historical decoherence events before the next scheduled event'
+  );
 } );
 
 QUnit.test( 'continuous solver physical time conversion matches effective wave speed', assert => {

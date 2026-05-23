@@ -28,6 +28,7 @@ import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUn
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
+import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ObjectLiteralIO from '../../../../tandem/js/types/ObjectLiteralIO.js';
@@ -99,10 +100,12 @@ export type SlitSeparationConfig = {
   defaultValue: number;
 };
 
-type BaseSceneModelStateObject = {
+export type BaseSceneModelStateObject = {
   waveSolverState: WaveSolverState;
   hits: Array<{ x: number; y: number }>;
   wavefrontReached: boolean;
+  decoherenceEvents: DecoherenceEvent[];
+  subclassState: object;
 };
 
 export default abstract class BaseSceneModel extends PhetioObject {
@@ -607,28 +610,48 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   public abstract step( dt: number ): void;
 
+  protected getSubclassState(): object {
+    return {};
+  }
+
+  protected applySubclassState( stateObject: object ): void {
+    // No-op in the base class.
+  }
+
+  public static applyBaseSceneModelState( model: BaseSceneModel, stateObject: BaseSceneModelStateObject ): void {
+    model.waveSolver.setState( stateObject.waveSolverState );
+    model.hits.length = 0;
+    for ( const h of stateObject.hits ) {
+      model.hits.push( new Vector2( h.x, h.y ) );
+    }
+    model.wavefrontReached = stateObject.wavefrontReached;
+    model.decoherenceEvents.length = 0;
+    model.decoherenceEvents.push( ...stateObject.decoherenceEvents.map( event => _.assign( {}, event ) ) );
+    model.applySubclassState( stateObject.subclassState );
+    model.syncSolverParameters();
+    model.hitsChangedEmitter.emit();
+  }
+
   // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 IOType documentation is supposed to identify the type of serialization.
   public static readonly BaseSceneModelIO = new IOType<BaseSceneModel, BaseSceneModelStateObject>( 'BaseSceneModelIO', {
     valueType: BaseSceneModel,
-    documentation: 'Serializes the wave solver state and hit positions for a scene',
+    documentation: 'Serializes the wave solver state, hit positions, and transient wave records for a scene',
     toStateObject: ( model: BaseSceneModel ) => ( {
       waveSolverState: model.waveSolver.getState(),
       hits: model.hits.map( v => ( { x: v.x, y: v.y } ) ),
-      wavefrontReached: model.wavefrontReached
+      wavefrontReached: model.wavefrontReached,
+      decoherenceEvents: model.decoherenceEvents.map( event => _.assign( {}, event ) ),
+      subclassState: model.getSubclassState()
     } ),
     stateSchema: {
       waveSolverState: ObjectLiteralIO,
       hits: ArrayIO( ObjectLiteralIO ),
-      wavefrontReached: IOType.ObjectIO
+      wavefrontReached: BooleanIO,
+      decoherenceEvents: ArrayIO( ObjectLiteralIO ),
+      subclassState: ObjectLiteralIO
     },
     applyState: ( model: BaseSceneModel, stateObject: BaseSceneModelStateObject ) => {
-      model.waveSolver.setState( stateObject.waveSolverState );
-      model.hits.length = 0;
-      for ( const h of stateObject.hits ) {
-        model.hits.push( new Vector2( h.x, h.y ) );
-      }
-      model.wavefrontReached = stateObject.wavefrontReached;
-      model.hitsChangedEmitter.emit();
+      BaseSceneModel.applyBaseSceneModelState( model, stateObject );
     }
   } );
 
