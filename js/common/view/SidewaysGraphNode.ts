@@ -22,8 +22,8 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
-import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
+import WithRequired from '../../../../phet-core/js/types/WithRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
@@ -71,8 +71,7 @@ type SelfOptions = {
   initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
 };
 
-//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 ... = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
-type SidewaysGraphNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
+type SidewaysGraphNodeOptions = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
 
 export default class SidewaysGraphNode extends Node {
 
@@ -221,16 +220,13 @@ export default class SidewaysGraphNode extends Node {
     // Repaint when visibility changes so the graph is current when shown
     this.visibleProperty.link( updateGraph );
 
-    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 previousScene is unnecessary, it is provided as the 2nd argument to the sceneProperty callback.
-    let previousScene: SidewaysGraphSceneLike | null = null;
-    sceneProperty.link( scene => {
+    sceneProperty.link( ( scene, previousScene ) => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( updateGraph );
         previousScene.wavelengthProperty.unlink( updateGraph );
       }
       scene.hitsChangedEmitter.addListener( updateGraph );
       scene.wavelengthProperty.link( updateGraph );
-      previousScene = scene;
       updateGraph();
     } );
 

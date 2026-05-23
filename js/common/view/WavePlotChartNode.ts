@@ -58,7 +58,6 @@ type SelfOptions = {
   panelRightPadding?: number;
 };
 
-//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 ... = SelfOptions & StrictOmit<NodeOptions, 'cursor'>
 type WavePlotChartNodeOptions = SelfOptions & NodeOptions;
 
 export default class WavePlotChartNode extends Node {
@@ -77,7 +76,7 @@ export default class WavePlotChartNode extends Node {
 
     const options = optionize<WavePlotChartNodeOptions, SelfOptions, NodeOptions>()( {
       isDisposable: false,
-      cursor: 'pointer',
+      cursor: 'pointer', // can be overridden by clients
       isDraggable: true,
       chartWidth: CHART_WIDTH,
       chartHeight: CHART_HEIGHT,

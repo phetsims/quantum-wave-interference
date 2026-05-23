@@ -116,14 +116,11 @@ export default class WaveVisualizationNode extends Node {
     this.addChild( this.waveCanvas );
 
     const invalidateWaveCanvas = () => this.waveCanvas.invalidatePaint();
-    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 previousScene is unnecessary, it is provided as the 2nd argument to the sceneProperty callback.
-    let previousScene: WaveVisualizableScene | null = null;
-    sceneProperty.link( scene => {
+    sceneProperty.link( ( scene, previousScene ) => {
       if ( previousScene ) {
         previousScene.isWaveVisibleProperty.unlink( invalidateWaveCanvas );
       }
       scene.isWaveVisibleProperty.link( invalidateWaveCanvas );
-      previousScene = scene;
     } );
 
     // Distance scale indicator with bar in the top-left corner
