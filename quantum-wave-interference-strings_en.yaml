@@ -486,10 +486,7 @@ a11y:
                               }
     displayModeChanged:       >-
                               { $displayMode ->
-                                [graph] Graph shown. It represents the detector pattern as { $detectionMode ->
-                                  [averageIntensity] an intensity curve.
-                                 *[hits] a hits histogram.
-                                }
+                                [graph] Graph shown.
                                *[screen] Detector screen shown.
                               }
     brightnessChanged:        >-
@@ -742,7 +739,7 @@ a11y:
                                      [electrons] Electron
                                      [neutrons] Neutron
                                     *[heliumAtoms] Helium atom
-                                   } experiment in progress. Configurations and detection screen updated.
+                                   } experiment, detector pattern changed.
                                   *[false] Source off. { $sourceType ->
                                      [photons] Photon
                                      [electrons] Electron

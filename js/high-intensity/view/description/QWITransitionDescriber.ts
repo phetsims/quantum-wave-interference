@@ -99,8 +99,7 @@ export default class QWITransitionDescriber {
     }
     else if ( action.type === 'displayModeChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.displayModeChanged.format( {
-        displayMode: after.displayMode,
-        detectionMode: after.detectionMode
+        displayMode: after.displayMode
       } );
     }
     else if ( action.type === 'brightnessChanged' ) {

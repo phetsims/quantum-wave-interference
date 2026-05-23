@@ -344,7 +344,7 @@
         "value": "{ $isEmitting ->\n  [true] { $sourceRestartedResponse }\n *[false] Particle speed changed.\n}"
       },
       "displayModeChanged": {
-        "value": "{ $displayMode ->\n  [graph] Graph shown. It represents the detector pattern as { $detectionMode ->\n    [averageIntensity] an intensity curve.\n   *[hits] a hits histogram.\n  }\n *[screen] Detector screen shown.\n}"
+        "value": "{ $displayMode ->\n  [graph] Graph shown.\n *[screen] Detector screen shown.\n}"
       },
       "brightnessChanged": {
         "value": "Screen brightness { $brightnessTrend ->\n  [increased] increased.\n  [decreased] decreased.\n *[unchanged] unchanged.\n}"
@@ -547,7 +547,7 @@
         "value": "Change particle type for source emitter and change experiment setup."
       },
       "accessibleContextResponse": {
-        "value": "{ $isMaxHitsReached ->\n  [true] { $sourceType ->\n    [photons] Photon\n    [electrons] Electron\n    [neutrons] Neutron\n   *[heliumAtoms] Helium atom\n  } experiment at max hits. Clear detector screen to make more observations.\n *[false] { $isEmitting ->\n    [true] { $sourceType ->\n      [photons] Photon\n      [electrons] Electron\n      [neutrons] Neutron\n     *[heliumAtoms] Helium atom\n    } experiment in progress. Configurations and detection screen updated.\n   *[false] Source off. { $sourceType ->\n      [photons] Photon\n      [electrons] Electron\n      [neutrons] Neutron\n     *[heliumAtoms] Helium atom\n    } experiment ready to start.\n  }\n}"
+        "value": "{ $isMaxHitsReached ->\n  [true] { $sourceType ->\n    [photons] Photon\n    [electrons] Electron\n    [neutrons] Neutron\n   *[heliumAtoms] Helium atom\n  } experiment at max hits. Clear detector screen to make more observations.\n *[false] { $isEmitting ->\n    [true] { $sourceType ->\n      [photons] Photon\n      [electrons] Electron\n      [neutrons] Neutron\n     *[heliumAtoms] Helium atom\n    } experiment, detector pattern changed.\n   *[false] Source off. { $sourceType ->\n      [photons] Photon\n      [electrons] Electron\n      [neutrons] Neutron\n     *[heliumAtoms] Helium atom\n    } experiment ready to start.\n  }\n}"
       },
       "photonsRadioButton": {
         "accessibleContextResponse": {
