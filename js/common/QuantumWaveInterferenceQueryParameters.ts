@@ -14,7 +14,7 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
   // ?waveSolverGridSize=100 reduces the default 200x200 solver grid to 100x100.
   waveSolverGridSize: {
     type: 'number',
-    defaultValue: 200,
+    defaultValue: 120,
     isValidValue: value => Number.isInteger( value ) && value > 0 && value <= 1000
   },
 
