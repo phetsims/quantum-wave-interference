@@ -26,7 +26,7 @@
 import Complex from '../../../../dot/js/Complex.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalSample, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
+import { type AnalyticalWaveParameters, evaluateAnalyticalSample, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
 export const FIELD_DISPLAY_CUTOFF = 0.4;
@@ -113,7 +113,8 @@ export function getLayeredFieldSampleRGBA(
 
   // Layers are source-over composited in order. Empty/fully transparent field samples return alpha 0,
   // allowing the Scenery background rectangle behind the canvas to show through as black vacuum.
-  const layers = sample.layers.slice().sort( ( a, b ) => a.order - b.order );
+  // Performance sensitive, so optimized for the base case
+  const layers = sample.layers.length <= 1 ? sample.layers : sample.layers.slice().sort( ( a, b ) => a.order - b.order );
   let red = 0;
   let green = 0;
   let blue = 0;
@@ -298,7 +299,7 @@ function getDisplayState(
                          new Complex( 0, 0 );
   return {
     value: representative,
-    intensity: computeSampleIntensity( sample ),
+    intensity: totalIntensity,
     visibility: getSampleVisibility( groupStates, amplitudeScale )
   };
 }

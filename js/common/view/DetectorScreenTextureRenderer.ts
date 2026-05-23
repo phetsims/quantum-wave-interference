@@ -17,7 +17,7 @@ import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
-import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getInterpolatedRGB, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, sampleIntensityDistribution } from './ScreenBrightnessUtils.js';
+import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 const DEFAULT_TEXTURE_SCALE = 2;
 const MAX_RENDERED_HITS = 10000;
@@ -274,7 +274,10 @@ export default class DetectorScreenTextureRenderer {
     }
     const data = imageData.data;
     const shear = this.skewOffset / this.textureWidth;
-    const color = { r: 0, g: 0, b: 0 };
+    const rgbRed = rgb.r;
+    const rgbGreen = rgb.g;
+    const rgbBlue = rgb.b;
+    const lastDistributionIndex = distributionLength - 1;
 
     for ( let y = 0; y < this.textureHeight; y++ ) {
       for ( let x = 0; x < this.textureWidth; x++ ) {
@@ -288,17 +291,48 @@ export default class DetectorScreenTextureRenderer {
           continue;
         }
 
-        const patternIntensity = sampleIntensityDistribution( distribution, faceY / this.faceHeight );
+        // NOTE: This is purposefully duplicated with sampleIntensityDistribution + getInterpolatedRGB
+        // Because this is the most important inner loop and very performance sensitive.
+        let patternIntensity: number;
+        if ( distributionLength === 0 ) {
+          patternIntensity = 0;
+        }
+        else if ( distributionLength === 1 ) {
+          patternIntensity = distribution[ 0 ];
+        }
+        else {
+          const sampleIndex = faceY / this.faceHeight * distributionLength - 0.5;
+          if ( sampleIndex <= 0 ) {
+            patternIntensity = distribution[ 0 ];
+          }
+          else if ( sampleIndex >= lastDistributionIndex ) {
+            patternIntensity = distribution[ lastDistributionIndex ];
+          }
+          else {
+            const lowerIndex = Math.floor( sampleIndex );
+            const upperWeight = sampleIndex - lowerIndex;
+            patternIntensity = distribution[ lowerIndex ] +
+                               ( distribution[ lowerIndex + 1 ] - distribution[ lowerIndex ] ) * upperWeight;
+          }
+        }
 
         // Simulate detector exposure: brightness and contrast both ramp up so the normalized intensity
         // pattern does not appear fully formed as soon as the first average is available.
         const exposedIntensity = ( averageIntensity + ( patternIntensity - averageIntensity ) * exposureFactor ) *
                                  exposureFactor;
-        getInterpolatedRGB( backgroundRGB, rgb, exposedIntensity * displayGain, color );
+        const colorFraction = exposedIntensity * displayGain;
 
-        data[ pixelIndex ] = color.r;
-        data[ pixelIndex + 1 ] = color.g;
-        data[ pixelIndex + 2 ] = color.b;
+        if ( colorFraction < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
+          data[ pixelIndex ] = backgroundRGB.r;
+          data[ pixelIndex + 1 ] = backgroundRGB.g;
+          data[ pixelIndex + 2 ] = backgroundRGB.b;
+        }
+        else {
+          const clampedFraction = colorFraction > 1 ? 1 : colorFraction;
+          data[ pixelIndex ] = Math.round( backgroundRGB.r + ( rgbRed - backgroundRGB.r ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
+          data[ pixelIndex + 1 ] = Math.round( backgroundRGB.g + ( rgbGreen - backgroundRGB.g ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
+          data[ pixelIndex + 2 ] = Math.round( backgroundRGB.b + ( rgbBlue - backgroundRGB.b ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
+        }
         data[ pixelIndex + 3 ] = 255;
       }
     }
