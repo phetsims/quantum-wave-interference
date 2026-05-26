@@ -165,7 +165,7 @@ export default class WaveVisualizationNode extends Node {
       }
     );
 
-    // Time scale label in the bottom-left corner (e.g., "1 fs = 10⁻¹⁵ s")
+    // Timescale label in the bottom-left corner (e.g., "1 fs = 10⁻¹⁵ s")
     const timeLabel = new RichText( QuantumWaveInterferenceFluent.timeScaleLabelStringProperty, {
       font: scaleFont,
       fill: scaleLabelColor,

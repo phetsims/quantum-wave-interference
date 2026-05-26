@@ -21,6 +21,8 @@ const MATTER_BASE_R = 200;
 const MATTER_BASE_G = 200;
 const MATTER_BASE_B = 200;
 
+// TODO: Document appropriately, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 export default class WaveVisualizationCanvasNode extends CanvasNode {
 
   public static readonly BACKGROUND_COLOR = Color.BLACK;

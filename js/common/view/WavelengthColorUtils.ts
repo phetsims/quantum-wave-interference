@@ -21,6 +21,7 @@ export function getWavelengthColorZone( wavelength: number ): WavelengthColorZon
          'red';
 }
 
+// TODO: why return a string primitive here and not an axon Property, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export function getWavelengthColorZoneString( colorZone: WavelengthColorZone ): string {
   return colorZone === 'violet' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty.value :
          colorZone === 'blue' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty.value :

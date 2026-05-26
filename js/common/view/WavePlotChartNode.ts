@@ -60,6 +60,8 @@ type SelfOptions = {
 
 type WavePlotChartNodeOptions = SelfOptions & NodeOptions;
 
+// TODO: Documentation throughout this file, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 export default class WavePlotChartNode extends Node {
 
   public readonly dataPath: Path;
