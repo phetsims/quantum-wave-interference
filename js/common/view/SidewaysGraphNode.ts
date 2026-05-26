@@ -80,6 +80,7 @@ export default class SidewaysGraphNode extends Node {
   private readonly zoomLevelProperty: NumberProperty;
   private readonly chartBackground: Rectangle;
   private readonly dataPath: Path;
+  private readonly intensityCurveStrokePath: Path;
   private readonly sceneProperty: TReadOnlyProperty<SidewaysGraphSceneLike>;
   private readonly detectionModeProperty: TReadOnlyProperty<DetectionMode> | undefined;
   private readonly defaultZoomLevelsByDetectionMode: Record<DetectionMode, number> | null;
@@ -171,6 +172,20 @@ export default class SidewaysGraphNode extends Node {
     } );
     this.dataPath.computeShapeBounds = () => this.chartBackground.bounds;
 
+    this.intensityCurveStrokePath = new Path( null, {
+      clipArea: Shape.rectangle( 0, 0, GRAPH_WIDTH, GRAPH_HEIGHT ),
+      fill: null,
+      lineWidth: 1.5
+    } );
+    this.intensityCurveStrokePath.computeShapeBounds = () => this.chartBackground.bounds;
+
+    const chartBorder = new Rectangle( 0, 0, GRAPH_WIDTH, GRAPH_HEIGHT, {
+      fill: null,
+      stroke: 'black',
+      lineWidth: 1,
+      pickable: false
+    } );
+
     const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
       level: this.zoomLevelProperty,
       max: this.zoomLevelProperty.range.max
@@ -198,7 +213,7 @@ export default class SidewaysGraphNode extends Node {
     zoomButtonGroup.top = this.chartBackground.top + ZOOM_BUTTON_GROUP_MARGIN;
 
     const chartNode = new Node( {
-      children: [ this.chartBackground, this.dataPath, zoomButtonGroup ]
+      children: [ this.chartBackground, this.dataPath, this.intensityCurveStrokePath, chartBorder, zoomButtonGroup ]
     } );
 
     const axisLabel = new Text( options.axisLabelStringProperty, {
@@ -268,6 +283,8 @@ export default class SidewaysGraphNode extends Node {
   }
 
   private paintHistogram( scene: SidewaysGraphSceneLike ): void {
+    this.intensityCurveStrokePath.shape = null;
+
     if ( scene.hits.length === 0 ) {
       this.dataPath.shape = null;
       return;
@@ -320,10 +337,10 @@ export default class SidewaysGraphNode extends Node {
 
     const NUM_SAMPLES = Math.max( 2, roundSymmetric( INTENSITY_SAMPLE_COUNT * INTENSITY_SAMPLE_SCALE ) );
     const distribution = scene.waveSolver.getDetectorProbabilityDistribution( NUM_SAMPLES );
-    const shape = new Shape();
+    const fillShape = new Shape();
+    const strokeShape = new Shape();
 
-    const firstY = ( 0.5 / NUM_SAMPLES ) * GRAPH_HEIGHT;
-    shape.moveTo( 0, firstY );
+    fillShape.moveTo( 0, 0 );
 
     for ( let i = 0; i < NUM_SAMPLES; i++ ) {
       const fraction = ( i + 0.5 ) / NUM_SAMPLES;
@@ -332,25 +349,37 @@ export default class SidewaysGraphNode extends Node {
       const viewY = fraction * GRAPH_HEIGHT;
       const viewX = intensity * sourceIntensity * detectorPatternFormationFactor * GRAPH_WIDTH * zoomScale;
 
-      shape.lineTo( viewX, viewY );
+      if ( i === 0 ) {
+        fillShape.lineTo( viewX, 0 );
+        strokeShape.moveTo( viewX, 0 );
+      }
+
+      fillShape.lineTo( viewX, viewY );
+      strokeShape.lineTo( viewX, viewY );
     }
 
-    const lastY = ( ( NUM_SAMPLES - 0.5 ) / NUM_SAMPLES ) * GRAPH_HEIGHT;
-    shape.lineTo( 0, lastY );
-    shape.close();
+    const lastX = distribution[ NUM_SAMPLES - 1 ] * sourceIntensity * detectorPatternFormationFactor * GRAPH_WIDTH * zoomScale;
+    fillShape.lineTo( lastX, GRAPH_HEIGHT );
+    fillShape.lineTo( 0, GRAPH_HEIGHT );
+    fillShape.close();
 
-    this.dataPath.shape = shape;
+    strokeShape.lineTo( lastX, GRAPH_HEIGHT );
+
+    this.dataPath.shape = fillShape;
     this.dataPath.lineWidth = 1.5;
+    this.dataPath.stroke = null;
+
+    this.intensityCurveStrokePath.shape = strokeShape;
 
     //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Same if-then-else as line 302, but with different constant values.
     if ( scene.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( scene.wavelengthProperty.value );
       this.dataPath.fill = color.withAlpha( 0.3 );
-      this.dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
+      this.intensityCurveStrokePath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
     }
     else {
       this.dataPath.fill = QuantumWaveInterferenceColors.particleHistogramFillProperty;
-      this.dataPath.stroke = QuantumWaveInterferenceColors.particleHistogramStrokeProperty;
+      this.intensityCurveStrokePath.stroke = QuantumWaveInterferenceColors.particleHistogramStrokeProperty;
     }
   }
 

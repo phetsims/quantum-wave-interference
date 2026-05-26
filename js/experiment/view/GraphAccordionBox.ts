@@ -154,6 +154,16 @@ export default class GraphAccordionBox extends Node {
     dataPath.computeShapeBounds = () => chartBackground.bounds;
     chartAreaNode.addChild( dataPath );
 
+    const intensityCurveStrokePath = new Path( null, {
+      clipArea: Shape.rectangle( 0, 0, CHART_WIDTH, CHART_HEIGHT ),
+      fill: null,
+      lineJoin: 'round',
+      lineCap: 'round',
+      lineWidth: 1.5
+    } );
+    intensityCurveStrokePath.computeShapeBounds = () => chartBackground.bounds;
+    chartAreaNode.addChild( intensityCurveStrokePath );
+
     // Y-axis label that changes based on detection mode, positioned to the left of the chart.
     // Depends on both the detection mode and the string properties for proper locale change support.
     const yAxisLabelStringProperty = new DerivedProperty(
@@ -295,10 +305,11 @@ export default class GraphAccordionBox extends Node {
       const isHitsMode = sceneModel.detectionModeProperty.value === 'hits';
 
       if ( isHitsMode ) {
+        intensityCurveStrokePath.shape = null;
         this.paintHistogram( dataPath, sceneModel );
       }
       else {
-        this.paintIntensityCurve( dataPath, sceneModel );
+        this.paintIntensityCurve( dataPath, intensityCurveStrokePath, sceneModel );
       }
       layoutYAxisLabel();
     };
@@ -333,9 +344,10 @@ export default class GraphAccordionBox extends Node {
    *
    * In intensity mode, the graph shows the instantaneous theoretical pattern at full visibility.
    */
-  private paintIntensityCurve( dataPath: Path, sceneModel: SceneModel ): void {
+  private paintIntensityCurve( dataPath: Path, intensityCurveStrokePath: Path, sceneModel: SceneModel ): void {
     if ( !sceneModel.isEmittingProperty.value ) {
       dataPath.shape = null;
+      intensityCurveStrokePath.shape = null;
       return;
     }
 
@@ -344,10 +356,11 @@ export default class GraphAccordionBox extends Node {
     const screenHalfWidth = getDetectorScreenHalfWidthForScaleIndex( this.detectorScreenScaleIndexProperty.value );
 
     const numSamples = CHART_WIDTH * INTENSITY_CURVE_SAMPLES_PER_PIXEL;
-    const shape = new Shape();
+    const fillShape = new Shape();
+    const strokeShape = new Shape();
 
     // Start at the bottom-left corner of the chart
-    shape.moveTo( 0, CHART_HEIGHT );
+    fillShape.moveTo( 0, CHART_HEIGHT );
 
     // Trace the theoretical intensity curve across the chart
     for ( let i = 0; i <= numSamples; i++ ) {
@@ -358,15 +371,24 @@ export default class GraphAccordionBox extends Node {
       const viewX = fraction * CHART_WIDTH;
       const viewY = CHART_HEIGHT - intensity * sourceIntensity * CHART_HEIGHT * zoomScale;
 
-      shape.lineTo( viewX, viewY );
+      fillShape.lineTo( viewX, viewY );
+      if ( i === 0 ) {
+        strokeShape.moveTo( viewX, viewY );
+      }
+      else {
+        strokeShape.lineTo( viewX, viewY );
+      }
     }
 
     // Close back to the baseline to form a filled area
-    shape.lineTo( CHART_WIDTH, CHART_HEIGHT );
-    shape.close();
+    fillShape.lineTo( CHART_WIDTH, CHART_HEIGHT );
+    fillShape.close();
 
-    dataPath.shape = shape;
+    dataPath.shape = fillShape;
     dataPath.lineWidth = 1.5;
+    dataPath.stroke = null;
+
+    intensityCurveStrokePath.shape = strokeShape;
 
     // Fill and stroke with colors matching the source type. For photons,
     // use the wavelength-derived color so the graph visually matches the detector screen display and the histogram bars
@@ -374,11 +396,11 @@ export default class GraphAccordionBox extends Node {
     if ( sceneModel.sourceType === 'photons' ) {
       const color = VisibleColor.wavelengthToColor( sceneModel.wavelengthProperty.value );
       dataPath.fill = color.withAlpha( 0.3 );
-      dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
+      intensityCurveStrokePath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
     }
     else {
       dataPath.fill = 'rgba(100,100,180,0.3)';
-      dataPath.stroke = 'rgba(50,50,130,0.8)';
+      intensityCurveStrokePath.stroke = 'rgba(50,50,130,0.8)';
     }
   }
 
