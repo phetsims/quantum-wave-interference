@@ -69,9 +69,8 @@ type HitSpriteParams = {
 export default class DetectorScreenTextureRenderer {
 
   private readonly textureWidth: number;
-  private readonly textureHeight: number;
-  private readonly skewOffset: number;
   private readonly faceHeight: number;
+  private readonly faceTextureHeight: number;
   private readonly hitCoreRadius: number;
   private readonly hitGlowRadius: number;
   private readonly hitSpriteCenter: number;
@@ -80,9 +79,8 @@ export default class DetectorScreenTextureRenderer {
 
   public constructor( screenWidth: number, screenHeight: number, skew = 0, textureScale = DEFAULT_TEXTURE_SCALE ) {
     this.textureWidth = Math.ceil( screenWidth * textureScale );
-    this.textureHeight = Math.ceil( screenHeight * textureScale );
-    this.skewOffset = skew * textureScale;
     this.faceHeight = ( screenHeight - skew ) * textureScale;
+    this.faceTextureHeight = Math.ceil( this.faceHeight );
     this.hitCoreRadius = BASE_HIT_CORE_RADIUS * textureScale * HIT_SIZE_SCALE;
     this.hitGlowRadius = BASE_HIT_GLOW_RADIUS * textureScale * HIT_SIZE_SCALE;
 
@@ -113,7 +111,7 @@ export default class DetectorScreenTextureRenderer {
   private createCache( scene: DetectorScreenSceneLike ): TextureCache {
     const canvas = document.createElement( 'canvas' );
     canvas.width = this.textureWidth;
-    canvas.height = this.textureHeight;
+    canvas.height = this.faceTextureHeight;
 
     const context = canvas.getContext( '2d' );
     if ( !context ) {
@@ -181,7 +179,7 @@ export default class DetectorScreenTextureRenderer {
       cache.lastRenderedHitCount = 0;
       cache.hitSprite = null;
       cache.hitSpriteParams = null;
-      context.clearRect( 0, 0, this.textureWidth, this.textureHeight );
+      context.clearRect( 0, 0, this.textureWidth, this.faceTextureHeight );
 
       cache.lastBrightness = currentBrightness;
       cache.lastWavelength = currentWavelength;
@@ -198,7 +196,7 @@ export default class DetectorScreenTextureRenderer {
       this.paintHits( cache, context, scene, hitsDisplayGain, hitsBrightnessFraction );
     }
     else {
-      context.clearRect( 0, 0, this.textureWidth, this.textureHeight );
+      context.clearRect( 0, 0, this.textureWidth, this.faceTextureHeight );
       const normalizedBrightness = currentBrightness / scene.screenBrightnessProperty.range.max;
       const intensityDisplayGain = getHighIntensityIntensityDisplayGain( normalizedBrightness, currentIntensity );
       this.paintIntensity( cache, scene, intensityDisplayGain, rampFactor );
@@ -217,7 +215,7 @@ export default class DetectorScreenTextureRenderer {
     const hits = scene.hits;
     if ( hits.length === 0 ) {
       if ( cache.lastRenderedHitCount > 0 ) {
-        context.clearRect( 0, 0, this.textureWidth, this.textureHeight );
+        context.clearRect( 0, 0, this.textureWidth, this.faceTextureHeight );
       }
       cache.lastRenderedHitCount = 0;
       return;
@@ -239,11 +237,8 @@ export default class DetectorScreenTextureRenderer {
     const incrementalStart = needsFullRepaint ? startIndex : Math.max( startIndex, alreadyRendered );
 
     if ( needsFullRepaint ) {
-      context.clearRect( 0, 0, this.textureWidth, this.textureHeight );
+      context.clearRect( 0, 0, this.textureWidth, this.faceTextureHeight );
     }
-
-    context.save();
-    context.transform( 1, -this.skewOffset / this.textureWidth, 0, 1, 0, this.skewOffset );
 
     for ( let i = incrementalStart; i < hitCount; i++ ) {
       const hit = hits[ i ];
@@ -252,8 +247,6 @@ export default class DetectorScreenTextureRenderer {
       const viewY = ( ( hit.x + 1 ) / 2 ) * this.faceHeight;
       context.drawImage( sprite, viewX - this.hitSpriteCenter, viewY - this.hitSpriteCenter );
     }
-
-    context.restore();
 
     cache.lastRenderedHitCount = hitCount;
   }
@@ -274,14 +267,13 @@ export default class DetectorScreenTextureRenderer {
       totalIntensity += distribution[ i ];
     }
     const averageIntensity = distributionLength > 0 ? totalIntensity / distributionLength : 0;
-    const faceTextureHeight = Math.ceil( this.faceHeight );
     let intensityCanvas = cache.intensityCanvas;
     let intensityContext = cache.intensityContext;
     let imageData = cache.intensityImageData;
-    if ( !intensityCanvas || !intensityContext || intensityCanvas.height !== faceTextureHeight ) {
+    if ( !intensityCanvas || !intensityContext || intensityCanvas.height !== this.faceTextureHeight ) {
       intensityCanvas = document.createElement( 'canvas' );
       intensityCanvas.width = 1;
-      intensityCanvas.height = faceTextureHeight;
+      intensityCanvas.height = this.faceTextureHeight;
 
       intensityContext = intensityCanvas.getContext( '2d' );
       if ( !intensityContext ) {
@@ -292,8 +284,8 @@ export default class DetectorScreenTextureRenderer {
       cache.intensityContext = intensityContext;
       imageData = null;
     }
-    if ( !imageData || imageData.width !== 1 || imageData.height !== faceTextureHeight ) {
-      imageData = intensityContext.createImageData( 1, faceTextureHeight );
+    if ( !imageData || imageData.width !== 1 || imageData.height !== this.faceTextureHeight ) {
+      imageData = intensityContext.createImageData( 1, this.faceTextureHeight );
       cache.intensityImageData = imageData;
     }
     const data = imageData.data;
@@ -302,9 +294,9 @@ export default class DetectorScreenTextureRenderer {
     const rgbBlue = rgb.b;
     const lastDistributionIndex = distributionLength - 1;
 
-    for ( let y = 0; y < faceTextureHeight; y++ ) {
+    for ( let y = 0; y < this.faceTextureHeight; y++ ) {
       const pixelIndex = y * 4;
-      const faceY = ( y + 0.5 ) / faceTextureHeight * this.faceHeight;
+      const faceY = ( y + 0.5 ) / this.faceTextureHeight * this.faceHeight;
 
       // NOTE: This is purposefully duplicated with sampleIntensityDistribution + getInterpolatedRGB
       // Because this is the most important inner loop and very performance sensitive.
@@ -353,11 +345,8 @@ export default class DetectorScreenTextureRenderer {
 
     intensityContext.putImageData( imageData, 0, 0 );
 
-    context.save();
     context.imageSmoothingEnabled = true;
-    context.transform( 1, -this.skewOffset / this.textureWidth, 0, 1, 0, this.skewOffset );
-    context.drawImage( intensityCanvas, 0, 0, 1, faceTextureHeight, 0, 0, this.textureWidth, this.faceHeight );
-    context.restore();
+    context.drawImage( intensityCanvas, 0, 0, 1, this.faceTextureHeight, 0, 0, this.textureWidth, this.faceHeight );
   }
 
   private rgbToRGBA( rgb: { r: number; g: number; b: number }, alpha: number ): string {

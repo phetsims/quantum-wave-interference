@@ -67,7 +67,7 @@ export default class DetectorScreenNode extends Node {
       lineWidth: 1
     } ) );
 
-    this.canvasNode = new DetectorScreenCanvasNode( sceneProperty, textureRenderer, SCREEN_WIDTH, SCREEN_HEIGHT + SKEW );
+    this.canvasNode = new DetectorScreenCanvasNode( sceneProperty, textureRenderer, SCREEN_WIDTH, SCREEN_HEIGHT, SKEW );
     this.canvasNode.clipArea = shape;
     this.addChild( this.canvasNode );
 
@@ -138,26 +138,33 @@ class DetectorScreenCanvasNode extends CanvasNode {
   private readonly sceneProperty: TReadOnlyProperty<DetectorScreenSceneLike>;
   private readonly textureRenderer: DetectorScreenTextureRenderer;
   private readonly displayWidth: number;
-  private readonly displayHeight: number;
+  private readonly faceHeight: number;
+  private readonly skew: number;
 
   public constructor(
     sceneProperty: TReadOnlyProperty<DetectorScreenSceneLike>,
     textureRenderer: DetectorScreenTextureRenderer,
     width: number,
-    height: number
+    faceHeight: number,
+    skew: number
   ) {
     super( {
-      canvasBounds: new Bounds2( 0, 0, width, height )
+      canvasBounds: new Bounds2( 0, 0, width, faceHeight + skew )
     } );
 
     this.sceneProperty = sceneProperty;
     this.textureRenderer = textureRenderer;
     this.displayWidth = width;
-    this.displayHeight = height;
+    this.faceHeight = faceHeight;
+    this.skew = skew;
   }
 
   public paintCanvas( context: CanvasRenderingContext2D ): void {
     const texture = this.textureRenderer.getTexture( this.sceneProperty.value );
-    context.drawImage( texture, 0, 0, this.displayWidth, this.displayHeight );
+    context.save();
+    context.imageSmoothingEnabled = true;
+    context.transform( 1, -this.skew / this.displayWidth, 0, 1, 0, this.skew );
+    context.drawImage( texture, 0, 0, this.displayWidth, this.faceHeight );
+    context.restore();
   }
 }
