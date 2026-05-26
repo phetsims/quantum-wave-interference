@@ -13,6 +13,7 @@ import { type SourceType } from './SourceType.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 import type WaveSolver from './WaveSolver.js';
 
+// TODO: Write the pros and cons comparing this to a base class or abstract base class, see https://github.com/phetsims/quantum-wave-interference/issues/135
 type WaveVisualizableScene = {
   readonly sourceType: SourceType;
   readonly regionWidth: number;

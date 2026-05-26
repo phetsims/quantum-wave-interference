@@ -60,6 +60,7 @@ export function getApparentAnalyticalDetectorIntensity( options: ApparentAnalyti
   );
   const unresolvedBlend = 1 - smootherStep( resolvedFraction );
 
+  // TODO: Document early returns (this and others in quantum-wave-interference), see https://github.com/phetsims/quantum-wave-interference/issues/135
   if ( unresolvedBlend === 0 ) {
     return exactIntensity;
   }

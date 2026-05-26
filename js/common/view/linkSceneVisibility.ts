@@ -15,7 +15,7 @@ const linkSceneVisibility = <T>( sceneProperty: TReadOnlyProperty<T>, scenes: T[
     for ( let i = 0; i < scenes.length; i++ ) {
       const active = scenes[ i ] === activeScene;
       sceneNodes[ i ].visible = active;
-      sceneNodes[ i ].setAccessibleVisible( active );
+      sceneNodes[ i ].setAccessibleVisible( active ); // May work around a problem described in https://github.com/phetsims/quantum-wave-interference/issues/71
     }
   } );
 };

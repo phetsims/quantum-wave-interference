@@ -13,6 +13,7 @@
 
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
+// TODO: Move this function to WaveDisplayMode.ts, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export default function getMaxDisplayedWaveValue( displayMode: WaveDisplayMode ): number {
   return displayMode === 'electricField' ? 1 :
          displayMode === 'magnitude' ? 1 :

@@ -16,6 +16,7 @@ export type DetectorScreenHit = {
   readonly y: number;
 };
 
+// TODO: Should we use a pattern like Snapshot.ts? If not, document why, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export type DetectorScreenRenderState = {
   readonly detectionMode: DetectionMode;
   readonly sourceType: SourceType;

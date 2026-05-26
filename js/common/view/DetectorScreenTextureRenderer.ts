@@ -19,10 +19,13 @@ import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
+// TODO: Document each const, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 const DEFAULT_TEXTURE_SCALE = 2;
 const MAX_RENDERED_HITS = 10000;
 const HIT_SIZE_SCALE = 1.2;
 
+// TODO: Document exported types, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export type DetectorScreenSceneLike = {
   hits: Vector2[];
   sourceType: SourceType;

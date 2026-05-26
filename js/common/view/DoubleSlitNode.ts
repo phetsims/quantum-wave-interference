@@ -13,6 +13,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+// TODO: Long file, how can we divide it up or modularize, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
 import TinyProperty from '../../../../axon/js/TinyProperty.js';

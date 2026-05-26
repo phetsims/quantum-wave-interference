@@ -15,6 +15,7 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import { type DecoherenceEvent, type FieldSample, type GaussianPacketReEmission, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type BarrierType } from './BarrierType.js';
 
+// TODO: Document anything exported. What is its meaning? When does the developer need to know about it? See https://github.com/phetsims/quantum-wave-interference/issues/135
 export type WaveSolverMeasurementProjectionState = {
   centerX: number;
   centerY: number;

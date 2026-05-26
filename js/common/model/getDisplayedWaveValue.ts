@@ -8,6 +8,8 @@
 
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
+// TODO: Move this function to WaveDisplayMode.ts, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 export default function getDisplayedWaveValue( re: number, im: number, displayMode: WaveDisplayMode ): number {
   return displayMode === 'timeAveragedIntensity' ? re * re + im * im :
          displayMode === 'electricField' ? re :

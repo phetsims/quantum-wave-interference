@@ -132,6 +132,7 @@ export default class DetectorScreenNode extends Node {
   }
 }
 
+// TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
 class DetectorScreenCanvasNode extends CanvasNode {
 
   private readonly sceneProperty: TReadOnlyProperty<DetectorScreenSceneLike>;
