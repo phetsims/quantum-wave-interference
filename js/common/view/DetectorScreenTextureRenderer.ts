@@ -52,6 +52,8 @@ type TextureCache = {
   lastRampFactor: number;
   hitSprite: HTMLCanvasElement | null;
   hitSpriteParams: HitSpriteParams | null;
+  intensityCanvas: HTMLCanvasElement | null;
+  intensityContext: CanvasRenderingContext2D | null;
   intensityImageData: ImageData | null;
 };
 
@@ -131,6 +133,8 @@ export default class DetectorScreenTextureRenderer {
       lastRampFactor: 1,
       hitSprite: null,
       hitSpriteParams: null,
+      intensityCanvas: null,
+      intensityContext: null,
       intensityImageData: null
     };
 
@@ -270,77 +274,90 @@ export default class DetectorScreenTextureRenderer {
       totalIntensity += distribution[ i ];
     }
     const averageIntensity = distributionLength > 0 ? totalIntensity / distributionLength : 0;
+    const faceTextureHeight = Math.ceil( this.faceHeight );
+    let intensityCanvas = cache.intensityCanvas;
+    let intensityContext = cache.intensityContext;
     let imageData = cache.intensityImageData;
-    if ( !imageData || imageData.width !== this.textureWidth || imageData.height !== this.textureHeight ) {
-      imageData = context.createImageData( this.textureWidth, this.textureHeight );
+    if ( !intensityCanvas || !intensityContext || intensityCanvas.height !== faceTextureHeight ) {
+      intensityCanvas = document.createElement( 'canvas' );
+      intensityCanvas.width = 1;
+      intensityCanvas.height = faceTextureHeight;
+
+      intensityContext = intensityCanvas.getContext( '2d' );
+      if ( !intensityContext ) {
+        throw new Error( 'Could not create 2D context for detector screen intensity texture' );
+      }
+
+      cache.intensityCanvas = intensityCanvas;
+      cache.intensityContext = intensityContext;
+      imageData = null;
+    }
+    if ( !imageData || imageData.width !== 1 || imageData.height !== faceTextureHeight ) {
+      imageData = intensityContext.createImageData( 1, faceTextureHeight );
       cache.intensityImageData = imageData;
     }
     const data = imageData.data;
-    const shear = this.skewOffset / this.textureWidth;
     const rgbRed = rgb.r;
     const rgbGreen = rgb.g;
     const rgbBlue = rgb.b;
     const lastDistributionIndex = distributionLength - 1;
 
-    for ( let y = 0; y < this.textureHeight; y++ ) {
-      for ( let x = 0; x < this.textureWidth; x++ ) {
-        const pixelIndex = ( y * this.textureWidth + x ) * 4;
-        const faceY = y + 0.5 - this.skewOffset + shear * ( x + 0.5 );
-        if ( faceY < 0 || faceY >= this.faceHeight ) {
-          data[ pixelIndex ] = 0;
-          data[ pixelIndex + 1 ] = 0;
-          data[ pixelIndex + 2 ] = 0;
-          data[ pixelIndex + 3 ] = 0;
-          continue;
-        }
+    for ( let y = 0; y < faceTextureHeight; y++ ) {
+      const pixelIndex = y * 4;
+      const faceY = ( y + 0.5 ) / faceTextureHeight * this.faceHeight;
 
-        // NOTE: This is purposefully duplicated with sampleIntensityDistribution + getInterpolatedRGB
-        // Because this is the most important inner loop and very performance sensitive.
-        let patternIntensity: number;
-        if ( distributionLength === 0 ) {
-          patternIntensity = 0;
-        }
-        else if ( distributionLength === 1 ) {
+      // NOTE: This is purposefully duplicated with sampleIntensityDistribution + getInterpolatedRGB
+      // Because this is the most important inner loop and very performance sensitive.
+      let patternIntensity: number;
+      if ( distributionLength === 0 ) {
+        patternIntensity = 0;
+      }
+      else if ( distributionLength === 1 ) {
+        patternIntensity = distribution[ 0 ];
+      }
+      else {
+        const sampleIndex = faceY / this.faceHeight * distributionLength - 0.5;
+        if ( sampleIndex <= 0 ) {
           patternIntensity = distribution[ 0 ];
         }
-        else {
-          const sampleIndex = faceY / this.faceHeight * distributionLength - 0.5;
-          if ( sampleIndex <= 0 ) {
-            patternIntensity = distribution[ 0 ];
-          }
-          else if ( sampleIndex >= lastDistributionIndex ) {
-            patternIntensity = distribution[ lastDistributionIndex ];
-          }
-          else {
-            const lowerIndex = Math.floor( sampleIndex );
-            const upperWeight = sampleIndex - lowerIndex;
-            patternIntensity = distribution[ lowerIndex ] +
-                               ( distribution[ lowerIndex + 1 ] - distribution[ lowerIndex ] ) * upperWeight;
-          }
-        }
-
-        // Simulate detector exposure: brightness and contrast both ramp up so the normalized intensity
-        // pattern does not appear fully formed as soon as the first average is available.
-        const exposedIntensity = ( averageIntensity + ( patternIntensity - averageIntensity ) * exposureFactor ) *
-                                 exposureFactor;
-        const colorFraction = exposedIntensity * displayGain;
-
-        if ( colorFraction < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
-          data[ pixelIndex ] = backgroundRGB.r;
-          data[ pixelIndex + 1 ] = backgroundRGB.g;
-          data[ pixelIndex + 2 ] = backgroundRGB.b;
+        else if ( sampleIndex >= lastDistributionIndex ) {
+          patternIntensity = distribution[ lastDistributionIndex ];
         }
         else {
-          const clampedFraction = colorFraction > 1 ? 1 : colorFraction;
-          data[ pixelIndex ] = Math.round( backgroundRGB.r + ( rgbRed - backgroundRGB.r ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
-          data[ pixelIndex + 1 ] = Math.round( backgroundRGB.g + ( rgbGreen - backgroundRGB.g ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
-          data[ pixelIndex + 2 ] = Math.round( backgroundRGB.b + ( rgbBlue - backgroundRGB.b ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
+          const lowerIndex = Math.floor( sampleIndex );
+          const upperWeight = sampleIndex - lowerIndex;
+          patternIntensity = distribution[ lowerIndex ] +
+                             ( distribution[ lowerIndex + 1 ] - distribution[ lowerIndex ] ) * upperWeight;
         }
-        data[ pixelIndex + 3 ] = 255;
       }
+
+      // Simulate detector exposure: brightness and contrast both ramp up so the normalized intensity
+      // pattern does not appear fully formed as soon as the first average is available.
+      const exposedIntensity = ( averageIntensity + ( patternIntensity - averageIntensity ) * exposureFactor ) *
+                               exposureFactor;
+      const colorFraction = exposedIntensity * displayGain;
+
+      if ( colorFraction < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
+        data[ pixelIndex ] = backgroundRGB.r;
+        data[ pixelIndex + 1 ] = backgroundRGB.g;
+        data[ pixelIndex + 2 ] = backgroundRGB.b;
+      }
+      else {
+        const clampedFraction = colorFraction > 1 ? 1 : colorFraction;
+        data[ pixelIndex ] = Math.round( backgroundRGB.r + ( rgbRed - backgroundRGB.r ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
+        data[ pixelIndex + 1 ] = Math.round( backgroundRGB.g + ( rgbGreen - backgroundRGB.g ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
+        data[ pixelIndex + 2 ] = Math.round( backgroundRGB.b + ( rgbBlue - backgroundRGB.b ) * clampedFraction ); // eslint-disable-line phet/bad-sim-text
+      }
+      data[ pixelIndex + 3 ] = 255;
     }
 
-    context.putImageData( imageData, 0, 0 );
+    intensityContext.putImageData( imageData, 0, 0 );
+
+    context.save();
+    context.imageSmoothingEnabled = true;
+    context.transform( 1, -this.skewOffset / this.textureWidth, 0, 1, 0, this.skewOffset );
+    context.drawImage( intensityCanvas, 0, 0, 1, faceTextureHeight, 0, 0, this.textureWidth, this.faceHeight );
+    context.restore();
   }
 
   private rgbToRGBA( rgb: { r: number; g: number; b: number }, alpha: number ): string {
