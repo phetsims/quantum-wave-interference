@@ -53,6 +53,7 @@ const computeNiceScale = ( regionWidthMeters: number, regionWidthPixels: number 
   let bestPixels = TARGET_BAR_PX;
   let bestError = Infinity;
 
+  // TODO: Document this algorithm. What?? See https://github.com/phetsims/quantum-wave-interference/issues/135
   for ( let e = exponent - 1; e <= exponent + 1; e++ ) {
     for ( const m of NICE_MULTIPLIERS ) {
       const candidate = m * Math.pow( 10, e );

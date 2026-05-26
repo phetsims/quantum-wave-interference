@@ -6,6 +6,9 @@
  * Single Particles screens both use this layout but with different visibility properties
  * and (for the axis label) different detection-mode handling.
  *
+ * TODO: Fix or describe the relationship between SidewaysGraph (which is a Node) vs SidewaysGraphNode, see https://github.com/phetsims/quantum-wave-interference/issues/135
+ * It's supa confusing!!
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 

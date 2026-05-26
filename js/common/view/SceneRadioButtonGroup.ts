@@ -27,6 +27,8 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 
+// TODO: Err on the side of too much documentation instead of too little, we have to maintain and understand this file, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 const LABEL_FONT = new PhetFont( 12 );
 const ICON_MAX_WIDTH = 24;
 const ICON_SLOT_WIDTH = 30;

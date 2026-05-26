@@ -13,6 +13,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+// TODO: Long file, make efforts to make it more readable and maintainable. Document it, modularize it, etc. https://github.com/phetsims/quantum-wave-interference/issues/135
+
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import TEmitter from '../../../../axon/js/TEmitter.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';

@@ -1,8 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * ScreenIcon classes for the three screens of the Quantum Wave Interference
- * simulation.
+ * ScreenIcon classes for the three screens of the Quantum Wave Interference simulation.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -24,6 +23,7 @@ class QuantumWaveInterferenceScreenIcon extends ScreenIcon {
   }
 }
 
+// TODO: These classes seem unnecessary, why not just instantiate at the call sites and save 20 LOC? See https://github.com/phetsims/quantum-wave-interference/issues/135
 export class ExperimentScreenIcon extends QuantumWaveInterferenceScreenIcon {
 
   public constructor() {

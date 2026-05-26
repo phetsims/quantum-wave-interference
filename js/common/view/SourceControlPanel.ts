@@ -41,6 +41,8 @@ import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import linkSceneVisibility from './linkSceneVisibility.js';
 import { getWavelengthColorZone, getWavelengthColorZoneString } from './WavelengthColorUtils.js';
 
+// TODO: This file is too long and difficult to understand. Add documentation, modularize, factor out, we want very maintainable, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
 const DEFAULT_SLIDER_TRACK_WIDTH = 130;

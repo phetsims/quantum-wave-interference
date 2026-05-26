@@ -8,6 +8,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+// TODO: This file is too long and difficult to understand. Add documentation, modularize, factor out, we want very maintainable, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';

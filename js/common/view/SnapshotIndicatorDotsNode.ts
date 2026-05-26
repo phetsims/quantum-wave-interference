@@ -38,6 +38,7 @@ export default class SnapshotIndicatorDotsNode extends HBox {
       children: dots
     } );
 
+    // TODO: Multilink to QuantumWaveInterferenceColors.indicatorDotActiveFillProperty etc as well so this gets re-called when any dependency changes, see https://github.com/phetsims/quantum-wave-interference/issues/135
     numberOfSnapshotsProperty.link( count => {
       for ( let i = 0; i < maxSnapshots; i++ ) {
         dots[ i ].fill = i < count

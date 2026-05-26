@@ -11,6 +11,8 @@ import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import getDisplayModePolarity, { type WaveDisplayModePolarity } from '../model/getDisplayModePolarity.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 
+// TODO: Move this to WaveModeDisplayPolarity.ts, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 export default function waveDisplayModePolarityProperty(
   activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>
 ): TReadOnlyProperty<WaveDisplayModePolarity> {

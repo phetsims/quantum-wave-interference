@@ -7,6 +7,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+// TODO: Err on the side of too much documentation instead of too little, we have to maintain and understand this file, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { getApparentAnalyticalDetectorIntensity } from './ApparentDetectorPattern.js';

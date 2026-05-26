@@ -21,6 +21,8 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
+// TODO: Document throughout the file, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
 const SLIDER_TRACK_SIZE = new Dimension2( 120, 3 );
