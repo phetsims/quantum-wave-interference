@@ -23,7 +23,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import Complex from '../../../../dot/js/Complex.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { type AnalyticalWaveParameters, evaluateAnalyticalSample, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
@@ -167,8 +166,8 @@ function getDisplayStateRGBA(
   baseColor: RGBColor,
   amplitudeScale: number
 ): RGBAColor {
-  const real = displayState.value.real * amplitudeScale;
-  const imaginary = displayState.value.imaginary * amplitudeScale;
+  const real = displayState.real * amplitudeScale;
+  const imaginary = displayState.imaginary * amplitudeScale;
 
   let intensity: number;
   if ( displayMode === 'timeAveragedIntensity' ) {
@@ -223,8 +222,8 @@ function getDisplayStateTransparentRGBA(
   amplitudeScale: number,
   layerAlpha: number
 ): RGBAColor {
-  const real = displayState.value.real * amplitudeScale;
-  const imaginary = displayState.value.imaginary * amplitudeScale;
+  const real = displayState.real * amplitudeScale;
+  const imaginary = displayState.imaginary * amplitudeScale;
 
   let intensity: number;
   if ( displayMode === 'timeAveragedIntensity' ) {
@@ -260,19 +259,23 @@ function getDisplayStateTransparentRGBA(
 
 const blend = ( a: number, b: number, t: number ): number => a + ( b - a ) * t;
 
-// Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
+// Per-coherence-group rendering summary. Store real/imaginary components directly so rasterization
+// does not allocate representative Complex values for every sampled pixel.
 type CoherenceGroupDisplayState = {
   coherenceGroup: string;
-  value: Complex;
+  real: number;
+  imaginary: number;
   intensity: number;
   componentIntensity: number;
   support: number;
   hasExplicitSupport: boolean;
 };
 
-// TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
+// Final display state after reducing physical coherence groups to the legacy single-wave display.
+// real/imaginary are the representative value used by real/imaginary display modes.
 type FieldDisplayState = {
-  value: Complex;
+  real: number;
+  imaginary: number;
   intensity: number;
   visibility: number;
 };
@@ -284,7 +287,8 @@ function getDisplayState(
 ): FieldDisplayState {
   if ( groupStates.length === 0 ) {
     return {
-      value: new Complex( 0, 0 ),
+      real: 0,
+      imaginary: 0,
       intensity: 0,
       visibility: 1
     };
@@ -292,6 +296,9 @@ function getDisplayState(
 
   let totalIntensity = 0;
   let strongestGroup: CoherenceGroupDisplayState | null = null;
+
+  // Match the kernel's representative-complex policy without allocating that Complex: add intensities
+  // incoherently across groups, then use the strongest group's phase for real/imaginary displays.
   for ( let i = 0; i < groupStates.length; i++ ) {
     const groupState = groupStates[ i ];
     totalIntensity += groupState.intensity;
@@ -300,11 +307,12 @@ function getDisplayState(
     }
   }
 
-  const representative = strongestGroup && strongestGroup.intensity > 0 ?
-                         strongestGroup.value.timesScalar( Math.sqrt( totalIntensity / strongestGroup.intensity ) ) :
-                         new Complex( 0, 0 );
+  const scale = strongestGroup && strongestGroup.intensity > 0 ?
+                Math.sqrt( totalIntensity / strongestGroup.intensity ) :
+                0;
   return {
-    value: representative,
+    real: strongestGroup ? strongestGroup.real * scale : 0,
+    imaginary: strongestGroup ? strongestGroup.imaginary * scale : 0,
     intensity: totalIntensity,
     visibility: getSampleVisibility( groupStates, amplitudeScale )
   };
@@ -312,38 +320,85 @@ function getDisplayState(
 
 // TODO: Document every function in this whole file, what are the responsibilities? Who calls it, when and why? See https://github.com/phetsims/quantum-wave-interference/issues/135
 function getCoherenceGroupDisplayStates( sample: Extract<FieldSample, { kind: 'field' }> ): CoherenceGroupDisplayState[] {
-  const groupStates: CoherenceGroupDisplayState[] = [];
-  const groupIndexMap = new Map<string, number>();
+  const components = sample.components;
 
-  for ( let i = 0; i < sample.components.length; i++ ) {
-    const component = sample.components[ i ];
-    let groupIndex = groupIndexMap.get( component.coherenceGroup );
-    if ( groupIndex === undefined ) {
-      groupIndex = groupStates.length;
-      groupIndexMap.set( component.coherenceGroup, groupIndex );
-      groupStates.push( {
-        coherenceGroup: component.coherenceGroup,
-        value: new Complex( 0, 0 ),
-        intensity: 0,
-        componentIntensity: 0,
-        support: 0,
-        hasExplicitSupport: false
-      } );
+  // Rasterization calls this once per pixel. The current kernel normally returns 0-2 components, so
+  // avoid Map allocation on the common path and use the generic search fallback only for larger samples.
+  if ( components.length === 0 ) {
+    return [];
+  }
+  if ( components.length === 1 ) {
+    const groupState = createCoherenceGroupDisplayState( components[ 0 ] );
+    groupState.intensity = groupState.real * groupState.real + groupState.imaginary * groupState.imaginary;
+    return [ groupState ];
+  }
+  if ( components.length === 2 ) {
+    const firstGroupState = createCoherenceGroupDisplayState( components[ 0 ] );
+    if ( components[ 0 ].coherenceGroup === components[ 1 ].coherenceGroup ) {
+      addComponentToGroupState( firstGroupState, components[ 1 ] );
+      firstGroupState.intensity = firstGroupState.real * firstGroupState.real +
+                                  firstGroupState.imaginary * firstGroupState.imaginary;
+      return [ firstGroupState ];
     }
+    else {
+      const secondGroupState = createCoherenceGroupDisplayState( components[ 1 ] );
+      firstGroupState.intensity = firstGroupState.real * firstGroupState.real +
+                                  firstGroupState.imaginary * firstGroupState.imaginary;
+      secondGroupState.intensity = secondGroupState.real * secondGroupState.real +
+                                   secondGroupState.imaginary * secondGroupState.imaginary;
+      return [ firstGroupState, secondGroupState ];
+    }
+  }
 
-    addComponentToGroupState( groupStates[ groupIndex ], component );
+  const groupStates: CoherenceGroupDisplayState[] = [];
+
+  for ( let i = 0; i < components.length; i++ ) {
+    const component = components[ i ];
+    let groupIndex = getCoherenceGroupDisplayStateIndex( groupStates, component.coherenceGroup );
+    if ( groupIndex < 0 ) {
+      groupIndex = groupStates.length;
+      groupStates.push( createCoherenceGroupDisplayState( component ) );
+    }
+    else {
+      addComponentToGroupState( groupStates[ groupIndex ], component );
+    }
   }
 
   for ( let i = 0; i < groupStates.length; i++ ) {
-    const value = groupStates[ i ].value;
-    groupStates[ i ].intensity = value.magnitudeSquared;
+    groupStates[ i ].intensity = groupStates[ i ].real * groupStates[ i ].real +
+                                 groupStates[ i ].imaginary * groupStates[ i ].imaginary;
   }
 
   return groupStates;
 }
 
+function createCoherenceGroupDisplayState( component: FieldComponent ): CoherenceGroupDisplayState {
+  return {
+    coherenceGroup: component.coherenceGroup,
+    real: component.value.real,
+    imaginary: component.value.imaginary,
+    intensity: 0,
+    componentIntensity: component.value.magnitudeSquared,
+    support: component.support ?? 0,
+    hasExplicitSupport: component.support !== undefined
+  };
+}
+
+function getCoherenceGroupDisplayStateIndex(
+  groupStates: CoherenceGroupDisplayState[],
+  coherenceGroup: string
+): number {
+  for ( let i = 0; i < groupStates.length; i++ ) {
+    if ( groupStates[ i ].coherenceGroup === coherenceGroup ) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 function addComponentToGroupState( groupState: CoherenceGroupDisplayState, component: FieldComponent ): void {
-  groupState.value.add( component.value );
+  groupState.real += component.value.real;
+  groupState.imaginary += component.value.imaginary;
   groupState.componentIntensity += component.value.magnitudeSquared;
   if ( component.support !== undefined ) {
     groupState.hasExplicitSupport = true;
