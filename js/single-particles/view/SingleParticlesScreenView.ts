@@ -136,7 +136,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     emitterNode.right = waveRegionLeft + 2;
     emitterNode.centerY = waveRegionTop + waveRegionHeight / 2;
 
-    // TODO: Duplicated elsewhere
+    // TODO: Duplicated elsewhere, see https://github.com/phetsims/quantum-wave-interference/issues/135
     const slitDetectorProperties = createSlitDetectorProperties( model.currentSlitConfigurationProperty );
     const waveRegionNode = new WaveRegionNode( model, {
       waveRegionLeft: waveRegionLeft,
