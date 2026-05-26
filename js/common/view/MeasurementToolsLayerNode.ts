@@ -1,10 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * MeasurementToolsNode creates measurement tool nodes (stopwatch, measuring tape, time plot,
- * position plot). These tools are identical between the High Intensity and Single Particles screens.
- *
- * TODO: If it contains the tools, let's rename to MeasurementToolsLayerNode, see https://github.com/phetsims/quantum-wave-interference/issues/135
+ * MeasurementToolsLayerNode creates measurement tool nodes (stopwatch, measuring tape, time plot, position plot). These
+ * tools are identical between the High Intensity and Single Particles screens.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -66,7 +64,7 @@ type MeasurementToolsModel = {
   readonly tapeMeasureTipPositionProperty: Vector2Property;
 };
 
-export default class MeasurementToolsNode extends Node {
+export default class MeasurementToolsLayerNode extends Node {
 
   public readonly timePlotNode: TimePlotNode;
   public readonly positionPlotNode: PositionPlotNode;

@@ -71,7 +71,7 @@ Shared parent Nodes in `js/common/view/` assemble shared UI patterns:
   display, time controls, and reset.
 - `SlitConfigurationControlsRow`: Barrier combo box + slit controls, positioned below the wave
   region.
-- `MeasurementToolsNode`: Tape measure, stopwatch, time plot, and position plot.
+- `MeasurementToolsLayerNode`: Tape measure, stopwatch, time plot, and position plot.
 - `SidewaysGraph`: Intensity/hits graph alongside the detector screen.
 
 ## Experiment Screen

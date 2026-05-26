@@ -19,7 +19,7 @@ import createStandardToolCheckboxes from '../../common/view/createStandardToolCh
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
-import MeasurementToolsNode from '../../common/view/MeasurementToolsNode.js';
+import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import RightControlsColumn from '../../common/view/RightControlsColumn.js';
@@ -273,7 +273,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       rightControlsColumn.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN );
     } );
 
-    const measurementToolsNode = new MeasurementToolsNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
+    const measurementToolsNode = new MeasurementToolsLayerNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
     this.addChild( measurementToolsNode );
     this.timePlotNode = measurementToolsNode.timePlotNode;
     this.positionPlotNode = measurementToolsNode.positionPlotNode;
