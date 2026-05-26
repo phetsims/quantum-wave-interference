@@ -11,8 +11,8 @@
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
-import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 
 const COMBO_BOX_FONT = new PhetFont( 14 );
 const MAX_WIDTH = 120;

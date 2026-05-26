@@ -132,7 +132,7 @@ export function getHighIntensityIntensityDisplayGain( brightness: number, intens
     1,
     HIGH_INTENSITY_INTENSITY_DISPLAY_GAIN_MIN,
     HIGH_INTENSITY_INTENSITY_DISPLAY_GAIN_MAX,
-    clampedBrightness * clampedBrightness
+         clampedBrightness * clampedBrightness
   ) * clamp( intensity, 0, 1 );
 }
 

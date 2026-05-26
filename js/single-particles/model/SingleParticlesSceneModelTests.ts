@@ -126,7 +126,7 @@ const getDetectionTimeForWeight = (
   const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * scene.regionWidth;
   const initialCenterX = -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
   const sampledCenterOffset = ( SingleParticlesSceneModel as unknown as PrivateSingleParticlesSceneModelConstructor )
-    .inverseStandardNormalCDF( detectionWeight ) * sigmaX0;
+                                .inverseStandardNormalCDF( detectionWeight ) * sigmaX0;
 
   return ( targetX - sourceX - initialCenterX + sampledCenterOffset ) / propagationSpeed;
 };
@@ -392,7 +392,7 @@ QUnit.test( 'slit-detector packet re-emission uses sampled event time', assert =
   const scene = createScene();
   const deterministicSlitArrivalTime = getDeterministicSlitArrivalTime( scene );
   const sampledDetectionWeight = ( SCREEN_DETECTION_TIMING_PARAMETERS.startWeight +
-                                    SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight ) / 2;
+                                   SCREEN_DETECTION_TIMING_PARAMETERS.peakWeight ) / 2;
   const sampledOnSlitDetectionTime = getOnSlitDetectionTimeForWeight( scene, sampledDetectionWeight );
   scene.decoherenceEvent = {
     time: -1,

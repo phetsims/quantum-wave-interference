@@ -298,7 +298,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       1 / DETECTOR_PATTERN_FORMATION_EASE_POWER
     );
     const nextEasedFormationFactor = 1 - ( 1 - easedFormationFactor ) *
-                                          Math.exp( -dt / DETECTOR_PATTERN_FORMATION_TIME_CONSTANT );
+                                     Math.exp( -dt / DETECTOR_PATTERN_FORMATION_TIME_CONSTANT );
     const nextFormationFactor = Math.pow( nextEasedFormationFactor, DETECTOR_PATTERN_FORMATION_EASE_POWER );
 
     this._detectorPatternFormationFactorProperty.value =

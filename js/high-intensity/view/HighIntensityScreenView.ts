@@ -21,6 +21,8 @@ import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { createSlitDetectorProperties } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import createSlitConfigComboItems from '../../common/view/createSlitConfigComboItems.js';
+import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
@@ -33,8 +35,6 @@ import SidewaysGraph from '../../common/view/SidewaysGraph.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
-import createSlitConfigComboItems from '../../common/view/createSlitConfigComboItems.js';
-import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
