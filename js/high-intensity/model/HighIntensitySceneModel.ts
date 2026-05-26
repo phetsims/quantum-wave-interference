@@ -94,7 +94,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   // TODO: This is unused but if I remove it, type checking fails, see https://github.com/phetsims/quantum-wave-interference/issues/135
   public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( 1 );
 
-  private hitAccumulator: number = 0;
+  private hitAccumulator = 0;
   private nextDecoherenceEventTime: number | null = null;
 
   public constructor( providedOptions: HighIntensitySceneModelOptions ) {
