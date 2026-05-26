@@ -241,6 +241,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     return NOMINAL_DT;
   }
 
+  // TODO: Add documentation https://github.com/phetsims/quantum-wave-interference/issues/135
   public getEffectiveDt( dt: number ): number {
     if ( !this.isPlayingProperty.value ) {
       return 0;

@@ -50,8 +50,10 @@ type HighIntensityScreenViewOptions = SelfOptions & ScreenViewOptions;
 
 const LABEL_FONT = new PhetFont( 14 );
 
+// TODO Inline usages of X_MARGIN and Y_MARGIN, see https://github.com/phetsims/quantum-wave-interference/issues/135
 const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
 const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
+
 const CONTENT_VERTICAL_OFFSET = 12;
 const TOP_ROW_BEAM_RIGHT_PANEL_GAP = 10;
 
@@ -63,6 +65,7 @@ const WAVE_REGION_Y_OFFSET = -30;
 // mini-symbol (at TOP_ROW_CENTER_Y) and the top of the main wave region.
 const CALLOUT_GAP = 55;
 
+// TODO: This constructor could be made a lot more readable. Add documentation, factor out things, etc. See https://github.com/phetsims/quantum-wave-interference/issues/135
 export default class HighIntensityScreenView extends ScreenView {
 
   private readonly model: HighIntensityModel;
@@ -162,6 +165,7 @@ export default class HighIntensityScreenView extends ScreenView {
     updateParticleMassAnnotationPosition();
     this.addChild( particleMassAnnotation );
 
+    // TODO: Factor out duplication, there are 21 lines elsewhere that match this, see https://github.com/phetsims/quantum-wave-interference/issues/135
     const slitDetectorProperties = createSlitDetectorProperties( model.currentSlitConfigurationProperty );
     const waveRegionNode = new WaveRegionNode( model, {
       waveRegionLeft: waveRegionLeft,
@@ -208,8 +212,7 @@ export default class HighIntensityScreenView extends ScreenView {
       model.isIntensityGraphVisibleProperty,
       waveRegionRight,
       waveRegionTop,
-      tandem.createTandem( 'sidewaysGraphNode' ),
-      {
+      tandem.createTandem( 'sidewaysGraphNode' ), {
         detectionModeProperty: model.currentDetectionModeProperty,
         initialZoomLevels: {
           averageIntensity: 3,
@@ -219,25 +222,20 @@ export default class HighIntensityScreenView extends ScreenView {
     );
     this.addChild( this.sidewaysGraphNode );
 
-    // --- Right controls (shared factory) ---
+    // Right controls
 
-    const detectionModeItems: AquaRadioButtonGroupItem<DetectionMode>[] = [
-      {
-        value: 'averageIntensity',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.intensityStringProperty, { font: LABEL_FONT, maxWidth: 130 } ),
-        tandemName: 'averageIntensityRadioButton'
-      },
-      {
-        value: 'hits',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.hitsStringProperty, { font: LABEL_FONT, maxWidth: 130 } ),
-        tandemName: 'hitsRadioButton'
-      }
-    ];
+    const detectionModeItems: AquaRadioButtonGroupItem<DetectionMode>[] = [ {
+      value: 'averageIntensity',
+      createNode: () => new Text( QuantumWaveInterferenceFluent.intensityStringProperty, { font: LABEL_FONT, maxWidth: 130 } ),
+      tandemName: 'averageIntensityRadioButton'
+    }, {
+      value: 'hits',
+      createNode: () => new Text( QuantumWaveInterferenceFluent.hitsStringProperty, { font: LABEL_FONT, maxWidth: 130 } ),
+      tandemName: 'hitsRadioButton'
+    } ];
 
-    const detectionModeRadioButtonGroup = new AquaRadioButtonGroup<DetectionMode>(
-      model.currentDetectionModeProperty,
-      detectionModeItems,
-      {
+    const detectionModeRadioButtonGroup = new AquaRadioButtonGroup<DetectionMode>( model.currentDetectionModeProperty,
+      detectionModeItems, {
         spacing: 8,
         align: 'left',
         orientation: 'vertical',
@@ -308,8 +306,7 @@ export default class HighIntensityScreenView extends ScreenView {
 
     const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
       model,
-      model.currentSlitConfigurationProperty,
-      {
+      model.currentSlitConfigurationProperty, {
         detectionModeProperty: model.currentDetectionModeProperty,
         slitOrientation: 'topBottom',
         includeExperimentSetupDetails: false,

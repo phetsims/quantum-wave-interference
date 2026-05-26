@@ -21,6 +21,8 @@ import HighIntensitySceneModel from './HighIntensitySceneModel.js';
 // Keep the highest-frequency High Intensity continuous waves below the 30 FPS Nyquist limit.
 const NORMAL_TIME_SPEED_FACTOR = 0.35;
 const FAST_TIME_SPEED_FACTOR = 0.65;
+
+// TODO: Document how this is used and what it means, see https://github.com/phetsims/quantum-wave-interference/issues/135
 const ACCESSIBLE_STATE_STEP_INTERVAL = 10;
 
 type HighIntensityModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
@@ -34,7 +36,7 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
   // Tool visibility specific to this screen
   public readonly isIntensityGraphVisibleProperty: BooleanProperty;
   public readonly accessibleStateStepProperty: NumberProperty;
-  private accessibleStateStepFrameCount: number;
+  private accessibleStateStepFrameCount = 0;
 
   public constructor( providedOptions: HighIntensityModelOptions ) {
 
@@ -52,8 +54,6 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
       normal: NORMAL_TIME_SPEED_FACTOR,
       fast: FAST_TIME_SPEED_FACTOR
     }, providedOptions );
-
-    this.accessibleStateStepFrameCount = 0;
 
     this.currentSlitConfigurationProperty = new DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, HighIntensitySceneModel>( this.sceneProperty, {
       derive: 'slitConfigurationProperty',

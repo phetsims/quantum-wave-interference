@@ -32,6 +32,7 @@ type SidewaysGraphOptions = {
   initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
 };
 
+// TODO: Rename this file, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export default class SidewaysGraph extends SidewaysGraphNode {
 
   public constructor(

@@ -5,8 +5,7 @@
  * Neutrons, Helium atoms) on the High Intensity screen.
  *
  * Extends BaseSceneModel with High Intensity–specific state: detection mode, detector hit tracking per slit,
- * continuous hit accumulation, and full slit configuration
- * (including detector variants).
+ * continuous hit accumulation, and full slit configuration (including detector variants).
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -45,8 +44,8 @@ export const DETECTOR_PATTERN_FORMATION_EASE_POWER = 2;
 export const DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD = 0.95;
 export const DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD = 0.995;
 
-const MICROMETER_TO_MM = 1e-3;
-const NANOMETER_TO_MM = 1e-6;
+const MICROMETER_TO_MM = 1E-3;
+const NANOMETER_TO_MM = 1E-6;
 
 const HIGH_INTENSITY_SLIT_SEPARATION_CONFIGS: Record<SourceType, SlitSeparationConfig> = {
   photons: {
@@ -92,6 +91,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   public readonly detectorPatternFormationFactorProperty: TReadOnlyProperty<number>;
   private readonly _detectorPatternFormationFactorProperty: NumberProperty;
 
+  // TODO: This is unused but if I remove it, type checking fails, see https://github.com/phetsims/quantum-wave-interference/issues/135
   public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( 1 );
 
   private hitAccumulator: number;
@@ -104,9 +104,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }, providedOptions ) );
 
     const tandem = providedOptions.tandem;
-
-    this.hitAccumulator = 0;
-    this.nextDecoherenceEventTime = null;
 
     this.detectionModeProperty = new StringUnionProperty<DetectionMode>( 'averageIntensity', {
       validValues: DetectionModeValues,
@@ -123,8 +120,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     } );
     this.detectorPatternFormationFactorProperty = this._detectorPatternFormationFactorProperty;
 
-    this.isMaxHitsReachedProperty = new DerivedProperty(
-      [ this.detectionModeProperty, this.totalHitsProperty ],
+    this.isMaxHitsReachedProperty = new DerivedProperty( [ this.detectionModeProperty, this.totalHitsProperty ],
       ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceConstants.MAX_HITS
     );
 
@@ -165,11 +161,14 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   public step( dt: number ): void {
     this.waveSolver.step( dt );
 
+    // TODO: Should this be done synchronously, or is there a good reason to do it in step only, see https://github.com/phetsims/quantum-wave-interference/issues/135
+    // What if the sim is paused?
     this._isWaveVisibleProperty.value = this.isEmittingProperty.value;
 
     this.stepDetectorPatternFormation( dt );
     this.stepDecoherenceEvents( dt );
 
+    // TODO: Document early return, see https://github.com/phetsims/quantum-wave-interference/issues/135
     if (
       !this.isEmittingProperty.value ||
       this.detectionModeProperty.value !== 'hits' ||
@@ -180,10 +179,12 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }
 
     // Only accumulate hits after the wavefront has reached the detector screen
+    // TODO: Invert this if statement, like if hasWavefrontReachedScreen(){this.accumulateHits()}, see https://github.com/phetsims/quantum-wave-interference/issues/135
     if ( !this.hasWavefrontReachedScreen() ) {
       return;
     }
 
+    // TODO: Document each term in the hit accumulator computations, see https://github.com/phetsims/quantum-wave-interference/issues/135
     const rate = this.getDetectorScreenHitRate();
     this.hitAccumulator += rate * dt;
     const numHits = Math.floor( this.hitAccumulator );
@@ -213,6 +214,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }
   }
 
+  // TODO: Documentation, see https://github.com/phetsims/quantum-wave-interference/issues/135
   private stepDecoherenceEvents( dt: number ): void {
     if (
       !this.isEmittingProperty.value ||

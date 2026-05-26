@@ -111,6 +111,7 @@ export type HighIntensityTopRowLayout = {
   waveRegionTop: number;       // y of main wave region's top edge (target for callout lines)
 };
 
+// TODO: Think of a better name, that is more about what it is and what it does rather than where it is, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends Node {
 
   // Bottom y of the emitter body, so callers can stack controls below it without being
@@ -118,6 +119,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
   public readonly emitterBottom: number;
   public readonly emitterCenterX: number;
 
+  // TODO: Too many parameters, should it instead accept a container (if one already exists), see https://github.com/phetsims/quantum-wave-interference/issues/135
   public constructor(
     sceneProperty: Property<T>,
     scenes: T[],
