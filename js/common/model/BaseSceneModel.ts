@@ -569,7 +569,13 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
   }
 
-  // TODO: Document when called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Called when the emitter is turned off after initialization. Clears only transient wave state that depends on the
+   * source currently being on: wavefront status, decoherence event history, and the wave solver state/parameters. This
+   * does not clear accumulated detector hits, detector counts, or snapshots; use clearScreen() for a user-facing scene
+   * clear. Subclasses override this hook to reset screen-specific transient emission state, then call super so the
+   * shared wave state is reset consistently.
+   */
   protected clearWaveStateWhenEmitterTurnsOff(): void {
     this.clearWaveState();
   }
