@@ -97,8 +97,7 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
       derive: 'detectorToolProbabilityProperty'
     } );
 
-    this.isDetectorToolAvailableProperty = new DerivedProperty(
-      [ this.currentSlitConfigurationProperty ],
+    this.isDetectorToolAvailableProperty = new DerivedProperty( [ this.currentSlitConfigurationProperty ],
       slitConfiguration => slitConfiguration === 'noBarrier'
     );
 

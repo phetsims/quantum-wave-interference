@@ -32,8 +32,10 @@ const copyPacketReEmission = ( reEmission: GaussianPacketReEmission ): GaussianP
   width: reEmission.width
 } );
 
+// TODO: Add JSDoc to every method in this whole file, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver {
 
+  // TODO: Add JSDoc to every property in this whole file, see https://github.com/phetsims/quantum-wave-interference/issues/135
   private readonly measurementProjections: MeasurementProjection[] = [];
   private packetReEmission: GaussianPacketReEmission | null = null;
 

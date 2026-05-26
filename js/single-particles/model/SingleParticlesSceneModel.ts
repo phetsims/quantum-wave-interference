@@ -207,7 +207,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.detectorToolRadiusProperty.lazyLink( updateDetectorProbability );
   }
 
-
+  // TODO: Document when called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
   public override clearScreen(): void {
     this.isPacketActiveProperty.value = false;
     this.detectorToolStateProperty.value = 'ready';
@@ -225,6 +225,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     super.clearScreen();
   }
 
+  // TODO: Document when called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
   protected override clearWaveStateWhenEmitterTurnsOff(): void {
     this.isPacketActiveProperty.value = false;
     this.packetReEmission = null;
@@ -269,6 +270,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.syncSolverParameters();
   }
 
+  // TODO: Document when this is supposed to be called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
   protected override syncSolverParameters(): void {
     super.syncSolverParameters();
     this.waveSolver.setParameters( {
@@ -311,6 +313,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     );
     affirm( parameters.leadingPower > 0 && parameters.trailingPower > 0, 'curve powers should be positive' );
 
+    // TODO: Name and describe this algorithm, and when it could fail, see https://github.com/phetsims/quantum-wave-interference/issues/135
     for ( let i = 0; i < 100; i++ ) {
       const candidate = parameters.startWeight +
                         dotRandom.nextDouble() * ( parameters.endWeight - parameters.startWeight );
@@ -344,6 +347,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   /**
    * Approximation for the standard normal quantile. Used to convert "fraction of packet weight that has
    * reached a detector plane" back into a packet-center offset in sigma_x units.
+   *
+   * TODO: Where does this implementation come from? Let's move to quantum-wave-interference/js/common/model/inverseStandardNormalCDF and use function instead of arrow closure, see https://github.com/phetsims/quantum-wave-interference/issues/135
    */
   private static inverseStandardNormalCDF( probability: number ): number {
     const p = clamp( probability, 1e-12, 1 - 1e-12 );
@@ -441,6 +446,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     }
   }
 
+  // TODO: Document. When is this called, and what are its responsibilities? see https://github.com/phetsims/quantum-wave-interference/issues/135
   private createPacketDecoherenceEventIfNeeded(): void {
     const slitConfig = this.slitConfigurationProperty.value;
     if (
@@ -469,6 +475,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.hasCreatedPacketDecoherenceEvent = true;
   }
 
+  // TODO: Document. When is this called, and what are its responsibilities? see https://github.com/phetsims/quantum-wave-interference/issues/135
   private startPacketReEmission( selectedSlit: 'topSlit' | 'bottomSlit', eventTime: number ): void {
     if ( selectedSlit === 'topSlit' ) {
       this.leftDetectorHitsProperty.value++;
@@ -546,11 +553,13 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     }
   }
 
+  // TODO: Document. When is this called, and what are its responsibilities? see https://github.com/phetsims/quantum-wave-interference/issues/135
   public computeDetectorProbability(): number {
     if ( !this.isPacketActiveProperty.value ) {
       return 0;
     }
 
+    // TODO: More sensible names (not abbreviations) for variables, see https://github.com/phetsims/quantum-wave-interference/issues/135
     const field = this.waveSolver.getAmplitudeField();
     const gw = this.waveSolver.gridWidth;
     const gh = this.waveSolver.gridHeight;
@@ -561,6 +570,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     let insideSum = 0;
     let totalSum = 0;
 
+    // TODO: What happening here? Document and explain: https://github.com/phetsims/quantum-wave-interference/issues/135
     for ( let iy = 0; iy < gh; iy++ ) {
       for ( let ix = 0; ix < gw; ix++ ) {
         const idx = ( iy * gw + ix ) * 2;
@@ -580,6 +590,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     return totalSum > 0 ? insideSum / totalSum : 0;
   }
 
+  // TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
   public performDetectorMeasurement(): void {
     if ( !this.isPacketActiveProperty.value || this.detectorToolStateProperty.value !== 'ready' ) {
       return;

@@ -212,6 +212,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
 
   public abstract takeSnapshot(): void;
 
+  // TODO: Is this unused? Remove if unused, See https://github.com/phetsims/quantum-wave-interference/issues/135
   public deleteSnapshot( snapshot: Snapshot ): void {
     this.sceneProperty.value.deleteSnapshot( snapshot );
   }

@@ -27,6 +27,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+// TODO: Brainstorm some great ways to simplify/reduce/refactor this file (at time of writing is >1000 LOC), see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 import Complex from '../../../../dot/js/Complex.js';
 
 const EPSILON = 1e-12;
@@ -197,6 +199,7 @@ function smoothStep( edge0: number, edge1: number, x: number ): number {
 
 // Fast Abramowitz-Stegun style approximation for Fresnel integrals. The max error is small enough
 // for rendering/unit-test invariants, and it avoids per-cell numerical quadrature in the canvas.
+// TODO: Move to ./fresnelIntegral.ts, see https://github.com/phetsims/quantum-wave-interference/issues/135
 function fresnelIntegral( x: number ): Complex {
   const sign = x < 0 ? -1 : 1;
   const ax = Math.abs( x );
@@ -217,6 +220,7 @@ function fresnelIntegral( x: number ): Complex {
   );
 }
 
+// TODO: Add a blend function to complex, follow patterns in Vector2, etc, see https://github.com/phetsims/quantum-wave-interference/issues/135
 const blendComplex = ( a: Complex, b: Complex, t: number ): Complex => new Complex(
   a.real + ( b.real - a.real ) * t,
   a.imaginary + ( b.imaginary - a.imaginary ) * t
@@ -399,6 +403,7 @@ export function evaluateAnalyticalLayeredSample(
   return applyPlaneWaveDecoherenceEventLayers( sample, parameters, x, y, t );
 }
 
+// TODO: Check every exported function in this file to make sure it needs to be exported and un-export the ones that don't need it, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export function evaluateAnalyticalSamples(
   parameters: AnalyticalWaveParameters,
   x: number,
@@ -428,6 +433,7 @@ export function evaluateAnalyticalSamples(
   };
 }
 
+// TODO: This and every function in this file need documentation. What does it do? How does it work? When would someone want to call it? What are side effects, or it's a pure function, see https://github.com/phetsims/quantum-wave-interference/issues/135
 function applyGaussianPacketMeasurementProjectionLayers(
   sample: Extract<FieldSample, { kind: 'field' }>,
   parameters: AnalyticalWaveParameters,

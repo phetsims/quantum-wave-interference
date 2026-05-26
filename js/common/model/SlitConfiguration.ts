@@ -33,6 +33,7 @@ export const DetectorSideValues = [ 'left', 'right' ] as const;
 
 export type DetectorSide = typeof DetectorSideValues[number];
 
+// TODO: Document all public functions, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export function hasDetectorOnSide( slitConfiguration: SlitConfigurationWithNoBarrier, detectorSide: DetectorSide ): boolean {
   return ( slitConfiguration === 'bothDetectors' ) ||
          ( slitConfiguration === 'leftDetector' && detectorSide === 'left' ) ||

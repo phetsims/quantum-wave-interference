@@ -11,6 +11,7 @@
 import { linear } from '../../../../dot/js/util/linear.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
+// TODO: Shouldn't this be in the view? Check me, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export const MIN_VIEW_SEPARATION = 40;
 export const MAX_VIEW_SEPARATION = 220;
 export const SLIT_VIEW_HEIGHT = 22;

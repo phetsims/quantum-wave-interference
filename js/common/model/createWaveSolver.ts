@@ -6,6 +6,8 @@
  * createContinuousWaveSolver() is used by the High Intensity screen (plane wave propagation).
  * createWavePacketSolver() is used by the Single Particles screen (Gaussian wave packet).
  *
+ * TODO: This file seems extraneous and unnecessary, document its utility or delete it, see https://github.com/phetsims/quantum-wave-interference/issues/135
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 

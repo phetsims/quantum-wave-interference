@@ -136,6 +136,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     emitterNode.right = waveRegionLeft + 2;
     emitterNode.centerY = waveRegionTop + waveRegionHeight / 2;
 
+    // TODO: Duplicated elsewhere
     const slitDetectorProperties = createSlitDetectorProperties( model.currentSlitConfigurationProperty );
     const waveRegionNode = new WaveRegionNode( model, {
       waveRegionLeft: waveRegionLeft,

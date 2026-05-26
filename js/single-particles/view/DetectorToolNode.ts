@@ -53,6 +53,7 @@ const DETECTOR_TOOL_DRAG_BOUNDS = new Bounds2( 0.05, 0.05, 0.95, 0.95 );
 const DetectorModeValues = [ 'destructive', 'nonDestructive' ] as const;
 type DetectorMode = typeof DetectorModeValues[number];
 
+// TODO: Improve documentation throughout this file, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export default class DetectorToolNode extends Node {
 
   //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Coupling to SingleParticlesModel suggests that the

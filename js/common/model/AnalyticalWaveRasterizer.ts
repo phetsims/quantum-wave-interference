@@ -17,7 +17,7 @@
  *
  * This rasterizer is intentionally where z-order policy lives. The kernel describes layers with an
  * order value, and this file sorts and composites them. That keeps the model-level wave description
- * independent from whether we eventually draw bands newest-on-top, oldest-on-top, or with another
+ * independent of whether we eventually draw bands newest-on-top, oldest-on-top, or with another
  * visual ordering.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -34,6 +34,7 @@ export const UNREACHED_VACUUM = 0;
 export const BLOCKED_VACUUM = 48;
 export const ABSORBED_VACUUM = 32;
 
+// TODO: Document supplemental types. Do they all need export? See https://github.com/phetsims/quantum-wave-interference/issues/135
 export type RGBColor = {
   red: number;
   green: number;
@@ -70,6 +71,7 @@ export type AnalyticalWaveRaster = {
 
 //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Generated code seems to prefer not to use 'function' for defining functions. Might facilitate unintended closures.
 
+// TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export function getFieldSampleRGBA(
   sample: FieldSample,
   displayMode: WaveDisplayMode,
@@ -142,6 +144,7 @@ export function getLayeredFieldSampleRGBA(
   };
 }
 
+// TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
 function getFieldLayerRGBA(
   layer: FieldLayer,
   displayMode: WaveDisplayMode,
@@ -157,6 +160,7 @@ function getFieldLayerRGBA(
   return getDisplayStateTransparentRGBA( displayState, displayMode, baseColor, amplitudeScale, layer.alpha );
 }
 
+// TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
 function getDisplayStateRGBA(
   displayState: FieldDisplayState,
   displayMode: WaveDisplayMode,
@@ -256,6 +260,7 @@ function getDisplayStateTransparentRGBA(
 
 const blend = ( a: number, b: number, t: number ): number => a + ( b - a ) * t;
 
+// Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
 type CoherenceGroupDisplayState = {
   coherenceGroup: string;
   value: Complex;
@@ -265,6 +270,7 @@ type CoherenceGroupDisplayState = {
   hasExplicitSupport: boolean;
 };
 
+// TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
 type FieldDisplayState = {
   value: Complex;
   intensity: number;
@@ -272,7 +278,7 @@ type FieldDisplayState = {
 };
 
 function getDisplayState(
-  sample: Extract<FieldSample, { kind: 'field' }>,
+  sample: Extract<FieldSample, { kind: 'field' }>, // TODO: Unused? See https://github.com/phetsims/quantum-wave-interference/issues/135
   groupStates: CoherenceGroupDisplayState[],
   amplitudeScale: number
 ): FieldDisplayState {
@@ -304,6 +310,7 @@ function getDisplayState(
   };
 }
 
+// TODO: Document every function in this whole file, what are the responsibilities? Who calls it, when and why? See https://github.com/phetsims/quantum-wave-interference/issues/135
 function getCoherenceGroupDisplayStates( sample: Extract<FieldSample, { kind: 'field' }> ): CoherenceGroupDisplayState[] {
   const groupStates: CoherenceGroupDisplayState[] = [];
   const groupIndexMap = new Map<string, number>();

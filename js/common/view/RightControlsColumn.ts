@@ -88,6 +88,7 @@ export type RightControlsColumnOptions = {
   slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
 };
 
+// TODO: Rename more related to what it is about, rather than where it will be located. See https://github.com/phetsims/quantum-wave-interference/issues/135
 export default class RightControlsColumn extends VBox {
 
   public readonly bottomButtonsRow: HBox;

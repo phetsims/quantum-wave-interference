@@ -343,6 +343,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return hasDetectorOnSide( this.slitConfigurationProperty.value, 'right' );
   }
 
+  // TODO: Document when this is supposed to be called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
   protected syncSolverParameters(): void {
     const effectiveWavelength = this.getEffectiveWavelength();
     const displayWavelengths = effectiveWavelength > 0 ?
@@ -456,6 +457,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     }
   }
 
+  // TODO: Document when called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
   protected createDecoherenceEventForSlitConfiguration(
     slitConfiguration: SlitConfigurationWithNoBarrier,
     time: number
@@ -529,6 +531,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
   }
 
+  // TODO: Document when called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
   public clearScreen(): void {
     if ( this.isResetting ) {
       return;
@@ -566,6 +569,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
   }
 
+  // TODO: Document when called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
   protected clearWaveStateWhenEmitterTurnsOff(): void {
     this.clearWaveState();
   }
