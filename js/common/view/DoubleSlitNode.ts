@@ -13,9 +13,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-// TODO: Long file, how can we divide it up or modularize, see https://github.com/phetsims/quantum-wave-interference/issues/135
-
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
 import TinyProperty from '../../../../axon/js/TinyProperty.js';
 import TProperty from '../../../../axon/js/TProperty.js';
@@ -24,18 +21,14 @@ import Range from '../../../../dot/js/Range.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
-import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
-import Text from '../../../../scenery/js/nodes/Text.js';
-import Panel from '../../../../sun/js/Panel.js';
-import Animation from '../../../../twixt/js/Animation.js';
-import Easing from '../../../../twixt/js/Easing.js';
 import { type BarrierType } from '../model/BarrierType.js';
 import { getViewSlitLayout, SLIT_VIEW_HEIGHT } from '../model/getViewSlitLayout.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import SlitDetectorNode from './SlitDetectorNode.js';
 
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -45,19 +38,6 @@ const CORNER_RADIUS = 0;
 const BARRIER_FILL = '#939393';
 const ARROW_WIDTH = 40;
 const WAVE_REGION_FILL_INSET = 0.5;
-
-const DETECTOR_OVERLAY_LINE_WIDTH = 2;
-const DETECTOR_OVERLAY_RECT_WIDTH = BARRIER_VIEW_WIDTH - DETECTOR_OVERLAY_LINE_WIDTH;
-const DETECTOR_OVERLAY_RECT_HEIGHT = SLIT_VIEW_HEIGHT - DETECTOR_OVERLAY_LINE_WIDTH;
-const DETECTOR_OVERLAY_ALPHA = 0.4;
-const DETECTOR_COUNT_FONT = new PhetFont( 12 );
-const DETECTOR_COUNT_PANEL_X_MARGIN = 3;
-const DETECTOR_COUNT_PANEL_Y_MARGIN = 2;
-const DETECTOR_COUNT_PANEL_CORNER_RADIUS = 3;
-const DETECTOR_COUNT_PANEL_OFFSET = 7;
-const DETECTOR_COUNT_TEXT_MAX_WIDTH = 40;
-const DETECTOR_FLASH_OPACITY = 0.85;
-const DETECTOR_FLASH_DURATION = 0.18;
 
 const SLIT_POSITION_FRACTION_RANGE = new Range( 0.25, 0.75 );
 
@@ -109,73 +89,8 @@ export default class DoubleSlitNode extends Node {
       fill: QuantumWaveInterferenceColors.slitCoverFillProperty
     } );
 
-    const detectorOverlayFillWithAlphaProperty = new DerivedProperty(
-      [ QuantumWaveInterferenceColors.detectorOverlayFillProperty ],
-      color => color.withAlpha( DETECTOR_OVERLAY_ALPHA )
-    );
-
-    const topDetector = new Rectangle( 0, 0, DETECTOR_OVERLAY_RECT_WIDTH, DETECTOR_OVERLAY_RECT_HEIGHT,
-      CORNER_RADIUS, CORNER_RADIUS, {
-        fill: detectorOverlayFillWithAlphaProperty,
-        stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
-        lineWidth: DETECTOR_OVERLAY_LINE_WIDTH
-      } );
-    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Same as implementation of topDetector.
-    const bottomDetector = new Rectangle( 0, 0, DETECTOR_OVERLAY_RECT_WIDTH, DETECTOR_OVERLAY_RECT_HEIGHT,
-      CORNER_RADIUS, CORNER_RADIUS, {
-        fill: detectorOverlayFillWithAlphaProperty,
-        stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
-        lineWidth: DETECTOR_OVERLAY_LINE_WIDTH
-      } );
-    const topDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS, {
-      fill: 'white',
-      opacity: 0,
-      visible: false,
-      pickable: false
-    } );
-    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Same as the implementation of topDetectorFlash, subclass or creation function?
-    const bottomDetectorFlash = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS, {
-      fill: 'white',
-      opacity: 0,
-      visible: false,
-      pickable: false
-    } );
-
-    const topDetectorCountStringProperty = new DerivedProperty(
-      [ options.topDetectorCountProperty ],
-      count => `${count}`
-    );
-    const bottomDetectorCountStringProperty = new DerivedProperty(
-      [ options.bottomDetectorCountProperty ],
-      count => `${count}`
-    );
-
-    const topDetectorCountText = new Text( topDetectorCountStringProperty, {
-      font: DETECTOR_COUNT_FONT,
-      fill: 'black',
-      maxWidth: DETECTOR_COUNT_TEXT_MAX_WIDTH
-    } );
-    const bottomDetectorCountText = new Text( bottomDetectorCountStringProperty, {
-      font: DETECTOR_COUNT_FONT,
-      fill: 'black',
-      maxWidth: DETECTOR_COUNT_TEXT_MAX_WIDTH
-    } );
-    const topDetectorCountPanel = new Panel( topDetectorCountText, {
-      fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty,
-      stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
-      xMargin: DETECTOR_COUNT_PANEL_X_MARGIN,
-      yMargin: DETECTOR_COUNT_PANEL_Y_MARGIN,
-      cornerRadius: DETECTOR_COUNT_PANEL_CORNER_RADIUS,
-      align: 'center'
-    } );
-    const bottomDetectorCountPanel = new Panel( bottomDetectorCountText, {
-      fill: QuantumWaveInterferenceColors.detectorOverlayFillProperty,
-      stroke: QuantumWaveInterferenceColors.detectorOverlayStrokeProperty,
-      xMargin: DETECTOR_COUNT_PANEL_X_MARGIN,
-      yMargin: DETECTOR_COUNT_PANEL_Y_MARGIN,
-      cornerRadius: DETECTOR_COUNT_PANEL_CORNER_RADIUS,
-      align: 'center'
-    } );
+    const topSlitDetectorNode = new SlitDetectorNode( options.isTopSlitDetectorProperty, options.topDetectorCountProperty );
+    const bottomSlitDetectorNode = new SlitDetectorNode( options.isBottomSlitDetectorProperty, options.bottomDetectorCountProperty );
 
     const barrierContainer = new Node( {
       children: [
@@ -184,12 +99,8 @@ export default class DoubleSlitNode extends Node {
         bottomBarrier,
         topCover,
         bottomCover,
-        topDetector,
-        bottomDetector,
-        topDetectorFlash,
-        bottomDetectorFlash,
-        topDetectorCountPanel,
-        bottomDetectorCountPanel
+        topSlitDetectorNode,
+        bottomSlitDetectorNode
       ]
     } );
     barrierContainer.clipArea = Shape.rectangle(
@@ -229,67 +140,12 @@ export default class DoubleSlitNode extends Node {
     arrowNode.addInputListener( createDragListener() );
     barrierContainer.addInputListener( createDragListener() );
 
-    let topDetectorFlashAnimation: Animation | null = null;
-    let bottomDetectorFlashAnimation: Animation | null = null;
-
-    const flashDetector = ( detectorFlash: Rectangle, isTopDetector: boolean ) => {
-      const previousAnimation = isTopDetector ? topDetectorFlashAnimation : bottomDetectorFlashAnimation;
-      if ( previousAnimation ) {
-        previousAnimation.stop();
-      }
-
-      detectorFlash.opacity = DETECTOR_FLASH_OPACITY;
-      detectorFlash.visible = true;
-
-      const flashAnimation = new Animation( {
-        object: detectorFlash,
-        attribute: 'opacity',
-        from: DETECTOR_FLASH_OPACITY,
-        to: 0,
-        duration: DETECTOR_FLASH_DURATION,
-        easing: Easing.LINEAR
-      } );
-
-      if ( isTopDetector ) {
-        topDetectorFlashAnimation = flashAnimation;
-      }
-      else {
-        bottomDetectorFlashAnimation = flashAnimation;
-      }
-
-      flashAnimation.endedEmitter.addListener( () => {
-        if ( isTopDetector && topDetectorFlashAnimation === flashAnimation ) {
-          topDetectorFlashAnimation = null;
-          detectorFlash.visible = false;
-        }
-        else if ( !isTopDetector && bottomDetectorFlashAnimation === flashAnimation ) {
-          bottomDetectorFlashAnimation = null;
-          detectorFlash.visible = false;
-        }
-        flashAnimation.dispose();
-      } );
-
-      flashAnimation.start();
-    };
-
-    options.topDetectorCountProperty.lazyLink( ( count, oldCount ) => {
-      if ( count > oldCount ) {
-        flashDetector( topDetectorFlash, true );
-      }
-    } );
-    options.bottomDetectorCountProperty.lazyLink( ( count, oldCount ) => {
-      if ( count > oldCount ) {
-        flashDetector( bottomDetectorFlash, false );
-      }
-    } );
-
     Multilink.multilink(
       [ barrierTypeProperty, slitPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
         options.isTopSlitCoveredProperty, options.isBottomSlitCoveredProperty,
-        options.isTopSlitDetectorProperty, options.isBottomSlitDetectorProperty,
         options.topDetectorCountProperty, options.bottomDetectorCountProperty ],
       ( barrierType, slitPositionFraction, slitSeparation, slitSeparationRange,
-        isTopCovered, isBottomCovered, isTopDetectorOn, isBottomDetectorOn ) => {
+        isTopCovered, isBottomCovered ) => {
 
         const isDoubleSlit = barrierType === 'doubleSlit';
         barrierContainer.visible = isDoubleSlit;
@@ -342,44 +198,8 @@ export default class DoubleSlitNode extends Node {
         topCover.visible = isTopCovered;
         bottomCover.visible = isBottomCovered;
 
-        topDetector.setRect(
-          barrierX + DETECTOR_OVERLAY_LINE_WIDTH / 2,
-          topBarrierBottom + DETECTOR_OVERLAY_LINE_WIDTH / 2,
-          DETECTOR_OVERLAY_RECT_WIDTH,
-          DETECTOR_OVERLAY_RECT_HEIGHT,
-          CORNER_RADIUS, CORNER_RADIUS
-        );
-        bottomDetector.setRect(
-          barrierX + DETECTOR_OVERLAY_LINE_WIDTH / 2,
-          centralBarrierBottom + DETECTOR_OVERLAY_LINE_WIDTH / 2,
-          DETECTOR_OVERLAY_RECT_WIDTH,
-          DETECTOR_OVERLAY_RECT_HEIGHT,
-          CORNER_RADIUS, CORNER_RADIUS
-        );
-        topDetector.visible = isTopDetectorOn;
-        bottomDetector.visible = isBottomDetectorOn;
-        topDetectorFlash.setRect(
-          topDetector.left,
-          topDetector.top,
-          topDetector.width,
-          topDetector.height,
-          CORNER_RADIUS, CORNER_RADIUS
-        );
-        bottomDetectorFlash.setRect(
-          bottomDetector.left,
-          bottomDetector.top,
-          bottomDetector.width,
-          bottomDetector.height,
-          CORNER_RADIUS, CORNER_RADIUS
-        );
-        topDetectorFlash.visible = isTopDetectorOn && topDetectorFlash.opacity > 0;
-        bottomDetectorFlash.visible = isBottomDetectorOn && bottomDetectorFlash.opacity > 0;
-        topDetectorCountPanel.visible = isTopDetectorOn;
-        bottomDetectorCountPanel.visible = isBottomDetectorOn;
-        topDetectorCountPanel.centerX = topDetector.centerX;
-        topDetectorCountPanel.bottom = topDetector.top - DETECTOR_COUNT_PANEL_OFFSET;
-        bottomDetectorCountPanel.centerX = bottomDetector.centerX;
-        bottomDetectorCountPanel.top = bottomDetector.bottom + DETECTOR_COUNT_PANEL_OFFSET;
+        topSlitDetectorNode.layoutDetector( barrierX, topBarrierBottom, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, 'above' );
+        bottomSlitDetectorNode.layoutDetector( barrierX, centralBarrierBottom, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, 'below' );
 
         const arrowY = WAVE_REGION_HEIGHT + 12;
         const barrierCenterX = barrierX + BARRIER_VIEW_WIDTH / 2;
