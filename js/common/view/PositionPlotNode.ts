@@ -3,15 +3,15 @@
 /**
  * PositionPlotNode is a tool that shows the currently displayed wave quantity versus horizontal
  * position along a draggable horizontal dotted line across the wave visualization region.
- * It consists of a chart panel connected to a horizontal sampling line.
+ * It consists of a full-width aperture probe, a fixed chart panel below that probe, and a short
+ * vertical wire that visually connects them. The aperture probe's y-position selects a horizontal
+ * row through the current scene's wave field; each frame, this node samples that row and redraws
+ * the chart as wave quantity versus model x-position.
  *
  * Analogous to the WaveAreaGraphNode in wave-interference.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
-
-// TODO: Err on the side of too much documentation instead of too little, we have to maintain and understand this file.
-// See https://github.com/phetsims/quantum-wave-interference/issues/135
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
@@ -26,6 +26,7 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import { type WaveDisplayModePolarity } from '../model/getDisplayModePolarity.js';
 import getDisplayedWaveValue from '../model/getDisplayedWaveValue.js';
 import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
@@ -62,7 +63,11 @@ export default class PositionPlotNode extends Node {
   private readonly activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   private readonly chartNode: WavePlotChartNode;
   private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
-  private readonly updatePlotLayout: () => void;
+  private readonly apertureProbeNode: Node;
+  private readonly wireLine: Line;
+  private readonly waveRegionY: number;
+  private readonly waveRegionHeight: number;
+  private readonly lineCenterX: number;
 
   // Normalized y-position of the horizontal line [0, 1] where 0 = top and 1 = bottom of the wave region
   private readonly lineYFractionProperty: NumberProperty;
@@ -80,7 +85,9 @@ export default class PositionPlotNode extends Node {
     this.activeDisplayModeProperty = activeDisplayModeProperty;
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
-    const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
+    this.waveRegionY = waveRegionY;
+    this.waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
+    this.lineCenterX = waveRegionX + waveRegionWidth / 2;
 
     this.lineYFractionProperty = new NumberProperty( 0.5, {
       range: new Range( MIN_Y_FRACTION, MAX_Y_FRACTION )
@@ -93,14 +100,40 @@ export default class PositionPlotNode extends Node {
       displayMode => getMaxDisplayedWaveValue( displayMode )
     );
 
-    const apertureProbeNode = PositionPlotNode.createApertureProbeNode( waveRegionX, waveRegionWidth );
-    this.addChild( apertureProbeNode );
+    this.apertureProbeNode = PositionPlotNode.createApertureProbeNode( waveRegionX, waveRegionWidth );
+    this.addChild( this.apertureProbeNode );
 
-    const lineCenterX = waveRegionX + waveRegionWidth / 2;
+    const verticalDragListener = this.createVerticalDragListener();
+    this.apertureProbeNode.addInputListener( verticalDragListener );
 
+    this.chartNode = this.createChartNode( waveRegionX, waveRegionWidth, yAxisLabelStringProperty, polarityProperty );
+    this.chartNode.addInputListener( verticalDragListener );
+    this.addChild( this.chartNode );
+
+    this.wireLine = new Line( this.lineCenterX, 0, this.lineCenterX, 0, {
+      stroke: POSITION_PROBE_STROKE_COLOR,
+      lineWidth: WIRE_LINE_WIDTH
+    } );
+    this.addChild( this.wireLine );
+    this.wireLine.moveToBack();
+
+    this.lineYFractionProperty.link( () => this.updateProbeChartAndWireLayout() );
+
+    this.addInputListener( {
+      down: () => this.moveToFront()
+    } );
+  }
+
+  /**
+   * Creates the input listener shared by both the aperture probe and the chart panel. Dragging
+   * either visible part moves the single sampled horizontal row. `lineYFractionProperty` remains
+   * the only source of truth so probe, chart, wire, and sampled model row cannot drift apart.
+   */
+  private createVerticalDragListener(): DragListener {
     let dragStartY = 0;
     let dragStartFraction = this.lineYFractionProperty.value;
-    const verticalDragListener = new DragListener( {
+
+    return new DragListener( {
       start: ( event, listener ) => {
         this.moveToFront();
         dragStartY = listener.parentPoint.y;
@@ -108,15 +141,31 @@ export default class PositionPlotNode extends Node {
       },
       drag: ( event, listener ) => {
         this.lineYFractionProperty.value = clamp(
-          dragStartFraction + ( listener.parentPoint.y - dragStartY ) / waveRegionHeight,
+          dragStartFraction + ( listener.parentPoint.y - dragStartY ) / this.waveRegionHeight,
           MIN_Y_FRACTION,
           MAX_Y_FRACTION
         );
       }
     } );
-    apertureProbeNode.addInputListener( verticalDragListener );
+  }
 
-    this.chartNode = new WavePlotChartNode( {
+  /**
+   * Creates the fixed-width chart panel that displays wave quantity versus horizontal model
+   * position. The panel is not freely draggable; the shared vertical drag listener moves it
+   * together with the aperture probe.
+   *
+   * @param waveRegionX - left edge of the wave visualization region
+   * @param waveRegionWidth - width of the wave visualization region
+   * @param yAxisLabelStringProperty - localized label for the active wave display quantity
+   * @param polarityProperty - whether the active display quantity is unipolar or bipolar
+   */
+  private createChartNode(
+    waveRegionX: number,
+    waveRegionWidth: number,
+    yAxisLabelStringProperty: TReadOnlyProperty<string>,
+    polarityProperty: TReadOnlyProperty<WaveDisplayModePolarity>
+  ): WavePlotChartNode {
+    return new WavePlotChartNode( {
       yAxisLabelStringProperty: yAxisLabelStringProperty,
       xAxisLabelStringProperty: QuantumWaveInterferenceFluent.positionStringProperty,
       polarityProperty: polarityProperty,
@@ -129,37 +178,33 @@ export default class PositionPlotNode extends Node {
       panelTopPadding: POSITION_PLOT_PANEL_TOP_PADDING,
       panelRightPadding: POSITION_PLOT_PANEL_RIGHT_PADDING,
       x: waveRegionX,
-      y: waveRegionY + waveRegionHeight + 30
-    } );
-    this.chartNode.addInputListener( verticalDragListener );
-    this.addChild( this.chartNode );
-
-    const wireLine = new Line( lineCenterX, 0, lineCenterX, 0, {
-      stroke: POSITION_PROBE_STROKE_COLOR,
-      lineWidth: WIRE_LINE_WIDTH
-    } );
-    this.addChild( wireLine );
-    wireLine.moveToBack();
-
-    this.updatePlotLayout = () => {
-      const fraction = this.lineYFractionProperty.value;
-      const viewY = waveRegionY + fraction * waveRegionHeight;
-      apertureProbeNode.centerY = viewY;
-
-      this.chartNode.top = apertureProbeNode.bottom + APERTURE_TO_PANEL_GAP;
-      wireLine.x1 = lineCenterX;
-      wireLine.x2 = lineCenterX;
-      wireLine.y1 = this.chartNode.top;
-      wireLine.y2 = apertureProbeNode.bottom;
-    };
-
-    this.lineYFractionProperty.link( this.updatePlotLayout );
-
-    this.addInputListener( {
-      down: () => this.moveToFront()
+      y: this.waveRegionY + this.waveRegionHeight + 30
     } );
   }
 
+  /**
+   * Positions the aperture probe, chart panel, and connecting wire from lineYFractionProperty.
+   * This runs immediately when the Property is linked and whenever the user drags vertically.
+   */
+  private updateProbeChartAndWireLayout(): void {
+    const fraction = this.lineYFractionProperty.value;
+    const viewY = this.waveRegionY + fraction * this.waveRegionHeight;
+    this.apertureProbeNode.centerY = viewY;
+
+    this.chartNode.top = this.apertureProbeNode.bottom + APERTURE_TO_PANEL_GAP;
+    this.wireLine.x1 = this.lineCenterX;
+    this.wireLine.x2 = this.lineCenterX;
+    this.wireLine.y1 = this.chartNode.top;
+    this.wireLine.y2 = this.apertureProbeNode.bottom;
+  }
+
+  /**
+   * Creates the aperture-shaped probe that spans the wave visualization. The opaque frame shows
+   * which horizontal row is selected while the transparent middle keeps the wave field visible.
+   *
+   * @param waveRegionX - left edge of the wave visualization region
+   * @param waveRegionWidth - width of the wave visualization region
+   */
   private static createApertureProbeNode( waveRegionX: number, waveRegionWidth: number ): Node {
     const outerWidth = waveRegionWidth + 2 * POSITION_PROBE_SIDE_FRAME_WIDTH;
     const outerHeight = POSITION_PROBE_APERTURE_HEIGHT + 2 * POSITION_PROBE_FRAME_THICKNESS;
@@ -214,18 +259,40 @@ export default class PositionPlotNode extends Node {
     return apertureProbeNode;
   }
 
+  /**
+   * Samples the selected horizontal row of the current scene and redraws the position chart.
+   */
   public step(): void {
     if ( !this.visible ) {
       return;
     }
 
-    const scene = this.sceneProperty.value;
+    this.updateChart( this.sceneProperty.value );
+  }
+
+  /**
+   * Redraws the chart path from the current position-series samples.
+   *
+   * @param scene - scene containing the wave solver and model region dimensions to sample
+   */
+  private updateChart( scene: WaveVisualizableScene ): void {
+    const points = this.createPositionPlotPoints( scene );
+    this.chartNode.setDataPathFromPoints( points, 0, scene.regionWidth, this.maxDisplayValueProperty.value );
+  }
+
+  /**
+   * Creates ordered model-space samples along the selected horizontal row. The x-coordinate spans
+   * [ 0, scene.regionWidth ], and the value is converted from complex wave amplitude into the
+   * currently selected display representation.
+   *
+   * @param scene - scene containing the wave solver and model region dimensions to sample
+   */
+  private createPositionPlotPoints( scene: WaveVisualizableScene ): WavePlotDataPoint[] {
     const solver = scene.waveSolver;
     const displayMode = this.activeDisplayModeProperty.value;
-    const scale = this.maxDisplayValueProperty.value;
     const chartWidth = this.chartNode.chartWidth;
     const numSamples = chartWidth * POSITION_PLOT_SAMPLES_PER_PIXEL;
-    const modelY = this.lineYFractionProperty.value * scene.regionHeight - scene.regionHeight / 2;
+    const modelY = this.getSampleModelY( scene );
     const points: WavePlotDataPoint[] = [];
 
     for ( let i = 0; i <= numSamples; i++ ) {
@@ -236,12 +303,27 @@ export default class PositionPlotNode extends Node {
       points.push( { x: modelX, value: displayValue } );
     }
 
-    this.chartNode.setDataPathFromPoints( points, 0, scene.regionWidth, scale );
+    return points;
   }
 
+  /**
+   * Converts the selected normalized view-row fraction into the scene's model y-coordinate. Model
+   * y is centered vertically, so the top of the wave region maps to -regionHeight / 2 and the
+   * bottom maps to +regionHeight / 2.
+   *
+   * @param scene - scene whose region height defines model coordinates
+   */
+  private getSampleModelY( scene: WaveVisualizableScene ): number {
+    return this.lineYFractionProperty.value * scene.regionHeight - scene.regionHeight / 2;
+  }
+
+  /**
+   * Restores the sampled row to the vertical center and clears the rendered chart until the next
+   * animation step repopulates it.
+   */
   public reset(): void {
     this.lineYFractionProperty.reset();
     this.chartNode.clearDataPath();
-    this.updatePlotLayout();
+    this.updateProbeChartAndWireLayout();
   }
 }
