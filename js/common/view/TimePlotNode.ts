@@ -11,8 +11,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-// TODO: This file is too long and difficult to understand. Add documentation, modularize, factor out, we want very maintainable, see https://github.com/phetsims/quantum-wave-interference/issues/135
-
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
@@ -20,7 +18,6 @@ import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
-import Shape from '../../../../kite/js/Shape.js';
 import ProbeNode from '../../../../scenery-phet/js/ProbeNode.js';
 import WireNode from '../../../../scenery-phet/js/WireNode.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
@@ -32,10 +29,10 @@ import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
+import TimePlotDataSeries from './TimePlotDataSeries.js';
 import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
-import WavePlotChartNode from './WavePlotChartNode.js';
+import WavePlotChartNode, { type WavePlotDataPoint } from './WavePlotChartNode.js';
 
 const PROBE_COLOR = '#808080';
 const WIRE_COLOR = new Color( PROBE_COLOR ).darkerColor( 0.7 );
@@ -44,10 +41,6 @@ const PROBE_SCALE = 0.4;
 const WIRE_LINE_WIDTH = 3;
 const WIRE_NORMAL_DISTANCE = 25;
 const WIRE_PANEL_ATTACHMENT_ABOVE_BOTTOM = 20;
-const MAX_TIME_WINDOW = 1; // seconds of data shown
-const MAX_SAMPLES = QuantumWaveInterferenceQueryParameters.timePlotMaxSamples;
-const TIME_SAMPLE_INTERVAL = MAX_TIME_WINDOW / MAX_SAMPLES;
-const TIME_EPSILON = 1e-12;
 const TIME_PLOT_CHART_WIDTH = 190;
 const TIME_PLOT_CHART_HEIGHT = 135;
 const TIME_PLOT_PANEL_LEFT_PADDING = 8;
@@ -55,20 +48,12 @@ const TIME_PLOT_PANEL_BOTTOM_PADDING = 8;
 const TIME_PLOT_PANEL_TOP_PADDING = 12;
 const TIME_PLOT_PANEL_RIGHT_PADDING = 12;
 
-type TimePlotDataPoint = {
-  time: number;
-  value: number;
-};
-
 export default class TimePlotNode extends Node {
 
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
   private readonly activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   private readonly chartNode: WavePlotChartNode;
-  private readonly timeSeries: TimePlotDataPoint[];
-  private elapsedTime: number;
-  private previousSolverTime: number | null;
-  private nextSampleSolverTime: number | null;
+  private readonly dataSeries: TimePlotDataSeries;
   private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
   private readonly probeNode: Node;
   private readonly probePositionProperty: Vector2Property;
@@ -85,37 +70,23 @@ export default class TimePlotNode extends Node {
 
     this.sceneProperty = sceneProperty;
     this.activeDisplayModeProperty = activeDisplayModeProperty;
-    this.timeSeries = [];
-    this.elapsedTime = 0;
-    this.previousSolverTime = null;
-    this.nextSampleSolverTime = null;
+    this.dataSeries = new TimePlotDataSeries();
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
-    this.waveRegionBounds = new Bounds2( waveRegionX, waveRegionY, waveRegionX + waveRegionWidth, waveRegionY + waveRegionHeight );
-
-    const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( activeDisplayModeProperty );
-    const polarityProperty = waveDisplayModePolarityProperty( activeDisplayModeProperty );
+    this.waveRegionBounds = new Bounds2(
+      waveRegionX,
+      waveRegionY,
+      waveRegionX + waveRegionWidth,
+      waveRegionY + waveRegionHeight
+    );
 
     this.maxDisplayValueProperty = new DerivedProperty(
       [ activeDisplayModeProperty ],
       displayMode => getMaxDisplayedWaveValue( displayMode )
     );
 
-    this.chartNode = new WavePlotChartNode( {
-      yAxisLabelStringProperty: yAxisLabelStringProperty,
-      xAxisLabelStringProperty: QuantumWaveInterferenceFluent.timeStringProperty,
-      polarityProperty: polarityProperty,
-      chartWidth: TIME_PLOT_CHART_WIDTH,
-      chartHeight: TIME_PLOT_CHART_HEIGHT,
-      axisLabelFill: 'white',
-      panelLeftPadding: TIME_PLOT_PANEL_LEFT_PADDING,
-      panelBottomPadding: TIME_PLOT_PANEL_BOTTOM_PADDING,
-      panelTopPadding: TIME_PLOT_PANEL_TOP_PADDING,
-      panelRightPadding: TIME_PLOT_PANEL_RIGHT_PADDING,
-      x: waveRegionX + waveRegionWidth - TIME_PLOT_CHART_WIDTH - 30,
-      y: waveRegionY + waveRegionHeight - TIME_PLOT_CHART_HEIGHT - 40
-    } );
+    this.chartNode = this.createChartNode( waveRegionX, waveRegionY, waveRegionWidth, waveRegionHeight );
     this.addChild( this.chartNode );
 
     this.probePositionProperty = new Vector2Property( new Vector2(
@@ -129,22 +100,7 @@ export default class TimePlotNode extends Node {
       this.probeNode.center = position;
     } );
 
-    const chartConnectionProperty = new DerivedProperty(
-      [ this.chartNode.boundsProperty ],
-      bounds => bounds.leftBottom.plusXY( 0, -WIRE_PANEL_ATTACHMENT_ABOVE_BOTTOM )
-    );
-    const probeConnectionProperty = new DerivedProperty(
-      [ this.probeNode.boundsProperty ],
-      bounds => bounds.centerBottom
-    );
-    const wireNormal1Property = new Vector2Property( new Vector2( -WIRE_NORMAL_DISTANCE, 0 ) );
-    const wireNormal2Property = new Vector2Property( new Vector2( 0, WIRE_NORMAL_DISTANCE ) );
-
-    const wireNode = new WireNode( chartConnectionProperty, wireNormal1Property, probeConnectionProperty, wireNormal2Property, {
-      stroke: WIRE_COLOR,
-      lineWidth: WIRE_LINE_WIDTH
-    } );
-    this.addChild( wireNode );
+    this.addChild( this.createWireNode() );
     this.addChild( this.probeNode );
 
     this.addInputListener( {
@@ -158,6 +114,39 @@ export default class TimePlotNode extends Node {
     activeDisplayModeProperty.link( () => this.clearData() );
   }
 
+  /**
+   * Creates the draggable chart panel that displays the time-series trace.
+   *
+   * @param waveRegionX - left edge of the wave visualization region
+   * @param waveRegionY - top edge of the wave visualization region
+   * @param waveRegionWidth - width of the wave visualization region
+   * @param waveRegionHeight - height of the wave visualization region
+   */
+  private createChartNode(
+    waveRegionX: number,
+    waveRegionY: number,
+    waveRegionWidth: number,
+    waveRegionHeight: number
+  ): WavePlotChartNode {
+    return new WavePlotChartNode( {
+      yAxisLabelStringProperty: waveDisplayModeYAxisLabelProperty( this.activeDisplayModeProperty ),
+      xAxisLabelStringProperty: QuantumWaveInterferenceFluent.timeStringProperty,
+      polarityProperty: waveDisplayModePolarityProperty( this.activeDisplayModeProperty ),
+      chartWidth: TIME_PLOT_CHART_WIDTH,
+      chartHeight: TIME_PLOT_CHART_HEIGHT,
+      axisLabelFill: 'white',
+      panelLeftPadding: TIME_PLOT_PANEL_LEFT_PADDING,
+      panelBottomPadding: TIME_PLOT_PANEL_BOTTOM_PADDING,
+      panelTopPadding: TIME_PLOT_PANEL_TOP_PADDING,
+      panelRightPadding: TIME_PLOT_PANEL_RIGHT_PADDING,
+      x: waveRegionX + waveRegionWidth - TIME_PLOT_CHART_WIDTH - 30,
+      y: waveRegionY + waveRegionHeight - TIME_PLOT_CHART_HEIGHT - 40
+    } );
+  }
+
+  /**
+   * Creates the draggable crosshair probe that selects the wave-region point sampled by the chart.
+   */
   private createCrosshairProbe(): Node {
     const probe = new ProbeNode( {
       color: PROBE_COLOR,
@@ -175,6 +164,27 @@ export default class TimePlotNode extends Node {
     return probe;
   }
 
+  /**
+   * Creates the wire connecting the chart panel to the crosshair probe.
+   */
+  private createWireNode(): WireNode {
+    const chartConnectionProperty = new DerivedProperty(
+      [ this.chartNode.boundsProperty ],
+      bounds => bounds.leftBottom.plusXY( 0, -WIRE_PANEL_ATTACHMENT_ABOVE_BOTTOM )
+    );
+    const probeConnectionProperty = new DerivedProperty(
+      [ this.probeNode.boundsProperty ],
+      bounds => bounds.centerBottom
+    );
+    const wireNormal1Property = new Vector2Property( new Vector2( -WIRE_NORMAL_DISTANCE, 0 ) );
+    const wireNormal2Property = new Vector2Property( new Vector2( 0, WIRE_NORMAL_DISTANCE ) );
+
+    return new WireNode( chartConnectionProperty, wireNormal1Property, probeConnectionProperty, wireNormal2Property, {
+      stroke: WIRE_COLOR,
+      lineWidth: WIRE_LINE_WIDTH
+    } );
+  }
+
   public step( dt: number ): void {
     if ( !this.visible || dt <= 0 ) {
       return;
@@ -184,110 +194,69 @@ export default class TimePlotNode extends Node {
     const solver = scene.waveSolver;
     const currentSolverTime = solver.getTime();
 
-    if ( this.previousSolverTime !== null && currentSolverTime + TIME_EPSILON < this.previousSolverTime ) {
-      this.clearData();
-    }
-
-    if ( this.previousSolverTime === null ) {
-      this.addSample( scene, currentSolverTime, this.elapsedTime );
-      this.previousSolverTime = currentSolverTime;
-      this.nextSampleSolverTime = currentSolverTime + TIME_SAMPLE_INTERVAL;
+    // Sample at fixed solver-time intervals instead of once per animation frame so trace density
+    // and phase history are independent of browser frame timing.
+    const didStep = this.dataSeries.stepAtSolverTime( currentSolverTime, solverTime =>
+      this.getDisplayedProbeValue( scene, solverTime )
+    );
+    if ( didStep ) {
       this.updateChart();
-      return;
     }
-
-    if ( currentSolverTime <= this.previousSolverTime + TIME_EPSILON ) {
-      return;
-    }
-
-    const previousSolverTime = this.previousSolverTime;
-    const previousElapsedTime = this.elapsedTime;
-    const solverDt = currentSolverTime - previousSolverTime;
-    this.elapsedTime += solverDt;
-
-    let nextSampleSolverTime = this.nextSampleSolverTime || previousSolverTime + TIME_SAMPLE_INTERVAL;
-    const minVisibleSolverTime = currentSolverTime - MAX_TIME_WINDOW;
-
-    // If a large time jump occurred, skip directly to the visible part of the chart window.
-    if ( nextSampleSolverTime < minVisibleSolverTime ) {
-      nextSampleSolverTime += Math.floor( ( minVisibleSolverTime - nextSampleSolverTime ) / TIME_SAMPLE_INTERVAL ) * TIME_SAMPLE_INTERVAL;
-      while ( nextSampleSolverTime < minVisibleSolverTime ) {
-        nextSampleSolverTime += TIME_SAMPLE_INTERVAL;
-      }
-    }
-
-    while ( nextSampleSolverTime <= currentSolverTime + TIME_EPSILON ) {
-      const plotTime = previousElapsedTime + nextSampleSolverTime - previousSolverTime;
-      this.addSample( scene, nextSampleSolverTime, plotTime );
-      nextSampleSolverTime += TIME_SAMPLE_INTERVAL;
-    }
-
-    this.previousSolverTime = currentSolverTime;
-    this.nextSampleSolverTime = nextSampleSolverTime;
-
-    this.trimData();
-    this.updateChart();
   }
 
-  private addSample( scene: WaveVisualizableScene, solverTime: number, plotTime: number ): void {
+  /**
+   * Converts the crosshair probe's view position to the scene's model coordinates.
+   *
+   * @param scene - scene whose region dimensions define model coordinates
+   */
+  private getProbeModelPosition( scene: WaveVisualizableScene ): Vector2 {
     const probePos = this.probePositionProperty.value;
     const normalizedX = clamp( ( probePos.x - this.waveRegionBounds.minX ) / this.waveRegionBounds.width, 0, 1 );
     const normalizedY = clamp( ( probePos.y - this.waveRegionBounds.minY ) / this.waveRegionBounds.height, 0, 1 );
 
     const x = normalizedX * scene.regionWidth;
     const y = normalizedY * scene.regionHeight - scene.regionHeight / 2;
-    const value = scene.waveSolver.evaluate( x, y, solverTime );
+    return new Vector2( x, y );
+  }
+
+  /**
+   * Samples the scene's wave field at the probe position and converts it to the active display mode.
+   *
+   * @param scene - scene containing the wave solver to sample
+   * @param solverTime - solver time for the requested sample
+   */
+  private getDisplayedProbeValue( scene: WaveVisualizableScene, solverTime: number ): number {
+    const modelPosition = this.getProbeModelPosition( scene );
+    const value = scene.waveSolver.evaluate( modelPosition.x, modelPosition.y, solverTime );
     const displayMode = this.activeDisplayModeProperty.value;
-    const displayValue = getDisplayedWaveValue( value.real, value.imaginary, displayMode );
-
-    this.timeSeries.push( { time: plotTime, value: displayValue } );
+    return getDisplayedWaveValue( value.real, value.imaginary, displayMode );
   }
 
-  private trimData(): void {
-    const minTime = this.elapsedTime - MAX_TIME_WINDOW;
-    while ( this.timeSeries.length > 0 && this.timeSeries[ 0 ].time < minTime ) {
-      this.timeSeries.shift();
-    }
-    while ( this.timeSeries.length > MAX_SAMPLES ) {
-      this.timeSeries.shift();
-    }
-  }
-
+  /**
+   * Redraws the chart path from the current time-series points.
+   */
   private updateChart(): void {
-    if ( this.timeSeries.length < 2 ) {
-      this.chartNode.dataPath.shape = null;
+    const points = this.dataSeries.points;
+    if ( points.length < 2 ) {
+      this.chartNode.clearDataPath();
       return;
     }
 
-    const maxTime = this.timeSeries[ this.timeSeries.length - 1 ].time;
-    const minTime = Math.max( 0, maxTime - MAX_TIME_WINDOW );
-    const axisMaxTime = minTime + MAX_TIME_WINDOW;
-    const chartWidth = this.chartNode.chartWidth;
     const scale = this.maxDisplayValueProperty.value;
-
-    const shape = new Shape();
-    for ( let i = 0; i < this.timeSeries.length; i++ ) {
-      const point = this.timeSeries[ i ];
-      const x = ( ( point.time - minTime ) / ( axisMaxTime - minTime ) ) * chartWidth;
-      const y = this.chartNode.mapValueToY( point.value, scale );
-
-      if ( i === 0 ) {
-        shape.moveTo( x, y );
-      }
-      else {
-        shape.lineTo( x, y );
-      }
-    }
-
-    this.chartNode.dataPath.shape = shape;
+    const timeRange = this.dataSeries.getChartTimeRange();
+    const chartPoints: WavePlotDataPoint[] = points.map( point => ( {
+      x: point.time,
+      value: point.value
+    } ) );
+    this.chartNode.setDataPathFromPoints( chartPoints, timeRange.minTime, timeRange.maxTime, scale );
   }
 
+  /**
+   * Clears the stored time samples and the rendered chart path.
+   */
   private clearData(): void {
-    this.timeSeries.length = 0;
-    this.elapsedTime = 0;
-    this.previousSolverTime = null;
-    this.nextSampleSolverTime = null;
-    this.chartNode.dataPath.shape = null;
+    this.dataSeries.reset();
+    this.chartNode.clearDataPath();
   }
 
   public reset(): void {

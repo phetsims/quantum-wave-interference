@@ -10,7 +10,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-// TODO: Err on the side of too much documentation instead of too little, we have to maintain and understand this file, see https://github.com/phetsims/quantum-wave-interference/issues/135
+// TODO: Err on the side of too much documentation instead of too little, we have to maintain and understand this file.
+// See https://github.com/phetsims/quantum-wave-interference/issues/135
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
@@ -33,7 +34,7 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
-import WavePlotChartNode from './WavePlotChartNode.js';
+import WavePlotChartNode, { type WavePlotDataPoint } from './WavePlotChartNode.js';
 
 const WIRE_LINE_WIDTH = 3;
 const MIN_Y_FRACTION = 0.1;
@@ -225,30 +226,22 @@ export default class PositionPlotNode extends Node {
     const chartWidth = this.chartNode.chartWidth;
     const numSamples = chartWidth * POSITION_PLOT_SAMPLES_PER_PIXEL;
     const modelY = this.lineYFractionProperty.value * scene.regionHeight - scene.regionHeight / 2;
-    const shape = new Shape();
+    const points: WavePlotDataPoint[] = [];
 
     for ( let i = 0; i <= numSamples; i++ ) {
       const fraction = i / numSamples;
       const modelX = fraction * scene.regionWidth;
       const value = solver.evaluate( modelX, modelY );
       const displayValue = getDisplayedWaveValue( value.real, value.imaginary, displayMode );
-      const x = fraction * chartWidth;
-      const y = this.chartNode.mapValueToY( displayValue, scale );
-
-      if ( i === 0 ) {
-        shape.moveTo( x, y );
-      }
-      else {
-        shape.lineTo( x, y );
-      }
+      points.push( { x: modelX, value: displayValue } );
     }
 
-    this.chartNode.dataPath.shape = shape;
+    this.chartNode.setDataPathFromPoints( points, 0, scene.regionWidth, scale );
   }
 
   public reset(): void {
     this.lineYFractionProperty.reset();
-    this.chartNode.dataPath.shape = null;
+    this.chartNode.clearDataPath();
     this.updatePlotLayout();
   }
 }

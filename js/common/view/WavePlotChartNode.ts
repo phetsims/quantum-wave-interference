@@ -60,7 +60,10 @@ type SelfOptions = {
 
 type WavePlotChartNodeOptions = SelfOptions & NodeOptions;
 
-// TODO: Documentation throughout this file, see https://github.com/phetsims/quantum-wave-interference/issues/135
+export type WavePlotDataPoint = {
+  x: number;
+  value: number;
+};
 
 export default class WavePlotChartNode extends Node {
 
@@ -226,6 +229,50 @@ export default class WavePlotChartNode extends Node {
 
   public resetPosition(): void {
     this.positionProperty.reset();
+  }
+
+  /**
+   * Updates the data path from model-space x/value points. The x-values are mapped linearly from
+   * [ xMin, xMax ] into the chart width, and values are mapped with mapValueToY().
+   *
+   * @param points - ordered samples to draw
+   * @param xMin - model-space x-value at the left edge of the chart
+   * @param xMax - model-space x-value at the right edge of the chart
+   * @param amplitudeScale - value corresponding to the chart's full vertical scale
+   */
+  public setDataPathFromPoints(
+    points: readonly WavePlotDataPoint[],
+    xMin: number,
+    xMax: number,
+    amplitudeScale: number
+  ): void {
+    if ( points.length < 2 || xMax === xMin ) {
+      this.clearDataPath();
+      return;
+    }
+
+    const shape = new Shape();
+    for ( let i = 0; i < points.length; i++ ) {
+      const point = points[ i ];
+      const x = ( ( point.x - xMin ) / ( xMax - xMin ) ) * this.chartWidth;
+      const y = this.mapValueToY( point.value, amplitudeScale );
+
+      if ( i === 0 ) {
+        shape.moveTo( x, y );
+      }
+      else {
+        shape.lineTo( x, y );
+      }
+    }
+
+    this.dataPath.shape = shape;
+  }
+
+  /**
+   * Clears the chart's data path.
+   */
+  public clearDataPath(): void {
+    this.dataPath.shape = null;
   }
 
   /**
