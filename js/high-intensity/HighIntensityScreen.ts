@@ -7,10 +7,12 @@
  */
 
 import Screen, { ScreenOptions } from '../../../joist/js/Screen.js';
+import ScreenIcon, { MINIMUM_HOME_SCREEN_ICON_SIZE } from '../../../joist/js/ScreenIcon.js';
 import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js';
+import Image from '../../../scenery/js/nodes/Image.js';
+import highIntensityScreenIcon_svg from '../../images/highIntensityScreenIcon_svg.js';
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceKeyboardHelpContent from '../common/view/QuantumWaveInterferenceKeyboardHelpContent.js';
-import { HighIntensityScreenIcon } from '../common/view/ScreenIcons.js';
 import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from './model/HighIntensityModel.js';
 import HighIntensityScreenView from './view/HighIntensityScreenView.js';
@@ -27,7 +29,11 @@ export default class HighIntensityScreen extends Screen<HighIntensityModel, High
     const options = optionize<HighIntensityScreenOptions, SelfOptions, ScreenOptions>()( {
       name: QuantumWaveInterferenceFluent.screen.highIntensity.nameStringProperty,
       backgroundColorProperty: QuantumWaveInterferenceColors.screenBackgroundColorProperty,
-      homeScreenIcon: new HighIntensityScreenIcon(),
+      homeScreenIcon: new ScreenIcon( new Image( highIntensityScreenIcon_svg ), {
+        size: MINIMUM_HOME_SCREEN_ICON_SIZE,
+        maxIconWidthProportion: 1,
+        maxIconHeightProportion: 1
+      } ),
       createKeyboardHelpNode: () => new QuantumWaveInterferenceKeyboardHelpContent()
     }, providedOptions );
 

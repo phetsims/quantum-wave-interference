@@ -8,11 +8,13 @@
  */
 
 import Screen, { ScreenOptions } from '../../../joist/js/Screen.js';
+import ScreenIcon, { MINIMUM_HOME_SCREEN_ICON_SIZE } from '../../../joist/js/ScreenIcon.js';
 import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js';
 import PickRequired from '../../../phet-core/js/types/PickRequired.js';
+import Image from '../../../scenery/js/nodes/Image.js';
+import experimentScreenIcon_svg from '../../images/experimentScreenIcon_svg.js';
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceKeyboardHelpContent from '../common/view/QuantumWaveInterferenceKeyboardHelpContent.js';
-import { ExperimentScreenIcon } from '../common/view/ScreenIcons.js';
 import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from './model/ExperimentModel.js';
 import ExperimentScreenView from './view/ExperimentScreenView.js';
@@ -28,7 +30,11 @@ export default class ExperimentScreen extends Screen<ExperimentModel, Experiment
     const options = optionize<ExperimentScreenOptions, SelfOptions, ScreenOptions>()( {
       name: QuantumWaveInterferenceFluent.screen.experiment.nameStringProperty,
       backgroundColorProperty: QuantumWaveInterferenceColors.screenBackgroundColorProperty,
-      homeScreenIcon: new ExperimentScreenIcon(),
+      homeScreenIcon: new ScreenIcon( new Image( experimentScreenIcon_svg ), {
+        size: MINIMUM_HOME_SCREEN_ICON_SIZE,
+        maxIconWidthProportion: 1,
+        maxIconHeightProportion: 1
+      } ),
       createKeyboardHelpNode: () => new QuantumWaveInterferenceKeyboardHelpContent()
     }, providedOptions );
 

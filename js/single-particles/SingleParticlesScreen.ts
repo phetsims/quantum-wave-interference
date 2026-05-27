@@ -7,10 +7,12 @@
  */
 
 import Screen, { ScreenOptions } from '../../../joist/js/Screen.js';
+import ScreenIcon, { MINIMUM_HOME_SCREEN_ICON_SIZE } from '../../../joist/js/ScreenIcon.js';
 import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js';
+import Image from '../../../scenery/js/nodes/Image.js';
+import singleParticlesScreenIcon_svg from '../../images/singleParticlesScreenIcon_svg.js';
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceKeyboardHelpContent from '../common/view/QuantumWaveInterferenceKeyboardHelpContent.js';
-import { SingleParticlesScreenIcon } from '../common/view/ScreenIcons.js';
 import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from './model/SingleParticlesModel.js';
 import SingleParticlesScreenView from './view/SingleParticlesScreenView.js';
@@ -27,7 +29,11 @@ export default class SingleParticlesScreen extends Screen<SingleParticlesModel, 
     const options = optionize<SingleParticlesScreenOptions, SelfOptions, ScreenOptions>()( {
       name: QuantumWaveInterferenceFluent.screen.singleParticles.nameStringProperty,
       backgroundColorProperty: QuantumWaveInterferenceColors.screenBackgroundColorProperty,
-      homeScreenIcon: new SingleParticlesScreenIcon(),
+      homeScreenIcon: new ScreenIcon( new Image( singleParticlesScreenIcon_svg ), {
+        size: MINIMUM_HOME_SCREEN_ICON_SIZE,
+        maxIconWidthProportion: 1,
+        maxIconHeightProportion: 1
+      } ),
       createKeyboardHelpNode: () => new QuantumWaveInterferenceKeyboardHelpContent()
     }, providedOptions );
 
