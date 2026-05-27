@@ -538,7 +538,11 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     let insideSum = 0;
     let totalSum = 0;
 
-    // TODO: What happening here? Document and explain: https://github.com/phetsims/quantum-wave-interference/issues/135
+    // The amplitude field is a row-major, interleaved complex array: [ re0, im0, re1, im1, ... ].
+    // For each grid cell, the detection probability density is proportional to |psi|^2 = re^2 + im^2.
+    // Accumulate the probability density over the full field for normalization, and separately over the
+    // detector's circular footprint. Because every sample has the same cell area, that area factor cancels
+    // in the final insideSum / totalSum ratio.
     for ( let iy = 0; iy < gh; iy++ ) {
       for ( let ix = 0; ix < gw; ix++ ) {
         const idx = ( iy * gw + ix ) * 2;
