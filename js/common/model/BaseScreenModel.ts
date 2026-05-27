@@ -212,7 +212,12 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
 
   public abstract takeSnapshot(): void;
 
-  // TODO: Is this unused? Remove if unused, See https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Deletes a snapshot from the active scene. Used by shared view code that works with the current scene through this
+   * screen-level model instead of directly owning a scene model reference.
+   *
+   * @param snapshot - snapshot to delete from the active scene
+   */
   public deleteSnapshot( snapshot: Snapshot ): void {
     this.sceneProperty.value.deleteSnapshot( snapshot );
   }
