@@ -39,7 +39,7 @@ import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, 
 
 // All fields that affect the cached hit sprite image. The sprite is a tiny offscreen canvas containing one particle hit
 // at the current color, alpha, and radius. Reusing it avoids redrawing arcs for every hit.
-type HitSpriteParams = {
+export type DetectorScreenHitSpriteParams = {
   r: number;
   g: number;
   b: number;
@@ -60,7 +60,7 @@ export type DetectorScreenHitRenderCache = {
   hitSprite: HTMLCanvasElement | null;
 
   // Parameters used to build hitSprite. Any visual parameter change invalidates the sprite.
-  hitSpriteParams: HitSpriteParams | null;
+  hitSpriteParams: DetectorScreenHitSpriteParams | null;
 };
 
 export type DetectorScreenRenderOptions = {
@@ -97,15 +97,15 @@ export type DetectorScreenRenderOptions = {
 /**
  * Compares the complete visual state of a cached hit sprite.
  */
-function hitSpriteParamsMatch(
-  params: HitSpriteParams | null,
+export function detectorScreenHitSpriteParamsMatch(
+  params: DetectorScreenHitSpriteParams | null,
   rgb: { r: number; g: number; b: number },
   coreAlpha: number,
   glowAlpha: number,
   glowRadius: number,
   hitCoreRadius: number,
   hitSpriteCenter: number
-): params is HitSpriteParams {
+): params is DetectorScreenHitSpriteParams {
   return !!params &&
          params.r === rgb.r &&
          params.g === rgb.g &&
@@ -115,6 +115,29 @@ function hitSpriteParamsMatch(
          params.glowRadius === glowRadius &&
          params.hitCoreRadius === hitCoreRadius &&
          params.hitSpriteCenter === hitSpriteCenter;
+}
+
+/**
+ * Creates the complete visual state descriptor for a cached hit sprite.
+ */
+export function createDetectorScreenHitSpriteParams(
+  rgb: { r: number; g: number; b: number },
+  coreAlpha: number,
+  glowAlpha: number,
+  glowRadius: number,
+  hitCoreRadius: number,
+  hitSpriteCenter: number
+): DetectorScreenHitSpriteParams {
+  return {
+    r: rgb.r,
+    g: rgb.g,
+    b: rgb.b,
+    coreAlpha: coreAlpha,
+    glowAlpha: glowAlpha,
+    glowRadius: glowRadius,
+    hitCoreRadius: hitCoreRadius,
+    hitSpriteCenter: hitSpriteCenter
+  };
 }
 
 /**
@@ -196,7 +219,7 @@ function getHitSprite(
 ): HTMLCanvasElement {
 
   // Return cached sprite if parameters haven't changed.
-  if ( cache.hitSprite && hitSpriteParamsMatch(
+  if ( cache.hitSprite && detectorScreenHitSpriteParamsMatch(
     cache.hitSpriteParams,
     rgb,
     coreAlpha,
@@ -221,16 +244,14 @@ function getHitSprite(
   fillCircle( ctx, rgb, coreAlpha, hitSpriteCenter, hitCoreRadius );
 
   cache.hitSprite = spriteCanvas;
-  cache.hitSpriteParams = {
-    r: rgb.r,
-    g: rgb.g,
-    b: rgb.b,
-    coreAlpha: coreAlpha,
-    glowAlpha: glowAlpha,
-    glowRadius: glowRadius,
-    hitCoreRadius: hitCoreRadius,
-    hitSpriteCenter: hitSpriteCenter
-  };
+  cache.hitSpriteParams = createDetectorScreenHitSpriteParams(
+    rgb,
+    coreAlpha,
+    glowAlpha,
+    glowRadius,
+    hitCoreRadius,
+    hitSpriteCenter
+  );
   return spriteCanvas;
 }
 

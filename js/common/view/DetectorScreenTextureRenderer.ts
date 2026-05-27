@@ -17,6 +17,7 @@ import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
+import { createDetectorScreenHitSpriteParams, detectorScreenHitSpriteParamsMatch, type DetectorScreenHitSpriteParams } from './renderDetectorScreenTexture.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 // Supersampling factor for the offscreen detector-screen texture. Rendering above the displayed screen size keeps
@@ -81,19 +82,10 @@ type TextureCache = {
   lastIsEmitting: boolean;
   lastRampFactor: number;
   hitSprite: HTMLCanvasElement | null;
-  hitSpriteParams: HitSpriteParams | null;
+  hitSpriteParams: DetectorScreenHitSpriteParams | null;
   intensityCanvas: HTMLCanvasElement | null;
   intensityContext: CanvasRenderingContext2D | null;
   intensityImageData: ImageData | null;
-};
-
-type HitSpriteParams = {
-  r: number;
-  g: number;
-  b: number;
-  coreAlpha: number;
-  glowAlpha: number;
-  glowRadius: number;
 };
 
 export default class DetectorScreenTextureRenderer {
@@ -383,23 +375,6 @@ export default class DetectorScreenTextureRenderer {
     return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;
   }
 
-  // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate of hitSpriteParamsMatch in getDetectorScreenTexture.ts
-  private hitSpriteParamsMatch(
-    params: HitSpriteParams | null,
-    rgb: { r: number; g: number; b: number },
-    coreAlpha: number,
-    glowAlpha: number,
-    glowRadius: number
-  ): params is HitSpriteParams {
-    return !!params &&
-           params.r === rgb.r &&
-           params.g === rgb.g &&
-           params.b === rgb.b &&
-           params.coreAlpha === coreAlpha &&
-           params.glowAlpha === glowAlpha &&
-           params.glowRadius === glowRadius;
-  }
-
   private fillCircle(
     context: CanvasRenderingContext2D,
     rgb: { r: number; g: number; b: number },
@@ -421,7 +396,15 @@ export default class DetectorScreenTextureRenderer {
     glowRadius: number
   ): HTMLCanvasElement {
 
-    if ( cache.hitSprite && this.hitSpriteParamsMatch( cache.hitSpriteParams, rgb, coreAlpha, glowAlpha, glowRadius ) ) {
+    if ( cache.hitSprite && detectorScreenHitSpriteParamsMatch(
+      cache.hitSpriteParams,
+      rgb,
+      coreAlpha,
+      glowAlpha,
+      glowRadius,
+      this.hitCoreRadius,
+      this.hitSpriteCenter
+    ) ) {
       return cache.hitSprite;
     }
 
@@ -437,8 +420,14 @@ export default class DetectorScreenTextureRenderer {
     this.fillCircle( ctx, rgb, coreAlpha, this.hitSpriteCenter, this.hitCoreRadius );
 
     cache.hitSprite = spriteCanvas;
-    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Identical to implementation in getDetectorScreenTexture.ts
-    cache.hitSpriteParams = { r: rgb.r, g: rgb.g, b: rgb.b, coreAlpha: coreAlpha, glowAlpha: glowAlpha, glowRadius: glowRadius };
+    cache.hitSpriteParams = createDetectorScreenHitSpriteParams(
+      rgb,
+      coreAlpha,
+      glowAlpha,
+      glowRadius,
+      this.hitCoreRadius,
+      this.hitSpriteCenter
+    );
     return spriteCanvas;
   }
 }
