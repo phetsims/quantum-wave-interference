@@ -182,8 +182,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     } );
 
     this.detectorToolRadiusProperty = new NumberProperty( 0.1, {
-      //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 specify units option
       range: new Range( 0.03, 0.3 ),
+      units: null,
       tandem: tandem.createTandem( 'detectorToolRadiusProperty' )
     } );
 
