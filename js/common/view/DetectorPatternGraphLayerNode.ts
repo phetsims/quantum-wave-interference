@@ -15,10 +15,9 @@ import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import DetectorPatternGraphNode, { type DetectorPatternGraphSceneLike } from './DetectorPatternGraphNode.js';
+import { type DetectorPatternGraphZoomLevelOption } from './DetectorPatternGraphZoomLevelProperty.js';
 
 const DETECTOR_PATTERN_GRAPH_LEFT_GAP = 2;
-
-type ZoomLevelOption = number | 'default' | 'max';
 
 type DetectorPatternGraphLayerNodeOptions = {
 
@@ -27,8 +26,8 @@ type DetectorPatternGraphLayerNodeOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
 
   // Initial and reset zoom level for the graph.
-  initialZoomLevel?: ZoomLevelOption;
-  initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
+  initialZoomLevel?: DetectorPatternGraphZoomLevelOption;
+  initialZoomLevels?: Partial<Record<DetectionMode, DetectorPatternGraphZoomLevelOption>>;
 };
 
 export default class DetectorPatternGraphLayerNode extends Node {

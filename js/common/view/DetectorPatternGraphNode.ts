@@ -24,7 +24,8 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
-import { createClippedDetectorPatternGraphDataPath, createClippedDetectorPatternGraphStrokePath, createDetectorPatternGraphChartBackground, createDetectorPatternGraphChartBorder, createDetectorPatternGraphZoomButtonGroup, createDetectorPatternGraphZoomLevelProperty, createDetectorPatternHistogramShape, createIntensityCurveShapes, DETECTOR_PATTERN_GRAPH_WIDTH, type DetectorPatternGraphSceneLike, getDetectorPatternGraphPaint, getDetectorPatternGraphZoomLevel, type ZoomLevelOption } from './DetectorPatternGraphPlotUtils.js';
+import { createClippedDetectorPatternGraphDataPath, createClippedDetectorPatternGraphStrokePath, createDetectorPatternGraphChartBackground, createDetectorPatternGraphChartBorder, createDetectorPatternGraphZoomButtonGroup, createDetectorPatternHistogramShape, createIntensityCurveShapes, DETECTOR_PATTERN_GRAPH_WIDTH, type DetectorPatternGraphSceneLike, getDetectorPatternGraphPaint } from './DetectorPatternGraphPlotUtils.js';
+import DetectorPatternGraphZoomLevelProperty, { type DetectorPatternGraphZoomLevelOption, getDetectorPatternGraphZoomLevel } from './DetectorPatternGraphZoomLevelProperty.js';
 
 const LABEL_FONT = new PhetFont( 12 );
 const ZOOM_BUTTON_GROUP_MARGIN = 4;
@@ -35,8 +36,8 @@ export type { DetectorPatternGraphSceneLike };
 type SelfOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   axisLabelStringProperty: TReadOnlyProperty<string>;
-  initialZoomLevel?: ZoomLevelOption;
-  initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
+  initialZoomLevel?: DetectorPatternGraphZoomLevelOption;
+  initialZoomLevels?: Partial<Record<DetectionMode, DetectorPatternGraphZoomLevelOption>>;
 };
 
 type DetectorPatternGraphNodeOptions = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
@@ -72,9 +73,9 @@ export default class DetectorPatternGraphNode extends Node {
 
     this.activeDetectionMode = options.detectionModeProperty ? options.detectionModeProperty.value : null;
 
-    this.zoomLevelProperty = createDetectorPatternGraphZoomLevelProperty(
+    this.zoomLevelProperty = new DetectorPatternGraphZoomLevelProperty(
       this.activeDetectionMode ? getModeZoomLevel( this.activeDetectionMode, options ) : options.initialZoomLevel,
-      providedOptions.tandem
+      providedOptions.tandem.createTandem( 'zoomLevelProperty' )
     );
 
     this.defaultZoomLevelsByDetectionMode = options.detectionModeProperty ? {

@@ -10,7 +10,6 @@
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import TEmitter from '../../../../axon/js/TEmitter.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
 import { linear } from '../../../../dot/js/util/linear.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
@@ -28,21 +27,17 @@ import type WaveSolver from '../model/WaveSolver.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
+import { MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL, MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL } from './DetectorPatternGraphZoomLevelProperty.js';
 
 // Preserve the previous right edge while moving the graph left edge to the wave visualizer's right edge.
 export const DETECTOR_PATTERN_GRAPH_WIDTH = 80 + QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 4;
 export const DETECTOR_PATTERN_GRAPH_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
-export const MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL = 1;
-export const DEFAULT_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL = 4;
-export const MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL = 6;
 
 const HISTOGRAM_BINS = 100;
 const INTENSITY_SAMPLE_COUNT = 200;
 const INTENSITY_SAMPLE_SCALE = QuantumWaveInterferenceQueryParameters.sidewaysGraphSampleScale;
 const NUM_HORIZONTAL_GRID_DIVISIONS = 10;
 const NUM_VERTICAL_GRID_DIVISIONS = 4;
-
-export type ZoomLevelOption = number | 'default' | 'max';
 
 type GraphStyle = 'histogram' | 'intensityCurve';
 
@@ -64,35 +59,6 @@ export type DetectorPatternGraphSceneLike = {
   waveSolver: WaveSolver;
   intensityProperty?: TReadOnlyProperty<number>;
   detectorPatternFormationFactorProperty?: TReadOnlyProperty<number>;
-};
-
-/**
- * Converts the caller-facing zoom option into the integer zoom level used by the graph controls.
- */
-export const getDetectorPatternGraphZoomLevel = ( zoomLevel: ZoomLevelOption | undefined ): number =>
-  zoomLevel === 'max' ? MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL :
-  typeof zoomLevel === 'number' ? zoomLevel :
-  DEFAULT_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL;
-
-/**
- * Creates the integer zoom level Property shared by the detector pattern graphs.
- * TODO: Convert to a top level file DetectorPatternGraphZoomLevelProperty.ts, see https://github.com/phetsims/quantum-wave-interference/issues/118
- */
-export const createDetectorPatternGraphZoomLevelProperty = (
-  initialZoomLevel: ZoomLevelOption | undefined,
-  tandem: Tandem
-): NumberProperty => {
-  const zoomRange = new RangeWithValue(
-    MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
-    MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
-    getDetectorPatternGraphZoomLevel( initialZoomLevel )
-  );
-
-  return new NumberProperty( zoomRange.defaultValue, {
-    range: zoomRange,
-    tandem: tandem.createTandem( 'zoomLevelProperty' ),
-    numberType: 'Integer'
-  } );
 };
 
 /**

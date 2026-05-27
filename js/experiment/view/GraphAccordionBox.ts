@@ -27,7 +27,7 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AccordionBox from '../../../../sun/js/AccordionBox.js';
-import { createDetectorPatternGraphZoomLevelProperty } from '../../common/view/DetectorPatternGraphPlotUtils.js';
+import DetectorPatternGraphZoomLevelProperty from '../../common/view/DetectorPatternGraphZoomLevelProperty.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -84,7 +84,10 @@ export default class GraphAccordionBox extends Node {
 
     this.detectorScreenScaleIndexProperty = options.detectorScreenScaleIndexProperty;
 
-    this.zoomLevelProperty = createDetectorPatternGraphZoomLevelProperty( 'default', providedOptions.tandem );
+    this.zoomLevelProperty = new DetectorPatternGraphZoomLevelProperty(
+      'default',
+      providedOptions.tandem.createTandem( 'zoomLevelProperty' )
+    );
 
     // White chart background with border
     this.chartBackground = new Rectangle( 0, 0, CHART_WIDTH, CHART_HEIGHT, {
