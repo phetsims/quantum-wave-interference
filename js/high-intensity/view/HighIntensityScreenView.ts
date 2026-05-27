@@ -254,14 +254,7 @@ export default class HighIntensityScreenView extends ScreenView {
     tandem: Tandem
   ): HighIntensityTopRowNode<HighIntensitySceneModel> {
     const topRowNode = new HighIntensityTopRowNode(
-      model.sceneProperty,
-      model.scenes,
-      model.currentWavelengthProperty,
-      model.currentBarrierTypeProperty,
-      model.currentSlitPositionFractionProperty,
-      model.currentSlitSeparationProperty,
-      model.currentIsEmittingProperty,
-      model.currentIsEmitterEnabledProperty,
+      model,
       this.visibleBoundsProperty,
       topRowBeamRightLimitXProperty,
       {

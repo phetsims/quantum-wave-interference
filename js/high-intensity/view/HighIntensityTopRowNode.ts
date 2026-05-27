@@ -19,7 +19,6 @@
  */
 
 import Multilink from '../../../../axon/js/Multilink.js';
-import Property from '../../../../axon/js/Property.js';
 import TProperty from '../../../../axon/js/TProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
@@ -103,6 +102,21 @@ type TopRowSceneLike = {
   slitSeparationRange: Range;
 };
 
+type HighIntensityTopRowModel<T extends TopRowSceneLike> = {
+
+  // Active source scene and the full scene list used to swap emitter artwork.
+  readonly sceneProperty: TReadOnlyProperty<T>;
+  readonly scenes: T[];
+
+  // Active-scene Properties needed to render the emitter, beam, and mini slit symbol.
+  readonly currentWavelengthProperty: TReadOnlyProperty<number>;
+  readonly currentBarrierTypeProperty: TReadOnlyProperty<BarrierType>;
+  readonly currentSlitPositionFractionProperty: TReadOnlyProperty<number>;
+  readonly currentSlitSeparationProperty: TReadOnlyProperty<number>;
+  readonly currentIsEmittingProperty: TProperty<boolean>;
+  readonly currentIsEmitterEnabledProperty: TReadOnlyProperty<boolean>;
+};
+
 export type HighIntensityTopRowLayout = {
   emitterCenterX: number;      // horizontal center of the emitter body + nozzle assembly
   topRowCenterY: number;       // vertical center of emitter + mini symbol + beam
@@ -119,16 +133,8 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
   public readonly emitterBottom: number;
   public readonly emitterCenterX: number;
 
-  // TODO: Too many parameters, should it instead accept a container (if one already exists), see https://github.com/phetsims/quantum-wave-interference/issues/135
   public constructor(
-    sceneProperty: Property<T>,
-    scenes: T[],
-    currentWavelengthProperty: TReadOnlyProperty<number>,
-    barrierTypeProperty: TReadOnlyProperty<BarrierType>,
-    slitPositionFractionProperty: TReadOnlyProperty<number>,
-    slitSeparationProperty: TReadOnlyProperty<number>,
-    currentIsEmittingProperty: TProperty<boolean>,
-    currentIsEmitterEnabledProperty: TReadOnlyProperty<boolean>,
+    model: HighIntensityTopRowModel<T>,
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
     beamRightLimitXProperty: TReadOnlyProperty<number>,
     layout: HighIntensityTopRowLayout,
@@ -136,6 +142,16 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
   ) {
     super( { isDisposable: false } );
 
+    const {
+      sceneProperty,
+      scenes,
+      currentWavelengthProperty,
+      currentBarrierTypeProperty,
+      currentSlitPositionFractionProperty,
+      currentSlitSeparationProperty,
+      currentIsEmittingProperty,
+      currentIsEmitterEnabledProperty
+    } = model;
     const { emitterCenterX, topRowCenterY, waveRegionLeft, waveRegionRight, waveRegionTop } = layout;
     const emitterLeft = emitterCenterX - ( EMITTER_BODY_WIDTH + EMITTER_NOZZLE_WIDTH ) / 2;
 
@@ -295,7 +311,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
     } );
 
     Multilink.multilink(
-      [ sceneProperty, barrierTypeProperty, slitPositionFractionProperty, slitSeparationProperty ],
+      [ sceneProperty, currentBarrierTypeProperty, currentSlitPositionFractionProperty, currentSlitSeparationProperty ],
       ( scene, barrierType, slitPositionFraction, slitSeparation ) => {
         miniDoubleSlitNode.visible = barrierType === 'doubleSlit';
 
