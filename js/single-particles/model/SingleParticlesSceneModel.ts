@@ -418,7 +418,17 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     }
   }
 
-  // TODO: Document. When is this called, and what are its responsibilities? see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Creates the one allowed slit-detector interaction for the active packet, if its sampled on-slit detection time has
+   * been reached. This is called from step() once per frame after the wave solver advances, so the interaction is based
+   * on solver time rather than frame count. It only acts for double-slit configurations with slit detectors, and
+   * hasCreatedPacketDecoherenceEvent ensures each emitted packet handles this interaction at most once.
+   *
+   * When the sampled slit does not have a detector, this adds a decoherence event so the solver can render the packet as
+   * having collapsed to that slit. When the sampled slit has a detector, this records the detector hit and starts packet
+   * re-emission from that slit instead of adding a normal decoherence event. In either case, once the sampled interaction
+   * time has been reached, this marks the packet's slit interaction as handled for this emission.
+   */
   private createPacketDecoherenceEventIfNeeded(): void {
     const slitConfig = this.slitConfigurationProperty.value;
     if (
