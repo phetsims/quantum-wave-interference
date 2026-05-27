@@ -178,7 +178,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     // Detector tool
     this.detectorToolPositionProperty = new Vector2Property( new Vector2( 0.5, 0.5 ), {
-      tandem: tandem.createTandem( 'detectorToolPositionProperty' )
+      tandem: tandem.createTandem( 'detectorToolPositionProperty' ),
+      units: null // The detector radius is stored as a normalized fraction of the wave-region width, not a physical length.
     } );
 
     this.detectorToolRadiusProperty = new NumberProperty( 0.1, {
