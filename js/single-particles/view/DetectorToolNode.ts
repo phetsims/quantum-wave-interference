@@ -53,12 +53,28 @@ const DETECTOR_TOOL_DRAG_BOUNDS = new Bounds2( 0.05, 0.05, 0.95, 0.95 );
 const DetectorModeValues = [ 'destructive', 'nonDestructive' ] as const;
 type DetectorMode = typeof DetectorModeValues[number];
 
-// TODO: Improve documentation throughout this file, see https://github.com/phetsims/quantum-wave-interference/issues/135
+/**
+ * View/controller for the detector tool. The detector's position and radius are stored in model coordinates normalized
+ * to the wave region: position components span the wave-region width/height, while radius is a fraction of the
+ * wave-region width. This node maps those values into view coordinates, updates the tool labels and measurement-state
+ * colors, and routes the dashed wire to the external control panel.
+ *
+ * The detector tool Properties are exposed by SingleParticlesModel as DynamicProperties, so one DetectorToolNode can
+ * stay connected while the active Single Particles scene changes.
+ */
 export default class DetectorToolNode extends Node {
 
   //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Coupling to SingleParticlesModel suggests that the
   // model could benefit from having a CurrentDetectorTool class to pull together the 6 (?) related Properties that
   // are currently at the top-level of SingleParticlesModel.
+  /**
+   * @param model - Single Particles model that provides the active scene's detector-tool Properties
+   * @param waveRegionLeft - left edge of the wave visualization region in this node's parent coordinate frame
+   * @param waveRegionTop - top edge of the wave visualization region in this node's parent coordinate frame
+   * @param getControlPanelCenterX - callback for the panel center x-coordinate, evaluated after layout changes
+   * @param getControlPanelCenterY - callback for the panel center y-coordinate, evaluated after layout changes
+   * @param tandem - instrumentation root for detector-tool controls
+   */
   public constructor(
     model: SingleParticlesModel,
     waveRegionLeft: number,
@@ -202,8 +218,11 @@ export default class DetectorToolNode extends Node {
     } );
     this.addChild( controlPanel );
 
-    // --- Update circle position, size, and wire from model ---
-
+    /**
+     * Synchronizes the circle geometry and dashed wire with the detector model values. The wire starts at the bottom of
+     * the circular detector and terminates at the top center of the control panel, so this must also run when panel
+     * bounds change due to dynamic layout or localization.
+     */
     const updateCircle = () => {
       const pos = model.currentDetectorToolPositionProperty.value;
       const radius = model.currentDetectorToolRadiusProperty.value;
@@ -226,6 +245,7 @@ export default class DetectorToolNode extends Node {
         .cubicCurveTo( viewX, midY, panelCX, midY, panelCX, panelTY );
     };
 
+    // Reposition the panel after its contents change size, then reroute the wire to match the new panel bounds.
     const updateControlPanelPosition = () => {
       controlPanel.centerX = getControlPanelCenterX();
       controlPanel.centerY = getControlPanelCenterY();
@@ -235,6 +255,7 @@ export default class DetectorToolNode extends Node {
 
     // --- Drag listener for the circle ---
 
+    // DragListener writes normalized model coordinates even though pointer positions are in view coordinates.
     const detectorToolModelViewTransform = ModelViewTransform2.createRectangleMapping(
       new Bounds2( 0, 0, 1, 1 ),
       new Bounds2( waveRegionLeft, waveRegionTop, waveRegionLeft + WAVE_REGION_WIDTH, waveRegionTop + WAVE_REGION_HEIGHT )
@@ -249,6 +270,11 @@ export default class DetectorToolNode extends Node {
 
     // --- Update probability label and circle fill ---
 
+    /**
+     * Displays either the ready-state detection probability or the final measurement result. Locale and unit
+     * dependencies are included in the Multilink below so the label updates when translated strings or percent
+     * formatting change.
+     */
     const updateProbabilityLabel = () => {
       const state = model.currentDetectorToolStateProperty.value;
       const probability = model.currentDetectorToolProbabilityProperty.value;
