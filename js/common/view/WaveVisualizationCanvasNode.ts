@@ -102,7 +102,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
       baseB = MATTER_BASE_B;
     }
 
-    const amplitudeScale = scene.waveAmplitudeScaleProperty.value;
+    const amplitudeScale = scene.waveAmplitudeScaleProperty?.value ?? 1;
     const baseColor = {
       red: baseR,
       green: baseG,

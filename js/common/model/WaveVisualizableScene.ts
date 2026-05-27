@@ -22,8 +22,7 @@ import type WaveSolver from './WaveSolver.js';
 // - Avoids pushing display-only requirements into BaseSceneModel unless every scene model should semantically own them.
 // Cons:
 // - Provides no shared implementation, lifecycle hooks, or runtime guarantees; it is only a TypeScript shape.
-// - Each implementer must expose every property in this contract, which can lead to small placeholder properties when
-//   one screen does not otherwise need a value.
+// - Optional rendering values require defaults in shared view code when one screen does not otherwise need them.
 // - The contract can drift from BaseSceneModel if shared visualization needs grow beyond this narrow surface.
 //
 // A base or abstract base class is a better fit if the visualization contract starts requiring shared behavior or
@@ -36,7 +35,9 @@ type WaveVisualizableScene = {
   readonly waveSolver: WaveSolver;
   readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
-  readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number>;
+
+  // Optional display-only gain for wave-field rendering. Scenes that omit this render with unity gain.
+  readonly waveAmplitudeScaleProperty?: TReadOnlyProperty<number>;
 };
 
 export type { WaveVisualizableScene };

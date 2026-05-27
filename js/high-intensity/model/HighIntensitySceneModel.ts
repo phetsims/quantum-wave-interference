@@ -12,7 +12,6 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
-import Property from '../../../../axon/js/Property.js';
 import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
@@ -88,9 +87,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   // Normalized progress for the detector-screen and chart intensity pattern exposure.
   public readonly detectorPatternFormationFactorProperty: TReadOnlyProperty<number>;
   private readonly _detectorPatternFormationFactorProperty: NumberProperty;
-
-  // TODO: This is unused but if I remove it, type checking fails, see https://github.com/phetsims/quantum-wave-interference/issues/135
-  public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( 1 );
 
   private hitAccumulator = 0;
   private nextDecoherenceEventTime: number | null = null;
