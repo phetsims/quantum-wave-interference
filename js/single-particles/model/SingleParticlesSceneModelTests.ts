@@ -11,6 +11,7 @@ import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type DecoherenceEvent, type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
 import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
+import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCDF.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
@@ -72,10 +73,6 @@ type PrivateSingleParticlesSceneModelState = {
   targetDetectionTime: number;
 };
 
-type PrivateSingleParticlesSceneModelConstructor = {
-  inverseStandardNormalCDF: ( probability: number ) => number;
-};
-
 const createScene = ( sourceType: SourceType = 'photons' ): TestSingleParticlesSceneModel => {
   const scene = new TestSingleParticlesSceneModel( {
     sourceType: sourceType,
@@ -125,8 +122,7 @@ const getDetectionTimeForWeight = (
   const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
   const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * scene.regionWidth;
   const initialCenterX = -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
-  const sampledCenterOffset = ( SingleParticlesSceneModel as unknown as PrivateSingleParticlesSceneModelConstructor )
-                                .inverseStandardNormalCDF( detectionWeight ) * sigmaX0;
+  const sampledCenterOffset = inverseStandardNormalCDF( detectionWeight ) * sigmaX0;
 
   return ( targetX - sourceX - initialCenterX + sampledCenterOffset ) / propagationSpeed;
 };

@@ -28,6 +28,7 @@ import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type S
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
+import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCDF.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 
@@ -304,7 +305,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
     const initialCenterX = -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
     const detectionWeight = this.sampleScreenDetectionWeight();
-    const sampledCenterOffset = SingleParticlesSceneModel.inverseStandardNormalCDF( detectionWeight ) * sigmaX0;
+    const sampledCenterOffset = inverseStandardNormalCDF( detectionWeight ) * sigmaX0;
     return ( targetX - sourceX - initialCenterX + sampledCenterOffset ) / propagationSpeed;
   }
 
@@ -348,63 +349,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const trailingFraction = ( parameters.endWeight - weight ) /
                              ( parameters.endWeight - parameters.peakWeight );
     return Math.pow( clamp( trailingFraction, 0, 1 ), parameters.trailingPower );
-  }
-
-  /**
-   * Approximation for the standard normal quantile. Used to convert "fraction of packet weight that has
-   * reached a detector plane" back into a packet-center offset in sigma_x units.
-   *
-   * TODO: Where does this implementation come from? Let's move to quantum-wave-interference/js/common/model/inverseStandardNormalCDF and use function instead of arrow closure, see https://github.com/phetsims/quantum-wave-interference/issues/135
-   */
-  private static inverseStandardNormalCDF( probability: number ): number {
-    const p = clamp( probability, 1e-12, 1 - 1e-12 );
-    const a = [
-      -3.969683028665376e+1,
-      2.209460984245205e+2,
-      -2.759285104469687e+2,
-      1.383577518672690e+2,
-      -3.066479806614716e+1,
-      2.506628277459239
-    ];
-    const b = [
-      -5.447609879822406e+1,
-      1.615858368580409e+2,
-      -1.556989798598866e+2,
-      6.680131188771972e+1,
-      -1.328068155288572e+1
-    ];
-    const c = [
-      -7.784894002430293e-3,
-      -3.223964580411365e-1,
-      -2.400758277161838,
-      -2.549732539343734,
-      4.374664141464968,
-      2.938163982698783
-    ];
-    const d = [
-      7.784695709041462e-3,
-      3.224671290700398e-1,
-      2.445134137142996,
-      3.754408661907416
-    ];
-    const lowTail = 0.02425;
-    const highTail = 1 - lowTail;
-
-    if ( p < lowTail ) {
-      const q = Math.sqrt( -2 * Math.log( p ) );
-      return ( ( ( ( ( c[ 0 ] * q + c[ 1 ] ) * q + c[ 2 ] ) * q + c[ 3 ] ) * q + c[ 4 ] ) * q + c[ 5 ] ) /
-             ( ( ( ( d[ 0 ] * q + d[ 1 ] ) * q + d[ 2 ] ) * q + d[ 3 ] ) * q + 1 );
-    }
-    if ( p > highTail ) {
-      const q = Math.sqrt( -2 * Math.log( 1 - p ) );
-      return -( ( ( ( ( c[ 0 ] * q + c[ 1 ] ) * q + c[ 2 ] ) * q + c[ 3 ] ) * q + c[ 4 ] ) * q + c[ 5 ] ) /
-             ( ( ( ( d[ 0 ] * q + d[ 1 ] ) * q + d[ 2 ] ) * q + d[ 3 ] ) * q + 1 );
-    }
-
-    const q = p - 0.5;
-    const r = q * q;
-    return ( ( ( ( ( a[ 0 ] * r + a[ 1 ] ) * r + a[ 2 ] ) * r + a[ 3 ] ) * r + a[ 4 ] ) * r + a[ 5 ] ) * q /
-           ( ( ( ( ( b[ 0 ] * r + b[ 1 ] ) * r + b[ 2 ] ) * r + b[ 3 ] ) * r + b[ 4 ] ) * r + 1 );
   }
 
   private getDeterministicSlitArrivalTime(): number {
