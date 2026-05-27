@@ -55,8 +55,6 @@ timePlot:                        Time Plot
 positionPlot:                    Position Plot
 time:                            Time
 position:                        Position
-barrier:                         Barrier
-none:                            None
 waveDisplay:                     Wave Display
 waveFunctionDisplay:             Wave Function Display
 electricField:                   Electric Field
@@ -255,13 +253,6 @@ a11y:
   slitsHeading:                Slits and Screen Configuration
   detectorScreenHeading:       Detector Screen Controls
   highIntensityState:
-    heading:              Current Experiment State
-    sourceLabel:          Source
-    slitsLabel:           Slits
-    detectorPatternLabel: Detector pattern
-    waveProgressLabel:    Wave progress
-    displayToolsLabel:    Display and tools
-    noticeLabel:          What to notice
     overview:             >-
                           Currently, { $isPlaying ->
                             [false] sim is paused.
@@ -422,16 +413,6 @@ a11y:
                           }, { $positionPlot ->
                             [true] position plot.
                            *[false] no position plot.
-                          }
-    notice:               >-
-                          { $patternKind ->
-                            [doubleSlitInterference] Watch how wavelength and slit separation change the spacing of
-                            the interference bands.
-                            [singleSlitDiffraction] With one open slit, compare the broad central band to the
-                            many-band double-slit pattern.
-                            [whichPathDiffraction] The slit detector tells which path the particles take, so the
-                            double-slit interference pattern disappears.
-                           *[noBarrier] With no barrier, compare direct travel to patterns made by slits.
                           }
   highIntensityResponses:
     sourceStarted:            >-

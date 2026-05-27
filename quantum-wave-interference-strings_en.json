@@ -161,12 +161,6 @@
   "position": {
     "value": "Position"
   },
-  "barrier": {
-    "value": "Barrier"
-  },
-  "none": {
-    "value": "None"
-  },
   "waveDisplay": {
     "value": "Wave Display"
   },
@@ -263,27 +257,6 @@
       "value": "Detector Screen Controls"
     },
     "highIntensityState": {
-      "heading": {
-        "value": "Current Experiment State"
-      },
-      "sourceLabel": {
-        "value": "Source"
-      },
-      "slitsLabel": {
-        "value": "Slits"
-      },
-      "detectorPatternLabel": {
-        "value": "Detector pattern"
-      },
-      "waveProgressLabel": {
-        "value": "Wave progress"
-      },
-      "displayToolsLabel": {
-        "value": "Display and tools"
-      },
-      "noticeLabel": {
-        "value": "What to notice"
-      },
       "overview": {
         "value": "Currently, { $isPlaying ->\n  [false] sim is paused.\n *[true] sim is running.\n} { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} { $isEmitting ->\n  [true] are being emitted\n *[false] are not being emitted\n}. { $displayMode ->\n  [graph] The graph is shown\n *[screen] The detector screen is shown\n} in { $detectionMode ->\n  [averageIntensity] Average Intensity mode.\n *[hits] Hits mode.\n}"
       },
@@ -310,9 +283,6 @@
       },
       "displayTools": {
         "value": "{ $displayMode ->\n  [graph] Graph view is active\n *[screen] Detector screen view is active\n}. Wave display mode is { $waveDisplayMode ->\n  [electricField] Electric Field\n  [timeAveragedIntensity] Amplitude\n  [realPart] Real Part\n  [imaginaryPart] Imaginary Part\n *[magnitude] Amplitude\n}. Screen brightness is { $brightness } percent. Stored snapshots: { $snapshotCount }. Tools shown: { $tapeMeasure ->\n  [true] tape measure\n *[false] no tape measure\n}, { $stopwatch ->\n  [true] stopwatch\n *[false] no stopwatch\n}, { $timePlot ->\n  [true] time plot\n *[false] no time plot\n}, { $positionPlot ->\n  [true] position plot.\n *[false] no position plot.\n}"
-      },
-      "notice": {
-        "value": "{ $patternKind ->\n  [doubleSlitInterference] Watch how wavelength and slit separation change the spacing of\n  the interference bands.\n  [singleSlitDiffraction] With one open slit, compare the broad central band to the\n  many-band double-slit pattern.\n  [whichPathDiffraction] The slit detector tells which path the particles take, so the\n  double-slit interference pattern disappears.\n *[noBarrier] With no barrier, compare direct travel to patterns made by slits.\n}"
       }
     },
     "highIntensityResponses": {

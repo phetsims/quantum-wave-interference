@@ -78,8 +78,6 @@ type StringsType = {
   'positionPlotStringProperty': LocalizedStringProperty;
   'timeStringProperty': LocalizedStringProperty;
   'positionStringProperty': LocalizedStringProperty;
-  'barrierStringProperty': LocalizedStringProperty;
-  'noneStringProperty': LocalizedStringProperty;
   'waveDisplayStringProperty': LocalizedStringProperty;
   'waveFunctionDisplayStringProperty': LocalizedStringProperty;
   'electricFieldStringProperty': LocalizedStringProperty;
@@ -116,13 +114,6 @@ type StringsType = {
     'slitsHeadingStringProperty': LocalizedStringProperty;
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;
     'highIntensityState': {
-      'headingStringProperty': LocalizedStringProperty;
-      'sourceLabelStringProperty': LocalizedStringProperty;
-      'slitsLabelStringProperty': LocalizedStringProperty;
-      'detectorPatternLabelStringProperty': LocalizedStringProperty;
-      'waveProgressLabelStringProperty': LocalizedStringProperty;
-      'displayToolsLabelStringProperty': LocalizedStringProperty;
-      'noticeLabelStringProperty': LocalizedStringProperty;
       'overviewStringProperty': LocalizedStringProperty;
       'sourceStatusStringProperty': LocalizedStringProperty;
       'sourceBeamStringProperty': LocalizedStringProperty;
@@ -132,7 +123,6 @@ type StringsType = {
       'detectorPatternStringProperty': LocalizedStringProperty;
       'waveProgressStringProperty': LocalizedStringProperty;
       'displayToolsStringProperty': LocalizedStringProperty;
-      'noticeStringProperty': LocalizedStringProperty;
     };
     'highIntensityResponses': {
       'sourceStartedStringProperty': LocalizedStringProperty;
