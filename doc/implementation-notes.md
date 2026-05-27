@@ -51,8 +51,9 @@ screens:
   animation, erase button, camera button, and snapshots dialog button.
 - **DoubleSlitNode**: Gray barrier rectangles with slit openings, including optional cover and
   detector overlays (High Intensity only). Draggable horizontally to change slit-to-screen distance.
-- **SidewaysGraphNode**: Rotated histogram or intensity curve aligned with the detector screen axis.
-  Scales the detector screen to half width when visible to make room.
+- **DetectorPatternGraphNode**: Rotated histogram or intensity curve aligned with the detector screen axis.
+- **DetectorPatternGraphLayerNode**: Positions `DetectorPatternGraphNode` beside the detector screen and hides the
+  detector screen while the graph is visible.
 - **SnapshotNode / SnapshotsDialog**: Canvas-based miniature detector screen captures with a
   vertical list dialog. Up to 4 snapshots per scene.
 - **TimePlotNode / PositionPlotNode**: Draggable chart panels with crosshairs constrained to the
@@ -72,7 +73,7 @@ Shared parent Nodes in `js/common/view/` assemble shared UI patterns:
 - `SlitConfigurationControlsRow`: Barrier combo box + slit controls, positioned below the wave
   region.
 - `MeasurementToolsLayerNode`: Tape measure, stopwatch, time plot, and position plot.
-- `SidewaysGraph`: Intensity/hits graph alongside the detector screen.
+- `DetectorPatternGraphLayerNode`: Intensity/hits graph alongside the detector screen.
 
 ## Experiment Screen
 
@@ -180,7 +181,7 @@ This table maps those nicknames to the actual class or property name in code:
 | Clear button | eraser button in `DetectorScreenNode` | Clears accumulated hits/intensity from the detector screen |
 | Camera | snapshot button in `DetectorScreenNode` | Takes a snapshot of the current detector screen |
 | Eye | view snapshots button in `DetectorScreenNode` | Opens the snapshots dialog |
-| Intensity graph / Hits graph | `SidewaysGraphNode` | Sideways graph aligned with detector screen |
+| Intensity graph / Hits graph | `DetectorPatternGraphLayerNode` | Detector pattern graph aligned with detector screen |
 | Time plot | `TimePlotNode` | Draggable chart plotting wave quantity vs time at crosshair location |
 | Position plot | `PositionPlotNode` | Draggable chart plotting wave quantity vs horizontal position |
 | Detector tool | `DetectorToolNode` | Circular probability detector (Single Particles only) |

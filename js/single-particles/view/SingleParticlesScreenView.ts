@@ -24,7 +24,7 @@ import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotation
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
-import SidewaysGraph from '../../common/view/SidewaysGraph.js';
+import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
@@ -57,7 +57,7 @@ export default class SingleParticlesScreenView extends ScreenView {
   private readonly model: SingleParticlesModel;
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
-  private readonly sidewaysGraphNode: SidewaysGraph;
+  private readonly detectorPatternGraphLayerNode: DetectorPatternGraphLayerNode;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
 
@@ -182,7 +182,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( bottomRow );
 
     // Hits graph (always in Hits mode on this screen)
-    this.sidewaysGraphNode = new SidewaysGraph(
+    this.detectorPatternGraphLayerNode = new DetectorPatternGraphLayerNode(
       model.sceneProperty,
       this.detectorScreenNode,
       model.isHitsGraphVisibleProperty,
@@ -191,7 +191,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       tandem.createTandem( 'sidewaysGraphNode' ),
       { initialZoomLevel: 'max' }
     );
-    this.addChild( this.sidewaysGraphNode );
+    this.addChild( this.detectorPatternGraphLayerNode );
 
     // Detector tool (draggable circle + panel, Single Particles only)
     const detectorToolNode = new DetectorToolNode(
@@ -230,7 +230,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
       // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate of resetView in HighIntensityScreenView
       resetView: () => {
-        this.sidewaysGraphNode.reset();
+        this.detectorPatternGraphLayerNode.reset();
         this.timePlotNode.reset();
         this.positionPlotNode.reset();
         this.detectorScreenNode.clearFlash();
@@ -278,7 +278,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       screenViewDescription.experimentSetupHeadingNode,
       screenViewDescription.sourceHeadingNode,
       screenViewDescription.slitsHeadingNode,
-      this.sidewaysGraphNode,
+      this.detectorPatternGraphLayerNode,
       detectorToolNode,
       measurementToolsNode
     ];
@@ -295,7 +295,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     super.step( dt );
     this.waveVisualizationNode.step();
     this.detectorScreenNode.step();
-    this.sidewaysGraphNode.step();
+    this.detectorPatternGraphLayerNode.step();
     this.timePlotNode.step( this.model.getEffectiveDt( dt ) );
     this.positionPlotNode.step();
   }

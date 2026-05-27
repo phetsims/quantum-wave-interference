@@ -1,13 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SidewaysGraph is the sideways graph (intensity curve / hits histogram) and wires it
- * to the detector screen so the screen hides while the graph is shown. The High Intensity and
- * Single Particles screens both use this layout but with different visibility properties
- * and (for the axis label) different detection-mode handling.
- *
- * TODO: Fix or describe the relationship between SidewaysGraph (which is a Node) vs SidewaysGraphNode, see https://github.com/phetsims/quantum-wave-interference/issues/146
- * It's supa confusing!!
+ * DetectorPatternGraphLayerNode positions the detector pattern graph beside the detector screen and coordinates
+ * visibility between the graph and the detector screen. The High Intensity and Single Particles screens both use
+ * this layout, but with different visibility Properties and detection-mode handling.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -15,16 +11,16 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
-import Tandem from '../../../../tandem/js/Tandem.js';
+import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
-import SidewaysGraphNode, { type SidewaysGraphSceneLike } from './SidewaysGraphNode.js';
+import DetectorPatternGraphNode, { type DetectorPatternGraphSceneLike } from './DetectorPatternGraphNode.js';
 
-const GRAPH_LEFT_GAP = 2;
+const DETECTOR_PATTERN_GRAPH_LEFT_GAP = 2;
 
 type ZoomLevelOption = number | 'default' | 'max';
 
-type SidewaysGraphOptions = {
+type DetectorPatternGraphLayerNodeOptions = {
 
   // Provide to make the graph adapt its axis label between "Intensity" (averageIntensity mode) and
   // "Count" (hits mode). Omit on screens that are always in hits mode.
@@ -35,18 +31,20 @@ type SidewaysGraphOptions = {
   initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
 };
 
-// TODO: Rename this file, see https://github.com/phetsims/quantum-wave-interference/issues/146
-export default class SidewaysGraph extends SidewaysGraphNode {
+export default class DetectorPatternGraphLayerNode extends Node {
+
+  private readonly graphNode: DetectorPatternGraphNode;
 
   public constructor(
-    sceneProperty: TReadOnlyProperty<SidewaysGraphSceneLike>,
+    sceneProperty: TReadOnlyProperty<DetectorPatternGraphSceneLike>,
     detectorScreenNode: Node,
     isVisibleProperty: TReadOnlyProperty<boolean>,
     detectorScreenCenterX: number,
     waveRegionTop: number,
     tandem: Tandem,
-    options: SidewaysGraphOptions = {}
+    options: DetectorPatternGraphLayerNodeOptions = {}
   ) {
+    super();
 
     const axisLabelStringProperty = options.detectionModeProperty
                                     ? new DerivedProperty(
@@ -60,24 +58,40 @@ export default class SidewaysGraph extends SidewaysGraphNode {
       )
                                     : QuantumWaveInterferenceFluent.countStringProperty;
 
-    super( sceneProperty, {
+    this.graphNode = new DetectorPatternGraphNode( sceneProperty, {
       detectionModeProperty: options.detectionModeProperty,
       axisLabelStringProperty: axisLabelStringProperty,
       initialZoomLevel: options.initialZoomLevel,
       initialZoomLevels: options.initialZoomLevels,
       tandem: tandem
     } );
+    this.addChild( this.graphNode );
 
     isVisibleProperty.link( isVisible => {
       this.visible = isVisible;
+      this.graphNode.visible = isVisible;
       detectorScreenNode.visible = !isVisible;
 
       detectorScreenNode.centerX = detectorScreenCenterX;
 
       if ( isVisible ) {
-        this.left = detectorScreenCenterX + GRAPH_LEFT_GAP;
+        this.left = detectorScreenCenterX + DETECTOR_PATTERN_GRAPH_LEFT_GAP;
         this.top = waveRegionTop;
       }
     } );
+  }
+
+  /**
+   * Updates the graph child during the simulation step so continuously changing intensity data stays current.
+   */
+  public step(): void {
+    this.graphNode.step();
+  }
+
+  /**
+   * Restores the graph child's view-specific zoom state to its configured defaults.
+   */
+  public reset(): void {
+    this.graphNode.reset();
   }
 }

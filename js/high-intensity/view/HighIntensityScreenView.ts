@@ -33,7 +33,7 @@ import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotation
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
-import SidewaysGraph from '../../common/view/SidewaysGraph.js';
+import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
@@ -95,7 +95,7 @@ export default class HighIntensityScreenView extends ScreenView {
   private readonly model: HighIntensityModel;
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
-  private readonly sidewaysGraphNode: SidewaysGraph;
+  private readonly detectorPatternGraphLayerNode: DetectorPatternGraphLayerNode;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
 
@@ -140,12 +140,12 @@ export default class HighIntensityScreenView extends ScreenView {
     this.waveVisualizationNode = waveRegionNodes.waveVisualizationNode;
 
     const bottomRow = this.createAndAddSlitControls( model, waveRegionLayout, tandem );
-    this.sidewaysGraphNode = this.createAndAddSidewaysGraph( model, this.detectorScreenNode, waveRegionLayout, tandem );
+    this.detectorPatternGraphLayerNode = this.createAndAddDetectorPatternGraphLayerNode( model, this.detectorScreenNode, waveRegionLayout, tandem );
 
     const detectorScreenControls = this.createAndAddDetectorScreenControls(
       model,
       accessibleResponses,
-      this.sidewaysGraphNode,
+      this.detectorPatternGraphLayerNode,
       this.detectorScreenNode,
       sourceBeamRightLimitXProperty,
       tandem
@@ -355,21 +355,21 @@ export default class HighIntensityScreenView extends ScreenView {
   }
 
   /**
-   * Creates the detector-side intensity graph.
+   * Creates the detector-side intensity graph layer.
    *
    * @param model - the screen model that owns graph visibility and detection mode
    * @param detectorScreenNode - detector screen node that anchors the graph
    * @param waveRegionLayout - coordinates for positioning the graph beside the wave region
    * @param tandem - parent tandem for child instrumentation
-   * @returns the graph node retained by the ScreenView for stepping and reset
+   * @returns the graph layer retained by the ScreenView for stepping and reset
    */
-  private createAndAddSidewaysGraph(
+  private createAndAddDetectorPatternGraphLayerNode(
     model: HighIntensityModel,
     detectorScreenNode: DetectorScreenNode,
     waveRegionLayout: WaveRegionLayout,
     tandem: Tandem
-  ): SidewaysGraph {
-    const sidewaysGraphNode = new SidewaysGraph(
+  ): DetectorPatternGraphLayerNode {
+    const detectorPatternGraphLayerNode = new DetectorPatternGraphLayerNode(
       model.sceneProperty,
       detectorScreenNode,
       model.isIntensityGraphVisibleProperty,
@@ -383,9 +383,9 @@ export default class HighIntensityScreenView extends ScreenView {
         }
       }
     );
-    this.addChild( sidewaysGraphNode );
+    this.addChild( detectorPatternGraphLayerNode );
 
-    return sidewaysGraphNode;
+    return detectorPatternGraphLayerNode;
   }
 
   /**
@@ -436,7 +436,7 @@ export default class HighIntensityScreenView extends ScreenView {
    *
    * @param model - the screen model that owns detector-screen control state
    * @param accessibleResponses - response node used for clear-screen alerts
-   * @param sidewaysGraphNode - graph node reset by the detector-screen controls reset action
+   * @param detectorPatternGraphLayerNode - graph layer reset by the detector-screen controls reset action
    * @param detectorScreenNode - detector screen node used for snapshot flash and reset
    * @param sourceBeamRightLimitXProperty - mutable right limit for the source beam callout
    * @param tandem - parent tandem for child instrumentation
@@ -445,7 +445,7 @@ export default class HighIntensityScreenView extends ScreenView {
   private createAndAddDetectorScreenControls(
     model: HighIntensityModel,
     accessibleResponses: HighIntensityAccessibleResponses,
-    sidewaysGraphNode: SidewaysGraph,
+    detectorPatternGraphLayerNode: DetectorPatternGraphLayerNode,
     detectorScreenNode: DetectorScreenNode,
     sourceBeamRightLimitXProperty: NumberProperty,
     tandem: Tandem
@@ -467,7 +467,7 @@ export default class HighIntensityScreenView extends ScreenView {
       onSnapshotCaptured: () => detectorScreenNode.startSnapshotFlash(),
       onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
       resetView: () => {
-        sidewaysGraphNode.reset();
+        detectorPatternGraphLayerNode.reset();
         this.timePlotNode.reset();
         this.positionPlotNode.reset();
         detectorScreenNode.clearFlash();
@@ -583,7 +583,7 @@ export default class HighIntensityScreenView extends ScreenView {
     this.pdomPlayAreaNode.pdomOrder = [
       screenViewDescription.sourceHeadingNode,
       screenViewDescription.slitsHeadingNode,
-      this.sidewaysGraphNode,
+      this.detectorPatternGraphLayerNode,
       measurementToolsNode
     ];
 
@@ -598,7 +598,7 @@ export default class HighIntensityScreenView extends ScreenView {
     super.step( dt );
     this.waveVisualizationNode.step();
     this.detectorScreenNode.step();
-    this.sidewaysGraphNode.step();
+    this.detectorPatternGraphLayerNode.step();
     this.timePlotNode.step( this.model.getEffectiveDt( dt ) );
     this.positionPlotNode.step();
   }

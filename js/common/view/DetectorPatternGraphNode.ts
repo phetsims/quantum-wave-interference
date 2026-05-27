@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SidewaysGraphNode is a tall, vertical graph that sits to the right of the detector screen on both the
- * High Intensity and Single Particles screens. The vertical axis corresponds to position on the detector
- * screen, and the horizontal axis shows intensity (line graph) or hit count (histogram).
+ * DetectorPatternGraphNode is a tall, vertical graph for detector patterns on both the High Intensity and
+ * Single Particles screens. The vertical axis corresponds to position on the detector screen, and the horizontal
+ * axis shows intensity (line graph) or hit count (histogram).
  *
  * When in Intensity mode (High Intensity screen only), a smooth curve shows the theoretical
  * interference pattern. When in Hits mode (both screens), a histogram shows binned hit counts.
@@ -25,13 +25,13 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
-import { createClippedSidewaysGraphDataPath, createClippedSidewaysGraphStrokePath, createIntensityCurveShapes, createSidewaysGraphChartBackground, createSidewaysGraphChartBorder, createSidewaysGraphZoomButtonGroup, createSidewaysHistogramShape, getSidewaysGraphPaint, getSidewaysGraphZoomLevel, MAX_SIDEWAYS_GRAPH_ZOOM_LEVEL, MIN_SIDEWAYS_GRAPH_ZOOM_LEVEL, SIDEWAYS_GRAPH_WIDTH, type SidewaysGraphSceneLike, type ZoomLevelOption } from './SidewaysGraphPlotUtils.js';
+import { createClippedDetectorPatternGraphDataPath, createClippedDetectorPatternGraphStrokePath, createIntensityCurveShapes, createDetectorPatternGraphChartBackground, createDetectorPatternGraphChartBorder, createDetectorPatternGraphZoomButtonGroup, createDetectorPatternHistogramShape, getDetectorPatternGraphPaint, getDetectorPatternGraphZoomLevel, MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL, MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL, DETECTOR_PATTERN_GRAPH_WIDTH, type DetectorPatternGraphSceneLike, type ZoomLevelOption } from './DetectorPatternGraphPlotUtils.js';
 
 const LABEL_FONT = new PhetFont( 12 );
 const ZOOM_BUTTON_GROUP_MARGIN = 4;
 const AXIS_LABEL_TOP_MARGIN = 4;
 
-export type { SidewaysGraphSceneLike };
+export type { DetectorPatternGraphSceneLike };
 
 type SelfOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
@@ -40,30 +40,30 @@ type SelfOptions = {
   initialZoomLevels?: Partial<Record<DetectionMode, ZoomLevelOption>>;
 };
 
-type SidewaysGraphNodeOptions = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
+type DetectorPatternGraphNodeOptions = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
 
 const getModeZoomLevel = (
   detectionMode: DetectionMode,
   options: Pick<SelfOptions, 'initialZoomLevel' | 'initialZoomLevels'>
-): number => getSidewaysGraphZoomLevel( options.initialZoomLevels?.[ detectionMode ] ?? options.initialZoomLevel );
+): number => getDetectorPatternGraphZoomLevel( options.initialZoomLevels?.[ detectionMode ] ?? options.initialZoomLevel );
 
-export default class SidewaysGraphNode extends Node {
+export default class DetectorPatternGraphNode extends Node {
 
   private readonly zoomLevelProperty: NumberProperty;
   private readonly chartBackground: Rectangle;
   private readonly dataPath: Path;
   private readonly intensityCurveStrokePath: Path;
-  private readonly sceneProperty: TReadOnlyProperty<SidewaysGraphSceneLike>;
+  private readonly sceneProperty: TReadOnlyProperty<DetectorPatternGraphSceneLike>;
   private readonly detectionModeProperty: TReadOnlyProperty<DetectionMode> | undefined;
   private readonly defaultZoomLevelsByDetectionMode: Record<DetectionMode, number> | null;
   private readonly zoomLevelsByDetectionMode: Record<DetectionMode, number> | null;
   private activeDetectionMode: DetectionMode | null;
 
   public constructor(
-    sceneProperty: TReadOnlyProperty<SidewaysGraphSceneLike>,
-    providedOptions: SidewaysGraphNodeOptions
+    sceneProperty: TReadOnlyProperty<DetectorPatternGraphSceneLike>,
+    providedOptions: DetectorPatternGraphNodeOptions
   ) {
-    const options = optionize<SidewaysGraphNodeOptions, StrictOmit<SelfOptions, 'detectionModeProperty'>, NodeOptions>()( {
+    const options = optionize<DetectorPatternGraphNodeOptions, StrictOmit<SelfOptions, 'detectionModeProperty'>, NodeOptions>()( {
       initialZoomLevel: 'default',
       initialZoomLevels: {},
       isDisposable: false
@@ -74,9 +74,9 @@ export default class SidewaysGraphNode extends Node {
     this.activeDetectionMode = options.detectionModeProperty ? options.detectionModeProperty.value : null;
 
     const zoomRange = new RangeWithValue(
-      MIN_SIDEWAYS_GRAPH_ZOOM_LEVEL,
-      MAX_SIDEWAYS_GRAPH_ZOOM_LEVEL,
-      this.activeDetectionMode ? getModeZoomLevel( this.activeDetectionMode, options ) : getSidewaysGraphZoomLevel( options.initialZoomLevel )
+      MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
+      MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
+      this.activeDetectionMode ? getModeZoomLevel( this.activeDetectionMode, options ) : getDetectorPatternGraphZoomLevel( options.initialZoomLevel )
     );
     //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Identical zoomLevelProperty in GraphAccordionBox
     this.zoomLevelProperty = new NumberProperty( zoomRange.defaultValue, {
@@ -94,12 +94,12 @@ export default class SidewaysGraphNode extends Node {
       hits: this.defaultZoomLevelsByDetectionMode.hits
     } : null;
 
-    this.chartBackground = createSidewaysGraphChartBackground();
-    this.dataPath = createClippedSidewaysGraphDataPath( this.chartBackground );
-    this.intensityCurveStrokePath = createClippedSidewaysGraphStrokePath( this.chartBackground );
+    this.chartBackground = createDetectorPatternGraphChartBackground();
+    this.dataPath = createClippedDetectorPatternGraphDataPath( this.chartBackground );
+    this.intensityCurveStrokePath = createClippedDetectorPatternGraphStrokePath( this.chartBackground );
 
-    const chartBorder = createSidewaysGraphChartBorder();
-    const zoomButtonGroup = createSidewaysGraphZoomButtonGroup( this.zoomLevelProperty, providedOptions.tandem );
+    const chartBorder = createDetectorPatternGraphChartBorder();
+    const zoomButtonGroup = createDetectorPatternGraphZoomButtonGroup( this.zoomLevelProperty, providedOptions.tandem );
     zoomButtonGroup.right = this.chartBackground.right - ZOOM_BUTTON_GROUP_MARGIN;
     zoomButtonGroup.top = this.chartBackground.top + ZOOM_BUTTON_GROUP_MARGIN;
 
@@ -109,7 +109,7 @@ export default class SidewaysGraphNode extends Node {
 
     const axisLabel = new Text( options.axisLabelStringProperty, {
       font: LABEL_FONT,
-      maxWidth: SIDEWAYS_GRAPH_WIDTH
+      maxWidth: DETECTOR_PATTERN_GRAPH_WIDTH
     } );
 
     this.addChild( chartNode );
@@ -181,7 +181,7 @@ export default class SidewaysGraphNode extends Node {
    * Paints the hits-mode histogram. Scene hit positions are already normalized to the detector-screen axis,
    * so this method bins hit x-coordinates into vertical graph bars and scales bar width by the zoom level.
    */
-  private paintHistogram( scene: SidewaysGraphSceneLike ): void {
+  private paintHistogram( scene: DetectorPatternGraphSceneLike ): void {
     this.intensityCurveStrokePath.shape = null;
 
     if ( scene.hits.length === 0 ) {
@@ -189,23 +189,23 @@ export default class SidewaysGraphNode extends Node {
       return;
     }
 
-    this.dataPath.shape = createSidewaysHistogramShape(
+    this.dataPath.shape = createDetectorPatternHistogramShape(
       scene.hits,
       this.zoomLevelProperty.value,
       this.zoomLevelProperty.range.max
     );
     this.dataPath.lineWidth = 0.5;
 
-    const graphPaint = getSidewaysGraphPaint( scene, 'histogram' );
+    const graphPaint = getDetectorPatternGraphPaint( scene, 'histogram' );
     this.dataPath.fill = graphPaint.fill;
     this.dataPath.stroke = graphPaint.stroke;
   }
 
   /**
    * Paints the average-intensity mode curve. The wave solver supplies probability samples along the detector-screen
-   * axis; this method turns those samples into a filled sideways curve plus a visible stroke path.
+   * axis; this method turns those samples into a filled detector-pattern curve plus a visible stroke path.
    */
-  private paintIntensityCurve( scene: SidewaysGraphSceneLike ): void {
+  private paintIntensityCurve( scene: DetectorPatternGraphSceneLike ): void {
     const intensityCurveShapes = createIntensityCurveShapes( scene, this.zoomLevelProperty.value );
 
     this.dataPath.shape = intensityCurveShapes.fillShape;
@@ -214,7 +214,7 @@ export default class SidewaysGraphNode extends Node {
 
     this.intensityCurveStrokePath.shape = intensityCurveShapes.strokeShape;
 
-    const graphPaint = getSidewaysGraphPaint( scene, 'intensityCurve' );
+    const graphPaint = getDetectorPatternGraphPaint( scene, 'intensityCurve' );
     this.dataPath.fill = graphPaint.fill;
     this.intensityCurveStrokePath.stroke = graphPaint.stroke;
   }
