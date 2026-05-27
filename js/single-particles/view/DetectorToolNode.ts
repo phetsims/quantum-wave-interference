@@ -37,7 +37,7 @@ import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import SingleParticlesModel from '../model/SingleParticlesModel.js';
+import CurrentDetectorTool from '../model/CurrentDetectorTool.js';
 
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -59,16 +59,13 @@ type DetectorMode = typeof DetectorModeValues[number];
  * wave-region width. This node maps those values into view coordinates, updates the tool labels and measurement-state
  * colors, and routes the dashed wire to the external control panel.
  *
- * The detector tool Properties are exposed by SingleParticlesModel as DynamicProperties, so one DetectorToolNode can
- * stay connected while the active Single Particles scene changes.
+ * The detector tool Properties are exposed by CurrentDetectorTool as DynamicProperties, so one DetectorToolNode can stay
+ * connected while the active Single Particles scene changes.
  */
 export default class DetectorToolNode extends Node {
 
-  //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Coupling to SingleParticlesModel suggests that the
-  // model could benefit from having a CurrentDetectorTool class to pull together the 6 (?) related Properties that
-  // are currently at the top-level of SingleParticlesModel.
   /**
-   * @param model - Single Particles model that provides the active scene's detector-tool Properties
+   * @param currentDetectorTool - detector tool model for the active Single Particles scene
    * @param waveRegionLeft - left edge of the wave visualization region in this node's parent coordinate frame
    * @param waveRegionTop - top edge of the wave visualization region in this node's parent coordinate frame
    * @param getControlPanelCenterX - callback for the panel center x-coordinate, evaluated after layout changes
@@ -76,7 +73,7 @@ export default class DetectorToolNode extends Node {
    * @param tandem - instrumentation root for detector-tool controls
    */
   public constructor(
-    model: SingleParticlesModel,
+    currentDetectorTool: CurrentDetectorTool,
     waveRegionLeft: number,
     waveRegionTop: number,
     getControlPanelCenterX: () => number,
@@ -126,7 +123,7 @@ export default class DetectorToolNode extends Node {
     // --- Control panel ---
 
     const detectButtonTextProperty = new DerivedProperty(
-      [ model.currentDetectorToolStateProperty,
+      [ currentDetectorTool.stateProperty,
         QuantumWaveInterferenceFluent.detectStringProperty,
         QuantumWaveInterferenceFluent.resetDetectorStringProperty ],
       ( state, detectString, resetString ) =>
@@ -140,11 +137,11 @@ export default class DetectorToolNode extends Node {
       } ),
       baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty,
       listener: () => {
-        if ( model.currentDetectorToolStateProperty.value === 'ready' ) {
-          model.sceneProperty.value.performDetectorMeasurement();
+        if ( currentDetectorTool.stateProperty.value === 'ready' ) {
+          currentDetectorTool.performMeasurement();
         }
         else {
-          model.sceneProperty.value.resetDetectorToolState();
+          currentDetectorTool.resetState();
         }
       },
       tandem: tandem.createTandem( 'detectButton' )
@@ -156,8 +153,8 @@ export default class DetectorToolNode extends Node {
     } );
 
     const sizeSlider = new HSlider(
-      model.currentDetectorToolRadiusProperty,
-      model.photonsScene.detectorToolRadiusProperty.range,
+      currentDetectorTool.radiusProperty,
+      currentDetectorTool.radiusRange,
       {
         trackSize: new Dimension2( 80, 3 ),
         thumbSize: new Dimension2( 11, 18 ),
@@ -224,8 +221,8 @@ export default class DetectorToolNode extends Node {
      * bounds change due to dynamic layout or localization.
      */
     const updateCircle = () => {
-      const pos = model.currentDetectorToolPositionProperty.value;
-      const radius = model.currentDetectorToolRadiusProperty.value;
+      const pos = currentDetectorTool.positionProperty.value;
+      const radius = currentDetectorTool.radiusProperty.value;
 
       const viewX = waveRegionLeft + pos.x * WAVE_REGION_WIDTH;
       const viewY = waveRegionTop + pos.y * WAVE_REGION_HEIGHT;
@@ -261,7 +258,7 @@ export default class DetectorToolNode extends Node {
       new Bounds2( waveRegionLeft, waveRegionTop, waveRegionLeft + WAVE_REGION_WIDTH, waveRegionTop + WAVE_REGION_HEIGHT )
     );
     const dragListener = new DragListener( {
-      positionProperty: model.currentDetectorToolPositionProperty,
+      positionProperty: currentDetectorTool.positionProperty,
       transform: detectorToolModelViewTransform,
       dragBoundsProperty: new Property( DETECTOR_TOOL_DRAG_BOUNDS ),
       tandem: tandem.createTandem( 'dragListener' )
@@ -276,8 +273,8 @@ export default class DetectorToolNode extends Node {
      * formatting change.
      */
     const updateProbabilityLabel = () => {
-      const state = model.currentDetectorToolStateProperty.value;
-      const probability = model.currentDetectorToolProbabilityProperty.value;
+      const state = currentDetectorTool.stateProperty.value;
+      const probability = currentDetectorTool.probabilityProperty.value;
 
       if ( state === 'detected' ) {
         probabilityText.string = '';
@@ -302,8 +299,8 @@ export default class DetectorToolNode extends Node {
 
     Multilink.multilinkAny(
       [
-        model.currentDetectorToolStateProperty,
-        model.currentDetectorToolProbabilityProperty,
+        currentDetectorTool.stateProperty,
+        currentDetectorTool.probabilityProperty,
         QuantumWaveInterferenceFluent.particleDetectedStringProperty,
         QuantumWaveInterferenceFluent.notDetectedStringProperty,
         ...percentUnit.getDependentProperties()
@@ -311,11 +308,11 @@ export default class DetectorToolNode extends Node {
       () => updateProbabilityLabel()
     );
 
-    model.currentDetectorToolPositionProperty.link( () => updateCircle() );
-    model.currentDetectorToolRadiusProperty.link( () => updateCircle() );
+    currentDetectorTool.positionProperty.link( () => updateCircle() );
+    currentDetectorTool.radiusProperty.link( () => updateCircle() );
 
     Multilink.multilink(
-      [ model.isDetectorToolVisibleProperty, model.isDetectorToolAvailableProperty ],
+      [ currentDetectorTool.isVisibleProperty, currentDetectorTool.isAvailableProperty ],
       ( isVisible, isAvailable ) => {
         this.visible = isVisible && isAvailable;
       }

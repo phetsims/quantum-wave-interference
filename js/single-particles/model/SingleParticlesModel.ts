@@ -8,15 +8,13 @@
  */
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import Vector2 from '../../../../dot/js/Vector2.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import BaseScreenModel from '../../common/model/BaseScreenModel.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
-import SingleParticlesSceneModel, { type DetectorToolState } from './SingleParticlesSceneModel.js';
+import CurrentDetectorTool from './CurrentDetectorTool.js';
+import SingleParticlesSceneModel from './SingleParticlesSceneModel.js';
 
 const NORMAL_TIME_SPEED_FACTOR = 0.7;
 const FAST_TIME_SPEED_FACTOR = 8;
@@ -31,17 +29,10 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
   public readonly currentSlitConfigurationProperty: DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, SingleParticlesSceneModel>;
   public readonly currentAutoRepeatProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
   public readonly currentIsPacketActiveProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
-  public readonly currentDetectorToolPositionProperty: DynamicProperty<Vector2, Vector2, SingleParticlesSceneModel>;
-  public readonly currentDetectorToolRadiusProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
-  public readonly currentDetectorToolStateProperty: DynamicProperty<DetectorToolState, DetectorToolState, SingleParticlesSceneModel>;
-  public readonly currentDetectorToolProbabilityProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
-
-  // Whether the detector tool UI is available (only when barrier is None)
-  public readonly isDetectorToolAvailableProperty: TReadOnlyProperty<boolean>;
+  public readonly currentDetectorTool: CurrentDetectorTool;
 
   // Tool visibility specific to this screen
   public readonly isHitsGraphVisibleProperty: BooleanProperty;
-  public readonly isDetectorToolVisibleProperty: BooleanProperty;
 
   public constructor( providedOptions: SingleParticlesModelOptions ) {
 
@@ -78,36 +69,15 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
       derive: 'isPacketActiveProperty'
     } );
 
-    this.currentDetectorToolPositionProperty = new DynamicProperty<Vector2, Vector2, SingleParticlesSceneModel>( this.sceneProperty, {
-      derive: 'detectorToolPositionProperty',
-      bidirectional: true
-    } );
-
-    this.currentDetectorToolRadiusProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( this.sceneProperty, {
-      derive: 'detectorToolRadiusProperty',
-      bidirectional: true
-    } );
-
-    this.currentDetectorToolStateProperty = new DynamicProperty<DetectorToolState, DetectorToolState, SingleParticlesSceneModel>( this.sceneProperty, {
-      derive: 'detectorToolStateProperty',
-      bidirectional: true
-    } );
-
-    this.currentDetectorToolProbabilityProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( this.sceneProperty, {
-      derive: 'detectorToolProbabilityProperty'
-    } );
-
-    this.isDetectorToolAvailableProperty = new DerivedProperty( [ this.currentSlitConfigurationProperty ],
-      slitConfiguration => slitConfiguration === 'noBarrier'
-    );
-
     this.isHitsGraphVisibleProperty = new BooleanProperty( false, {
       tandem: this.toolsTandem.createTandem( 'isHitsGraphVisibleProperty' )
     } );
 
-    this.isDetectorToolVisibleProperty = new BooleanProperty( false, {
-      tandem: this.toolsTandem.createTandem( 'isDetectorToolVisibleProperty' )
-    } );
+    this.currentDetectorTool = new CurrentDetectorTool(
+      this.sceneProperty,
+      this.currentSlitConfigurationProperty,
+      this.toolsTandem
+    );
 
   }
 
@@ -117,6 +87,6 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
 
   protected override resetToolVisibility(): void {
     this.isHitsGraphVisibleProperty.reset();
-    this.isDetectorToolVisibleProperty.reset();
+    this.currentDetectorTool.isVisibleProperty.reset();
   }
 }

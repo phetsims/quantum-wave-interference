@@ -196,7 +196,7 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     // Detector tool (draggable circle + panel, Single Particles only)
     const detectorToolNode = new DetectorToolNode(
-      model,
+      model.currentDetectorTool,
       waveRegionLeft,
       waveRegionTop,
       () => bottomRow.getSlitSeparationControlCenterX(),
@@ -209,10 +209,10 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const { tapeMeasureCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
       createStandardToolCheckboxes( model, tandem );
-    const detectorCheckbox = new ToolCheckbox( model.isDetectorToolVisibleProperty, QuantumWaveInterferenceFluent.detectorStringProperty, tandem.createTandem( 'detectorCheckbox' ), ToolIcons.createDetectorIcon() );
+    const detectorCheckbox = new ToolCheckbox( model.currentDetectorTool.isVisibleProperty, QuantumWaveInterferenceFluent.detectorStringProperty, tandem.createTandem( 'detectorCheckbox' ), ToolIcons.createDetectorIcon() );
 
     // Detector checkbox is only shown when barrier is None; its checked state is preserved in the model.
-    model.isDetectorToolAvailableProperty.link( isAvailable => {
+    model.currentDetectorTool.isAvailableProperty.link( isAvailable => {
       detectorCheckbox.visible = isAvailable;
     } );
 
