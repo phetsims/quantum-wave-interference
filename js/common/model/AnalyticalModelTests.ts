@@ -11,7 +11,7 @@
 import Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalLayeredSample, evaluateAnalyticalSample, evaluateAnalyticalSamples, getDecoherenceEventAtPassTime, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalSample, evaluateAnalyticalSamples, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
 import { getFieldSampleRGBA, getLayeredFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
@@ -775,8 +775,7 @@ QUnit.test( 'gaussian packet measurement projection returns one projected base l
     } ]
   } );
 
-  const layeredSample = evaluateAnalyticalLayeredSample( parameters, 0.82, 0, 1.1 );
-  const sample = evaluateAnalyticalSample( parameters, 0.82, 0, 1.1 );
+  const { sample, layeredSample } = evaluateAnalyticalSamples( parameters, 0.82, 0, 1.1 );
 
   assert.strictEqual( layeredSample.kind, 'field', 'projected layered sample is field' );
   assert.strictEqual( sample.kind, 'field', 'projected sample is field' );
@@ -801,7 +800,7 @@ QUnit.test( 'gaussian packet measurement projection returns one projected base l
   }
 } );
 
-QUnit.test( 'combined analytical sampling matches separate field and layered evaluators', assert => {
+QUnit.test( 'combined analytical sampling matches field evaluator and returns renderable layers', assert => {
   const baseColor = { red: 200, green: 200, blue: 200 };
   const cases = [
     {
@@ -834,7 +833,6 @@ QUnit.test( 'combined analytical sampling matches separate field and layered eva
 
   cases.forEach( testCase => {
     const sample = evaluateAnalyticalSample( testCase.parameters, testCase.x, testCase.y, testCase.t );
-    const layeredSample = evaluateAnalyticalLayeredSample( testCase.parameters, testCase.x, testCase.y, testCase.t );
     const combinedSamples = evaluateAnalyticalSamples( testCase.parameters, testCase.x, testCase.y, testCase.t );
 
     assert.strictEqual( combinedSamples.sample.kind, sample.kind, 'combined field sample status matches' );
@@ -843,10 +841,13 @@ QUnit.test( 'combined analytical sampling matches separate field and layered eva
       getFieldSampleRGBA( sample, 'magnitude', baseColor, 1 ),
       'combined field sample rasterizes like separate evaluator'
     );
-    assert.deepEqual(
-      getLayeredFieldSampleRGBA( combinedSamples.layeredSample, 'magnitude', baseColor, 1 ),
-      getLayeredFieldSampleRGBA( layeredSample, 'magnitude', baseColor, 1 ),
-      'combined layered sample rasterizes like separate evaluator'
+    const layeredColor = getLayeredFieldSampleRGBA( combinedSamples.layeredSample, 'magnitude', baseColor, 1 );
+    assert.ok(
+      Number.isFinite( layeredColor.red ) &&
+      Number.isFinite( layeredColor.green ) &&
+      Number.isFinite( layeredColor.blue ) &&
+      Number.isFinite( layeredColor.alpha ),
+      'combined layered sample is renderable'
     );
   } );
 } );
@@ -1062,16 +1063,40 @@ QUnit.test( 'detector-record rendering zeroes non-event channels', assert => {
   );
 } );
 
-QUnit.test( 'decoherence event lookup uses latest causal record', assert => {
-  const events = [
+QUnit.test( 'packet decoherence uses latest causal record', assert => {
+  const parameters = createGaussianPacketParameters( {
+    barrier: createDoubleSlitBarrier( { coherent: false } )
+  } );
+  parameters.decoherenceEvents = [
     { time: 1, selectedSlit: 'topSlit' as const },
     { time: 2, selectedSlit: 'bottomSlit' as const },
     { time: 3, selectedSlit: 'topSlit' as const }
   ];
 
-  assert.strictEqual( getDecoherenceEventAtPassTime( events, 0.5 ), null, 'no event exists before the first record' );
-  assert.strictEqual( getDecoherenceEventAtPassTime( events, 2.5 ), events[ 1 ], 'latest event before pass time is selected' );
-  assert.strictEqual( getDecoherenceEventAtPassTime( events, 3 ), events[ 2 ], 'event at pass time is selected' );
+  const beforeFirstRecord = evaluateAnalyticalSample( parameters, 1, 0.25, 0.5 );
+  const afterBottomRecord = evaluateAnalyticalSample( parameters, 1, -0.25, 2.5 );
+  const atTopRecord = evaluateAnalyticalSample( parameters, 1, 0.25, 3 );
+
+  assert.strictEqual( beforeFirstRecord.kind, 'field', 'sample has field before first detector record' );
+  assert.strictEqual( afterBottomRecord.kind, 'field', 'sample has field after bottom detector record' );
+  assert.strictEqual( atTopRecord.kind, 'field', 'sample has field at top detector record' );
+
+  if ( beforeFirstRecord.kind === 'field' && afterBottomRecord.kind === 'field' && atTopRecord.kind === 'field' ) {
+    assert.ok(
+      beforeFirstRecord.components.find( component => component.source === 'bottomSlit' )?.value.magnitude,
+      'no projection is applied before the first record'
+    );
+    assert.strictEqual(
+      afterBottomRecord.components.find( component => component.source === 'topSlit' )?.value.magnitude,
+      0,
+      'latest bottom record clears the unselected top slit'
+    );
+    assert.strictEqual(
+      atTopRecord.components.find( component => component.source === 'bottomSlit' )?.value.magnitude,
+      0,
+      'top record at the sample time clears the unselected bottom slit'
+    );
+  }
 } );
 
 QUnit.test( 'packet decoherence records project aperture and downstream to the selected slit', assert => {
@@ -1165,7 +1190,7 @@ QUnit.test( 'packet decoherence records are honored by layered packet rendering'
     { time: 3, selectedSlit: 'topSlit' as const }
   ];
 
-  const topRecordLayeredSample = evaluateAnalyticalLayeredSample( topRecordedParameters, 2, 0.25, 3.01 );
+  const topRecordLayeredSample = evaluateAnalyticalSamples( topRecordedParameters, 2, 0.25, 3.01 ).layeredSample;
   assert.strictEqual( topRecordLayeredSample.kind, 'field', 'top-record layered sample has field' );
   if ( topRecordLayeredSample.kind === 'field' ) {
     const topPath = topRecordLayeredSample.layers[ 0 ].components.find( component => component.source === 'topSlit' );
@@ -1182,7 +1207,7 @@ QUnit.test( 'packet decoherence records are honored by layered packet rendering'
     { time: 3, selectedSlit: 'bottomSlit' as const }
   ];
 
-  const bottomRecordLayeredSample = evaluateAnalyticalLayeredSample( bottomRecordedParameters, 2, -0.25, 3.01 );
+  const bottomRecordLayeredSample = evaluateAnalyticalSamples( bottomRecordedParameters, 2, -0.25, 3.01 ).layeredSample;
   assert.strictEqual( bottomRecordLayeredSample.kind, 'field', 'bottom-record layered sample has field' );
   if ( bottomRecordLayeredSample.kind === 'field' ) {
     const topPath = bottomRecordLayeredSample.layers[ 0 ].components.find( component => component.source === 'topSlit' );
@@ -1458,19 +1483,19 @@ QUnit.test( 'plane-wave decoherence layers taper with alpha and merge repeated s
   ];
 
   const headColor = getLayeredFieldSampleRGBA(
-    evaluateAnalyticalLayeredSample( parameters, x, y, 4 ),
+    evaluateAnalyticalSamples( parameters, x, y, 4 ).layeredSample,
     'magnitude',
     baseColor,
     1
   );
   const centerColor = getLayeredFieldSampleRGBA(
-    evaluateAnalyticalLayeredSample( parameters, x, y, 4.1 ),
+    evaluateAnalyticalSamples( parameters, x, y, 4.1 ).layeredSample,
     'magnitude',
     baseColor,
     1
   );
   const tailColor = getLayeredFieldSampleRGBA(
-    evaluateAnalyticalLayeredSample( parameters, x, y, 4.2 ),
+    evaluateAnalyticalSamples( parameters, x, y, 4.2 ).layeredSample,
     'magnitude',
     baseColor,
     1
@@ -1490,13 +1515,13 @@ QUnit.test( 'plane-wave decoherence layers taper with alpha and merge repeated s
   ];
 
   const seamColor = getLayeredFieldSampleRGBA(
-    evaluateAnalyticalLayeredSample( repeatedTopParameters, x, y, 4.2 ),
+    evaluateAnalyticalSamples( repeatedTopParameters, x, y, 4.2 ).layeredSample,
     'magnitude',
     baseColor,
     1
   );
   const repeatedTailColor = getLayeredFieldSampleRGBA(
-    evaluateAnalyticalLayeredSample( repeatedTopParameters, x, y, 4.4 ),
+    evaluateAnalyticalSamples( repeatedTopParameters, x, y, 4.4 ).layeredSample,
     'magnitude',
     baseColor,
     1

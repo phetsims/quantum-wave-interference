@@ -103,44 +103,6 @@ export function evaluateAnalyticalSample(
   return applyMeasurementProjections( sample, parameters.projections || [], parameters.source, x, y, t );
 }
 
-/**
- * Rendering-oriented companion to evaluateAnalyticalSample.
- *
- * evaluateAnalyticalSample answers "what field exists here after decoherence/projection?" and returns
- * one already-composited FieldSample. This method answers "which independently renderable field bands
- * should be painted here?" and returns a LayeredFieldSample. For plane waves with slit-detector events,
- * that preserves the discrete-particle-chain interpretation so the rasterizer can draw selected-slit
- * bands as transparent layers with z ordering. For packet sources, measurement projections are applied
- * to the base packet layer so layered rendering matches the model-facing FieldSample.
- */
-export function evaluateAnalyticalLayeredSample(
-  parameters: AnalyticalWaveParameters,
-  x: number,
-  y: number,
-  t: number
-): LayeredFieldSample {
-  const sample = evaluateUndecoheredAnalyticalSample( parameters, x, y, t );
-
-  if ( sample.kind !== 'field' ) {
-    return sample;
-  }
-
-  if ( parameters.source.kind !== 'plane' ) {
-
-    // Packet rendering has two independent measurement effects:
-    // 1. slit-detector records, which collapse the packet to one slit path; and
-    // 2. detector-tool projections, which apply the local failed-detection bite.
-    // Apply slit-detector decoherence first so the model-facing and layered packet samples agree.
-    const decoheredSample = applyDecoherenceEvent( sample, parameters, x, y, t );
-    return decoheredSample.kind === 'field' ?
-           applyGaussianPacketMeasurementProjectionLayers( decoheredSample, parameters, x, y, t ) :
-           decoheredSample;
-  }
-
-  return applyPlaneWaveDecoherenceEventLayers( sample, parameters, x, y, t );
-}
-
-// TODO: Check every exported function in this file to make sure it needs to be exported and un-export the ones that don't need it, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export function evaluateAnalyticalSamples(
   parameters: AnalyticalWaveParameters,
   x: number,
@@ -236,7 +198,7 @@ function evaluateUndecoheredAnalyticalSample(
   }
 }
 
-export function getDecoherenceEventAtPassTime(
+function getDecoherenceEventAtPassTime(
   events: readonly DecoherenceEvent[],
   passTime: number
 ): DecoherenceEvent | null {
