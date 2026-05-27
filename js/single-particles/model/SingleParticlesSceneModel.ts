@@ -208,7 +208,14 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.detectorToolRadiusProperty.lazyLink( updateDetectorProbability );
   }
 
-  // TODO: Document when called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Clears the visible Single Particles run state without resetting user controls or saved snapshots. This is called by
+   * the Clear Screen button and by BaseSceneModel when wave, slit, or barrier parameters change. This cancels any active
+   * packet, resets detector-tool result/probability state, clears packet timing and on-slit re-emission state, and turns
+   * off the emitter unless auto-repeat is enabled. In auto-repeat mode, clearing cancels the current packet while leaving
+   * the source on so step() can emit the next packet. The base implementation clears detector-screen hits, detector
+   * counts, shared wave state, and emits the hit-change notification.
+   */
   public override clearScreen(): void {
     this.isPacketActiveProperty.value = false;
     this.detectorToolStateProperty.value = 'ready';
@@ -226,7 +233,13 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     super.clearScreen();
   }
 
-  // TODO: Document when called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Clears transient Single Particles wave state when isEmittingProperty changes to false. This path is used when the
+   * user turns off the emitter, when max hits forces the emitter off, and when a non-auto-repeat packet ends. It cancels
+   * the active packet, clears pending slit detection/re-emission state, and resets the detector-tool readout unless the
+   * call is part of the normal packet-ending flow, where the detected/notDetected result should remain visible. The base
+   * implementation then clears the shared solver/decoherence state.
+   */
   protected override clearWaveStateWhenEmitterTurnsOff(): void {
     this.isPacketActiveProperty.value = false;
     this.packetReEmission = null;
