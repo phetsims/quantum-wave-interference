@@ -79,10 +79,6 @@ type MeasurementToolNodes = {
 
 const LABEL_FONT = new PhetFont( 14 );
 
-// TODO Inline usages of X_MARGIN and Y_MARGIN, see https://github.com/phetsims/quantum-wave-interference/issues/135
-const X_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
-const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
-
 const CONTENT_VERTICAL_OFFSET = 12;
 const TOP_ROW_BEAM_RIGHT_PANEL_GAP = 10;
 
@@ -129,7 +125,7 @@ export default class HighIntensityScreenView extends ScreenView {
     // detector readouts, detector screen controls, tools, and accessible description.
     const sourceControlNodes = this.createAndAddSourceControls( model, tandem );
     const waveRegionLayout = this.createWaveRegionLayout( sourceControlNodes.leftColumnWidth );
-    const topRowBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - X_MARGIN );
+    const topRowBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN );
     const topRowNode = this.createAndAddTopRowNode(
       model,
       sourceControlNodes.leftColumnCenterX,
@@ -199,7 +195,7 @@ export default class HighIntensityScreenView extends ScreenView {
     sceneRadioButtonGroup.layoutOptions = { align: 'center' };
 
     const leftColumnWidth = Math.max( sourceControlPanel.width, sceneRadioButtonGroup.width );
-    const leftColumnCenterX = X_MARGIN + leftColumnWidth / 2;
+    const leftColumnCenterX = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN + leftColumnWidth / 2;
 
     sourceControlPanel.centerX = leftColumnCenterX;
     sourceControlPanel.top = QuantumWaveInterferenceConstants.SOURCE_CONTROL_PANEL_TOP;
@@ -226,11 +222,11 @@ export default class HighIntensityScreenView extends ScreenView {
    * @returns coordinates for the wave region and slit controls
    */
   private createWaveRegionLayout( leftColumnWidth: number ): WaveRegionLayout {
-    const waveRegionLeft = X_MARGIN + leftColumnWidth + 20;
-    const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
+    const waveRegionLeft = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN + leftColumnWidth + 20;
+    const baseWaveRegionTop = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
     const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const waveRegionRight = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
-    const slitControlsBottom = this.layoutBounds.maxY - Y_MARGIN;
+    const slitControlsBottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
 
     return {
       waveRegionLeft: waveRegionLeft,
@@ -488,22 +484,28 @@ export default class HighIntensityScreenView extends ScreenView {
     this.addChild( detectorScreenControls );
 
     ManualConstraint.create( this, [ detectorScreenControls ], detectorScreenControlsProxy => {
-      detectorScreenControlsProxy.right = this.layoutBounds.maxX - X_MARGIN;
-      detectorScreenControlsProxy.top = Y_MARGIN;
+      detectorScreenControlsProxy.right = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
+      detectorScreenControlsProxy.top = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
       topRowBeamRightLimitXProperty.value = detectorScreenControlsProxy.left - TOP_ROW_BEAM_RIGHT_PANEL_GAP;
     } );
 
     this.addChild( detectorScreenControls.bottomButtonsRow );
 
-    const rightPanelCenterX = this.layoutBounds.maxX - X_MARGIN - QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH / 2;
+    const rightPanelCenterX = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN - QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH / 2;
     this.addChild( detectorScreenControls.waveDisplayAndTimeControlsGroup );
 
     ManualConstraint.create( this, [ detectorScreenControls.bottomButtonsRow ], () => {
-      detectorScreenControls.positionBottomButtonsRow( this.layoutBounds.maxX - X_MARGIN, this.layoutBounds.maxY - Y_MARGIN );
+      detectorScreenControls.positionBottomButtonsRow(
+        this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN,
+        this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN
+      );
     } );
 
     ManualConstraint.create( this, [ detectorScreenControls.bottomButtonsRow, detectorScreenControls.waveDisplayAndTimeControlsGroup ], () => {
-      detectorScreenControls.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN );
+      detectorScreenControls.positionWaveDisplayAndTimeControlsGroup(
+        rightPanelCenterX,
+        this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN
+      );
     } );
 
     return detectorScreenControls;
