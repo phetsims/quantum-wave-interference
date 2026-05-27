@@ -32,17 +32,28 @@ const copyPacketReEmission = ( reEmission: GaussianPacketReEmission ): GaussianP
   width: reEmission.width
 } );
 
-// TODO: Add JSDoc to every method in this whole file, see https://github.com/phetsims/quantum-wave-interference/issues/135
 export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver {
 
   // TODO: Add JSDoc to every property in this whole file, see https://github.com/phetsims/quantum-wave-interference/issues/135
   private readonly measurementProjections: MeasurementProjection[] = [];
   private packetReEmission: GaussianPacketReEmission | null = null;
 
+  /**
+   * Creates a Gaussian wave-packet solver with optional visualization-grid dimensions.
+   *
+   * @param gridWidth - Number of grid cells in the horizontal direction.
+   * @param gridHeight - Number of grid cells in the vertical direction.
+   */
   public constructor( gridWidth?: number, gridHeight?: number ) {
     super( gridWidth, gridHeight );
   }
 
+  /**
+   * Applies any provided solver parameters and marks cached field data dirty. A new packet re-emission event
+   * clears existing measurement projections because those projections were applied to the previous emitted packet.
+   *
+   * @param params - Partial solver parameters to apply.
+   */
   public override setParameters( params: WaveSolverParameters ): void {
     super.setParameters( params );
     this.setIfDefined( params.packetReEmission, value => {
@@ -55,6 +66,9 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     this.dirty = true;
   }
 
+  /**
+   * Recomputes all cached field and detector data when the solver has been invalidated.
+   */
   protected override ensureComputed(): void {
     if ( this.dirty ) {
       this.computeField();
@@ -63,12 +77,20 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     }
   }
 
+  /**
+   * Restores the solver to its initial state, including packet-specific measurement projections and re-emission state.
+   */
   public override reset(): void {
     super.reset();
     this.measurementProjections.length = 0;
     this.packetReEmission = null;
   }
 
+  /**
+   * Gets a serializable snapshot of the packet solver state.
+   *
+   * @returns State containing time, measurement projections, and packet re-emission information.
+   */
   public getState(): AnalyticalWavePacketSolverState {
     return {
       time: this.time,
@@ -84,6 +106,12 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     };
   }
 
+  /**
+   * Restores packet solver state from serialized data. This accepts both current measurement-projection state
+   * and legacy bite-gaussian state so older saved data can still be loaded.
+   *
+   * @param state - Serialized wave solver state to restore.
+   */
   public setState( state: WaveSolverState ): void {
     this.time = state.time;
     this.measurementProjections.length = 0;
@@ -117,6 +145,13 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     this.dirty = true;
   }
 
+  /**
+   * Applies a detector-tool measurement projection to the packet wavefunction. The normalized center is converted
+   * into model coordinates, the normalized radius is converted to model width, and the field cache is invalidated.
+   *
+   * @param centerNorm - Projection center in normalized wave-region coordinates.
+   * @param radiusNorm - Projection radius as a fraction of the wave-region width.
+   */
   public override applyMeasurementProjection( centerNorm: Vector2, radiusNorm: number ): void {
     this.measurementProjections.push( {
       centerX: centerNorm.x * this.regionWidth,
@@ -130,26 +165,50 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     this.dirty = true;
   }
 
+  /**
+   * Reports whether this solver can return independently layered field samples.
+   *
+   * @returns true because packet samples can contain independent coherent components.
+   */
   public override usesLayeredFieldSamples(): boolean {
     return true;
   }
 
+  /**
+   * Clears packet-specific cached field state when the source is off.
+   */
   protected override clearAdditionalFieldStateWhenSourceOff(): void {
     this.detectorDistribution.fill( 0 );
   }
 
+  /**
+   * Updates projection renormalization before the field grid is sampled.
+   */
   protected override beforeFieldSampleLoop(): void {
     this.updateMeasurementProjectionRenormScales();
   }
 
+  /**
+   * Recomputes the cached normalized detector probability distribution at the current solver time.
+   */
   private computeDetectorDistribution(): void {
     this.computeNormalizedDetectorDistribution( this.detectorDistribution, false );
   }
 
+  /**
+   * Updates projection renormalization before detector-edge samples are evaluated.
+   */
   protected override beforeDetectorDistributionSampling(): void {
     this.updateMeasurementProjectionRenormScales();
   }
 
+  /**
+   * Creates analytical-kernel parameters for this packet solver, including active measurement projections
+   * and packet re-emission state.
+   *
+   * @param includeDecoherenceEvents - Whether decoherence events should be included in the parameters.
+   * @returns Parameters to pass to the analytical wave kernel.
+   */
   protected override createKernelParameters( includeDecoherenceEvents = true ): AnalyticalWaveParameters {
     const parameters = super.createKernelParameters( includeDecoherenceEvents );
     parameters.projections = this.measurementProjections;
@@ -158,6 +217,11 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     return parameters;
   }
 
+  /**
+   * Creates the Gaussian-packet source definition used by the analytical kernel.
+   *
+   * @returns A Gaussian-packet source configured for the current region size and display speed.
+   */
   protected override createKernelSource(): AnalyticalSource {
     const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
     const sigmaY0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_Y_FRACTION * this.regionHeight;
@@ -176,6 +240,12 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     };
   }
 
+  /**
+   * Updates the active measurement projection's renormalization scale so total integrated intensity is preserved.
+   * Earlier projection scales are reset before recomputing the latest active projection at the provided time.
+   *
+   * @param t - Solver time at which to evaluate projected and unprojected packet intensities.
+   */
   private updateMeasurementProjectionRenormScales( t = this.time ): void {
     if ( this.measurementProjections.length === 0 || !this.isSourceOn ) {
       return;
@@ -215,28 +285,52 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
                                        1;
   }
 
+  /**
+   * Creates kernel parameters that use a caller-provided projection list instead of the solver's active projections.
+   *
+   * @param projections - Measurement projections to include in the returned parameters.
+   * @returns Analytical-kernel parameters with the supplied projection list.
+   */
   private createKernelParametersWithProjections( projections: MeasurementProjection[] ): AnalyticalWaveParameters {
     const parameters = this.createKernelParameters();
     parameters.projections = projections;
     return parameters;
   }
 
+  /**
+   * Gets the detector measurement edge-feather distance in current model coordinates.
+   *
+   * @returns Feather distance scaled from view pixels into the current wave-region width.
+   */
   private getMeasurementBiteEdgeFeather(): number {
     return MEASUREMENT_BITE_EDGE_FEATHER_PIXELS / QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH * this.regionWidth;
   }
 
+  /**
+   * Gets the coherence-group name shared by packet components from open slits.
+   *
+   * @returns The common coherence-group identifier for slit components.
+   */
   protected override getCoherentSlitsGroup(): string {
     return 'slits';
   }
 
-  // Actual packet speed in display-model coordinates. WAVE_PACKET_TRAVERSAL_TIME sets the baseline
-  // default-speed crossing time; displaySpeedScale makes non-default particle velocities cross faster
-  // or slower while preserving that baseline timing at displaySpeedScale = 1.
+  /**
+   * Gets the actual packet speed in display-model coordinates. WAVE_PACKET_TRAVERSAL_TIME sets the baseline
+   * default-speed crossing time; displaySpeedScale makes non-default particle velocities cross faster or slower
+   * while preserving that baseline timing at displaySpeedScale = 1.
+   *
+   * @returns Packet speed in display-model coordinates.
+   */
   protected override getDisplaySpeed(): number {
     return ( this.regionWidth / QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME ) * this.displaySpeedScale;
   }
 
-  // Display time required for the packet center to cross the region at the current scaled display speed.
+  /**
+   * Gets the display time required for the packet center to cross the region at the current scaled display speed.
+   *
+   * @returns Effective traversal time in solver display-time units.
+   */
   private getEffectiveTraversalTime(): number {
     return QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME / Math.max( this.displaySpeedScale, EPSILON );
   }
