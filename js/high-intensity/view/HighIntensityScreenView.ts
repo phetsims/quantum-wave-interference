@@ -37,6 +37,7 @@ import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGrap
 import resetDetectorScreenView from '../../common/view/resetDetectorScreenView.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
+import stepDetectorScreenViewNodes from '../../common/view/stepDetectorScreenViewNodes.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
@@ -597,10 +598,14 @@ export default class HighIntensityScreenView extends ScreenView {
 
   public override step( dt: number ): void {
     super.step( dt );
-    this.waveVisualizationNode.step();
-    this.detectorScreenNode.step();
-    this.detectorPatternGraphLayerNode.step();
-    this.timePlotNode.step( this.model.getEffectiveDt( dt ) );
-    this.positionPlotNode.step();
+    stepDetectorScreenViewNodes(
+      this.model,
+      dt,
+      this.waveVisualizationNode,
+      this.detectorScreenNode,
+      this.detectorPatternGraphLayerNode,
+      this.timePlotNode,
+      this.positionPlotNode
+    );
   }
 }

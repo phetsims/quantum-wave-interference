@@ -29,6 +29,7 @@ import resetDetectorScreenView from '../../common/view/resetDetectorScreenView.j
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
+import stepDetectorScreenViewNodes from '../../common/view/stepDetectorScreenViewNodes.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 import ToolCheckbox from '../../common/view/ToolCheckbox.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
@@ -290,13 +291,16 @@ export default class SingleParticlesScreenView extends ScreenView {
     ];
   }
 
-  // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate of HighIntensityScreenView.step
   public override step( dt: number ): void {
     super.step( dt );
-    this.waveVisualizationNode.step();
-    this.detectorScreenNode.step();
-    this.detectorPatternGraphLayerNode.step();
-    this.timePlotNode.step( this.model.getEffectiveDt( dt ) );
-    this.positionPlotNode.step();
+    stepDetectorScreenViewNodes(
+      this.model,
+      dt,
+      this.waveVisualizationNode,
+      this.detectorScreenNode,
+      this.detectorPatternGraphLayerNode,
+      this.timePlotNode,
+      this.positionPlotNode
+    );
   }
 }
