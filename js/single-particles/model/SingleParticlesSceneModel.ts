@@ -270,7 +270,13 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.syncSolverParameters();
   }
 
-  // TODO: Document when this is supposed to be called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Synchronizes the wave solver with the current Single Particles scene state. This is called after model changes
+   * that affect solver inputs, including packet emission, slit/decoherence changes, reset, and PhET-iO state restore.
+   * The base implementation owns shared wave parameters; this override adds the current packet re-emission descriptor
+   * so a slit-detector collapse can continue as a packet sourced from the selected slit. This method does not advance
+   * time, reset the solver, or create packet/decoherence events.
+   */
   protected override syncSolverParameters(): void {
     super.syncSolverParameters();
     this.waveSolver.setParameters( {
