@@ -559,7 +559,16 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     }
   }
 
-  // TODO: Document. When is this called, and what are its responsibilities? see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Computes the instantaneous probability that the active packet would be detected by the detector tool at its current
+   * position and size. This is called while stepping the active packet, when the detector tool is moved or resized, and
+   * when the user performs a detector-tool measurement. It integrates the squared complex amplitude inside the detector
+   * circle and normalizes by the total squared amplitude in the wave region. This method only reads current state and
+   * does not collapse, project, advance, or otherwise mutate the packet.
+   *
+   * @returns the normalized detector probability in [ 0, 1 ], or 0 when no packet is active or the field has no total
+   * probability
+   */
   public computeDetectorProbability(): number {
     if ( !this.isPacketActiveProperty.value ) {
       return 0;
