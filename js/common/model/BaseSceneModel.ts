@@ -546,7 +546,16 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
   }
 
-  // TODO: Document when called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Clears the current detector-screen run without resetting user controls or saved snapshots. This is called by the
+   * Clear Screen button and by listeners for model parameters whose changes make the current wave state and accumulated
+   * hits stale, including wavelength, velocity, barrier type, slit separation, slit position, and slit configuration.
+   *
+   * The base implementation clears detector-screen hit positions, total hit count, on-slit detector counts, wavefront
+   * status, decoherence event history, and the wave solver state/parameters, then emits hitsChangedEmitter so renderers
+   * and descriptions can rebuild from an empty detector screen. Subclasses that keep additional run-specific state
+   * should override this method, clear that state first, and then call super.clearScreen().
+   */
   public clearScreen(): void {
     if ( this.isResetting ) {
       return;
