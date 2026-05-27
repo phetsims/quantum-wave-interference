@@ -27,8 +27,8 @@ import { getDisplaySlitLayout } from '../../common/getDisplaySlitLayout.js';
 import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
 import AnalyticalWavePacketSolver from '../../common/model/AnalyticalWavePacketSolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
-import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCDF.js';
+import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
@@ -183,7 +183,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     this.detectorToolRadiusProperty = new NumberProperty( 0.1, {
       range: new Range( 0.03, 0.3 ),
-      units: null,
+      units: null, // The detector radius is stored as a normalized fraction of the wave-region width, not a physical length.
       tandem: tandem.createTandem( 'detectorToolRadiusProperty' )
     } );
 

@@ -249,7 +249,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
 
     this.slitPositionFractionProperty = new NumberProperty( 0.5, {
-      //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 specify units option here
+      units: null,
       range: new Range( 0.25, 0.75 ),
       tandem: tandem.createTandem( 'slitPositionFractionProperty' )
     } );
