@@ -1,10 +1,10 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * HighIntensityTopRowNode renders the High Intensity screen's top play-area row: a per-scene emitter
- * source on the far left, beam graphics extending rightward through a mini wave-visualization symbol,
- * and a pair of callout lines that connect the mini symbol's top corners to the main wave region's
- * top corners (a zoom-in "viewing frustum" effect, analogous to TinyBox → ZoomedInBox in MOTHA).
+ * HighIntensitySourceBeamCalloutNode renders a per-scene emitter source, beam graphics extending
+ * rightward through a mini wave-visualization symbol, and a pair of callout lines that connect the
+ * mini symbol's top corners to the main wave region's top corners (a zoom-in "viewing frustum"
+ * effect, analogous to TinyBox → ZoomedInBox in MOTHA).
  *
  * The mini symbol is a stylized representation of the wave region and detector screen (a neutral square
  * + a skewed detector rectangle) per the design mockups; it does not show live waves. The beam
@@ -97,12 +97,12 @@ const PARTICLE_EMITTER_PALETTES: Record<Exclude<SourceType, 'photons'>, Particle
   }
 };
 
-type TopRowSceneLike = {
+type SourceBeamCalloutSceneLike = {
   sourceType: SourceType;
   slitSeparationRange: Range;
 };
 
-type HighIntensityTopRowModel<T extends TopRowSceneLike> = {
+type HighIntensitySourceBeamCalloutModel<T extends SourceBeamCalloutSceneLike> = {
 
   // Active source scene and the full scene list used to swap emitter artwork.
   readonly sceneProperty: TReadOnlyProperty<T>;
@@ -117,16 +117,15 @@ type HighIntensityTopRowModel<T extends TopRowSceneLike> = {
   readonly currentIsEmitterEnabledProperty: TReadOnlyProperty<boolean>;
 };
 
-export type HighIntensityTopRowLayout = {
+export type HighIntensitySourceBeamCalloutLayout = {
   emitterCenterX: number;      // horizontal center of the emitter body + nozzle assembly
-  topRowCenterY: number;       // vertical center of emitter + mini symbol + beam
+  centerY: number;             // vertical center of emitter + mini symbol + beam
   waveRegionLeft: number;      // x of main wave region's left edge
   waveRegionRight: number;     // x of main wave region's right edge (i.e. left + width)
   waveRegionTop: number;       // y of main wave region's top edge (target for callout lines)
 };
 
-// TODO: Think of a better name, that is more about what it is and what it does rather than where it is, see https://github.com/phetsims/quantum-wave-interference/issues/135
-export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends Node {
+export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCalloutSceneLike> extends Node {
 
   // Bottom y of the emitter body, so callers can stack controls below it without being
   // affected by the taller bounds of the callout lines that extend down to the wave region.
@@ -134,10 +133,10 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
   public readonly emitterCenterX: number;
 
   public constructor(
-    model: HighIntensityTopRowModel<T>,
+    model: HighIntensitySourceBeamCalloutModel<T>,
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
     beamRightLimitXProperty: TReadOnlyProperty<number>,
-    layout: HighIntensityTopRowLayout,
+    layout: HighIntensitySourceBeamCalloutLayout,
     tandem: Tandem
   ) {
     super( { isDisposable: false } );
@@ -152,7 +151,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
       currentIsEmittingProperty,
       currentIsEmitterEnabledProperty
     } = model;
-    const { emitterCenterX, topRowCenterY, waveRegionLeft, waveRegionRight, waveRegionTop } = layout;
+    const { emitterCenterX, centerY, waveRegionLeft, waveRegionRight, waveRegionTop } = layout;
     const emitterLeft = emitterCenterX - ( EMITTER_BODY_WIDTH + EMITTER_NOZZLE_WIDTH ) / 2;
 
     // Mini wave-visualization symbol: a small neutral square + skewed detector, centered horizontally
@@ -193,7 +192,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
 
     const miniSymbol = new Node( { children: [ miniDetector, miniSquare, miniDoubleSlitNode ] } );
     miniSymbol.centerX = ( waveRegionLeft + waveRegionRight ) / 2;
-    miniSymbol.centerY = topRowCenterY;
+    miniSymbol.centerY = centerY;
 
     // Callout lines from the top corners of the mini wave area (not the detector) to the
     // main wave region corners.
@@ -279,7 +278,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
 
     const emitterContainer = new Node( { children: emitterChildren } );
     emitterContainer.left = emitterLeft;
-    emitterContainer.centerY = topRowCenterY;
+    emitterContainer.centerY = centerY;
 
     // Z-order: callout lines and beam behind the mini symbol and emitter so their geometry reads cleanly.
     this.addChild( calloutLines );

@@ -45,7 +45,7 @@ import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
 import QWIAccessibleStateDescriber from './description/QWIAccessibleStateDescriber.js';
 import QWIAccessibleStateTemplate from './description/QWIAccessibleStateTemplate.js';
-import HighIntensityTopRowNode from './HighIntensityTopRowNode.js';
+import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -80,14 +80,14 @@ type MeasurementToolNodes = {
 const LABEL_FONT = new PhetFont( 14 );
 
 const CONTENT_VERTICAL_OFFSET = 12;
-const TOP_ROW_BEAM_RIGHT_PANEL_GAP = 10;
+const SOURCE_BEAM_RIGHT_PANEL_GAP = 10;
 
-const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
-const TOP_ROW_TO_MASS_LABEL_SPACING = 12;
+const SOURCE_BEAM_CALLOUT_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
+const SOURCE_BEAM_CALLOUT_TO_MASS_LABEL_SPACING = 12;
 const WAVE_REGION_Y_OFFSET = -30;
 
-// Extra vertical space below the top row to accommodate the zoom-callout lines between the
-// mini-symbol (at TOP_ROW_CENTER_Y) and the top of the main wave region.
+// Extra vertical space below the source beam callout to accommodate the zoom-callout lines between the
+// mini-symbol and the top of the main wave region.
 const CALLOUT_GAP = 55;
 
 export default class HighIntensityScreenView extends ScreenView {
@@ -125,15 +125,15 @@ export default class HighIntensityScreenView extends ScreenView {
     // detector readouts, detector screen controls, tools, and accessible description.
     const sourceControlNodes = this.createAndAddSourceControls( model, tandem );
     const waveRegionLayout = this.createWaveRegionLayout( sourceControlNodes.leftColumnWidth );
-    const topRowBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN );
-    const topRowNode = this.createAndAddTopRowNode(
+    const sourceBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN );
+    const sourceBeamCalloutNode = this.createAndAddSourceBeamCalloutNode(
       model,
       sourceControlNodes.leftColumnCenterX,
       waveRegionLayout,
-      topRowBeamRightLimitXProperty,
+      sourceBeamRightLimitXProperty,
       tandem
     );
-    this.positionAndAddParticleMassAnnotation( sourceControlNodes.particleMassAnnotation, topRowNode );
+    this.positionAndAddParticleMassAnnotation( sourceControlNodes.particleMassAnnotation, sourceBeamCalloutNode );
 
     const waveRegionNodes = this.createAndAddWaveRegionNodes( model, waveRegionLayout );
     this.detectorScreenNode = waveRegionNodes.detectorScreenNode;
@@ -147,7 +147,7 @@ export default class HighIntensityScreenView extends ScreenView {
       accessibleResponses,
       this.sidewaysGraphNode,
       this.detectorScreenNode,
-      topRowBeamRightLimitXProperty,
+      sourceBeamRightLimitXProperty,
       tandem
     );
 
@@ -157,7 +157,7 @@ export default class HighIntensityScreenView extends ScreenView {
 
     const screenViewDescription = this.createAndAddScreenViewDescription(
       model,
-      topRowNode,
+      sourceBeamCalloutNode,
       sourceControlNodes.sourceControlPanel,
       sourceControlNodes.sceneRadioButtonGroup,
       bottomRow,
@@ -215,15 +215,15 @@ export default class HighIntensityScreenView extends ScreenView {
   }
 
   /**
-   * Calculates the fixed wave-region coordinates shared by the top row, wave area, slit controls,
-   * graph, and measurement tools.
+   * Calculates the fixed wave-region coordinates shared by the source beam callout, wave area,
+   * slit controls, graph, and measurement tools.
    *
    * @param leftColumnWidth - width of the source controls column
    * @returns coordinates for the wave region and slit controls
    */
   private createWaveRegionLayout( leftColumnWidth: number ): WaveRegionLayout {
     const waveRegionLeft = QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN + leftColumnWidth + 20;
-    const baseWaveRegionTop = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
+    const baseWaveRegionTop = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN + SOURCE_BEAM_CALLOUT_CENTER_Y + CALLOUT_GAP;
     const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const waveRegionRight = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const slitControlsBottom = this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
@@ -237,53 +237,53 @@ export default class HighIntensityScreenView extends ScreenView {
   }
 
   /**
-   * Creates the source emitter and callout row that connects the source controls to the main wave region.
+   * Creates the source emitter, beam, mini-symbol, and callouts that connect the source to the main wave region.
    *
    * @param model - the screen model that owns source, barrier, and slit state
    * @param leftColumnCenterX - horizontal center for the source controls column
    * @param waveRegionLayout - coordinates for the main wave region
-   * @param topRowBeamRightLimitXProperty - mutable right limit that responds to the detector-screen controls width
+   * @param sourceBeamRightLimitXProperty - mutable right limit that responds to the detector-screen controls width
    * @param tandem - parent tandem for child instrumentation
-   * @returns the top row node, used for particle-mass annotation layout and accessible description
+   * @returns the source beam callout node, used for particle-mass annotation layout and accessible description
    */
-  private createAndAddTopRowNode(
+  private createAndAddSourceBeamCalloutNode(
     model: HighIntensityModel,
     leftColumnCenterX: number,
     waveRegionLayout: WaveRegionLayout,
-    topRowBeamRightLimitXProperty: NumberProperty,
+    sourceBeamRightLimitXProperty: NumberProperty,
     tandem: Tandem
-  ): HighIntensityTopRowNode<HighIntensitySceneModel> {
-    const topRowNode = new HighIntensityTopRowNode(
+  ): HighIntensitySourceBeamCalloutNode<HighIntensitySceneModel> {
+    const sourceBeamCalloutNode = new HighIntensitySourceBeamCalloutNode(
       model,
       this.visibleBoundsProperty,
-      topRowBeamRightLimitXProperty,
+      sourceBeamRightLimitXProperty,
       {
         emitterCenterX: leftColumnCenterX,
-        topRowCenterY: TOP_ROW_CENTER_Y,
+        centerY: SOURCE_BEAM_CALLOUT_CENTER_Y,
         waveRegionLeft: waveRegionLayout.waveRegionLeft,
         waveRegionRight: waveRegionLayout.waveRegionRight,
         waveRegionTop: waveRegionLayout.waveRegionTop
       },
       tandem.createTandem( 'topRowNode' )
     );
-    this.addChild( topRowNode );
+    this.addChild( sourceBeamCalloutNode );
 
-    return topRowNode;
+    return sourceBeamCalloutNode;
   }
 
   /**
-   * Positions the particle mass annotation below the top-row emitter and adds it to the scene graph.
+   * Positions the particle mass annotation below the source emitter and adds it to the scene graph.
    *
    * @param particleMassAnnotation - annotation node that labels the current particle mass
-   * @param topRowNode - top-row node that provides the emitter bounds
+   * @param sourceBeamCalloutNode - source beam callout node that provides the emitter bounds
    */
   private positionAndAddParticleMassAnnotation(
     particleMassAnnotation: ParticleMassAnnotationNode,
-    topRowNode: HighIntensityTopRowNode<HighIntensitySceneModel>
+    sourceBeamCalloutNode: HighIntensitySourceBeamCalloutNode<HighIntensitySceneModel>
   ): void {
     const updateParticleMassAnnotationPosition = () => {
-      particleMassAnnotation.centerX = topRowNode.emitterCenterX;
-      particleMassAnnotation.top = topRowNode.emitterBottom + TOP_ROW_TO_MASS_LABEL_SPACING;
+      particleMassAnnotation.centerX = sourceBeamCalloutNode.emitterCenterX;
+      particleMassAnnotation.top = sourceBeamCalloutNode.emitterBottom + SOURCE_BEAM_CALLOUT_TO_MASS_LABEL_SPACING;
     };
     particleMassAnnotation.localBoundsProperty.link( updateParticleMassAnnotationPosition );
     updateParticleMassAnnotationPosition();
@@ -438,7 +438,7 @@ export default class HighIntensityScreenView extends ScreenView {
    * @param accessibleResponses - response node used for clear-screen alerts
    * @param sidewaysGraphNode - graph node reset by the detector-screen controls reset action
    * @param detectorScreenNode - detector screen node used for snapshot flash and reset
-   * @param topRowBeamRightLimitXProperty - mutable right limit for the top-row beam callout
+   * @param sourceBeamRightLimitXProperty - mutable right limit for the source beam callout
    * @param tandem - parent tandem for child instrumentation
    * @returns the detector screen controls, used by layout and accessible description
    */
@@ -447,7 +447,7 @@ export default class HighIntensityScreenView extends ScreenView {
     accessibleResponses: HighIntensityAccessibleResponses,
     sidewaysGraphNode: SidewaysGraph,
     detectorScreenNode: DetectorScreenNode,
-    topRowBeamRightLimitXProperty: NumberProperty,
+    sourceBeamRightLimitXProperty: NumberProperty,
     tandem: Tandem
   ): DetectorScreenControls {
     const detectionModeRadioButtonGroupBox = this.createDetectionModeRadioButtonGroupBox( model, tandem );
@@ -479,7 +479,7 @@ export default class HighIntensityScreenView extends ScreenView {
     ManualConstraint.create( this, [ detectorScreenControls ], detectorScreenControlsProxy => {
       detectorScreenControlsProxy.right = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
       detectorScreenControlsProxy.top = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
-      topRowBeamRightLimitXProperty.value = detectorScreenControlsProxy.left - TOP_ROW_BEAM_RIGHT_PANEL_GAP;
+      sourceBeamRightLimitXProperty.value = detectorScreenControlsProxy.left - SOURCE_BEAM_RIGHT_PANEL_GAP;
     } );
 
     this.addChild( detectorScreenControls.bottomButtonsRow );
@@ -537,7 +537,7 @@ export default class HighIntensityScreenView extends ScreenView {
    * Creates the PDOM description nodes that describe the screen structure and current state.
    *
    * @param model - the screen model that supplies dynamic description state
-   * @param topRowNode - source row node included in the source description
+   * @param sourceBeamCalloutNode - source beam callout node included in the source description
    * @param sourceControlPanel - source controls included in the source description
    * @param sceneRadioButtonGroup - scene controls included in the source description
    * @param bottomRow - slit controls included in the slit description
@@ -546,7 +546,7 @@ export default class HighIntensityScreenView extends ScreenView {
    */
   private createAndAddScreenViewDescription(
     model: HighIntensityModel,
-    topRowNode: HighIntensityTopRowNode<HighIntensitySceneModel>,
+    sourceBeamCalloutNode: HighIntensitySourceBeamCalloutNode<HighIntensitySceneModel>,
     sourceControlPanel: SourceControlPanel<HighIntensitySceneModel>,
     sceneRadioButtonGroup: SceneRadioButtonGroup<HighIntensitySceneModel>,
     bottomRow: SlitConfigurationControlsRow<SlitConfigurationWithNoBarrier>,
@@ -558,7 +558,7 @@ export default class HighIntensityScreenView extends ScreenView {
         detectionModeProperty: model.currentDetectionModeProperty,
         slitOrientation: 'topBottom',
         includeExperimentSetupDetails: false,
-        sourceNodes: [ topRowNode, sourceControlPanel, sceneRadioButtonGroup ],
+        sourceNodes: [ sourceBeamCalloutNode, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow ],
         detectorScreenControlNodes: [ detectorScreenControls ]
       }
