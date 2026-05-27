@@ -1,7 +1,5 @@
 // Copyright 2026, University of Colorado Boulder
 
-// TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Documentation is not up to PhET standards.
-
 /**
  * Minimal pure rasterization harness for analytical wave samples.
  *
@@ -28,30 +26,40 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { type AnalyticalWaveParameters, evaluateAnalyticalSample, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
+// Minimum visible field contribution used so very weak supported samples are still distinguishable
+// from vacuum.
 export const FIELD_DISPLAY_CUTOFF = 0.4;
+
+// Opaque grayscale vacuum colors in Canvas ImageData byte space.
 export const UNREACHED_VACUUM = 0;
 export const BLOCKED_VACUUM = 48;
 export const ABSORBED_VACUUM = 32;
 
-// RGB color components in Canvas ImageData byte space. Exported because callers provide the source
-// color used to tint the sampled wave.
+/**
+ * RGB color components in Canvas ImageData byte space. Exported because callers provide the source
+ * color used to tint the sampled wave.
+ */
 export type RGBColor = {
   red: number;
   green: number;
   blue: number;
 };
 
-// RGBA color components in Canvas ImageData byte space. The rasterizer returns this shape for each
-// sampled cell before the caller writes the bytes into an ImageData or test raster.
+/**
+ * RGBA color components in Canvas ImageData byte space. The rasterizer returns this shape for each
+ * sampled cell before the caller writes the bytes into an ImageData or test raster.
+ */
 export type RGBAColor = RGBColor & {
   alpha: number;
 };
 
 type NonFieldSample = { kind: 'unreached' | 'absorbed' | 'blocked' };
 
-// Complete input for the pure rasterization test harness. Production rendering usually samples a
-// WaveSolver grid directly, but tests use these options to evaluate the analytical kernel over a
-// deterministic rectangular pixel grid without Scenery or browser canvas APIs.
+/**
+ * Complete input for the pure rasterization test harness. Production rendering usually samples a
+ * WaveSolver grid directly, but tests use these options to evaluate the analytical kernel over a
+ * deterministic rectangular pixel grid without Scenery or browser canvas APIs.
+ */
 export type AnalyticalWaveRasterOptions = {
   parameters: AnalyticalWaveParameters;
   width: number;
@@ -64,8 +72,10 @@ export type AnalyticalWaveRasterOptions = {
   amplitudeScale: number;
 };
 
-// Output from rasterizeAnalyticalWave. pixels is a tightly packed RGBA byte array in row-major order;
-// statusCounts summarize which kernel sample statuses were encountered for test assertions.
+/**
+ * Output from rasterizeAnalyticalWave. pixels is a tightly packed RGBA byte array in row-major order;
+ * statusCounts summarize which kernel sample statuses were encountered for test assertions.
+ */
 export type AnalyticalWaveRaster = {
   width: number;
   height: number;
@@ -85,6 +95,12 @@ export type AnalyticalWaveRaster = {
  * FieldSamples, and rasterizeAnalyticalWave calls it for DOM-free tests. Non-field statuses map to
  * fixed vacuum grays. Field samples are first reduced by coherence group so coherent paths interfere,
  * decoherent groups add intensities, and weak support fades toward the unreached vacuum color.
+ *
+ * @param sample - Analytical field sample to convert.
+ * @param displayMode - Wave display mode controlling how field values map to brightness.
+ * @param baseColor - Source color used to tint visible wave values.
+ * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
+ * @returns Opaque RGBA color for the sampled grid cell.
  */
 export function getFieldSampleRGBA(
   sample: FieldSample,
@@ -112,6 +128,12 @@ export function getFieldSampleRGBA(
  *
  * WaveVisualizationCanvasNode calls this once per grid cell when the solver exposes layered samples.
  * Tests call it directly to verify the transparent layer semantics without a browser canvas.
+ *
+ * @param sample - Layered analytical field sample to convert.
+ * @param displayMode - Wave display mode controlling how layer values map to brightness.
+ * @param baseColor - Source color used to tint visible wave values.
+ * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
+ * @returns RGBA color produced by source-over compositing the sample's layers.
  */
 export function getLayeredFieldSampleRGBA(
   sample: LayeredFieldSample,
@@ -159,6 +181,9 @@ export function getLayeredFieldSampleRGBA(
  *
  * Field rendering differs between the legacy and layered paths, but unreached, absorbed, and blocked cells
  * use the same grayscale status colors in both.
+ *
+ * @param sample - Non-field sample status to convert.
+ * @returns Opaque RGBA color for the non-field status.
  */
 function getNonFieldSampleRGBA( sample: NonFieldSample ): RGBAColor {
   const gray = sample.kind === 'unreached' ? UNREACHED_VACUUM :
@@ -174,6 +199,12 @@ function getNonFieldSampleRGBA( sample: NonFieldSample ): RGBAColor {
  * Layered samples separate particle-chain bands before compositing. This helper gives each band the
  * same coherence-group reduction and display-mode color treatment as the legacy path, then applies the
  * layer alpha as transparency so getLayeredFieldSampleRGBA can combine bands in z-order.
+ *
+ * @param layer - Render-layer description from the analytical kernel.
+ * @param displayMode - Wave display mode controlling how field values map to brightness.
+ * @param baseColor - Source color used to tint visible wave values.
+ * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
+ * @returns Transparent RGBA contribution for the layer.
  */
 function getFieldLayerRGBA(
   layer: FieldLayer,
@@ -196,6 +227,12 @@ function getFieldLayerRGBA(
  * getFieldSampleRGBA calls this after coherence groups have been reduced to a display state. It is
  * responsible for display-mode-specific intensity mapping and for preblending weak support into the
  * unreached vacuum color, because this path always writes an opaque canvas pixel.
+ *
+ * @param displayState - Reduced field state for one sampled cell.
+ * @param displayMode - Wave display mode controlling how field values map to brightness.
+ * @param baseColor - Source color used to tint visible wave values.
+ * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
+ * @returns Opaque RGBA color for the legacy renderer.
  */
 function getDisplayStateRGBA(
   displayState: FieldDisplayState,
@@ -253,6 +290,13 @@ function getDisplayStateRGBA(
  * vacuum color during canvas compositing.
  *
  * getFieldLayerRGBA calls this for each particle-chain band during layered rendering.
+ *
+ * @param displayState - Reduced field state for one sampled layer.
+ * @param displayMode - Wave display mode controlling how field values map to brightness.
+ * @param baseColor - Source color used to tint visible wave values.
+ * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
+ * @param layerAlpha - Layer-specific transparency multiplier from the analytical kernel.
+ * @returns Transparent RGBA color for the layered renderer.
  */
 function getDisplayStateTransparentRGBA(
   displayState: FieldDisplayState,
@@ -301,11 +345,18 @@ function getDisplayStateTransparentRGBA(
  *
  * getDisplayStateRGBA uses this to fade unsupported field pixels toward the vacuum color. It is kept
  * tiny because rasterization calls it repeatedly in the per-pixel hot path.
+ *
+ * @param a - Starting scalar value.
+ * @param b - Ending scalar value.
+ * @param t - Interpolation fraction.
+ * @returns Interpolated scalar value.
  */
 const blend = ( a: number, b: number, t: number ): number => a + ( b - a ) * t;
 
-// Per-coherence-group rendering summary. Store real/imaginary components directly so rasterization
-// does not allocate representative Complex values for every sampled pixel.
+/**
+ * Per-coherence-group rendering summary. Store real/imaginary components directly so rasterization
+ * does not allocate representative Complex values for every sampled pixel.
+ */
 type CoherenceGroupDisplayState = {
   coherenceGroup: string;
   real: number;
@@ -316,8 +367,10 @@ type CoherenceGroupDisplayState = {
   hasExplicitSupport: boolean;
 };
 
-// Final display state after reducing physical coherence groups to the legacy single-wave display.
-// real/imaginary are the representative value used by real/imaginary display modes.
+/**
+ * Final display state after reducing physical coherence groups to the legacy single-wave display.
+ * real/imaginary are the representative value used by real/imaginary display modes.
+ */
 type FieldDisplayState = {
   real: number;
   imaginary: number;
@@ -332,6 +385,10 @@ type FieldDisplayState = {
  * getFieldSampleRGBA and getFieldLayerRGBA call this after grouping components. It adds intensities
  * incoherently across decohered groups, uses the strongest group as the representative phase for real
  * and imaginary display modes, and computes the visibility used to fade or alpha-mask weak support.
+ *
+ * @param groupStates - Per-coherence-group summaries for one sampled cell or layer.
+ * @param amplitudeScale - Scale factor used for visibility fallback when support is not explicit.
+ * @returns Single display state used by display-mode color mappers.
  */
 function getDisplayState(
   groupStates: CoherenceGroupDisplayState[],
@@ -378,6 +435,9 @@ function getDisplayState(
  * complex addition while decoherent groups remain separate for later incoherent intensity addition.
  * Because this runs once per rendered cell, the common zero-, one-, and two-component cases avoid Map
  * allocation.
+ *
+ * @param sample - Field sample whose components should be grouped for display.
+ * @returns Per-coherence-group display summaries.
  */
 function getCoherenceGroupDisplayStates( sample: Extract<FieldSample, { kind: 'field' }> ): CoherenceGroupDisplayState[] {
   const components = sample.components;
@@ -437,6 +497,9 @@ function getCoherenceGroupDisplayStates( sample: Extract<FieldSample, { kind: 'f
  *
  * getCoherenceGroupDisplayStates uses this whenever it encounters a new coherence group. Intensity is
  * filled in after all coherent components for the group have been accumulated.
+ *
+ * @param component - First field component in the coherence group.
+ * @returns Display-state accumulator initialized from the component.
  */
 function createCoherenceGroupDisplayState( component: FieldComponent ): CoherenceGroupDisplayState {
   return {
@@ -456,6 +519,10 @@ function createCoherenceGroupDisplayState( component: FieldComponent ): Coherenc
  * getCoherenceGroupDisplayStates uses this in the generic path for samples with more than two
  * components, where there may be an arbitrary number of coherence groups. It returns -1 when the group
  * has not been seen yet.
+ *
+ * @param groupStates - Existing coherence-group summaries to search.
+ * @param coherenceGroup - Coherence-group identifier to locate.
+ * @returns Index of the matching group state, or -1 when absent.
  */
 function getCoherenceGroupDisplayStateIndex(
   groupStates: CoherenceGroupDisplayState[],
@@ -475,6 +542,9 @@ function getCoherenceGroupDisplayStateIndex(
  * getCoherenceGroupDisplayStates calls this when multiple components share a coherenceGroup. Real and
  * imaginary parts add coherently, componentIntensity tracks the pre-interference support fallback, and
  * explicit support takes the maximum wavefront support reported by any component in the group.
+ *
+ * @param groupState - Coherence-group accumulator to mutate.
+ * @param component - Additional coherent component to accumulate.
  */
 function addComponentToGroupState( groupState: CoherenceGroupDisplayState, component: FieldComponent ): void {
   groupState.real += component.value.real;
@@ -493,6 +563,10 @@ function addComponentToGroupState( groupState: CoherenceGroupDisplayState, compo
  * is used when available, which lets analytical wavefront tapers control visibility directly. Otherwise
  * visibility falls back to scaled component magnitude so very weak fields fade toward vacuum instead of
  * producing fully saturated dark pixels.
+ *
+ * @param groupStates - Per-coherence-group summaries for one sampled cell or layer.
+ * @param amplitudeScale - Scale factor applied to magnitude when explicit support is absent.
+ * @returns Visibility multiplier in the range [0, 1].
  */
 function getSampleVisibility( groupStates: CoherenceGroupDisplayState[], amplitudeScale: number ): number {
   let hasExplicitSupport = false;
@@ -521,6 +595,9 @@ function getSampleVisibility( groupStates: CoherenceGroupDisplayState[], amplitu
  * WaveVisualizationCanvasNode with an existing solver grid, but this function is useful when tests need
  * deterministic pixel output and status counts from raw AnalyticalWaveParameters. Barrier x positions
  * are snapped onto the matching raster column so tests exercise the exact aperture/barrier statuses.
+ *
+ * @param options - Analytical kernel parameters, raster size, display settings, and color scale.
+ * @returns Packed RGBA raster and sample-status counts.
  */
 export function rasterizeAnalyticalWave( options: AnalyticalWaveRasterOptions ): AnalyticalWaveRaster {
   const pixels = new Uint8ClampedArray( options.width * options.height * 4 );
