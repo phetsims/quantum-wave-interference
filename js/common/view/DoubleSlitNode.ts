@@ -24,8 +24,8 @@ import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import { DISPLAY_SLIT_WIDTH, getDisplaySlitLayout } from '../getDisplaySlitLayout.js';
 import { type BarrierType } from '../model/BarrierType.js';
-import { getViewSlitLayout, SLIT_VIEW_HEIGHT } from '../model/getViewSlitLayout.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import SlitDetectorNode from './SlitDetectorNode.js';
@@ -82,10 +82,10 @@ export default class DoubleSlitNode extends Node {
       fill: BARRIER_FILL
     } );
 
-    const topCover = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS, {
+    const topCover = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, CORNER_RADIUS, CORNER_RADIUS, {
       fill: QuantumWaveInterferenceColors.slitCoverFillProperty
     } );
-    const bottomCover = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS, {
+    const bottomCover = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, CORNER_RADIUS, CORNER_RADIUS, {
       fill: QuantumWaveInterferenceColors.slitCoverFillProperty
     } );
 
@@ -155,7 +155,7 @@ export default class DoubleSlitNode extends Node {
           return;
         }
 
-        const { viewSlitSep: viewSeparation } = getViewSlitLayout(
+        const { displaySlitSeparation } = getDisplaySlitLayout(
           slitSeparation,
           slitSeparationRange.min,
           slitSeparationRange.max,
@@ -165,10 +165,10 @@ export default class DoubleSlitNode extends Node {
         const barrierX = slitPositionFraction * WAVE_REGION_WIDTH - BARRIER_VIEW_WIDTH / 2;
         const centerY = WAVE_REGION_HEIGHT / 2;
 
-        const topSlitCenterY = centerY - viewSeparation / 2;
-        const bottomSlitCenterY = centerY + viewSeparation / 2;
+        const topSlitCenterY = centerY - displaySlitSeparation / 2;
+        const bottomSlitCenterY = centerY + displaySlitSeparation / 2;
 
-        const topBarrierBottom = topSlitCenterY - SLIT_VIEW_HEIGHT / 2;
+        const topBarrierBottom = topSlitCenterY - DISPLAY_SLIT_WIDTH / 2;
         topBarrier.setRect(
           barrierX,
           0,
@@ -178,12 +178,12 @@ export default class DoubleSlitNode extends Node {
           CORNER_RADIUS
         );
 
-        const centralBarrierTop = topSlitCenterY + SLIT_VIEW_HEIGHT / 2;
-        const centralBarrierBottom = bottomSlitCenterY - SLIT_VIEW_HEIGHT / 2;
+        const centralBarrierTop = topSlitCenterY + DISPLAY_SLIT_WIDTH / 2;
+        const centralBarrierBottom = bottomSlitCenterY - DISPLAY_SLIT_WIDTH / 2;
         centralBarrier.setRect( barrierX, centralBarrierTop, BARRIER_VIEW_WIDTH,
           Math.max( 0, centralBarrierBottom - centralBarrierTop ), CORNER_RADIUS, CORNER_RADIUS );
 
-        const bottomBarrierTop = bottomSlitCenterY + SLIT_VIEW_HEIGHT / 2;
+        const bottomBarrierTop = bottomSlitCenterY + DISPLAY_SLIT_WIDTH / 2;
         bottomBarrier.setRect(
           barrierX,
           bottomBarrierTop,
@@ -193,13 +193,13 @@ export default class DoubleSlitNode extends Node {
           CORNER_RADIUS
         );
 
-        topCover.setRect( barrierX, topBarrierBottom, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS );
-        bottomCover.setRect( barrierX, centralBarrierBottom, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, CORNER_RADIUS, CORNER_RADIUS );
+        topCover.setRect( barrierX, topBarrierBottom, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, CORNER_RADIUS, CORNER_RADIUS );
+        bottomCover.setRect( barrierX, centralBarrierBottom, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, CORNER_RADIUS, CORNER_RADIUS );
         topCover.visible = isTopCovered;
         bottomCover.visible = isBottomCovered;
 
-        topSlitDetectorNode.layoutDetector( barrierX, topBarrierBottom, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, 'above' );
-        bottomSlitDetectorNode.layoutDetector( barrierX, centralBarrierBottom, BARRIER_VIEW_WIDTH, SLIT_VIEW_HEIGHT, 'below' );
+        topSlitDetectorNode.layoutDetector( barrierX, topBarrierBottom, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, 'above' );
+        bottomSlitDetectorNode.layoutDetector( barrierX, centralBarrierBottom, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, 'below' );
 
         const arrowY = WAVE_REGION_HEIGHT + 12;
         const barrierCenterX = barrierX + BARRIER_VIEW_WIDTH / 2;

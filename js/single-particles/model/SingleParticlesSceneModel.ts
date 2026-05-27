@@ -23,10 +23,10 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
+import { getDisplaySlitLayout } from '../../common/getDisplaySlitLayout.js';
 import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
-import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCDF.js';
 import { type SourceType } from '../../common/model/SourceType.js';
@@ -476,7 +476,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   }
 
   private createPacketReEmission( selectedSlit: 'topSlit' | 'bottomSlit', eventTime: number ): GaussianPacketReEmission {
-    const { viewSlitSep, viewSlitWidth } = getViewSlitLayout(
+    const { displaySlitSeparation, displaySlitWidth } = getDisplaySlitLayout(
       this.slitSeparationProperty.value * 1e-3,
       this.slitSeparationRange.min * 1e-3,
       this.slitSeparationRange.max * 1e-3,
@@ -488,8 +488,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       eventTime: eventTime,
       timeAdvance: this.getPacketReEmissionTimeAdvance( eventTime ),
       sourceX: this.slitPositionFractionProperty.value * this.regionWidth,
-      centerY: selectedSlit === 'topSlit' ? -viewSlitSep / 2 : viewSlitSep / 2,
-      width: viewSlitWidth
+      centerY: selectedSlit === 'topSlit' ? -displaySlitSeparation / 2 : displaySlitSeparation / 2,
+      width: displaySlitWidth
     };
   }
 

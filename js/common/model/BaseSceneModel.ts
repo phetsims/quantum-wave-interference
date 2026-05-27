@@ -32,11 +32,11 @@ import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ObjectLiteralIO from '../../../../tandem/js/types/ObjectLiteralIO.js';
+import { DISPLAY_SLIT_WIDTH, MAX_DISPLAY_SLIT_SEPARATION, MIN_DISPLAY_SLIT_SEPARATION } from '../getDisplaySlitLayout.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKernel.js';
 import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
 import { type DetectionMode } from './DetectionMode.js';
-import { MAX_VIEW_SEPARATION, MIN_VIEW_SEPARATION, SLIT_VIEW_HEIGHT } from './getViewSlitLayout.js';
 import { hasAnyDetector, hasDetectorOnBottomSlit, hasDetectorOnTopSlit, isBottomSlitCovered, isTopSlitCovered, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from './SlitConfiguration.js';
 import { renumberSnapshots, type Snapshot, SnapshotIO } from './Snapshot.js';
 import { type SourceType } from './SourceType.js';
@@ -188,9 +188,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
                         QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT /
                         QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 
-    const slitSeparationMin = MIN_VIEW_SEPARATION / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
+    const slitSeparationMin = MIN_DISPLAY_SLIT_SEPARATION / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
                               this.regionHeight * 1e3;
-    const slitSeparationMax = MAX_VIEW_SEPARATION / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
+    const slitSeparationMax = MAX_DISPLAY_SLIT_SEPARATION / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
                               this.regionHeight * 1e3;
     const defaultSlitSeparationConfig = {
       range: new Range( slitSeparationMin, slitSeparationMax ),
@@ -200,7 +200,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
                                  options.slitSeparationConfig( this.regionHeight ) :
                                  options.slitSeparationConfig || defaultSlitSeparationConfig;
     this.slitSeparationRange = slitSeparationConfig.range;
-    this.slitWidth = SLIT_VIEW_HEIGHT / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
+    this.slitWidth = DISPLAY_SLIT_WIDTH / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
                      this.regionHeight * 1e3;
     this.defaultWaveSpeed = this.sourceType === 'photons' ? QuantumWaveInterferenceConstants.SPEED_OF_LIGHT : config.defaultVelocity;
 

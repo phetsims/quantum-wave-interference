@@ -12,10 +12,10 @@
 import type Complex from '../../../../dot/js/Complex.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
+import { getDisplaySlitLayout } from '../getDisplaySlitLayout.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type AnalyticalBarrier, type AnalyticalSource, type AnalyticalWaveParameters, computeSampleIntensity, type DecoherenceEvent, evaluateAnalyticalSample, evaluateAnalyticalSamples, type FieldSample, getRepresentativeComplex, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type BarrierType } from './BarrierType.js';
-import { getViewSlitLayout } from './getViewSlitLayout.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 
@@ -307,22 +307,22 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
       return { kind: 'none' };
     }
 
-    const { viewSlitSep, viewSlitWidth } = this.getDisplaySlitGeometry();
+    const { displaySlitSeparation, displaySlitWidth } = this.getDisplaySlitGeometry();
     return {
       kind: 'doubleSlit',
       barrierX: this.barrierFractionX * this.regionWidth,
       slits: [
         {
           source: 'topSlit',
-          centerY: -viewSlitSep / 2,
-          width: viewSlitWidth,
+          centerY: -displaySlitSeparation / 2,
+          width: displaySlitWidth,
           isOpen: this.isTopSlitOpen,
           coherenceGroup: this.isTopSlitDecoherent ? 'topSlitDetector' : this.getCoherentSlitsGroup()
         },
         {
           source: 'bottomSlit',
-          centerY: viewSlitSep / 2,
-          width: viewSlitWidth,
+          centerY: displaySlitSeparation / 2,
+          width: displaySlitWidth,
           isOpen: this.isBottomSlitOpen,
           coherenceGroup: this.isBottomSlitDecoherent ? 'bottomSlitDetector' : this.getCoherentSlitsGroup()
         }
@@ -345,8 +345,8 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     return ( gridY + 0.5 ) * this.regionHeight / this.gridHeight - this.regionHeight / 2;
   }
 
-  protected getDisplaySlitGeometry(): { viewSlitSep: number; viewSlitWidth: number } {
-    return getViewSlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
+  protected getDisplaySlitGeometry(): { displaySlitSeparation: number; displaySlitWidth: number } {
+    return getDisplaySlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
   }
 
   protected abstract createKernelSource(): AnalyticalSource;

@@ -35,8 +35,8 @@ import Color from '../../../../scenery/js/util/Color.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
+import { getDisplaySlitLayout } from '../../common/getDisplaySlitLayout.js';
 import { type BarrierType } from '../../common/model/BarrierType.js';
-import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
@@ -319,7 +319,7 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
           return;
         }
 
-        const { viewSlitSep, viewSlitWidth } = getViewSlitLayout(
+        const { displaySlitSeparation, displaySlitWidth } = getDisplaySlitLayout(
           slitSeparation,
           scene.slitSeparationRange.min,
           scene.slitSeparationRange.max,
@@ -328,9 +328,9 @@ export default class HighIntensityTopRowNode<T extends TopRowSceneLike> extends 
 
         const barrierX = slitPositionFraction * MINI_SYMBOL_SQUARE_SIZE - MINI_BARRIER_WIDTH / 2;
         const centerY = MINI_SYMBOL_SQUARE_SIZE / 2;
-        const slitHeight = Math.max( 1, viewSlitWidth );
-        const topSlitCenterY = centerY - viewSlitSep / 2;
-        const bottomSlitCenterY = centerY + viewSlitSep / 2;
+        const slitHeight = Math.max( 1, displaySlitWidth );
+        const topSlitCenterY = centerY - displaySlitSeparation / 2;
+        const bottomSlitCenterY = centerY + displaySlitSeparation / 2;
 
         const topBarrierBottom = topSlitCenterY - slitHeight / 2;
         const centralBarrierTop = topSlitCenterY + slitHeight / 2;

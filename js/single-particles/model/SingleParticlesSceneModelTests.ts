@@ -9,8 +9,8 @@
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
+import { getDisplaySlitLayout } from '../../common/getDisplaySlitLayout.js';
 import { type DecoherenceEvent, type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
-import { getViewSlitLayout } from '../../common/model/getViewSlitLayout.js';
 import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCDF.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
@@ -83,13 +83,13 @@ const createScene = ( sourceType: SourceType = 'photons' ): TestSingleParticlesS
 };
 
 const getVisualSlitSeparation = ( scene: SingleParticlesSceneModel, slitSeparation: number ): number => {
-  const { viewSlitSep } = getViewSlitLayout(
+  const { displaySlitSeparation } = getDisplaySlitLayout(
     slitSeparation * 1e-3,
     scene.slitSeparationRange.min * 1e-3,
     scene.slitSeparationRange.max * 1e-3,
     scene.regionHeight
   );
-  return viewSlitSep / scene.regionHeight * QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
+  return displaySlitSeparation / scene.regionHeight * QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 };
 
 const getDeterministicSlitArrivalTime = ( scene: SingleParticlesSceneModel ): number => {
