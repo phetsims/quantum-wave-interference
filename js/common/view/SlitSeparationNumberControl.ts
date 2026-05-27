@@ -10,26 +10,32 @@
 
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
-import NumberControl from '../../../../scenery-phet/js/NumberControl.js';
+import NumberControl, { NumberControlMajorTick } from '../../../../scenery-phet/js/NumberControl.js';
+import { type NumberDisplayOptions } from '../../../../scenery-phet/js/NumberDisplay.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
-import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
-// TODO: Document throughout the file, see https://github.com/phetsims/quantum-wave-interference/issues/135
-
 const TITLE_FONT = new PhetFont( 14 );
 const TICK_LABEL_FONT = new PhetFont( 12 );
 const SLIDER_TRACK_SIZE = new Dimension2( 120, 3 );
 const NUMBER_CONTROL_Y_SPACING = 8;
 const ARROW_BUTTONS_X_SPACING = 6;
-const NANOMETER_RANGE_THRESHOLD_MM = 0.0001;
 
+// Model values are stored in millimeters, but very small scene ranges are clearer with smaller display units.
+const NANOMETER_RANGE_THRESHOLD_MM = 0.0001;
+const MICROMETER_RANGE_THRESHOLD_MM = 0.1;
+const MICROMETERS_PER_MILLIMETER = 1000;
+const NANOMETERS_PER_MILLIMETER = 1e6;
+
+/**
+ * Chooses the fewest decimal places that still produce compact min/max tick labels for converted unit values.
+ */
 const getCompactDecimalPlaces = ( maxValue: number ): number => {
   return maxValue >= 10 ? 0 :
          maxValue >= 1 ? 1 :
@@ -38,23 +44,29 @@ const getCompactDecimalPlaces = ( maxValue: number ): number => {
 
 export default class SlitSeparationNumberControl extends NumberControl {
 
+  /**
+   * @param scene - provides the slit separation Property and its physical range, in millimeters
+   * @param tandem - parent Tandem used to instrument this control for the scene source type
+   */
   public constructor( scene: BaseSceneModel, tandem: Tandem ) {
     const range = scene.slitSeparationRange;
     const usesNanometers = range.max <= NANOMETER_RANGE_THRESHOLD_MM;
-    const usesMicrometers = !usesNanometers && range.max <= 0.1;
+    const usesMicrometers = !usesNanometers && range.max <= MICROMETER_RANGE_THRESHOLD_MM;
 
-    let numberDisplayOptions;
-    let ticks: { value: number; label: Node }[];
+    let numberDisplayOptions: NumberDisplayOptions;
+    let ticks: NumberControlMajorTick[];
     let delta: number;
 
     if ( usesNanometers ) {
-      const minNM = range.min * 1e6;
-      const maxNM = range.max * 1e6;
+
+      // Nanometer scenes keep the model value in millimeters, but display and label values in nanometers.
+      const minNM = range.min * NANOMETERS_PER_MILLIMETER;
+      const maxNM = range.max * NANOMETERS_PER_MILLIMETER;
       const decimalPlaces = getCompactDecimalPlaces( maxNM );
-      delta = Math.pow( 10, -decimalPlaces ) / 1e6;
+      delta = Math.pow( 10, -decimalPlaces ) / NANOMETERS_PER_MILLIMETER;
       numberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
-          const valueNM = valueMM * 1e6;
+          const valueNM = valueMM * NANOMETERS_PER_MILLIMETER;
           const numberFormatOptions = {
             decimalPlaces: decimalPlaces,
             showTrailingZeros: true
@@ -76,13 +88,15 @@ export default class SlitSeparationNumberControl extends NumberControl {
       ];
     }
     else if ( usesMicrometers ) {
-      const minUM = range.min * 1000;
-      const maxUM = range.max * 1000;
+
+      // Micrometer scenes use the same millimeter-backed Property with micrometer formatting for readability.
+      const minUM = range.min * MICROMETERS_PER_MILLIMETER;
+      const maxUM = range.max * MICROMETERS_PER_MILLIMETER;
       const dp = getCompactDecimalPlaces( maxUM );
-      delta = Math.pow( 10, -dp ) / 1000;
+      delta = Math.pow( 10, -dp ) / MICROMETERS_PER_MILLIMETER;
       numberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
-          const valueUM = valueMM * 1000;
+          const valueUM = valueMM * MICROMETERS_PER_MILLIMETER;
           const numberFormatOptions = {
             decimalPlaces: dp,
             showTrailingZeros: true
@@ -104,6 +118,8 @@ export default class SlitSeparationNumberControl extends NumberControl {
       ];
     }
     else {
+
+      // Larger ranges remain in millimeters and use the shared decimal-place helper for range endpoints.
       const dp = QuantumWaveInterferenceConstants.getRangeDecimalPlaces( range.min, range.max );
       delta = 0.1;
       numberDisplayOptions = {
