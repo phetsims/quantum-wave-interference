@@ -14,8 +14,8 @@ import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualCo
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import createAndAddSlitConfigurationControlsRow from '../../common/view/createAndAddSlitConfigurationControlsRow.js';
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
-import createSlitConfigComboItems from '../../common/view/createSlitConfigComboItems.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
@@ -27,7 +27,6 @@ import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotation
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import resetDetectorScreenView from '../../common/view/resetDetectorScreenView.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
-import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import stepDetectorScreenViewNodes from '../../common/view/stepDetectorScreenViewNodes.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
@@ -165,23 +164,19 @@ export default class SingleParticlesScreenView extends ScreenView {
     updateParticleMassAnnotationPosition();
     this.addChild( particleMassAnnotation );
 
-    const slitConfigItems = createSlitConfigComboItems( {
-      topCoveredTandemName: 'topClosedItem',
-      bottomCoveredTandemName: 'bottomClosedItem'
-    } );
-
-    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Is this identical to bottomRow in HighIntensityScreenView? Should it be factored out?
-    const bottomRow = new SlitConfigurationControlsRow(
+    const bottomRow = createAndAddSlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
-      slitConfigItems,
       model.sceneProperty,
       model.scenes,
       waveRegionLeft,
       slitControlsBottom,
       this,
-      tandem
+      tandem,
+      {
+        topCoveredTandemName: 'topClosedItem',
+        bottomCoveredTandemName: 'bottomClosedItem'
+      }
     );
-    this.addChild( bottomRow );
 
     // Hits graph (always in Hits mode on this screen)
     this.detectorPatternGraphLayerNode = new DetectorPatternGraphLayerNode(

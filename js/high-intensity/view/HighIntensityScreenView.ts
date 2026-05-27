@@ -22,8 +22,8 @@ import type Tandem from '../../../../tandem/js/Tandem.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import createAndAddSlitConfigurationControlsRow from '../../common/view/createAndAddSlitConfigurationControlsRow.js';
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
-import createSlitConfigComboItems from '../../common/view/createSlitConfigComboItems.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
@@ -336,24 +336,19 @@ export default class HighIntensityScreenView extends ScreenView {
     waveRegionLayout: WaveRegionLayout,
     tandem: Tandem
   ): SlitConfigurationControlsRow<SlitConfigurationWithNoBarrier> {
-    const slitConfigItems = createSlitConfigComboItems( {
-      topCoveredTandemName: 'topCoveredItem',
-      bottomCoveredTandemName: 'bottomCoveredItem'
-    } );
-
-    const bottomRow = new SlitConfigurationControlsRow(
+    return createAndAddSlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
-      slitConfigItems,
       model.sceneProperty,
       model.scenes,
       waveRegionLayout.waveRegionLeft,
       waveRegionLayout.slitControlsBottom,
       this,
-      tandem
+      tandem,
+      {
+        topCoveredTandemName: 'topCoveredItem',
+        bottomCoveredTandemName: 'bottomCoveredItem'
+      }
     );
-    this.addChild( bottomRow );
-
-    return bottomRow;
   }
 
   /**
