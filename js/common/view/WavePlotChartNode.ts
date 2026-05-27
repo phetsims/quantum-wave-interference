@@ -27,7 +27,7 @@ import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import { type WaveDisplayModePolarity } from '../model/getDisplayModePolarity.js';
+import { type WaveDisplayModePolarity } from '../model/WaveModeDisplayPolarity.js';
 
 const CHART_WIDTH = 150;
 const CHART_HEIGHT = 110;

@@ -27,10 +27,10 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import getDisplayedWaveValue from '../model/getDisplayedWaveValue.js';
 import getMaxDisplayedWaveValue from '../model/getMaxDisplayedWaveValue.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
+import { waveDisplayModePolarityProperty } from '../model/WaveModeDisplayPolarity.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import TimePlotDataSeries from './TimePlotDataSeries.js';
-import waveDisplayModePolarityProperty from './waveDisplayModePolarityProperty.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
 import WavePlotChartNode, { type WavePlotDataPoint } from './WavePlotChartNode.js';
 
