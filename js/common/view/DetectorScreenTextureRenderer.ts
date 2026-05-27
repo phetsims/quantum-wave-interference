@@ -19,10 +19,15 @@ import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
-// TODO: Document each const, see https://github.com/phetsims/quantum-wave-interference/issues/135
-
+// Supersampling factor for the offscreen detector-screen texture. Rendering above the displayed screen size keeps
+// skewed detector textures and small hit dots from looking pixelated.
 const DEFAULT_TEXTURE_SCALE = 2;
+
+// Maximum number of most-recent particle hits drawn into the live detector texture. This bounds canvas rendering cost
+// while the model can continue accumulating the full hit history.
 const MAX_RENDERED_HITS = 10000;
+
+// Visual size adjustment for hit dots on the shared High Intensity and Single Particles detector screens.
 const HIT_SIZE_SCALE = 1.2;
 
 // Minimal scene-model interface required by DetectorScreenTextureRenderer. HighIntensitySceneModel and
