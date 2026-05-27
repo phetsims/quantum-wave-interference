@@ -593,7 +593,14 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     return totalProbabilityDensitySum > 0 ? detectorProbabilityDensitySum / totalProbabilityDensitySum : 0;
   }
 
-  // TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Performs one detector-tool measurement of the active packet using the detector tool's current position and size.
+   * This is called when the user activates the detector tool. It only acts while a packet is active and the detector
+   * tool is ready. The measurement probability comes from computeDetectorProbability(), then a random sample determines
+   * the outcome. A successful detection sets the detector tool state to detected and ends the packet. A failed detection
+   * sets the state to notDetected and applies a measurement projection that removes the detected region from the
+   * wavefunction and renormalizes the remainder for subsequent propagation.
+   */
   public performDetectorMeasurement(): void {
     if ( !this.isPacketActiveProperty.value || this.detectorToolStateProperty.value !== 'ready' ) {
       return;
