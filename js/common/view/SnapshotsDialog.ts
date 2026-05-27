@@ -20,7 +20,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import type { Snapshot } from '../model/Snapshot.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import createDetectorZoomLevelResponseProperty from './createDetectorZoomLevelResponseProperty.js';
+import createDetectorZoomLevelResponseProperty from './description/createDetectorZoomLevelResponseProperty.js';
 import SnapshotNode from './SnapshotNode.js';
 
 const SNAPSHOT_ZOOM_BUTTON_MARGIN = 6;

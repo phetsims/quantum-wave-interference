@@ -26,7 +26,7 @@ import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import createDetectorZoomLevelResponseProperty from '../../common/view/createDetectorZoomLevelResponseProperty.js';
+import createDetectorZoomLevelResponseProperty from '../../common/view/description/createDetectorZoomLevelResponseProperty.js';
 import SnapshotDescriber from '../../common/view/description/SnapshotDescriber.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
 import SnapshotIndicatorDotsNode from '../../common/view/SnapshotIndicatorDotsNode.js';
