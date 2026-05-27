@@ -18,7 +18,9 @@ import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualCo
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
+import type Tandem from '../../../../tandem/js/Tandem.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
+import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createSlitConfigComboItems from '../../common/view/createSlitConfigComboItems.js';
@@ -39,6 +41,7 @@ import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
+import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
 import QWIAccessibleStateDescriber from './description/QWIAccessibleStateDescriber.js';
 import QWIAccessibleStateTemplate from './description/QWIAccessibleStateTemplate.js';
@@ -47,6 +50,32 @@ import HighIntensityTopRowNode from './HighIntensityTopRowNode.js';
 type SelfOptions = EmptySelfOptions;
 
 type HighIntensityScreenViewOptions = SelfOptions & ScreenViewOptions;
+
+type SourceControlNodes = {
+  sourceControlPanel: SourceControlPanel<HighIntensitySceneModel>;
+  sceneRadioButtonGroup: SceneRadioButtonGroup<HighIntensitySceneModel>;
+  particleMassAnnotation: ParticleMassAnnotationNode;
+  leftColumnWidth: number;
+  leftColumnCenterX: number;
+};
+
+type WaveRegionLayout = {
+  waveRegionLeft: number;
+  waveRegionTop: number;
+  waveRegionRight: number;
+  slitControlsBottom: number;
+};
+
+type WaveRegionNodes = {
+  detectorScreenNode: DetectorScreenNode;
+  waveVisualizationNode: WaveVisualizationNode;
+};
+
+type MeasurementToolNodes = {
+  measurementToolsNode: MeasurementToolsLayerNode;
+  timePlotNode: TimePlotNode;
+  positionPlotNode: PositionPlotNode;
+};
 
 const LABEL_FONT = new PhetFont( 14 );
 
@@ -65,7 +94,6 @@ const WAVE_REGION_Y_OFFSET = -30;
 // mini-symbol (at TOP_ROW_CENTER_Y) and the top of the main wave region.
 const CALLOUT_GAP = 55;
 
-// TODO: This constructor could be made a lot more readable. Add documentation, factor out things, etc. See https://github.com/phetsims/quantum-wave-interference/issues/135
 export default class HighIntensityScreenView extends ScreenView {
 
   private readonly model: HighIntensityModel;
@@ -97,8 +125,61 @@ export default class HighIntensityScreenView extends ScreenView {
     const tandem = options.tandem;
     const accessibleResponses = new HighIntensityAccessibleResponses( model, accessibleStateDescriber );
 
-    // This top-level layout intentionally parallels SingleParticlesScreenView while keeping screen-specific
-    // controls and tandems explicit.
+    // Keep this top-level sequence aligned with the visual layers: source controls, wave region,
+    // detector readouts, right controls, tools, and accessible description.
+    const sourceControlNodes = this.createAndAddSourceControls( model, tandem );
+    const waveRegionLayout = this.createWaveRegionLayout( sourceControlNodes.leftColumnWidth );
+    const topRowBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - X_MARGIN );
+    const topRowNode = this.createAndAddTopRowNode(
+      model,
+      sourceControlNodes.leftColumnCenterX,
+      waveRegionLayout,
+      topRowBeamRightLimitXProperty,
+      tandem
+    );
+    this.positionAndAddParticleMassAnnotation( sourceControlNodes.particleMassAnnotation, topRowNode );
+
+    const waveRegionNodes = this.createAndAddWaveRegionNodes( model, waveRegionLayout );
+    this.detectorScreenNode = waveRegionNodes.detectorScreenNode;
+    this.waveVisualizationNode = waveRegionNodes.waveVisualizationNode;
+
+    const bottomRow = this.createAndAddSlitControls( model, waveRegionLayout, tandem );
+    this.sidewaysGraphNode = this.createAndAddSidewaysGraph( model, this.detectorScreenNode, waveRegionLayout, tandem );
+
+    const rightControlsColumn = this.createAndAddRightControls(
+      model,
+      accessibleResponses,
+      this.sidewaysGraphNode,
+      this.detectorScreenNode,
+      topRowBeamRightLimitXProperty,
+      tandem
+    );
+
+    const measurementToolNodes = this.createAndAddMeasurementTools( model, waveRegionLayout, tandem );
+    this.timePlotNode = measurementToolNodes.timePlotNode;
+    this.positionPlotNode = measurementToolNodes.positionPlotNode;
+
+    const screenViewDescription = this.createAndAddScreenViewDescription(
+      model,
+      topRowNode,
+      sourceControlNodes.sourceControlPanel,
+      sourceControlNodes.sceneRadioButtonGroup,
+      bottomRow,
+      rightControlsColumn
+    );
+
+    this.addChild( accessibleResponses );
+    this.setHighIntensityPDOMOrder( screenViewDescription, measurementToolNodes.measurementToolsNode, rightControlsColumn );
+  }
+
+  /**
+   * Creates the source controls and scene selector on the left side of the screen.
+   *
+   * @param model - the screen model that owns the source and scene state
+   * @param tandem - parent tandem for child instrumentation
+   * @returns the source nodes and left-column measurements needed by later layout sections
+   */
+  private createAndAddSourceControls( model: HighIntensityModel, tandem: Tandem ): SourceControlNodes {
     const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
       tandem: tandem.createTandem( 'sourceControlPanel' )
     } );
@@ -128,13 +209,54 @@ export default class HighIntensityScreenView extends ScreenView {
     sceneRadioButtonGroup.centerY = QuantumWaveInterferenceConstants.SCENE_BUTTON_GROUP_CENTER_Y;
     this.addChild( sceneRadioButtonGroup );
 
+    return {
+      sourceControlPanel: sourceControlPanel,
+      sceneRadioButtonGroup: sceneRadioButtonGroup,
+      particleMassAnnotation: particleMassAnnotation,
+      leftColumnWidth: leftColumnWidth,
+      leftColumnCenterX: leftColumnCenterX
+    };
+  }
+
+  /**
+   * Calculates the fixed wave-region coordinates shared by the top row, wave area, slit controls,
+   * graph, and measurement tools.
+   *
+   * @param leftColumnWidth - width of the source controls column
+   * @returns coordinates for the wave region and slit controls
+   */
+  private createWaveRegionLayout( leftColumnWidth: number ): WaveRegionLayout {
     const waveRegionLeft = X_MARGIN + leftColumnWidth + 20;
     const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
     const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const waveRegionRight = waveRegionLeft + QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const slitControlsBottom = this.layoutBounds.maxY - Y_MARGIN;
 
-    const topRowBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - X_MARGIN );
+    return {
+      waveRegionLeft: waveRegionLeft,
+      waveRegionTop: waveRegionTop,
+      waveRegionRight: waveRegionRight,
+      slitControlsBottom: slitControlsBottom
+    };
+  }
+
+  /**
+   * Creates the source emitter and callout row that connects the source controls to the main wave region.
+   *
+   * @param model - the screen model that owns source, barrier, and slit state
+   * @param leftColumnCenterX - horizontal center for the source controls column
+   * @param waveRegionLayout - coordinates for the main wave region
+   * @param topRowBeamRightLimitXProperty - mutable right limit that responds to the right controls width
+   * @param tandem - parent tandem for child instrumentation
+   * @returns the top row node, used for particle-mass annotation layout and accessible description
+   */
+  private createAndAddTopRowNode(
+    model: HighIntensityModel,
+    leftColumnCenterX: number,
+    waveRegionLayout: WaveRegionLayout,
+    topRowBeamRightLimitXProperty: NumberProperty,
+    tandem: Tandem
+  ): HighIntensityTopRowNode<HighIntensitySceneModel> {
     const topRowNode = new HighIntensityTopRowNode(
       model.sceneProperty,
       model.scenes,
@@ -149,14 +271,27 @@ export default class HighIntensityScreenView extends ScreenView {
       {
         emitterCenterX: leftColumnCenterX,
         topRowCenterY: TOP_ROW_CENTER_Y,
-        waveRegionLeft: waveRegionLeft,
-        waveRegionRight: waveRegionRight,
-        waveRegionTop: waveRegionTop
+        waveRegionLeft: waveRegionLayout.waveRegionLeft,
+        waveRegionRight: waveRegionLayout.waveRegionRight,
+        waveRegionTop: waveRegionLayout.waveRegionTop
       },
       tandem.createTandem( 'topRowNode' )
     );
     this.addChild( topRowNode );
 
+    return topRowNode;
+  }
+
+  /**
+   * Positions the particle mass annotation below the top-row emitter and adds it to the scene graph.
+   *
+   * @param particleMassAnnotation - annotation node that labels the current particle mass
+   * @param topRowNode - top-row node that provides the emitter bounds
+   */
+  private positionAndAddParticleMassAnnotation(
+    particleMassAnnotation: ParticleMassAnnotationNode,
+    topRowNode: HighIntensityTopRowNode<HighIntensitySceneModel>
+  ): void {
     const updateParticleMassAnnotationPosition = () => {
       particleMassAnnotation.centerX = topRowNode.emitterCenterX;
       particleMassAnnotation.top = topRowNode.emitterBottom + TOP_ROW_TO_MASS_LABEL_SPACING;
@@ -164,26 +299,52 @@ export default class HighIntensityScreenView extends ScreenView {
     particleMassAnnotation.localBoundsProperty.link( updateParticleMassAnnotationPosition );
     updateParticleMassAnnotationPosition();
     this.addChild( particleMassAnnotation );
+  }
 
+  /**
+   * Creates the main wave display and detector screen nodes.
+   *
+   * @param model - the screen model that owns wave, slit, and detector state
+   * @param waveRegionLayout - coordinates for positioning the wave region and detector screen
+   * @returns the detector screen and wave visualization nodes retained by the ScreenView
+   */
+  private createAndAddWaveRegionNodes( model: HighIntensityModel, waveRegionLayout: WaveRegionLayout ): WaveRegionNodes {
     const waveRegionNode = new WaveRegionNode( model, {
-      waveRegionLeft: waveRegionLeft,
-      waveRegionTop: waveRegionTop,
+      waveRegionLeft: waveRegionLayout.waveRegionLeft,
+      waveRegionTop: waveRegionLayout.waveRegionTop,
       additionalDoubleSlitOptions: createFrontFacingSlitDetectorOptions(
         model.currentSlitConfigurationProperty,
         model.currentLeftDetectorHitsProperty,
         model.currentRightDetectorHitsProperty
       )
     } );
-    this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
-      x: waveRegionRight - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
-      y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
+    const detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
+      x: waveRegionLayout.waveRegionRight - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
+      y: waveRegionLayout.waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
     } );
-    this.addChild( this.detectorScreenNode );
+    this.addChild( detectorScreenNode );
 
-    this.waveVisualizationNode = waveRegionNode.waveVisualizationNode;
     this.addChild( waveRegionNode );
 
-    // --- Bottom row: barrier, slit configuration, slit separation ---
+    return {
+      detectorScreenNode: detectorScreenNode,
+      waveVisualizationNode: waveRegionNode.waveVisualizationNode
+    };
+  }
+
+  /**
+   * Creates the slit controls along the bottom of the wave region.
+   *
+   * @param model - the screen model that owns slit configuration state
+   * @param waveRegionLayout - coordinates for aligning controls with the wave region
+   * @param tandem - parent tandem for child instrumentation
+   * @returns the row of slit controls, used by accessible description
+   */
+  private createAndAddSlitControls(
+    model: HighIntensityModel,
+    waveRegionLayout: WaveRegionLayout,
+    tandem: Tandem
+  ): SlitConfigurationControlsRow<SlitConfigurationWithNoBarrier> {
     const slitConfigItems = createSlitConfigComboItems( {
       topCoveredTandemName: 'topCoveredItem',
       bottomCoveredTandemName: 'bottomCoveredItem'
@@ -194,19 +355,37 @@ export default class HighIntensityScreenView extends ScreenView {
       slitConfigItems,
       model.sceneProperty,
       model.scenes,
-      waveRegionLeft,
-      slitControlsBottom,
+      waveRegionLayout.waveRegionLeft,
+      waveRegionLayout.slitControlsBottom,
       this,
       tandem
     );
     this.addChild( bottomRow );
 
-    this.sidewaysGraphNode = new SidewaysGraph(
+    return bottomRow;
+  }
+
+  /**
+   * Creates the detector-side intensity graph.
+   *
+   * @param model - the screen model that owns graph visibility and detection mode
+   * @param detectorScreenNode - detector screen node that anchors the graph
+   * @param waveRegionLayout - coordinates for positioning the graph beside the wave region
+   * @param tandem - parent tandem for child instrumentation
+   * @returns the graph node retained by the ScreenView for stepping and reset
+   */
+  private createAndAddSidewaysGraph(
+    model: HighIntensityModel,
+    detectorScreenNode: DetectorScreenNode,
+    waveRegionLayout: WaveRegionLayout,
+    tandem: Tandem
+  ): SidewaysGraph {
+    const sidewaysGraphNode = new SidewaysGraph(
       model.sceneProperty,
-      this.detectorScreenNode,
+      detectorScreenNode,
       model.isIntensityGraphVisibleProperty,
-      waveRegionRight,
-      waveRegionTop,
+      waveRegionLayout.waveRegionRight,
+      waveRegionLayout.waveRegionTop,
       tandem.createTandem( 'sidewaysGraphNode' ), {
         detectionModeProperty: model.currentDetectionModeProperty,
         initialZoomLevels: {
@@ -215,10 +394,19 @@ export default class HighIntensityScreenView extends ScreenView {
         }
       }
     );
-    this.addChild( this.sidewaysGraphNode );
+    this.addChild( sidewaysGraphNode );
 
-    // Right controls
+    return sidewaysGraphNode;
+  }
 
+  /**
+   * Creates the detection-mode radio buttons used inside the detector-screen controls.
+   *
+   * @param model - the screen model that owns the detection mode
+   * @param tandem - parent tandem for child instrumentation
+   * @returns an AlignBox that sizes and centers the detection-mode controls for the right panel
+   */
+  private createDetectionModeRadioButtonGroupBox( model: HighIntensityModel, tandem: Tandem ): AlignBox {
     const detectionModeItems: AquaRadioButtonGroupItem<DetectionMode>[] = [ {
       value: 'averageIntensity',
       createNode: () => new Text( QuantumWaveInterferenceFluent.intensityStringProperty, { font: LABEL_FONT, maxWidth: 130 } ),
@@ -250,6 +438,30 @@ export default class HighIntensityScreenView extends ScreenView {
       layoutOptions: { align: 'center' }
     } );
 
+    return detectionModeRadioButtonGroupBox;
+  }
+
+  /**
+   * Creates and positions the right controls, including detector controls, tool checkboxes, time controls,
+   * and reset buttons.
+   *
+   * @param model - the screen model that owns right-panel control state
+   * @param accessibleResponses - response node used for clear-screen alerts
+   * @param sidewaysGraphNode - graph node reset by the right-panel reset action
+   * @param detectorScreenNode - detector screen node used for snapshot flash and reset
+   * @param topRowBeamRightLimitXProperty - mutable right limit for the top-row beam callout
+   * @param tandem - parent tandem for child instrumentation
+   * @returns the right controls column, used by layout and accessible description
+   */
+  private createAndAddRightControls(
+    model: HighIntensityModel,
+    accessibleResponses: HighIntensityAccessibleResponses,
+    sidewaysGraphNode: SidewaysGraph,
+    detectorScreenNode: DetectorScreenNode,
+    topRowBeamRightLimitXProperty: NumberProperty,
+    tandem: Tandem
+  ): RightControlsColumn {
+    const detectionModeRadioButtonGroupBox = this.createDetectionModeRadioButtonGroupBox( model, tandem );
     const { tapeMeasureCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
       createStandardToolCheckboxes( model, tandem );
 
@@ -263,13 +475,13 @@ export default class HighIntensityScreenView extends ScreenView {
         positionPlotCheckbox
       ],
       clearScreen: () => accessibleResponses.clearScreenAndEmitResponse( () => model.sceneProperty.value.clearScreen() ),
-      onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash(),
+      onSnapshotCaptured: () => detectorScreenNode.startSnapshotFlash(),
       onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
       resetView: () => {
-        this.sidewaysGraphNode.reset();
+        sidewaysGraphNode.reset();
         this.timePlotNode.reset();
         this.positionPlotNode.reset();
-        this.detectorScreenNode.clearFlash();
+        detectorScreenNode.clearFlash();
       }
     } );
 
@@ -294,11 +506,57 @@ export default class HighIntensityScreenView extends ScreenView {
       rightControlsColumn.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN );
     } );
 
-    const measurementToolsNode = new MeasurementToolsLayerNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
-    this.addChild( measurementToolsNode );
-    this.timePlotNode = measurementToolsNode.timePlotNode;
-    this.positionPlotNode = measurementToolsNode.positionPlotNode;
+    return rightControlsColumn;
+  }
 
+  /**
+   * Creates the measurement tools layer and adds it above the main screen controls.
+   *
+   * @param model - the screen model that owns the measurement tool state
+   * @param waveRegionLayout - coordinates for anchoring the measurement tools to the wave region
+   * @param tandem - parent tandem for child instrumentation
+   * @returns the measurement layer and the plot nodes retained by the ScreenView
+   */
+  private createAndAddMeasurementTools(
+    model: HighIntensityModel,
+    waveRegionLayout: WaveRegionLayout,
+    tandem: Tandem
+  ): MeasurementToolNodes {
+    const measurementToolsNode = new MeasurementToolsLayerNode(
+      model,
+      this.visibleBoundsProperty,
+      waveRegionLayout.waveRegionLeft,
+      waveRegionLayout.waveRegionTop,
+      tandem
+    );
+    this.addChild( measurementToolsNode );
+
+    return {
+      measurementToolsNode: measurementToolsNode,
+      timePlotNode: measurementToolsNode.timePlotNode,
+      positionPlotNode: measurementToolsNode.positionPlotNode
+    };
+  }
+
+  /**
+   * Creates the PDOM description nodes that describe the screen structure and current state.
+   *
+   * @param model - the screen model that supplies dynamic description state
+   * @param topRowNode - source row node included in the source description
+   * @param sourceControlPanel - source controls included in the source description
+   * @param sceneRadioButtonGroup - scene controls included in the source description
+   * @param bottomRow - slit controls included in the slit description
+   * @param rightControlsColumn - detector controls included in the detector-screen description
+   * @returns the description node used for PDOM order
+   */
+  private createAndAddScreenViewDescription(
+    model: HighIntensityModel,
+    topRowNode: HighIntensityTopRowNode<HighIntensitySceneModel>,
+    sourceControlPanel: SourceControlPanel<HighIntensitySceneModel>,
+    sceneRadioButtonGroup: SceneRadioButtonGroup<HighIntensitySceneModel>,
+    bottomRow: SlitConfigurationControlsRow<SlitConfigurationWithNoBarrier>,
+    rightControlsColumn: RightControlsColumn
+  ): QuantumWaveInterferenceScreenViewDescription {
     const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
       model,
       model.currentSlitConfigurationProperty, {
@@ -312,8 +570,21 @@ export default class HighIntensityScreenView extends ScreenView {
     );
     this.addChild( screenViewDescription );
 
-    this.addChild( accessibleResponses );
+    return screenViewDescription;
+  }
 
+  /**
+   * Sets the screen reader traversal order for play-area and control-area content.
+   *
+   * @param screenViewDescription - description node that owns the heading nodes
+   * @param measurementToolsNode - measurement tools layer included in play-area order
+   * @param rightControlsColumn - right controls column whose detached groups are in the control-area order
+   */
+  private setHighIntensityPDOMOrder(
+    screenViewDescription: QuantumWaveInterferenceScreenViewDescription,
+    measurementToolsNode: MeasurementToolsLayerNode,
+    rightControlsColumn: RightControlsColumn
+  ): void {
     this.pdomPlayAreaNode.pdomOrder = [
       screenViewDescription.sourceHeadingNode,
       screenViewDescription.slitsHeadingNode,
