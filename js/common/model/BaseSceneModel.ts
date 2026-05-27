@@ -249,7 +249,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
 
     this.slitPositionFractionProperty = new NumberProperty( 0.5, {
-      //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 units?
+      //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 specify units option here
       range: new Range( 0.25, 0.75 ),
       tandem: tandem.createTandem( 'slitPositionFractionProperty' )
     } );
@@ -666,7 +666,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
     model.hitsChangedEmitter.emit();
   }
 
-  // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 IOType documentation is supposed to identify the type of serialization.
+  /**
+   * Uses reference serialization. There is one instance, and its state is applied back through applyState.
+   */
   public static readonly BaseSceneModelIO = new IOType<BaseSceneModel, BaseSceneModelStateObject>( 'BaseSceneModelIO', {
     valueType: BaseSceneModel,
     documentation: 'Serializes the wave solver state, hit positions, and transient wave records for a scene',

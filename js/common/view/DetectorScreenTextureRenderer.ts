@@ -196,7 +196,7 @@ export default class DetectorScreenTextureRenderer {
                        scene.detectorPatternFormationFactorProperty?.value ?? 1 :
                        1;
 
-    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 paramsChanged duplicated in getDetectorScreenTexture
+    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 paramsChanged duplicated in getDetectorScreenTexture, should it be factored out or documented?
     const paramsChanged = cache.lastBrightness !== currentBrightness ||
                           cache.lastWavelength !== currentWavelength ||
                           cache.lastDetectionMode !== currentDetectionMode ||

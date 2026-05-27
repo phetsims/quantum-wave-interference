@@ -18,13 +18,13 @@ import createSlitConfigComboItems from '../../common/view/createSlitConfigComboI
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
+import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
+import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
-import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
-import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
@@ -168,7 +168,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       bottomCoveredTandemName: 'bottomClosedItem'
     } );
 
-    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Identical to bottomRow in HighIntensityScreenView
+    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Is this identical to bottomRow in HighIntensityScreenView? Should it be factored out?
     const bottomRow = new SlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
       slitConfigItems,

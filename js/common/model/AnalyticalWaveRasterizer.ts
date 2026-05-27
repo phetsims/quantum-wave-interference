@@ -76,8 +76,6 @@ export type AnalyticalWaveRaster = {
   };
 };
 
-//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Generated code seems to prefer not to use 'function' for defining functions. Might facilitate unintended closures.
-
 /**
  * Converts one model-level FieldSample into an opaque RGBA color for the legacy wave display path.
  *

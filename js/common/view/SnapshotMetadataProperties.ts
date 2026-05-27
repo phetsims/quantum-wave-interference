@@ -52,7 +52,7 @@ const DEFAULT_SLIT_SETTING_DISPLAY_MAP: SlitSettingDisplayMap = {
 
   // The model names slits from the overhead wave-propagation frame (left/right). The snapshot dialog presents the
   // detector-facing frame, where those same slits are read as top/bottom.
-  // TODO: https://github.com/phetsims/quantum-wave-interference/issues/118 align these terms across the sim
+  // TODO: https://github.com/phetsims/quantum-wave-interference/issues/151 align these terms across the sim
   leftCovered: QuantumWaveInterferenceFluent.coverTopStringProperty,
   rightCovered: QuantumWaveInterferenceFluent.coverBottomStringProperty,
   leftDetector: QuantumWaveInterferenceFluent.detectorTopStringProperty,
