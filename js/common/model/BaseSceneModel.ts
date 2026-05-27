@@ -37,7 +37,7 @@ import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKer
 import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
 import { type DetectionMode } from './DetectionMode.js';
 import { MAX_VIEW_SEPARATION, MIN_VIEW_SEPARATION, SLIT_VIEW_HEIGHT } from './getViewSlitLayout.js';
-import { hasAnyDetector, hasDetectorOnSide, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from './SlitConfiguration.js';
+import { hasAnyDetector, hasDetectorOnBottomSlit, hasDetectorOnTopSlit, isBottomSlitCovered, isTopSlitCovered, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from './SlitConfiguration.js';
 import { renumberSnapshots, type Snapshot, SnapshotIO } from './Snapshot.js';
 import { type SourceType } from './SourceType.js';
 import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues, type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues, type WaveDisplayMode } from './WaveDisplayMode.js';
@@ -326,21 +326,20 @@ export default abstract class BaseSceneModel extends PhetioObject {
            0;
   }
 
-  // TODO: top vs left, see https://github.com/phetsims/quantum-wave-interference/issues/135
   protected isTopSlitOpen(): boolean {
-    return this.slitConfigurationProperty.value !== 'leftCovered';
+    return !isTopSlitCovered( this.slitConfigurationProperty.value );
   }
 
   protected isBottomSlitOpen(): boolean {
-    return this.slitConfigurationProperty.value !== 'rightCovered';
+    return !isBottomSlitCovered( this.slitConfigurationProperty.value );
   }
 
   protected isTopSlitDecoherent(): boolean {
-    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'left' );
+    return hasDetectorOnTopSlit( this.slitConfigurationProperty.value );
   }
 
   protected isBottomSlitDecoherent(): boolean {
-    return hasDetectorOnSide( this.slitConfigurationProperty.value, 'right' );
+    return hasDetectorOnBottomSlit( this.slitConfigurationProperty.value );
   }
 
   // TODO: Document when this is supposed to be called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
@@ -493,8 +492,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
     }
 
     const clickedDetectorSlit =
-      selectedSlit === 'topSlit' && hasDetectorOnSide( slitConfiguration, 'left' ) ? 'topSlit' :
-      selectedSlit === 'bottomSlit' && hasDetectorOnSide( slitConfiguration, 'right' ) ? 'bottomSlit' :
+      selectedSlit === 'topSlit' && hasDetectorOnTopSlit( slitConfiguration ) ? 'topSlit' :
+      selectedSlit === 'bottomSlit' && hasDetectorOnBottomSlit( slitConfiguration ) ? 'bottomSlit' :
       undefined;
 
     return clickedDetectorSlit ? {

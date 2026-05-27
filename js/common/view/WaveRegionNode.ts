@@ -14,7 +14,7 @@ import Range from '../../../../dot/js/Range.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import { type BarrierType } from '../model/BarrierType.js';
-import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
+import { isBottomSlitCovered, isTopSlitCovered, type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import { type WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import DoubleSlitNode, { type DoubleSlitNodeOptions } from './DoubleSlitNode.js';
 import WaveVisualizationNode from './WaveVisualizationNode.js';
@@ -72,11 +72,11 @@ export default class WaveRegionNode extends Node {
     const doubleSlitNodeOptions = combineOptions<DoubleSlitNodeOptions>( {
       isTopSlitCoveredProperty: new DerivedProperty(
         [ model.currentSlitConfigurationProperty ],
-        slitConfig => slitConfig === 'leftCovered'
+        slitConfig => isTopSlitCovered( slitConfig )
       ),
       isBottomSlitCoveredProperty: new DerivedProperty(
         [ model.currentSlitConfigurationProperty ],
-        slitConfig => slitConfig === 'rightCovered'
+        slitConfig => isBottomSlitCovered( slitConfig )
       ),
       x: options.waveRegionLeft,
       y: options.waveRegionTop
