@@ -166,12 +166,19 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       return;
     }
 
-    // Only accumulate hits after the wavefront has reached the detector screen
-    // TODO: Invert this if statement, like if hasWavefrontReachedScreen(){this.accumulateHits()}, see https://github.com/phetsims/quantum-wave-interference/issues/135
-    if ( !this.hasWavefrontReachedScreen() ) {
-      return;
+    // Only accumulate hits after the wavefront has reached the detector screen.
+    if ( this.hasWavefrontReachedScreen() ) {
+      this.accumulateHits( dt );
     }
+  }
 
+  /**
+   * Accumulates detector-screen hits for the elapsed model time. Fractional hit counts are retained across frames, and
+   * whole accumulated hits are converted into detector-screen dots sampled from the current probability distribution.
+   *
+   * @param dt - elapsed model time for this frame, in seconds
+   */
+  private accumulateHits( dt: number ): void {
     // rate is the detector-screen hit creation rate in hits per model second for the current scene.
     const rate = this.getDetectorScreenHitRate();
 
