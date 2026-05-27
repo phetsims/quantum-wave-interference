@@ -132,7 +132,13 @@ export default class DetectorScreenNode extends Node {
   }
 }
 
-// TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
+/**
+ * CanvasNode that renders the detector-screen texture for the High Intensity and Single Particles screens.
+ * DetectorScreenTextureRenderer owns the offscreen, rectangular texture cache for the active scene. This node
+ * draws that texture with an affine transform so the rectangular detector face appears as the skewed parallelogram
+ * used in the side-view apparatus. The parent DetectorScreenNode supplies the matching clip area and invalidates this
+ * node when scene hits or emission state changes.
+ */
 class DetectorScreenCanvasNode extends CanvasNode {
 
   private readonly sceneProperty: TReadOnlyProperty<DetectorScreenSceneLike>;
@@ -159,6 +165,9 @@ class DetectorScreenCanvasNode extends CanvasNode {
     this.skew = skew;
   }
 
+  /**
+   * Renders the active scene texture with a skew transform so it matches the detector-screen parallelogram.
+   */
   public paintCanvas( context: CanvasRenderingContext2D ): void {
     const texture = this.textureRenderer.getTexture( this.sceneProperty.value );
     context.save();
