@@ -13,58 +13,25 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-// TODO: Long file, make efforts to make it more readable and maintainable. Document it, modularize it, etc. https://github.com/phetsims/quantum-wave-interference/issues/135
-
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
-import TEmitter from '../../../../axon/js/TEmitter.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
-import { linear } from '../../../../dot/js/util/linear.js';
-import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import type Vector2 from '../../../../dot/js/Vector2.js';
-import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import WithRequired from '../../../../phet-core/js/types/WithRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
-import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
-import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
-import { type SourceType } from '../model/SourceType.js';
-import type WaveSolver from '../model/WaveSolver.js';
-import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
+import { createClippedSidewaysGraphDataPath, createClippedSidewaysGraphStrokePath, createIntensityCurveShapes, createSidewaysGraphChartBackground, createSidewaysGraphChartBorder, createSidewaysGraphZoomButtonGroup, createSidewaysHistogramShape, getSidewaysGraphPaint, getSidewaysGraphZoomLevel, MAX_SIDEWAYS_GRAPH_ZOOM_LEVEL, MIN_SIDEWAYS_GRAPH_ZOOM_LEVEL, SIDEWAYS_GRAPH_WIDTH, type SidewaysGraphSceneLike, type ZoomLevelOption } from './SidewaysGraphPlotUtils.js';
 
-// Preserve the previous right edge while moving the graph left edge to the wave visualizer's right edge.
-const GRAPH_WIDTH = 80 + QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 4;
-const GRAPH_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
-const HISTOGRAM_BINS = 100;
 const LABEL_FONT = new PhetFont( 12 );
 const ZOOM_BUTTON_GROUP_MARGIN = 4;
-const MIN_ZOOM_LEVEL = 1;
-const DEFAULT_ZOOM_LEVEL = 4;
-const MAX_ZOOM_LEVEL = 6;
-const INTENSITY_SAMPLE_COUNT = 200;
-const INTENSITY_SAMPLE_SCALE = QuantumWaveInterferenceQueryParameters.sidewaysGraphSampleScale;
+const AXIS_LABEL_TOP_MARGIN = 4;
 
-type ZoomLevelOption = number | 'default' | 'max';
-
-export type SidewaysGraphSceneLike = {
-  hits: Vector2[];
-  sourceType: SourceType;
-  wavelengthProperty: TReadOnlyProperty<number>;
-  hitsChangedEmitter: TEmitter;
-  waveSolver: WaveSolver;
-  intensityProperty?: TReadOnlyProperty<number>;
-  detectorPatternFormationFactorProperty?: TReadOnlyProperty<number>;
-};
+export type { SidewaysGraphSceneLike };
 
 type SelfOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
@@ -74,6 +41,11 @@ type SelfOptions = {
 };
 
 type SidewaysGraphNodeOptions = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
+
+const getModeZoomLevel = (
+  detectionMode: DetectionMode,
+  options: Pick<SelfOptions, 'initialZoomLevel' | 'initialZoomLevels'>
+): number => getSidewaysGraphZoomLevel( options.initialZoomLevels?.[ detectionMode ] ?? options.initialZoomLevel );
 
 export default class SidewaysGraphNode extends Node {
 
@@ -99,27 +71,12 @@ export default class SidewaysGraphNode extends Node {
 
     super( options );
 
-    const getZoomLevel = ( zoomLevel: ZoomLevelOption | undefined ): number => {
-      if ( zoomLevel === 'max' ) {
-        return MAX_ZOOM_LEVEL;
-      }
-      else if ( typeof zoomLevel === 'number' ) {
-        return zoomLevel;
-      }
-      else {
-        return DEFAULT_ZOOM_LEVEL;
-      }
-    };
-
-    const getModeZoomLevel = ( detectionMode: DetectionMode ): number =>
-      getZoomLevel( options.initialZoomLevels?.[ detectionMode ] ?? options.initialZoomLevel );
-
     this.activeDetectionMode = options.detectionModeProperty ? options.detectionModeProperty.value : null;
 
     const zoomRange = new RangeWithValue(
-      MIN_ZOOM_LEVEL,
-      MAX_ZOOM_LEVEL,
-      this.activeDetectionMode ? getModeZoomLevel( this.activeDetectionMode ) : getZoomLevel( options.initialZoomLevel )
+      MIN_SIDEWAYS_GRAPH_ZOOM_LEVEL,
+      MAX_SIDEWAYS_GRAPH_ZOOM_LEVEL,
+      this.activeDetectionMode ? getModeZoomLevel( this.activeDetectionMode, options ) : getSidewaysGraphZoomLevel( options.initialZoomLevel )
     );
     //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Identical zoomLevelProperty in GraphAccordionBox
     this.zoomLevelProperty = new NumberProperty( zoomRange.defaultValue, {
@@ -129,86 +86,20 @@ export default class SidewaysGraphNode extends Node {
     } );
 
     this.defaultZoomLevelsByDetectionMode = options.detectionModeProperty ? {
-      averageIntensity: getModeZoomLevel( 'averageIntensity' ),
-      hits: getModeZoomLevel( 'hits' )
+      averageIntensity: getModeZoomLevel( 'averageIntensity', options ),
+      hits: getModeZoomLevel( 'hits', options )
     } : null;
     this.zoomLevelsByDetectionMode = this.defaultZoomLevelsByDetectionMode ? {
       averageIntensity: this.defaultZoomLevelsByDetectionMode.averageIntensity,
       hits: this.defaultZoomLevelsByDetectionMode.hits
     } : null;
 
-    this.chartBackground = new Rectangle( 0, 0, GRAPH_WIDTH, GRAPH_HEIGHT, {
-      fill: 'white',
-      stroke: 'black',
-      lineWidth: 1
-    } );
+    this.chartBackground = createSidewaysGraphChartBackground();
+    this.dataPath = createClippedSidewaysGraphDataPath( this.chartBackground );
+    this.intensityCurveStrokePath = createClippedSidewaysGraphStrokePath( this.chartBackground );
 
-    const NUM_HORIZONTAL_DIVISIONS = 10;
-    for ( let i = 1; i < NUM_HORIZONTAL_DIVISIONS; i++ ) {
-      const y = ( i / NUM_HORIZONTAL_DIVISIONS ) * GRAPH_HEIGHT;
-      const isCenterLine = i === NUM_HORIZONTAL_DIVISIONS / 2;
-      this.chartBackground.addChild(
-        new Line( 0, y, GRAPH_WIDTH, y, {
-          stroke: QuantumWaveInterferenceColors.graphGridLineColorProperty,
-          lineWidth: isCenterLine ? 0.75 : 0.5,
-          lineDash: isCenterLine ? [ 4, 4 ] : []
-        } )
-      );
-    }
-
-    const NUM_VERTICAL_DIVISIONS = 4;
-    for ( let i = 1; i < NUM_VERTICAL_DIVISIONS; i++ ) {
-      const x = ( i / NUM_VERTICAL_DIVISIONS ) * GRAPH_WIDTH;
-      this.chartBackground.addChild(
-        new Line( x, 0, x, GRAPH_HEIGHT, {
-          stroke: QuantumWaveInterferenceColors.graphGridLineColorProperty,
-          lineWidth: 0.5
-        } )
-      );
-    }
-
-    this.dataPath = new Path( null, {
-      clipArea: Shape.rectangle( 0, 0, GRAPH_WIDTH, GRAPH_HEIGHT )
-    } );
-    this.dataPath.computeShapeBounds = () => this.chartBackground.bounds;
-
-    this.intensityCurveStrokePath = new Path( null, {
-      clipArea: Shape.rectangle( 0, 0, GRAPH_WIDTH, GRAPH_HEIGHT ),
-      fill: null,
-      lineWidth: 1.5
-    } );
-    this.intensityCurveStrokePath.computeShapeBounds = () => this.chartBackground.bounds;
-
-    const chartBorder = new Rectangle( 0, 0, GRAPH_WIDTH, GRAPH_HEIGHT, {
-      fill: null,
-      stroke: 'black',
-      lineWidth: 1,
-      pickable: false
-    } );
-
-    const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
-      level: this.zoomLevelProperty,
-      max: this.zoomLevelProperty.range.max
-    } );
-
-    const zoomButtonGroup = new PlusMinusZoomButtonGroup( this.zoomLevelProperty, {
-      orientation: 'horizontal',
-      spacing: 0,
-      iconOptions: {
-        scale: 1.2
-      },
-      touchAreaXDilation: 5,
-      touchAreaYDilation: 5,
-      zoomInButtonOptions: {
-        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
-        accessibleContextResponse: zoomLevelResponseProperty
-      },
-      zoomOutButtonOptions: {
-        accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
-        accessibleContextResponse: zoomLevelResponseProperty
-      },
-      tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' )
-    } );
+    const chartBorder = createSidewaysGraphChartBorder();
+    const zoomButtonGroup = createSidewaysGraphZoomButtonGroup( this.zoomLevelProperty, providedOptions.tandem );
     zoomButtonGroup.right = this.chartBackground.right - ZOOM_BUTTON_GROUP_MARGIN;
     zoomButtonGroup.top = this.chartBackground.top + ZOOM_BUTTON_GROUP_MARGIN;
 
@@ -218,7 +109,7 @@ export default class SidewaysGraphNode extends Node {
 
     const axisLabel = new Text( options.axisLabelStringProperty, {
       font: LABEL_FONT,
-      maxWidth: GRAPH_WIDTH
+      maxWidth: SIDEWAYS_GRAPH_WIDTH
     } );
 
     this.addChild( chartNode );
@@ -226,7 +117,7 @@ export default class SidewaysGraphNode extends Node {
 
     axisLabel.localBoundsProperty.link( () => {
       axisLabel.centerX = chartNode.centerX;
-      axisLabel.top = chartNode.bottom + 4;
+      axisLabel.top = chartNode.bottom + AXIS_LABEL_TOP_MARGIN;
     } );
 
     this.sceneProperty = sceneProperty;
@@ -266,6 +157,10 @@ export default class SidewaysGraphNode extends Node {
     }
   }
 
+  /**
+   * Redraws the active graph representation using the current scene, zoom level, and detection mode.
+   * If the graph is hidden, this method intentionally leaves the existing path data in place until the graph is shown.
+   */
   private updateGraph(): void {
     if ( !this.visible ) {
       return;
@@ -282,6 +177,10 @@ export default class SidewaysGraphNode extends Node {
     }
   }
 
+  /**
+   * Paints the hits-mode histogram. Scene hit positions are already normalized to the detector-screen axis,
+   * so this method bins hit x-coordinates into vertical graph bars and scales bar width by the zoom level.
+   */
   private paintHistogram( scene: SidewaysGraphSceneLike ): void {
     this.intensityCurveStrokePath.shape = null;
 
@@ -290,103 +189,47 @@ export default class SidewaysGraphNode extends Node {
       return;
     }
 
-    const bins = new Array<number>( HISTOGRAM_BINS ).fill( 0 );
-    for ( let i = 0; i < scene.hits.length; i++ ) {
-      const rawBinIndex = Math.floor( ( scene.hits[ i ].x + 1 ) / 2 * HISTOGRAM_BINS );
-      const binIndex = Math.max( 0, Math.min( HISTOGRAM_BINS - 1, rawBinIndex ) );
-      bins[ binIndex ]++;
-    }
-
-    const maxZoomLevel = this.zoomLevelProperty.range.max;
-    const zoomStepsFromMax = maxZoomLevel - this.zoomLevelProperty.value;
-    const zoomScale = Math.pow( 2, -zoomStepsFromMax );
-    const binHeight = GRAPH_HEIGHT / HISTOGRAM_BINS;
-
-    const shape = new Shape();
-
-    for ( let i = 0; i < HISTOGRAM_BINS; i++ ) {
-      if ( bins[ i ] > 0 ) {
-        const barWidth = Math.min( GRAPH_WIDTH, bins[ i ] * binHeight * zoomScale );
-        const y = i * binHeight;
-        shape.moveTo( 0, y );
-        shape.lineTo( barWidth, y );
-        shape.lineTo( barWidth, y + binHeight );
-        shape.lineTo( 0, y + binHeight );
-        shape.close();
-      }
-    }
-
-    this.dataPath.shape = shape;
+    this.dataPath.shape = createSidewaysHistogramShape(
+      scene.hits,
+      this.zoomLevelProperty.value,
+      this.zoomLevelProperty.range.max
+    );
     this.dataPath.lineWidth = 0.5;
 
-    if ( scene.sourceType === 'photons' ) {
-      const color = VisibleColor.wavelengthToColor( scene.wavelengthProperty.value );
-      this.dataPath.fill = color.withAlpha( 0.7 );
-      this.dataPath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
-    }
-    else {
-      this.dataPath.fill = QuantumWaveInterferenceColors.particleHistogramFillProperty;
-      this.dataPath.stroke = QuantumWaveInterferenceColors.particleHistogramStrokeProperty;
-    }
+    const graphPaint = getSidewaysGraphPaint( scene, 'histogram' );
+    this.dataPath.fill = graphPaint.fill;
+    this.dataPath.stroke = graphPaint.stroke;
   }
 
+  /**
+   * Paints the average-intensity mode curve. The wave solver supplies probability samples along the detector-screen
+   * axis; this method turns those samples into a filled sideways curve plus a visible stroke path.
+   */
   private paintIntensityCurve( scene: SidewaysGraphSceneLike ): void {
-    const zoomScale = linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
-    const sourceIntensity = scene.intensityProperty ? scene.intensityProperty.value : 1;
-    const detectorPatternFormationFactor = scene.detectorPatternFormationFactorProperty?.value ?? 1;
+    const intensityCurveShapes = createIntensityCurveShapes( scene, this.zoomLevelProperty.value );
 
-    const NUM_SAMPLES = Math.max( 2, roundSymmetric( INTENSITY_SAMPLE_COUNT * INTENSITY_SAMPLE_SCALE ) );
-    const distribution = scene.waveSolver.getDetectorProbabilityDistribution( NUM_SAMPLES );
-    const fillShape = new Shape();
-    const strokeShape = new Shape();
-
-    fillShape.moveTo( 0, 0 );
-
-    for ( let i = 0; i < NUM_SAMPLES; i++ ) {
-      const fraction = ( i + 0.5 ) / NUM_SAMPLES;
-      const intensity = distribution[ i ];
-
-      const viewY = fraction * GRAPH_HEIGHT;
-      const viewX = intensity * sourceIntensity * detectorPatternFormationFactor * GRAPH_WIDTH * zoomScale;
-
-      if ( i === 0 ) {
-        fillShape.lineTo( viewX, 0 );
-        strokeShape.moveTo( viewX, 0 );
-      }
-
-      fillShape.lineTo( viewX, viewY );
-      strokeShape.lineTo( viewX, viewY );
-    }
-
-    const lastX = distribution[ NUM_SAMPLES - 1 ] * sourceIntensity * detectorPatternFormationFactor * GRAPH_WIDTH * zoomScale;
-    fillShape.lineTo( lastX, GRAPH_HEIGHT );
-    fillShape.lineTo( 0, GRAPH_HEIGHT );
-    fillShape.close();
-
-    strokeShape.lineTo( lastX, GRAPH_HEIGHT );
-
-    this.dataPath.shape = fillShape;
+    this.dataPath.shape = intensityCurveShapes.fillShape;
     this.dataPath.lineWidth = 1.5;
     this.dataPath.stroke = null;
 
-    this.intensityCurveStrokePath.shape = strokeShape;
+    this.intensityCurveStrokePath.shape = intensityCurveShapes.strokeShape;
 
-    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Same if-then-else as line 302, but with different constant values.
-    if ( scene.sourceType === 'photons' ) {
-      const color = VisibleColor.wavelengthToColor( scene.wavelengthProperty.value );
-      this.dataPath.fill = color.withAlpha( 0.3 );
-      this.intensityCurveStrokePath.stroke = color.darkerColor( 0.5 ).withAlpha( 0.8 );
-    }
-    else {
-      this.dataPath.fill = QuantumWaveInterferenceColors.particleHistogramFillProperty;
-      this.intensityCurveStrokePath.stroke = QuantumWaveInterferenceColors.particleHistogramStrokeProperty;
-    }
+    const graphPaint = getSidewaysGraphPaint( scene, 'intensityCurve' );
+    this.dataPath.fill = graphPaint.fill;
+    this.intensityCurveStrokePath.stroke = graphPaint.stroke;
   }
 
+  /**
+   * Repaints the graph during the simulation step so continuously changing intensity data stays current.
+   */
   public step(): void {
     this.updateGraph();
   }
 
+  /**
+   * Restores zoom state. For graphs with detection modes, each mode keeps its own zoom level and Reset All returns
+   * both mode-specific levels to their configured defaults.
+   */
   public reset(): void {
     if ( this.defaultZoomLevelsByDetectionMode && this.zoomLevelsByDetectionMode && this.activeDetectionMode ) {
       this.zoomLevelsByDetectionMode.averageIntensity = this.defaultZoomLevelsByDetectionMode.averageIntensity;
