@@ -83,6 +83,13 @@ type MeasurementProjectionSpread = {
   exponent: number;
 };
 
+/**
+ * Returns the y coordinate on a slit aperture that is closest to a sample point.
+ *
+ * Diffraction and causal pass-time calculations use the nearest point on the finite aperture rather
+ * than the slit center so wavefronts originate from the full opening. This pure helper is useful
+ * whenever downstream propagation needs a shortest distance to an aperture segment.
+ */
 function getClosestYOnSlit( y: number, slit: AnalyticalSlit ): number {
   const halfWidth = slit.width / 2;
   const yMin = slit.centerY - halfWidth;
@@ -90,6 +97,13 @@ function getClosestYOnSlit( y: number, slit: AnalyticalSlit ): number {
   return Math.max( yMin, Math.min( yMax, y ) );
 }
 
+/**
+ * Evaluates the model-facing analytical field at one sample point.
+ *
+ * The result includes barrier propagation, detector-record decoherence, and failed-measurement
+ * projections, but does not allocate or mutate solver grid state. Call this when model code needs
+ * the physical FieldSample used for intensity, graph, screen, or representative-complex queries.
+ */
 export function evaluateAnalyticalSample(
   parameters: AnalyticalWaveParameters,
   x: number,
@@ -103,6 +117,14 @@ export function evaluateAnalyticalSample(
   return applyMeasurementProjections( sample, parameters.projections || [], parameters.source, x, y, t );
 }
 
+/**
+ * Evaluates both the model-facing field and the rendering-facing layered field at one sample point.
+ *
+ * The returned sample is the same value evaluateAnalyticalSample would compute. The layered sample
+ * preserves particle-chain bands needed by rasterized wave rendering, especially for High Intensity
+ * which-path records. This pure function is the appropriate entry point for renderers that need both
+ * numerical field data and layer alpha/order data from the same parameters.
+ */
 export function evaluateAnalyticalSamples(
   parameters: AnalyticalWaveParameters,
   x: number,
@@ -132,7 +154,13 @@ export function evaluateAnalyticalSamples(
   };
 }
 
-// TODO: This and every function in this file need documentation. What does it do? How does it work? When would someone want to call it? What are side effects, or it's a pure function, see https://github.com/phetsims/quantum-wave-interference/issues/135
+/**
+ * Converts a gaussian-packet field sample into the layered representation used by renderers.
+ *
+ * Failed-measurement projections are applied before the single layer is created so the rendering path
+ * sees the same attenuated packet as the model-facing sample. This pure helper is called only for
+ * gaussian-packet sources; non-packet sources fall back to a single opaque layer for defensive use.
+ */
 function applyGaussianPacketMeasurementProjectionLayers(
   sample: Extract<FieldSample, { kind: 'field' }>,
   parameters: AnalyticalWaveParameters,
@@ -198,6 +226,13 @@ function evaluateUndecoheredAnalyticalSample(
   }
 }
 
+/**
+ * Returns the latest detector record whose time is causal for a pass time.
+ *
+ * Gaussian-packet projection uses this to select the most recent which-path event that can affect the
+ * packet at the current time. Unlike the plane-wave chain helper, the returned event remains active
+ * after its event time. This helper is pure and returns null when no event has occurred yet.
+ */
 function getDecoherenceEventAtPassTime(
   events: readonly DecoherenceEvent[],
   passTime: number
@@ -282,6 +317,13 @@ function getPlaneWaveDecoherenceChainAtPassTime(
   return null;
 }
 
+/**
+ * Returns the smooth envelope strength for a merged plane-wave detector-record chain.
+ *
+ * The chain is fully active through its interior and tapers only across the first and last half-band
+ * durations. Call this after the chain start/end times are known to convert a retarded pass time into
+ * either projection strength or render-layer alpha. This helper is pure.
+ */
 function getPlaneWaveDecoherenceChainStrength(
   passTime: number,
   chainStartTime: number,
@@ -306,6 +348,14 @@ function getPlaneWaveDecoherenceChainStrength(
   return Math.min( leadingStrength, trailingStrength );
 }
 
+/**
+ * Finds the detector-record chain that causally applies to one slit component at one sample point.
+ *
+ * For downstream plane waves, a detector record belongs to the temporal slice that passed through a
+ * slit at the retarded pass time. This helper computes that pass time from the nearest aperture point
+ * and delegates to getPlaneWaveDecoherenceChainAtPassTime. It is pure and returns null for incident
+ * components, missing slits, or samples outside active detector chains.
+ */
 function getPlaneWaveComponentDecoherenceChain(
   component: FieldComponent,
   events: readonly DecoherenceEvent[],
@@ -337,7 +387,7 @@ function getPlaneWaveComponentDecoherenceChain(
 }
 
 /**
- * Converts an undecohereed plane-wave field sample into renderable particle-chain layers.
+ * Converts an undecohered plane-wave field sample into renderable particle-chain layers.
  *
  * For samples with no active detector chain, the original components are returned in one opaque layer.
  * For samples inside a detected particle chain, only the selected slit component is emitted, and its
@@ -404,6 +454,14 @@ function applyPlaneWaveDecoherenceEventLayers(
   };
 }
 
+/**
+ * Applies which-path detector records to a model-facing field sample.
+ *
+ * Detector records preserve the selected slit component and attenuate the other slit component. For
+ * gaussian packets the latest causal record projects the whole packet, while for plane waves the
+ * projection is restricted to the retarded temporal chain for each component. This pure helper is
+ * called after the undecohered source/barrier field has been evaluated.
+ */
 function applyDecoherenceEvent(
   sample: FieldSample,
   parameters: AnalyticalWaveParameters,
@@ -477,6 +535,13 @@ function applyDecoherenceEvent(
   };
 }
 
+/**
+ * Evaluates the field emitted by a packet that was re-created at a selected slit after detection.
+ *
+ * Single Particles can replace the original packet with a new source centered on the selected aperture.
+ * This pure helper shifts the source time/origin to the re-emission event, blocks samples before the
+ * event or behind the aperture, and otherwise evaluates direct aperture or downstream diffracted field.
+ */
 function evaluateGaussianPacketReEmissionSample(
   source: GaussianPacketSource,
   reEmission: GaussianPacketReEmission,
@@ -550,6 +615,14 @@ function evaluateGaussianPacketReEmissionSample(
     { kind: 'unreached' };
 }
 
+/**
+ * Evaluates source propagation through a double-slit barrier at one sample point.
+ *
+ * Samples before the barrier use the incident source field, samples on closed barrier material become
+ * absorbed/blocked, and downstream samples sum one diffracted component for each open slit that the
+ * source can reach. This pure helper intentionally does not apply detector decoherence or measurement
+ * projections; callers layer those effects afterward.
+ */
 function evaluateDoubleSlitSample(
   source: AnalyticalSource,
   barrier: Extract<AnalyticalBarrier, { kind: 'doubleSlit' }>,
@@ -619,6 +692,14 @@ function evaluateDoubleSlitSample(
   return hasReachablePath ? { kind: 'field', components: [] } : { kind: 'unreached' };
 }
 
+/**
+ * Evaluates a single diffracted slit contribution downstream of an aperture.
+ *
+ * Plane waves use a Fresnel aperture transfer multiplied by the source envelope and barrier phase.
+ * Gaussian packets additionally sample the spreading packet envelope/chirp at the aperture so the
+ * downstream wavelength and transverse weighting remain stable. This pure helper returns null when
+ * the source or path has not reached the sample.
+ */
 function evaluateDiffractedComponent(
   source: AnalyticalSource,
   slit: AnalyticalSlit,
@@ -691,6 +772,13 @@ function evaluateDiffractedComponent(
   };
 }
 
+/**
+ * Evaluates an undiffracted source component at one sample point or aperture point.
+ *
+ * Plane-wave sources return a phase/envelope based on path length and emission time. Gaussian-packet
+ * sources return the current spreading packet envelope with chirp and support information. Call this
+ * for incident fields and for samples located directly on an open aperture. This helper is pure.
+ */
 function evaluateSourceComponent(
   source: AnalyticalSource,
   componentSource: FieldComponentSource,
@@ -750,6 +838,13 @@ function evaluateSourceComponent(
   };
 }
 
+/**
+ * Computes the instantaneous spreading state for a gaussian packet.
+ *
+ * The returned center, widths, normalization, and chirp terms are derived only from the immutable
+ * source parameters and time. This pure helper centralizes packet spreading math for direct and
+ * diffracted packet evaluation.
+ */
 function getGaussianPacketState( source: GaussianPacketSource, t: number ): GaussianPacketState {
   const longitudinalSpreadTime = Math.max( source.longitudinalSpreadTime, EPSILON );
   const transverseSpreadTime = Math.max( source.transverseSpreadTime, EPSILON );
@@ -768,6 +863,13 @@ function getGaussianPacketState( source: GaussianPacketSource, t: number ): Gaus
   };
 }
 
+/**
+ * Returns the emission envelope for a plane wave along a path of known length.
+ *
+ * The envelope is zero before the source start wavefront can causally reach the path, then optionally
+ * ramps on with edgeTaperDistance. Call this before evaluating plane-wave phase so unreached samples
+ * can be omitted without mutating any solver state.
+ */
 function getPlaneEmissionEnvelope( source: PlaneWaveSource, pathLength: number, t: number ): number {
   if ( source.startTime === null || source.speed <= 0 ) {
     return 0;
@@ -786,6 +888,13 @@ function getPlaneEmissionEnvelope( source: PlaneWaveSource, pathLength: number, 
   return smoothStep( 0, taperTime, emissionTime - source.startTime );
 }
 
+/**
+ * Reports whether a source could have reached a path at the current time.
+ *
+ * Gaussian packets are considered reachable whenever their source is active because their finite
+ * envelope cutoff is handled by component evaluators. Plane waves use the causal emission envelope.
+ * This pure helper is used to distinguish unreached background from reached zero-amplitude field.
+ */
 function isPathReachable( source: AnalyticalSource, pathLength: number, t: number ): boolean {
   if ( source.kind === 'gaussianPacket' ) {
     return source.isActive;
@@ -794,6 +903,14 @@ function isPathReachable( source: AnalyticalSource, pathLength: number, t: numbe
   return getPlaneEmissionEnvelope( source, pathLength, t ) > 0;
 }
 
+/**
+ * Applies failed-measurement projection masks to a gaussian-packet field sample.
+ *
+ * Each active projection multiplies all components by its local mask and renormalization scale, so
+ * both probability amplitude and support are attenuated consistently. Plane waves and non-field
+ * samples are returned unchanged. This function is pure and creates new components only when the
+ * accumulated scale changes the sample.
+ */
 function applyMeasurementProjections(
   sample: FieldSample,
   projections: MeasurementProjection[],
@@ -844,6 +961,13 @@ function applyMeasurementProjections(
   };
 }
 
+/**
+ * Computes the local multiplicative mask for one failed-measurement projection.
+ *
+ * At the measurement instant, the mask removes amplitude inside the detector disk with optional
+ * boundary feathering. Afterward, the deficit advects with the packet and spreads as a centered
+ * super-Gaussian so the visual bite fills in over time. This helper is pure.
+ */
 function getMeasurementProjectionMask(
   projection: MeasurementProjection,
   source: GaussianPacketSource,
@@ -870,6 +994,13 @@ function getMeasurementProjectionMask(
   return getInitialMeasurementProjectionMask( distance, projectionRadius, edgeFeather );
 }
 
+/**
+ * Computes the instantaneous detector-disk mask for a failed measurement.
+ *
+ * The saturated gaussian deficit suppresses the detector center while the optional feather blends
+ * back to an unchanged mask at the detector boundary. Call this only for samples inside the detector
+ * radius at measurement time. This helper is pure.
+ */
 function getInitialMeasurementProjectionMask(
   distance: number,
   projectionRadius: number,
@@ -887,6 +1018,13 @@ function getInitialMeasurementProjectionMask(
   return localMask + ( 1 - localMask ) * boundaryBlend;
 }
 
+/**
+ * Computes the spreading shape parameters for an old failed-measurement deficit.
+ *
+ * The spread time scales with detector radius relative to the packet width, while the exponent relaxes
+ * from a steep disk-like super-Gaussian toward a normal Gaussian as the deficit expands. The returned
+ * values are used by getMeasurementProjectionMask and are pure derived data.
+ */
 function getMeasurementProjectionSpread(
   source: GaussianPacketSource,
   projectionRadius: number,
