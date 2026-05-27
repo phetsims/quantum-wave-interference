@@ -25,12 +25,13 @@ import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import { getDisplaySlitLayout } from '../../common/getDisplaySlitLayout.js';
 import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
+import AnalyticalWavePacketSolver from '../../common/model/AnalyticalWavePacketSolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
-import { createWavePacketSolver } from '../../common/model/createWaveSolver.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCDF.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 
 export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as const;
 export type DetectorToolState = typeof DetectorToolStateValues[number];
@@ -135,7 +136,10 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public constructor( providedOptions: SingleParticlesSceneModelOptions ) {
 
-    super( createWavePacketSolver(), combineOptions<BaseSceneModelOptions>( {
+    super( new AnalyticalWavePacketSolver(
+      QuantumWaveInterferenceQueryParameters.waveSolverGridSize,
+      QuantumWaveInterferenceQueryParameters.waveSolverGridSize
+    ), combineOptions<BaseSceneModelOptions>( {
       slitSeparationConfig: SINGLE_PARTICLES_SLIT_SEPARATION_CONFIGS[ providedOptions.sourceType ]
     }, providedOptions ) );
 

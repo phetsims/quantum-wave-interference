@@ -18,12 +18,13 @@ import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
+import AnalyticalWaveSolver from '../../common/model/AnalyticalWaveSolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
-import { createContinuousWaveSolver } from '../../common/model/createWaveSolver.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 
 // Detector-screen hit dots created per model second in Hits mode.
 export const DETECTOR_SCREEN_HIT_RATE = 40;
@@ -93,7 +94,10 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   public constructor( providedOptions: HighIntensitySceneModelOptions ) {
 
-    super( createContinuousWaveSolver(), combineOptions<BaseSceneModelOptions>( {
+    super( new AnalyticalWaveSolver(
+      QuantumWaveInterferenceQueryParameters.waveSolverGridSize,
+      QuantumWaveInterferenceQueryParameters.waveSolverGridSize
+    ), combineOptions<BaseSceneModelOptions>( {
       slitSeparationConfig: HIGH_INTENSITY_SLIT_SEPARATION_CONFIGS[ providedOptions.sourceType ]
     }, providedOptions ) );
 
