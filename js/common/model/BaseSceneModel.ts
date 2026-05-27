@@ -457,7 +457,16 @@ export default abstract class BaseSceneModel extends PhetioObject {
     }
   }
 
-  // TODO: Document when called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Creates the decoherence event for a slit-detector interaction at the provided solver time. Called by subclasses when
+   * their screen-specific timing logic determines that the wave or wave packet has reached the slits. This method chooses
+   * the slit that the interaction collapses to from the currently open slits, records the detector hit only when the
+   * selected slit has a detector, and leaves all model mutation to the caller.
+   *
+   * @param slitConfiguration - current slit configuration, used to determine detector placement
+   * @param time - solver time when the slit-detector interaction occurs
+   * @returns the event to apply to the scene, or null when no detector event can occur
+   */
   protected createDecoherenceEventForSlitConfiguration(
     slitConfiguration: SlitConfigurationWithNoBarrier,
     time: number
