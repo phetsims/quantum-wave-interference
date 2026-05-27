@@ -1,14 +1,14 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * RightControlsColumn is the right-side controls column shared by the High Intensity and
- * Single Particles screens. The column contains (top to bottom):
+ * DetectorScreenControls is the shared detector-screen controls group for the High Intensity and
+ * Single Particles screens. The main controls panel contains (top to bottom):
  * - Screen controls panel (screen/graph switch + optional extra children + brightness + snapshot buttons)
  * - Tools panel (screen-specific checkboxes)
  *
  * Screen-specific content is injected via options: additional children for the screen controls panel
  * (e.g., detection mode radio buttons on High Intensity) and the tool checkbox list.
- * The lower-right controls are exposed as separate Nodes so their positions can stay fixed when panel heights change.
+ * The lower controls are exposed as separate Nodes so their positions can stay fixed when panel heights change.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -45,7 +45,7 @@ import SnapshotsDialog from './SnapshotsDialog.js';
 import ViewSnapshotsButton from './ViewSnapshotsButton.js';
 import WaveDisplaySection from './WaveDisplaySection.js';
 
-export type RightControlsModel = {
+export type DetectorScreenControlsModel = {
   sceneProperty: TReadOnlyProperty<{ sourceType: string }>;
   currentScreenBrightnessProperty: PhetioProperty<number>;
   currentSnapshotsProperty: TReadOnlyProperty<Snapshot[]>;
@@ -60,7 +60,7 @@ export type RightControlsModel = {
   deleteSnapshot( snapshot: Snapshot ): void;
 };
 
-export type RightControlsColumnOptions = {
+export type DetectorScreenControlsOptions = {
 
   // false = detector screen, true = graph
   screenGraphVisibleProperty: BooleanProperty;
@@ -88,18 +88,17 @@ export type RightControlsColumnOptions = {
   slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
 };
 
-// TODO: Rename more related to what it is about, rather than where it will be located. See https://github.com/phetsims/quantum-wave-interference/issues/135
-export default class RightControlsColumn extends VBox {
+export default class DetectorScreenControls extends VBox {
 
   public readonly bottomButtonsRow: HBox;
   public readonly waveDisplayAndTimeControlsGroup: VBox;
   private readonly resetAllButton: ResetAllButton;
 
   public constructor(
-    model: RightControlsModel,
+    model: DetectorScreenControlsModel,
     listParent: Node,
     tandem: Tandem,
-    options: RightControlsColumnOptions
+    options: DetectorScreenControlsOptions
   ) {
 
     const rightPanelWidth = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH;

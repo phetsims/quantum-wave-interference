@@ -100,7 +100,7 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly DETECTOR_SCREEN_SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH *
                                                 Math.tan( QuantumWaveInterferenceConstants.DETECTOR_SCREEN_ANGLE_DEGREES * Math.PI / 180 );
 
-  // Shared right controls panel dimensions.
+  // Shared detector-screen controls panel dimensions.
   public static readonly RIGHT_PANEL_WIDTH = 180;
   public static readonly RIGHT_PANEL_X_MARGIN = 10;
   public static readonly RIGHT_PANEL_CONTENT_WIDTH = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH -
@@ -112,7 +112,7 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly ERASER_BUTTON_MIN_WIDTH = 41.4;
   public static readonly ERASER_BUTTON_MIN_HEIGHT = 28.98;
 
-  // Fixed spacing for the High Intensity and Single Particles bottom-right controls.
+  // Fixed spacing for the High Intensity and Single Particles lower detector-screen controls.
   public static readonly WAVE_DISPLAY_AND_TIME_CONTROLS_SPACING = 24;
   public static readonly WAVE_DISPLAY_AND_TIME_CONTROLS_BOTTOM_OFFSET = 30;
 

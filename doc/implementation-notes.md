@@ -67,7 +67,7 @@ screens:
 
 Shared parent Nodes in `js/common/view/` assemble shared UI patterns:
 - `WaveRegionNode`: Wave visualization + double slit for any screen.
-- `RightControlsColumn`: Right-side control panel with screen controls, tools, wave
+- `DetectorScreenControls`: Detector-screen controls with screen controls, tools, wave
   display, time controls, and reset.
 - `SlitConfigurationControlsRow`: Barrier combo box + slit controls, positioned below the wave
   region.
@@ -118,7 +118,7 @@ coherence with the other slit, eliminating interference from that slit's contrib
 - **Main area**: Wave visualization region, double slit (when barrier is "Double slit"), detector
   screen with intensity/hits rendering.
 - **Left controls**: Source control panel, scene radio buttons, particle mass annotation.
-- **Right controls**: Detection mode radio buttons, screen controls, tool checkboxes (intensity
+- **Detector screen controls**: Detection mode radio buttons, screen controls, tool checkboxes (intensity
   graph, tape measure, stopwatch, time plot, position plot), wave display combo box, time controls
   (Slow/Normal/Fast), reset all.
 

@@ -4,7 +4,7 @@
  * HighIntensityScreenView is the top-level view for the High Intensity screen. It contains:
  * - Left controls: source controls panel, scene radio buttons, barrier combo box, slit controls
  * - Center: emitter source, wave visualization region (black rectangle), detector screen (skewed parallelogram)
- * - Right controls: screen controls (erase/camera/snapshots), detection mode, brightness,
+ * - Detector screen controls: screen controls (erase/camera/snapshots), detection mode, brightness,
  *   tools checkboxes, wave display combo box, time controls, reset all
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -31,7 +31,7 @@ import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
-import RightControlsColumn from '../../common/view/RightControlsColumn.js';
+import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraph from '../../common/view/SidewaysGraph.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
@@ -126,7 +126,7 @@ export default class HighIntensityScreenView extends ScreenView {
     const accessibleResponses = new HighIntensityAccessibleResponses( model, accessibleStateDescriber );
 
     // Keep this top-level sequence aligned with the visual layers: source controls, wave region,
-    // detector readouts, right controls, tools, and accessible description.
+    // detector readouts, detector screen controls, tools, and accessible description.
     const sourceControlNodes = this.createAndAddSourceControls( model, tandem );
     const waveRegionLayout = this.createWaveRegionLayout( sourceControlNodes.leftColumnWidth );
     const topRowBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - X_MARGIN );
@@ -146,7 +146,7 @@ export default class HighIntensityScreenView extends ScreenView {
     const bottomRow = this.createAndAddSlitControls( model, waveRegionLayout, tandem );
     this.sidewaysGraphNode = this.createAndAddSidewaysGraph( model, this.detectorScreenNode, waveRegionLayout, tandem );
 
-    const rightControlsColumn = this.createAndAddRightControls(
+    const detectorScreenControls = this.createAndAddDetectorScreenControls(
       model,
       accessibleResponses,
       this.sidewaysGraphNode,
@@ -165,11 +165,11 @@ export default class HighIntensityScreenView extends ScreenView {
       sourceControlNodes.sourceControlPanel,
       sourceControlNodes.sceneRadioButtonGroup,
       bottomRow,
-      rightControlsColumn
+      detectorScreenControls
     );
 
     this.addChild( accessibleResponses );
-    this.setHighIntensityPDOMOrder( screenViewDescription, measurementToolNodes.measurementToolsNode, rightControlsColumn );
+    this.setHighIntensityPDOMOrder( screenViewDescription, measurementToolNodes.measurementToolsNode, detectorScreenControls );
   }
 
   /**
@@ -246,7 +246,7 @@ export default class HighIntensityScreenView extends ScreenView {
    * @param model - the screen model that owns source, barrier, and slit state
    * @param leftColumnCenterX - horizontal center for the source controls column
    * @param waveRegionLayout - coordinates for the main wave region
-   * @param topRowBeamRightLimitXProperty - mutable right limit that responds to the right controls width
+   * @param topRowBeamRightLimitXProperty - mutable right limit that responds to the detector-screen controls width
    * @param tandem - parent tandem for child instrumentation
    * @returns the top row node, used for particle-mass annotation layout and accessible description
    */
@@ -442,30 +442,30 @@ export default class HighIntensityScreenView extends ScreenView {
   }
 
   /**
-   * Creates and positions the right controls, including detector controls, tool checkboxes, time controls,
+   * Creates and positions the detector screen controls, including detector controls, tool checkboxes, time controls,
    * and reset buttons.
    *
-   * @param model - the screen model that owns right-panel control state
+   * @param model - the screen model that owns detector-screen control state
    * @param accessibleResponses - response node used for clear-screen alerts
-   * @param sidewaysGraphNode - graph node reset by the right-panel reset action
+   * @param sidewaysGraphNode - graph node reset by the detector-screen controls reset action
    * @param detectorScreenNode - detector screen node used for snapshot flash and reset
    * @param topRowBeamRightLimitXProperty - mutable right limit for the top-row beam callout
    * @param tandem - parent tandem for child instrumentation
-   * @returns the right controls column, used by layout and accessible description
+   * @returns the detector screen controls, used by layout and accessible description
    */
-  private createAndAddRightControls(
+  private createAndAddDetectorScreenControls(
     model: HighIntensityModel,
     accessibleResponses: HighIntensityAccessibleResponses,
     sidewaysGraphNode: SidewaysGraph,
     detectorScreenNode: DetectorScreenNode,
     topRowBeamRightLimitXProperty: NumberProperty,
     tandem: Tandem
-  ): RightControlsColumn {
+  ): DetectorScreenControls {
     const detectionModeRadioButtonGroupBox = this.createDetectionModeRadioButtonGroupBox( model, tandem );
     const { tapeMeasureCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
       createStandardToolCheckboxes( model, tandem );
 
-    const rightControlsColumn = new RightControlsColumn( model, this, tandem, {
+    const detectorScreenControls = new DetectorScreenControls( model, this, tandem, {
       screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,
       additionalScreenControlChildren: [ detectionModeRadioButtonGroupBox ],
       toolCheckboxes: [
@@ -485,28 +485,28 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     } );
 
-    this.addChild( rightControlsColumn );
+    this.addChild( detectorScreenControls );
 
-    ManualConstraint.create( this, [ rightControlsColumn ], rightControlsColumnProxy => {
-      rightControlsColumnProxy.right = this.layoutBounds.maxX - X_MARGIN;
-      rightControlsColumnProxy.top = Y_MARGIN;
-      topRowBeamRightLimitXProperty.value = rightControlsColumnProxy.left - TOP_ROW_BEAM_RIGHT_PANEL_GAP;
+    ManualConstraint.create( this, [ detectorScreenControls ], detectorScreenControlsProxy => {
+      detectorScreenControlsProxy.right = this.layoutBounds.maxX - X_MARGIN;
+      detectorScreenControlsProxy.top = Y_MARGIN;
+      topRowBeamRightLimitXProperty.value = detectorScreenControlsProxy.left - TOP_ROW_BEAM_RIGHT_PANEL_GAP;
     } );
 
-    this.addChild( rightControlsColumn.bottomButtonsRow );
+    this.addChild( detectorScreenControls.bottomButtonsRow );
 
     const rightPanelCenterX = this.layoutBounds.maxX - X_MARGIN - QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH / 2;
-    this.addChild( rightControlsColumn.waveDisplayAndTimeControlsGroup );
+    this.addChild( detectorScreenControls.waveDisplayAndTimeControlsGroup );
 
-    ManualConstraint.create( this, [ rightControlsColumn.bottomButtonsRow ], () => {
-      rightControlsColumn.positionBottomButtonsRow( this.layoutBounds.maxX - X_MARGIN, this.layoutBounds.maxY - Y_MARGIN );
+    ManualConstraint.create( this, [ detectorScreenControls.bottomButtonsRow ], () => {
+      detectorScreenControls.positionBottomButtonsRow( this.layoutBounds.maxX - X_MARGIN, this.layoutBounds.maxY - Y_MARGIN );
     } );
 
-    ManualConstraint.create( this, [ rightControlsColumn.bottomButtonsRow, rightControlsColumn.waveDisplayAndTimeControlsGroup ], () => {
-      rightControlsColumn.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN );
+    ManualConstraint.create( this, [ detectorScreenControls.bottomButtonsRow, detectorScreenControls.waveDisplayAndTimeControlsGroup ], () => {
+      detectorScreenControls.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN );
     } );
 
-    return rightControlsColumn;
+    return detectorScreenControls;
   }
 
   /**
@@ -546,7 +546,7 @@ export default class HighIntensityScreenView extends ScreenView {
    * @param sourceControlPanel - source controls included in the source description
    * @param sceneRadioButtonGroup - scene controls included in the source description
    * @param bottomRow - slit controls included in the slit description
-   * @param rightControlsColumn - detector controls included in the detector-screen description
+   * @param detectorScreenControls - detector controls included in the detector-screen description
    * @returns the description node used for PDOM order
    */
   private createAndAddScreenViewDescription(
@@ -555,7 +555,7 @@ export default class HighIntensityScreenView extends ScreenView {
     sourceControlPanel: SourceControlPanel<HighIntensitySceneModel>,
     sceneRadioButtonGroup: SceneRadioButtonGroup<HighIntensitySceneModel>,
     bottomRow: SlitConfigurationControlsRow<SlitConfigurationWithNoBarrier>,
-    rightControlsColumn: RightControlsColumn
+    detectorScreenControls: DetectorScreenControls
   ): QuantumWaveInterferenceScreenViewDescription {
     const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
       model,
@@ -565,7 +565,7 @@ export default class HighIntensityScreenView extends ScreenView {
         includeExperimentSetupDetails: false,
         sourceNodes: [ topRowNode, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow ],
-        detectorScreenControlNodes: [ rightControlsColumn ]
+        detectorScreenControlNodes: [ detectorScreenControls ]
       }
     );
     this.addChild( screenViewDescription );
@@ -578,12 +578,12 @@ export default class HighIntensityScreenView extends ScreenView {
    *
    * @param screenViewDescription - description node that owns the heading nodes
    * @param measurementToolsNode - measurement tools layer included in play-area order
-   * @param rightControlsColumn - right controls column whose detached groups are in the control-area order
+   * @param detectorScreenControls - detector-screen controls whose detached groups are in the control-area order
    */
   private setHighIntensityPDOMOrder(
     screenViewDescription: QuantumWaveInterferenceScreenViewDescription,
     measurementToolsNode: MeasurementToolsLayerNode,
-    rightControlsColumn: RightControlsColumn
+    detectorScreenControls: DetectorScreenControls
   ): void {
     this.pdomPlayAreaNode.pdomOrder = [
       screenViewDescription.sourceHeadingNode,
@@ -594,8 +594,8 @@ export default class HighIntensityScreenView extends ScreenView {
 
     this.pdomControlAreaNode.pdomOrder = [
       screenViewDescription.detectorScreenHeadingNode,
-      rightControlsColumn.waveDisplayAndTimeControlsGroup,
-      rightControlsColumn.bottomButtonsRow
+      detectorScreenControls.waveDisplayAndTimeControlsGroup,
+      detectorScreenControls.bottomButtonsRow
     ];
   }
 

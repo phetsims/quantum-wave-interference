@@ -22,7 +22,7 @@ import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
-import RightControlsColumn from '../../common/view/RightControlsColumn.js';
+import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SidewaysGraph from '../../common/view/SidewaysGraph.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
@@ -204,7 +204,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     );
     this.addChild( detectorToolNode );
 
-    // --- Right controls (shared factory) ---
+    // --- Detector screen controls ---
 
     const { tapeMeasureCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
       createStandardToolCheckboxes( model, tandem );
@@ -215,7 +215,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       detectorCheckbox.visible = isAvailable;
     } );
 
-    const rightControlsColumn = new RightControlsColumn( model, this, tandem, {
+    const detectorScreenControls = new DetectorScreenControls( model, this, tandem, {
       screenGraphVisibleProperty: model.isHitsGraphVisibleProperty,
       additionalScreenControlChildren: [],
       toolCheckboxes: [
@@ -237,24 +237,24 @@ export default class SingleParticlesScreenView extends ScreenView {
       }
     } );
 
-    this.addChild( rightControlsColumn );
+    this.addChild( detectorScreenControls );
 
-    ManualConstraint.create( this, [ rightControlsColumn ], rightControlsColumnProxy => {
-      rightControlsColumnProxy.right = this.layoutBounds.maxX - X_MARGIN;
-      rightControlsColumnProxy.top = Y_MARGIN;
+    ManualConstraint.create( this, [ detectorScreenControls ], detectorScreenControlsProxy => {
+      detectorScreenControlsProxy.right = this.layoutBounds.maxX - X_MARGIN;
+      detectorScreenControlsProxy.top = Y_MARGIN;
     } );
 
-    this.addChild( rightControlsColumn.bottomButtonsRow );
+    this.addChild( detectorScreenControls.bottomButtonsRow );
 
     const rightPanelCenterX = this.layoutBounds.maxX - X_MARGIN - QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH / 2;
-    this.addChild( rightControlsColumn.waveDisplayAndTimeControlsGroup );
+    this.addChild( detectorScreenControls.waveDisplayAndTimeControlsGroup );
 
-    ManualConstraint.create( this, [ rightControlsColumn.bottomButtonsRow ], () => {
-      rightControlsColumn.positionBottomButtonsRow( this.layoutBounds.maxX - X_MARGIN, this.layoutBounds.maxY - Y_MARGIN );
+    ManualConstraint.create( this, [ detectorScreenControls.bottomButtonsRow ], () => {
+      detectorScreenControls.positionBottomButtonsRow( this.layoutBounds.maxX - X_MARGIN, this.layoutBounds.maxY - Y_MARGIN );
     } );
 
-    ManualConstraint.create( this, [ rightControlsColumn.bottomButtonsRow, rightControlsColumn.waveDisplayAndTimeControlsGroup ], () => {
-      rightControlsColumn.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN );
+    ManualConstraint.create( this, [ detectorScreenControls.bottomButtonsRow, detectorScreenControls.waveDisplayAndTimeControlsGroup ], () => {
+      detectorScreenControls.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN );
     } );
 
     const measurementToolsNode = new MeasurementToolsLayerNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
@@ -269,7 +269,7 @@ export default class SingleParticlesScreenView extends ScreenView {
         slitOrientation: 'topBottom',
         sourceNodes: [ emitterNode, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow ],
-        detectorScreenControlNodes: [ rightControlsColumn ]
+        detectorScreenControlNodes: [ detectorScreenControls ]
       }
     );
     this.addChild( screenViewDescription );
@@ -285,8 +285,8 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     this.pdomControlAreaNode.pdomOrder = [
       screenViewDescription.detectorScreenHeadingNode,
-      rightControlsColumn.waveDisplayAndTimeControlsGroup,
-      rightControlsColumn.bottomButtonsRow
+      detectorScreenControls.waveDisplayAndTimeControlsGroup,
+      detectorScreenControls.bottomButtonsRow
     ];
   }
 
