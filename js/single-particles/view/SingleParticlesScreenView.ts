@@ -24,6 +24,7 @@ import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
+import resetDetectorScreenView from '../../common/view/resetDetectorScreenView.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
@@ -228,13 +229,12 @@ export default class SingleParticlesScreenView extends ScreenView {
       clearScreen: () => model.sceneProperty.value.clearScreen(),
       onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash(),
       onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
-      // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate of resetView in HighIntensityScreenView
-      resetView: () => {
-        this.detectorPatternGraphLayerNode.reset();
-        this.timePlotNode.reset();
-        this.positionPlotNode.reset();
-        this.detectorScreenNode.clearFlash();
-      }
+      resetView: () => resetDetectorScreenView(
+        this.detectorPatternGraphLayerNode,
+        this.timePlotNode,
+        this.positionPlotNode,
+        this.detectorScreenNode
+      )
     } );
 
     this.addChild( detectorScreenControls );

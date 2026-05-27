@@ -34,6 +34,7 @@ import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
+import resetDetectorScreenView from '../../common/view/resetDetectorScreenView.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
@@ -466,12 +467,12 @@ export default class HighIntensityScreenView extends ScreenView {
       clearScreen: () => accessibleResponses.clearScreenAndEmitResponse( () => model.sceneProperty.value.clearScreen() ),
       onSnapshotCaptured: () => detectorScreenNode.startSnapshotFlash(),
       onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
-      resetView: () => {
-        detectorPatternGraphLayerNode.reset();
-        this.timePlotNode.reset();
-        this.positionPlotNode.reset();
-        detectorScreenNode.clearFlash();
-      }
+      resetView: () => resetDetectorScreenView(
+        detectorPatternGraphLayerNode,
+        this.timePlotNode,
+        this.positionPlotNode,
+        detectorScreenNode
+      )
     } );
 
     this.addChild( detectorScreenControls );
