@@ -1,10 +1,21 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * WaveVisualizationCanvasNode renders field samples from the wave solver onto the wave visualization
- * region using a CanvasNode. It uses the solver's explicit FieldSample status instead of inferring
- * status from zero amplitude, so dark interference nodes are rendered as reached field rather than
- * neutral background.
+ * WaveVisualizationCanvasNode renders the active scene's wave solver samples into the rectangular
+ * wave visualization region. It samples the solver grid once per paint, converts each model-level
+ * FieldSample or LayeredFieldSample into RGBA bytes, writes those bytes to an offscreen ImageData,
+ * then scales the offscreen canvas to the view size. Rendering at solver resolution avoids allocating
+ * one Scenery Node per sample and keeps per-frame work predictable.
+ *
+ * The color mapping depends on the source and wave display mode. Photon scenes use the visible color
+ * for the current wavelength, while matter-particle scenes use a neutral gray base color. The active
+ * display mode determines whether the sampled complex amplitudes are shown as intensity, magnitude,
+ * real part, imaginary part, or electric field.
+ *
+ * The renderer uses the solver's explicit FieldSample status instead of inferring status from zero
+ * amplitude, so dark interference nodes are rendered as reached field rather than neutral background.
+ * Solvers that expose layered samples can return transparent wave layers; those layers are composited
+ * in the rasterizer and allow the black wave-region background behind this canvas to show through.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -21,10 +32,9 @@ const MATTER_BASE_R = 200;
 const MATTER_BASE_G = 200;
 const MATTER_BASE_B = 200;
 
-// TODO: Document appropriately, see https://github.com/phetsims/quantum-wave-interference/issues/135
-
 export default class WaveVisualizationCanvasNode extends CanvasNode {
 
+  // Background color shared by the backing Rectangle in parent nodes so transparent layered samples reveal black.
   public static readonly BACKGROUND_COLOR = Color.BLACK;
 
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
@@ -39,6 +49,11 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
   private cachedG = 0;
   private cachedB = 0;
 
+  /**
+   * @param sceneProperty - active wave-visualizable scene whose solver and display settings are rendered
+   * @param viewWidth - width of the display region in view coordinates
+   * @param viewHeight - height of the display region in view coordinates
+   */
   public constructor( sceneProperty: TReadOnlyProperty<WaveVisualizableScene>, viewWidth: number, viewHeight: number ) {
     super( {
       isDisposable: false,
@@ -50,6 +65,11 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
     this.viewHeight = viewHeight;
   }
 
+  /**
+   * Repaints the wave field for the current scene. This method mutates only this node's reusable
+   * canvas caches and the provided CanvasRenderingContext2D; parent nodes are responsible for calling
+   * invalidatePaint when scene state changes.
+   */
   public paintCanvas( context: CanvasRenderingContext2D ): void {
     const scene = this.sceneProperty.value;
 
