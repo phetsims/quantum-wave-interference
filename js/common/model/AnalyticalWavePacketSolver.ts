@@ -34,8 +34,19 @@ const copyPacketReEmission = ( reEmission: GaussianPacketReEmission ): GaussianP
 
 export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver {
 
-  // TODO: Add JSDoc to every property in this whole file, see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Detector-tool measurement projections that have been applied to the current emitted packet. Each projection
+   * suppresses the wave inside the failed-detection region after its measurement time, then renormalizes the
+   * remaining packet intensity. The array instance is retained so kernel parameters can safely reference it while
+   * entries are cleared or replaced during reset and state restore.
+   */
   private readonly measurementProjections: MeasurementProjection[] = [];
+
+  /**
+   * Description of the packet re-emitted from a selected slit after an initial interaction with the barrier. When this
+   * changes to a new event time, any existing measurement projections are discarded because they belonged to the
+   * previously emitted packet.
+   */
   private packetReEmission: GaussianPacketReEmission | null = null;
 
   /**
