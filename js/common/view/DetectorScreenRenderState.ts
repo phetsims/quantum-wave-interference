@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Frozen detector-screen data needed by the Experiment detector renderer.
+ * Read-only detector-screen data needed by the Experiment detector renderer.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -16,7 +16,10 @@ export type DetectorScreenHit = {
   readonly y: number;
 };
 
-// TODO: Should we use a pattern like Snapshot.ts? If not, document why, see https://github.com/phetsims/quantum-wave-interference/issues/135
+// This intentionally remains a structural TypeScript type instead of following the SchemaOrientedIOType pattern in
+// Snapshot.ts. Snapshot is captured model state stored in PhET-iO, so it needs a schema and IOType. This render state is
+// a transient view contract assembled from either live model state or a Snapshot immediately before painting; it is not
+// stored, restored, or exposed as a PhET-iO value.
 export type DetectorScreenRenderState = {
   readonly detectionMode: DetectionMode;
   readonly sourceType: SourceType;
