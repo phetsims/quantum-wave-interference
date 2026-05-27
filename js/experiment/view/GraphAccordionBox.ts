@@ -14,7 +14,6 @@ import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
 import { linear } from '../../../../dot/js/util/linear.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
@@ -28,6 +27,7 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AccordionBox from '../../../../sun/js/AccordionBox.js';
+import { createDetectorPatternGraphZoomLevelProperty } from '../../common/view/DetectorPatternGraphPlotUtils.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -84,14 +84,7 @@ export default class GraphAccordionBox extends Node {
 
     this.detectorScreenScaleIndexProperty = options.detectorScreenScaleIndexProperty;
 
-    // Zoom level for the y-axis.
-    // Start two steps below the maximum zoom so the graph opens less magnified by default.
-    const zoomRange = new RangeWithValue( 1, 6, 4 );
-    this.zoomLevelProperty = new NumberProperty( zoomRange.defaultValue, {
-      range: zoomRange,
-      tandem: providedOptions.tandem.createTandem( 'zoomLevelProperty' ),
-      numberType: 'Integer'
-    } );
+    this.zoomLevelProperty = createDetectorPatternGraphZoomLevelProperty( 'default', providedOptions.tandem );
 
     // White chart background with border
     this.chartBackground = new Rectangle( 0, 0, CHART_WIDTH, CHART_HEIGHT, {
@@ -351,7 +344,13 @@ export default class GraphAccordionBox extends Node {
       return;
     }
 
-    const zoomScale = linear( 1, 6, 0.3, 2.0, this.zoomLevelProperty.value );
+    const zoomScale = linear(
+      this.zoomLevelProperty.range.min,
+      this.zoomLevelProperty.range.max,
+      0.3,
+      2.0,
+      this.zoomLevelProperty.value
+    );
     const sourceIntensity = sceneModel.intensityProperty.value;
     const screenHalfWidth = getDetectorScreenHalfWidthForScaleIndex( this.detectorScreenScaleIndexProperty.value );
 

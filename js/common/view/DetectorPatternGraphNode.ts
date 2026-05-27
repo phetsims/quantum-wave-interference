@@ -15,7 +15,6 @@
 
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import WithRequired from '../../../../phet-core/js/types/WithRequired.js';
@@ -25,7 +24,7 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
-import { createClippedDetectorPatternGraphDataPath, createClippedDetectorPatternGraphStrokePath, createDetectorPatternGraphChartBackground, createDetectorPatternGraphChartBorder, createDetectorPatternGraphZoomButtonGroup, createDetectorPatternHistogramShape, createIntensityCurveShapes, DETECTOR_PATTERN_GRAPH_WIDTH, type DetectorPatternGraphSceneLike, getDetectorPatternGraphPaint, getDetectorPatternGraphZoomLevel, MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL, MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL, type ZoomLevelOption } from './DetectorPatternGraphPlotUtils.js';
+import { createClippedDetectorPatternGraphDataPath, createClippedDetectorPatternGraphStrokePath, createDetectorPatternGraphChartBackground, createDetectorPatternGraphChartBorder, createDetectorPatternGraphZoomButtonGroup, createDetectorPatternGraphZoomLevelProperty, createDetectorPatternHistogramShape, createIntensityCurveShapes, DETECTOR_PATTERN_GRAPH_WIDTH, type DetectorPatternGraphSceneLike, getDetectorPatternGraphPaint, getDetectorPatternGraphZoomLevel, type ZoomLevelOption } from './DetectorPatternGraphPlotUtils.js';
 
 const LABEL_FONT = new PhetFont( 12 );
 const ZOOM_BUTTON_GROUP_MARGIN = 4;
@@ -73,17 +72,10 @@ export default class DetectorPatternGraphNode extends Node {
 
     this.activeDetectionMode = options.detectionModeProperty ? options.detectionModeProperty.value : null;
 
-    const zoomRange = new RangeWithValue(
-      MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
-      MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
-      this.activeDetectionMode ? getModeZoomLevel( this.activeDetectionMode, options ) : getDetectorPatternGraphZoomLevel( options.initialZoomLevel )
+    this.zoomLevelProperty = createDetectorPatternGraphZoomLevelProperty(
+      this.activeDetectionMode ? getModeZoomLevel( this.activeDetectionMode, options ) : options.initialZoomLevel,
+      providedOptions.tandem
     );
-    //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Identical zoomLevelProperty in GraphAccordionBox. Should it be factored out?
-    this.zoomLevelProperty = new NumberProperty( zoomRange.defaultValue, {
-      range: zoomRange,
-      tandem: providedOptions.tandem.createTandem( 'zoomLevelProperty' ),
-      numberType: 'Integer'
-    } );
 
     this.defaultZoomLevelsByDetectionMode = options.detectionModeProperty ? {
       averageIntensity: getModeZoomLevel( 'averageIntensity', options ),

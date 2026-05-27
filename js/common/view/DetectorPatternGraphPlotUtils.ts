@@ -10,6 +10,7 @@
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import TEmitter from '../../../../axon/js/TEmitter.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import RangeWithValue from '../../../../dot/js/RangeWithValue.js';
 import { linear } from '../../../../dot/js/util/linear.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
@@ -72,6 +73,26 @@ export const getDetectorPatternGraphZoomLevel = ( zoomLevel: ZoomLevelOption | u
   zoomLevel === 'max' ? MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL :
   typeof zoomLevel === 'number' ? zoomLevel :
   DEFAULT_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL;
+
+/**
+ * Creates the integer zoom level Property shared by the detector pattern graphs.
+ */
+export const createDetectorPatternGraphZoomLevelProperty = (
+  initialZoomLevel: ZoomLevelOption | undefined,
+  tandem: Tandem
+): NumberProperty => {
+  const zoomRange = new RangeWithValue(
+    MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
+    MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
+    getDetectorPatternGraphZoomLevel( initialZoomLevel )
+  );
+
+  return new NumberProperty( zoomRange.defaultValue, {
+    range: zoomRange,
+    tandem: tandem.createTandem( 'zoomLevelProperty' ),
+    numberType: 'Integer'
+  } );
+};
 
 /**
  * Creates the plotting background, including the horizontal and vertical grid lines.
@@ -217,7 +238,13 @@ export const createDetectorPatternHistogramShape = ( hits: Vector2[], zoomLevel:
  * Creates the filled and stroked shapes for the theoretical average-intensity curve.
  */
 export const createIntensityCurveShapes = ( scene: DetectorPatternGraphSceneLike, zoomLevel: number ): IntensityCurveShapes => {
-  const zoomScale = linear( 1, 6, 0.3, 2.0, zoomLevel );
+  const zoomScale = linear(
+    MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
+    MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
+    0.3,
+    2.0,
+    zoomLevel
+  );
   const sourceIntensity = scene.intensityProperty ? scene.intensityProperty.value : 1;
   const detectorPatternFormationFactor = scene.detectorPatternFormationFactorProperty?.value ?? 1;
 
