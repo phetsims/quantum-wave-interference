@@ -184,10 +184,17 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       return;
     }
 
-    // TODO: Document each term in the hit accumulator computations, see https://github.com/phetsims/quantum-wave-interference/issues/135
+    // rate is the detector-screen hit creation rate in hits per model second for the current scene.
     const rate = this.getDetectorScreenHitRate();
+
+    // rate * dt converts the continuous hit rate into the expected number of hits for this frame. The accumulator
+    // preserves fractional hits across frames so non-integer per-frame rates still produce the correct average rate.
     this.hitAccumulator += rate * dt;
+
+    // Only whole accumulated hits are generated as detector-screen dots on this frame.
     const numHits = Math.floor( this.hitAccumulator );
+
+    // Retain the fractional remainder for future frames.
     this.hitAccumulator -= numHits;
 
     if ( numHits === 0 ) {
