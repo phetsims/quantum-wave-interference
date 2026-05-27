@@ -47,6 +47,8 @@ export type RGBAColor = RGBColor & {
   alpha: number;
 };
 
+type NonFieldSample = { kind: 'unreached' | 'absorbed' | 'blocked' };
+
 // Complete input for the pure rasterization test harness. Production rendering usually samples a
 // WaveSolver grid directly, but tests use these options to evaluate the analytical kernel over a
 // deterministic rectangular pixel grid without Scenery or browser canvas APIs.
@@ -91,10 +93,7 @@ export function getFieldSampleRGBA(
   amplitudeScale: number
 ): RGBAColor {
   if ( sample.kind !== 'field' ) {
-    const gray = sample.kind === 'unreached' ? UNREACHED_VACUUM :
-                 sample.kind === 'absorbed' ? ABSORBED_VACUUM :
-                 BLOCKED_VACUUM;
-    return { red: gray, green: gray, blue: gray, alpha: 255 };
+    return getNonFieldSampleRGBA( sample );
   }
 
   const groupStates = getCoherenceGroupDisplayStates( sample );
@@ -120,12 +119,8 @@ export function getLayeredFieldSampleRGBA(
   baseColor: RGBColor,
   amplitudeScale: number
 ): RGBAColor {
-  //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Duplicate if statement at line 79
   if ( sample.kind !== 'field' ) {
-    const gray = sample.kind === 'unreached' ? UNREACHED_VACUUM :
-                 sample.kind === 'absorbed' ? ABSORBED_VACUUM :
-                 BLOCKED_VACUUM;
-    return { red: gray, green: gray, blue: gray, alpha: 255 };
+    return getNonFieldSampleRGBA( sample );
   }
 
   // Layers are source-over composited in order. Empty/fully transparent field samples return alpha 0,
@@ -157,6 +152,19 @@ export function getLayeredFieldSampleRGBA(
     blue: roundSymmetric( blue ),
     alpha: roundSymmetric( alpha )
   };
+}
+
+/**
+ * Converts a non-field sample status into the fixed opaque vacuum color used by both rasterization paths.
+ *
+ * Field rendering differs between the legacy and layered paths, but unreached, absorbed, and blocked cells
+ * use the same grayscale status colors in both.
+ */
+function getNonFieldSampleRGBA( sample: NonFieldSample ): RGBAColor {
+  const gray = sample.kind === 'unreached' ? UNREACHED_VACUUM :
+               sample.kind === 'absorbed' ? ABSORBED_VACUUM :
+               BLOCKED_VACUUM;
+  return { red: gray, green: gray, blue: gray, alpha: 255 };
 }
 
 /**
