@@ -25,17 +25,42 @@ const DEFAULT_TEXTURE_SCALE = 2;
 const MAX_RENDERED_HITS = 10000;
 const HIT_SIZE_SCALE = 1.2;
 
-// TODO: Document exported types, see https://github.com/phetsims/quantum-wave-interference/issues/135
+// Minimal scene-model interface required by DetectorScreenTextureRenderer. HighIntensitySceneModel and
+// SingleParticlesSceneModel both satisfy this shape, so the shared DetectorScreenNode can render either scene without
+// depending on screen-specific model classes.
 export type DetectorScreenSceneLike = {
+
+  // Detector-screen hit positions in normalized screen coordinates. The renderer maps hit.y to horizontal screen
+  // position and hit.x to vertical screen position to match the detector-screen face orientation.
   hits: Vector2[];
+
+  // Selects the scene color palette. The final color also depends on wavelengthProperty.
   sourceType: SourceType;
+
+  // Effective source wavelength used for detector-screen hit and intensity colors.
   wavelengthProperty: TReadOnlyProperty<number>;
+
+  // User-controlled detector-screen brightness. The range max is required for normalizing the display gain.
   screenBrightnessProperty: TReadOnlyProperty<number> & { range: { max: number } };
+
+  // Whether the source is currently emitting. Rendering depends on this because turning emission off can change
+  // detector-screen appearance and cache invalidation behavior.
   isEmittingProperty: TReadOnlyProperty<boolean>;
+
+  // Emits when hits are added, cleared, or otherwise changed. The renderer listens to this to invalidate its
+  // per-scene texture cache.
   hitsChangedEmitter: TEmitter;
+
+  // Provides the detector probability distribution for average-intensity rendering.
   waveSolver: WaveSolver;
+
+  // Optional because Single Particles always renders hits. High Intensity switches between hits and average intensity.
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
+
+  // Optional High Intensity display gain for average-intensity rendering. Single Particles does not expose this slider.
   intensityProperty?: TReadOnlyProperty<number>;
+
+  // Optional exposure ramp for High Intensity average-intensity patterns as the detector pattern forms.
   detectorPatternFormationFactorProperty?: TReadOnlyProperty<number>;
 };
 
