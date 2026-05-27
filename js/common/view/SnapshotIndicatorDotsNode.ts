@@ -9,6 +9,7 @@
  */
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import Multilink from '../../../../axon/js/Multilink.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
@@ -38,12 +39,13 @@ export default class SnapshotIndicatorDotsNode extends HBox {
       children: dots
     } );
 
-    // TODO: Multilink to QuantumWaveInterferenceColors.indicatorDotActiveFillProperty etc as well so this gets re-called when any dependency changes, see https://github.com/phetsims/quantum-wave-interference/issues/135
-    numberOfSnapshotsProperty.link( count => {
+    Multilink.multilink( [
+      numberOfSnapshotsProperty,
+      QuantumWaveInterferenceColors.indicatorDotActiveFillProperty,
+      QuantumWaveInterferenceColors.indicatorDotInactiveFillProperty
+    ], ( count, activeFill, inactiveFill ) => {
       for ( let i = 0; i < maxSnapshots; i++ ) {
-        dots[ i ].fill = i < count
-                         ? QuantumWaveInterferenceColors.indicatorDotActiveFillProperty
-                         : QuantumWaveInterferenceColors.indicatorDotInactiveFillProperty;
+        dots[ i ].fill = i < count ? activeFill : inactiveFill;
       }
     } );
   }
