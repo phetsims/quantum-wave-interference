@@ -168,7 +168,8 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.stepDetectorPatternFormation( dt );
     this.stepDecoherenceEvents( dt );
 
-    // TODO: Document early return, see https://github.com/phetsims/quantum-wave-interference/issues/135
+    // Detector-screen hits are only produced while the source is on in Hits mode and the hit cap has not been reached.
+    // Large frame deltas are ignored instead of creating a burst of stale hits after pauses or tab throttling.
     if (
       !this.isEmittingProperty.value ||
       this.detectionModeProperty.value !== 'hits' ||
