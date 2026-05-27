@@ -9,6 +9,7 @@
 import Screen, { ScreenOptions } from '../../../joist/js/Screen.js';
 import ScreenIcon, { MINIMUM_HOME_SCREEN_ICON_SIZE } from '../../../joist/js/ScreenIcon.js';
 import optionize, { EmptySelfOptions } from '../../../phet-core/js/optionize.js';
+import PickRequired from '../../../phet-core/js/types/PickRequired.js';
 import Image from '../../../scenery/js/nodes/Image.js';
 import singleParticlesScreenIcon_svg from '../../images/singleParticlesScreenIcon_svg.js';
 import QuantumWaveInterferenceColors from '../common/QuantumWaveInterferenceColors.js';
@@ -19,9 +20,8 @@ import SingleParticlesScreenView from './view/SingleParticlesScreenView.js';
 
 type SelfOptions = EmptySelfOptions;
 
-type SingleParticlesScreenOptions = SelfOptions & ScreenOptions;
+type SingleParticlesScreenOptions = SelfOptions & PickRequired<ScreenOptions, 'tandem'>;
 
-//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Narrow this interface to omit the ScreenOptions that this class controls.
 export default class SingleParticlesScreen extends Screen<SingleParticlesModel, SingleParticlesScreenView> {
 
   public constructor( providedOptions: SingleParticlesScreenOptions ) {
