@@ -19,8 +19,8 @@ import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
-import { createSlitDetectorProperties } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createSlitConfigComboItems from '../../common/view/createSlitConfigComboItems.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
@@ -165,19 +165,14 @@ export default class HighIntensityScreenView extends ScreenView {
     updateParticleMassAnnotationPosition();
     this.addChild( particleMassAnnotation );
 
-    // TODO: Factor out duplication, there are 21 lines elsewhere that match this, see https://github.com/phetsims/quantum-wave-interference/issues/135
-    const slitDetectorProperties = createSlitDetectorProperties( model.currentSlitConfigurationProperty );
     const waveRegionNode = new WaveRegionNode( model, {
       waveRegionLeft: waveRegionLeft,
       waveRegionTop: waveRegionTop,
-      additionalDoubleSlitOptions: {
-        isTopSlitDetectorProperty: slitDetectorProperties.isTopSlitDetectorProperty,
-        isBottomSlitDetectorProperty: slitDetectorProperties.isBottomSlitDetectorProperty,
-
-        // TODO: https://github.com/phetsims/quantum-wave-interference/issues/135 it's confusing to have top/bottom and left/right interchangeability
-        topDetectorCountProperty: model.currentLeftDetectorHitsProperty,
-        bottomDetectorCountProperty: model.currentRightDetectorHitsProperty
-      }
+      additionalDoubleSlitOptions: createFrontFacingSlitDetectorOptions(
+        model.currentSlitConfigurationProperty,
+        model.currentLeftDetectorHitsProperty,
+        model.currentRightDetectorHitsProperty
+      )
     } );
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
       x: waveRegionRight - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
