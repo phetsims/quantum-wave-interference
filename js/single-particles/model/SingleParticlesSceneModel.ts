@@ -481,7 +481,16 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.hasCreatedPacketDecoherenceEvent = true;
   }
 
-  // TODO: Document. When is this called, and what are its responsibilities? see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Starts the second phase of a single-particle packet after an on-slit detector has clicked. This is called from
+   * createPacketDecoherenceEventIfNeeded() when the active packet reaches its sampled on-slit detection time and
+   * createDecoherenceEventForSlitConfiguration() chooses a slit that has a detector. It records the slit detector hit,
+   * replaces ordinary decoherence-event rendering with a Gaussian packet re-emitted from the selected slit, reschedules
+   * the final detector-screen hit from that slit position, and pushes the re-emission descriptor to the solver.
+   *
+   * @param selectedSlit - slit whose detector clicked and from which the packet should be re-emitted
+   * @param eventTime - solver time when the on-slit detector interaction occurred
+   */
   private startPacketReEmission( selectedSlit: 'topSlit' | 'bottomSlit', eventTime: number ): void {
     if ( selectedSlit === 'topSlit' ) {
       this.leftDetectorHitsProperty.value++;
