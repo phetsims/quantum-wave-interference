@@ -22,7 +22,10 @@ import HighIntensitySceneModel from './HighIntensitySceneModel.js';
 const NORMAL_TIME_SPEED_FACTOR = 0.35;
 const FAST_TIME_SPEED_FACTOR = 0.65;
 
-// TODO: Document how this is used and what it means, see https://github.com/phetsims/quantum-wave-interference/issues/135
+// Number of model step calls between accessible-state ticks while the source is emitting. The tick is exposed through
+// accessibleStateStepProperty so accessible descriptions can periodically recompute semantic state for continuous
+// changes such as wavefront travel and pattern formation, without announcing on every animation frame. This is a view
+// update cadence for accessibility content, not a physical time interval.
 const ACCESSIBLE_STATE_STEP_INTERVAL = 10;
 
 type HighIntensityModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
@@ -35,6 +38,8 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
 
   // Tool visibility specific to this screen
   public readonly isIntensityGraphVisibleProperty: BooleanProperty;
+
+  // Monotonically increasing signal for accessible state consumers that need updates during continuous emission.
   public readonly accessibleStateStepProperty: NumberProperty;
   private accessibleStateStepFrameCount = 0;
 
