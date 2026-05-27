@@ -540,39 +540,38 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       return 0;
     }
 
-    // TODO: More sensible names (not abbreviations) for variables, see https://github.com/phetsims/quantum-wave-interference/issues/135
-    const field = this.waveSolver.getAmplitudeField();
-    const gw = this.waveSolver.gridWidth;
-    const gh = this.waveSolver.gridHeight;
-    const cx = this.detectorToolPositionProperty.value.x * gw;
-    const cy = this.detectorToolPositionProperty.value.y * gh;
-    const rSq = ( this.detectorToolRadiusProperty.value * gw ) ** 2;
+    const amplitudeField = this.waveSolver.getAmplitudeField();
+    const gridWidth = this.waveSolver.gridWidth;
+    const gridHeight = this.waveSolver.gridHeight;
+    const detectorCenterX = this.detectorToolPositionProperty.value.x * gridWidth;
+    const detectorCenterY = this.detectorToolPositionProperty.value.y * gridHeight;
+    const detectorRadiusSquared = ( this.detectorToolRadiusProperty.value * gridWidth ) ** 2;
 
-    let insideSum = 0;
-    let totalSum = 0;
+    let detectorProbabilityDensitySum = 0;
+    let totalProbabilityDensitySum = 0;
 
-    // The amplitude field is a row-major, interleaved complex array: [ re0, im0, re1, im1, ... ].
-    // For each grid cell, the detection probability density is proportional to |psi|^2 = re^2 + im^2.
+    // The amplitude field is a row-major, interleaved complex array: [ real0, imaginary0, real1, imaginary1, ... ].
+    // For each grid cell, the detection probability density is proportional to |wave function|^2.
     // Accumulate the probability density over the full field for normalization, and separately over the
-    // detector's circular footprint. Because every sample has the same cell area, that area factor cancels
-    // in the final insideSum / totalSum ratio.
-    for ( let iy = 0; iy < gh; iy++ ) {
-      for ( let ix = 0; ix < gw; ix++ ) {
-        const idx = ( iy * gw + ix ) * 2;
-        const re = field[ idx ];
-        const im = field[ idx + 1 ];
-        const prob = re * re + im * im;
-        totalSum += prob;
+    // detector's circular footprint. Because every sample has the same cell area, that area factor cancels in the final
+    // detectorProbabilityDensitySum / totalProbabilityDensitySum ratio.
+    for ( let gridY = 0; gridY < gridHeight; gridY++ ) {
+      for ( let gridX = 0; gridX < gridWidth; gridX++ ) {
+        const amplitudeIndex = ( gridY * gridWidth + gridX ) * 2;
+        const realAmplitude = amplitudeField[ amplitudeIndex ];
+        const imaginaryAmplitude = amplitudeField[ amplitudeIndex + 1 ];
+        const probabilityDensity = realAmplitude * realAmplitude + imaginaryAmplitude * imaginaryAmplitude;
+        totalProbabilityDensitySum += probabilityDensity;
 
-        const dxGrid = ix - cx;
-        const dyGrid = iy - cy;
-        if ( dxGrid * dxGrid + dyGrid * dyGrid <= rSq ) {
-          insideSum += prob;
+        const detectorDeltaX = gridX - detectorCenterX;
+        const detectorDeltaY = gridY - detectorCenterY;
+        if ( detectorDeltaX * detectorDeltaX + detectorDeltaY * detectorDeltaY <= detectorRadiusSquared ) {
+          detectorProbabilityDensitySum += probabilityDensity;
         }
       }
     }
 
-    return totalSum > 0 ? insideSum / totalSum : 0;
+    return totalProbabilityDensitySum > 0 ? detectorProbabilityDensitySum / totalProbabilityDensitySum : 0;
   }
 
   // TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
