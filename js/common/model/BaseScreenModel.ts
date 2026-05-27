@@ -247,7 +247,14 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     return NOMINAL_DT;
   }
 
-  // TODO: Add documentation https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Converts elapsed animation-frame time to the visual simulation time used to advance the active scene.
+   * Returns zero while playback is paused. Otherwise, the elapsed time is scaled by the selected time speed
+   * and the screen-specific speed factors so the wave animation advances at the intended visual rate.
+   *
+   * @param dt - elapsed real time, in seconds
+   * @returns the visual simulation time step, in seconds, for the active scene
+   */
   public getEffectiveDt( dt: number ): number {
     if ( !this.isPlayingProperty.value ) {
       return 0;
