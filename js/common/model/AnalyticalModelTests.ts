@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
-// TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Documentation is not up to PhET standards.
-
 /**
- * Unit tests for the pure analytical wave kernel.
+ * Unit tests for the analytical wave model helpers used by Quantum Wave Interference. These tests exercise
+ * source evaluation, barrier propagation, measurement projections, decoherence records, packet re-emission,
+ * solver state, and the DOM-free rasterization path.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -20,6 +20,15 @@ QUnit.module( 'AnalyticalModel' );
 
 const EPSILON = 1e-10;
 
+/**
+ * Assert that two scalar values are equal within an absolute tolerance.
+ *
+ * @param assert - QUnit assertion object.
+ * @param actual - Value produced by the code under test.
+ * @param expected - Reference value expected by the test.
+ * @param message - Failure message prefix.
+ * @param epsilon - Absolute tolerance for the comparison.
+ */
 const assertApproximately = (
   assert: Assert,
   actual: number,
@@ -30,6 +39,15 @@ const assertApproximately = (
   assert.ok( Math.abs( actual - expected ) <= epsilon, `${message}: expected ${expected}, got ${actual}` );
 };
 
+/**
+ * Assert that two complex values have approximately equal real and imaginary components.
+ *
+ * @param assert - QUnit assertion object.
+ * @param actual - Complex value produced by the code under test.
+ * @param expected - Reference complex value expected by the test.
+ * @param message - Failure message prefix.
+ * @param epsilon - Absolute tolerance for each component.
+ */
 const assertComplexApproximately = (
   assert: Assert,
   actual: Complex,
@@ -41,16 +59,45 @@ const assertComplexApproximately = (
   assertApproximately( assert, actual.imaginary, expected.imaginary, `${message} imaginary`, epsilon );
 };
 
+/**
+ * Compute the Euclidean distance between two complex values in the complex plane.
+ *
+ * @param a - First complex value.
+ * @param b - Second complex value.
+ * @returns Magnitude of the complex difference.
+ */
 const complexDistance = ( a: Complex, b: Complex ): number => a.minus( b ).magnitude;
 
+/**
+ * Compute the signed phase difference from one complex value to another, wrapped to [-pi, pi].
+ *
+ * @param a - Starting complex value.
+ * @param b - Ending complex value.
+ * @returns Wrapped phase difference in radians.
+ */
 const phaseDifference = ( a: Complex, b: Complex ): number => {
   const rawDifference = b.phase() - a.phase();
   return Math.atan2( Math.sin( rawDifference ), Math.cos( rawDifference ) );
 };
 
+/**
+ * Evaluate the analytical wave field at a point and return its intensity.
+ *
+ * @param parameters - Analytical source, barrier, and projection parameters.
+ * @param x - World x-coordinate for the sample.
+ * @param y - World y-coordinate for the sample.
+ * @param t - Simulation time for the sample.
+ * @returns Intensity computed from the analytical field sample.
+ */
 const intensityAt = ( parameters: AnalyticalWaveParameters, x: number, y: number, t: number ): number =>
   computeSampleIntensity( evaluateAnalyticalSample( parameters, x, y, t ) );
 
+/**
+ * Determine whether an interleaved complex amplitude field contains any nonzero component.
+ *
+ * @param amplitudes - Interleaved real/imaginary amplitude values.
+ * @returns Whether at least one component magnitude exceeds the test tolerance.
+ */
 const hasNonZeroAmplitude = ( amplitudes: Float64Array ): boolean => {
   for ( let i = 0; i < amplitudes.length; i++ ) {
     if ( Math.abs( amplitudes[ i ] ) > EPSILON ) {
@@ -60,6 +107,12 @@ const hasNonZeroAmplitude = ( amplitudes: Float64Array ): boolean => {
   return false;
 };
 
+/**
+ * Sum the total probability represented by an interleaved complex amplitude field.
+ *
+ * @param amplitudes - Interleaved real/imaginary amplitude values.
+ * @returns Sum of squared magnitudes across all grid cells.
+ */
 const sumAmplitudeProbability = ( amplitudes: Float64Array ): number => {
   let sum = 0;
   for ( let i = 0; i < amplitudes.length; i += 2 ) {
@@ -68,6 +121,14 @@ const sumAmplitudeProbability = ( amplitudes: Float64Array ): number => {
   return sum;
 };
 
+/**
+ * Sample the probability density from a wave-packet solver at normalized display coordinates.
+ *
+ * @param solver - Solver whose amplitude grid will be sampled.
+ * @param xNorm - Normalized x-coordinate in the display region.
+ * @param yNorm - Normalized y-coordinate in the display region.
+ * @returns Squared magnitude for the nearest grid cell.
+ */
 const getGridProbabilityAtNorm = ( solver: AnalyticalWavePacketSolver, xNorm: number, yNorm: number ): number => {
   const field = solver.getAmplitudeField();
   const ix = Math.max( 0, Math.min( solver.gridWidth - 1, Math.floor( xNorm * solver.gridWidth ) ) );
@@ -76,6 +137,16 @@ const getGridProbabilityAtNorm = ( solver: AnalyticalWavePacketSolver, xNorm: nu
   return field[ idx ] * field[ idx ] + field[ idx + 1 ] * field[ idx + 1 ];
 };
 
+/**
+ * Numerically integrate analytical intensity over rectangular world bounds.
+ *
+ * @param parameters - Analytical source, barrier, and projection parameters.
+ * @param bounds - World-coordinate bounds for the integration region.
+ * @param t - Simulation time for the samples.
+ * @param nx - Number of midpoint samples in the x direction.
+ * @param ny - Number of midpoint samples in the y direction.
+ * @returns Midpoint-rule estimate of integrated intensity.
+ */
 const integrateIntensity = (
   parameters: AnalyticalWaveParameters,
   bounds: { minX: number; maxX: number; minY: number; maxY: number },
@@ -98,6 +169,12 @@ const integrateIntensity = (
   return sum;
 };
 
+/**
+ * Create analytical parameters for a plane-wave source with optional test-specific overrides.
+ *
+ * @param options - Optional source and barrier overrides for the test scenario.
+ * @returns Analytical parameters configured for a plane-wave source.
+ */
 const createPlaneParameters = ( options?: {
   startTime?: number | null;
   speed?: number;
@@ -115,6 +192,12 @@ const createPlaneParameters = ( options?: {
   barrier: options?.barrier ?? { kind: 'none' }
 } );
 
+/**
+ * Create analytical parameters for a gaussian packet source with optional test-specific overrides.
+ *
+ * @param options - Optional source, barrier, and projection overrides for the test scenario.
+ * @returns Analytical parameters configured for a gaussian packet source.
+ */
 const createGaussianPacketParameters = ( options?: {
   waveNumber?: number;
   barrier?: AnalyticalWaveParameters['barrier'];
@@ -136,6 +219,12 @@ const createGaussianPacketParameters = ( options?: {
   projections: options?.projections
 } );
 
+/**
+ * Create a double-slit barrier descriptor used by analytical sampling tests.
+ *
+ * @param options - Optional aperture, coherence, and width overrides for the barrier.
+ * @returns Analytical barrier parameters configured for two slits.
+ */
 const createDoubleSlitBarrier = ( options?: {
   topOpen?: boolean;
   bottomOpen?: boolean;
@@ -1531,6 +1620,15 @@ QUnit.test( 'plane-wave decoherence layers taper with alpha and merge repeated s
   assert.strictEqual( repeatedTailColor.alpha, 0, 'repeated same-slit chain tapers to transparency only at the chain tail' );
 } );
 
+/**
+ * Add a visual raster preview to the QUnit page so analytical rasterization failures can be inspected manually.
+ *
+ * @param title - Label shown above the preview image.
+ * @param width - Pixel width of the raster data.
+ * @param height - Pixel height of the raster data.
+ * @param pixels - RGBA pixel buffer generated by the analytical rasterizer.
+ * @param statusCounts - Counts of sample statuses represented in the raster.
+ */
 const appendRasterPreview = (
   title: string,
   width: number,
