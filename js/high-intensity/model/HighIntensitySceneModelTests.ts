@@ -10,6 +10,7 @@ import Tandem from '../../../../tandem/js/Tandem.js';
 import BaseSceneModel from '../../common/model/BaseSceneModel.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import HighIntensityModel from './HighIntensityModel.js';
 import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_EASE_POWER, DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_TIME_CONSTANT, DETECTOR_SCREEN_HIT_RATE, SLIT_DETECTOR_EVENT_RATE } from './HighIntensitySceneModel.js';
 
 QUnit.module( 'HighIntensitySceneModel' );
@@ -120,6 +121,26 @@ QUnit.test( 'neutron wave visualizer scale matches electrons without changing ph
     ( QuantumWaveInterferenceConstants.NEUTRON_MASS * neutronsScene.velocityProperty.value ),
     'neutron wavelength still follows neutron mass and velocity'
   );
+} );
+
+QUnit.test( 'wave visibility follows the source while paused', assert => {
+  const model = new HighIntensityModel( { tandem: Tandem.OPT_OUT } );
+  const scene = model.sceneProperty.value;
+
+  model.isPlayingProperty.value = false;
+
+  assert.false( scene.isWaveVisibleProperty.value, 'wave is initially hidden' );
+
+  model.currentIsEmittingProperty.value = true;
+  assert.true( scene.isWaveVisibleProperty.value, 'turning on the source immediately shows the wave without a step' );
+
+  const initialSolverTime = scene.waveSolver.getTime();
+  model.step( 1 );
+  assert.strictEqual( scene.waveSolver.getTime(), initialSolverTime, 'paused model still does not advance solver time' );
+  assert.true( scene.isWaveVisibleProperty.value, 'wave remains visible while paused' );
+
+  model.currentIsEmittingProperty.value = false;
+  assert.false( scene.isWaveVisibleProperty.value, 'turning off the source immediately hides the wave without a step' );
 } );
 
 QUnit.test( 'detector pattern formation waits for wavefront and uses eased exponential model dt', assert => {

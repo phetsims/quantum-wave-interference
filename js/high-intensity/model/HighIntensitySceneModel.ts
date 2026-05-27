@@ -10,7 +10,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
@@ -85,7 +84,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   // Whether the wave field should be rendered in the visualization region
   public readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
-  private readonly _isWaveVisibleProperty: BooleanProperty;
 
   // Normalized progress for the detector-screen and chart intensity pattern exposure.
   public readonly detectorPatternFormationFactorProperty: TReadOnlyProperty<number>;
@@ -110,8 +108,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       tandem: tandem.createTandem( 'detectionModeProperty' )
     } );
 
-    this._isWaveVisibleProperty = new BooleanProperty( false );
-    this.isWaveVisibleProperty = this._isWaveVisibleProperty;
+    this.isWaveVisibleProperty = this.isEmittingProperty;
 
     this._detectorPatternFormationFactorProperty = new NumberProperty( 0, {
       range: new Range( 0, 1 ),
@@ -140,7 +137,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.nextDecoherenceEventTime = null;
     this.resetDetectorPatternFormation();
     super.clearScreen();
-    this._isWaveVisibleProperty.value = this.isEmittingProperty.value;
   }
 
   protected override clearWaveStateWhenEmitterTurnsOff(): void {
@@ -148,7 +144,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.nextDecoherenceEventTime = null;
     this.resetDetectorPatternFormation();
     super.clearWaveStateWhenEmitterTurnsOff();
-    this._isWaveVisibleProperty.value = false;
   }
 
   public takeHighIntensitySnapshot(): void {
@@ -160,10 +155,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
    */
   public step( dt: number ): void {
     this.waveSolver.step( dt );
-
-    // TODO: Should this be done synchronously, or is there a good reason to do it in step only, see https://github.com/phetsims/quantum-wave-interference/issues/135
-    // What if the sim is paused?
-    this._isWaveVisibleProperty.value = this.isEmittingProperty.value;
 
     this.stepDetectorPatternFormation( dt );
     this.stepDecoherenceEvents( dt );
@@ -364,7 +355,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.hitAccumulator = 0;
     this.nextDecoherenceEventTime = null;
     this.resetDetectorPatternFormation();
-    this._isWaveVisibleProperty.reset();
     this.syncSolverParameters();
   }
 }
