@@ -11,7 +11,7 @@
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
-import renderDetectorScreenTexture, { type DetectorScreenHitRenderCache, resetDetectorScreenHitRenderCache } from '../../common/view/renderDetectorScreenTexture.js';
+import renderDetectorScreenTexture, { createDetectorScreenHitRenderCache, detectorScreenTextureRenderParametersChanged, type DetectorScreenHitRenderCache, type DetectorScreenTextureRenderParameters, resetDetectorScreenHitRenderCache } from '../../common/view/renderDetectorScreenTexture.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 import SceneModel from '../model/SceneModel.js';
@@ -35,12 +35,7 @@ type SceneTextureCache = {
 
   // The parameters that were used for the last render, so we can detect when a full repaint is needed vs an
   // incremental blit.
-  lastBrightness: number;
-  lastWavelength: number;
-  lastEffectiveWavelength: number;
-  lastDetectionMode: string;
-  lastIntensity: number;
-  lastIsEmitting: boolean;
+  lastRenderParameters: DetectorScreenTextureRenderParameters | null;
 };
 
 // Top-level cache keyed by SceneModel so each scene keeps its own full detector texture.
@@ -98,26 +93,26 @@ function renderSceneTexture(
 
   const context = cache.context;
   const renderState = createDetectorScreenRenderStateFromSceneModel( sceneModel );
+  const currentRenderParameters: DetectorScreenTextureRenderParameters = {
+    brightness: renderState.brightness,
+    wavelength: renderState.wavelength,
+    effectiveWavelength: renderState.effectiveWavelength,
+    detectionMode: renderState.detectionMode,
+    intensity: renderState.intensity,
+    isEmitting: renderState.isEmitting
+  };
 
   // Detect whether rendering parameters changed (requiring a full repaint of all hits) vs only new hits were added
   // (allowing an incremental blit).
-  const paramsChanged = cache.lastBrightness !== renderState.brightness ||
-                        cache.lastWavelength !== renderState.wavelength ||
-                        cache.lastEffectiveWavelength !== renderState.effectiveWavelength ||
-                        cache.lastDetectionMode !== renderState.detectionMode ||
-                        cache.lastIntensity !== renderState.intensity ||
-                        cache.lastIsEmitting !== renderState.isEmitting;
+  const paramsChanged = detectorScreenTextureRenderParametersChanged(
+    cache.lastRenderParameters,
+    currentRenderParameters
+  );
 
   if ( paramsChanged ) {
     resetCacheRenderingState( cache );
     context.clearRect( 0, 0, cache.textureWidth, cache.textureHeight );
-
-    cache.lastBrightness = renderState.brightness;
-    cache.lastWavelength = renderState.wavelength;
-    cache.lastEffectiveWavelength = renderState.effectiveWavelength;
-    cache.lastDetectionMode = renderState.detectionMode;
-    cache.lastIntensity = renderState.intensity;
-    cache.lastIsEmitting = renderState.isEmitting;
+    cache.lastRenderParameters = currentRenderParameters;
   }
 
   renderDetectorScreenTexture( context, renderState, {
@@ -168,17 +163,8 @@ function createSceneTextureCache(
     renderScale: renderScale,
     textureWidth: textureWidth,
     textureHeight: textureHeight,
-    hitRenderCache: {
-      lastRenderedHitCount: 0,
-      hitSprite: null,
-      hitSpriteParams: null
-    },
-    lastBrightness: -1,
-    lastWavelength: -1,
-    lastEffectiveWavelength: -1,
-    lastDetectionMode: '',
-    lastIntensity: -1,
-    lastIsEmitting: false
+    hitRenderCache: createDetectorScreenHitRenderCache(),
+    lastRenderParameters: null
   };
 
   const markDirty = () => {

@@ -63,6 +63,16 @@ export type DetectorScreenHitRenderCache = {
   hitSpriteParams: DetectorScreenHitSpriteParams | null;
 };
 
+export type DetectorScreenTextureRenderParameters = {
+  brightness: number;
+  wavelength: number;
+  effectiveWavelength?: number;
+  detectionMode: string;
+  intensity: number;
+  isEmitting: boolean;
+  rampFactor?: number;
+};
+
 export type DetectorScreenRenderOptions = {
 
   // Size of the canvas region to paint, in backing-canvas pixels.
@@ -138,6 +148,35 @@ export function createDetectorScreenHitSpriteParams(
     hitCoreRadius: hitCoreRadius,
     hitSpriteCenter: hitSpriteCenter
   };
+}
+
+/**
+ * Creates the persistent hit-render cache used by live detector textures for incremental hit rendering.
+ */
+export function createDetectorScreenHitRenderCache(): DetectorScreenHitRenderCache {
+  return {
+    lastRenderedHitCount: 0,
+    hitSprite: null,
+    hitSpriteParams: null
+  };
+}
+
+/**
+ * Returns whether any full-texture render parameter changed since the previous render. When this returns true, callers
+ * need to clear the canvas and repaint because incremental hit rendering is no longer valid.
+ */
+export function detectorScreenTextureRenderParametersChanged(
+  previousParameters: DetectorScreenTextureRenderParameters | null,
+  currentParameters: DetectorScreenTextureRenderParameters
+): boolean {
+  return !previousParameters ||
+         previousParameters.brightness !== currentParameters.brightness ||
+         previousParameters.wavelength !== currentParameters.wavelength ||
+         previousParameters.effectiveWavelength !== currentParameters.effectiveWavelength ||
+         previousParameters.detectionMode !== currentParameters.detectionMode ||
+         previousParameters.intensity !== currentParameters.intensity ||
+         previousParameters.isEmitting !== currentParameters.isEmitting ||
+         previousParameters.rampFactor !== currentParameters.rampFactor;
 }
 
 /**
@@ -294,11 +333,7 @@ function paintHits(
   const maxRenderedHits = options.maxRenderedHits || hits.length;
 
   // A throwaway local cache still lets a one-off render reuse one generated sprite for all hits in this call.
-  const localCache = cache || {
-    lastRenderedHitCount: 0,
-    hitSprite: null,
-    hitSpriteParams: null
-  };
+  const localCache = cache || createDetectorScreenHitRenderCache();
   const hitSpriteCenter = getHitSpriteCenter( hitRadiusScale );
   const sprite = getHitSprite( localCache, rgb, coreAlpha, glowAlpha, glowRadius, hitCoreRadius, hitSpriteCenter );
 

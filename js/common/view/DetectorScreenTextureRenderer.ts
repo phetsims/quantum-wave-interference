@@ -17,7 +17,7 @@ import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
-import { createDetectorScreenHitSpriteParams, detectorScreenHitSpriteParamsMatch, type DetectorScreenHitSpriteParams } from './renderDetectorScreenTexture.js';
+import { createDetectorScreenHitRenderCache, createDetectorScreenHitSpriteParams, detectorScreenHitSpriteParamsMatch, detectorScreenTextureRenderParametersChanged, type DetectorScreenHitRenderCache, type DetectorScreenTextureRenderParameters, resetDetectorScreenHitRenderCache } from './renderDetectorScreenTexture.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 // Supersampling factor for the offscreen detector-screen texture. Rendering above the displayed screen size keeps
@@ -74,15 +74,8 @@ type TextureCache = {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   dirty: boolean;
-  lastRenderedHitCount: number;
-  lastBrightness: number;
-  lastWavelength: number;
-  lastDetectionMode: string;
-  lastIntensity: number;
-  lastIsEmitting: boolean;
-  lastRampFactor: number;
-  hitSprite: HTMLCanvasElement | null;
-  hitSpriteParams: DetectorScreenHitSpriteParams | null;
+  lastRenderParameters: DetectorScreenTextureRenderParameters | null;
+  hitRenderCache: DetectorScreenHitRenderCache;
   intensityCanvas: HTMLCanvasElement | null;
   intensityContext: CanvasRenderingContext2D | null;
   intensityImageData: ImageData | null;
@@ -123,7 +116,8 @@ export default class DetectorScreenTextureRenderer {
 
     // In intensity mode, the solver distribution updates every frame, so always re-render
     const detectionMode = scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
-    if ( cache.dirty || detectionMode === 'averageIntensity' || cache.lastRampFactor < 1 ) {
+    const lastRampFactor = cache.lastRenderParameters?.rampFactor ?? 1;
+    if ( cache.dirty || detectionMode === 'averageIntensity' || lastRampFactor < 1 ) {
       this.renderTexture( cache, scene );
     }
 
@@ -144,15 +138,8 @@ export default class DetectorScreenTextureRenderer {
       canvas: canvas,
       context: context,
       dirty: true,
-      lastRenderedHitCount: 0,
-      lastBrightness: -1,
-      lastWavelength: -1,
-      lastDetectionMode: '',
-      lastIntensity: -1,
-      lastIsEmitting: false,
-      lastRampFactor: 1,
-      hitSprite: null,
-      hitSpriteParams: null,
+      lastRenderParameters: null,
+      hitRenderCache: createDetectorScreenHitRenderCache(),
       intensityCanvas: null,
       intensityContext: null,
       intensityImageData: null
@@ -187,28 +174,19 @@ export default class DetectorScreenTextureRenderer {
     const rampFactor = currentDetectionMode === 'averageIntensity' ?
                        scene.detectorPatternFormationFactorProperty?.value ?? 1 :
                        1;
+    const currentRenderParameters: DetectorScreenTextureRenderParameters = {
+      brightness: currentBrightness,
+      wavelength: currentWavelength,
+      detectionMode: currentDetectionMode,
+      intensity: currentIntensity,
+      isEmitting: currentIsEmitting,
+      rampFactor: rampFactor
+    };
 
-    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 paramsChanged duplicated in getDetectorScreenTexture, should it be factored out or documented?
-    const paramsChanged = cache.lastBrightness !== currentBrightness ||
-                          cache.lastWavelength !== currentWavelength ||
-                          cache.lastDetectionMode !== currentDetectionMode ||
-                          cache.lastIntensity !== currentIntensity ||
-                          cache.lastIsEmitting !== currentIsEmitting;
-    const rampFactorChanged = cache.lastRampFactor !== rampFactor;
-
-    // TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Quite a bit of duplication in this if block with getDetectorScreenTexture.ts around line 338
-    if ( paramsChanged || rampFactorChanged ) {
-      cache.lastRenderedHitCount = 0;
-      cache.hitSprite = null;
-      cache.hitSpriteParams = null;
+    if ( detectorScreenTextureRenderParametersChanged( cache.lastRenderParameters, currentRenderParameters ) ) {
+      resetDetectorScreenHitRenderCache( cache.hitRenderCache );
       context.clearRect( 0, 0, this.textureWidth, this.faceTextureHeight );
-
-      cache.lastBrightness = currentBrightness;
-      cache.lastWavelength = currentWavelength;
-      cache.lastDetectionMode = currentDetectionMode;
-      cache.lastIntensity = currentIntensity;
-      cache.lastIsEmitting = currentIsEmitting;
-      cache.lastRampFactor = rampFactor;
+      cache.lastRenderParameters = currentRenderParameters;
     }
 
     if ( currentDetectionMode === 'hits' ) {
@@ -236,10 +214,10 @@ export default class DetectorScreenTextureRenderer {
   ): void {
     const hits = scene.hits;
     if ( hits.length === 0 ) {
-      if ( cache.lastRenderedHitCount > 0 ) {
+      if ( cache.hitRenderCache.lastRenderedHitCount > 0 ) {
         context.clearRect( 0, 0, this.textureWidth, this.faceTextureHeight );
       }
-      cache.lastRenderedHitCount = 0;
+      cache.hitRenderCache.lastRenderedHitCount = 0;
       return;
     }
 
@@ -248,13 +226,13 @@ export default class DetectorScreenTextureRenderer {
     const glowAlpha = getHitsGlowAlpha( brightnessFraction );
     const glowRadius = this.hitGlowRadius * Math.min( 2, Math.sqrt( Math.max( 1, displayGain ) ) );
 
-    const sprite = this.getHitSprite( cache, rgb, coreAlpha, glowAlpha, glowRadius );
+    const sprite = this.getHitSprite( cache.hitRenderCache, rgb, coreAlpha, glowAlpha, glowRadius );
 
     const hitCount = hits.length;
     const renderCount = Math.min( hitCount, MAX_RENDERED_HITS );
     const startIndex = hitCount - renderCount;
 
-    const alreadyRendered = cache.lastRenderedHitCount;
+    const alreadyRendered = cache.hitRenderCache.lastRenderedHitCount;
     const needsFullRepaint = alreadyRendered > hitCount || startIndex > 0 && alreadyRendered <= startIndex;
     const incrementalStart = needsFullRepaint ? startIndex : Math.max( startIndex, alreadyRendered );
 
@@ -270,7 +248,7 @@ export default class DetectorScreenTextureRenderer {
       context.drawImage( sprite, viewX - this.hitSpriteCenter, viewY - this.hitSpriteCenter );
     }
 
-    cache.lastRenderedHitCount = hitCount;
+    cache.hitRenderCache.lastRenderedHitCount = hitCount;
   }
 
   private paintIntensity(
@@ -389,7 +367,7 @@ export default class DetectorScreenTextureRenderer {
   }
 
   private getHitSprite(
-    cache: TextureCache,
+    cache: DetectorScreenHitRenderCache,
     rgb: { r: number; g: number; b: number },
     coreAlpha: number,
     glowAlpha: number,
