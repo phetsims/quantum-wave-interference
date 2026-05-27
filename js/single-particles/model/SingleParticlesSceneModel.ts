@@ -322,6 +322,15 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     return ( targetX - sourceX - initialCenterX + sampledCenterOffset ) / propagationSpeed;
   }
 
+  /**
+   * Samples a packet-weight threshold from the designer timing curve using acceptance-rejection sampling.
+   * A candidate weight is drawn uniformly from the active interval, then accepted with probability equal to
+   * the curve density at that candidate. The bounded retry count prevents pathological parameter choices
+   * from locking the sim: very large leading/trailing powers or invalid values that create little to no
+   * positive-density area could make every candidate miss within the retry budget.
+   *
+   * @returns the sampled fraction of the packet's longitudinal probability that has reached the detector plane
+   */
   private sampleScreenDetectionWeight(): number {
     const parameters = SCREEN_DETECTION_TIMING_PARAMETERS;
     affirm(
@@ -333,7 +342,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     );
     affirm( parameters.leadingPower > 0 && parameters.trailingPower > 0, 'curve powers should be positive' );
 
-    // TODO: Name and describe this algorithm, and when it could fail, see https://github.com/phetsims/quantum-wave-interference/issues/135
+    // Acceptance-rejection sampling from the screen detection timing curve.
     for ( let i = 0; i < 100; i++ ) {
       const candidate = parameters.startWeight +
                         dotRandom.nextDouble() * ( parameters.endWeight - parameters.startWeight );
