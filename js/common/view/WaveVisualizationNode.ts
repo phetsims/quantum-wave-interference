@@ -53,7 +53,10 @@ const computeNiceScale = ( regionWidthMeters: number, regionWidthPixels: number 
   let bestPixels = TARGET_BAR_PX;
   let bestError = Infinity;
 
-  // TODO: Document this algorithm. What?? See https://github.com/phetsims/quantum-wave-interference/issues/135
+  // Search the decade around targetMeters because a nearest "nice" value can fall on either side of the
+  // initial power of 10. For each 1/2/5 * 10^n candidate, convert the physical distance back to pixels,
+  // reject labels that would make the bar too short or too long, and keep the candidate closest to the
+  // target display width.
   for ( let e = exponent - 1; e <= exponent + 1; e++ ) {
     for ( const m of NICE_MULTIPLIERS ) {
       const candidate = m * Math.pow( 10, e );
