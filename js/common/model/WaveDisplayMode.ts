@@ -16,3 +16,19 @@ export const MatterWaveDisplayModeValues = [ 'magnitude', 'realPart', 'imaginary
 export type MatterWaveDisplayMode = typeof MatterWaveDisplayModeValues[number];
 
 export type WaveDisplayMode = PhotonWaveDisplayMode | MatterWaveDisplayMode;
+
+/**
+ * Extracts a scalar displayed value from complex amplitude (re, im) based on the active wave display mode.
+ *
+ * @param re - real component of the wave amplitude
+ * @param im - imaginary component of the wave amplitude
+ * @param displayMode - selected representation for the displayed scalar value
+ */
+export function getDisplayedWaveValue( re: number, im: number, displayMode: WaveDisplayMode ): number {
+  return displayMode === 'timeAveragedIntensity' ? re * re + im * im :
+         displayMode === 'electricField' ? re :
+         displayMode === 'magnitude' ? Math.sqrt( re * re + im * im ) :
+         displayMode === 'realPart' ? re :
+         displayMode === 'imaginaryPart' ? im :
+         ( () => { throw new Error( `Unrecognized displayMode: ${displayMode}` ); } )();
+}
