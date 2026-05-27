@@ -156,8 +156,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
       defaultPhotonWaveDisplayMode: 'electricField',
       defaultMatterWaveDisplayMode: 'magnitude',
       slitSeparationConfig: null,
-      phetioType: BaseSceneModel.BaseSceneModelIO
-      //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Should this be phetioState: false, or does it have state of its own?
+      phetioType: BaseSceneModel.BaseSceneModelIO,
+      phetioDocumentation: 'Model for a single source-type scene, including wave solver state and detector screen data.',
+      phetioState: true // provides its own state in the IOType
     }, providedOptions );
 
     super( options );
