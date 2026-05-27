@@ -214,7 +214,19 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }
   }
 
-  // TODO: Documentation, see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Advances the continuous high-intensity slit-detector/decoherence scheduler. When an emitted wavefront reaches the
+   * double-slit barrier and one or more slit detectors are present, this creates model-time detector records at
+   * getSlitDetectorEventRate(). Those records are stored as decoherence events so the analytical solver can render the
+   * selected slit bands and attenuate the opposite slit contribution. Creating an event also increments the appropriate
+   * slit detector hit count through addDecoherenceEvent().
+   *
+   * The scheduler uses solver time and the source-on time so events are aligned with the emitted wavefront instead of
+   * absolute elapsed solver time. Large or non-positive frame steps are ignored to avoid generating a burst of stale
+   * detector records after pauses, tab throttling, or invalid animation deltas.
+   *
+   * @param dt - elapsed model time for this frame, in seconds
+   */
   private stepDecoherenceEvents( dt: number ): void {
     if (
       !this.isEmittingProperty.value ||
