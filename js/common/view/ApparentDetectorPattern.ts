@@ -42,6 +42,7 @@ function smootherStep( t: number ): number {
 export function getApparentAnalyticalDetectorIntensity( options: ApparentAnalyticalDetectorPatternOptions ): number {
   const exactIntensity = getExactAnalyticalDetectorIntensity( options );
 
+  // Apparent filtering only applies to double-slit interference with a positive rendered sample width.
   if ( !showsDoubleSlitInterferencePattern( options.slitSetting ) || options.sampleWidthOnScreen <= 0 ) {
     return exactIntensity;
   }
@@ -60,7 +61,7 @@ export function getApparentAnalyticalDetectorIntensity( options: ApparentAnalyti
   );
   const unresolvedBlend = 1 - smootherStep( resolvedFraction );
 
-  // TODO: Document early returns (this and others in quantum-wave-interference), see https://github.com/phetsims/quantum-wave-interference/issues/135
+  // With a fully resolved sample, preserve the exact analytical intensity and skip the envelope calculation.
   if ( unresolvedBlend === 0 ) {
     return exactIntensity;
   }
