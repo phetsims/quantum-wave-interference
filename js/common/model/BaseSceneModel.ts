@@ -342,7 +342,14 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return hasDetectorOnBottomSlit( this.slitConfigurationProperty.value );
   }
 
-  // TODO: Document when this is supposed to be called, and responsibilities see https://github.com/phetsims/quantum-wave-interference/issues/135
+  /**
+   * Synchronizes the wave solver with BaseSceneModel-owned scene state. Call this after any model change that affects
+   * solver inputs, including scene initialization, wave/slit/barrier parameter changes, source on/off changes,
+   * decoherence event updates, reset, and PhET-iO state restore. This method only copies current model values into the
+   * solver; it does not advance time, reset the solver, clear hits, create decoherence events, or mutate snapshots.
+   * Subclasses that add solver parameters should override this method, call super.syncSolverParameters(), and then set
+   * their subclass-specific parameters.
+   */
   protected syncSolverParameters(): void {
     const effectiveWavelength = this.getEffectiveWavelength();
     const displayWavelengths = effectiveWavelength > 0 ?
