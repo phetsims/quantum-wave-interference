@@ -8,6 +8,7 @@
 
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -40,8 +41,7 @@ import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 
 type SelfOptions = EmptySelfOptions;
 
-// TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Narrow this interface to omit the ScreenViewOptions that this class controls.
-type SingleParticlesScreenViewOptions = SelfOptions & ScreenViewOptions;
+type SingleParticlesScreenViewOptions = SelfOptions & StrictOmit<ScreenViewOptions, 'screenSummaryContent'>;
 
 const LABEL_FONT = new PhetFont( 14 );
 
