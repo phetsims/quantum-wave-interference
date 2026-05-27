@@ -76,6 +76,7 @@ export const getDetectorPatternGraphZoomLevel = ( zoomLevel: ZoomLevelOption | u
 
 /**
  * Creates the integer zoom level Property shared by the detector pattern graphs.
+ * TODO: Convert to a top level file DetectorPatternGraphZoomLevelProperty.ts, see https://github.com/phetsims/quantum-wave-interference/issues/118
  */
 export const createDetectorPatternGraphZoomLevelProperty = (
   initialZoomLevel: ZoomLevelOption | undefined,
