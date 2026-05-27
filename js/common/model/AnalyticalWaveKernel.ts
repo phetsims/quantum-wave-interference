@@ -27,18 +27,30 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-// TODO: Brainstorm some great ways to simplify/reduce/refactor this file (at time of writing is >1000 LOC), see https://github.com/phetsims/quantum-wave-interference/issues/135
-
 import Complex from '../../../../dot/js/Complex.js';
+import { EPSILON, NEAR_APERTURE_X_FRACTION, createPolarComplex, createPolarTimesComplex, smoothStep } from './AnalyticalWaveMath.js';
+import { getFresnelApertureTransfer } from './FresnelApertureTransfer.js';
+import { type AnalyticalBarrier, type AnalyticalSlit, type AnalyticalSource, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldComponent, type FieldComponentSource, type FieldLayer, type FieldSample, type GaussianPacketReEmission, type GaussianPacketSource, type LayeredFieldSample, type MeasurementProjection, type PlaneWaveSource } from './AnalyticalWaveKernelTypes.js';
 
-const EPSILON = 1e-12;
-const NEAR_APERTURE_X_FRACTION = 1e-4;
+export { computeSampleIntensity, getRepresentativeComplex } from './AnalyticalFieldSample.js';
+export type {
+  AnalyticalBarrier,
+  AnalyticalSlit,
+  AnalyticalSource,
+  AnalyticalWaveParameters,
+  DecoherenceEvent,
+  DecoherenceSlit,
+  FieldComponent,
+  FieldComponentSource,
+  FieldLayer,
+  FieldSample,
+  GaussianPacketReEmission,
+  GaussianPacketSource,
+  LayeredFieldSample,
+  MeasurementProjection,
+  PlaneWaveSource
+} from './AnalyticalWaveKernelTypes.js';
 
-// Smooth the first post-aperture samples so the visual transition from slit mask to Fresnel propagation
-// does not create a screen-specific artifact at the aperture boundary.
-const APERTURE_BLEND_SLIT_WIDTH_FRACTION = 0.5;
-const APERTURE_BLEND_WAVELENGTH_FRACTION = 0.25;
-const INV_SQRT_2 = 1 / Math.sqrt( 2 );
 const PLANE_WAVE_DECOHERENCE_BAND_DURATION = 0.2;
 const PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION = PLANE_WAVE_DECOHERENCE_BAND_DURATION / 2;
 const MEASUREMENT_BITE_INITIAL_SATURATION = Math.exp( 0.5 );
@@ -56,114 +68,6 @@ const MEASUREMENT_BITE_MAX_SPREAD_TIME = 1.1;
 const MEASUREMENT_BITE_EDGE_DEFICIT = 0.02;
 const MEASUREMENT_BITE_MAX_SUPER_GAUSSIAN_EXPONENT = 24;
 
-export type FieldComponentSource = 'incident' | 'topSlit' | 'bottomSlit';
-
-export type DecoherenceSlit = 'topSlit' | 'bottomSlit';
-
-export type DecoherenceEvent = {
-  time: number;
-  selectedSlit: DecoherenceSlit;
-  clickedDetectorSlit?: DecoherenceSlit;
-};
-
-export type GaussianPacketReEmission = {
-  selectedSlit: DecoherenceSlit;
-  eventTime: number;
-  timeAdvance?: number;
-  sourceX: number;
-  centerY: number;
-  width: number;
-};
-
-export type FieldComponent = {
-  source: FieldComponentSource;
-  coherenceGroup: string;
-  support?: number;
-  value: Complex;
-};
-
-export type FieldSample =
-  { kind: 'unreached' } |
-  { kind: 'absorbed' } |
-  { kind: 'blocked' } |
-  { kind: 'field'; components: FieldComponent[] };
-
-// Rendering-level description of one visible particle-chain band. order controls z-compositing,
-// alpha controls the band envelope, and components carry the field value rendered in the layer.
-export type FieldLayer = {
-  order: number;
-  alpha: number;
-  components: FieldComponent[];
-};
-
-// Layered samples are intentionally parallel to FieldSample status values, but expose renderable
-// particle bands instead of an already-projected list of components.
-export type LayeredFieldSample =
-  { kind: 'unreached' } |
-  { kind: 'absorbed' } |
-  { kind: 'blocked' } |
-  { kind: 'field'; layers: FieldLayer[] };
-
-export type PlaneWaveSource = {
-  kind: 'plane';
-  waveNumber: number;
-  speed: number;
-  startTime: number | null;
-  edgeTaperDistance?: number;
-};
-
-export type GaussianPacketSource = {
-  kind: 'gaussianPacket';
-  isActive: boolean;
-  waveNumber: number;
-  speed: number;
-  initialCenterX: number;
-  centerY: number;
-  sigmaX0: number;
-  sigmaY0: number;
-  longitudinalSpreadTime: number;
-  transverseSpreadTime: number;
-};
-
-export type AnalyticalSource = PlaneWaveSource | GaussianPacketSource;
-
-export type AnalyticalSlit = {
-  source: 'topSlit' | 'bottomSlit';
-  centerY: number;
-  width: number;
-  isOpen: boolean;
-  coherenceGroup: string;
-};
-
-export type AnalyticalBarrier =
-  { kind: 'none' } |
-  {
-    kind: 'doubleSlit';
-    barrierX: number;
-    slits: AnalyticalSlit[];
-  };
-
-export type MeasurementProjection = {
-  centerX: number;
-  centerY: number;
-  radius: number;
-  edgeFeather?: number;
-  measurementTime: number;
-  renormScale: number;
-
-  // Kept only so legacy saved states and hand-authored test parameters can be read harmlessly.
-  // Radius-dependent spreading ignores this field.
-  shrinkDuration?: number;
-};
-
-export type AnalyticalWaveParameters = {
-  source: AnalyticalSource;
-  barrier: AnalyticalBarrier;
-  projections?: MeasurementProjection[];
-  decoherenceEvents?: readonly DecoherenceEvent[];
-  packetReEmission?: GaussianPacketReEmission | null;
-};
-
 type GaussianPacketState = {
   centerX: number;
   sigmaX: number;
@@ -173,357 +77,17 @@ type GaussianPacketState = {
   chirpY: number;
 };
 
-// Keep physical complex amplitude separate from visual wavefront support. Diffraction can reduce
-// amplitude without meaning the sample is unreached background.
-type ApertureTransfer = {
-  value: Complex;
-  support: number;
-};
-
 type MeasurementProjectionSpread = {
   falloffScale: number;
   deficitStrength: number;
   exponent: number;
 };
 
-// The analytical kernel is sampled for every visible grid cell. Keep transient complex arithmetic in
-// numeric real/imaginary components here, then allocate Complex only at public FieldComponent and
-// getRepresentativeComplex boundaries.
-type ComplexComponents = {
-  real: number;
-  imaginary: number;
-};
-
-// Reused scratch objects for the synchronous Fresnel hot path. These values are copied into a new
-// Complex before returning, so callers never observe or retain the mutable scratch state.
-const fresnelUMinComponents: ComplexComponents = { real: 0, imaginary: 0 };
-const fresnelUMaxComponents: ComplexComponents = { real: 0, imaginary: 0 };
-const apertureTransferComponents: ComplexComponents = { real: 0, imaginary: 0 };
-const apertureBlendComponents: ComplexComponents = { real: 0, imaginary: 0 };
-
-function smoothStep( edge0: number, edge1: number, x: number ): number {
-  if ( x <= edge0 ) {
-    return 0;
-  }
-  if ( x >= edge1 ) {
-    return 1;
-  }
-  const u = ( x - edge0 ) / ( edge1 - edge0 );
-  return u * u * ( 3 - 2 * u );
-}
-
-// Fast Abramowitz-Stegun style approximation for Fresnel integrals. The max error is small enough
-// for rendering/unit-test invariants, and it avoids per-cell numerical quadrature in the canvas.
-// TODO: Move to ./fresnelIntegral.ts, see https://github.com/phetsims/quantum-wave-interference/issues/135
-function setFresnelIntegralComponents( x: number, out: ComplexComponents ): void {
-  const sign = x < 0 ? -1 : 1;
-  const ax = Math.abs( x );
-
-  if ( ax < EPSILON ) {
-    out.real = 0;
-    out.imaginary = 0;
-    return;
-  }
-
-  const phase = 0.5 * Math.PI * ax * ax;
-  const sinPhase = Math.sin( phase );
-  const cosPhase = Math.cos( phase );
-  const f = ( 1 + 0.926 * ax ) / ( 2 + 1.792 * ax + 3.104 * ax * ax );
-  const g = 1 / ( 2 + 4.142 * ax + 3.492 * ax * ax + 6.67 * ax * ax * ax );
-
-  out.real = sign * ( 0.5 + f * sinPhase - g * cosPhase );
-  out.imaginary = sign * ( 0.5 - f * cosPhase - g * sinPhase );
-}
-
-// Allocation-free equivalent of Complex#times for short-lived intermediate values.
-function setMultiplyComponents(
-  aReal: number,
-  aImaginary: number,
-  bReal: number,
-  bImaginary: number,
-  out: ComplexComponents
-): void {
-  out.real = aReal * bReal - aImaginary * bImaginary;
-  out.imaginary = aReal * bImaginary + aImaginary * bReal;
-}
-
-// Allocation-free equivalent of Complex.createPolar( magnitude, phase ).times( value ).
-function setPolarTimesComponents(
-  magnitude: number,
-  phase: number,
-  real: number,
-  imaginary: number,
-  out: ComplexComponents
-): void {
-  setMultiplyComponents(
-    magnitude * Math.cos( phase ),
-    magnitude * Math.sin( phase ),
-    real,
-    imaginary,
-    out
-  );
-}
-
-// Allocation-free equivalent of blending two Complex values.
-function setBlendComponents(
-  aReal: number,
-  aImaginary: number,
-  bReal: number,
-  bImaginary: number,
-  t: number,
-  out: ComplexComponents
-): void {
-  out.real = aReal + ( bReal - aReal ) * t;
-  out.imaginary = aImaginary + ( bImaginary - aImaginary ) * t;
-}
-
-// Boundary helper for code paths that must return a public Complex object.
-function createPolarComplex( magnitude: number, phase: number ): Complex {
-  return new Complex( magnitude * Math.cos( phase ), magnitude * Math.sin( phase ) );
-}
-
-// Boundary helper for code paths that must return a public Complex object.
-function createPolarTimesComplex( magnitude: number, phase: number, value: Complex ): Complex {
-  const polarReal = magnitude * Math.cos( phase );
-  const polarImaginary = magnitude * Math.sin( phase );
-  return new Complex(
-    polarReal * value.real - polarImaginary * value.imaginary,
-    polarReal * value.imaginary + polarImaginary * value.real
-  );
-}
-
-function getFresnelApertureTransfer(
-  waveNumber: number,
-  xPastBarrier: number,
-  y: number,
-  slit: AnalyticalSlit
-): ApertureTransfer {
-  const halfWidth = slit.width / 2;
-  const yMin = slit.centerY - halfWidth;
-  const yMax = slit.centerY + halfWidth;
-  const nearApertureX = Math.max( EPSILON, slit.width * NEAR_APERTURE_X_FRACTION );
-  const apertureMaskReal = Math.abs( y - slit.centerY ) <= halfWidth ? 1 : 0;
-  const apertureMaskSupport = apertureMaskReal;
-
-  if ( xPastBarrier <= nearApertureX ) {
-    return {
-      value: new Complex( apertureMaskReal, 0 ),
-      support: apertureMaskSupport
-    };
-  }
-
-  const wavelength = 2 * Math.PI / waveNumber;
-  const uScale = Math.sqrt( 2 / ( wavelength * xPastBarrier ) );
-  const uMin = ( yMin - y ) * uScale;
-  const uMax = ( yMax - y ) * uScale;
-
-  // Compute F(uMax)-F(uMin) numerically instead of allocating two Fresnel Complex values and subtracting.
-  setFresnelIntegralComponents( uMin, fresnelUMinComponents );
-  setFresnelIntegralComponents( uMax, fresnelUMaxComponents );
-
-  const apertureIntegralReal = fresnelUMaxComponents.real - fresnelUMinComponents.real;
-  const apertureIntegralImaginary = fresnelUMaxComponents.imaginary - fresnelUMinComponents.imaginary;
-  setPolarTimesComponents(
-    INV_SQRT_2,
-    waveNumber * xPastBarrier - Math.PI / 4,
-    apertureIntegralReal,
-    apertureIntegralImaginary,
-    apertureTransferComponents
-  );
-
-  const apertureBlendDistance = Math.max(
-    nearApertureX,
-    Math.min(
-      slit.width * APERTURE_BLEND_SLIT_WIDTH_FRACTION,
-      wavelength * APERTURE_BLEND_WAVELENGTH_FRACTION
-    )
-  );
-
-  if ( xPastBarrier < apertureBlendDistance ) {
-    const blend = smoothStep( nearApertureX, apertureBlendDistance, xPastBarrier );
-    setBlendComponents(
-      apertureMaskReal,
-      0,
-      apertureTransferComponents.real,
-      apertureTransferComponents.imaginary,
-      blend,
-      apertureBlendComponents
-    );
-
-    // Inside the handoff region, ramp the visual support to reached-field status while blending
-    // the complex value from the aperture mask to the Fresnel result.
-    return {
-      value: new Complex( apertureBlendComponents.real, apertureBlendComponents.imaginary ),
-      support: apertureMaskSupport + ( 1 - apertureMaskSupport ) * blend
-    };
-  }
-
-  return {
-    value: new Complex( apertureTransferComponents.real, apertureTransferComponents.imaginary ),
-    support: 1
-  };
-}
-
 function getClosestYOnSlit( y: number, slit: AnalyticalSlit ): number {
   const halfWidth = slit.width / 2;
   const yMin = slit.centerY - halfWidth;
   const yMax = slit.centerY + halfWidth;
   return Math.max( yMin, Math.min( yMax, y ) );
-}
-
-export function computeSampleIntensity( sample: FieldSample ): number {
-  if ( sample.kind !== 'field' ) {
-    return 0;
-  }
-
-  const components = sample.components;
-
-  // Most kernel samples have at most two components: incident, one open slit, or the two slit paths.
-  // Handle those cases directly and keep the generic grouping fallback for hand-authored tests or
-  // future models that introduce more coherence groups.
-  if ( components.length === 0 ) {
-    return 0;
-  }
-  if ( components.length === 1 ) {
-    return components[ 0 ].value.magnitudeSquared;
-  }
-  if ( components.length === 2 ) {
-    const value0 = components[ 0 ].value;
-    const value1 = components[ 1 ].value;
-    if ( components[ 0 ].coherenceGroup === components[ 1 ].coherenceGroup ) {
-      const real = value0.real + value1.real;
-      const imaginary = value0.imaginary + value1.imaginary;
-      return real * real + imaginary * imaginary;
-    }
-    else {
-      return value0.magnitudeSquared + value1.magnitudeSquared;
-    }
-  }
-
-  const groupNames: string[] = [];
-  const groupRealSums: number[] = [];
-  const groupImaginarySums: number[] = [];
-
-  for ( let i = 0; i < components.length; i++ ) {
-    const component = components[ i ];
-    const groupIndex = getCoherenceGroupIndex( groupNames, component.coherenceGroup );
-    if ( groupIndex < 0 ) {
-      groupNames.push( component.coherenceGroup );
-      groupRealSums.push( component.value.real );
-      groupImaginarySums.push( component.value.imaginary );
-    }
-    else {
-      groupRealSums[ groupIndex ] += component.value.real;
-      groupImaginarySums[ groupIndex ] += component.value.imaginary;
-    }
-  }
-
-  let intensity = 0;
-  for ( let i = 0; i < groupNames.length; i++ ) {
-    intensity += groupRealSums[ i ] * groupRealSums[ i ] + groupImaginarySums[ i ] * groupImaginarySums[ i ];
-  }
-  return intensity;
-}
-
-/**
- * Legacy display adapter: produce one complex value from a physically richer FieldSample.
- *
- * If there is one coherence group, this is the coherent sum. If there are multiple groups, the
- * returned phase is taken from the strongest group and the magnitude is scaled to the total
- * decoherent intensity. That keeps old real/imaginary displays finite while preserving intensity.
- */
-export function getRepresentativeComplex( sample: FieldSample ): Complex {
-  if ( sample.kind !== 'field' ) {
-    return new Complex( 0, 0 );
-  }
-
-  const components = sample.components;
-
-  // Mirror computeSampleIntensity's common 0/1/2-component fast path, but preserve this adapter's
-  // legacy rule: if groups are decoherent, display the strongest phase scaled to total intensity.
-  if ( components.length === 0 ) {
-    return new Complex( 0, 0 );
-  }
-  if ( components.length === 1 ) {
-    return new Complex( components[ 0 ].value.real, components[ 0 ].value.imaginary );
-  }
-  if ( components.length === 2 ) {
-    const value0 = components[ 0 ].value;
-    const value1 = components[ 1 ].value;
-    if ( components[ 0 ].coherenceGroup === components[ 1 ].coherenceGroup ) {
-      return new Complex( value0.real + value1.real, value0.imaginary + value1.imaginary );
-    }
-    else {
-      const intensity0 = value0.magnitudeSquared;
-      const intensity1 = value1.magnitudeSquared;
-      return createRepresentativeComplexFromStrongestGroup(
-        intensity0 + intensity1,
-        intensity0 >= intensity1 ? value0.real : value1.real,
-        intensity0 >= intensity1 ? value0.imaginary : value1.imaginary,
-        Math.max( intensity0, intensity1 )
-      );
-    }
-  }
-
-  const groupNames: string[] = [];
-  const groupRealSums: number[] = [];
-  const groupImaginarySums: number[] = [];
-
-  for ( let i = 0; i < components.length; i++ ) {
-    const component = components[ i ];
-    const groupIndex = getCoherenceGroupIndex( groupNames, component.coherenceGroup );
-    if ( groupIndex < 0 ) {
-      groupNames.push( component.coherenceGroup );
-      groupRealSums.push( component.value.real );
-      groupImaginarySums.push( component.value.imaginary );
-    }
-    else {
-      groupRealSums[ groupIndex ] += component.value.real;
-      groupImaginarySums[ groupIndex ] += component.value.imaginary;
-    }
-  }
-
-  let totalIntensity = 0;
-  let strongestReal = 0;
-  let strongestImaginary = 0;
-  let strongestIntensity = 0;
-
-  for ( let i = 0; i < groupNames.length; i++ ) {
-    const real = groupRealSums[ i ];
-    const imaginary = groupImaginarySums[ i ];
-    const intensity = real * real + imaginary * imaginary;
-    totalIntensity += intensity;
-    if ( intensity > strongestIntensity ) {
-      strongestReal = real;
-      strongestImaginary = imaginary;
-      strongestIntensity = intensity;
-    }
-  }
-
-  return createRepresentativeComplexFromStrongestGroup( totalIntensity, strongestReal, strongestImaginary, strongestIntensity );
-}
-
-function getCoherenceGroupIndex( groupNames: string[], coherenceGroup: string ): number {
-  for ( let i = 0; i < groupNames.length; i++ ) {
-    if ( groupNames[ i ] === coherenceGroup ) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-function createRepresentativeComplexFromStrongestGroup(
-  totalIntensity: number,
-  strongestReal: number,
-  strongestImaginary: number,
-  strongestIntensity: number
-): Complex {
-  if ( totalIntensity <= 0 || strongestIntensity <= 0 ) {
-    return new Complex( 0, 0 );
-  }
-
-  const scale = Math.sqrt( totalIntensity / strongestIntensity );
-  return new Complex( strongestReal * scale, strongestImaginary * scale );
 }
 
 export function evaluateAnalyticalSample(
