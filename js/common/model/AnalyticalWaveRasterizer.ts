@@ -33,17 +33,23 @@ export const UNREACHED_VACUUM = 0;
 export const BLOCKED_VACUUM = 48;
 export const ABSORBED_VACUUM = 32;
 
-// TODO: Document supplemental types. Do they all need export? See https://github.com/phetsims/quantum-wave-interference/issues/135
+// RGB color components in Canvas ImageData byte space. Exported because callers provide the source
+// color used to tint the sampled wave.
 export type RGBColor = {
   red: number;
   green: number;
   blue: number;
 };
 
+// RGBA color components in Canvas ImageData byte space. The rasterizer returns this shape for each
+// sampled cell before the caller writes the bytes into an ImageData or test raster.
 export type RGBAColor = RGBColor & {
   alpha: number;
 };
 
+// Complete input for the pure rasterization test harness. Production rendering usually samples a
+// WaveSolver grid directly, but tests use these options to evaluate the analytical kernel over a
+// deterministic rectangular pixel grid without Scenery or browser canvas APIs.
 export type AnalyticalWaveRasterOptions = {
   parameters: AnalyticalWaveParameters;
   width: number;
@@ -56,6 +62,8 @@ export type AnalyticalWaveRasterOptions = {
   amplitudeScale: number;
 };
 
+// Output from rasterizeAnalyticalWave. pixels is a tightly packed RGBA byte array in row-major order;
+// statusCounts summarize which kernel sample statuses were encountered for test assertions.
 export type AnalyticalWaveRaster = {
   width: number;
   height: number;
@@ -70,7 +78,14 @@ export type AnalyticalWaveRaster = {
 
 //TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Generated code seems to prefer not to use 'function' for defining functions. Might facilitate unintended closures.
 
-// TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
+/**
+ * Converts one model-level FieldSample into an opaque RGBA color for the legacy wave display path.
+ *
+ * WaveVisualizationCanvasNode calls this once per grid cell when the solver exposes ordinary
+ * FieldSamples, and rasterizeAnalyticalWave calls it for DOM-free tests. Non-field statuses map to
+ * fixed vacuum grays. Field samples are first reduced by coherence group so coherent paths interfere,
+ * decoherent groups add intensities, and weak support fades toward the unreached vacuum color.
+ */
 export function getFieldSampleRGBA(
   sample: FieldSample,
   displayMode: WaveDisplayMode,
@@ -85,7 +100,7 @@ export function getFieldSampleRGBA(
   }
 
   const groupStates = getCoherenceGroupDisplayStates( sample );
-  const displayState = getDisplayState( sample, groupStates, amplitudeScale );
+  const displayState = getDisplayState( groupStates, amplitudeScale );
   return getDisplayStateRGBA( displayState, displayMode, baseColor, amplitudeScale );
 }
 
@@ -97,6 +112,9 @@ export function getFieldSampleRGBA(
  * layers therefore reveal the black Scenery background behind the canvas, instead of being converted
  * into opaque black pixels. The order value comes from the kernel and is the hook for z-order
  * experimentation.
+ *
+ * WaveVisualizationCanvasNode calls this once per grid cell when the solver exposes layered samples.
+ * Tests call it directly to verify the transparent layer semantics without a browser canvas.
  */
 export function getLayeredFieldSampleRGBA(
   sample: LayeredFieldSample,
@@ -143,7 +161,14 @@ export function getLayeredFieldSampleRGBA(
   };
 }
 
-// TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
+/**
+ * Converts one render-layer description into the transparent RGBA contribution used by
+ * getLayeredFieldSampleRGBA.
+ *
+ * Layered samples separate particle-chain bands before compositing. This helper gives each band the
+ * same coherence-group reduction and display-mode color treatment as the legacy path, then applies the
+ * layer alpha as transparency so getLayeredFieldSampleRGBA can combine bands in z-order.
+ */
 function getFieldLayerRGBA(
   layer: FieldLayer,
   displayMode: WaveDisplayMode,
@@ -155,11 +180,17 @@ function getFieldLayerRGBA(
     components: layer.components
   };
   const groupStates = getCoherenceGroupDisplayStates( layerSample );
-  const displayState = getDisplayState( layerSample, groupStates, amplitudeScale );
+  const displayState = getDisplayState( groupStates, amplitudeScale );
   return getDisplayStateTransparentRGBA( displayState, displayMode, baseColor, amplitudeScale, layer.alpha );
 }
 
-// TODO: Document, see https://github.com/phetsims/quantum-wave-interference/issues/135
+/**
+ * Converts a reduced field display state into the opaque color used by the legacy renderer.
+ *
+ * getFieldSampleRGBA calls this after coherence groups have been reduced to a display state. It is
+ * responsible for display-mode-specific intensity mapping and for preblending weak support into the
+ * unreached vacuum color, because this path always writes an opaque canvas pixel.
+ */
 function getDisplayStateRGBA(
   displayState: FieldDisplayState,
   displayMode: WaveDisplayMode,
@@ -214,6 +245,8 @@ function getDisplayStateRGBA(
  * look like the wave itself darkens. Here intensity still controls the layer's color, while
  * displayState.visibility and layerAlpha control transparency. The black backing node supplies the
  * vacuum color during canvas compositing.
+ *
+ * getFieldLayerRGBA calls this for each particle-chain band during layered rendering.
  */
 function getDisplayStateTransparentRGBA(
   displayState: FieldDisplayState,
@@ -257,6 +290,12 @@ function getDisplayStateTransparentRGBA(
   };
 }
 
+/**
+ * Linearly interpolates from a to b by t.
+ *
+ * getDisplayStateRGBA uses this to fade unsupported field pixels toward the vacuum color. It is kept
+ * tiny because rasterization calls it repeatedly in the per-pixel hot path.
+ */
 const blend = ( a: number, b: number, t: number ): number => a + ( b - a ) * t;
 
 // Per-coherence-group rendering summary. Store real/imaginary components directly so rasterization
@@ -280,8 +319,15 @@ type FieldDisplayState = {
   visibility: number;
 };
 
+/**
+ * Reduces all coherence-group summaries for one field sample to the single display state used by the
+ * color mappers.
+ *
+ * getFieldSampleRGBA and getFieldLayerRGBA call this after grouping components. It adds intensities
+ * incoherently across decohered groups, uses the strongest group as the representative phase for real
+ * and imaginary display modes, and computes the visibility used to fade or alpha-mask weak support.
+ */
 function getDisplayState(
-  sample: Extract<FieldSample, { kind: 'field' }>, // TODO: Unused? See https://github.com/phetsims/quantum-wave-interference/issues/135
   groupStates: CoherenceGroupDisplayState[],
   amplitudeScale: number
 ): FieldDisplayState {
@@ -318,7 +364,15 @@ function getDisplayState(
   };
 }
 
-// TODO: Document every function in this whole file, what are the responsibilities? Who calls it, when and why? See https://github.com/phetsims/quantum-wave-interference/issues/135
+/**
+ * Groups a field sample's components by coherence group and computes per-group rendering summaries.
+ *
+ * getFieldSampleRGBA calls this for complete FieldSamples and getFieldLayerRGBA calls it for the
+ * components inside a single render layer. The grouping is where coherent components interfere by
+ * complex addition while decoherent groups remain separate for later incoherent intensity addition.
+ * Because this runs once per rendered cell, the common zero-, one-, and two-component cases avoid Map
+ * allocation.
+ */
 function getCoherenceGroupDisplayStates( sample: Extract<FieldSample, { kind: 'field' }> ): CoherenceGroupDisplayState[] {
   const components = sample.components;
 
@@ -372,6 +426,12 @@ function getCoherenceGroupDisplayStates( sample: Extract<FieldSample, { kind: 'f
   return groupStates;
 }
 
+/**
+ * Initializes a per-coherence-group display state from the first component in that group.
+ *
+ * getCoherenceGroupDisplayStates uses this whenever it encounters a new coherence group. Intensity is
+ * filled in after all coherent components for the group have been accumulated.
+ */
 function createCoherenceGroupDisplayState( component: FieldComponent ): CoherenceGroupDisplayState {
   return {
     coherenceGroup: component.coherenceGroup,
@@ -384,6 +444,13 @@ function createCoherenceGroupDisplayState( component: FieldComponent ): Coherenc
   };
 }
 
+/**
+ * Finds the index of an existing coherence-group summary.
+ *
+ * getCoherenceGroupDisplayStates uses this in the generic path for samples with more than two
+ * components, where there may be an arbitrary number of coherence groups. It returns -1 when the group
+ * has not been seen yet.
+ */
 function getCoherenceGroupDisplayStateIndex(
   groupStates: CoherenceGroupDisplayState[],
   coherenceGroup: string
@@ -396,6 +463,13 @@ function getCoherenceGroupDisplayStateIndex(
   return -1;
 }
 
+/**
+ * Accumulates another coherent component into an existing coherence-group summary.
+ *
+ * getCoherenceGroupDisplayStates calls this when multiple components share a coherenceGroup. Real and
+ * imaginary parts add coherently, componentIntensity tracks the pre-interference support fallback, and
+ * explicit support takes the maximum wavefront support reported by any component in the group.
+ */
 function addComponentToGroupState( groupState: CoherenceGroupDisplayState, component: FieldComponent ): void {
   groupState.real += component.value.real;
   groupState.imaginary += component.value.imaginary;
@@ -406,6 +480,14 @@ function addComponentToGroupState( groupState: CoherenceGroupDisplayState, compo
   }
 }
 
+/**
+ * Computes the visibility of one sampled field point for rendering.
+ *
+ * getDisplayState calls this after all coherence groups have been summarized. Explicit kernel support
+ * is used when available, which lets analytical wavefront tapers control visibility directly. Otherwise
+ * visibility falls back to scaled component magnitude so very weak fields fade toward vacuum instead of
+ * producing fully saturated dark pixels.
+ */
 function getSampleVisibility( groupStates: CoherenceGroupDisplayState[], amplitudeScale: number ): number {
   let hasExplicitSupport = false;
   let explicitSupport = 0;
@@ -426,6 +508,14 @@ function getSampleVisibility( groupStates: CoherenceGroupDisplayState[], amplitu
   return clamp( Math.sqrt( componentIntensity ) * amplitudeScale, 0, 1 );
 }
 
+/**
+ * Samples the analytical kernel over a rectangular grid and returns packed RGBA bytes.
+ *
+ * This is the DOM-free rasterization harness used by AnalyticalModelTests. Production rendering uses
+ * WaveVisualizationCanvasNode with an existing solver grid, but this function is useful when tests need
+ * deterministic pixel output and status counts from raw AnalyticalWaveParameters. Barrier x positions
+ * are snapped onto the matching raster column so tests exercise the exact aperture/barrier statuses.
+ */
 export function rasterizeAnalyticalWave( options: AnalyticalWaveRasterOptions ): AnalyticalWaveRaster {
   const pixels = new Uint8ClampedArray( options.width * options.height * 4 );
   const statusCounts = {
