@@ -7,9 +7,20 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
 export type WavelengthColorZone = 'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red';
+
+export const WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES: TReadOnlyProperty<string>[] = [
+  QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty,
+  QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty,
+  QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty,
+  QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty,
+  QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty,
+  QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty,
+  QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty
+];
 
 export function getWavelengthColorZone( wavelength: number ): WavelengthColorZone {
   return wavelength <= 450 ? 'violet' :
@@ -21,14 +32,13 @@ export function getWavelengthColorZone( wavelength: number ): WavelengthColorZon
          'red';
 }
 
-// TODO: why return a string primitive here and not an axon Property, see https://github.com/phetsims/quantum-wave-interference/issues/135
-export function getWavelengthColorZoneString( colorZone: WavelengthColorZone ): string {
-  return colorZone === 'violet' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty.value :
-         colorZone === 'blue' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty.value :
-         colorZone === 'indigo' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty.value :
-         colorZone === 'green' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty.value :
-         colorZone === 'yellow' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty.value :
-         colorZone === 'orange' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty.value :
-         colorZone === 'red' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty.value :
+export function getWavelengthColorZoneStringProperty( colorZone: WavelengthColorZone ): TReadOnlyProperty<string> {
+  return colorZone === 'violet' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty :
+         colorZone === 'blue' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty :
+         colorZone === 'indigo' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty :
+         colorZone === 'green' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty :
+         colorZone === 'yellow' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty :
+         colorZone === 'orange' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty :
+         colorZone === 'red' ? QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty :
          ( () => { throw new Error( `Unrecognized colorZone: ${colorZone}` ); } )();
 }

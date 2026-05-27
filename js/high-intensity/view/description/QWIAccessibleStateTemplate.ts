@@ -12,6 +12,7 @@ import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometer
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 import type { AccessibleTemplateValue } from '../../../../../scenery/js/accessibility/pdom/ParallelDOM.js';
 import { html } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
+import { WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import QWIAccessibleStateDescriber from './QWIAccessibleStateDescriber.js';
@@ -62,13 +63,7 @@ export default class QWIAccessibleStateTemplate {
       ...QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.getDependentProperties(),
       ...QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgress.getDependentProperties(),
       ...QuantumWaveInterferenceFluent.a11y.highIntensityState.displayTools.getDependentProperties(),
-      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty,
-      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty,
-      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty,
-      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty,
-      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty,
-      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty,
-      QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty,
+      ...WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES,
       ...micrometersUnit.getDependentProperties(),
       ...nanometersUnit.getDependentProperties()
     ] ) );

@@ -21,7 +21,7 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
-import { getWavelengthColorZone, getWavelengthColorZoneString } from '../WavelengthColorUtils.js';
+import { getWavelengthColorZone, getWavelengthColorZoneStringProperty, WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from '../WavelengthColorUtils.js';
 import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryContent.js';
 
 type RangeLike = {
@@ -91,20 +91,14 @@ export default class ExperimentSetupDetailsNode extends Node {
       } )
     );
 
-    const wavelengthColorStringProperty = new DerivedProperty(
-      [
+    const wavelengthColorStringProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [
         model.currentWavelengthProperty,
-        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty,
-        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty,
-        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty,
-        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty,
-        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty,
-        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty,
-        QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty
-      ],
-      wavelength => getWavelengthColorZoneString(
-        getWavelengthColorZone( roundSymmetric( wavelength ) )
-      )
+        ...WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES
+      ] ) ),
+      () => getWavelengthColorZoneStringProperty(
+        getWavelengthColorZone( roundSymmetric( model.currentWavelengthProperty.value ) )
+      ).value
     );
 
     const wavelengthDescriptionStringProperty =

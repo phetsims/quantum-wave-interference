@@ -10,7 +10,7 @@
 import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
-import { getWavelengthColorZoneString } from '../../../common/view/WavelengthColorUtils.js';
+import { getWavelengthColorZoneStringProperty } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type QWIAccessibleState, type QWIPatternKind } from './QWIAccessibleStateDescriber.js';
 
@@ -39,7 +39,7 @@ export const formatParticleDescription = ( state: QWIAccessibleState ): string =
   if ( state.sourceType === 'photons' ) {
     return QuantumWaveInterferenceFluent.a11y.highIntensityState.photonDetail.format( {
       wavelength: state.wavelengthNM,
-      color: getWavelengthColorZoneString( state.wavelengthColorZone! )
+      color: getWavelengthColorZoneStringProperty( state.wavelengthColorZone! ).value
     } );
   }
 

@@ -20,7 +20,7 @@ import SunConstants from '../../../../sun/js/SunConstants.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SOURCE_CONTROL_TITLE_FONT } from './SourceControlPanelConstants.js';
-import { getWavelengthColorZone, getWavelengthColorZoneString } from './WavelengthColorUtils.js';
+import { getWavelengthColorZone, getWavelengthColorZoneStringProperty, WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from './WavelengthColorUtils.js';
 
 export default class PhotonWavelengthControl extends WavelengthNumberControl {
 
@@ -59,20 +59,14 @@ export default class PhotonWavelengthControl extends WavelengthNumberControl {
                 showTrailingZeros: false,
                 showIntegersAsIntegers: true
               } ),
-              color: getWavelengthColorZoneString( colorZone )
+              color: getWavelengthColorZoneStringProperty( colorZone ).value
             } )
           };
         },
         numberFormatterDependencies: Array.from( new Set( [
           ...nanometersUnit.getDependentProperties(),
           ...QuantumWaveInterferenceFluent.a11y.wavelengthSlider.accessibleValue.getDependentProperties(),
-          QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.violetStringProperty,
-          QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.blueStringProperty,
-          QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.indigoStringProperty,
-          QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.greenStringProperty,
-          QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.yellowStringProperty,
-          QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.orangeStringProperty,
-          QuantumWaveInterferenceFluent.a11y.wavelengthSlider.color.redStringProperty
+          ...WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES
         ] ) ),
         textOptions: {
           font: new PhetFont( 14 )
