@@ -1,7 +1,5 @@
 // Copyright 2026, University of Colorado Boulder
 
-//TODO https://github.com/phetsims/quantum-wave-interference/issues/118 Documentation is not up to PhET standards. Other than the header comment, there is no documentation.
-
 /**
  * BaseAnalyticalWaveSolver owns the shared stateful WaveSolver adapter behavior for analytical solvers.
  * Subclasses provide the source model and any screen-specific detector/projection state.
@@ -22,42 +20,159 @@ import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js
 const DEFAULT_GRID_WIDTH = 200;
 const DEFAULT_GRID_HEIGHT = 200;
 const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
+
+// Shared sentinel samples used for grid cells the source wave has not reached yet.
 const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
 const UNREACHED_LAYERED_SAMPLE: LayeredFieldSample = { kind: 'unreached' };
 
 export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
 
+  /**
+   * Number of horizontal cells in the cached visualization grid.
+   */
   public readonly gridWidth: number;
+
+  /**
+   * Number of vertical cells in the cached visualization grid and detector distribution.
+   */
   public readonly gridHeight: number;
+
+  /**
+   * Fallback number of display wavelengths across the wave region when caller parameters do not override it.
+   */
   public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
 
+  /**
+   * Effective physical wavelength in meters. Scene models update this from the selected particle or light source.
+   */
   protected wavelength = QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9;
+
+  /**
+   * Effective physical propagation speed in meters per second.
+   */
   protected waveSpeed = QuantumWaveInterferenceConstants.SPEED_OF_LIGHT;
+
+  /**
+   * Ratio between the current physical speed and the screen's default speed, used to scale display-time propagation.
+   */
   protected displaySpeedScale = 1;
+
+  /**
+   * Number of wavelengths shown across the solver region in display coordinates.
+   */
   protected displayWavelengths = DISPLAY_WAVELENGTHS;
+
+  /**
+   * Active barrier configuration for kernel sampling.
+   */
   protected barrierType: BarrierType = 'none';
+
+  /**
+   * Physical center-to-center slit separation in meters.
+   */
   protected slitSeparation = 0.25e-3;
+
+  /**
+   * Minimum physical center-to-center slit separation in meters, used for display-coordinate scaling.
+   */
   protected slitSeparationMin = 0.25e-3;
+
+  /**
+   * Maximum physical center-to-center slit separation in meters, used for display-coordinate scaling.
+   */
   protected slitSeparationMax = 3e-3;
+
+  /**
+   * Physical slit aperture width in meters.
+   */
   protected slitWidth = 0.02e-3;
+
+  /**
+   * Horizontal barrier position as a fraction of regionWidth.
+   */
   protected barrierFractionX = 0.5;
+
+  /**
+   * Whether the upper slit aperture passes the field.
+   */
   protected isTopSlitOpen = true;
+
+  /**
+   * Whether the lower slit aperture passes the field.
+   */
   protected isBottomSlitOpen = true;
+
+  /**
+   * Whether the upper slit is treated as decohered from coherent open slits.
+   */
   protected isTopSlitDecoherent = false;
+
+  /**
+   * Whether the lower slit is treated as decohered from coherent open slits.
+   */
   protected isBottomSlitDecoherent = false;
+
+  /**
+   * Whether the source is currently emitting into the solver region.
+   */
   protected isSourceOn = false;
+
+  /**
+   * Width of the solver region in display-model coordinates.
+   */
   protected regionWidth = 1.0;
+
+  /**
+   * Height of the solver region in display-model coordinates.
+   */
   protected regionHeight = 1.0;
+
+  /**
+   * Current solver time in model seconds.
+   */
   protected time = 0;
 
+  /**
+   * Cached complex amplitude grid stored as interleaved real and imaginary components.
+   */
   protected readonly amplitudeField: Float64Array;
+
+  /**
+   * Cached model-facing field samples for each grid cell at the current solver time.
+   */
   protected readonly fieldSamples: FieldSample[];
+
+  /**
+   * Cached renderer-facing layered field samples for each grid cell when a subclass supports layered samples.
+   */
   protected readonly layeredFieldSamples: LayeredFieldSample[];
+
+  /**
+   * Cached normalized detector probability distribution at the detector edge.
+   */
   protected readonly detectorDistribution: Float64Array;
+
+  /**
+   * Reusable buffer for detector distributions requested at a non-native sample count.
+   */
   private sampledDetectorDistribution: Float64Array | null = null;
+
+  /**
+   * Time-ordered which-path detector records that the analytical kernel applies to field samples.
+   */
   protected decoherenceEvents: readonly DecoherenceEvent[] = [];
+
+  /**
+   * Whether cached field and detector data must be recomputed before the next read.
+   */
   protected dirty = true;
 
+  /**
+   * Creates a base analytical solver and allocates all shared grid and detector caches.
+   *
+   * @param gridWidth - Number of grid cells in the horizontal direction.
+   * @param gridHeight - Number of grid cells in the vertical direction.
+   */
   protected constructor( gridWidth = DEFAULT_GRID_WIDTH, gridHeight = DEFAULT_GRID_HEIGHT ) {
     this.gridWidth = gridWidth;
     this.gridHeight = gridHeight;
@@ -67,12 +182,25 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     this.detectorDistribution = new Float64Array( gridHeight );
   }
 
+  /**
+   * Applies a parameter value only when the caller supplied one. setParameters() uses this so omitted fields leave
+   * existing solver state unchanged.
+   *
+   * @param value - Optional value from the parameter update.
+   * @param setter - Callback that stores the value when it is defined.
+   */
   protected setIfDefined<T>( value: T | undefined, setter: ( value: T ) => void ): void {
     if ( value !== undefined ) {
       setter( value );
     }
   }
 
+  /**
+   * Applies partial scene parameters to the solver and invalidates cached samples. Undefined fields are ignored so
+   * scene models can send focused updates without restating the full solver configuration.
+   *
+   * @param params - Partial solver parameter update.
+   */
   public setParameters( params: WaveSolverParameters ): void {
     this.setIfDefined( params.wavelength, value => { this.wavelength = value; } );
     this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
@@ -95,19 +223,39 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     this.dirty = true;
   }
 
+  /**
+   * Updates source-emission state. Subclasses override this to manage state tied to source transitions, such as
+   * wavefront start time or detector accumulators.
+   *
+   * @param isSourceOn - Whether the source should emit into the solver region.
+   */
   protected setSourceOn( isSourceOn: boolean ): void {
     this.isSourceOn = isSourceOn;
   }
 
+  /**
+   * Advances solver time and marks cached samples dirty so the next read reflects the new time.
+   *
+   * @param dt - Time step in model seconds.
+   */
   public step( dt: number ): void {
     this.time += dt;
     this.dirty = true;
   }
 
+  /**
+   * Gets the current solver time.
+   *
+   * @returns Current solver time in model seconds.
+   */
   public getTime(): number {
     return this.time;
   }
 
+  /**
+   * Recomputes cached field data when it is dirty. Subclasses override this when detector caches must be recomputed
+   * with the field cache.
+   */
   protected ensureComputed(): void {
     if ( this.dirty ) {
       this.computeField();
@@ -115,20 +263,47 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     }
   }
 
+  /**
+   * Gets the cached complex amplitude grid, recomputing it first if needed. Values are stored as real/imaginary pairs
+   * in row-major grid-cell order.
+   *
+   * @returns Interleaved real and imaginary amplitude values for the visualization grid.
+   */
   public getAmplitudeField(): Float64Array {
     this.ensureComputed();
     return this.amplitudeField;
   }
 
+  /**
+   * Gets the analytical field sample for a grid cell at the current solver time.
+   *
+   * @param gridX - Horizontal grid-cell index.
+   * @param gridY - Vertical grid-cell index.
+   * @returns Field sample for the requested grid cell, or an unreached sample when the index is outside the cache.
+   */
   public getFieldSampleAtGridCell( gridX: number, gridY: number ): FieldSample {
     this.ensureComputed();
     return this.fieldSamples[ gridY * this.gridWidth + gridX ] || UNREACHED_SAMPLE;
   }
 
+  /**
+   * Reports whether cached layered samples are meaningful for this solver. The base solver can synthesize a single
+   * opaque layer from ordinary field samples, so subclasses opt in only when they need independent renderer layers.
+   *
+   * @returns false for the base implementation.
+   */
   public usesLayeredFieldSamples(): boolean {
     return false;
   }
 
+  /**
+   * Gets the layered analytical field sample for a grid cell. Subclasses that use layered samples return their cache;
+   * otherwise this adapts the ordinary field sample into a one-layer representation.
+   *
+   * @param gridX - Horizontal grid-cell index.
+   * @param gridY - Vertical grid-cell index.
+   * @returns Layered field sample for the requested grid cell.
+   */
   public getLayeredFieldSampleAtGridCell( gridX: number, gridY: number ): LayeredFieldSample {
     this.ensureComputed();
     const cellIndex = gridY * this.gridWidth + gridX;
@@ -147,6 +322,13 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     } : sample;
   }
 
+  /**
+   * Gets the normalized detector probability distribution at the current solver time. Requests at the native grid
+   * height return the solver's shared detector buffer; other sample counts use a resampled reusable buffer.
+   *
+   * @param sampleCount - Number of detector rows to sample.
+   * @returns Normalized detector probability distribution.
+   */
   public getDetectorProbabilityDistribution( sampleCount = this.gridHeight ): Float64Array {
     if ( sampleCount !== this.gridHeight ) {
       return this.getSampledDetectorProbabilityDistribution( sampleCount );
@@ -156,6 +338,12 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     return this.detectorDistribution;
   }
 
+  /**
+   * Gets a normalized detector probability distribution sampled at a caller-specified row count.
+   *
+   * @param sampleCount - Number of detector rows to sample.
+   * @returns Reusable buffer containing the normalized detector distribution.
+   */
   protected getSampledDetectorProbabilityDistribution( sampleCount: number ): Float64Array {
     if ( !this.sampledDetectorDistribution || this.sampledDetectorDistribution.length !== sampleCount ) {
       this.sampledDetectorDistribution = new Float64Array( sampleCount );
@@ -165,6 +353,12 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     return this.sampledDetectorDistribution;
   }
 
+  /**
+   * Samples detector-edge intensity into a provided buffer and normalizes it by the maximum sampled probability.
+   *
+   * @param distribution - Buffer to overwrite with normalized detector probabilities.
+   * @param updateBeforeSampling - Whether subclass detector-sampling hooks should run before evaluation.
+   */
   protected computeNormalizedDetectorDistribution( distribution: Float64Array, updateBeforeSampling = true ): void {
     if ( !this.isSourceOn ) {
       distribution.fill( 0 );
@@ -190,6 +384,12 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     this.normalizeDetectorDistribution( distribution, maxProb );
   }
 
+  /**
+   * Normalizes a detector distribution in place by its maximum probability.
+   *
+   * @param distribution - Detector distribution to normalize.
+   * @param maxProb - Maximum unnormalized probability in the distribution.
+   */
   protected normalizeDetectorDistribution( distribution: Float64Array, maxProb: number ): void {
     if ( maxProb > 0 ) {
       for ( let i = 0; i < distribution.length; i++ ) {
@@ -198,14 +398,26 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     }
   }
 
+  /**
+   * Hook called immediately before detector-edge samples are evaluated. Subclasses use this to update derived state
+   * that depends on the current sampling time.
+   */
   protected beforeDetectorDistributionSampling(): void {
     // Hook for subclasses that update state before detector-edge sampling.
   }
 
+  /**
+   * Gets the propagation speed used for display-coordinate wave motion.
+   *
+   * @returns Display-model propagation speed from the subclass source model.
+   */
   public getDisplayPropagationSpeed(): number {
     return this.getDisplaySpeed();
   }
 
+  /**
+   * Restores shared solver state to its initial values and clears all cached field and detector data.
+   */
   public reset(): void {
     this.time = 0;
     this.isSourceOn = false;
@@ -216,23 +428,56 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     this.dirty = true;
   }
 
+  /**
+   * Marks cached samples dirty so the next query recomputes field and detector data.
+   */
   public invalidate(): void {
     this.dirty = true;
   }
 
+  /**
+   * Gets a serializable snapshot of subclass-specific solver state.
+   *
+   * @returns Solver state for PhET-iO state save/restore.
+   */
   public abstract getState(): WaveSolverState;
 
+  /**
+   * Restores subclass-specific solver state and invalidates any affected caches.
+   *
+   * @param state - Serialized wave solver state to restore.
+   */
   public abstract setState( state: WaveSolverState ): void;
 
+  /**
+   * Applies a detector-tool measurement projection. Continuous analytical solvers have no projection state, so this
+   * base implementation is intentionally empty; packet solvers override it.
+   *
+   * @param _centerNorm - Projection center in normalized wave-region coordinates.
+   * @param _radiusNorm - Projection radius as a fraction of wave-region width.
+   */
   public applyMeasurementProjection( _centerNorm: Vector2, _radiusNorm: number ): void {
     // No-op by default. Packet solvers override this for detector-tool projections.
   }
 
+  /**
+   * Evaluates the analytical field at continuous model coordinates and reduces it to the legacy representative complex
+   * value used by the WaveSolver API.
+   *
+   * @param x - Horizontal model coordinate measured from the source side of the wave region.
+   * @param y - Vertical model coordinate with y = 0 at the center of the wave region.
+   * @param t - Solver time to evaluate, in model seconds.
+   * @returns Representative complex amplitude at the requested coordinates and time.
+   */
   public evaluate( x: number, y: number, t = this.time ): Complex {
     this.ensureComputed();
     return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
   }
 
+  /**
+   * Recomputes the cached amplitude and field-sample grids at the current solver time. When the source is off, all
+   * shared grid caches are cleared and subclass-specific field caches can be cleared by hook.
+   */
   protected computeField(): void {
     const { gridWidth, gridHeight, amplitudeField, fieldSamples, layeredFieldSamples } = this;
 
@@ -281,14 +526,29 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     }
   }
 
+  /**
+   * Hook called when computeField() clears the shared grid caches because the source is off. Subclasses use this to
+   * clear additional caches that are not owned by the base solver.
+   */
   protected clearAdditionalFieldStateWhenSourceOff(): void {
     // Hook for subclasses with additional display caches.
   }
 
+  /**
+   * Hook called after kernel parameters are created and before the grid field samples are evaluated.
+   *
+   * @param _parameters - Analytical-kernel parameters that will be used for field sampling.
+   */
   protected beforeFieldSampleLoop( _parameters: AnalyticalWaveParameters ): void {
     // Hook for subclasses that update source/projection parameters before sampling.
   }
 
+  /**
+   * Creates the analytical-kernel parameter object for the current solver state.
+   *
+   * @param includeDecoherenceEvents - Whether which-path detector records should be included.
+   * @returns Source, barrier, and optional decoherence data for analytical field evaluation.
+   */
   protected createKernelParameters( includeDecoherenceEvents = true ): AnalyticalWaveParameters {
     const parameters: AnalyticalWaveParameters = {
       source: this.createKernelSource(),
@@ -302,6 +562,11 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     return parameters;
   }
 
+  /**
+   * Creates the analytical-kernel barrier definition from the current slit and decoherence state.
+   *
+   * @returns Barrier description for analytical field evaluation.
+   */
   private createKernelBarrier(): AnalyticalBarrier {
     if ( this.barrierType !== 'doubleSlit' ) {
       return { kind: 'none' };
@@ -330,10 +595,22 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
     };
   }
 
+  /**
+   * Gets the display-scale wave number for the current region width and wavelength count.
+   *
+   * @returns Wave number in radians per display-model distance unit.
+   */
   protected getDisplayWaveNumber(): number {
     return 2 * Math.PI * this.displayWavelengths / this.regionWidth;
   }
 
+  /**
+   * Converts a horizontal grid-cell index to a display-model x coordinate. The cell aligned with the barrier is
+   * snapped exactly to barrierFractionX so barrier samples are evaluated on the aperture plane.
+   *
+   * @param gridX - Horizontal grid-cell index.
+   * @returns Horizontal display-model coordinate for the grid-cell sample.
+   */
   protected getGridCellX( gridX: number ): number {
     const barrierIx = roundSymmetric( this.barrierFractionX * this.gridWidth );
     return this.barrierType === 'doubleSlit' && gridX === barrierIx ?
@@ -341,17 +618,43 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
            gridX * this.regionWidth / this.gridWidth;
   }
 
+  /**
+   * Converts a vertical grid-cell index to a display-model y coordinate centered on the wave region.
+   *
+   * @param gridY - Vertical grid-cell index.
+   * @returns Vertical display-model coordinate for the grid-cell sample.
+   */
   protected getGridCellY( gridY: number ): number {
     return ( gridY + 0.5 ) * this.regionHeight / this.gridHeight - this.regionHeight / 2;
   }
 
+  /**
+   * Gets slit geometry in display-model coordinates by mapping the physical slit controls into the current region.
+   *
+   * @returns Display-coordinate slit separation and aperture width.
+   */
   protected getDisplaySlitGeometry(): { displaySlitSeparation: number; displaySlitWidth: number } {
     return getDisplaySlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
   }
 
+  /**
+   * Creates the analytical-kernel source definition for the subclass's wave model.
+   *
+   * @returns Source description for analytical field evaluation.
+   */
   protected abstract createKernelSource(): AnalyticalSource;
 
+  /**
+   * Gets the coherence-group identifier shared by coherent open slits for the subclass's source model.
+   *
+   * @returns Coherence-group identifier used by analytical-kernel slit components.
+   */
   protected abstract getCoherentSlitsGroup(): string;
 
+  /**
+   * Gets the subclass's propagation speed in display-model coordinates.
+   *
+   * @returns Display-model propagation speed.
+   */
   protected abstract getDisplaySpeed(): number;
 }
