@@ -27,8 +27,9 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 
-// TODO: Err on the side of too much documentation instead of too little, we have to maintain and understand this file, see https://github.com/phetsims/quantum-wave-interference/issues/135
-
+// These constants describe the compact 2x2 scene selector used in the left control column. The button size,
+// icon slot, and label slot are intentionally independent so translated labels, different source artwork, and
+// RectangularRadioButtonGroup's internal layout calculations can be adjusted without changing the overall grid.
 const LABEL_FONT = new PhetFont( 12 );
 const ICON_MAX_WIDTH = 24;
 const ICON_SLOT_WIDTH = 30;
@@ -41,6 +42,8 @@ const GRID_HORIZONTAL_SPACING = 12;
 const GRID_VERTICAL_SPACING = 12;
 const sceneButtonSelectedFillProperty = QuantumWaveInterferenceColors.sceneButtonSelectedFillProperty;
 
+// The source SVGs have different natural sizes and amounts of visual whitespace, so each icon needs a small
+// source-type-specific scale correction to appear balanced within the fixed icon slot.
 const ICON_SCALE = {
   photons: 1.15,
   electrons: 1,
@@ -48,6 +51,8 @@ const ICON_SCALE = {
   heliumAtoms: 1.2
 } as const;
 
+// Scene model instances are generic, but the radio button visuals are determined by SourceType. Keep these maps
+// keyed by SourceType so every screen that uses the common scene selector gets the same visual vocabulary.
 const SOURCE_TYPE_IMAGE_MAP = {
   photons: photon_svg,
   electrons: electron_svg,
@@ -55,6 +60,7 @@ const SOURCE_TYPE_IMAGE_MAP = {
   heliumAtoms: heliumAtom_svg
 } as const;
 
+// Labels are StringProperties so the button text updates when the locale changes.
 const SOURCE_TYPE_STRING_PROPERTIES = {
   photons: QuantumWaveInterferenceFluent.photonsStringProperty,
   electrons: QuantumWaveInterferenceFluent.electronsStringProperty,
@@ -62,6 +68,9 @@ const SOURCE_TYPE_STRING_PROPERTIES = {
   heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomsStringProperty
 } as const;
 
+// Most screens only need to identify the newly selected source type in the accessible context response. Screens
+// with additional state to announce, such as whether emission is active, can replace these defaults through
+// createAccessibleContextResponse.
 const SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES = {
   photons: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.photonsRadioButton.accessibleContextResponseStringProperty,
   electrons: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.electronsRadioButton.accessibleContextResponseStringProperty,
@@ -72,11 +81,23 @@ const SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES = {
 type HasSourceType = { readonly sourceType: SourceType };
 
 type SceneRadioButtonGroupOptions<T> = {
+
+  // Provides a per-scene accessible response for screens whose scene changes require more context than the default
+  // source-type response. Return null when another component owns the response for scene transitions.
   createAccessibleContextResponse?: ( scene: T ) => TAlertable;
 };
 
 export default class SceneRadioButtonGroup<T extends HasSourceType> extends RectangularRadioButtonGroup<T> {
 
+  /**
+   * Creates a scene selector for the supplied scenes. Each scene is used as the radio button value, while its
+   * sourceType determines the icon, label, tandem name, and default accessible context response.
+   *
+   * @param sceneProperty - selected scene Property, shared with the screen model
+   * @param scenes - scene model instances to expose in the selector; each sourceType should appear once
+   * @param tandem - parent tandem for the radio button group
+   * @param options - optional screen-specific accessible response customization
+   */
   public constructor( sceneProperty: Property<T>, scenes: T[], tandem: Tandem, options?: SceneRadioButtonGroupOptions<T> ) {
 
     const items: RectangularRadioButtonGroupItem<T>[] = scenes.map( scene => {
