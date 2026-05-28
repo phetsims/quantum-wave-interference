@@ -11,6 +11,7 @@ import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
+import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
@@ -23,6 +24,7 @@ import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGrap
 import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
+import MaxHitsReachedPanel from '../../common/view/MaxHitsReachedPanel.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import resetDetectorScreenView from '../../common/view/resetDetectorScreenView.js';
@@ -52,6 +54,7 @@ const CONTENT_VERTICAL_OFFSET = 12;
 const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
 const CALLOUT_GAP = 55;
 const WAVE_REGION_Y_OFFSET = -30;
+const MAX_HITS_REACHED_PANEL_SPACING = 10;
 
 export default class SingleParticlesScreenView extends ScreenView {
 
@@ -137,6 +140,27 @@ export default class SingleParticlesScreenView extends ScreenView {
     emitterNode.right = waveRegionLeft + 2;
     emitterNode.centerY = waveRegionTop + waveRegionHeight / 2;
 
+    const maxHitsReachedPanel = new MaxHitsReachedPanel( tandem.createTandem( 'maxHitsReachedPanel' ) );
+    const updateMaxHitsReachedPanelPosition = () => {
+      maxHitsReachedPanel.left = emitterNode.right + MAX_HITS_REACHED_PANEL_SPACING;
+      maxHitsReachedPanel.centerY = emitterNode.centerY;
+    };
+    maxHitsReachedPanel.localBoundsProperty.link( updateMaxHitsReachedPanelPosition );
+    model.currentIsMaxHitsReachedProperty.link( isMaxHitsReached => {
+      maxHitsReachedPanel.visible = isMaxHitsReached;
+    } );
+
+    const maxHitsReachedResponseNode = new Node();
+    this.addChild( maxHitsReachedResponseNode );
+    model.currentIsMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
+      if ( isMaxHitsReached ) {
+        maxHitsReachedResponseNode.addAccessibleContextResponse(
+          QuantumWaveInterferenceFluent.a11y.detectorScreen.maxHitsReached.accessibleContextResponseStringProperty,
+          { responseGroup: 'quantum-wave-interference-single-particles-max-hits-reached' }
+        );
+      }
+    } );
+
     const waveRegionNode = new WaveRegionNode( model, {
       waveRegionLeft: waveRegionLeft,
       waveRegionTop: waveRegionTop,
@@ -155,6 +179,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.waveVisualizationNode = waveRegionNode.waveVisualizationNode;
     this.addChild( waveRegionNode );
     this.addChild( emitterNode );
+    this.addChild( maxHitsReachedPanel );
 
     const updateParticleMassAnnotationPosition = () => {
       particleMassAnnotation.centerX = sourceControlPanel.centerX;
@@ -264,7 +289,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       model.currentSlitConfigurationProperty,
       {
         slitOrientation: 'topBottom',
-        sourceNodes: [ emitterNode, sourceControlPanel, sceneRadioButtonGroup ],
+        sourceNodes: [ emitterNode, maxHitsReachedPanel, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow, waveRegionNode.doubleSlitNode ],
         detectorScreenControlNodes: [ detectorScreenControls ]
       }

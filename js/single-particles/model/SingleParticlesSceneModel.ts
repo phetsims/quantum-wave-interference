@@ -165,7 +165,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.totalHitsProperty ],
-      totalHits => totalHits >= QuantumWaveInterferenceConstants.MAX_HITS
+      totalHits => totalHits >= QuantumWaveInterferenceQueryParameters.maxHits
     );
 
     this.isEmitterEnabledProperty = new DerivedProperty(

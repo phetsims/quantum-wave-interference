@@ -7,6 +7,7 @@
  */
 
 import { QueryStringMachine } from '../../../query-string-machine/js/QueryStringMachineModule.js';
+import QuantumWaveInterferenceConstants from './QuantumWaveInterferenceConstants.js';
 
 const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
 
@@ -41,6 +42,16 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
     type: 'number',
     defaultValue: 600,
     isValidValue: value => Number.isInteger( value ) && value > 0 && value <= 2000
+  },
+
+  // Internal testing knob for temporarily lowering the detector-screen hit cap. For example, ?maxHits=20 makes
+  // max-hit behavior easy to verify without waiting for 25,000 hits.
+  maxHits: {
+    type: 'number',
+    defaultValue: QuantumWaveInterferenceConstants.MAX_HITS,
+    isValidValue: value => Number.isInteger( value ) &&
+                            value > 0 &&
+                            value <= QuantumWaveInterferenceConstants.MAX_HITS
   },
 
   // Internal performance tuning knob for the vertical detector graph on High Intensity/Single Particles.

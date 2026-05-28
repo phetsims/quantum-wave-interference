@@ -36,6 +36,7 @@ import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigur
 import { renumberSnapshots, type Snapshot, SnapshotIO } from '../../common/model/Snapshot.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import { getFullDetectorScreenHalfWidth } from './DetectorScreenScale.js';
 
 // Maximum emission rate in hits per second at full intensity
@@ -288,7 +289,7 @@ export default class SceneModel extends PhetioObject {
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.detectionModeProperty, this.totalHitsProperty ],
       ( detectionMode, totalHits ) =>
-        detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceConstants.MAX_HITS
+        detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceQueryParameters.maxHits
     );
 
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMaxHitsReached => !isMaxHitsReached );
@@ -500,7 +501,7 @@ export default class SceneModel extends PhetioObject {
 
     for ( let i = 0; i < numHits; i++ ) {
 
-      if ( this.totalHitsProperty.value + actualHitsAddedThisFrame >= QuantumWaveInterferenceConstants.MAX_HITS ) {
+      if ( this.totalHitsProperty.value + actualHitsAddedThisFrame >= QuantumWaveInterferenceQueryParameters.maxHits ) {
         break;
       }
 

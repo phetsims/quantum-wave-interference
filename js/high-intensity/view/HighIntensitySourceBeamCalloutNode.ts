@@ -41,6 +41,7 @@ import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
+import MaxHitsReachedPanel from '../../common/view/MaxHitsReachedPanel.js';
 import WaveVisualizationCanvasNode from '../../common/view/WaveVisualizationCanvasNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
@@ -51,6 +52,7 @@ const EMITTER_BODY_HEIGHT = 32 * EMITTER_SCALE;
 const EMITTER_NOZZLE_WIDTH = 14 * EMITTER_SCALE;
 const EMITTER_NOZZLE_HEIGHT = 26 * EMITTER_SCALE;
 const EMITTER_BUTTON_RADIUS = 12 * EMITTER_SCALE;
+const MAX_HITS_REACHED_PANEL_EMITTER_GAP = 10 * EMITTER_SCALE;
 
 const MINI_SYMBOL_SCALE = 0.5;
 const MINI_SYMBOL_SQUARE_SIZE = 22 * MINI_SYMBOL_SCALE;
@@ -115,6 +117,7 @@ type HighIntensitySourceBeamCalloutModel<T extends SourceBeamCalloutSceneLike> =
   readonly currentSlitSeparationProperty: TReadOnlyProperty<number>;
   readonly currentIsEmittingProperty: TProperty<boolean>;
   readonly currentIsEmitterEnabledProperty: TReadOnlyProperty<boolean>;
+  readonly currentIsMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
 };
 
 export type HighIntensitySourceBeamCalloutLayout = {
@@ -131,6 +134,7 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
   // affected by the taller bounds of the callout lines that extend down to the wave region.
   public readonly emitterBottom: number;
   public readonly emitterCenterX: number;
+  public readonly maxHitsReachedPanel: MaxHitsReachedPanel;
 
   public constructor(
     model: HighIntensitySourceBeamCalloutModel<T>,
@@ -149,7 +153,8 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
       currentSlitPositionFractionProperty,
       currentSlitSeparationProperty,
       currentIsEmittingProperty,
-      currentIsEmitterEnabledProperty
+      currentIsEmitterEnabledProperty,
+      currentIsMaxHitsReachedProperty
     } = model;
     const { emitterCenterX, centerY, waveRegionLeft, waveRegionRight, waveRegionTop } = layout;
     const emitterLeft = emitterCenterX - ( EMITTER_BODY_WIDTH + EMITTER_NOZZLE_WIDTH ) / 2;
@@ -280,11 +285,24 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
     emitterContainer.left = emitterLeft;
     emitterContainer.centerY = centerY;
 
+    this.maxHitsReachedPanel = new MaxHitsReachedPanel( tandem.createTandem( 'maxHitsReachedPanel' ) );
+    const updateMaxHitsReachedPanelPosition = () => {
+      this.maxHitsReachedPanel.left = emitterContainer.right + MAX_HITS_REACHED_PANEL_EMITTER_GAP;
+      this.maxHitsReachedPanel.centerY = emitterContainer.centerY;
+    };
+    this.maxHitsReachedPanel.localBoundsProperty.link( updateMaxHitsReachedPanelPosition );
+
     // Z-order: callout lines and beam behind the mini symbol and emitter so their geometry reads cleanly.
     this.addChild( calloutLines );
     this.addChild( beamContainer );
     this.addChild( miniSymbol );
     this.addChild( emitterContainer );
+    this.addChild( this.maxHitsReachedPanel );
+
+    this.pdomOrder = [
+      emitterContainer,
+      this.maxHitsReachedPanel
+    ];
 
     this.emitterBottom = emitterContainer.bottom;
     this.emitterCenterX = emitterCenterX;
@@ -380,7 +398,16 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
     linkSceneVisibility( sceneProperty, scenes, emitterChildren );
 
     currentIsEmitterEnabledProperty.link( isEnabled => {
-      emitterChildren.forEach( emitter => { emitter.enabled = isEnabled; } );
+      emitterChildren.forEach( emitter => {
+        emitter.enabled = isEnabled;
+        if ( emitter.onOffButton ) {
+          emitter.onOffButton.enabled = isEnabled;
+        }
+      } );
+    } );
+
+    currentIsMaxHitsReachedProperty.link( isMaxHitsReached => {
+      this.maxHitsReachedPanel.visible = isMaxHitsReached;
     } );
   }
 }

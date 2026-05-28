@@ -21,12 +21,11 @@ import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
 import RadialGradient from '../../../../scenery/js/util/RadialGradient.js';
-import Panel from '../../../../sun/js/Panel.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type SourceType } from '../../common/model/SourceType.js';
-import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import MaxHitsReachedPanel from '../../common/view/MaxHitsReachedPanel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
@@ -107,7 +106,7 @@ export default class OverheadEmitterNode extends Node {
 
   public readonly laserPointerNode: LaserPointerNode;
   public readonly particleEmitterNode: LaserPointerNode;
-  public readonly maxHitsReachedPanel: Panel;
+  public readonly maxHitsReachedPanel: MaxHitsReachedPanel;
   private emitterCenterX: number | null = null;
   private readonly updateEmitterLayout: () => void;
 
@@ -171,22 +170,7 @@ export default class OverheadEmitterNode extends Node {
     } );
     this.addChild( particleMassLabel );
 
-    const maxHitsReachedText = new Text( QuantumWaveInterferenceFluent.maximumHitsReachedStringProperty, {
-      font: new PhetFont( 13 ),
-      maxWidth: 120
-    } );
-
-    this.maxHitsReachedPanel = new Panel( maxHitsReachedText, {
-      xMargin: 8,
-      yMargin: 6,
-      fill: QuantumWaveInterferenceColors.panelFillProperty,
-      stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
-      cornerRadius: 5,
-      visible: false,
-      pickable: false,
-      accessibleParagraph: QuantumWaveInterferenceFluent.maximumHitsReachedStringProperty,
-      tandem: tandem.createTandem( 'maxHitsReachedPanel' )
-    } );
+    this.maxHitsReachedPanel = new MaxHitsReachedPanel( tandem.createTandem( 'maxHitsReachedPanel' ) );
     this.addChild( this.maxHitsReachedPanel );
 
     model.sceneProperty.link( scene => {

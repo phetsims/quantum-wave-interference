@@ -305,6 +305,39 @@ QUnit.test( 'clearScreen preserves auto-repeat re-emission', assert => {
   assert.true( scene.isPacketActiveProperty.value, 'auto-repeat emits a new packet on the next step' );
 } );
 
+QUnit.test( 'maximum hit cap turns off source without changing auto-repeat', assert => {
+  const scene = createScene();
+  scene.autoRepeatProperty.value = true;
+  scene.isEmittingProperty.value = true;
+  scene.emitPacket();
+
+  assert.true( scene.isPacketActiveProperty.value, 'packet is active before reaching max hits' );
+  assert.true( scene.autoRepeatProperty.value, 'auto-repeat starts enabled' );
+
+  scene.totalHitsProperty.value = QuantumWaveInterferenceConstants.MAX_HITS;
+
+  assert.true( scene.isMaxHitsReachedProperty.value, 'scene reports that the maximum hit cap has been reached' );
+  assert.false( scene.isEmittingProperty.value, 'source is automatically turned off at the maximum hit cap' );
+  assert.false( scene.isPacketActiveProperty.value, 'active packet is cancelled at the maximum hit cap' );
+  assert.false( scene.isEmitterEnabledProperty.value, 'emitter button is disabled at the maximum hit cap' );
+  assert.true( scene.autoRepeatProperty.value, 'auto-repeat state is preserved at the maximum hit cap' );
+
+  scene.emitPacket();
+  scene.step( 1 );
+
+  assert.false( scene.isPacketActiveProperty.value, 'new packets are not emitted while max hits is reached' );
+  assert.strictEqual( scene.totalHitsProperty.value, QuantumWaveInterferenceConstants.MAX_HITS, 'total hits remain at the maximum hit cap' );
+
+  scene.clearScreen();
+
+  assert.strictEqual( scene.totalHitsProperty.value, 0, 'clearing returns total hits to zero' );
+  assert.false( scene.isMaxHitsReachedProperty.value, 'scene no longer reports max hits after clearing' );
+  assert.false( scene.isEmittingProperty.value, 'clearing after max hits leaves the source off' );
+  assert.false( scene.isPacketActiveProperty.value, 'clearing after max hits leaves no active packet' );
+  assert.true( scene.isEmitterEnabledProperty.value, 'emitter button is re-enabled after clearing max hits' );
+  assert.true( scene.autoRepeatProperty.value, 'auto-repeat state remains unchanged after clearing' );
+} );
+
 QUnit.test( 'slit configuration clear stops non-auto-repeat packet without re-emitting', assert => {
   const scene = createScene();
   scene.isEmittingProperty.value = true;

@@ -229,6 +229,17 @@ QUnit.test( 'detector-screen hits respect the maximum hit cap', assert => {
 
   assert.strictEqual( scene.totalHitsProperty.value, QuantumWaveInterferenceConstants.MAX_HITS, 'total hits stop at the maximum hit cap' );
   assert.strictEqual( scene.hits.length, 3, 'only enough hit dots are created to reach the maximum hit cap' );
+  assert.true( scene.isMaxHitsReachedProperty.value, 'scene reports that the maximum hit cap has been reached' );
+  assert.false( scene.isEmittingProperty.value, 'source is automatically turned off at the maximum hit cap' );
+  assert.false( scene.isEmitterEnabledProperty.value, 'emitter is disabled at the maximum hit cap' );
+
+  scene.clearScreen();
+
+  assert.strictEqual( scene.totalHitsProperty.value, 0, 'clearing returns total hits to zero' );
+  assert.strictEqual( scene.hits.length, 0, 'clearing removes all hit dots' );
+  assert.false( scene.isMaxHitsReachedProperty.value, 'scene no longer reports max hits after clearing' );
+  assert.false( scene.isEmittingProperty.value, 'clearing after max hits does not automatically restart the source' );
+  assert.true( scene.isEmitterEnabledProperty.value, 'emitter is re-enabled after clearing max hits' );
 } );
 
 QUnit.test( 'slit-detector hits are scheduled relative to source-on time', assert => {

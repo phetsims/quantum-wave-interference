@@ -23,7 +23,6 @@ import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type S
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 
 // Detector-screen hit dots created per model second in Hits mode.
@@ -118,7 +117,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.detectorPatternFormationFactorProperty = this._detectorPatternFormationFactorProperty;
 
     this.isMaxHitsReachedProperty = new DerivedProperty( [ this.detectionModeProperty, this.totalHitsProperty ],
-      ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceConstants.MAX_HITS
+      ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceQueryParameters.maxHits
     );
 
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMax => !isMax );
@@ -204,7 +203,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     let actualHits = 0;
 
     for ( let i = 0; i < numHits; i++ ) {
-      if ( this.totalHitsProperty.value + actualHits >= QuantumWaveInterferenceConstants.MAX_HITS ) {
+      if ( this.totalHitsProperty.value + actualHits >= QuantumWaveInterferenceQueryParameters.maxHits ) {
         break;
       }
 
