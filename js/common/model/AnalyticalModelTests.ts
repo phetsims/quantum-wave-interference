@@ -93,6 +93,34 @@ const intensityAt = ( parameters: AnalyticalWaveParameters, x: number, y: number
   computeSampleIntensity( evaluateAnalyticalSample( parameters, x, y, t ) );
 
 /**
+ * Find the largest representative complex magnitude in a rectangular set of analytical samples.
+ *
+ * @param parameters - Analytical source and barrier parameters.
+ * @param xValues - World x-coordinates to sample.
+ * @param yValues - World y-coordinates to sample.
+ * @param t - Simulation time for the samples.
+ * @returns Maximum representative complex magnitude across the sample set.
+ */
+const getMaxRepresentativeMagnitude = (
+  parameters: AnalyticalWaveParameters,
+  xValues: number[],
+  yValues: number[],
+  t: number
+): number => {
+  let maxMagnitude = 0;
+  for ( const x of xValues ) {
+    for ( const y of yValues ) {
+      maxMagnitude = Math.max(
+        maxMagnitude,
+        getRepresentativeComplex( evaluateAnalyticalSample( parameters, x, y, t ) ).magnitude
+      );
+    }
+  }
+
+  return maxMagnitude;
+};
+
+/**
  * Determine whether an interleaved complex amplitude field contains any nonzero component.
  *
  * @param amplitudes - Interleaved real/imaginary amplitude values.
@@ -478,6 +506,92 @@ QUnit.test( 'plane wave aperture handoff is smooth in the first display cell', a
   assert.ok(
     complexDistance( firstDisplayCellRight, atAperture ) < 0.12,
     'first display cell right of the aperture remains visually continuous with the aperture'
+  );
+} );
+
+QUnit.test( 'plane wave single-slit post-aperture magnitude allows only small overshoot', assert => {
+  const slitWidth = 22 / 385;
+  const slitCenterY = -0.25;
+  const parameters = createPlaneParameters( {
+    waveNumber: 2 * Math.PI * QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS,
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: slitWidth } )
+  } );
+  const xValues = [
+    1.000001,
+    1.005,
+    1.015,
+    1.025,
+    1.03,
+    1.04,
+    1.06,
+    1.1,
+    1.2,
+    1.4
+  ];
+  const yValues: number[] = [];
+  for ( let i = -8; i <= 8; i++ ) {
+    yValues.push( slitCenterY + i * slitWidth / 16 );
+  }
+
+  const maxMagnitude = getMaxRepresentativeMagnitude( parameters, xValues, yValues, 5 );
+
+  assert.ok(
+    maxMagnitude <= 1.05 + EPSILON,
+    `single-slit plane-wave magnitude stays within 5% overshoot target: max=${maxMagnitude}`
+  );
+} );
+
+QUnit.test( 'gaussian packet single-slit post-aperture magnitude allows only small overshoot near peak time', assert => {
+  const slitWidth = 22 / 385;
+  const slitCenterY = -0.25;
+  const parameters = createGaussianPacketParameters( {
+    waveNumber: 2 * Math.PI * QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS,
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: false, slitWidth: slitWidth } )
+  } );
+  const xValues = [
+    1.000001,
+    1.005,
+    1.015,
+    1.025,
+    1.03,
+    1.04,
+    1.06,
+    1.1,
+    1.2,
+    1.4
+  ];
+  const yValues: number[] = [];
+  for ( let i = -8; i <= 8; i++ ) {
+    yValues.push( slitCenterY + i * slitWidth / 16 );
+  }
+
+  const maxMagnitude = getMaxRepresentativeMagnitude( parameters, xValues, yValues, 1.53 );
+
+  assert.ok(
+    maxMagnitude <= 1.05 + EPSILON,
+    `single-slit packet magnitude stays within 5% overshoot target: max=${maxMagnitude}`
+  );
+} );
+
+QUnit.test( 'coherent double-slit samples retain constructive and destructive structure', assert => {
+  const parameters = createPlaneParameters( {
+    waveNumber: 18 * Math.PI,
+    barrier: createDoubleSlitBarrier( { topOpen: true, bottomOpen: true, slitWidth: 0.18 } )
+  } );
+
+  let minIntensity = Number.POSITIVE_INFINITY;
+  let maxIntensity = 0;
+  for ( let i = 0; i <= 80; i++ ) {
+    const y = -0.6 + i * 1.2 / 80;
+    const intensity = intensityAt( parameters, 2.4, y, 6 );
+    minIntensity = Math.min( minIntensity, intensity );
+    maxIntensity = Math.max( maxIntensity, intensity );
+  }
+
+  assert.ok( maxIntensity > 0.05, `double-slit constructive intensity remains nonzero: max=${maxIntensity}` );
+  assert.ok(
+    minIntensity < 0.25 * maxIntensity,
+    `double-slit destructive samples remain distinct from constructive samples: min=${minIntensity}, max=${maxIntensity}`
   );
 } );
 

@@ -7,14 +7,14 @@
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './AnalyticalWaveMath.js';
 import { type AnalyticalSlit } from './AnalyticalWaveKernelTypes.js';
+import { EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './AnalyticalWaveMath.js';
 
 // Smooth the first post-aperture samples so the visual transition from slit mask to Fresnel propagation
 // does not create a screen-specific artifact at the aperture boundary.
 const APERTURE_BLEND_SLIT_WIDTH_FRACTION = 0.5;
 const APERTURE_BLEND_WAVELENGTH_FRACTION = 0.25;
-const INV_SQRT_2 = 1 / Math.sqrt( 2 );
+
 
 // Keep physical complex amplitude separate from visual wavefront support. Diffraction can reduce
 // amplitude without meaning the sample is unreached background.
@@ -139,7 +139,7 @@ export function getFresnelApertureTransfer(
   const apertureIntegralReal = fresnelUMaxComponents.real - fresnelUMinComponents.real;
   const apertureIntegralImaginary = fresnelUMaxComponents.imaginary - fresnelUMinComponents.imaginary;
   setPolarTimesComponents(
-    INV_SQRT_2,
+    0.57, // Fine-tuned to make sure the wave downstream of the aperture still has a strong magnitude, but cannot overshoot the original wave height. See https://github.com/phetsims/quantum-wave-interference/issues/152
     waveNumber * xPastBarrier - Math.PI / 4,
     apertureIntegralReal,
     apertureIntegralImaginary,
