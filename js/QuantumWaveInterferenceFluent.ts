@@ -155,6 +155,9 @@ addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', 
 addToMapIfDefined( 'a11y_timePlotCheckbox_accessibleHelpText', 'a11y.timePlotCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_positionPlotCheckbox_accessibleHelpText', 'a11y.positionPlotCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitSeparationSlider_accessibleHelpText', 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_slitPositionSlider_accessibleName', 'a11y.slitPositionSlider.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_slitPositionSlider_accessibleHelpText', 'a11y.slitPositionSlider.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_slitPositionSlider_accessibleValue', 'a11y.slitPositionSlider.accessibleValueStringProperty' );
 addToMapIfDefined( 'a11y_screenDistanceSlider_accessibleHelpText', 'a11y.screenDistanceSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_accessibleHelpText', 'a11y.wavelengthSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_accessibleValue', 'a11y.wavelengthSlider.accessibleValueStringProperty' );
@@ -426,6 +429,11 @@ const QuantumWaveInterferenceFluent = {
     },
     slitSeparationSlider: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSeparationSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' ) )
+    },
+    slitPositionSlider: {
+      accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleNameStringProperty' ) ),
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleHelpTextStringProperty' ) ),
+      accessibleValue: new FluentPattern<{ value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleValue', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleValueStringProperty' ), [{"name":"value"}] )
     },
     screenDistanceSlider: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenDistanceSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.screenDistanceSlider.accessibleHelpTextStringProperty' ) )

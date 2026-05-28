@@ -265,7 +265,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       {
         slitOrientation: 'topBottom',
         sourceNodes: [ emitterNode, sourceControlPanel, sceneRadioButtonGroup ],
-        slitNodes: [ bottomRow ],
+        slitNodes: [ bottomRow, waveRegionNode.doubleSlitNode ],
         detectorScreenControlNodes: [ detectorScreenControls ]
       }
     );

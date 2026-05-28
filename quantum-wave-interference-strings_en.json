@@ -423,6 +423,17 @@
         "value": "Change distance between centers of slits in barrier in micrometers."
       }
     },
+    "slitPositionSlider": {
+      "accessibleName": {
+        "value": "Slit Position"
+      },
+      "accessibleHelpText": {
+        "value": "Move double-slit barrier left or right in wave area."
+      },
+      "accessibleValue": {
+        "value": "Barrier is { $value } of the way from source to detector screen."
+      }
+    },
     "screenDistanceSlider": {
       "accessibleHelpText": {
         "value": "Change distance from double-slit barrier to detector screen in meters."

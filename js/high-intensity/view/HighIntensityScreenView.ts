@@ -28,6 +28,7 @@ import createStandardToolCheckboxes from '../../common/view/createStandardToolCh
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
+import type DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
@@ -70,6 +71,7 @@ type WaveRegionLayout = {
 
 type WaveRegionNodes = {
   detectorScreenNode: DetectorScreenNode;
+  doubleSlitNode: DoubleSlitNode;
   waveVisualizationNode: WaveVisualizationNode;
 };
 
@@ -163,6 +165,7 @@ export default class HighIntensityScreenView extends ScreenView {
       sourceControlNodes.sourceControlPanel,
       sourceControlNodes.sceneRadioButtonGroup,
       bottomRow,
+      waveRegionNodes.doubleSlitNode,
       detectorScreenControls
     );
 
@@ -319,6 +322,7 @@ export default class HighIntensityScreenView extends ScreenView {
 
     return {
       detectorScreenNode: detectorScreenNode,
+      doubleSlitNode: waveRegionNode.doubleSlitNode,
       waveVisualizationNode: waveRegionNode.waveVisualizationNode
     };
   }
@@ -539,6 +543,7 @@ export default class HighIntensityScreenView extends ScreenView {
    * @param sourceControlPanel - source controls included in the source description
    * @param sceneRadioButtonGroup - scene controls included in the source description
    * @param bottomRow - slit controls included in the slit description
+   * @param doubleSlitNode - slit-position slider included in the slit description
    * @param detectorScreenControls - detector controls included in the detector-screen description
    * @returns the description node used for PDOM order
    */
@@ -548,6 +553,7 @@ export default class HighIntensityScreenView extends ScreenView {
     sourceControlPanel: SourceControlPanel<HighIntensitySceneModel>,
     sceneRadioButtonGroup: SceneRadioButtonGroup<HighIntensitySceneModel>,
     bottomRow: SlitConfigurationControlsRow<SlitConfigurationWithNoBarrier>,
+    doubleSlitNode: DoubleSlitNode,
     detectorScreenControls: DetectorScreenControls
   ): QuantumWaveInterferenceScreenViewDescription {
     const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
@@ -557,7 +563,7 @@ export default class HighIntensityScreenView extends ScreenView {
         slitOrientation: 'topBottom',
         includeExperimentSetupDetails: false,
         sourceNodes: [ sourceBeamCalloutNode, sourceControlPanel, sceneRadioButtonGroup ],
-        slitNodes: [ bottomRow ],
+        slitNodes: [ bottomRow, doubleSlitNode ],
         detectorScreenControlNodes: [ detectorScreenControls ]
       }
     );

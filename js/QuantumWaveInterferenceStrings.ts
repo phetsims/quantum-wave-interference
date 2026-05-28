@@ -182,6 +182,11 @@ type StringsType = {
     'slitSeparationSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
+    'slitPositionSlider': {
+      'accessibleNameStringProperty': LocalizedStringProperty;
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'accessibleValueStringProperty': LocalizedStringProperty;
+    };
     'screenDistanceSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };

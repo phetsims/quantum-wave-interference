@@ -20,10 +20,14 @@ import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
-import ArrowNode from '../../../../scenery-phet/js/ArrowNode.js';
+import Orientation from '../../../../phet-core/js/Orientation.js';
+import ArrowNode, { type ArrowNodeOptions } from '../../../../scenery-phet/js/ArrowNode.js';
+import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
+import AccessibleSlider, { type AccessibleSliderOptions } from '../../../../sun/js/accessibility/AccessibleSlider.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { DISPLAY_SLIT_WIDTH, getDisplaySlitLayout } from '../getDisplaySlitLayout.js';
 import { type BarrierType } from '../model/BarrierType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
@@ -40,6 +44,23 @@ const ARROW_WIDTH = 40;
 const WAVE_REGION_FILL_INSET = 0.5;
 
 const SLIT_POSITION_FRACTION_RANGE = new Range( 0.25, 0.75 );
+const SLIT_POSITION_KEYBOARD_STEP = 0.01;
+const SLIT_POSITION_SHIFT_KEYBOARD_STEP = 0.0025;
+const SLIT_POSITION_PAGE_KEYBOARD_STEP = 0.05;
+
+type AccessibleArrowNodeOptions = ArrowNodeOptions & AccessibleSliderOptions;
+
+class AccessibleArrowNode extends AccessibleSlider( ArrowNode, 4 ) {
+  public constructor(
+    tailX: number,
+    tailY: number,
+    tipX: number,
+    tipY: number,
+    providedOptions: AccessibleArrowNodeOptions
+  ) {
+    super( tailX, tailY, tipX, tipY, providedOptions );
+  }
+}
 
 type SelfOptions = {
   isTopSlitCoveredProperty: TReadOnlyProperty<boolean>;
@@ -111,15 +132,36 @@ export default class DoubleSlitNode extends Node {
     );
     this.addChild( barrierContainer );
 
-    const arrowNode = new ArrowNode( 0, 0, 0, 0, {
+    const arrowNode = new AccessibleArrowNode( 0, 0, 0, 0, {
       doubleHead: true,
       fill: '#74ad67',
       headHeight: 14,
       headWidth: 14,
       tailWidth: 6,
-      cursor: 'ew-resize'
+      cursor: 'ew-resize',
+      valueProperty: slitPositionFractionProperty,
+      enabledRangeProperty: new TinyProperty( SLIT_POSITION_FRACTION_RANGE ),
+      ariaOrientation: Orientation.HORIZONTAL,
+      keyboardStep: SLIT_POSITION_KEYBOARD_STEP,
+      shiftKeyboardStep: SLIT_POSITION_SHIFT_KEYBOARD_STEP,
+      pageKeyboardStep: SLIT_POSITION_PAGE_KEYBOARD_STEP,
+      constrainValue: ( value: number ) => SLIT_POSITION_FRACTION_RANGE.constrainValue( value ),
+      accessibleName: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleHelpTextStringProperty,
+      createAriaValueText: ( value: number ) => QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleValue.format( {
+        value: percentUnit.getAccessibleString( value * 100, {
+          decimalPlaces: 0,
+          showTrailingZeros: false,
+          showIntegersAsIntegers: true
+        } )
+      } ),
+      descriptionDependencies: [
+        ...percentUnit.getDependentProperties(),
+        ...QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleValue.getDependentProperties()
+      ]
     } );
     this.addChild( arrowNode );
+    this.pdomOrder = [ arrowNode ];
 
     barrierContainer.cursor = 'ew-resize';
 
@@ -150,6 +192,7 @@ export default class DoubleSlitNode extends Node {
         const isDoubleSlit = barrierType === 'doubleSlit';
         barrierContainer.visible = isDoubleSlit;
         arrowNode.visible = isDoubleSlit;
+        arrowNode.enabled = isDoubleSlit;
 
         if ( !isDoubleSlit ) {
           return;
