@@ -26,9 +26,13 @@ import type { Snapshot } from '../model/Snapshot.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
+type SlitOrientation = 'leftRight' | 'topBottom';
 type SlitSettingDisplayMap = Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>;
 
 export type SnapshotMetadataPropertiesOptions = {
+
+  // Slit-name convention used for model left/right slit configurations. Defaults to top/bottom for front-facing screens.
+  slitOrientation?: SlitOrientation;
 
   // Optional display-name map for slit configurations. Defaults are used for omitted entries.
   slitSettingDisplayMap?: Partial<SlitSettingDisplayMap>;
@@ -47,18 +51,28 @@ const SOURCE_TYPE_DISPLAY_MAP: Record<SourceType, TReadOnlyProperty<string>> = {
   heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomsStringProperty
 };
 
-const DEFAULT_SLIT_SETTING_DISPLAY_MAP: SlitSettingDisplayMap = {
-  bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
+const SLIT_SETTING_DISPLAY_MAPS: Record<SlitOrientation, SlitSettingDisplayMap> = {
+  leftRight: {
+    bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
+    leftCovered: QuantumWaveInterferenceFluent.coverLeftStringProperty,
+    rightCovered: QuantumWaveInterferenceFluent.coverRightStringProperty,
+    leftDetector: QuantumWaveInterferenceFluent.detectorLeftStringProperty,
+    rightDetector: QuantumWaveInterferenceFluent.detectorRightStringProperty,
+    bothDetectors: QuantumWaveInterferenceFluent.detectorBothStringProperty,
+    noBarrier: QuantumWaveInterferenceFluent.noBarrierStringProperty
+  },
+  topBottom: {
+    bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
 
-  // The model names slits from the overhead wave-propagation frame (left/right). The snapshot dialog presents the
-  // detector-facing frame, where those same slits are read as top/bottom.
-  // TODO: https://github.com/phetsims/quantum-wave-interference/issues/151 align these terms across the sim
-  leftCovered: QuantumWaveInterferenceFluent.coverTopStringProperty,
-  rightCovered: QuantumWaveInterferenceFluent.coverBottomStringProperty,
-  leftDetector: QuantumWaveInterferenceFluent.detectorTopStringProperty,
-  rightDetector: QuantumWaveInterferenceFluent.detectorBottomStringProperty,
-  bothDetectors: QuantumWaveInterferenceFluent.detectorBothStringProperty,
-  noBarrier: QuantumWaveInterferenceFluent.noBarrierStringProperty
+    // The model keys use Experiment's overhead left/right slit names; front-facing screens present those same slits
+    // as top/bottom.
+    leftCovered: QuantumWaveInterferenceFluent.coverTopStringProperty,
+    rightCovered: QuantumWaveInterferenceFluent.coverBottomStringProperty,
+    leftDetector: QuantumWaveInterferenceFluent.detectorTopStringProperty,
+    rightDetector: QuantumWaveInterferenceFluent.detectorBottomStringProperty,
+    bothDetectors: QuantumWaveInterferenceFluent.detectorBothStringProperty,
+    noBarrier: QuantumWaveInterferenceFluent.noBarrierStringProperty
+  }
 };
 
 const DEFAULT_FORMAT_SLIT_SEPARATION = ( slitSepMM: number ): string => {
@@ -89,12 +103,14 @@ const formatLabelValue = ( label: string, value: string ): string => StringUtils
 );
 
 const createSlitSettingDisplayMap = (
+  slitOrientation: SlitOrientation,
   providedMap?: Partial<SlitSettingDisplayMap>
 ): SlitSettingDisplayMap => {
+  const defaultMap = SLIT_SETTING_DISPLAY_MAPS[ slitOrientation ];
   const getSlitSettingDisplayProperty = (
     slitConfiguration: SlitConfigurationWithNoBarrier
   ): TReadOnlyProperty<string> => providedMap?.[ slitConfiguration ] ||
-                                  DEFAULT_SLIT_SETTING_DISPLAY_MAP[ slitConfiguration ];
+                                  defaultMap[ slitConfiguration ];
 
   return {
     bothOpen: getSlitSettingDisplayProperty( 'bothOpen' ),
@@ -131,7 +147,10 @@ export default class SnapshotMetadataProperties {
     snapshotProperty: TReadOnlyProperty<Snapshot | null>,
     options: SnapshotMetadataPropertiesOptions
   ) {
-    const slitSettingDisplayMap = createSlitSettingDisplayMap( options.slitSettingDisplayMap );
+    const slitSettingDisplayMap = createSlitSettingDisplayMap(
+      options.slitOrientation || 'topBottom',
+      options.slitSettingDisplayMap
+    );
     const slitSettingDisplayDependencies = [
       slitSettingDisplayMap.bothOpen,
       slitSettingDisplayMap.leftCovered,

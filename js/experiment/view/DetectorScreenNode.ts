@@ -10,7 +10,6 @@
 
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
@@ -24,7 +23,6 @@ import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
-import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import createDetectorZoomLevelResponseProperty from '../../common/view/description/createDetectorZoomLevelResponseProperty.js';
 import SnapshotDescriber from '../../common/view/description/SnapshotDescriber.js';
@@ -38,15 +36,6 @@ import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreen
 import SceneModel from '../model/SceneModel.js';
 import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import DetectorScreenScaleIndicatorNode from './DetectorScreenScaleIndicatorNode.js';
-
-const EXPERIMENT_SLIT_DISPLAY_MAP: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>> = {
-  bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
-  leftCovered: QuantumWaveInterferenceFluent.coverLeftStringProperty,
-  rightCovered: QuantumWaveInterferenceFluent.coverRightStringProperty,
-  leftDetector: QuantumWaveInterferenceFluent.detectorLeftStringProperty,
-  rightDetector: QuantumWaveInterferenceFluent.detectorRightStringProperty,
-  bothDetectors: QuantumWaveInterferenceFluent.detectorBothStringProperty
-};
 
 const formatExperimentSlitSeparation = ( slitSepMM: number ): string => {
   const slitSepUM = slitSepMM * 1000;
@@ -249,7 +238,7 @@ export default class DetectorScreenNode extends Node {
       snapshot => sceneModel.deleteSnapshot( snapshot ),
       providedOptions.tandem.createTandem( 'snapshotsDialog' ),
       {
-        slitSettingDisplayMap: EXPERIMENT_SLIT_DISPLAY_MAP,
+        slitOrientation: 'leftRight',
         formatSlitSeparation: formatExperimentSlitSeparation,
         showScreenDistance: true,
         getDescription: snapshot => SnapshotDescriber.getDescription(

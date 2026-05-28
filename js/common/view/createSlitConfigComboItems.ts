@@ -34,6 +34,9 @@ export default function createSlitConfigComboItems(
 
   return [
     item( 'bothOpen', QuantumWaveInterferenceFluent.bothOpenStringProperty, 'bothOpenItem' ),
+
+    // The model keys use Experiment's overhead left/right slit names; these shared front-facing controls label those
+    // same slits as top/bottom.
     item( 'leftCovered', QuantumWaveInterferenceFluent.coverTopStringProperty, tandems.topCoveredTandemName, true ),
     item( 'rightCovered', QuantumWaveInterferenceFluent.coverBottomStringProperty, tandems.bottomCoveredTandemName ),
     item( 'leftDetector', QuantumWaveInterferenceFluent.detectorTopStringProperty, 'topDetectorItem', true ),

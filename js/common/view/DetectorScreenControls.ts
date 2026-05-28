@@ -85,6 +85,9 @@ export type DetectorScreenControlsOptions = {
   // Callback to step view-only state that should advance with the model's step-forward button.
   onStepForward?: () => void;
 
+  // Slit-name convention used for snapshot metadata. Defaults to top/bottom for these front-facing screens.
+  slitOrientation?: 'leftRight' | 'topBottom';
+
   slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
 };
 
@@ -174,6 +177,7 @@ export default class DetectorScreenControls extends VBox {
       snapshot => model.deleteSnapshot( snapshot ),
       tandem.createTandem( 'snapshotsDialog' ),
       {
+        slitOrientation: options.slitOrientation,
         slitSettingDisplayMap: options.slitSettingDisplayMap,
         useFrontFacingHitCoordinates: true
       }

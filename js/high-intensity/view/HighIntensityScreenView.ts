@@ -463,6 +463,7 @@ export default class HighIntensityScreenView extends ScreenView {
       clearScreen: () => accessibleResponses.clearScreenAndEmitResponse( () => model.sceneProperty.value.clearScreen() ),
       onSnapshotCaptured: () => detectorScreenNode.startSnapshotFlash(),
       onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
+      slitOrientation: 'topBottom',
       resetView: () => resetDetectorScreenView(
         detectorPatternGraphLayerNode,
         this.timePlotNode,

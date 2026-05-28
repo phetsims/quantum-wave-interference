@@ -143,13 +143,11 @@ export default class ExperimentSetupDetailsNode extends Node {
         sourceType: particleSourceTypeProperty
       } );
 
-    const slitConfigurationDescriptionStringProperty = slitOrientation === 'topBottom' ?
-                                                       QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfigurationTopBottom.createProperty( {
-                                                         slitSetting: slitSettingProperty
-                                                       } ) :
-                                                       QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.createProperty( {
-                                                         slitSetting: slitSettingProperty
-                                                       } );
+    const slitConfigurationDescriptionStringProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.createProperty( {
+        slitSetting: slitSettingProperty,
+        slitOrientation: slitOrientation
+      } );
 
     const slitSeparationStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [

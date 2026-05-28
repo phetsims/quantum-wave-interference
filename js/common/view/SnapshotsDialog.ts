@@ -33,6 +33,9 @@ const CLOSE_BUTTON_RIGHT_MARGIN = 10;
 
 type SnapshotsDialogOptions = {
 
+  // Slit-name convention used for model left/right slit configurations. Defaults to top/bottom for front-facing screens.
+  slitOrientation?: 'leftRight' | 'topBottom';
+
   // Optional display-name map for slit configurations. Defaults in SnapshotNode are used for omitted entries.
   slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
 
@@ -80,6 +83,7 @@ export default class SnapshotsDialog extends Dialog {
       snapshotNodes.push( new SnapshotNode( i, {
         snapshotsProperty: snapshotsProperty,
         deleteSnapshot: deleteSnapshot,
+        slitOrientation: providedOptions?.slitOrientation,
         slitSettingDisplayMap: providedOptions?.slitSettingDisplayMap,
         formatSlitSeparation: providedOptions?.formatSlitSeparation,
         showScreenDistance: providedOptions?.showScreenDistance,

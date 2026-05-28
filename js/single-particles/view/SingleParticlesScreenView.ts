@@ -225,6 +225,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       clearScreen: () => model.sceneProperty.value.clearScreen(),
       onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash(),
       onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
+      slitOrientation: 'topBottom',
       resetView: () => resetDetectorScreenView(
         this.detectorPatternGraphLayerNode,
         this.timePlotNode,

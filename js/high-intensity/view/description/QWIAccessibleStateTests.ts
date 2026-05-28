@@ -10,6 +10,7 @@ import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
 import PDOMUtils from '../../../../../scenery/js/accessibility/pdom/PDOMUtils.js';
 import { render as litRender } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
 import Tandem from '../../../../../tandem/js/Tandem.js';
+import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_EASE_POWER, DETECTOR_PATTERN_FORMATION_TIME_CONSTANT } from '../../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './HighIntensityAccessibleResponses.js';
@@ -86,6 +87,46 @@ QUnit.test( 'matter-wave slit separation uses readable units', assert => {
 
   assert.ok( response.includes( 'nanometers' ), 'electron slit separation uses nanometers at readable precision' );
   assert.notOk( response.includes( '0 micrometers' ), 'electron slit separation is not rounded to zero micrometers' );
+} );
+
+QUnit.test( 'slit orientation controls left/right versus top/bottom description text', assert => {
+  const leftRightCurrentDetails = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.format( {
+    sourceType: 'photons',
+    slitSetting: 'leftDetector',
+    slitOrientation: 'leftRight',
+    detectionMode: 'hits',
+    isEmitting: 'true',
+    isPlaying: 'true',
+    isMaxHitsReached: 'false',
+    hasHits: 'true'
+  } );
+  assert.ok( leftRightCurrentDetails.includes( 'detector on left slit' ), 'screen summary uses left slit for Experiment' );
+  assert.notOk( leftRightCurrentDetails.includes( 'detector on top slit' ), 'screen summary does not mix in top slit for Experiment' );
+
+  const topBottomCurrentDetails = QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.format( {
+    sourceType: 'photons',
+    slitSetting: 'leftDetector',
+    slitOrientation: 'topBottom',
+    detectionMode: 'hits',
+    isEmitting: 'true',
+    isPlaying: 'true',
+    isMaxHitsReached: 'false',
+    hasHits: 'true'
+  } );
+  assert.ok( topBottomCurrentDetails.includes( 'detector on top slit' ), 'screen summary uses top slit for front-facing screens' );
+  assert.notOk( topBottomCurrentDetails.includes( 'detector on left slit' ), 'screen summary does not mix in left slit for front-facing screens' );
+
+  const leftRightSetupDetails = QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.format( {
+    slitSetting: 'rightCovered',
+    slitOrientation: 'leftRight'
+  } );
+  assert.ok( leftRightSetupDetails.includes( 'Right slit covered in barrier.' ), 'setup details use right slit for Experiment' );
+
+  const topBottomSetupDetails = QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.format( {
+    slitSetting: 'rightCovered',
+    slitOrientation: 'topBottom'
+  } );
+  assert.ok( topBottomSetupDetails.includes( 'Bottom slit covered in barrier.' ), 'setup details use bottom slit for front-facing screens' );
 } );
 
 QUnit.test( 'temporally chained parameter changes describe reset instead of final pattern outcome', assert => {

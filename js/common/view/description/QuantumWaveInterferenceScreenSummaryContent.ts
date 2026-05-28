@@ -58,6 +58,7 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
     const currentDetailsOptions = {
       sourceType: sourceTypeProperty,
       slitSetting: slitSettingProperty,
+      slitOrientation: slitOrientation,
       detectionMode: providedOptions.detectionMode,
       isEmitting: isEmittingStringProperty,
       isPlaying: isPlayingStringProperty,
@@ -65,9 +66,8 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
       hasHits: hasHitsStringProperty
     };
 
-    const currentDetailsContentProperty = slitOrientation === 'topBottom' ?
-                                          QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetailsTopBottom.createProperty( currentDetailsOptions ) :
-                                          QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( currentDetailsOptions );
+    const currentDetailsContentProperty =
+      QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( currentDetailsOptions );
 
     const defaultInteractionHintContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {
       sourceType: sourceTypeProperty,
