@@ -73,6 +73,8 @@ export default class WavePlotChartNode extends Node {
   private readonly baselineYProperty: TReadOnlyProperty<number>;
   private readonly halfAmplitudeHeightProperty: TReadOnlyProperty<number>;
   private readonly positionProperty: Vector2Property;
+  private dataPathShape: Shape | null = null;
+  private dataPathPoints: Vector2[] = [];
 
   public constructor( providedOptions: WavePlotChartNodeOptions ) {
 
@@ -251,21 +253,19 @@ export default class WavePlotChartNode extends Node {
       return;
     }
 
-    const shape = new Shape();
+    this.ensureDataPathShape( points.length );
     for ( let i = 0; i < points.length; i++ ) {
       const point = points[ i ];
       const x = ( ( point.x - xMin ) / ( xMax - xMin ) ) * this.chartWidth;
       const y = this.mapValueToY( point.value, amplitudeScale );
-
-      if ( i === 0 ) {
-        shape.moveTo( x, y );
-      }
-      else {
-        shape.lineTo( x, y );
-      }
+      this.dataPathPoints[ i ].setXY( x, y );
     }
 
-    this.dataPath.shape = shape;
+    this.dataPathShape!.invalidatePoints();
+
+    if ( this.dataPath.shape === null ) {
+      this.dataPath.shape = this.dataPathShape;
+    }
   }
 
   /**
@@ -273,6 +273,40 @@ export default class WavePlotChartNode extends Node {
    */
   public clearDataPath(): void {
     this.dataPath.shape = null;
+  }
+
+  /**
+   * Ensures the retained mutable data path has the required point topology. Rebuilds the Shape only
+   * when the number of plotted points changes; otherwise the existing Vector2 points are reused.
+   *
+   * NOTE: This is a performance critical hotspot, and re-creating a new Shape each frame is too expensive on Chromebook.
+   *
+   * @param pointCount - number of points required for the plotted polyline
+   */
+  private ensureDataPathShape( pointCount: number ): void {
+    if ( this.dataPathPoints.length === pointCount ) {
+      return;
+    }
+
+    const shape = new Shape();
+    const shapePoints = [];
+    for ( let i = 0; i < pointCount; i++ ) {
+
+      // Use nondegenerate initial segments so Kite preserves the line topology for later point mutation.
+      const point = new Vector2( i, 0 );
+      shapePoints.push( point );
+
+      if ( i === 0 ) {
+        shape.moveToPoint( point );
+      }
+      else {
+        shape.lineToPoint( point );
+      }
+    }
+
+    this.dataPathShape = shape;
+    this.dataPathPoints = shapePoints;
+    this.dataPath.shape = shape;
   }
 
   /**
