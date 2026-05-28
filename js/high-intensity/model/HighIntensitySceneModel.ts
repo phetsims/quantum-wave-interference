@@ -123,11 +123,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMax => !isMax );
 
     this.setupSlitConfigurationListeners( this.slitConfigurationProperty );
-    this.detectionModeProperty.lazyLink( detectionMode => {
-      if ( detectionMode === 'averageIntensity' ) {
-        this.resetDetectorPatternFormation();
-      }
-    } );
     this.stopEmitterWhenMaxHitsReached();
   }
 
@@ -298,7 +293,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   private stepDetectorPatternFormation( dt: number ): void {
     if (
-      this.detectionModeProperty.value !== 'averageIntensity' ||
       !this.isEmittingProperty.value ||
       dt <= 0 ||
       this._detectorPatternFormationFactorProperty.value >= 1

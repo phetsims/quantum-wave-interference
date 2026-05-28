@@ -143,7 +143,7 @@ QUnit.test( 'wave visibility follows the source while paused', assert => {
   assert.false( scene.isWaveVisibleProperty.value, 'turning off the source immediately hides the wave without a step' );
 } );
 
-QUnit.test( 'detector pattern formation waits for wavefront and uses eased exponential model dt', assert => {
+QUnit.test( 'detector pattern formation waits for wavefront, persists across mode changes, and uses eased exponential model dt', assert => {
   const scene = createScene();
 
   scene.isEmittingProperty.value = true;
@@ -155,13 +155,23 @@ QUnit.test( 'detector pattern formation waits for wavefront and uses eased expon
   );
 
   stepUntilWavefrontReachesScreen( scene );
+  const formationFactorAtArrival = scene.detectorPatternFormationFactorProperty.value;
 
   scene.detectionModeProperty.value = 'hits';
   scene.detectionModeProperty.value = 'averageIntensity';
-  assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 0, 'entering intensity mode restarts formation' );
+  assert.strictEqual(
+    scene.detectorPatternFormationFactorProperty.value,
+    formationFactorAtArrival,
+    'switching modes preserves the initial formation factor'
+  );
 
+  const formationFactorBeforeZeroDt = scene.detectorPatternFormationFactorProperty.value;
   scene.step( 0 );
-  assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 0, 'zero dt does not advance formation' );
+  assert.strictEqual(
+    scene.detectorPatternFormationFactorProperty.value,
+    formationFactorBeforeZeroDt,
+    'zero dt does not advance formation'
+  );
 
   assertApproximately(
     assert,
@@ -171,24 +181,42 @@ QUnit.test( 'detector pattern formation waits for wavefront and uses eased expon
     0.01
   );
 
+  scene.detectionModeProperty.value = 'hits';
+  const formationFactorBeforeTimeConstant = scene.detectorPatternFormationFactorProperty.value;
+  const easedFormationFactorBeforeTimeConstant = Math.pow(
+    formationFactorBeforeTimeConstant,
+    1 / DETECTOR_PATTERN_FORMATION_EASE_POWER
+  );
   scene.step( DETECTOR_PATTERN_FORMATION_TIME_CONSTANT );
   assertApproximately(
     assert,
     scene.detectorPatternFormationFactorProperty.value,
-    Math.pow( 1 - Math.exp( -1 ), DETECTOR_PATTERN_FORMATION_EASE_POWER ),
-    'formation advances by one eased exponential time constant'
+    Math.pow(
+      1 - ( 1 - easedFormationFactorBeforeTimeConstant ) * Math.exp( -1 ),
+      DETECTOR_PATTERN_FORMATION_EASE_POWER
+    ),
+    'formation advances by one eased exponential time constant while in hits mode'
   );
   assert.ok(
     scene.detectorPatternFormationFactorProperty.value < 0.5,
     'formation starts more gradually than the previous direct exponential'
   );
 
+  const formationFactorBeforeModeSwitch = scene.detectorPatternFormationFactorProperty.value;
   scene.detectionModeProperty.value = 'hits';
   scene.detectionModeProperty.value = 'averageIntensity';
-  assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 0, 're-entering intensity mode restarts nonzero formation' );
+  assert.strictEqual(
+    scene.detectorPatternFormationFactorProperty.value,
+    formationFactorBeforeModeSwitch,
+    're-entering intensity mode preserves nonzero formation'
+  );
 
+  scene.detectionModeProperty.value = 'hits';
   const justBelowSnapFactor = DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD - 1e-4;
-  scene.step( getDetectorPatternFormationDt( 0, justBelowSnapFactor ) );
+  scene.step( getDetectorPatternFormationDt(
+    scene.detectorPatternFormationFactorProperty.value,
+    justBelowSnapFactor
+  ) );
   assertApproximately(
     assert,
     scene.detectorPatternFormationFactorProperty.value,
@@ -198,7 +226,18 @@ QUnit.test( 'detector pattern formation waits for wavefront and uses eased expon
 
   const justAboveSnapFactor = DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD + 1e-4;
   scene.step( getDetectorPatternFormationDt( justBelowSnapFactor, justAboveSnapFactor ) );
-  assert.strictEqual( scene.detectorPatternFormationFactorProperty.value, 1, 'formation snaps to completion after the threshold' );
+  assert.strictEqual(
+    scene.detectorPatternFormationFactorProperty.value,
+    1,
+    'formation snaps to completion after the threshold'
+  );
+
+  scene.detectionModeProperty.value = 'averageIntensity';
+  assert.strictEqual(
+    scene.detectorPatternFormationFactorProperty.value,
+    1,
+    'returning to intensity mode after completion does not replay formation'
+  );
 } );
 
 QUnit.test( 'detector-screen hits use increased rate after wavefront reaches screen', assert => {
