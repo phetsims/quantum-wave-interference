@@ -62,15 +62,15 @@ const DEFAULT_SLIT_SETTING_DISPLAY_MAP: SlitSettingDisplayMap = {
 };
 
 const DEFAULT_FORMAT_SLIT_SEPARATION = ( slitSepMM: number ): string => {
-  return slitSepMM < 0.1
-         ? micrometersUnit.getVisualSymbolPatternString( slitSepMM * 1000, {
-      decimalPlaces: 1,
-      showTrailingZeros: true
-    } )
-         : millimetersUnit.getVisualSymbolPatternString( slitSepMM, {
-      decimalPlaces: 2,
-      showTrailingZeros: true
-    } );
+  return slitSepMM < 0.1 ?
+         micrometersUnit.getVisualSymbolPatternString( slitSepMM * 1000, {
+           decimalPlaces: 1,
+           showTrailingZeros: true
+         } ) :
+         millimetersUnit.getVisualSymbolPatternString( slitSepMM, {
+           decimalPlaces: 2,
+           showTrailingZeros: true
+         } );
 };
 
 const SOURCE_TYPE_DISPLAY_DEPENDENCIES = [
