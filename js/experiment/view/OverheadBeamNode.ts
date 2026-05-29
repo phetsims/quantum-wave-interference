@@ -82,11 +82,9 @@ export default class OverheadBeamNode extends Node {
                         ? VisibleColor.wavelengthToColor( scene.wavelengthProperty.value )
                         : particleBeamColorProperty.value;
 
-      const activeEmitter = scene.sourceType === 'photons'
-                            ? emitterNode.laserPointerNode
-                            : emitterNode.particleEmitterNode;
-      const nozzleTipX = activeEmitter.right;
-      const laserCenterY = activeEmitter.centerY;
+      const emitterOutputPoint = emitterNode.getActiveEmitterOutputPoint( scene.sourceType );
+      const nozzleTipX = emitterOutputPoint.x;
+      const laserCenterY = emitterOutputPoint.y;
       const beamHeight = EMITTER_BEAM_HEIGHT;
       const beamLeft = nozzleTipX - EMITTER_BEAM_LEFT_EXTENSION;
       const beamRight = ( doubleSlitParallelogram.left + doubleSlitParallelogram.right ) / 2;

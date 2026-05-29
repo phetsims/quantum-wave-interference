@@ -8,6 +8,7 @@
  */
 
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import ExperimentModel from '../model/ExperimentModel.js';
@@ -73,21 +74,28 @@ export default class ExperimentOverheadApparatusNode extends Node {
       const activeEmitter = model.sceneProperty.value.sourceType === 'photons' ?
                             this.overheadEmitterNode.laserPointerNode :
                             this.overheadEmitterNode.particleEmitterNode;
+      const emitterOutputPoint = this.overheadEmitterNode.getActiveEmitterOutputPoint( model.sceneProperty.value.sourceType );
 
       // Keep the slit centered on the active emitter's beam centerline.
-      this.overheadDoubleSlitNode.parallelogramNode.centerY = activeEmitter.centerY;
+      this.overheadDoubleSlitNode.parallelogramNode.centerY = emitterOutputPoint.y;
 
       // Keep the hit-cap message centered in the horizontal gap between the active emitter and the visible black slit
       // background, not the larger transparent parallelogram bounds.
       this.overheadEmitterNode.maxHitsReachedPanel.centerX =
         ( activeEmitter.right + this.overheadDoubleSlitNode.getVisibleBackgroundLeftX() ) / 2;
-      this.overheadEmitterNode.maxHitsReachedPanel.centerY = activeEmitter.centerY;
+      this.overheadEmitterNode.maxHitsReachedPanel.centerY = emitterOutputPoint.y;
 
       this.whichPathDetectorNode.updateLayout();
 
       // Recompute beams after vertical alignment changes.
       this.overheadBeamNode.updateBeam();
     };
+    ManualConstraint.create( this, [
+      this.overheadEmitterNode.laserPointerNode,
+      this.overheadEmitterNode.particleEmitterNode,
+      this.overheadEmitterNode.maxHitsReachedPanel,
+      this.overheadDoubleSlitNode.parallelogramNode
+    ], this.alignOverheadElements );
     model.sceneProperty.link( this.alignOverheadElements );
   }
 

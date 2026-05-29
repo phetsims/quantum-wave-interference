@@ -12,6 +12,7 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
+import Vector2 from '../../../../dot/js/Vector2.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import ShadedSphereNode from '../../../../scenery-phet/js/ShadedSphereNode.js';
@@ -303,5 +304,17 @@ export default class OverheadEmitterNode extends Node {
   public setEmitterCenterX( emitterCenterX: number ): void {
     this.emitterCenterX = emitterCenterX;
     this.updateEmitterLayout();
+  }
+
+  /**
+   * Returns the active emitter's output point in this node's coordinate frame.
+   * LaserPointerNode's origin is the center of the output nozzle, which is the correct beam centerline.
+   *
+   * @param sourceType - active source type
+   * @returns output-nozzle center point in this node's coordinate frame
+   */
+  public getActiveEmitterOutputPoint( sourceType: SourceType ): Vector2 {
+    const activeEmitter = sourceType === 'photons' ? this.laserPointerNode : this.particleEmitterNode;
+    return activeEmitter.localToParentPoint( Vector2.ZERO );
   }
 }
