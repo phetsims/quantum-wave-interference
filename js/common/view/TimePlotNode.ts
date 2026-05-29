@@ -30,7 +30,7 @@ import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import TimePlotDataSeries from './TimePlotDataSeries.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
-import WavePlotChartNode, { type WavePlotDataPoint } from './WavePlotChartNode.js';
+import WavePlotChartNode, { MEASUREMENT_PLOT_CHART_HEIGHT, type WavePlotDataPoint } from './WavePlotChartNode.js';
 
 const PROBE_COLOR = '#808080';
 const WIRE_COLOR = new Color( PROBE_COLOR ).darkerColor( 0.7 );
@@ -40,7 +40,6 @@ const WIRE_LINE_WIDTH = 3;
 const WIRE_NORMAL_DISTANCE = 25;
 const WIRE_PANEL_ATTACHMENT_ABOVE_BOTTOM = 20;
 const TIME_PLOT_CHART_WIDTH = 190;
-const TIME_PLOT_CHART_HEIGHT = 135;
 const TIME_PLOT_PANEL_LEFT_PADDING = 8;
 const TIME_PLOT_PANEL_BOTTOM_PADDING = 8;
 const TIME_PLOT_PANEL_TOP_PADDING = 12;
@@ -131,14 +130,14 @@ export default class TimePlotNode extends Node {
       xAxisLabelStringProperty: QuantumWaveInterferenceFluent.timeStringProperty,
       polarityProperty: waveDisplayModePolarityProperty( this.activeDisplayModeProperty ),
       chartWidth: TIME_PLOT_CHART_WIDTH,
-      chartHeight: TIME_PLOT_CHART_HEIGHT,
+      chartHeight: MEASUREMENT_PLOT_CHART_HEIGHT,
       axisLabelFill: 'white',
       panelLeftPadding: TIME_PLOT_PANEL_LEFT_PADDING,
       panelBottomPadding: TIME_PLOT_PANEL_BOTTOM_PADDING,
       panelTopPadding: TIME_PLOT_PANEL_TOP_PADDING,
       panelRightPadding: TIME_PLOT_PANEL_RIGHT_PADDING,
       x: waveRegionX + waveRegionWidth - TIME_PLOT_CHART_WIDTH - 30,
-      y: waveRegionY + waveRegionHeight - TIME_PLOT_CHART_HEIGHT - 40
+      y: waveRegionY + waveRegionHeight - MEASUREMENT_PLOT_CHART_HEIGHT - 40
     } );
   }
 

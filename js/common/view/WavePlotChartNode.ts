@@ -31,6 +31,7 @@ import { type WaveDisplayModePolarity } from '../model/WaveModeDisplayPolarity.j
 
 const CHART_WIDTH = 150;
 const CHART_HEIGHT = 110;
+export const MEASUREMENT_PLOT_CHART_HEIGHT = 135;
 const LABEL_FONT = new PhetFont( 11 );
 const GRID_LINE_COLOR = '#bbbdbf';
 const AXIS_COLOR = '#808184';

@@ -32,7 +32,7 @@ import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
-import WavePlotChartNode, { type WavePlotDataPoint } from './WavePlotChartNode.js';
+import WavePlotChartNode, { MEASUREMENT_PLOT_CHART_HEIGHT, type WavePlotDataPoint } from './WavePlotChartNode.js';
 
 const WIRE_LINE_WIDTH = 3;
 const MIN_Y_FRACTION = 0.1;
@@ -169,6 +169,7 @@ export default class PositionPlotNode extends Node {
       isDraggable: false,
       cursor: 'ns-resize',
       chartWidth: waveRegionWidth,
+      chartHeight: MEASUREMENT_PLOT_CHART_HEIGHT,
       axisLabelFill: 'white',
       panelLeftPadding: POSITION_PLOT_PANEL_LEFT_PADDING,
       panelBottomPadding: POSITION_PLOT_PANEL_BOTTOM_PADDING,
