@@ -22,15 +22,19 @@
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import { clamp } from '../../../../dot/js/util/clamp.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import { getFieldSampleRGBA, getLayeredFieldSampleRGBA } from '../model/AnalyticalWaveRasterizer.js';
+import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 
 const MATTER_BASE_R = 200;
 const MATTER_BASE_G = 200;
 const MATTER_BASE_B = 200;
+const WAVE_VISUALIZATION_COLOR_POWER = QuantumWaveInterferenceQueryParameters.waveVisualizationColorPower;
+const COLOR_POWER_RAMP_FRACTION = QuantumWaveInterferenceQueryParameters.waveVisualizationColorPowerRampDistance;
 
 export default class WaveVisualizationCanvasNode extends CanvasNode {
 
@@ -43,6 +47,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
   private offscreenCanvas: HTMLCanvasElement | null = null;
   private offscreenContext: CanvasRenderingContext2D | null = null;
   private imageData: ImageData | null = null;
+  private colorPowers: Float64Array | null = null;
 
   private cachedWavelength = -1;
   private cachedR = 0;
@@ -89,6 +94,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
       this.offscreenCanvas.height = gridHeight;
       this.offscreenContext = this.offscreenCanvas.getContext( '2d' )!;
       this.imageData = null;
+      this.colorPowers = null;
     }
 
     if ( !this.imageData ) {
@@ -122,7 +128,25 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
       baseB = MATTER_BASE_B;
     }
 
-    const amplitudeScale = scene.waveAmplitudeScaleProperty?.value ?? 1;
+    const amplitudeScale = scene.waveAmplitudeScaleProperty ? scene.waveAmplitudeScaleProperty.value : 1;
+    const barrierFractionX = scene.slitPositionFractionProperty.value;
+    const rampEndFractionX = barrierFractionX + COLOR_POWER_RAMP_FRACTION;
+    const hasBarrier = scene.barrierTypeProperty.value === 'doubleSlit';
+    if ( !this.colorPowers || this.colorPowers.length !== gridWidth ) {
+      this.colorPowers = new Float64Array( gridWidth );
+    }
+    for ( let gx = 0; gx < gridWidth; gx++ ) {
+      if ( hasBarrier ) {
+        const fractionX = gridWidth > 1 ? gx / ( gridWidth - 1 ) : 0;
+        this.colorPowers[ gx ] = fractionX <= barrierFractionX ? 1 :
+                                 fractionX >= rampEndFractionX ? WAVE_VISUALIZATION_COLOR_POWER :
+                                 1 + ( WAVE_VISUALIZATION_COLOR_POWER - 1 ) *
+                                 clamp( ( fractionX - barrierFractionX ) / COLOR_POWER_RAMP_FRACTION, 0, 1 );
+      }
+      else {
+        this.colorPowers[ gx ] = 1;
+      }
+    }
     const baseColor = {
       red: baseR,
       green: baseG,
@@ -134,10 +158,11 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
       for ( let gx = 0; gx < gridWidth; gx++ ) {
         const cellIdx = gy * gridWidth + gx;
         const pixelIdx = cellIdx * 4;
+        const colorPower = this.colorPowers[ gx ];
 
         const color = usesLayeredFieldSamples && solver.getLayeredFieldSampleAtGridCell ?
-                      getLayeredFieldSampleRGBA( solver.getLayeredFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale ) :
-                      getFieldSampleRGBA( solver.getFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale );
+                      getLayeredFieldSampleRGBA( solver.getLayeredFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale, colorPower ) :
+                      getFieldSampleRGBA( solver.getFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale, colorPower );
         data[ pixelIdx ] = color.red;
         data[ pixelIdx + 1 ] = color.green;
         data[ pixelIdx + 2 ] = color.blue;

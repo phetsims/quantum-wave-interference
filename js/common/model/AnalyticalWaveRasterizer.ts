@@ -23,6 +23,7 @@
 
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
+import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import { type AnalyticalWaveParameters, evaluateAnalyticalSample, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
@@ -34,6 +35,7 @@ export const FIELD_DISPLAY_CUTOFF = 0.4;
 export const UNREACHED_VACUUM = 0;
 export const BLOCKED_VACUUM = 48;
 export const ABSORBED_VACUUM = 32;
+const WAVE_VISUALIZATION_COLOR_POWER = QuantumWaveInterferenceQueryParameters.waveVisualizationColorPower;
 
 /**
  * RGB color components in Canvas ImageData byte space. Exported because callers provide the source
@@ -106,7 +108,8 @@ export function getFieldSampleRGBA(
   sample: FieldSample,
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
-  amplitudeScale: number
+  amplitudeScale: number,
+  colorPower = WAVE_VISUALIZATION_COLOR_POWER
 ): RGBAColor {
   if ( sample.kind !== 'field' ) {
     return getNonFieldSampleRGBA( sample );
@@ -114,7 +117,7 @@ export function getFieldSampleRGBA(
 
   const groupStates = getCoherenceGroupDisplayStates( sample );
   const displayState = getDisplayState( groupStates, amplitudeScale );
-  return getDisplayStateRGBA( displayState, displayMode, baseColor, amplitudeScale );
+  return getDisplayStateRGBA( displayState, displayMode, baseColor, amplitudeScale, colorPower );
 }
 
 /**
@@ -139,7 +142,8 @@ export function getLayeredFieldSampleRGBA(
   sample: LayeredFieldSample,
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
-  amplitudeScale: number
+  amplitudeScale: number,
+  colorPower = WAVE_VISUALIZATION_COLOR_POWER
 ): RGBAColor {
   if ( sample.kind !== 'field' ) {
     return getNonFieldSampleRGBA( sample );
@@ -155,7 +159,7 @@ export function getLayeredFieldSampleRGBA(
   let alpha = 0;
 
   for ( let i = 0; i < layers.length; i++ ) {
-    const color = getFieldLayerRGBA( layers[ i ], displayMode, baseColor, amplitudeScale );
+    const color = getFieldLayerRGBA( layers[ i ], displayMode, baseColor, amplitudeScale, colorPower );
     const sourceAlpha = color.alpha / 255;
     const destinationAlpha = alpha / 255;
     const outputAlpha = sourceAlpha + destinationAlpha * ( 1 - sourceAlpha );
@@ -210,7 +214,8 @@ function getFieldLayerRGBA(
   layer: FieldLayer,
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
-  amplitudeScale: number
+  amplitudeScale: number,
+  colorPower: number
 ): RGBAColor {
   const layerSample: Extract<FieldSample, { kind: 'field' }> = {
     kind: 'field',
@@ -218,7 +223,7 @@ function getFieldLayerRGBA(
   };
   const groupStates = getCoherenceGroupDisplayStates( layerSample );
   const displayState = getDisplayState( groupStates, amplitudeScale );
-  return getDisplayStateTransparentRGBA( displayState, displayMode, baseColor, amplitudeScale, layer.alpha );
+  return getDisplayStateTransparentRGBA( displayState, displayMode, baseColor, amplitudeScale, layer.alpha, colorPower );
 }
 
 /**
@@ -238,7 +243,8 @@ function getDisplayStateRGBA(
   displayState: FieldDisplayState,
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
-  amplitudeScale: number
+  amplitudeScale: number,
+  colorPower: number
 ): RGBAColor {
   const real = displayState.real * amplitudeScale;
   const imaginary = displayState.imaginary * amplitudeScale;
@@ -259,7 +265,7 @@ function getDisplayStateRGBA(
     );
   }
   else {
-    const value = displayMode === 'imaginaryPart' ? imaginary : real;
+    const value = ( displayMode === 'imaginaryPart' ? imaginary : real ) * colorPower;
     const phaseIntensity = value > 0 ?
                            clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * value, FIELD_DISPLAY_CUTOFF, 1 ) :
                            clamp( FIELD_DISPLAY_CUTOFF * ( 1 + value ), 0, FIELD_DISPLAY_CUTOFF );
@@ -303,7 +309,8 @@ function getDisplayStateTransparentRGBA(
   displayMode: WaveDisplayMode,
   baseColor: RGBColor,
   amplitudeScale: number,
-  layerAlpha: number
+  layerAlpha: number,
+  colorPower: number
 ): RGBAColor {
   const real = displayState.real * amplitudeScale;
   const imaginary = displayState.imaginary * amplitudeScale;
@@ -324,7 +331,7 @@ function getDisplayStateTransparentRGBA(
     );
   }
   else {
-    const value = displayMode === 'imaginaryPart' ? imaginary : real;
+    const value = ( displayMode === 'imaginaryPart' ? imaginary : real ) * colorPower;
     intensity = value > 0 ?
                 clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * value, FIELD_DISPLAY_CUTOFF, 1 ) :
                 clamp( FIELD_DISPLAY_CUTOFF * ( 1 + value ), 0, FIELD_DISPLAY_CUTOFF );

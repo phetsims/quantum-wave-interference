@@ -19,7 +19,22 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
     isValidValue: value => Number.isInteger( value ) && value > 0 && value <= 1000
   },
 
-  // Internal performance tuning knob for the shared detector screen texture. A value of 2 would do supersampling
+  // Internal tuning knob for the wave visualization's bipolar color mapping. Values greater than 1
+  // multiply electric-field/real/imaginary display values before color clamping, making weak post-slit waves bolder.
+  waveVisualizationColorPower: {
+    type: 'number',
+    defaultValue: 1.8,
+    isValidValue: value => value > 0 && value <= 10
+  },
+
+  // Fraction of the wave region over which waveVisualizationColorPower ramps from 1 to the full value after the barrier.
+  waveVisualizationColorPowerRampDistance: {
+    type: 'number',
+    defaultValue: 0.2,
+    isValidValue: value => value > 0 && value <= 1
+  },
+
+  // Internal performance tuning knob for the shared detector screen texture. The default 2 preserves
   // the current supersampled rendering. For example, ?detectorScreenTextureScale=1 renders 1/4 as
   // many texture pixels, and ?detectorScreenTextureScale=0.5 renders 1/16 as many.
   detectorScreenTextureScale: {

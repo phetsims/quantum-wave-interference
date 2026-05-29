@@ -9,6 +9,7 @@
  */
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import { type BarrierType } from './BarrierType.js';
 import { type SourceType } from './SourceType.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 import type WaveSolver from './WaveSolver.js';
@@ -33,6 +34,8 @@ type WaveVisualizableScene = {
   readonly regionHeight: number;
   readonly wavelengthProperty: TReadOnlyProperty<number>;
   readonly waveSolver: WaveSolver;
+  readonly barrierTypeProperty: TReadOnlyProperty<BarrierType>;
+  readonly slitPositionFractionProperty: TReadOnlyProperty<number>;
   readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
 
