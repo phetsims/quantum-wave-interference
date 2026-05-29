@@ -155,6 +155,7 @@ export default class TimePlotNode extends Node {
     probe.addInputListener( new DragListener( {
       positionProperty: this.probePositionProperty,
       dragBoundsProperty: new Property( this.waveRegionBounds ),
+      useParentOffset: true,
       start: () => this.moveToFront()
     } ) );
 
