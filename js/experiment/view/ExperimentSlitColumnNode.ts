@@ -8,7 +8,7 @@
 
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
+import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
@@ -29,9 +29,10 @@ export default class ExperimentSlitColumnNode extends Node {
         tandem: frontFacingSlitTandem.createTandem( `frontFacingSlitNode${index}` )
       } );
       slitNode.y = ExperimentConstants.FRONT_FACING_ROW_TOP;
-      this.addChild( slitNode );
       return slitNode;
     } );
+    const frontFacingSlitToggleNode = new QuantumWaveInterferenceToggleNode( model.sceneProperty, model.scenes, this.frontFacingSlitNodes );
+    this.addChild( frontFacingSlitToggleNode );
 
     this.slitControlPanel = new SlitControlPanel( model.sceneProperty, model.scenes, comboBoxParent, {
       tandem: tandem.createTandem( 'slitControlPanel' )
@@ -39,11 +40,9 @@ export default class ExperimentSlitColumnNode extends Node {
     this.slitControlPanel.top = this.frontFacingSlitNodes[ 0 ].bottom + 8;
     this.addChild( this.slitControlPanel );
 
-    linkSceneVisibility( model.sceneProperty, model.scenes, this.frontFacingSlitNodes );
-
     // Move front-facing slit nodes above the slit control panel so the slit separation span below the view is not
     // obscured by the panel's background.
-    this.frontFacingSlitNodes.forEach( slitNode => slitNode.moveToFront() );
+    frontFacingSlitToggleNode.moveToFront();
   }
 
   public setColumnCenterX( centerX: number ): void {

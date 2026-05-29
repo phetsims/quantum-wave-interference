@@ -18,7 +18,7 @@ import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import linkSceneVisibility from './linkSceneVisibility.js';
+import QuantumWaveInterferenceToggleNode from './QuantumWaveInterferenceToggleNode.js';
 import SlitSeparationNumberControl from './SlitSeparationNumberControl.js';
 
 const TITLE_FONT = new PhetFont( 14 );
@@ -61,13 +61,8 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
       new SlitSeparationNumberControl( scene, tandem )
     );
 
-    // Owns one scene-specific slit separation control per scene. linkSceneVisibility keeps only the
-    // active scene's control visible, while this container is hidden entirely when there is no barrier.
-    const slitSeparationContainer = new Node( {
-      children: slitSeparationNodes,
-      excludeInvisibleChildrenFromBounds: false
-    } );
-    linkSceneVisibility( sceneProperty, scenes, slitSeparationNodes );
+    // Owns one scene-specific slit separation control per scene, while this container is hidden entirely when there is no barrier.
+    const slitSeparationContainer = new QuantumWaveInterferenceToggleNode( sceneProperty, scenes, slitSeparationNodes );
 
     super( {
       children: [ slitConfigSection, slitSeparationContainer ],

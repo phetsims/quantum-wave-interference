@@ -28,7 +28,6 @@ import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import createSourceControlPanelContent from './createSourceControlPanelContent.js';
-import linkSceneVisibility from './linkSceneVisibility.js';
 import SourceControlScene from './SourceControlScene.js';
 import { SOURCE_CONTROL_SECTION_SPACING } from './SourceControlPanelConstants.js';
 
@@ -81,7 +80,5 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
                          sourceContent.contentNode;
 
     super( panelContent, options );
-
-    linkSceneVisibility( sceneProperty, scenes, sourceContent.sceneNodes );
   }
 }

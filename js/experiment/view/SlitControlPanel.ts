@@ -20,7 +20,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
+import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
@@ -64,21 +64,13 @@ export default class SlitControlPanel extends Panel {
 
     for ( const scene of scenes ) {
       const sceneContent = SlitControlPanel.createSceneContent( scene, comboBoxParent, options.tandem );
-      sceneContent.visible = scene === sceneProperty.value;
       sceneNodes.push( sceneContent );
     }
 
-    // Container node holds all scene content; only the active one is visible. excludeInvisibleChildrenFromBounds:
-    // false ensures the panel sizes to the widest content across all scenes, preventing layout shifts when switching
-    // scenes.
-    const contentNode = new Node( {
-      children: sceneNodes,
-      excludeInvisibleChildrenFromBounds: false
-    } );
+    // Keep all scene content in bounds, preventing layout shifts when switching scenes.
+    const contentNode = new QuantumWaveInterferenceToggleNode( sceneProperty, scenes, sceneNodes );
 
     super( contentNode, options );
-
-    linkSceneVisibility( sceneProperty, scenes, sceneNodes );
   }
 
   /**

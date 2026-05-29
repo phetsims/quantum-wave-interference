@@ -11,7 +11,7 @@ import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
+import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
@@ -50,8 +50,8 @@ export default class ExperimentDetectorColumnNode extends Node {
     for ( const detectorScreen of this.detectorScreenNodes ) {
       detectorScreen.x = detectorScreenX;
       detectorScreen.y = ExperimentConstants.FRONT_FACING_ROW_TOP;
-      this.addChild( detectorScreen );
     }
+    this.addChild( new QuantumWaveInterferenceToggleNode( model.sceneProperty, model.scenes, this.detectorScreenNodes ) );
 
     this.screenSettingsPanel = new ScreenSettingsPanel(
       model.currentDetectionModeProperty,
@@ -70,21 +70,15 @@ export default class ExperimentDetectorColumnNode extends Node {
     } );
 
     const graphTandem = tandem.createTandem( 'graphAccordionBoxes' );
-    this.graphAccordionBoxes = model.scenes.map( ( scene, index ) => {
-      const graphBox = new GraphAccordionBox( scene, {
-        expandedProperty: this.graphExpandedProperty,
-        isRulerVisibleProperty: model.isRulerVisibleProperty,
-        detectorScreenScaleIndexProperty: model.detectorScreenScaleIndexProperty,
-        tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
-      } );
-      this.addChild( graphBox );
-      return graphBox;
-    } );
+    this.graphAccordionBoxes = model.scenes.map( ( scene, index ) => new GraphAccordionBox( scene, {
+      expandedProperty: this.graphExpandedProperty,
+      isRulerVisibleProperty: model.isRulerVisibleProperty,
+      detectorScreenScaleIndexProperty: model.detectorScreenScaleIndexProperty,
+      tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
+    } ) );
+    this.addChild( new QuantumWaveInterferenceToggleNode( model.sceneProperty, model.scenes, this.graphAccordionBoxes ) );
 
     this.layoutGraphAccordionBoxes();
-
-    linkSceneVisibility( model.sceneProperty, model.scenes, this.detectorScreenNodes );
-    linkSceneVisibility( model.sceneProperty, model.scenes, this.graphAccordionBoxes );
 
     // Keep the graph below the screen settings panel to avoid overlap and align the chart rectangle to the detector
     // screen rectangle even if labels or scale change.

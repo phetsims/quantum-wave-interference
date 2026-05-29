@@ -16,6 +16,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import ParticleVelocityControl from './ParticleVelocityControl.js';
 import PhotonWavelengthControl from './PhotonWavelengthControl.js';
+import QuantumWaveInterferenceToggleNode from './QuantumWaveInterferenceToggleNode.js';
 import SourceControlScene from './SourceControlScene.js';
 import SourceIntensityControl from './SourceIntensityControl.js';
 import { SOURCE_CONTROL_ROW_VERTICAL_MARGIN, SOURCE_CONTROL_SECTION_SPACING } from './SourceControlPanelConstants.js';
@@ -67,15 +68,11 @@ export default function createSourceControlPanelContent<T extends SourceControlS
     xAlign: 'center',
     yAlign: 'center',
     preferredWidth: maxSceneWidth,
-    preferredHeight: maxSceneHeight,
-    visible: scenes[ index ] === sceneProperty.value
+    preferredHeight: maxSceneHeight
   } ) );
 
   return {
-    contentNode: new Node( {
-      children: sceneNodes,
-      excludeInvisibleChildrenFromBounds: false
-    } ),
+    contentNode: new QuantumWaveInterferenceToggleNode( sceneProperty, scenes, sceneNodes ),
     sceneNodes: sceneNodes
   };
 }

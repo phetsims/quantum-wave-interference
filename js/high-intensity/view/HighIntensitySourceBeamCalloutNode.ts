@@ -40,8 +40,8 @@ import { type BarrierType } from '../../common/model/BarrierType.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import linkSceneVisibility from '../../common/view/linkSceneVisibility.js';
 import MaxHitsReachedPanel from '../../common/view/MaxHitsReachedPanel.js';
+import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import WaveVisualizationCanvasNode from '../../common/view/WaveVisualizationCanvasNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
@@ -276,12 +276,11 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
             sourceType: sourceTypeProperty
           } )
         },
-        visible: false,
         tandem: emittersTandem.createTandem( `${scene.sourceType}EmitterNode` )
       } );
     } );
 
-    const emitterContainer = new Node( { children: emitterChildren } );
+    const emitterContainer = new QuantumWaveInterferenceToggleNode( sceneProperty, scenes, emitterChildren );
     emitterContainer.left = emitterLeft;
     emitterContainer.centerY = centerY;
 
@@ -394,8 +393,6 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
       lowerRightBeam.fill = baseColor.withAlpha( HIGH_OPACITY_BEAM_ALPHA_SCALE );
       dimRightBeam.fill = baseColor.withAlpha( DIM_RIGHT_BEAM_ALPHA_SCALE );
     } );
-
-    linkSceneVisibility( sceneProperty, scenes, emitterChildren );
 
     currentIsEmitterEnabledProperty.link( isEnabled => {
       emitterChildren.forEach( emitter => {
