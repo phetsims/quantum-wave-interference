@@ -36,6 +36,7 @@ export const UNREACHED_VACUUM = 0;
 export const BLOCKED_VACUUM = 48;
 export const ABSORBED_VACUUM = 32;
 const WAVE_VISUALIZATION_COLOR_POWER = QuantumWaveInterferenceQueryParameters.waveVisualizationColorPower;
+const WAVE_VISUALIZATION_AMPLITUDE_COLOR_POWER_MULTIPLIER = QuantumWaveInterferenceQueryParameters.waveVisualizationAmplitudeColorPowerMultiplier;
 
 /**
  * RGB color components in Canvas ImageData byte space. Exported because callers provide the source
@@ -102,6 +103,7 @@ export type AnalyticalWaveRaster = {
  * @param displayMode - Wave display mode controlling how field values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
+ * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
  * @returns Opaque RGBA color for the sampled grid cell.
  */
 export function getFieldSampleRGBA(
@@ -136,6 +138,7 @@ export function getFieldSampleRGBA(
  * @param displayMode - Wave display mode controlling how layer values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
+ * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
  * @returns RGBA color produced by source-over compositing the sample's layers.
  */
 export function getLayeredFieldSampleRGBA(
@@ -208,6 +211,7 @@ function getNonFieldSampleRGBA( sample: NonFieldSample ): RGBAColor {
  * @param displayMode - Wave display mode controlling how field values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
+ * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
  * @returns Transparent RGBA contribution for the layer.
  */
 function getFieldLayerRGBA(
@@ -237,6 +241,7 @@ function getFieldLayerRGBA(
  * @param displayMode - Wave display mode controlling how field values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
+ * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
  * @returns Opaque RGBA color for the legacy renderer.
  */
 function getDisplayStateRGBA(
@@ -246,31 +251,14 @@ function getDisplayStateRGBA(
   amplitudeScale: number,
   colorPower: number
 ): RGBAColor {
-  const real = displayState.real * amplitudeScale;
-  const imaginary = displayState.imaginary * amplitudeScale;
-
-  let intensity: number;
-  if ( displayMode === 'timeAveragedIntensity' ) {
-    intensity = clamp(
-      FIELD_DISPLAY_CUTOFF * displayState.visibility + ( 1 - FIELD_DISPLAY_CUTOFF ) * displayState.intensity * amplitudeScale * amplitudeScale,
-      0,
-      1
-    );
-  }
-  else if ( displayMode === 'magnitude' ) {
-    intensity = clamp(
-      FIELD_DISPLAY_CUTOFF * displayState.visibility + ( 1 - FIELD_DISPLAY_CUTOFF ) * Math.sqrt( displayState.intensity ) * amplitudeScale,
-      0,
-      1
-    );
-  }
-  else {
-    const value = ( displayMode === 'imaginaryPart' ? imaginary : real ) * colorPower;
-    const phaseIntensity = value > 0 ?
-                           clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * value, FIELD_DISPLAY_CUTOFF, 1 ) :
-                           clamp( FIELD_DISPLAY_CUTOFF * ( 1 + value ), 0, FIELD_DISPLAY_CUTOFF );
-    intensity = phaseIntensity * displayState.visibility;
-  }
+  const intensity = getDisplayModeIntensity(
+    displayState,
+    displayMode,
+    amplitudeScale,
+    colorPower,
+    displayState.visibility,
+    displayState.visibility
+  );
 
   const fieldColor = {
     red: baseColor.red * intensity,
@@ -302,6 +290,7 @@ function getDisplayStateRGBA(
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
  * @param layerAlpha - Layer-specific transparency multiplier from the analytical kernel.
+ * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
  * @returns Transparent RGBA color for the layered renderer.
  */
 function getDisplayStateTransparentRGBA(
@@ -312,30 +301,7 @@ function getDisplayStateTransparentRGBA(
   layerAlpha: number,
   colorPower: number
 ): RGBAColor {
-  const real = displayState.real * amplitudeScale;
-  const imaginary = displayState.imaginary * amplitudeScale;
-
-  let intensity: number;
-  if ( displayMode === 'timeAveragedIntensity' ) {
-    intensity = clamp(
-      FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * displayState.intensity * amplitudeScale * amplitudeScale,
-      0,
-      1
-    );
-  }
-  else if ( displayMode === 'magnitude' ) {
-    intensity = clamp(
-      FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * Math.sqrt( displayState.intensity ) * amplitudeScale,
-      0,
-      1
-    );
-  }
-  else {
-    const value = ( displayMode === 'imaginaryPart' ? imaginary : real ) * colorPower;
-    intensity = value > 0 ?
-                clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * value, FIELD_DISPLAY_CUTOFF, 1 ) :
-                clamp( FIELD_DISPLAY_CUTOFF * ( 1 + value ), 0, FIELD_DISPLAY_CUTOFF );
-  }
+  const intensity = getDisplayModeIntensity( displayState, displayMode, amplitudeScale, colorPower, 1, 1 );
 
   // Unlike getDisplayStateRGBA, this does not preblend with UNREACHED_VACUUM. The field color stays
   // chromatic while alpha carries visibility and particle-chain taper strength.
@@ -345,6 +311,62 @@ function getDisplayStateTransparentRGBA(
     blue: roundSymmetric( baseColor.blue * intensity ),
     alpha: roundSymmetric( 255 * clamp( displayState.visibility * layerAlpha, 0, 1 ) )
   };
+}
+
+/**
+ * Computes the display-mode-specific color intensity after amplitude scaling and spatial color boost.
+ * Amplitude modes treat colorPower and an amplitude-only multiplier as an amplitude gain; phase modes apply colorPower
+ * to the signed displayed value.
+ *
+ * @param displayState - Reduced field state for one sampled cell or layer.
+ * @param displayMode - Wave display mode controlling how field values map to brightness.
+ * @param amplitudeScale - Scene-level amplitude scale.
+ * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
+ * @param minimumIntensityVisibility - Visibility multiplier for the low-end field display cutoff.
+ * @param phaseVisibility - Visibility multiplier for bipolar phase display modes.
+ * @returns Color intensity in the range [0, 1].
+ */
+function getDisplayModeIntensity(
+  displayState: FieldDisplayState,
+  displayMode: WaveDisplayMode,
+  amplitudeScale: number,
+  colorPower: number,
+  minimumIntensityVisibility: number,
+  phaseVisibility: number
+): number {
+  const boostedAmplitudeScale = amplitudeScale * colorPower * WAVE_VISUALIZATION_AMPLITUDE_COLOR_POWER_MULTIPLIER;
+  const real = displayState.real * amplitudeScale;
+  const imaginary = displayState.imaginary * amplitudeScale;
+
+  return displayMode === 'timeAveragedIntensity' ? clamp(
+           FIELD_DISPLAY_CUTOFF * minimumIntensityVisibility +
+           ( 1 - FIELD_DISPLAY_CUTOFF ) * displayState.intensity * boostedAmplitudeScale * boostedAmplitudeScale,
+           0,
+           1
+         ) :
+         displayMode === 'magnitude' ? clamp(
+           FIELD_DISPLAY_CUTOFF * minimumIntensityVisibility +
+           ( 1 - FIELD_DISPLAY_CUTOFF ) * Math.sqrt( displayState.intensity ) * boostedAmplitudeScale,
+           0,
+           1
+         ) :
+         displayMode === 'electricField' ? getPhaseDisplayIntensity( real * colorPower ) * phaseVisibility :
+         displayMode === 'realPart' ? getPhaseDisplayIntensity( real * colorPower ) * phaseVisibility :
+         displayMode === 'imaginaryPart' ? getPhaseDisplayIntensity( imaginary * colorPower ) * phaseVisibility :
+         ( () => { throw new Error( `Unrecognized displayMode: ${displayMode}` ); } )();
+}
+
+/**
+ * Maps a signed phase display value to color intensity. Positive values brighten from the field cutoff
+ * toward the base color; negative values darken from the field cutoff toward black.
+ *
+ * @param value - Signed displayed phase value after scaling and color boost.
+ * @returns Color intensity in the range [0, 1].
+ */
+function getPhaseDisplayIntensity( value: number ): number {
+  return value > 0 ?
+         clamp( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * value, FIELD_DISPLAY_CUTOFF, 1 ) :
+         clamp( FIELD_DISPLAY_CUTOFF * ( 1 + value ), 0, FIELD_DISPLAY_CUTOFF );
 }
 
 /**

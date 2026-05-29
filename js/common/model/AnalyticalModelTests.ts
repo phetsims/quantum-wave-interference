@@ -10,10 +10,11 @@
 
 import Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type AnalyticalWaveParameters, computeSampleIntensity, evaluateAnalyticalSample, evaluateAnalyticalSamples, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
 import AnalyticalWavePacketSolver from './AnalyticalWavePacketSolver.js';
-import { getFieldSampleRGBA, getLayeredFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
+import { FIELD_DISPLAY_CUTOFF, getFieldSampleRGBA, getLayeredFieldSampleRGBA, rasterizeAnalyticalWave, UNREACHED_VACUUM } from './AnalyticalWaveRasterizer.js';
 import AnalyticalWaveSolver from './AnalyticalWaveSolver.js';
 
 QUnit.module( 'AnalyticalModel' );
@@ -1866,6 +1867,33 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
       }
     ]
   }, 'timeAveragedIntensity', baseColor, 1 );
+  const colorBoostSample = {
+    kind: 'field' as const,
+    components: [ {
+      source: 'topSlit' as const,
+      coherenceGroup: 'slits',
+      support: 1,
+      value: new Complex( 0.2, 0 )
+    } ]
+  };
+  const timeAveragedBaseColor = getFieldSampleRGBA( colorBoostSample, 'timeAveragedIntensity', baseColor, 1, 1 );
+  const timeAveragedRampColor = getFieldSampleRGBA( colorBoostSample, 'timeAveragedIntensity', baseColor, 1, 1.5 );
+  const timeAveragedBoostedColor = getFieldSampleRGBA( colorBoostSample, 'timeAveragedIntensity', baseColor, 1, 2 );
+  const magnitudeBaseColor = getFieldSampleRGBA( colorBoostSample, 'magnitude', baseColor, 1, 1 );
+  const magnitudeRampColor = getFieldSampleRGBA( colorBoostSample, 'magnitude', baseColor, 1, 1.5 );
+  const magnitudeBoostedColor = getFieldSampleRGBA( colorBoostSample, 'magnitude', baseColor, 1, 2 );
+  const realPartBaseColor = getFieldSampleRGBA( colorBoostSample, 'realPart', baseColor, 1, 1 );
+  const expectedRealPartBaseRed = roundSymmetric( baseColor.red * ( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * 0.2 ) );
+  const layeredColorBoostSample = {
+    kind: 'field' as const,
+    layers: [ {
+      order: 0,
+      alpha: 0.25,
+      components: colorBoostSample.components
+    } ]
+  };
+  const layeredMagnitudeBaseColor = getLayeredFieldSampleRGBA( layeredColorBoostSample, 'magnitude', baseColor, 1, 1 );
+  const layeredMagnitudeBoostedColor = getLayeredFieldSampleRGBA( layeredColorBoostSample, 'magnitude', baseColor, 1, 2 );
 
   assert.ok(
     Math.abs( weakFrontColor.red - UNREACHED_VACUUM ) < Math.abs( fullFrontColor.red - UNREACHED_VACUUM ),
@@ -1879,6 +1907,32 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
     destructiveInterferenceColor,
     { red: UNREACHED_VACUUM, green: UNREACHED_VACUUM, blue: UNREACHED_VACUUM, alpha: 255 },
     'destructive interference with strong component support still renders as reached field'
+  );
+  assert.ok(
+    timeAveragedBaseColor.red < timeAveragedRampColor.red && timeAveragedRampColor.red < timeAveragedBoostedColor.red,
+    'time-averaged amplitude color boost brightens smoothly'
+  );
+  assert.ok(
+    magnitudeBaseColor.red < magnitudeRampColor.red && magnitudeRampColor.red < magnitudeBoostedColor.red,
+    'magnitude amplitude color boost brightens smoothly'
+  );
+  assert.ok(
+    magnitudeBaseColor.red > realPartBaseColor.red,
+    'amplitude-only contrast multiplier makes magnitude brighter than the equivalent unipolar real-part value'
+  );
+  assert.strictEqual(
+    realPartBaseColor.red,
+    expectedRealPartBaseRed,
+    'amplitude-only contrast multiplier does not change real-part color boost'
+  );
+  assert.strictEqual(
+    layeredMagnitudeBoostedColor.alpha,
+    layeredMagnitudeBaseColor.alpha,
+    'layered amplitude color boost does not change alpha visibility'
+  );
+  assert.ok(
+    layeredMagnitudeBoostedColor.red > layeredMagnitudeBaseColor.red,
+    'layered amplitude color boost changes color intensity'
   );
 
   appendRasterPreview( 'coherent double slit', coherentRaster.width, coherentRaster.height, coherentRaster.pixels, coherentRaster.statusCounts );

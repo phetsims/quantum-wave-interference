@@ -19,11 +19,19 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
     isValidValue: value => Number.isInteger( value ) && value > 0 && value <= 1000
   },
 
-  // Internal tuning knob for the wave visualization's bipolar color mapping. Values greater than 1
-  // multiply electric-field/real/imaginary display values before color clamping, making weak post-slit waves bolder.
+  // Internal tuning knob for the wave visualization's color mapping. Values greater than 1 multiply displayed
+  // wave amplitudes before color clamping, making weak post-slit waves bolder.
   waveVisualizationColorPower: {
     type: 'number',
     defaultValue: 1.8,
+    isValidValue: value => value > 0 && value <= 10
+  },
+
+  // Additional amplitude-only contrast multiplier for the wave visualization's Amplitude display modes.
+  // This leaves Electric Field, Real part, and Imaginary part color behavior at the base color-power setting.
+  waveVisualizationAmplitudeColorPowerMultiplier: {
+    type: 'number',
+    defaultValue: 1.5,
     isValidValue: value => value > 0 && value <= 10
   },
 
