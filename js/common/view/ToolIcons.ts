@@ -36,8 +36,7 @@ const DETECTOR_TOOL_COLOR = new Color( 135, 206, 250 );
 function createTapeMeasureIcon(): Node {
   return MeasuringTapeNode.createIcon( {
     tapeLength: 15,
-    scale: 0.4,
-
+    scale: 0.4
   } );
 }
 
