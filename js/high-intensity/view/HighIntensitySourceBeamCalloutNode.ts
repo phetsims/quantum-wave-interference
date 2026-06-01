@@ -28,6 +28,7 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import Shape from '../../../../kite/js/Shape.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
+import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -280,16 +281,17 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
       } );
     } );
 
+    // These LaserPointerNode emitters have fixed visual height after construction. If their height becomes dynamic,
+    // this normalization should move into the ManualConstraint so scene changes and bounds changes stay aligned.
+    const maxEmitterHeight = Math.max( ...emitterChildren.map( emitter => emitter.height ) );
+    emitterChildren.forEach( emitter => {
+      emitter.left = 0;
+      emitter.centerY = maxEmitterHeight / 2;
+    } );
+
     const emitterContainer = new QuantumWaveInterferenceToggleNode( sceneProperty, scenes, emitterChildren );
-    emitterContainer.left = emitterLeft;
-    emitterContainer.centerY = centerY;
 
     this.maxHitsReachedPanel = new MaxHitsReachedPanel( tandem.createTandem( 'maxHitsReachedPanel' ) );
-    const updateMaxHitsReachedPanelPosition = () => {
-      this.maxHitsReachedPanel.left = emitterContainer.right + MAX_HITS_REACHED_PANEL_EMITTER_GAP;
-      this.maxHitsReachedPanel.centerY = emitterContainer.centerY;
-    };
-    this.maxHitsReachedPanel.localBoundsProperty.link( updateMaxHitsReachedPanelPosition );
 
     // Z-order: callout lines and beam behind the mini symbol and emitter so their geometry reads cleanly.
     this.addChild( calloutLines );
@@ -302,6 +304,21 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
       emitterContainer,
       this.maxHitsReachedPanel
     ];
+
+    // Position the laser pointer node centered above its controls and aligned with the thumbnail wave area
+    const emitterConstraint = ManualConstraint.create(
+      this,
+      [ emitterContainer, this.maxHitsReachedPanel ],
+      ( emitterContainerProxy, maxHitsReachedPanelProxy ) => {
+        emitterContainerProxy.left = emitterLeft;
+        emitterContainerProxy.centerY = centerY;
+        maxHitsReachedPanelProxy.left = emitterContainerProxy.right + MAX_HITS_REACHED_PANEL_EMITTER_GAP;
+        maxHitsReachedPanelProxy.centerY = emitterContainerProxy.centerY;
+      }
+    );
+    sceneProperty.link( () => {
+      emitterConstraint.updateLayout();
+    } );
 
     this.emitterBottom = emitterContainer.bottom;
     this.emitterCenterX = emitterCenterX;

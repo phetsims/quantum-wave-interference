@@ -54,6 +54,7 @@ const CONTENT_VERTICAL_OFFSET = 12;
 const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
 const CALLOUT_GAP = 55;
 const WAVE_REGION_Y_OFFSET = -30;
+const EMITTER_WAVE_REGION_OVERLAP = 2;
 const MAX_HITS_REACHED_PANEL_SPACING = 10;
 
 export default class SingleParticlesScreenView extends ScreenView {
@@ -136,16 +137,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     const waveRegionRight = waveRegionLeft + WAVE_REGION_WIDTH;
     const slitControlsBottom = this.layoutBounds.maxY - Y_MARGIN;
 
-    const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
-    emitterNode.right = waveRegionLeft + 2;
-    emitterNode.centerY = waveRegionTop + waveRegionHeight / 2;
-
     const maxHitsReachedPanel = new MaxHitsReachedPanel( tandem.createTandem( 'maxHitsReachedPanel' ) );
-    const updateMaxHitsReachedPanelPosition = () => {
-      maxHitsReachedPanel.left = emitterNode.right + MAX_HITS_REACHED_PANEL_SPACING;
-      maxHitsReachedPanel.centerY = emitterNode.centerY;
-    };
-    maxHitsReachedPanel.localBoundsProperty.link( updateMaxHitsReachedPanelPosition );
     model.currentIsMaxHitsReachedProperty.link( isMaxHitsReached => {
       maxHitsReachedPanel.visible = isMaxHitsReached;
     } );
@@ -181,13 +173,21 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( emitterNode );
     this.addChild( maxHitsReachedPanel );
 
-    const updateParticleMassAnnotationPosition = () => {
-      particleMassAnnotation.centerX = sourceControlPanel.centerX;
-      particleMassAnnotation.top = emitterNode.top;
-    };
-    particleMassAnnotation.localBoundsProperty.link( updateParticleMassAnnotationPosition );
-    updateParticleMassAnnotationPosition();
     this.addChild( particleMassAnnotation );
+    ManualConstraint.create(
+      this,
+      [ emitterNode, maxHitsReachedPanel, particleMassAnnotation ],
+      ( emitterProxy, maxHitsReachedPanelProxy, particleMassAnnotationProxy ) => {
+        emitterProxy.right = waveRegionLeft + EMITTER_WAVE_REGION_OVERLAP;
+        emitterProxy.centerY = waveRegionTop + QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT / 2;
+
+        maxHitsReachedPanelProxy.left = emitterProxy.right + MAX_HITS_REACHED_PANEL_SPACING;
+        maxHitsReachedPanelProxy.centerY = emitterProxy.centerY;
+
+        particleMassAnnotationProxy.centerX = sourceControlPanel.centerX;
+        particleMassAnnotationProxy.top = emitterProxy.top;
+      }
+    );
 
     const bottomRow = createAndAddSlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
