@@ -117,6 +117,7 @@ export default class MeasurementToolsLayerNode extends Node {
       model.currentWaveDisplayModeProperty,
       waveRegionLeft,
       waveRegionTop,
+      visibleBoundsProperty,
       model.isTimePlotVisibleProperty
     );
 

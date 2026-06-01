@@ -55,12 +55,14 @@ export default class TimePlotNode extends Node {
   private readonly probeNode: Node;
   private readonly probePositionProperty: Vector2Property;
   private readonly waveRegionBounds: Bounds2;
+  private readonly visibleBoundsProperty: TReadOnlyProperty<Bounds2>;
 
   public constructor(
     sceneProperty: TReadOnlyProperty<WaveVisualizableScene>,
     activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>,
     waveRegionX: number,
     waveRegionY: number,
+    visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
     visibleProperty: TReadOnlyProperty<boolean>
   ) {
     super( { isDisposable: false, visibleProperty: visibleProperty } );
@@ -77,6 +79,7 @@ export default class TimePlotNode extends Node {
       waveRegionX + waveRegionWidth,
       waveRegionY + waveRegionHeight
     );
+    this.visibleBoundsProperty = visibleBoundsProperty;
 
     this.maxDisplayValueProperty = new DerivedProperty(
       [ activeDisplayModeProperty ],
@@ -129,6 +132,7 @@ export default class TimePlotNode extends Node {
       yAxisLabelStringProperty: waveDisplayModeYAxisLabelProperty( this.activeDisplayModeProperty ),
       xAxisLabelStringProperty: QuantumWaveInterferenceFluent.timeStringProperty,
       polarityProperty: waveDisplayModePolarityProperty( this.activeDisplayModeProperty ),
+      dragBoundsProperty: this.visibleBoundsProperty,
       chartWidth: TIME_PLOT_CHART_WIDTH,
       chartHeight: MEASUREMENT_PLOT_CHART_HEIGHT,
       axisLabelFill: 'white',

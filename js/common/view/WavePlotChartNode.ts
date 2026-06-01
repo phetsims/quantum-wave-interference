@@ -50,6 +50,11 @@ type SelfOptions = {
   xAxisLabelStringProperty: TReadOnlyProperty<string>;
   polarityProperty: TReadOnlyProperty<WaveDisplayModePolarity>;
   isDraggable?: boolean;
+
+  // Container bounds (e.g., the ScreenView's visibleBoundsProperty) within which the entire panel is
+  // kept while dragging. The panel's own extent is inset so the whole panel — not just its origin —
+  // stays inside, and it is nudged back in when these bounds shrink. Null means unconstrained.
+  dragBoundsProperty?: TReadOnlyProperty<Bounds2> | null;
   chartWidth?: number;
   chartHeight?: number;
   axisLabelFill?: string;
@@ -86,6 +91,7 @@ export default class WavePlotChartNode extends Node {
       isDisposable: false,
       cursor: 'pointer', // can be overridden by clients
       isDraggable: true,
+      dragBoundsProperty: null,
       chartWidth: CHART_WIDTH,
       chartHeight: CHART_HEIGHT,
       axisLabelFill: DEFAULT_AXIS_LABEL_FILL,
@@ -226,7 +232,42 @@ export default class WavePlotChartNode extends Node {
     } );
 
     if ( options.isDraggable ) {
-      this.addInputListener( new DragListener( { positionProperty: this.positionProperty } ) );
+
+      const containerBoundsProperty = options.dragBoundsProperty;
+
+      // Inset the container bounds by the panel's own extent (relative to its origin) so the whole
+      // panel — not just its origin — stays inside, mirroring StopwatchNode. Recomputed when the
+      // panel bounds or container bounds change, and translation-invariant so dragging the panel
+      // within bounds does not spuriously change it.
+      const adjustedDragBoundsProperty = containerBoundsProperty ? new DerivedProperty(
+        [ this.boundsProperty, containerBoundsProperty ],
+        ( thisBounds, containerBounds ) => {
+
+          // Origin in the parent frame, so the offsets correctly account for any scaling/rotation.
+          const targetOriginInParentCoordinates = this.localToParentPoint( Vector2.ZERO );
+
+          return new Bounds2(
+            containerBounds.minX - ( thisBounds.minX - targetOriginInParentCoordinates.x ),
+            containerBounds.minY - ( thisBounds.minY - targetOriginInParentCoordinates.y ),
+            containerBounds.maxX - ( thisBounds.maxX - targetOriginInParentCoordinates.x ),
+            containerBounds.maxY - ( thisBounds.maxY - targetOriginInParentCoordinates.y )
+          );
+        }, {
+          valueComparisonStrategy: 'equalsFunction' // Avoid spurious changes; usually the bounds are unchanged.
+        }
+      ) : null;
+
+      // If the container shrinks (e.g., window resize) and leaves the panel outside, nudge it back in.
+      adjustedDragBoundsProperty && adjustedDragBoundsProperty.link( dragBounds => {
+        if ( !dragBounds.containsPoint( this.positionProperty.value ) ) {
+          this.positionProperty.value = dragBounds.closestPointTo( this.positionProperty.value );
+        }
+      } );
+
+      this.addInputListener( new DragListener( {
+        positionProperty: this.positionProperty,
+        dragBoundsProperty: adjustedDragBoundsProperty
+      } ) );
     }
   }
 
