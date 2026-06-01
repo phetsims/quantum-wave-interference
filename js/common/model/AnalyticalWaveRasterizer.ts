@@ -103,7 +103,7 @@ export type AnalyticalWaveRaster = {
  * @param displayMode - Wave display mode controlling how field values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
- * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
+ * @param colorPower - Spatial contrast boost applied before color clamping.
  * @returns Opaque RGBA color for the sampled grid cell.
  */
 export function getFieldSampleRGBA(
@@ -138,7 +138,7 @@ export function getFieldSampleRGBA(
  * @param displayMode - Wave display mode controlling how layer values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
- * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
+ * @param colorPower - Spatial contrast boost applied before color clamping.
  * @returns RGBA color produced by source-over compositing the sample's layers.
  */
 export function getLayeredFieldSampleRGBA(
@@ -211,7 +211,7 @@ function getNonFieldSampleRGBA( sample: NonFieldSample ): RGBAColor {
  * @param displayMode - Wave display mode controlling how field values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
- * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
+ * @param colorPower - Spatial contrast boost applied before color clamping.
  * @returns Transparent RGBA contribution for the layer.
  */
 function getFieldLayerRGBA(
@@ -241,7 +241,7 @@ function getFieldLayerRGBA(
  * @param displayMode - Wave display mode controlling how field values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
- * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
+ * @param colorPower - Spatial contrast boost applied before color clamping.
  * @returns Opaque RGBA color for the legacy renderer.
  */
 function getDisplayStateRGBA(
@@ -290,7 +290,7 @@ function getDisplayStateRGBA(
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
  * @param layerAlpha - Layer-specific transparency multiplier from the analytical kernel.
- * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
+ * @param colorPower - Spatial contrast boost applied before color clamping.
  * @returns Transparent RGBA color for the layered renderer.
  */
 function getDisplayStateTransparentRGBA(
@@ -321,7 +321,8 @@ function getDisplayStateTransparentRGBA(
  * @param displayState - Reduced field state for one sampled cell or layer.
  * @param displayMode - Wave display mode controlling how field values map to brightness.
  * @param amplitudeScale - Scene-level amplitude scale.
- * @param colorPower - Spatial contrast boost applied as an amplitude gain before color clamping.
+ * @param colorPower - Spatial contrast boost. Amplitude modes treat it as amplitude gain; phase modes
+ * scale the signed displayed value.
  * @param minimumIntensityVisibility - Visibility multiplier for the low-end field display cutoff.
  * @param phaseVisibility - Visibility multiplier for bipolar phase display modes.
  * @returns Color intensity in the range [0, 1].

@@ -1882,8 +1882,9 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
   const magnitudeBaseColor = getFieldSampleRGBA( colorBoostSample, 'magnitude', baseColor, 1, 1 );
   const magnitudeRampColor = getFieldSampleRGBA( colorBoostSample, 'magnitude', baseColor, 1, 1.5 );
   const magnitudeBoostedColor = getFieldSampleRGBA( colorBoostSample, 'magnitude', baseColor, 1, 2 );
+  const electricFieldBaseColor = getFieldSampleRGBA( colorBoostSample, 'electricField', baseColor, 1, 1 );
   const realPartBaseColor = getFieldSampleRGBA( colorBoostSample, 'realPart', baseColor, 1, 1 );
-  const expectedRealPartBaseRed = roundSymmetric( baseColor.red * ( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * 0.2 ) );
+  const expectedPhaseBaseRed = roundSymmetric( baseColor.red * ( FIELD_DISPLAY_CUTOFF + ( 1 - FIELD_DISPLAY_CUTOFF ) * 0.2 ) );
   const layeredColorBoostSample = {
     kind: 'field' as const,
     layers: [ {
@@ -1922,8 +1923,13 @@ QUnit.test( 'pure rasterizer renders status-aware presets', assert => {
   );
   assert.strictEqual(
     realPartBaseColor.red,
-    expectedRealPartBaseRed,
+    expectedPhaseBaseRed,
     'amplitude-only contrast multiplier does not change real-part color boost'
+  );
+  assert.strictEqual(
+    electricFieldBaseColor.red,
+    expectedPhaseBaseRed,
+    'amplitude-only contrast multiplier does not change electric-field color boost'
   );
   assert.strictEqual(
     layeredMagnitudeBoostedColor.alpha,
