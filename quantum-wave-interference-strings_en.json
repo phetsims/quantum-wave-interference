@@ -81,7 +81,7 @@
     "value": "Slit Separation"
   },
   "screenDistance": {
-    "value": "Screen Distance"
+    "value": "Barrier-Screen Distance"
   },
   "slitConfiguration": {
     "value": "Slit Configuration"
@@ -425,13 +425,13 @@
     },
     "slitPositionSlider": {
       "accessibleName": {
-        "value": "Slit Position"
+        "value": "Barrier-Screen Distance"
       },
       "accessibleHelpText": {
         "value": "Move double-slit barrier left or right in wave area."
       },
       "accessibleValue": {
-        "value": "Barrier is { $value } of the way from source to detector screen."
+        "value": "{ $value }"
       }
     },
     "screenDistanceSlider": {

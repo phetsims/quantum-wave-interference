@@ -28,7 +28,7 @@ neutronMassLabel:                'm<sub>n</sub> = 1.7×10<sup>−27</sup> kg'
 heliumAtomMassLabel:             'm<sub>He</sub> = 6.6×10<sup>−27</sup> kg'
 max:                             Max
 slitSeparation:                  Slit Separation
-screenDistance:                  Screen Distance
+screenDistance:                  Barrier-Screen Distance
 slitConfiguration:               Slit Configuration
 bothOpen:                        Both Open
 coverLeft:                       Cover Left
@@ -586,9 +586,9 @@ a11y:
   slitSeparationSlider:
     accessibleHelpText: Change distance between centers of slits in barrier in micrometers.
   slitPositionSlider:
-    accessibleName:     Slit Position
+    accessibleName:     Barrier-Screen Distance
     accessibleHelpText: Move double-slit barrier left or right in wave area.
-    accessibleValue:    'Barrier is { $value } of the way from source to detector screen.'
+    accessibleValue:    '{ $value }'
   screenDistanceSlider:
     accessibleHelpText: Change distance from double-slit barrier to detector screen in meters.
   wavelengthSlider:

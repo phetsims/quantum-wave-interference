@@ -83,6 +83,7 @@ export default class WaveRegionNode extends Node {
     }, options.additionalDoubleSlitOptions );
 
     const doubleSlitNode = new DoubleSlitNode(
+      model.sceneProperty,
       model.currentBarrierTypeProperty,
       model.currentSlitPositionFractionProperty,
       model.currentSlitSeparationProperty,

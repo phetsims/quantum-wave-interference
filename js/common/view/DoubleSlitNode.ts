@@ -22,7 +22,8 @@ import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import Orientation from '../../../../phet-core/js/Orientation.js';
 import ArrowNode, { type ArrowNodeOptions } from '../../../../scenery-phet/js/ArrowNode.js';
-import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
+import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
+import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -32,6 +33,7 @@ import { DISPLAY_SLIT_WIDTH, getDisplaySlitLayout } from '../getDisplaySlitLayou
 import { type BarrierType } from '../model/BarrierType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import SlitDetectorNode from './SlitDetectorNode.js';
 
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
@@ -47,6 +49,7 @@ const SLIT_POSITION_FRACTION_RANGE = new Range( 0.25, 0.75 );
 const SLIT_POSITION_KEYBOARD_STEP = 0.01;
 const SLIT_POSITION_SHIFT_KEYBOARD_STEP = 0.0025;
 const SLIT_POSITION_PAGE_KEYBOARD_STEP = 0.05;
+const SLIT_POSITION_DISTANCE_DECIMAL_PLACES = 2;
 
 type AccessibleArrowNodeOptions = ArrowNodeOptions & AccessibleSliderOptions;
 
@@ -76,6 +79,7 @@ export type DoubleSlitNodeOptions = SelfOptions & NodeOptions;
 export default class DoubleSlitNode extends Node {
 
   public constructor(
+    sceneProperty: TReadOnlyProperty<{ readonly regionWidth: number }>,
     barrierTypeProperty: TReadOnlyProperty<BarrierType>,
     slitPositionFractionProperty: TProperty<number>,
     slitSeparationProperty: TReadOnlyProperty<number>,
@@ -148,17 +152,24 @@ export default class DoubleSlitNode extends Node {
       constrainValue: ( value: number ) => SLIT_POSITION_FRACTION_RANGE.constrainValue( value ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleHelpTextStringProperty,
-      createAriaValueText: ( value: number ) => QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleValue.format( {
-        value: percentUnit.getAccessibleString( value * 100, {
-          decimalPlaces: 0,
-          showTrailingZeros: false,
-          showIntegersAsIntegers: true
-        } )
-      } ),
-      descriptionDependencies: [
-        ...percentUnit.getDependentProperties(),
+      createAriaValueText: ( value: number ) => {
+        const measuringTapeUnits = getMeasuringTapeUnits( sceneProperty.value.regionWidth );
+        const distance = ( 1 - value ) * WAVE_REGION_WIDTH * measuringTapeUnits.multiplier;
+
+        return QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleValue.format( {
+          value: measuringTapeUnits.unit.getAccessibleString( distance, {
+            decimalPlaces: SLIT_POSITION_DISTANCE_DECIMAL_PLACES,
+            showTrailingZeros: true,
+            showIntegersAsIntegers: true
+          } )
+        } );
+      },
+      descriptionDependencies: Array.from( new Set( [
+        sceneProperty,
+        ...micrometersUnit.getDependentProperties(),
+        ...nanometersUnit.getDependentProperties(),
         ...QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleValue.getDependentProperties()
-      ]
+      ] ) )
     } );
     this.addChild( arrowNode );
     this.pdomOrder = [ arrowNode ];
