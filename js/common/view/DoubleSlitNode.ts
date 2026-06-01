@@ -31,6 +31,7 @@ import AccessibleSlider, { type AccessibleSliderOptions } from '../../../../sun/
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { DISPLAY_SLIT_WIDTH, getDisplaySlitLayout } from '../getDisplaySlitLayout.js';
 import { type BarrierType } from '../model/BarrierType.js';
+import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
@@ -79,7 +80,7 @@ export type DoubleSlitNodeOptions = SelfOptions & NodeOptions;
 export default class DoubleSlitNode extends Node {
 
   public constructor(
-    sceneProperty: TReadOnlyProperty<{ readonly regionWidth: number }>,
+    sceneProperty: TReadOnlyProperty<{ readonly regionWidth: number; readonly sourceType: SourceType }>,
     barrierTypeProperty: TReadOnlyProperty<BarrierType>,
     slitPositionFractionProperty: TProperty<number>,
     slitSeparationProperty: TReadOnlyProperty<number>,
@@ -136,6 +137,8 @@ export default class DoubleSlitNode extends Node {
     );
     this.addChild( barrierContainer );
 
+    const sourceTypeProperty = sceneProperty.derived( scene => scene.sourceType );
+
     const arrowNode = new AccessibleArrowNode( 0, 0, 0, 0, {
       doubleHead: true,
       fill: '#74ad67',
@@ -151,7 +154,9 @@ export default class DoubleSlitNode extends Node {
       pageKeyboardStep: SLIT_POSITION_PAGE_KEYBOARD_STEP,
       constrainValue: ( value: number ) => SLIT_POSITION_FRACTION_RANGE.constrainValue( value ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleNameStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleHelpTextStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleHelpText.createProperty( {
+        sourceType: sourceTypeProperty
+      } ),
       createAriaValueText: ( value: number ) => {
         const measuringTapeUnits = getMeasuringTapeUnits( sceneProperty.value.regionWidth );
         const distance = ( 1 - value ) * WAVE_REGION_WIDTH * measuringTapeUnits.multiplier;

@@ -587,10 +587,16 @@ a11y:
     accessibleHelpText: Change distance between centers of slits in barrier in micrometers.
   slitPositionSlider:
     accessibleName:     Barrier-Screen Distance
-    accessibleHelpText: Move double-slit barrier left or right in wave area.
+    accessibleHelpText: >-
+                        { $sourceType ->
+                          [photons] Move slitted barrier closer to or farther from detector screen in micrometers.
+                          [electrons] Move slitted barrier closer to or farther from detector screen in nanometers.
+                          [neutrons] Move slitted barrier closer to or farther from detector screen in nanometers.
+                         *[heliumAtoms] Move slitted barrier closer to or farther from detector screen in nanometers.
+                        }
     accessibleValue:    '{ $value }'
   screenDistanceSlider:
-    accessibleHelpText: Change distance from double-slit barrier to detector screen in meters.
+    accessibleHelpText: Move detector screen closer to or farther from slitted barrier in meters.
   wavelengthSlider:
     accessibleHelpText: Change wavelength of emitted photons in nanometers from shortest, violet, to longest, red.
     accessibleValue:    '{ $value }, { $color } zone'

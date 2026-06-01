@@ -432,7 +432,7 @@ const QuantumWaveInterferenceFluent = {
     },
     slitPositionSlider: {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleNameStringProperty' ) ),
-      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleHelpTextStringProperty' ) ),
+      accessibleHelpText: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleHelpTextStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
       accessibleValue: new FluentPattern<{ value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleValue', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleValueStringProperty' ), [{"name":"value"}] )
     },
     screenDistanceSlider: {

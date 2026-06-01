@@ -428,7 +428,7 @@
         "value": "Barrier-Screen Distance"
       },
       "accessibleHelpText": {
-        "value": "Move double-slit barrier left or right in wave area."
+        "value": "{ $sourceType ->\n  [photons] Move slitted barrier closer to or farther from detector screen in micrometers.\n  [electrons] Move slitted barrier closer to or farther from detector screen in nanometers.\n  [neutrons] Move slitted barrier closer to or farther from detector screen in nanometers.\n *[heliumAtoms] Move slitted barrier closer to or farther from detector screen in nanometers.\n}"
       },
       "accessibleValue": {
         "value": "{ $value }"
@@ -436,7 +436,7 @@
     },
     "screenDistanceSlider": {
       "accessibleHelpText": {
-        "value": "Change distance from double-slit barrier to detector screen in meters."
+        "value": "Move detector screen closer to or farther from slitted barrier in meters."
       }
     },
     "wavelengthSlider": {
