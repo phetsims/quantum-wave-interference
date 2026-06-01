@@ -36,7 +36,8 @@ const DETECTOR_TOOL_COLOR = new Color( 135, 206, 250 );
 function createTapeMeasureIcon(): Node {
   return MeasuringTapeNode.createIcon( {
     tapeLength: 15,
-    scale: 0.45
+    scale: 0.4,
+
   } );
 }
 
@@ -44,7 +45,7 @@ function createStopwatchIcon(): Node {
   const stopwatch = new Stopwatch( { isVisible: true, tandem: Tandem.OPT_OUT } );
   const stopwatchNode = new StopwatchNode( stopwatch, { tandem: Tandem.OPT_OUT } );
   const icon = rasterizeNode( stopwatchNode, { resolution: 5 } );
-  icon.setScaleMagnitude( 0.12 );
+  icon.setScaleMagnitude( 0.2 );
   return icon;
 }
 
