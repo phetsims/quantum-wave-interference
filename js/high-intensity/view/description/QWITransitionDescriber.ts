@@ -8,7 +8,7 @@
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type QWIAccessibleState, type QWIValueTrend } from './QWIAccessibleStateDescriber.js';
-import { formatDetectorDescription, formatSourceBeamDescription, toDetectorSlitSetting, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
+import { formatDetectorDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
 
 export type QWITransitionAction =
   { type: 'sourceChanged' } |
@@ -58,7 +58,9 @@ export default class QWITransitionDescriber {
                           timeSpeed: after.clockSpeedDescription,
                           beamDescription: formatSourceBeamDescription( after )
                         } ) :
-                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStoppedStringProperty.value;
+                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStopped.format( {
+                          detectionMode: after.detectionMode
+                        } );
     }
     else if ( action.type === 'particleTypeChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.particleTypeChanged.format( {
@@ -133,7 +135,8 @@ export default class QWITransitionDescriber {
     }
     else if ( action.type === 'hitStageChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.hitStageChanged.format( {
-        hitStage: after.hitStage
+        hitStage: after.hitStage,
+        patternKind: after.patternKind
       } );
     }
     else if ( action.type === 'waveProgressChanged' ) {
@@ -141,7 +144,6 @@ export default class QWITransitionDescriber {
         waveProgressStage: after.waveProgress.stage,
         waveProgressCheckpoint: after.waveProgress.checkpoint,
         waveSpeed: after.waveSpeedDescription,
-        slitSetting: after.waveProgress.stage === 'whichPathAfterSlits' ? toDetectorSlitSetting( after.slitConfiguration ) : 'bothDetectors',
         progress: after.waveProgress.wavefrontPercent
       } );
     }

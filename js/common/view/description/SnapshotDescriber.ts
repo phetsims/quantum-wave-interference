@@ -28,7 +28,7 @@ export default class SnapshotDescriber {
                                  BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, false, false ) :
                                  BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
 
-      return formatIntensityDescription( isDoubleSlit, analysis, spatialDescription );
+      return formatIntensityDescription( isDoubleSlit, snapshot.slitSetting === 'noBarrier', analysis, spatialDescription );
     }
 
     const hitCount = snapshot.hits.length;
@@ -36,6 +36,6 @@ export default class SnapshotDescriber {
     const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot, screenHalfWidth );
     const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
 
-    return formatSnapshotHitsDescription( hitStage, isDoubleSlit, hitCount, spatialDescription );
+    return formatSnapshotHitsDescription( hitStage, isDoubleSlit, snapshot.slitSetting === 'noBarrier', hitCount, spatialDescription );
   }
 }

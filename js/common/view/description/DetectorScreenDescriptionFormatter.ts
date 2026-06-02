@@ -18,6 +18,7 @@ import { type BandAnalysisResult, type HitStage } from './BandAnalysis.js';
  */
 export function formatIntensityDescription(
   isDoubleSlit: boolean,
+  isNoBarrier: boolean,
   analysis: BandAnalysisResult,
   spatialDescription: string
 ): string {
@@ -26,6 +27,8 @@ export function formatIntensityDescription(
            spacing: analysis.spacingCategory,
            envelope: analysis.envelopeCategory
          } ) :
+         isNoBarrier ?
+         QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityNoBarrierStringProperty.value :
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( {
            spatialDescription: spatialDescription
          } );
@@ -35,12 +38,14 @@ export function formatIntensityDescription(
  * Formats the accessible detector-screen description for the live detector screen in hits mode.
  * @param hitStage - qualitative stage of accumulated hit formation
  * @param isDoubleSlit - whether the current slit configuration produces a double-slit interference pattern
+ * @param isNoBarrier - whether no barrier is between the source and detector screen
  * @param spatialDescription - localized spatial description of the visible pattern
  * @returns localized accessible paragraph text
  */
 export function formatLiveHitsDescription(
   hitStage: HitStage,
   isDoubleSlit: boolean,
+  isNoBarrier: boolean,
   analysis: BandAnalysisResult,
   spatialDescription: string
 ): string {
@@ -63,6 +68,11 @@ export function formatLiveHitsDescription(
                                 } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
+  else if ( isNoBarrier ) {
+    return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'clear' ) ?
+           QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsNoBarrierStringProperty.value :
+           ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
+  }
   else {
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value :
            ( hitStage === 'developing' || hitStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } ) :
@@ -74,6 +84,7 @@ export function formatLiveHitsDescription(
  * Formats the accessible detector-screen description for a saved snapshot in hits mode.
  * @param hitStage - qualitative stage of accumulated hit formation
  * @param isDoubleSlit - whether the snapshot slit configuration produces a double-slit interference pattern
+ * @param isNoBarrier - whether no barrier is between the source and detector screen in the snapshot
  * @param hitCount - number of hits captured in the snapshot
  * @param spatialDescription - localized spatial description of the visible pattern
  * @returns localized accessible paragraph text
@@ -81,6 +92,7 @@ export function formatLiveHitsDescription(
 export function formatSnapshotHitsDescription(
   hitStage: HitStage,
   isDoubleSlit: boolean,
+  isNoBarrier: boolean,
   hitCount: number,
   spatialDescription: string
 ): string {
@@ -101,6 +113,11 @@ export function formatSnapshotHitsDescription(
                                   hitCount: hitCount,
                                   spatialDescription: spatialDescription
                                 } ) :
+           ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
+  }
+  else if ( isNoBarrier ) {
+    return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'clear' ) ?
+           QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNoBarrier.format( { hitCount: hitCount } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
   else {

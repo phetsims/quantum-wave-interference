@@ -298,6 +298,7 @@ type StringsType = {
         'intensityOffStringProperty': LocalizedStringProperty;
         'intensityStringProperty': LocalizedStringProperty;
         'intensitySingleSlitStringProperty': LocalizedStringProperty;
+        'intensityNoBarrierStringProperty': LocalizedStringProperty;
         'hitsNoneStringProperty': LocalizedStringProperty;
         'hitsFewStringProperty': LocalizedStringProperty;
         'hitsEmergingStringProperty': LocalizedStringProperty;
@@ -305,6 +306,7 @@ type StringsType = {
         'hitsClearStringProperty': LocalizedStringProperty;
         'hitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
         'hitsSingleSlitClearStringProperty': LocalizedStringProperty;
+        'hitsNoBarrierStringProperty': LocalizedStringProperty;
         'snapshotHitsNoneStringProperty': LocalizedStringProperty;
         'snapshotHitsFewStringProperty': LocalizedStringProperty;
         'snapshotHitsEmergingStringProperty': LocalizedStringProperty;
@@ -312,6 +314,7 @@ type StringsType = {
         'snapshotHitsClearStringProperty': LocalizedStringProperty;
         'snapshotHitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
         'snapshotHitsSingleSlitClearStringProperty': LocalizedStringProperty;
+        'snapshotHitsNoBarrierStringProperty': LocalizedStringProperty;
       };
       'spatialDescription': {
         'rulerDoubleSlitStringProperty': LocalizedStringProperty;

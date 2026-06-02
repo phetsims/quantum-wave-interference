@@ -30,9 +30,9 @@ import QWITransitionDescriber from './QWITransitionDescriber.js';
 QUnit.module( 'QWIAccessibleState' );
 
 const SOURCE_RESTARTED_TEXT = 'Source restarted.';
-const GREEN_BEAM_TEXT = 'Green and black plane waves emanate from left.';
-const RED_BEAM_TEXT = 'Red and black plane waves emanate from left.';
-const GRAY_BEAM_TEXT = 'Gray and black plane waves emanate from left.';
+const GREEN_BEAM_TEXT = 'Green and black plane wave fronts move right from the source.';
+const RED_BEAM_TEXT = 'Red and black plane wave fronts move right from the source.';
+const GRAY_BEAM_TEXT = 'Gray and black plane wave fronts move right from the source.';
 const MODERATE_SPACING_TEXT = 'Wave peaks moderately spaced.';
 const WIDE_SPACING_TEXT = 'Wave peaks somewhat far apart.';
 const GREEN_WAVELENGTH_NM = 550;
@@ -117,7 +117,7 @@ QUnit.test( 'pattern kind follows slit configuration', assert => {
   assert.strictEqual( describer.getState().patternKind, 'doubleSlitInterference', 'both slits open produces interference' );
 
   scene.slitConfigurationProperty.value = 'leftCovered';
-  assert.strictEqual( describer.getState().patternKind, 'singleSlitDiffraction', 'one covered slit produces single-slit diffraction' );
+  assert.strictEqual( describer.getState().patternKind, 'singleSlitDiffraction', 'one covered slit produces a one-slit pattern kind' );
 
   scene.slitConfigurationProperty.value = 'leftDetector';
   assert.strictEqual( describer.getState().patternKind, 'whichPathDiffraction', 'slit detector produces which-path diffraction' );
@@ -190,6 +190,7 @@ QUnit.test( 'temporally chained parameter changes describe reset instead of fina
   assert.ok( slitSeparationResponse.includes( SOURCE_RESTARTED_TEXT ), 'source-on slit separation response describes the immediate restart' );
   assert.ok( slitSeparationResponse.includes( GREEN_BEAM_TEXT ), 'source-on slit separation response describes the restarted beam' );
   assert.ok( slitSeparationResponse.includes( MODERATE_SPACING_TEXT ), 'source-on slit separation response describes the restarted spacing' );
+  assert.ok( slitSeparationResponse.includes( 'Experiment changed. Previous hits cleared.' ), 'source-on slit separation response describes cleared data' );
   assert.notOk( slitSeparationResponse.includes( 'Interference bands' ), 'source-on slit separation response does not predict final band spacing' );
 
   scene.slitSeparationProperty.reset();
@@ -201,6 +202,7 @@ QUnit.test( 'temporally chained parameter changes describe reset instead of fina
   assert.ok( wavelengthResponse.includes( SOURCE_RESTARTED_TEXT ), 'source-on wavelength response describes the immediate restart' );
   assert.ok( wavelengthResponse.includes( RED_BEAM_TEXT ), 'source-on wavelength response describes the restarted beam based on the new wavelength' );
   assert.ok( wavelengthResponse.includes( WIDE_SPACING_TEXT ), 'source-on wavelength response describes the restarted spacing based on the new wavelength' );
+  assert.ok( wavelengthResponse.includes( 'Experiment changed. Previous hits cleared.' ), 'source-on wavelength response describes cleared data' );
   assert.notOk( wavelengthResponse.includes( 'Interference bands' ), 'source-on wavelength response does not predict final band spacing' );
 } );
 
@@ -215,6 +217,7 @@ QUnit.test( 'source-off wavelength response does not describe visible interferen
   const response = QWITransitionDescriber.describe( { type: 'wavelengthChanged' }, before, after ).contextResponse!;
 
   assert.ok( response.includes( 'Wavelength changed.' ), 'source-off response reports only the immediate control change' );
+  assert.ok( response.includes( 'Experiment changed. Previous hits cleared.' ), 'source-off wavelength response describes cleared data' );
   assert.notOk( response.includes( 'Interference bands are' ), 'source-off response does not imply a visible pattern changed' );
 } );
 
@@ -229,7 +232,7 @@ QUnit.test( 'source started response describes beam appearance', assert => {
   const photonResponse = QWITransitionDescriber.describe( { type: 'sourceChanged' }, beforePhotons, describer.getState() ).contextResponse!;
 
   assert.ok( photonResponse.includes( 'Source started on normal speed.' ), 'source response describes clock speed' );
-  assert.ok( photonResponse.includes( 'Red and black plane waves emanate from left.' ), 'photon source response describes plane waves' );
+  assert.ok( photonResponse.includes( 'Red and black plane wave fronts move right from the source.' ), 'photon source response describes plane wave fronts' );
   assert.ok( photonResponse.includes( 'Wave peaks somewhat far apart.' ), 'red photon source response describes wide wave-peak spacing' );
 
   const electronModel = createModel();
@@ -242,7 +245,7 @@ QUnit.test( 'source started response describes beam appearance', assert => {
   electronScene.isEmittingProperty.value = true;
   const electronResponse = QWITransitionDescriber.describe( { type: 'sourceChanged' }, beforeElectrons, electronDescriber.getState() ).contextResponse!;
 
-  assert.ok( electronResponse.includes( 'Gray and black plane waves emanate from left.' ), 'electron source response describes plane waves' );
+  assert.ok( electronResponse.includes( 'Gray and black plane wave fronts move right from the source.' ), 'electron source response describes plane wave fronts' );
   assert.ok( electronResponse.includes( 'Wave peaks somewhat far apart.' ), 'slow electron source response describes wide wave-peak spacing' );
 } );
 
@@ -260,6 +263,7 @@ QUnit.test( 'source-on slit detector response does not spoil pattern outcome', a
   assert.ok( response.includes( SOURCE_RESTARTED_TEXT ), 'source-on slit change describes the immediate restart' );
   assert.ok( response.includes( GREEN_BEAM_TEXT ), 'source-on slit change describes the restarted beam' );
   assert.ok( response.includes( MODERATE_SPACING_TEXT ), 'source-on slit change describes the restarted spacing' );
+  assert.ok( response.includes( 'Experiment changed. Previous hits cleared.' ), 'source-on slit detector response describes cleared data' );
   assert.notOk( response.includes( 'removes double-slit interference' ), 'source-on slit detector response does not spoil the final pattern' );
 } );
 
@@ -360,6 +364,72 @@ QUnit.test( 'clear button response describes wave area and source restart', asse
   assert.ok( runningEmittedResponses[ 0 ].includes( MODERATE_SPACING_TEXT ), 'running clear response describes the restarted spacing' );
 } );
 
+QUnit.test( 'source stopped response distinguishes hits from intensity pattern', assert => {
+  const hitsModel = createModel();
+  const hitsDescriber = new QWIAccessibleStateDescriber( hitsModel );
+  const hitsScene = hitsModel.sceneProperty.value;
+
+  hitsScene.detectionModeProperty.value = 'hits';
+  hitsScene.isEmittingProperty.value = true;
+  hitsScene.totalHitsProperty.value = 20;
+  const beforeHitsStop = hitsDescriber.getState();
+  hitsScene.isEmittingProperty.value = false;
+  const hitsResponse = QWITransitionDescriber.describe( { type: 'sourceChanged' }, beforeHitsStop, hitsDescriber.getState() ).contextResponse!;
+
+  assert.ok( hitsResponse.includes( 'Source stopped. Wave display clears. Hits remain.' ), 'hits-mode source stop preserves hits in response' );
+  assert.notOk( hitsResponse.includes( 'Intensity pattern cleared.' ), 'hits-mode source stop does not say intensity pattern cleared' );
+
+  const intensityModel = createModel();
+  const intensityDescriber = new QWIAccessibleStateDescriber( intensityModel );
+  const intensityScene = intensityModel.sceneProperty.value;
+
+  intensityScene.detectionModeProperty.value = 'averageIntensity';
+  intensityScene.isEmittingProperty.value = true;
+  const beforeIntensityStop = intensityDescriber.getState();
+  intensityScene.isEmittingProperty.value = false;
+  const intensityResponse = QWITransitionDescriber.describe( { type: 'sourceChanged' }, beforeIntensityStop, intensityDescriber.getState() ).contextResponse!;
+
+  assert.ok( intensityResponse.includes( 'Source stopped. Wave display clears. Intensity pattern cleared.' ), 'intensity-mode source stop describes cleared intensity pattern' );
+  assert.notOk( intensityResponse.includes( 'Hits remain.' ), 'intensity-mode source stop does not mention retained hits' );
+} );
+
+QUnit.test( 'clearing responses are limited to data-clearing parameter changes', assert => {
+  const model = createModel();
+  const describer = new QWIAccessibleStateDescriber( model );
+  const scene = model.sceneProperty.value;
+
+  scene.isEmittingProperty.value = true;
+
+  const beforeSlitConfiguration = describer.getState();
+  scene.slitConfigurationProperty.value = 'noBarrier';
+  const slitConfigurationResponse = QWITransitionDescriber.describe( { type: 'slitConfigurationChanged' }, beforeSlitConfiguration, describer.getState() ).contextResponse!;
+  assert.ok( slitConfigurationResponse.includes( 'Experiment changed. Previous hits cleared.' ), 'barrier configuration response describes cleared hits' );
+
+  scene.slitConfigurationProperty.value = 'bothOpen';
+  scene.isEmittingProperty.value = true;
+  const beforeSlitSeparation = describer.getState();
+  scene.slitSeparationProperty.value = scene.slitSeparationProperty.range.max;
+  const slitSeparationResponse = QWITransitionDescriber.describe( { type: 'slitSeparationChanged' }, beforeSlitSeparation, describer.getState() ).contextResponse!;
+  assert.ok( slitSeparationResponse.includes( 'Experiment changed. Previous hits cleared.' ), 'slit separation response describes cleared hits' );
+
+  const beforeWavelength = describer.getState();
+  scene.wavelengthProperty.value = scene.wavelengthProperty.range.max;
+  const wavelengthResponse = QWITransitionDescriber.describe( { type: 'wavelengthChanged' }, beforeWavelength, describer.getState() ).contextResponse!;
+  assert.ok( wavelengthResponse.includes( 'Experiment changed. Previous hits cleared.' ), 'wavelength response describes cleared hits' );
+
+  const beforeWaveDisplay = describer.getState();
+  scene.photonWaveDisplayModeProperty.value = 'timeAveragedIntensity';
+  const waveDisplayResponse = QWITransitionDescriber.describe( { type: 'waveDisplayChanged' }, beforeWaveDisplay, describer.getState() ).contextResponse!;
+  assert.ok( waveDisplayResponse.includes( 'Wave display changed to Amplitude.' ), 'wave display response describes display-only change' );
+  assert.notOk( waveDisplayResponse.includes( 'Previous hits cleared.' ), 'wave display response does not say hits cleared' );
+
+  const beforeDisplayMode = describer.getState();
+  model.isIntensityGraphVisibleProperty.value = true;
+  const displayModeResponse = QWITransitionDescriber.describe( { type: 'displayModeChanged' }, beforeDisplayMode, describer.getState() ).contextResponse!;
+  assert.ok( displayModeResponse.includes( 'Graph shown.' ), 'screen/graph response describes display-only change' );
+  assert.notOk( displayModeResponse.includes( 'Previous hits cleared.' ), 'screen/graph response does not say hits cleared' );
+} );
+
 QUnit.test( 'wave progress follows source-on time and screen milestones', assert => {
   const model = createModel();
   const describer = new QWIAccessibleStateDescriber( model );
@@ -378,8 +448,8 @@ QUnit.test( 'wave progress follows source-on time and screen milestones', assert
   const afterQuarter = describer.getState();
   assert.strictEqual( afterQuarter.waveProgress.checkpoint, 'quarter', 'wave announces the one-quarter checkpoint' );
   assert.ok(
-    QWITransitionDescriber.describe( { type: 'waveProgressChanged' }, beforeQuarter, afterQuarter ).contextResponse!.includes( 'Wave approaching slits at fast speed.' ),
-    'checkpoint response describes the approaching wave speed'
+    QWITransitionDescriber.describe( { type: 'waveProgressChanged' }, beforeQuarter, afterQuarter ).contextResponse!.includes( 'Plane wave fronts move right from the source toward the slits at fast speed.' ),
+    'checkpoint response describes the plane wave fronts and speed'
   );
 
   scene.slitConfigurationProperty.value = 'bothOpen';
@@ -401,8 +471,8 @@ QUnit.test( 'wave progress follows source-on time and screen milestones', assert
   const afterInterference = describer.getState();
   assert.strictEqual( afterInterference.waveProgress.stage, 'interferingAfterSlits', 'wave announces interference after both slits' );
   assert.ok(
-    QWITransitionDescriber.describe( { type: 'waveProgressChanged' }, beforeInterference, afterInterference ).contextResponse!.includes( 'Circular waves overlap, creating checkered interference pattern where waves cancel or combine.' ),
-    'transition response describes the temporal interference event'
+    QWITransitionDescriber.describe( { type: 'waveProgressChanged' }, beforeInterference, afterInterference ).contextResponse!.includes( 'Overlapping waves add and cancel, forming bright bands.' ),
+    'transition response describes the temporal bright-band formation event'
   );
 
   stepSceneToWavefrontFraction( model, 1 );
@@ -424,13 +494,13 @@ QUnit.test( 'approaching-slits response describes qualitative wave speed', asser
   };
 
   scene.velocityProperty.value = scene.velocityProperty.range.min;
-  assert.ok( getResponse().includes( 'Wave approaching slits at slow speed.' ), 'low slider speed uses slow description' );
+  assert.ok( getResponse().includes( 'Plane wave fronts move right from the source toward the slits at slow speed.' ), 'low slider speed uses slow description' );
 
   scene.velocityProperty.value = ( scene.velocityProperty.range.min + scene.velocityProperty.range.max ) / 2;
-  assert.ok( getResponse().includes( 'Wave approaching slits at medium speed.' ), 'mid slider speed uses medium description' );
+  assert.ok( getResponse().includes( 'Plane wave fronts move right from the source toward the slits at medium speed.' ), 'mid slider speed uses medium description' );
 
   scene.velocityProperty.value = scene.velocityProperty.range.max;
-  assert.ok( getResponse().includes( 'Wave approaching slits at fast speed.' ), 'high slider speed uses fast description' );
+  assert.ok( getResponse().includes( 'Plane wave fronts move right from the source toward the slits at fast speed.' ), 'high slider speed uses fast description' );
 } );
 
 QUnit.test( 'slit detector wave progress describes visible setup without explaining', assert => {
@@ -445,9 +515,58 @@ QUnit.test( 'slit detector wave progress describes visible setup without explain
   stepSceneToWavefrontFraction( model, 0.7 );
   const response = QWITransitionDescriber.describe( { type: 'waveProgressChanged' }, beforeDetectorRegion, describer.getState() ).contextResponse!;
 
-  assert.ok( response.includes( 'detector over top slit' ), 'response describes detector position' );
-  assert.ok( response.includes( 'Non-interfering circular waves emanate from the slits.' ), 'response describes the visible wave behavior' );
+  assert.ok( response.includes( 'Detection events occur.' ), 'response describes aggregate detector behavior' );
+  assert.ok( response.includes( 'Waves emerge from one slit at a time.' ), 'response describes aggregate wave behavior' );
+  assert.ok( response.includes( 'Waves from the two slits do not interact.' ), 'response describes absent wave interaction' );
+  assert.notOk( response.includes( 'detector over top slit' ), 'response does not narrate detector-position details here' );
   assert.notOk( response.includes( 'Which-path information' ), 'response does not explain the concept for the student' );
+} );
+
+QUnit.test( 'no-barrier hit-stage responses describe scattered hits instead of bands', assert => {
+  const model = createModel();
+  const describer = new QWIAccessibleStateDescriber( model );
+  const scene = model.sceneProperty.value;
+
+  scene.slitConfigurationProperty.value = 'noBarrier';
+  scene.detectionModeProperty.value = 'hits';
+
+  scene.totalHitsProperty.value = 10;
+  const beforeEmerging = describer.getState();
+  scene.totalHitsProperty.value = 20;
+  const emergingResponse = QWITransitionDescriber.describe( { type: 'hitStageChanged' }, beforeEmerging, describer.getState() ).contextResponse!;
+
+  assert.ok( emergingResponse.includes( 'Hits pattern is now showing evenly scattered hits.' ), 'no-barrier emerging hits describe scattered hits' );
+  assert.notOk( emergingResponse.includes( 'forming faint bands' ), 'no-barrier emerging hits do not describe faint bands' );
+
+  const beforeClear = describer.getState();
+  scene.totalHitsProperty.value = 60;
+  const clearResponse = QWITransitionDescriber.describe( { type: 'hitStageChanged' }, beforeClear, describer.getState() ).contextResponse!;
+
+  assert.ok( clearResponse.includes( 'Hits pattern is now showing evenly scattered hits.' ), 'no-barrier clear hits describe scattered hits' );
+  assert.notOk( clearResponse.includes( 'showing evenly spaced bands' ), 'no-barrier clear hits do not describe evenly spaced bands' );
+
+  const noBarrierHitsDescription = formatLiveHitsDescription(
+    'clear',
+    false,
+    true,
+    BandAnalysis.analyzeTheoreticalPattern( scene, scene.regionWidth / 2 ),
+    ''
+  );
+  assert.ok( noBarrierHitsDescription.includes( 'Evenly scattered hits appear across the detector screen.' ), 'no-barrier detector-screen paragraph describes scattered hits' );
+  assert.notOk( noBarrierHitsDescription.includes( 'broad central area' ), 'no-barrier detector-screen paragraph does not use one-slit language' );
+
+  scene.detectionModeProperty.value = 'averageIntensity';
+  scene.isEmittingProperty.value = true;
+  stepSceneUntilWavefrontReachesScreen( model );
+  stepDetectorPatternFormationToFactor( model, DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD + 1e-3 );
+  const noBarrierIntensityResponse = QWITransitionDescriber.describe( {
+    type: 'patternFormationComplete'
+  }, beforeClear, describer.getState() ).contextResponse!;
+
+  assert.ok(
+    noBarrierIntensityResponse.includes( 'Uniform glow from plane wave fronts.' ),
+    'no-barrier intensity response describes uniform glow from plane wave fronts'
+  );
 } );
 
 QUnit.test( 'interference wave progress response does not repeat for checkpoint-only changes', assert => {
@@ -466,17 +585,17 @@ QUnit.test( 'interference wave progress response does not repeat for checkpoint-
   stepSceneToWavefrontFraction( model, 0.7 );
   model.accessibleStateStepProperty.value++;
   assert.strictEqual(
-    emittedResponses.filter( response => response.includes( 'checkered interference pattern' ) ).length,
+    emittedResponses.filter( response => response.includes( 'Overlapping waves add and cancel, forming bright bands.' ) ).length,
     1,
-    'interference response is emitted when the circular waves overlap'
+    'bright-band response is emitted when the circular waves overlap'
   );
 
   stepSceneToWavefrontFraction( model, 0.2 );
   model.accessibleStateStepProperty.value++;
   assert.strictEqual(
-    emittedResponses.filter( response => response.includes( 'checkered interference pattern' ) ).length,
+    emittedResponses.filter( response => response.includes( 'Overlapping waves add and cancel, forming bright bands.' ) ).length,
     1,
-    'interference response is not repeated when only the progress checkpoint changes'
+    'bright-band response is not repeated when only the progress checkpoint changes'
   );
 } );
 
@@ -513,8 +632,10 @@ QUnit.test( 'pattern complete response describes emerged interference pattern', 
 
   const response = QWITransitionDescriber.describe( { type: 'patternFormationComplete' }, beforeComplete, afterComplete ).contextResponse!;
   assert.ok( response.includes( 'Detector screen stable' ), 'complete response describes the stable detector screen' );
-  assert.ok( response.includes( 'medium-spaced equidistant bright spots' ), 'complete response describes the bright-spot spacing' );
-  assert.ok( response.includes( 'brightest at center' ), 'complete response describes the center brightness' );
+  assert.ok( response.includes( 'Evenly spaced bright bands form across the screen. Bands are medium-spaced.' ), 'complete response describes bright-band spacing' );
+  assert.ok( response.includes( 'Center band is brightest.' ), 'complete response describes the center brightness' );
+  assert.notOk( response.includes( 'equidistant' ), 'complete response avoids equidistant language' );
+  assert.notOk( response.includes( 'spots' ), 'complete response avoids spots language' );
 
   const currentDetailsTemplateProperty = QWIAccessibleStateTemplate.createCurrentDetailsTemplateProperty( model, describer );
   const container = document.createElement( 'div' );
@@ -570,20 +691,21 @@ QUnit.test( 'detector screen description uses qualitative band spacing and envel
 
   const analysis = BandAnalysis.analyzeTheoreticalPattern( scene, scene.regionWidth / 2 );
   const envelopeAnalysis = BandAnalysis.analyzeEnvelopeHeuristic( scene )!;
-  const intensityDescription = formatIntensityDescription( true, analysis, '' );
+  const intensityDescription = formatIntensityDescription( true, false, analysis, '' );
   const expectedEnvelopeDescription = envelopeAnalysis.category === 'clusteringIntoTwoDistinctSections' ?
                                       'clustering into two distinct sections, directly across from slits' :
                                       envelopeAnalysis.category === 'clusteringIntoTwoFaintSections' ?
                                       'clustering into two faint sections, directly across from slits' :
                                       'brightest band at center';
 
-  assert.ok( intensityDescription.includes( 'Evenly-spaced bright bands are' ), 'intensity description uses qualitative band-spacing language' );
+  assert.ok( intensityDescription.includes( 'Evenly spaced bright bands form across the screen.' ), 'intensity description uses qualitative band-spacing language' );
   assert.notOk( intensityDescription.includes( 'alternating bright and dark vertical bands' ), 'intensity description avoids band-count framing' );
+  assert.notOk( intensityDescription.includes( `${analysis.bandCount}` ), 'intensity description avoids band counts' );
   assert.ok( intensityDescription.includes( expectedEnvelopeDescription ), 'intensity description respects shared envelope heuristic category' );
 
-  const developingHitsDescription = formatLiveHitsDescription( 'developing', true, analysis, '' );
-  assert.ok( developingHitsDescription.includes( 'Individual impacts are gathering' ), 'hits description includes accumulated-hit formation layer' );
-  assert.ok( developingHitsDescription.includes( 'Evenly-spaced bright bands are' ), 'hits description also includes qualitative pattern spacing once bands are developing' );
+  const developingHitsDescription = formatLiveHitsDescription( 'developing', true, false, analysis, '' );
+  assert.ok( developingHitsDescription.includes( 'Hits form evenly spaced bands' ), 'hits description includes accumulated-hit formation layer' );
+  assert.ok( developingHitsDescription.includes( 'Bands are' ), 'hits description also includes qualitative pattern spacing once bands are developing' );
 } );
 
 QUnit.test( 'detector screen description waits for wave arrival', assert => {
@@ -602,7 +724,7 @@ QUnit.test( 'detector screen description waits for wave arrival', assert => {
     'detector screen description remains empty while source-on wavefront is still traveling'
   );
   assert.notOk(
-    detectorScreenDescriber.descriptionProperty.value.includes( 'Evenly-spaced bright bands' ),
+    detectorScreenDescriber.descriptionProperty.value.includes( 'Evenly spaced bright bands' ),
     'detector screen description does not announce bands before wave arrival'
   );
 
@@ -610,7 +732,7 @@ QUnit.test( 'detector screen description waits for wave arrival', assert => {
   model.accessibleStateStepProperty.value++;
 
   assert.ok(
-    detectorScreenDescriber.descriptionProperty.value.includes( 'Evenly-spaced bright bands' ),
+    detectorScreenDescriber.descriptionProperty.value.includes( 'Evenly spaced bright bands' ),
     'detector screen description announces bands after wave arrival'
   );
 } );

@@ -251,10 +251,10 @@ a11y:
                                 [yellow] Yellow
                                 [orange] Orange
                                *[red] Red
-                              } and black plane waves emanate from left.
-                             *[electrons] Gray and black plane waves emanate from left.
-                              [neutrons] Gray and black plane waves emanate from left.
-                              [heliumAtoms] Gray and black plane waves emanate from left.
+                              } and black plane wave fronts move right from the source.
+                             *[electrons] Gray and black plane wave fronts move right from the source.
+                              [neutrons] Gray and black plane wave fronts move right from the source.
+                              [heliumAtoms] Gray and black plane wave fronts move right from the source.
                             } { $wavefrontSpacing ->
                               [tightlyPacked] Wave peaks closely spaced.
                               [widelySpaced] Wave peaks somewhat far apart.
@@ -272,12 +272,12 @@ a11y:
     slits:                >-
                           { $slitSetting ->
                             [bothOpen] Both slits are open. Slit separation is { $separation }.
-                            [leftCovered] Top slit is covered. One open slit creates a broad diffraction pattern.
-                            [rightCovered] Bottom slit is covered. One open slit creates a broad diffraction pattern.
-                            [leftDetector] Top slit has a detector that can identify which path particles take.
-                            [rightDetector] Bottom slit has a detector that can identify which path particles take.
+                            [leftCovered] Top slit is covered. Wave fronts emerge from bottom slit only.
+                            [rightCovered] Bottom slit is covered. Wave fronts emerge from top slit only.
+                            [leftDetector] Top slit has a detector.
+                            [rightDetector] Bottom slit has a detector.
                             [noBarrier] No barrier is between source and detector screen.
-                           *[bothDetectors] Both slits have detectors that can identify which path particles take.
+                           *[bothDetectors] Both slits have detectors.
                           }
     detectorPattern:      >-
                           { $isEmitting ->
@@ -286,34 +286,48 @@ a11y:
                               [averageIntensity] { $patternFormation ->
                                 [empty] No pattern has reached the detector screen yet.
                                 [forming] { $patternKind ->
-                                  [doubleSlitInterference] Pattern forming on detector screen.
-                                  [singleSlitDiffraction] Broad diffraction pattern on detector screen.
-                                  [whichPathDiffraction] Which-path detector pattern on detector screen.
-                                 *[noBarrier] Direct detector pattern on detector screen.
+                                  [doubleSlitInterference] Bright bands forming on detector screen.
+                                  [singleSlitDiffraction] Bright-band pattern absent. Wide central bright area forming on detector screen.
+                                  [whichPathDiffraction] Bright bands gone. Wide central bright area forming on detector screen.
+                                 *[noBarrier] Plane wave fronts are moving directly to the detector screen.
                                 }
                                 [complete] { $patternKind ->
-                                  [doubleSlitInterference] Detector screen stable, { $bandCount } { $bandSpacing ->
+                                  [doubleSlitInterference] Detector screen stable. Evenly spaced bright bands form across the screen. Bands are { $bandSpacing ->
                                     [farApart] far-apart
                                     [closelySpaced] closely spaced
                                   *[mediumSpaced] medium-spaced
-                                  } equidistant bright spots form pattern, brightest at center.
-                                  [singleSlitDiffraction] Diffraction pattern forming on detector screen, brightest at
-                                  center and fading further from the center.
-                                  [whichPathDiffraction] Which-path detector pattern forming on detector screen, broad
-                                  like a single-slit pattern.
-                                 *[noBarrier] Direct detector pattern forming on detector screen, brightest along the straight path
-                                  from source to detector screen.
+                                  }. Center band is brightest.
+                                  [singleSlitDiffraction] Bright-band pattern absent. Detector screen shows a wide central bright area,
+                                  brightest in the middle and fading toward the edges.
+                                  [whichPathDiffraction] Bright bands are gone. Detector screen shows a wide central bright area,
+                                  brightest in the middle and fading toward the edges.
+                                 *[noBarrier] Plane wave fronts move directly to the detector screen. Uniform glow from plane wave fronts.
                                 }
                                 [paused] Detector pattern formation is paused.
                                 [notApplicable] Detector pattern does not apply to the current setup.
                                *[collectingHits] Detector pattern is collecting hits.
                               }
                              *[hits] { $hitStage ->
-                                [none] Hits are starting to accumulate on the detector screen.
-                                [few] Hits pattern is just beginning with a few scattered hits. Total hits: { $hitCount }.
-                                [emerging] Hits pattern is showing faint repeated stripes. Total hits: { $hitCount }.
-                                [developing] Hits pattern is developing distinct interference bands. Total hits: { $hitCount }.
-                               *[clear] Hits pattern is showing a clear interference pattern. Total hits: { $hitCount }.
+                                [none] Detector screen is empty. No particles have arrived yet.
+                                [few] Individual scattered hits appear. Total hits: { $hitCount }.
+                                [emerging] { $patternKind ->
+                                  [doubleSlitInterference] Hits begin forming faint bands.
+                                  [singleSlitDiffraction] Bright-band pattern is absent.
+                                  [whichPathDiffraction] Bright bands are gone.
+                                 *[noBarrier] Evenly scattered hits appear across the detector screen.
+                                } Total hits: { $hitCount }.
+                                [developing] { $patternKind ->
+                                  [doubleSlitInterference] Hits form evenly spaced bands.
+                                  [singleSlitDiffraction] Bright-band pattern is absent.
+                                  [whichPathDiffraction] Bright bands are gone.
+                                 *[noBarrier] Evenly scattered hits collect across the detector screen.
+                                } Total hits: { $hitCount }.
+                               *[clear] { $patternKind ->
+                                  [doubleSlitInterference] Hits form evenly spaced bands.
+                                  [singleSlitDiffraction] Bright-band pattern is absent.
+                                  [whichPathDiffraction] Bright bands are gone.
+                                 *[noBarrier] Evenly scattered hits collect across the detector screen.
+                                } Total hits: { $hitCount }.
                               }
                             }
                           }
@@ -321,33 +335,29 @@ a11y:
                           { $waveProgressStage ->
                             [sourceOff] Source is off, so no wave is traveling.
                             [travelingToSlits] { $waveProgressCheckpoint ->
-                              [quarter] Wave approaching slits
-                              [half] Wave approaching slits
-                              [threeQuarters] Wave approaching slits
-                              [full] Wave approaching slits
-                             *[none] Wave approaching slits
+                              [quarter] Plane wave fronts move right from the source toward the slits
+                              [half] Plane wave fronts move right from the source toward the slits
+                              [threeQuarters] Plane wave fronts move right from the source toward the slits
+                              [full] Plane wave fronts move right from the source toward the slits
+                             *[none] Plane wave fronts move right from the source toward the slits
                             } { $waveSpeed ->
                               [slow] at slow speed.
                               [fast] at fast speed.
                              *[medium] at medium speed.
                             }
-                            [atSlits] Wave passing through slits, emerging as circular waves.
-                            [interferingAfterSlits] Circular waves overlap, creating checkered interference pattern where
-                            waves cancel or combine.
-                            [diffractingAfterSlits] Wave passing through one open slit, emerging as a circular wave.
-                            [whichPathAfterSlits] Wave passing through slits, { $slitSetting ->
-                              [leftDetector] with detector over top slit
-                              [rightDetector] with detector over bottom slit
-                             *[bothDetectors] with detectors over both slits
-                            }. Non-interfering circular waves emanate from the slits.
+                            [atSlits] Circular wave fronts emerge from both slits.
+                            [interferingAfterSlits] Overlapping waves add and cancel, forming bright bands.
+                            [diffractingAfterSlits] Circular wave fronts emerge from the open slit only.
+                            [whichPathAfterSlits] Detection events occur. Waves emerge from one slit at a time.
+                            Waves from the two slits do not interact.
                             [directToScreen] { $waveProgressCheckpoint ->
-                              [quarter] Wave crossed one-quarter of wave area
-                              [half] Wave crossed halfway across wave area
-                              [threeQuarters] Wave crossed three-quarters of wave area
-                              [full] Wave crossed full wave area
-                             *[none] Wave crossed about { $progress } percent of wave area
-                            } and is traveling directly toward the detector screen.
-                           *[hittingScreen] Wave has reached the detector screen.
+                              [quarter] Plane wave fronts crossed one-quarter of wave area
+                              [half] Plane wave fronts crossed halfway across wave area
+                              [threeQuarters] Plane wave fronts crossed three-quarters of wave area
+                              [full] Plane wave fronts crossed full wave area
+                             *[none] Plane wave fronts crossed about { $progress } percent of wave area
+                            } and move directly toward the detector screen.
+                           *[hittingScreen] Wave fronts have reached the detector screen.
                           }
     displayTools:         >-
                           { $displayMode ->
@@ -380,7 +390,11 @@ a11y:
                                *[true] Source started on { $timeSpeed } speed. { $beamDescription }
                               }
     sourceRestarted:          Source restarted. { $beamDescription }
-    sourceStopped:            Source stopped. The wave area and detector screens clear.
+    sourceStopped:            >-
+                              Source stopped. Wave display clears. { $detectionMode ->
+                                [hits] Hits remain.
+                               *[averageIntensity] Intensity pattern cleared.
+                              }
     particleTypeChanged:      >-
                               { $isEmitting ->
                                 [true] { $sourceRestartedResponse }
@@ -398,7 +412,7 @@ a11y:
                               }
     slitConfigurationChanged: >-
                               { $isEmitting ->
-                                [true] { $sourceRestartedResponse }
+                                [true] { $sourceRestartedResponse } Experiment changed. Previous hits cleared.
                                *[false] { $slitSetting ->
                                   [bothOpen] Both slits open.
                                   [leftCovered] Top slit covered.
@@ -408,16 +422,17 @@ a11y:
                                   [noBarrier] Barrier removed.
                                  *[bothDetectors] Detectors added to both slits.
                                 }
+                                Experiment changed. Previous hits cleared.
                               }
     slitSeparationChanged:    >-
                               { $isEmitting ->
-                                [true] { $sourceRestartedResponse }
-                               *[false] Slit separation changed.
+                                [true] { $sourceRestartedResponse } Experiment changed. Previous hits cleared.
+                               *[false] Slit separation changed. Experiment changed. Previous hits cleared.
                               }
     wavelengthChanged:        >-
                               { $isEmitting ->
-                                [true] { $sourceRestartedResponse }
-                               *[false] Wavelength changed.
+                                [true] { $sourceRestartedResponse } Experiment changed. Previous hits cleared.
+                               *[false] Wavelength changed. Experiment changed. Previous hits cleared.
                               }
     speedChanged:             >-
                               { $isEmitting ->
@@ -462,41 +477,53 @@ a11y:
     hitStageChanged:          >-
                               Hits pattern is now { $hitStage ->
                                 [none] empty.
-                                [few] just beginning with a few scattered hits.
-                                [emerging] showing faint repeated stripes.
-                                [developing] developing distinct interference bands.
-                               *[clear] showing a clear interference pattern.
+                                [few] showing individual scattered hits.
+                                [emerging] { $patternKind ->
+                                  [noBarrier] showing evenly scattered hits.
+                                 *[doubleSlitInterference] forming faint bands.
+                                  [singleSlitDiffraction] showing a broad central area.
+                                  [whichPathDiffraction] showing a broad central area.
+                                }
+                                [developing] { $patternKind ->
+                                  [noBarrier] showing evenly scattered hits.
+                                 *[doubleSlitInterference] forming evenly spaced bands.
+                                  [singleSlitDiffraction] showing a broad central area.
+                                  [whichPathDiffraction] showing a broad central area.
+                                }
+                               *[clear] { $patternKind ->
+                                  [noBarrier] showing evenly scattered hits.
+                                 *[doubleSlitInterference] showing evenly spaced bands.
+                                  [singleSlitDiffraction] showing a broad central area.
+                                  [whichPathDiffraction] showing a broad central area.
+                                }
                               }
     waveProgressChanged:      >-
                               { $waveProgressStage ->
                                 [sourceOff] Source is off, so no wave is traveling.
                                 [travelingToSlits] { $waveProgressCheckpoint ->
-                                  [quarter] Wave approaching slits
-                                  [half] Wave approaching slits
-                                  [threeQuarters] Wave approaching slits
-                                  [full] Wave approaching slits
-                                 *[none] Wave approaching slits
+                                  [quarter] Plane wave fronts move right from the source toward the slits
+                                  [half] Plane wave fronts move right from the source toward the slits
+                                  [threeQuarters] Plane wave fronts move right from the source toward the slits
+                                  [full] Plane wave fronts move right from the source toward the slits
+                                 *[none] Plane wave fronts move right from the source toward the slits
                                 } { $waveSpeed ->
                                   [slow] at slow speed.
                                   [fast] at fast speed.
                                  *[medium] at medium speed.
                                 }
-                                [atSlits] Wave passing through slits, emerging as circular waves.
-                                [interferingAfterSlits] Circular waves overlap, creating checkered interference pattern where waves cancel or combine.
-                                [diffractingAfterSlits] Wave passing through one open slit, emerging as a circular wave.
-                                [whichPathAfterSlits] Wave passing through slits, { $slitSetting ->
-                                  [leftDetector] with detector over top slit
-                                  [rightDetector] with detector over bottom slit
-                                 *[bothDetectors] with detectors over both slits
-                                }. Non-interfering circular waves emanate from the slits.
+                                [atSlits] Circular wave fronts emerge from both slits.
+                                [interferingAfterSlits] Overlapping waves add and cancel, forming bright bands.
+                                [diffractingAfterSlits] Circular wave fronts emerge from the open slit only.
+                                [whichPathAfterSlits] Detection events occur. Waves emerge from one slit at a time.
+                                Waves from the two slits do not interact.
                                 [directToScreen] { $waveProgressCheckpoint ->
-                                  [quarter] Wave crossed one-quarter of wave area and traveling directly toward detector screen.
-                                  [half] Wave crossed halfway across wave area and traveling directly toward detector screen.
-                                  [threeQuarters] Wave crossed three-quarters of wave area and traveling directly toward detector screen.
-                                  [full] Wave crossed the full wave area.
-                                 *[none] Wave crossed about { $progress } percent of wave area and traveling directly toward detector screen.
+                                  [quarter] Plane wave fronts crossed one-quarter of wave area and move directly toward detector screen.
+                                  [half] Plane wave fronts crossed halfway across wave area and move directly toward detector screen.
+                                  [threeQuarters] Plane wave fronts crossed three-quarters of wave area and move directly toward detector screen.
+                                  [full] Plane wave fronts crossed the full wave area.
+                                 *[none] Plane wave fronts crossed about { $progress } percent of wave area and move directly toward detector screen.
                                 }
-                               *[hittingScreen] Wave reached the detector screen.
+                               *[hittingScreen] Wave fronts reached the detector screen.
                               }
     maxHitsReached:           Maximum number of hits reached. Source is off. Clear detector screen to make more observations.
     reset:                    Experiment reset. Source is off and detector screen is empty.
@@ -793,7 +820,7 @@ a11y:
     accessibleParagraph:
       intensityOff:                   Detector screen is empty.
       intensity:                      >-
-                                      Evenly-spaced bright bands are { $spacing ->
+                                      Evenly spaced bright bands form across the screen. Bands are { $spacing ->
                                         [extremelyFarApart] extremely far apart
                                         [veryFarApart] very far apart
                                         [farApart] far apart
@@ -807,17 +834,14 @@ a11y:
                                        *[brightestAtCenter] brightest band at center
                                       }.
       intensitySingleSlit:            >-
-                                      Detector screen is brightest at the center and fades smoothly toward the edges
-                                      in a broad band. { $spatialDescription }
+                                      Bright-band pattern is absent. Detector screen shows a wide central bright area,
+                                      brightest in the middle and fading toward the edges. { $spatialDescription }
+      intensityNoBarrier:             Plane wave fronts move directly to the detector screen. Uniform glow from plane wave fronts.
       hitsNone:                       Detector screen is empty. No particles have arrived yet.
-      hitsFew:                        >-
-                                      A handful of particles are visible at scattered positions across the screen.
-      hitsEmerging:                   >-
-                                      More particles are appearing, and faint vertical stripes are becoming visible with
-                                      gaps between them.
+      hitsFew:                        Individual scattered hits appear on the detector screen.
+      hitsEmerging:                   Hits begin forming faint bands on the detector screen.
       hitsDeveloping:                 >-
-                                      Individual impacts are gathering into distinct vertical bands, separated by regions
-                                      with fewer particles. Evenly-spaced bright bands are { $spacing ->
+                                      Hits form evenly spaced bands on the detector screen. Bands are { $spacing ->
                                         [extremelyFarApart] extremely far apart
                                         [veryFarApart] very far apart
                                         [farApart] far apart
@@ -831,8 +855,7 @@ a11y:
                                        *[brightestAtCenter] brightest band at center
                                       }.
       hitsClear:                      >-
-                                      Distinct vertical bands fill the screen, with dense stripes separated by nearly
-                                      empty gaps. Evenly-spaced bright bands are { $spacing ->
+                                      Hits form evenly spaced bands across the detector screen. Bands are { $spacing ->
                                         [extremelyFarApart] extremely far apart
                                         [veryFarApart] very far apart
                                         [farApart] far apart
@@ -846,11 +869,12 @@ a11y:
                                        *[brightestAtCenter] brightest band at center
                                       }.
       hitsSingleSlitEmerging:         >-
-                                      More particles are appearing in a broad region near the center of the screen, with
-                                      fewer toward the edges.
+                                      Bright-band pattern is absent. Hits collect in a broad region near the center of
+                                      the screen, with fewer toward the edges.
       hitsSingleSlitClear:            >-
-                                      Hits form a broad central band that tapers toward the edges.
+                                      Bright-band pattern is absent. Hits form a broad central area that tapers toward the edges.
                                       { $spatialDescription }
+      hitsNoBarrier:                  Evenly scattered hits appear across the detector screen.
       snapshotHitsNone:               |-
                                       Detector screen is empty. { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
@@ -886,6 +910,11 @@ a11y:
                                           [one] Detector screen shows a total of 1 hit.
                                          *[other] Detector screen shows a total of { $hitCount } hits.
                                       } { $spatialDescription }
+      snapshotHitsNoBarrier:          |-
+                                      Evenly scattered hits appear across the detector screen. { $hitCount ->
+                                          [one] Detector screen shows a total of 1 hit.
+                                         *[other] Detector screen shows a total of { $hitCount } hits.
+                                      }
     spatialDescription:
       rulerDoubleSlit:
         select_style:

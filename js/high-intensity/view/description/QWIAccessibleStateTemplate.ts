@@ -16,7 +16,7 @@ import { WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from '../../../common/view/Wa
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import QWIAccessibleStateDescriber from './QWIAccessibleStateDescriber.js';
-import { formatDetectorDescription, formatParticleDescription, formatSlitDescription, formatSourceBeamDescription, toDetectorSlitSetting, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
+import { formatDetectorDescription, formatParticleDescription, formatSlitDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
 
 export default class QWIAccessibleStateTemplate {
 
@@ -97,7 +97,6 @@ export default class QWIAccessibleStateTemplate {
       waveProgressStage: state.waveProgress.stage,
       waveProgressCheckpoint: state.waveProgress.checkpoint,
       waveSpeed: state.waveSpeedDescription,
-      slitSetting: state.waveProgress.stage === 'whichPathAfterSlits' ? toDetectorSlitSetting( state.slitConfiguration ) : 'bothDetectors',
       progress: state.waveProgress.wavefrontPercent
     } );
     const sourceDescription = formatParticleDescription( state );

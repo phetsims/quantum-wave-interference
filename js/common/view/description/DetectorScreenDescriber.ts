@@ -95,7 +95,7 @@ export default class DetectorScreenDescriber {
                                    BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, isRulerVisible, false ) :
                                    BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
-        descriptionProperty.value = formatIntensityDescription( isDoubleSlit, analysis, spatialDescription );
+        descriptionProperty.value = formatIntensityDescription( isDoubleSlit, slitSetting === 'noBarrier', analysis, spatialDescription );
         return;
       }
 
@@ -115,7 +115,7 @@ export default class DetectorScreenDescriber {
       );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
-      descriptionProperty.value = formatLiveHitsDescription( newStage, isDoubleSlit, analysis, spatialDescription );
+      descriptionProperty.value = formatLiveHitsDescription( newStage, isDoubleSlit, slitSetting === 'noBarrier', analysis, spatialDescription );
     };
 
     // Force a full update when any physics parameter or display setting changes.
