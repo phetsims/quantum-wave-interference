@@ -900,7 +900,15 @@ a11y:
                                  }
     takeSnapshot:
       accessibleName:            Take Snapshot
-      accessibleHelpText:        'Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.'
+      accessibleHelpText:        |-
+                                 { $snapshotCount ->
+                                   [0] Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.
+                                   [1] One snapshot stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.
+                                   [2] Two snapshots stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.
+                                   [3] Three snapshots stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.
+                                   [4] Four snapshots stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.
+                                  *[other] { $snapshotCount } snapshots stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.
+                                 }
       accessibleContextResponse: 'Snapshot { $snapshotNumber } taken.'
     viewSnapshots:
       accessibleName:     View Snapshots

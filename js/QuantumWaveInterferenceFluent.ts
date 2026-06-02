@@ -582,7 +582,7 @@ const QuantumWaveInterferenceFluent = {
       },
       takeSnapshot: {
         accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreenButtons_takeSnapshot_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreenButtons.takeSnapshot.accessibleNameStringProperty' ) ),
-        accessibleHelpText: new FluentPattern<{ maxSnapshots: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreenButtons_takeSnapshot_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreenButtons.takeSnapshot.accessibleHelpTextStringProperty' ), [{"name":"maxSnapshots"}] ),
+        accessibleHelpText: new FluentPattern<{ maxSnapshots: FluentVariable, snapshotCount: 0 | 1 | 2 | 3 | 4 | number | 'other' | TReadOnlyProperty<0 | 1 | 2 | 3 | 4 | number | 'other'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreenButtons_takeSnapshot_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreenButtons.takeSnapshot.accessibleHelpTextStringProperty' ), [{"name":"maxSnapshots"},{"name":"snapshotCount","variants":[0,1,2,3,4,{"type":"number","value":"other"}]}] ),
         accessibleContextResponse: new FluentPattern<{ snapshotNumber: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreenButtons_takeSnapshot_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreenButtons.takeSnapshot.accessibleContextResponseStringProperty' ), [{"name":"snapshotNumber"}] )
       },
       viewSnapshots: {
