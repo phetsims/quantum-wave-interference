@@ -190,7 +190,7 @@ QUnit.test( 'temporally chained parameter changes describe reset instead of fina
   assert.ok( slitSeparationResponse.includes( SOURCE_RESTARTED_TEXT ), 'source-on slit separation response describes the immediate restart' );
   assert.ok( slitSeparationResponse.includes( GREEN_BEAM_TEXT ), 'source-on slit separation response describes the restarted beam' );
   assert.ok( slitSeparationResponse.includes( MODERATE_SPACING_TEXT ), 'source-on slit separation response describes the restarted spacing' );
-  assert.ok( slitSeparationResponse.includes( 'Experiment changed. Previous hits cleared.' ), 'source-on slit separation response describes cleared data' );
+  assert.notOk( slitSeparationResponse.includes( 'Experiment changed. Previous hits cleared.' ), 'source-on slit separation response omits redundant cleared-data text' );
   assert.notOk( slitSeparationResponse.includes( 'Interference bands' ), 'source-on slit separation response does not predict final band spacing' );
 
   scene.slitSeparationProperty.reset();
@@ -202,7 +202,7 @@ QUnit.test( 'temporally chained parameter changes describe reset instead of fina
   assert.ok( wavelengthResponse.includes( SOURCE_RESTARTED_TEXT ), 'source-on wavelength response describes the immediate restart' );
   assert.ok( wavelengthResponse.includes( RED_BEAM_TEXT ), 'source-on wavelength response describes the restarted beam based on the new wavelength' );
   assert.ok( wavelengthResponse.includes( WIDE_SPACING_TEXT ), 'source-on wavelength response describes the restarted spacing based on the new wavelength' );
-  assert.ok( wavelengthResponse.includes( 'Experiment changed. Previous hits cleared.' ), 'source-on wavelength response describes cleared data' );
+  assert.notOk( wavelengthResponse.includes( 'Experiment changed. Previous hits cleared.' ), 'source-on wavelength response omits redundant cleared-data text' );
   assert.notOk( wavelengthResponse.includes( 'Interference bands' ), 'source-on wavelength response does not predict final band spacing' );
 } );
 
@@ -263,7 +263,7 @@ QUnit.test( 'source-on slit detector response does not spoil pattern outcome', a
   assert.ok( response.includes( SOURCE_RESTARTED_TEXT ), 'source-on slit change describes the immediate restart' );
   assert.ok( response.includes( GREEN_BEAM_TEXT ), 'source-on slit change describes the restarted beam' );
   assert.ok( response.includes( MODERATE_SPACING_TEXT ), 'source-on slit change describes the restarted spacing' );
-  assert.ok( response.includes( 'Experiment changed. Previous hits cleared.' ), 'source-on slit detector response describes cleared data' );
+  assert.notOk( response.includes( 'Experiment changed. Previous hits cleared.' ), 'source-on slit detector response omits redundant cleared-data text' );
   assert.notOk( response.includes( 'removes double-slit interference' ), 'source-on slit detector response does not spoil the final pattern' );
 } );
 
@@ -398,15 +398,12 @@ QUnit.test( 'clearing responses are limited to data-clearing parameter changes',
   const describer = new QWIAccessibleStateDescriber( model );
   const scene = model.sceneProperty.value;
 
-  scene.isEmittingProperty.value = true;
-
   const beforeSlitConfiguration = describer.getState();
   scene.slitConfigurationProperty.value = 'noBarrier';
   const slitConfigurationResponse = QWITransitionDescriber.describe( { type: 'slitConfigurationChanged' }, beforeSlitConfiguration, describer.getState() ).contextResponse!;
   assert.ok( slitConfigurationResponse.includes( 'Experiment changed. Previous hits cleared.' ), 'barrier configuration response describes cleared hits' );
 
   scene.slitConfigurationProperty.value = 'bothOpen';
-  scene.isEmittingProperty.value = true;
   const beforeSlitSeparation = describer.getState();
   scene.slitSeparationProperty.value = scene.slitSeparationProperty.range.max;
   const slitSeparationResponse = QWITransitionDescriber.describe( { type: 'slitSeparationChanged' }, beforeSlitSeparation, describer.getState() ).contextResponse!;

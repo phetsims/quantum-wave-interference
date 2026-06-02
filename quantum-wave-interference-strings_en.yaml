@@ -412,7 +412,7 @@ a11y:
                               }
     slitConfigurationChanged: >-
                               { $isEmitting ->
-                                [true] { $sourceRestartedResponse } Experiment changed. Previous hits cleared.
+                                [true] { $sourceRestartedResponse }
                                *[false] { $slitSetting ->
                                   [bothOpen] Both slits open.
                                   [leftCovered] Top slit covered.
@@ -426,12 +426,12 @@ a11y:
                               }
     slitSeparationChanged:    >-
                               { $isEmitting ->
-                                [true] { $sourceRestartedResponse } Experiment changed. Previous hits cleared.
+                                [true] { $sourceRestartedResponse }
                                *[false] Slit separation changed. Experiment changed. Previous hits cleared.
                               }
     wavelengthChanged:        >-
                               { $isEmitting ->
-                                [true] { $sourceRestartedResponse } Experiment changed. Previous hits cleared.
+                                [true] { $sourceRestartedResponse }
                                *[false] Wavelength changed. Experiment changed. Previous hits cleared.
                               }
     speedChanged:             >-
