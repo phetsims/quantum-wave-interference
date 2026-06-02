@@ -3,9 +3,8 @@
 /**
  * Minimal pure rasterization harness for analytical wave samples.
  *
- * This intentionally avoids Scenery and browser canvas APIs. It samples AnalyticalWaveKernel at
- * deterministic grid points and maps FieldSample status/value to RGBA bytes. The production canvas
- * renderer uses the same color mapping so tests can exercise rendering semantics without a DOM.
+ * This intentionally avoids Scenery and browser canvas APIs. It maps AnalyticalWaveKernel
+ * FieldSample status/value objects to RGBA bytes for the production canvas renderer.
  *
  * There are two rendering paths. The legacy FieldSample path returns opaque pixels and encodes weak
  * field support by blending RGB toward the vacuum color. The layered path is used for the experimental
@@ -24,17 +23,17 @@
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
-import { type AnalyticalWaveParameters, evaluateAnalyticalSample, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
+import { type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
 // Minimum visible field contribution used so very weak supported samples are still distinguishable
 // from vacuum.
-export const FIELD_DISPLAY_CUTOFF = 0.4;
+const FIELD_DISPLAY_CUTOFF = 0.4;
 
 // Opaque grayscale vacuum colors in Canvas ImageData byte space.
-export const UNREACHED_VACUUM = 0;
-export const BLOCKED_VACUUM = 48;
-export const ABSORBED_VACUUM = 32;
+const UNREACHED_VACUUM = 0;
+const BLOCKED_VACUUM = 48;
+const ABSORBED_VACUUM = 32;
 const WAVE_VISUALIZATION_COLOR_POWER = QuantumWaveInterferenceQueryParameters.waveVisualizationColorPower;
 const WAVE_VISUALIZATION_AMPLITUDE_COLOR_POWER_MULTIPLIER = QuantumWaveInterferenceQueryParameters.waveVisualizationAmplitudeColorPowerMultiplier;
 
@@ -50,7 +49,7 @@ export type RGBColor = {
 
 /**
  * RGBA color components in Canvas ImageData byte space. The rasterizer returns this shape for each
- * sampled cell before the caller writes the bytes into an ImageData or test raster.
+ * sampled cell before the caller writes the bytes into an ImageData.
  */
 export type RGBAColor = RGBColor & {
   alpha: number;
@@ -59,45 +58,12 @@ export type RGBAColor = RGBColor & {
 type NonFieldSample = { kind: 'unreached' | 'absorbed' | 'blocked' };
 
 /**
- * Complete input for the pure rasterization test harness. Production rendering usually samples a
- * WaveSolver grid directly, but tests use these options to evaluate the analytical kernel over a
- * deterministic rectangular pixel grid without Scenery or browser canvas APIs.
- */
-export type AnalyticalWaveRasterOptions = {
-  parameters: AnalyticalWaveParameters;
-  width: number;
-  height: number;
-  regionWidth: number;
-  regionHeight: number;
-  time: number;
-  displayMode: WaveDisplayMode;
-  baseColor: RGBColor;
-  amplitudeScale: number;
-};
-
-/**
- * Output from rasterizeAnalyticalWave. pixels is a tightly packed RGBA byte array in row-major order;
- * statusCounts summarize which kernel sample statuses were encountered for test assertions.
- */
-export type AnalyticalWaveRaster = {
-  width: number;
-  height: number;
-  pixels: Uint8ClampedArray;
-  statusCounts: {
-    field: number;
-    unreached: number;
-    absorbed: number;
-    blocked: number;
-  };
-};
-
-/**
  * Converts one model-level FieldSample into an opaque RGBA color for the legacy wave display path.
  *
  * WaveVisualizationCanvasNode calls this once per grid cell when the solver exposes ordinary
- * FieldSamples, and rasterizeAnalyticalWave calls it for DOM-free tests. Non-field statuses map to
- * fixed vacuum grays. Field samples are first reduced by coherence group so coherent paths interfere,
- * decoherent groups add intensities, and weak support fades toward the unreached vacuum color.
+ * FieldSamples. Non-field statuses map to fixed vacuum grays. Field samples are first reduced by
+ * coherence group so coherent paths interfere, decoherent groups add intensities, and weak support
+ * fades toward the unreached vacuum color.
  *
  * @param sample - Analytical field sample to convert.
  * @param displayMode - Wave display mode controlling how field values map to brightness.
@@ -132,7 +98,6 @@ export function getFieldSampleRGBA(
  * experimentation.
  *
  * WaveVisualizationCanvasNode calls this once per grid cell when the solver exposes layered samples.
- * Tests call it directly to verify the transparent layer semantics without a browser canvas.
  *
  * @param sample - Layered analytical field sample to convert.
  * @param displayMode - Wave display mode controlling how layer values map to brightness.
@@ -616,53 +581,4 @@ function getSampleVisibility( groupStates: CoherenceGroupDisplayState[], amplitu
   }
 
   return clamp( Math.sqrt( componentIntensity ) * amplitudeScale, 0, 1 );
-}
-
-/**
- * Samples the analytical kernel over a rectangular grid and returns packed RGBA bytes.
- *
- * This is the DOM-free rasterization harness used by AnalyticalModelTests. Production rendering uses
- * WaveVisualizationCanvasNode with an existing solver grid, but this function is useful when tests need
- * deterministic pixel output and status counts from raw AnalyticalWaveParameters. Barrier x positions
- * are snapped onto the matching raster column so tests exercise the exact aperture/barrier statuses.
- *
- * @param options - Analytical kernel parameters, raster size, display settings, and color scale.
- * @returns Packed RGBA raster and sample-status counts.
- */
-export function rasterizeAnalyticalWave( options: AnalyticalWaveRasterOptions ): AnalyticalWaveRaster {
-  const pixels = new Uint8ClampedArray( options.width * options.height * 4 );
-  const statusCounts = {
-    field: 0,
-    unreached: 0,
-    absorbed: 0,
-    blocked: 0
-  };
-  const barrier = options.parameters.barrier;
-  const barrierGridX = barrier.kind === 'doubleSlit' ?
-                       roundSymmetric( barrier.barrierX / options.regionWidth * options.width ) :
-                       -1;
-
-  for ( let yIndex = 0; yIndex < options.height; yIndex++ ) {
-    const y = ( yIndex + 0.5 ) * options.regionHeight / options.height - options.regionHeight / 2;
-    for ( let xIndex = 0; xIndex < options.width; xIndex++ ) {
-      const x = barrier.kind === 'doubleSlit' && xIndex === barrierGridX ?
-                barrier.barrierX :
-                xIndex * options.regionWidth / options.width;
-      const sample = evaluateAnalyticalSample( options.parameters, x, y, options.time );
-      statusCounts[ sample.kind ]++;
-      const color = getFieldSampleRGBA( sample, options.displayMode, options.baseColor, options.amplitudeScale );
-      const pixelIndex = ( yIndex * options.width + xIndex ) * 4;
-      pixels[ pixelIndex ] = color.red;
-      pixels[ pixelIndex + 1 ] = color.green;
-      pixels[ pixelIndex + 2 ] = color.blue;
-      pixels[ pixelIndex + 3 ] = color.alpha;
-    }
-  }
-
-  return {
-    width: options.width,
-    height: options.height,
-    pixels: pixels,
-    statusCounts: statusCounts
-  };
 }
