@@ -45,7 +45,7 @@ export default class SnapshotButton extends RectangularPushButton {
       maxSnapshots: QuantumWaveInterferenceConstants.MAX_SNAPSHOTS
     } );
     const accessibleContextResponseProperty = QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleContextResponse.createProperty( {
-      snapshotNumber: numberOfSnapshotsProperty
+      snapshotCount: numberOfSnapshotsProperty
     } );
 
     super( {

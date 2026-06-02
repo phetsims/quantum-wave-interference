@@ -322,9 +322,6 @@
       "toolChanged": {
         "value": "{ $tool ->\n  [tapeMeasure] Tape measure\n  [stopwatch] Stopwatch\n  [timePlot] Time plot\n *[positionPlot] Position plot\n} { $isVisible ->\n  [true] shown.\n *[false] hidden.\n}"
       },
-      "snapshotTaken": {
-        "value": "Snapshot { $snapshotCount } stored."
-      },
       "screenCleared": {
         "value": "{ $isRestarting ->\n  [true] Wave area cleared. { $sourceRestartedResponse }\n *[false] Wave area cleared. Sim still paused.\n}"
       },
@@ -760,7 +757,7 @@
           "value": "{ $snapshotCount ->\n  [0] Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.\n  [1] One snapshot stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.\n  [2] Two snapshots stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.\n  [3] Three snapshots stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.\n  [4] Four snapshots stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.\n *[other] { $snapshotCount } snapshots stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.\n}"
         },
         "accessibleContextResponse": {
-          "value": "Snapshot { $snapshotNumber } taken."
+          "value": "{ $snapshotCount ->\n  [4] Max number of snapshots stored. View snapshots to review or delete.\n *[other] Detector screen snapshot stored.\n}"
         }
       },
       "viewSnapshots": {
@@ -769,6 +766,9 @@
         },
         "accessibleHelpText": {
           "value": "Open stored snapshots for comparative analysis or deletion."
+        },
+        "accessibleContextResponse": {
+          "value": "{ $snapshotCount ->\n  [one] 1 snapshot ready to review.\n *[other] { $snapshotCount } snapshots ready to review.\n}"
         }
       }
     }

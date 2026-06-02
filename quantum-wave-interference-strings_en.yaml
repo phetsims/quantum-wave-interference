@@ -467,7 +467,6 @@ a11y:
                                 [true] shown.
                                *[false] hidden.
                               }
-    snapshotTaken:            'Snapshot { $snapshotCount } stored.'
     screenCleared:            >-
                               { $isRestarting ->
                                 [true] Wave area cleared. { $sourceRestartedResponse }
@@ -980,7 +979,16 @@ a11y:
                                    [4] Four snapshots stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.
                                   *[other] { $snapshotCount } snapshots stored. Capture and store up to { $maxSnapshots } snapshots of detector screen pattern.
                                  }
-      accessibleContextResponse: 'Snapshot { $snapshotNumber } taken.'
+      accessibleContextResponse: >-
+                                 { $snapshotCount ->
+                                   [4] Max number of snapshots stored. View snapshots to review or delete.
+                                  *[other] Detector screen snapshot stored.
+                                 }
     viewSnapshots:
-      accessibleName:     View Snapshots
-      accessibleHelpText: Open stored snapshots for comparative analysis or deletion.
+      accessibleName:            View Snapshots
+      accessibleHelpText:        Open stored snapshots for comparative analysis or deletion.
+      accessibleContextResponse: |-
+                                 { $snapshotCount ->
+                                   [one] 1 snapshot ready to review.
+                                  *[other] { $snapshotCount } snapshots ready to review.
+                                 }

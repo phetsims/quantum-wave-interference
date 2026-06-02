@@ -22,7 +22,6 @@ export type QWITransitionAction =
   { type: 'brightnessChanged' } |
   { type: 'waveDisplayChanged' } |
   { type: 'toolChanged'; tool: 'tapeMeasure' | 'stopwatch' | 'timePlot' | 'positionPlot' } |
-  { type: 'snapshotTaken' } |
   { type: 'screenCleared' } |
   { type: 'hitStageChanged' } |
   { type: 'waveProgressChanged' } |
@@ -118,11 +117,6 @@ export default class QWITransitionDescriber {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.toolChanged.format( {
         tool: action.tool,
         isVisible: after.tools[ action.tool ] ? 'true' : 'false'
-      } );
-    }
-    else if ( action.type === 'snapshotTaken' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.snapshotTaken.format( {
-        snapshotCount: after.numberOfSnapshots
       } );
     }
     else if ( action.type === 'screenCleared' ) {

@@ -42,6 +42,10 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
     tandem: Tandem
   ) {
 
+    const accessibleContextResponseProperty = QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleContextResponse.createProperty( {
+      snapshotCount: numberOfSnapshotsProperty
+    } );
+
     // Remember whether the sim was playing before this button opened the dialog. If it was, resume when the dialog
     // closes; if it was already paused, leave it paused.
     let shouldResumeOnDialogClose = false;
@@ -79,6 +83,10 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
       ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleHelpTextStringProperty,
+      accessibleContextResponse: accessibleContextResponseProperty,
+      accessibleContextResponseOptions: {
+        alertWhenNotDisplayed: true
+      },
       soundPlayer: nullSoundPlayer,
       tandem: tandem
     } );

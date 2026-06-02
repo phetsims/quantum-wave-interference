@@ -137,7 +137,6 @@ type StringsType = {
       'brightnessChangedStringProperty': LocalizedStringProperty;
       'waveDisplayChangedStringProperty': LocalizedStringProperty;
       'toolChangedStringProperty': LocalizedStringProperty;
-      'snapshotTakenStringProperty': LocalizedStringProperty;
       'screenClearedStringProperty': LocalizedStringProperty;
       'hitStageChangedStringProperty': LocalizedStringProperty;
       'waveProgressChangedStringProperty': LocalizedStringProperty;
@@ -343,6 +342,7 @@ type StringsType = {
       'viewSnapshots': {
         'accessibleNameStringProperty': LocalizedStringProperty;
         'accessibleHelpTextStringProperty': LocalizedStringProperty;
+        'accessibleContextResponseStringProperty': LocalizedStringProperty;
       }
     }
   }

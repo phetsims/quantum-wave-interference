@@ -63,7 +63,6 @@ export default class HighIntensityAccessibleResponses extends Node {
         effectiveAction.type === 'brightnessChanged' ? before.screenBrightness !== after.screenBrightness :
         effectiveAction.type === 'waveDisplayChanged' ? before.waveDisplayMode !== after.waveDisplayMode :
         effectiveAction.type === 'toolChanged' ? before.tools[ effectiveAction.tool ] !== after.tools[ effectiveAction.tool ] :
-        effectiveAction.type === 'snapshotTaken' ? after.numberOfSnapshots > before.numberOfSnapshots :
         effectiveAction.type === 'screenCleared' ? after.totalHits < before.totalHits :
         effectiveAction.type === 'hitStageChanged' ? before.hitStage !== after.hitStage :
         effectiveAction.type === 'waveProgressChanged' ? waveProgressChanged :
@@ -115,15 +114,7 @@ export default class HighIntensityAccessibleResponses extends Node {
     model.isPositionPlotVisibleProperty.lazyLink( () => emitTransition( { type: 'toolChanged', tool: 'positionPlot' } ) );
     model.isPlayingProperty.lazyLink( updateStateSilently );
     model.timeSpeedProperty.lazyLink( updateStateSilently );
-    model.currentNumberOfSnapshotsProperty.lazyLink( () => {
-      const after = this.stateDescriber.getState();
-      if ( after.numberOfSnapshots > this.previousState.numberOfSnapshots ) {
-        emitTransition( { type: 'snapshotTaken' } );
-      }
-      else {
-        updateStateSilently();
-      }
-    } );
+    model.currentNumberOfSnapshotsProperty.lazyLink( updateStateSilently );
     model.currentTotalHitsProperty.lazyLink( () => {
       const after = this.stateDescriber.getState();
       const before = this.previousState;
