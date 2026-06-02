@@ -11,6 +11,7 @@
  */
 
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -47,7 +48,6 @@ import HighIntensityModel from '../model/HighIntensityModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
 import QWIAccessibleStateDescriber from './description/QWIAccessibleStateDescriber.js';
-import QWIAccessibleStateTemplate from './description/QWIAccessibleStateTemplate.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -113,7 +113,18 @@ export default class HighIntensityScreenView extends ScreenView {
         {
           detectionMode: model.currentDetectionModeProperty,
           slitOrientation: 'topBottom',
-          currentDetailsContent: QWIAccessibleStateTemplate.createCurrentDetailsTemplateProperty( model, accessibleStateDescriber )
+          detectorScreenHasPatternProperty: DerivedProperty.deriveAny(
+            [
+              model.sceneProperty,
+              model.currentIsEmittingProperty,
+              model.currentDetectionModeProperty,
+              model.currentTotalHitsProperty,
+              model.accessibleStateStepProperty
+            ],
+            () => model.currentDetectionModeProperty.value === 'averageIntensity' ?
+                  model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() :
+                  model.currentTotalHitsProperty.value > 0
+          )
         }
       )
     }, providedOptions );
@@ -561,7 +572,6 @@ export default class HighIntensityScreenView extends ScreenView {
       model.currentSlitConfigurationProperty, {
         detectionModeProperty: model.currentDetectionModeProperty,
         slitOrientation: 'topBottom',
-        includeExperimentSetupDetails: false,
         sourceNodes: [ sourceBeamCalloutNode, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow, doubleSlitNode ],
         detectorScreenControlNodes: [ detectorScreenControls ]
@@ -585,6 +595,7 @@ export default class HighIntensityScreenView extends ScreenView {
     detectorScreenControls: DetectorScreenControls
   ): void {
     this.pdomPlayAreaNode.pdomOrder = [
+      screenViewDescription.experimentSetupHeadingNode,
       screenViewDescription.sourceHeadingNode,
       screenViewDescription.slitsHeadingNode,
       this.detectorPatternGraphLayerNode,

@@ -73,7 +73,8 @@ export default class SingleParticlesScreenView extends ScreenView {
         model.currentSlitConfigurationProperty,
         {
           detectionMode: 'hits',
-          slitOrientation: 'topBottom'
+          slitOrientation: 'topBottom',
+          detectorScreenHasPatternProperty: model.currentTotalHitsProperty.derived( totalHits => totalHits > 0 )
         }
       )
     }, providedOptions );

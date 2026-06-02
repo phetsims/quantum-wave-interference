@@ -7,12 +7,16 @@
  */
 
 import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
-import PDOMUtils from '../../../../../scenery/js/accessibility/pdom/PDOMUtils.js';
+import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
+import Node from '../../../../../scenery/js/nodes/Node.js';
 import { render as litRender } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
 import Tandem from '../../../../../tandem/js/Tandem.js';
+import QuantumWaveInterferenceScreenSummaryContent from '../../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
+import QuantumWaveInterferenceScreenViewDescription from '../../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD, DETECTOR_PATTERN_FORMATION_EASE_POWER, DETECTOR_PATTERN_FORMATION_TIME_CONSTANT } from '../../model/HighIntensitySceneModel.js';
+import SingleParticlesModel from '../../../single-particles/model/SingleParticlesModel.js';
 import HighIntensityAccessibleResponses from './HighIntensityAccessibleResponses.js';
 import QWIAccessibleStateDescriber from './QWIAccessibleStateDescriber.js';
 import { formatSlitDescription } from './QWIAccessibleStateFormatters.js';
@@ -30,6 +34,45 @@ const WIDE_SPACING_TEXT = 'Wave peaks somewhat far apart.';
 const GREEN_WAVELENGTH_NM = 550;
 
 const createModel = (): HighIntensityModel => new HighIntensityModel( { tandem: Tandem.OPT_OUT } );
+
+const createSingleParticlesModel = (): SingleParticlesModel => new SingleParticlesModel( { tandem: Tandem.OPT_OUT } );
+
+const createHighIntensityScreenSummaryContent = ( model: HighIntensityModel ): QuantumWaveInterferenceScreenSummaryContent =>
+  new QuantumWaveInterferenceScreenSummaryContent(
+    model,
+    model.currentSlitConfigurationProperty,
+    {
+      detectionMode: model.currentDetectionModeProperty,
+      slitOrientation: 'topBottom',
+      detectorScreenHasPatternProperty: DerivedProperty.deriveAny(
+        [
+          model.sceneProperty,
+          model.currentIsEmittingProperty,
+          model.currentDetectionModeProperty,
+          model.currentTotalHitsProperty,
+          model.accessibleStateStepProperty
+        ],
+        () => model.currentDetectionModeProperty.value === 'averageIntensity' ?
+              model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() :
+              model.currentTotalHitsProperty.value > 0
+      )
+    }
+  );
+
+const renderAccessibleTemplateText = ( node: Node ): string => {
+  const container = document.createElement( 'div' );
+  litRender( node.accessibleTemplate, container );
+  const textContent = container.textContent || '';
+  litRender( null, container );
+  return textContent;
+};
+
+const getAccessibleString = ( value: unknown ): string => typeof value === 'string' ? value : ( value as { value: string } ).value;
+
+const getExperimentSetupDetailsText = ( screenViewDescription: QuantumWaveInterferenceScreenViewDescription ): string => {
+  const experimentSetupPDOMOrder = screenViewDescription.experimentSetupHeadingNode.pdomOrder as Node[];
+  return renderAccessibleTemplateText( experimentSetupPDOMOrder[ 1 ] );
+};
 
 const stepSceneToWavefrontFraction = ( model: HighIntensityModel, wavefrontFraction: number ): void => {
   const scene = model.sceneProperty.value;
@@ -481,26 +524,120 @@ QUnit.test( 'pattern complete response describes emerged interference pattern', 
   currentDetailsTemplateProperty.dispose();
 } );
 
-QUnit.test( 'summary current details are readable template content', assert => {
+QUnit.test( 'high-intensity screen summary current details are compact', assert => {
   const model = createModel();
-  const describer = new QWIAccessibleStateDescriber( model );
-  const currentDetailsTemplateProperty = QWIAccessibleStateTemplate.createCurrentDetailsTemplateProperty( model, describer );
-  const container = document.createElement( 'div' );
+  const screenSummaryContent = createHighIntensityScreenSummaryContent( model );
 
-  litRender( currentDetailsTemplateProperty.value, container );
+  const currentDetails = screenSummaryContent.getVoicingDetailsString()!.trim();
 
-  const currentDetails = container.textContent;
-
-  assert.ok( currentDetails.includes( 'Currently,' ), 'current details begin as summary state content' );
-  assert.ok( currentDetails.includes( 'Source is off, so no wave is traveling.' ), 'current details include temporal wave progress' );
-  assert.ok( currentDetails.includes( 'Source is off, so there is no pattern on the detector.' ), 'source-off current details do not describe a visible detector pattern' );
-  assert.ok( currentDetails.includes( 'Detector screen view is active.' ), 'current details include display and tools state' );
+  assert.ok( currentDetails.includes( 'Currently,' ), 'current details include compact summary state content' );
+  assert.ok( currentDetails.includes( 'source is off. Detector screen is empty.' ), 'current details summarize source and detector state' );
+  assert.notOk( currentDetails.includes( 'Source is off, so no wave is traveling.' ), 'current details omit temporal wave-progress paragraphs' );
+  assert.notOk( currentDetails.includes( 'Detector screen view is active.' ), 'current details omit display and tools state' );
   assert.notOk( currentDetails.includes( 'Current Experiment State' ), 'current details omit the former Play Area heading' );
   assert.notOk( currentDetails.includes( 'What to notice' ), 'current details omit the former notice heading' );
-  assert.strictEqual( container.querySelectorAll( 'p' ).length, 6, 'current details use paragraph formatting' );
-  assert.ok( container.querySelector( 'br' ), 'current details can use line break formatting inside a paragraph' );
-  assert.strictEqual( container.querySelectorAll( 'h3, h4' ).length, 0, 'current details omit section headings' );
-  assert.ok( !PDOMUtils.hasDisallowedTemplateDescendant( container ), 'current details template has no disallowed interactive descendants' );
 
-  currentDetailsTemplateProperty.dispose();
+  screenSummaryContent.dispose();
+} );
+
+QUnit.test( 'high-intensity screen summary waits for wave to reach detector screen', assert => {
+  const model = createModel();
+  const screenSummaryContent = createHighIntensityScreenSummaryContent( model );
+
+  model.currentIsEmittingProperty.value = true;
+  const beforeWaveArrivalDetails = screenSummaryContent.getVoicingDetailsString()!.trim();
+  assert.ok( beforeWaveArrivalDetails.includes( 'Detector screen is empty.' ), 'source-on summary reports empty detector before wave arrival' );
+  assert.notOk( beforeWaveArrivalDetails.includes( 'Detector screen shows intensity pattern.' ), 'source-on summary does not announce intensity pattern before wave arrival' );
+
+  stepSceneUntilWavefrontReachesScreen( model );
+  model.accessibleStateStepProperty.value++;
+  const afterWaveArrivalDetails = screenSummaryContent.getVoicingDetailsString()!.trim();
+  assert.ok( afterWaveArrivalDetails.includes( 'Detector screen shows intensity pattern.' ), 'summary announces intensity pattern after wave arrival' );
+
+  screenSummaryContent.dispose();
+} );
+
+QUnit.test( 'high-intensity play area includes experiment setup details', assert => {
+  const model = createModel();
+  const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
+    model,
+    model.currentSlitConfigurationProperty,
+    {
+      detectionModeProperty: model.currentDetectionModeProperty,
+      slitOrientation: 'topBottom',
+      sourceNodes: [ new Node() ],
+      slitNodes: [ new Node() ],
+      detectorScreenControlNodes: [ new Node() ]
+    }
+  );
+
+  const experimentSetupPDOMOrder = screenViewDescription.experimentSetupHeadingNode.pdomOrder as Node[];
+  assert.strictEqual( experimentSetupPDOMOrder.length, 2, 'experiment setup heading begins with detector screen and details descriptions' );
+  assert.ok(
+    getAccessibleString( experimentSetupPDOMOrder[ 0 ].accessibleParagraph ).includes( 'Detector screen' ),
+    'detector screen description paragraph is first'
+  );
+
+  const experimentSetupDetails = getExperimentSetupDetailsText( screenViewDescription );
+
+  assert.ok( experimentSetupDetails.includes( 'Current experimental details:' ), 'details list has leading paragraph' );
+  assert.ok( experimentSetupDetails.includes( 'Photon Source Emitter is off.' ), 'details list includes source state' );
+  assert.ok( experimentSetupDetails.includes( 'Screen Detection set to Intensity Mode.' ), 'details list includes detection mode' );
+  assert.ok( experimentSetupDetails.includes( 'Wavelength is' ), 'details list includes wavelength' );
+  assert.ok( experimentSetupDetails.includes( 'Both slits open in barrier.' ), 'details list includes slit configuration' );
+  assert.ok( experimentSetupDetails.includes( 'Slit Separation distance is' ), 'details list includes slit separation' );
+  assert.notOk( experimentSetupDetails.includes( 'Distance from double-slit barrier to detector screen' ), 'details list omits screen distance' );
+
+  screenViewDescription.dispose();
+} );
+
+QUnit.test( 'single-particles summary and play area details remain compact', assert => {
+  const model = createSingleParticlesModel();
+  const screenSummaryContent = new QuantumWaveInterferenceScreenSummaryContent(
+    model,
+    model.currentSlitConfigurationProperty,
+    {
+      detectionMode: 'hits',
+      slitOrientation: 'topBottom',
+      detectorScreenHasPatternProperty: model.currentTotalHitsProperty.derived( totalHits => totalHits > 0 )
+    }
+  );
+
+  const currentDetails = screenSummaryContent.getVoicingDetailsString()!.trim();
+
+  assert.ok( currentDetails.includes( 'Currently,' ), 'single-particles summary uses compact current details' );
+  assert.ok( currentDetails.includes( 'source is off. Detector screen is empty.' ), 'single-particles summary reports source and detector state' );
+  assert.notOk( currentDetails.includes( 'Source is off, so no wave is traveling.' ), 'single-particles summary omits high-intensity temporal template content' );
+
+  model.currentIsEmittingProperty.value = true;
+  const beforeHitDetails = screenSummaryContent.getVoicingDetailsString()!.trim();
+  assert.ok( beforeHitDetails.includes( 'Detector screen has no hits.' ), 'single-particles summary reports no hits while packet is still propagating' );
+  assert.notOk( beforeHitDetails.includes( 'Detector screen shows hits pattern.' ), 'single-particles summary does not announce hits pattern before a hit' );
+
+  model.sceneProperty.value.totalHitsProperty.value = 1;
+  const afterHitDetails = screenSummaryContent.getVoicingDetailsString()!.trim();
+  assert.ok( afterHitDetails.includes( 'Detector screen shows hits pattern.' ), 'single-particles summary announces hits pattern after first hit' );
+
+  const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
+    model,
+    model.currentSlitConfigurationProperty,
+    {
+      slitOrientation: 'topBottom',
+      sourceNodes: [ new Node() ],
+      slitNodes: [ new Node() ],
+      detectorScreenControlNodes: [ new Node() ]
+    }
+  );
+  const experimentSetupDetails = getExperimentSetupDetailsText( screenViewDescription );
+
+  assert.ok( experimentSetupDetails.includes( 'Current experimental details:' ), 'single-particles details list has leading paragraph' );
+  assert.ok( experimentSetupDetails.includes( 'Photon Source Emitter is on.' ), 'single-particles details list includes source state' );
+  assert.ok( experimentSetupDetails.includes( 'Wavelength is' ), 'single-particles details list includes wavelength' );
+  assert.ok( experimentSetupDetails.includes( 'Both slits open in barrier.' ), 'single-particles details list includes slit configuration' );
+  assert.ok( experimentSetupDetails.includes( 'Slit Separation distance is' ), 'single-particles details list includes slit separation' );
+  assert.notOk( experimentSetupDetails.includes( 'Screen Detection set to' ), 'single-particles details list omits detection mode' );
+  assert.notOk( experimentSetupDetails.includes( 'Distance from double-slit barrier to detector screen' ), 'single-particles details list omits screen distance' );
+
+  screenViewDescription.dispose();
+  screenSummaryContent.dispose();
 } );

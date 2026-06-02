@@ -124,7 +124,10 @@ a11y:
                                      [noBarrier] no barrier
                                     *[bothDetectors] detectors on both slits
                                    }. { $detectionMode ->
-                                     [averageIntensity] Detector screen shows intensity pattern.
+                                     [averageIntensity] { $hasHits ->
+                                       [true] Detector screen shows intensity pattern.
+                                      *[false] Detector screen is empty.
+                                     }
                                     *[hits] { $hasHits ->
                                        [false] Detector screen has no hits.
                                       *[true] Detector screen shows hits pattern.
@@ -173,8 +176,14 @@ a11y:
                                      [noBarrier] no barrier
                                     *[bothDetectors] detectors on both slits
                                    }. { $detectionMode ->
-                                     [averageIntensity] Detector screen shows intensity pattern.
-                                    *[hits] Detector screen shows hits pattern.
+                                     [averageIntensity] { $hasHits ->
+                                       [true] Detector screen shows intensity pattern.
+                                      *[false] Detector screen is empty.
+                                     }
+                                    *[hits] { $hasHits ->
+                                       [false] Detector screen has no hits.
+                                      *[true] Detector screen shows hits pattern.
+                                     }
                                    }
                                   *[false] source is off. { $detectionMode ->
                                      [averageIntensity] Detector screen is empty.

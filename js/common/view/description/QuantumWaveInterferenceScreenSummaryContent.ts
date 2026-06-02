@@ -31,6 +31,7 @@ type ScreenSummaryModel = {
 type ScreenSummaryOptions = {
   detectionMode: DetectionMode | TReadOnlyProperty<DetectionMode>;
   slitOrientation?: SlitOrientation;
+  detectorScreenHasPatternProperty?: TReadOnlyProperty<boolean>;
   currentDetailsContent?: SectionContent;
 };
 
@@ -52,8 +53,14 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
 
     const isMaxHitsReachedStringProperty = model.currentIsMaxHitsReachedProperty.derived( toFluentBoolean );
 
+    const detectorScreenHasPatternProperty = providedOptions.detectorScreenHasPatternProperty ||
+                                             new DerivedProperty(
+                                               [ model.currentTotalHitsProperty, model.currentIsEmittingProperty ],
+                                               ( totalHits, isEmitting ) => totalHits > 0 || isEmitting
+                                             );
+
     // Fluent select expressions use string keys, so derived booleans are normalized through one helper.
-    const hasHitsStringProperty = model.currentTotalHitsProperty.derived( totalHits => toFluentBoolean( totalHits > 0 ) );
+    const hasHitsStringProperty = detectorScreenHasPatternProperty.derived( toFluentBoolean );
 
     const currentDetailsOptions = {
       sourceType: sourceTypeProperty,
