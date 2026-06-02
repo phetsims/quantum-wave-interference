@@ -414,15 +414,14 @@ a11y:
                               { $isEmitting ->
                                 [true] { $sourceRestartedResponse }
                                *[false] { $slitSetting ->
-                                  [bothOpen] Both slits open.
-                                  [leftCovered] Top slit covered.
-                                  [rightCovered] Bottom slit covered.
-                                  [leftDetector] Top slit detector added.
-                                  [rightDetector] Bottom slit detector added.
-                                  [noBarrier] Barrier removed.
-                                 *[bothDetectors] Detectors added to both slits.
+                                  [bothOpen] In barrier, both slits open.
+                                  [leftCovered] In barrier, top slit covered.
+                                  [rightCovered] In barrier, bottom slit covered.
+                                  [leftDetector] Detector added to top slit in barrier.
+                                  [rightDetector] Detector added to bottom slit in barrier.
+                                  [noBarrier] Barrier removed from experiment.
+                                 *[bothDetectors] Detectors added to both slits in barrier.
                                 }
-                                Experiment changed. Previous hits cleared.
                               }
     slitSeparationChanged:    >-
                               { $isEmitting ->

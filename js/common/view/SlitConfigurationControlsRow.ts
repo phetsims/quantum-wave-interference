@@ -15,6 +15,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
+import type { TAlertable } from '../../../../utterance-queue/js/Utterance.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
@@ -35,7 +36,8 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
     waveRegionLeft: number,
     controlsBottom: number,
     listParent: Node,
-    tandem: Tandem
+    tandem: Tandem,
+    accessibleContextResponse?: TAlertable
   ) {
     const slitConfigTitle = new Text( QuantumWaveInterferenceFluent.slitConfigurationStringProperty, {
       font: TITLE_FONT,
@@ -48,7 +50,8 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
       yMargin: 6,
       listPosition: 'above',
       accessibleName: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleHelpTextStringProperty
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleHelpTextStringProperty,
+      accessibleContextResponse: accessibleContextResponse
     } );
 
     const slitConfigSection = new VBox( {

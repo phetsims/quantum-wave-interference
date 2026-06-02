@@ -6,6 +6,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
@@ -36,8 +38,10 @@ import ToolCheckbox from '../../common/view/ToolCheckbox.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
+import { getWavelengthColorZone } from '../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
+import type SingleParticlesSceneModel from '../model/SingleParticlesSceneModel.js';
 import DetectorToolNode from './DetectorToolNode.js';
 import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 
@@ -56,6 +60,24 @@ const CALLOUT_GAP = 55;
 const WAVE_REGION_Y_OFFSET = -30;
 const EMITTER_WAVE_REGION_OVERLAP = 2;
 const MAX_HITS_REACHED_PANEL_SPACING = 10;
+type SingleParticlesWavefrontSpacing = 'tightlyPacked' | 'widelySpaced' | 'moderatelySpaced';
+
+const getSingleParticlesWavefrontSpacing = ( scene: SingleParticlesSceneModel ): SingleParticlesWavefrontSpacing => {
+  const sourceType = scene.sourceType;
+
+  if ( sourceType === 'photons' ) {
+    const wavelengthColorZone = getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) );
+    return ( wavelengthColorZone === 'violet' || wavelengthColorZone === 'blue' ) ? 'tightlyPacked' :
+           ( wavelengthColorZone === 'red' || wavelengthColorZone === 'orange' ) ? 'widelySpaced' :
+           'moderatelySpaced';
+  }
+
+  const defaultEffectiveWavelength = scene.regionWidth / QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
+  const relativeWavelength = scene.getEffectiveWavelength() / defaultEffectiveWavelength;
+  return relativeWavelength <= 0.85 ? 'tightlyPacked' :
+         relativeWavelength >= 1.15 ? 'widelySpaced' :
+         'moderatelySpaced';
+};
 
 export default class SingleParticlesScreenView extends ScreenView {
 
@@ -190,6 +212,32 @@ export default class SingleParticlesScreenView extends ScreenView {
       }
     );
 
+    const slitConfigurationContextResponseProperty = new DerivedProperty(
+      [
+        model.currentIsEmittingProperty,
+        model.currentSlitConfigurationProperty,
+        model.sceneProperty,
+        model.currentWavelengthProperty,
+        model.currentVelocityProperty
+      ],
+      ( isEmitting, slitConfiguration, scene ) => {
+        const sourceRestartedResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestarted.format( {
+          beamDescription: QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceBeam.format( {
+            isEmitting: isEmitting ? 'true' : 'false',
+            sourceType: scene.sourceType,
+            photonColor: scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : 'red',
+            wavefrontSpacing: getSingleParticlesWavefrontSpacing( scene )
+          } )
+        } );
+
+        return QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
+          isEmitting: isEmitting ? 'true' : 'false',
+          slitSetting: slitConfiguration,
+          sourceRestartedResponse: sourceRestartedResponse
+        } );
+      }
+    );
+
     const bottomRow = createAndAddSlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
       model.sceneProperty,
@@ -201,7 +249,8 @@ export default class SingleParticlesScreenView extends ScreenView {
       {
         topCoveredTandemName: 'topClosedItem',
         bottomCoveredTandemName: 'bottomClosedItem'
-      }
+      },
+      slitConfigurationContextResponseProperty
     );
 
     // Hits graph (always in Hits mode on this screen)
