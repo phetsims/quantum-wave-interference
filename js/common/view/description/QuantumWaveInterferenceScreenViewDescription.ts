@@ -33,6 +33,7 @@ type SharedDescriptionModel = {
 
 type SharedDescriptionOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
+  detectorScreenUpdateTriggerProperty?: TReadOnlyProperty<unknown>;
   slitOrientation?: SlitOrientation;
   includeExperimentSetupDetails?: boolean;
   sourceNodes: Node[];
@@ -63,7 +64,8 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
       const detectorScreenDescriber = new DetectorScreenDescriber(
         model.sceneProperty,
         new BooleanProperty( false ),
-        model.sceneProperty.derived( scene => 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2 )
+        model.sceneProperty.derived( scene => 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2 ),
+        providedOptions.detectorScreenUpdateTriggerProperty
       );
       detectorScreenDescriptionNode = new Node( {
         accessibleParagraph: detectorScreenDescriber.descriptionProperty

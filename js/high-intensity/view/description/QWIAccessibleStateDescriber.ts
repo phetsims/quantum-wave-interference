@@ -16,9 +16,8 @@ import { type DetectionMode } from '../../../common/model/DetectionMode.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../../common/model/SourceType.js';
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
-import { getDisplaySlitLayout } from '../../../common/getDisplaySlitLayout.js';
 import QuantumWaveInterferenceConstants from '../../../common/QuantumWaveInterferenceConstants.js';
-import BandAnalysis, { type BandAnalysisResult, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import BandAnalysis, { type BandAnalysisResult, type EnvelopeHeuristicAnalysis, type HitStage } from '../../../common/view/description/BandAnalysis.js';
 import { getWavelengthColorZone, type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../../model/HighIntensitySceneModel.js';
@@ -34,22 +33,6 @@ export type QWIClockSpeedDescription = 'slow' | 'normal' | 'fast';
 export type QWIBandSpacingDescription = 'farApart' | 'mediumSpaced' | 'closelySpaced';
 export type QWIEnvelopePrevalence = 'brightestAtCenter' | 'clusteringIntoTwoFaintSections' | 'clusteringIntoTwoDistinctSections';
 export type QWIValueTrend = 'increased' | 'decreased' | 'unchanged';
-
-type EnvelopeHeuristicAnalysis = {
-  category: QWIEnvelopePrevalence;
-  score: number;
-  fresnelSeparation: number;
-  geometryRatio: number;
-  geometryGate: number;
-  slitToScreenDistance: number;
-  displaySlitSeparation: number;
-  effectiveWavelength: number;
-};
-
-const ENVELOPE_GEOMETRY_GATE_START = 0.45;
-const ENVELOPE_GEOMETRY_GATE_END = 1.25;
-const FAINT_SECTIONS_ENVELOPE_SCORE = 1.5;
-const DISTINCT_SECTIONS_ENVELOPE_SCORE = 6;
 
 export type QWIAccessibleState = {
   sourceType: SourceType;
@@ -170,51 +153,6 @@ const getBandSpacingDescription = ( bandCount: number ): QWIBandSpacingDescripti
   bandCount >= 13 ? 'closelySpaced' :
   'mediumSpaced';
 
-const smoothStep = ( edge0: number, edge1: number, value: number ): number => {
-  const t = clamp( ( value - edge0 ) / ( edge1 - edge0 ), 0, 1 );
-  return t * t * ( 3 - 2 * t );
-};
-
-const getEnvelopeCategory = ( envelopeScore: number ): QWIEnvelopePrevalence =>
-  envelopeScore < FAINT_SECTIONS_ENVELOPE_SCORE ? 'brightestAtCenter' :
-  envelopeScore < DISTINCT_SECTIONS_ENVELOPE_SCORE ? 'clusteringIntoTwoFaintSections' :
-  'clusteringIntoTwoDistinctSections';
-
-const analyzeEnvelopeHeuristic = (
-  scene: HighIntensitySceneModel,
-  effectiveWavelengthMeters: number
-): EnvelopeHeuristicAnalysis | null => {
-  const slitToScreenDistance = ( 1 - scene.slitPositionFractionProperty.value ) * scene.regionWidth;
-
-  if ( effectiveWavelengthMeters <= 0 || slitToScreenDistance <= 0 ) {
-    return null;
-  }
-
-  const displaySlitSeparation = getDisplaySlitLayout(
-    scene.slitSeparationProperty.value * 1e-3,
-    scene.slitSeparationRange.min * 1e-3,
-    scene.slitSeparationRange.max * 1e-3,
-    scene.regionHeight
-  ).displaySlitSeparation;
-
-  const fresnelSeparation = displaySlitSeparation * displaySlitSeparation /
-                            ( effectiveWavelengthMeters * slitToScreenDistance );
-  const geometryRatio = displaySlitSeparation / slitToScreenDistance;
-  const geometryGate = smoothStep( ENVELOPE_GEOMETRY_GATE_START, ENVELOPE_GEOMETRY_GATE_END, geometryRatio );
-  const score = fresnelSeparation * geometryGate;
-
-  return {
-    category: getEnvelopeCategory( score ),
-    score: score,
-    fresnelSeparation: fresnelSeparation,
-    geometryRatio: geometryRatio,
-    geometryGate: geometryGate,
-    slitToScreenDistance: slitToScreenDistance,
-    displaySlitSeparation: displaySlitSeparation,
-    effectiveWavelength: effectiveWavelengthMeters
-  };
-};
-
 const getWaveProgress = ( scene: HighIntensitySceneModel, patternKind: QWIPatternKind ): QWIAccessibleState['waveProgress'] => {
   if ( !scene.isEmittingProperty.value ) {
     return {
@@ -323,7 +261,7 @@ export default class QWIAccessibleStateDescriber {
     const wavelengthColorZone = scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : null;
     const waveProgress = getWaveProgress( scene, patternKind );
     this.logEnvelopeHeuristicIfChanged(
-      isDoubleSlitInterference ? analyzeEnvelopeHeuristic( scene, effectiveWavelengthMeters ) : null
+      isDoubleSlitInterference ? BandAnalysis.analyzeEnvelopeHeuristic( scene ) : null
     );
 
     return {

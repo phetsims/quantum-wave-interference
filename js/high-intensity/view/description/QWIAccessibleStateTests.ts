@@ -7,10 +7,14 @@
  */
 
 import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
+import BooleanProperty from '../../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import { render as litRender } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
 import Tandem from '../../../../../tandem/js/Tandem.js';
+import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
+import { formatIntensityDescription, formatLiveHitsDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
+import DetectorScreenDescriber from '../../../common/view/description/DetectorScreenDescriber.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
@@ -555,6 +559,60 @@ QUnit.test( 'high-intensity screen summary waits for wave to reach detector scre
   assert.ok( afterWaveArrivalDetails.includes( 'Detector screen shows intensity pattern.' ), 'summary announces intensity pattern after wave arrival' );
 
   screenSummaryContent.dispose();
+} );
+
+QUnit.test( 'detector screen description uses qualitative band spacing and envelope', assert => {
+  const model = createModel();
+  const scene = model.sceneProperty.value;
+
+  scene.slitSeparationProperty.value = scene.slitSeparationProperty.range.max;
+  scene.slitPositionFractionProperty.value = scene.slitPositionFractionProperty.range.max;
+
+  const analysis = BandAnalysis.analyzeTheoreticalPattern( scene, scene.regionWidth / 2 );
+  const envelopeAnalysis = BandAnalysis.analyzeEnvelopeHeuristic( scene )!;
+  const intensityDescription = formatIntensityDescription( true, analysis, '' );
+  const expectedEnvelopeDescription = envelopeAnalysis.category === 'clusteringIntoTwoDistinctSections' ?
+                                      'clustering into two distinct sections, directly across from slits' :
+                                      envelopeAnalysis.category === 'clusteringIntoTwoFaintSections' ?
+                                      'clustering into two faint sections, directly across from slits' :
+                                      'brightest band at center';
+
+  assert.ok( intensityDescription.includes( 'Evenly-spaced bright bands are' ), 'intensity description uses qualitative band-spacing language' );
+  assert.notOk( intensityDescription.includes( 'alternating bright and dark vertical bands' ), 'intensity description avoids band-count framing' );
+  assert.ok( intensityDescription.includes( expectedEnvelopeDescription ), 'intensity description respects shared envelope heuristic category' );
+
+  const developingHitsDescription = formatLiveHitsDescription( 'developing', true, analysis, '' );
+  assert.ok( developingHitsDescription.includes( 'Individual impacts are gathering' ), 'hits description includes accumulated-hit formation layer' );
+  assert.ok( developingHitsDescription.includes( 'Evenly-spaced bright bands are' ), 'hits description also includes qualitative pattern spacing once bands are developing' );
+} );
+
+QUnit.test( 'detector screen description waits for wave arrival', assert => {
+  const model = createModel();
+  const detectorScreenDescriber = new DetectorScreenDescriber(
+    model.sceneProperty,
+    new BooleanProperty( false ),
+    model.sceneProperty.derived( scene => scene.regionWidth / 2 ),
+    model.accessibleStateStepProperty
+  );
+
+  model.currentIsEmittingProperty.value = true;
+
+  assert.ok(
+    detectorScreenDescriber.descriptionProperty.value.includes( 'Detector screen is empty.' ),
+    'detector screen description remains empty while source-on wavefront is still traveling'
+  );
+  assert.notOk(
+    detectorScreenDescriber.descriptionProperty.value.includes( 'Evenly-spaced bright bands' ),
+    'detector screen description does not announce bands before wave arrival'
+  );
+
+  stepSceneUntilWavefrontReachesScreen( model );
+  model.accessibleStateStepProperty.value++;
+
+  assert.ok(
+    detectorScreenDescriber.descriptionProperty.value.includes( 'Evenly-spaced bright bands' ),
+    'detector screen description announces bands after wave arrival'
+  );
 } );
 
 QUnit.test( 'high-intensity play area includes experiment setup details', assert => {

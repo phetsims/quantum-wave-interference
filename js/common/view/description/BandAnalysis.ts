@@ -8,8 +8,10 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
+import { clamp } from '../../../../../dot/js/util/clamp.js';
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
+import { getDisplaySlitLayout } from '../../getDisplaySlitLayout.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import type { Snapshot } from '../../model/Snapshot.js';
 
@@ -17,6 +19,8 @@ type TheoreticalPatternScene = {
   getEffectiveWavelength(): number;
   slitWidth: number;
   slitSeparationProperty: TReadOnlyProperty<number>;
+  slitSeparationRange?: { min: number; max: number };
+  regionHeight?: number;
 } & (
   {
     screenDistanceProperty: TReadOnlyProperty<number>;
@@ -31,6 +35,18 @@ type TheoreticalPatternScene = {
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
 // updates so they only fire at pedagogically meaningful thresholds.
 export type HitStage = 'none' | 'few' | 'emerging' | 'developing' | 'clear';
+export type BandSpacingCategory = 'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether';
+export type EnvelopeCategory = 'brightestAtCenter' | 'clusteringIntoTwoFaintSections' | 'clusteringIntoTwoDistinctSections';
+export type EnvelopeHeuristicAnalysis = {
+  category: EnvelopeCategory;
+  score: number;
+  fresnelSeparation: number;
+  geometryRatio: number;
+  geometryGate: number;
+  slitToScreenDistance: number;
+  displaySlitSeparation: number;
+  effectiveWavelength: number;
+};
 
 // Results from analyzing an intensity distribution.
 export type BandAnalysisResult = {
@@ -44,7 +60,42 @@ export type BandAnalysisResult = {
 
   // Full width of the central band at the threshold level, in mm.
   centralWidthMM: number;
+
+  // Full detector-screen width in mm. Used for qualitative spacing descriptions.
+  screenWidthMM: number;
+
+  // Qualitative description of the average spacing between adjacent double-slit bright bands.
+  spacingCategory: BandSpacingCategory;
+
+  // Qualitative description of the single-slit envelope shaping the double-slit pattern.
+  envelopeCategory: EnvelopeCategory;
 };
+
+const ENVELOPE_GEOMETRY_GATE_START = 0.45;
+const ENVELOPE_GEOMETRY_GATE_END = 1.25;
+const FAINT_SECTIONS_ENVELOPE_SCORE = 1.5;
+const DISTINCT_SECTIONS_ENVELOPE_SCORE = 6;
+
+const smoothStep = ( edge0: number, edge1: number, value: number ): number => {
+  const t = clamp( ( value - edge0 ) / ( edge1 - edge0 ), 0, 1 );
+  return t * t * ( 3 - 2 * t );
+};
+
+const getSpacingCategory = ( averageSpacingMM: number, screenWidthMM: number ): BandSpacingCategory => {
+  const spacingFraction = screenWidthMM > 0 ? averageSpacingMM / screenWidthMM : 0;
+  return spacingFraction >= 0.6 ? 'extremelyFarApart' :
+         spacingFraction >= 0.42 ? 'veryFarApart' :
+         spacingFraction >= 0.28 ? 'farApart' :
+         spacingFraction >= 0.16 ? 'somewhatCloseTogether' :
+         spacingFraction >= 0.1 ? 'closeTogether' :
+         spacingFraction >= 0.065 ? 'veryCloseTogether' :
+         'extremelyCloseTogether';
+};
+
+const getEnvelopeCategory = ( envelopeScore: number ): EnvelopeCategory =>
+  envelopeScore < FAINT_SECTIONS_ENVELOPE_SCORE ? 'brightestAtCenter' :
+  envelopeScore < DISTINCT_SECTIONS_ENVELOPE_SCORE ? 'clusteringIntoTwoFaintSections' :
+  'clusteringIntoTwoDistinctSections';
 
 export default class BandAnalysis {
 
@@ -60,7 +111,7 @@ export default class BandAnalysis {
   public static analyzeTheoreticalPattern( scene: TheoreticalPatternScene, screenHalfWidth: number ): BandAnalysisResult {
     const screenDistance = 'screenDistanceProperty' in scene ?
                            scene.screenDistanceProperty.value :
-                           scene.slitPositionFractionProperty.value * scene.regionWidth;
+                           ( 1 - scene.slitPositionFractionProperty.value ) * scene.regionWidth;
     const slitSetting = 'slitSettingProperty' in scene ?
                         scene.slitSettingProperty.value :
                         scene.slitConfigurationProperty.value;
@@ -71,8 +122,57 @@ export default class BandAnalysis {
       screenHalfWidth,
       scene.slitWidth * 1e-3, // mm -> m
       slitSetting,
-      scene.slitSeparationProperty.value * 1e-3 // mm -> m
+      scene.slitSeparationProperty.value * 1e-3, // mm -> m
+      BandAnalysis.analyzeEnvelopeHeuristic( scene )?.category || 'brightestAtCenter'
     );
+  }
+
+  /**
+   * Computes the qualitative single-slit envelope category used for double-slit detector-screen descriptions.
+   * This is shared by the live detector-screen paragraph and High Intensity accessible-state logging so both report
+   * the same category for the same model state.
+   *
+   * @param scene - scene supplying front-facing detector-screen geometry
+   * @returns detailed envelope heuristic analysis, or null when the scene cannot support the front-facing heuristic
+   */
+  public static analyzeEnvelopeHeuristic( scene: TheoreticalPatternScene ): EnvelopeHeuristicAnalysis | null {
+    const lambda = scene.getEffectiveWavelength();
+    const slitToScreenDistance = 'screenDistanceProperty' in scene ?
+                                 scene.screenDistanceProperty.value :
+                                 ( 1 - scene.slitPositionFractionProperty.value ) * scene.regionWidth;
+
+    if (
+      lambda <= 0 ||
+      slitToScreenDistance <= 0 ||
+      scene.regionHeight === undefined ||
+      scene.slitSeparationRange === undefined
+    ) {
+      return null;
+    }
+
+    const displaySlitSeparation = getDisplaySlitLayout(
+      scene.slitSeparationProperty.value * 1e-3,
+      scene.slitSeparationRange.min * 1e-3,
+      scene.slitSeparationRange.max * 1e-3,
+      scene.regionHeight
+    ).displaySlitSeparation;
+
+    const fresnelSeparation = displaySlitSeparation * displaySlitSeparation /
+                              ( lambda * slitToScreenDistance );
+    const geometryRatio = displaySlitSeparation / slitToScreenDistance;
+    const geometryGate = smoothStep( ENVELOPE_GEOMETRY_GATE_START, ENVELOPE_GEOMETRY_GATE_END, geometryRatio );
+    const score = fresnelSeparation * geometryGate;
+
+    return {
+      category: getEnvelopeCategory( score ),
+      score: score,
+      fresnelSeparation: fresnelSeparation,
+      geometryRatio: geometryRatio,
+      geometryGate: geometryGate,
+      slitToScreenDistance: slitToScreenDistance,
+      displaySlitSeparation: displaySlitSeparation,
+      effectiveWavelength: lambda
+    };
   }
 
   /**
@@ -88,7 +188,8 @@ export default class BandAnalysis {
       screenHalfWidth,
       snapshot.slitWidth * 1e-3,
       snapshot.slitSetting,
-      snapshot.slitSeparation * 1e-3
+      snapshot.slitSeparation * 1e-3,
+      'brightestAtCenter'
     );
   }
 
@@ -103,10 +204,21 @@ export default class BandAnalysis {
     screenHalfWidthM: number,
     slitWidthMeters: number,
     slitSetting: SlitConfigurationWithNoBarrier,
-    slitSeparationMeters: number
+    slitSeparationMeters: number,
+    envelopeCategory: EnvelopeCategory
   ): BandAnalysisResult {
+    const screenWidthMM = screenHalfWidthM * 2000;
+
     if ( lambda === 0 ) {
-      return { bandCount: 0, peakPositionsMM: [], averageSpacingMM: 0, centralWidthMM: 0 };
+      return {
+        bandCount: 0,
+        peakPositionsMM: [],
+        averageSpacingMM: 0,
+        centralWidthMM: 0,
+        screenWidthMM: screenWidthMM,
+        spacingCategory: 'extremelyCloseTogether',
+        envelopeCategory: 'brightestAtCenter'
+      };
     }
 
     if ( showsDoubleSlitInterferencePattern( slitSetting ) ) {
@@ -128,7 +240,10 @@ export default class BandAnalysis {
         bandCount: bandCount,
         peakPositionsMM: peakPositionsMM,
         averageSpacingMM: fringeSpacingMM,
-        centralWidthMM: fringeSpacingMM
+        centralWidthMM: fringeSpacingMM,
+        screenWidthMM: screenWidthMM,
+        spacingCategory: getSpacingCategory( fringeSpacingMM, screenWidthMM ),
+        envelopeCategory: envelopeCategory
       };
     }
     else {
@@ -141,7 +256,10 @@ export default class BandAnalysis {
         bandCount: 1,
         peakPositionsMM: [ 0 ],
         averageSpacingMM: 0,
-        centralWidthMM: centralWidthMM
+        centralWidthMM: centralWidthMM,
+        screenWidthMM: screenWidthMM,
+        spacingCategory: 'extremelyFarApart',
+        envelopeCategory: 'brightestAtCenter'
       };
     }
   }

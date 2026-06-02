@@ -23,8 +23,8 @@ export function formatIntensityDescription(
 ): string {
   return isDoubleSlit ?
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
-           bandCount: analysis.bandCount,
-           spatialDescription: spatialDescription
+           spacing: analysis.spacingCategory,
+           envelope: analysis.envelopeCategory
          } ) :
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( {
            spatialDescription: spatialDescription
@@ -41,6 +41,7 @@ export function formatIntensityDescription(
 export function formatLiveHitsDescription(
   hitStage: HitStage,
   isDoubleSlit: boolean,
+  analysis: BandAnalysisResult,
   spatialDescription: string
 ): string {
   if ( hitStage === 'none' ) {
@@ -52,8 +53,14 @@ export function formatLiveHitsDescription(
 
   if ( isDoubleSlit ) {
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty.value :
-           hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDeveloping.format( { spatialDescription: spatialDescription } ) :
-           hitStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( { spatialDescription: spatialDescription } ) :
+           hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDeveloping.format( {
+                                      spacing: analysis.spacingCategory,
+                                      envelope: analysis.envelopeCategory
+                                    } ) :
+           hitStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( {
+                                  spacing: analysis.spacingCategory,
+                                  envelope: analysis.envelopeCategory
+                                } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
   else {

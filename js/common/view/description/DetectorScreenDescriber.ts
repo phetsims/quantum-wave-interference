@@ -30,6 +30,7 @@ export type DetectorScreenDescriberScene = {
   velocityProperty: TReadOnlyProperty<number>;
   getEffectiveWavelength(): number;
   slitWidth: number;
+  hasWavefrontReachedScreen?(): boolean;
 } & (
   {
     detectionModeProperty: TReadOnlyProperty<DetectionMode>;
@@ -52,6 +53,9 @@ const getSlitSetting = ( scene: DetectorScreenDescriberScene ): SlitConfiguratio
 const getDetectorScreenHalfWidth = ( scene: DetectorScreenDescriberScene, detectorScreenHalfWidthProperty?: TReadOnlyProperty<number> ): number =>
   detectorScreenHalfWidthProperty ? detectorScreenHalfWidthProperty.value : 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2;
 
+const hasPopulatedAverageIntensityScreen = ( scene: DetectorScreenDescriberScene ): boolean =>
+  scene.hasWavefrontReachedScreen ? scene.hasWavefrontReachedScreen() : scene.isEmittingProperty.value;
+
 export default class DetectorScreenDescriber {
 
   public readonly descriptionProperty: TReadOnlyProperty<string>;
@@ -59,7 +63,8 @@ export default class DetectorScreenDescriber {
   public constructor(
     sceneProperty: TReadOnlyProperty<DetectorScreenDescriberScene>,
     isRulerVisibleProperty: TReadOnlyProperty<boolean>,
-    detectorScreenHalfWidthProperty?: TReadOnlyProperty<number>
+    detectorScreenHalfWidthProperty?: TReadOnlyProperty<number>,
+    updateTriggerProperty?: TReadOnlyProperty<unknown>
   ) {
 
     const descriptionProperty = new Property<string>( '' );
@@ -77,7 +82,7 @@ export default class DetectorScreenDescriber {
       const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
 
       if ( detectionMode === 'averageIntensity' ) {
-        if ( !scene.isEmittingProperty.value ) {
+        if ( !scene.isEmittingProperty.value || !hasPopulatedAverageIntensityScreen( scene ) ) {
           descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty.value;
           return;
         }
@@ -110,7 +115,7 @@ export default class DetectorScreenDescriber {
       );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
-      descriptionProperty.value = formatLiveHitsDescription( newStage, isDoubleSlit, spatialDescription );
+      descriptionProperty.value = formatLiveHitsDescription( newStage, isDoubleSlit, analysis, spatialDescription );
     };
 
     // Force a full update when any physics parameter or display setting changes.
@@ -158,6 +163,7 @@ export default class DetectorScreenDescriber {
     // Also update when the ruler visibility changes, since it affects spatial language.
     isRulerVisibleProperty.lazyLink( fullUpdate );
     detectorScreenHalfWidthProperty?.lazyLink( fullUpdate );
+    updateTriggerProperty?.lazyLink( fullUpdate );
 
     // Re-render whenever the Fluent bundle changes (e.g. locale change,
     // or PhET-iO string edits that swap the bundle without changing localeProperty).

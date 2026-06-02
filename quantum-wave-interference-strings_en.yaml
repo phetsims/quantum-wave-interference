@@ -793,8 +793,19 @@ a11y:
     accessibleParagraph:
       intensityOff:                   Detector screen is empty.
       intensity:                      >-
-                                      Detector screen shows { $bandCount } alternating bright and dark vertical
-                                      bands, brightest at center and fainter toward edges. { $spatialDescription }
+                                      Evenly-spaced bright bands are { $spacing ->
+                                        [extremelyFarApart] extremely far apart
+                                        [veryFarApart] very far apart
+                                        [farApart] far apart
+                                        [somewhatCloseTogether] somewhat close together
+                                        [closeTogether] close together
+                                        [veryCloseTogether] very close together
+                                       *[extremelyCloseTogether] extremely close together
+                                      } across screen, { $envelope ->
+                                        [clusteringIntoTwoFaintSections] clustering into two faint sections, directly across from slits
+                                        [clusteringIntoTwoDistinctSections] clustering into two distinct sections, directly across from slits
+                                       *[brightestAtCenter] brightest band at center
+                                      }.
       intensitySingleSlit:            >-
                                       Detector screen is brightest at the center and fades smoothly toward the edges
                                       in a broad band. { $spatialDescription }
@@ -806,11 +817,34 @@ a11y:
                                       gaps between them.
       hitsDeveloping:                 >-
                                       Individual impacts are gathering into distinct vertical bands, separated by regions
-                                      with fewer particles.
-                                      { $spatialDescription }
+                                      with fewer particles. Evenly-spaced bright bands are { $spacing ->
+                                        [extremelyFarApart] extremely far apart
+                                        [veryFarApart] very far apart
+                                        [farApart] far apart
+                                        [somewhatCloseTogether] somewhat close together
+                                        [closeTogether] close together
+                                        [veryCloseTogether] very close together
+                                       *[extremelyCloseTogether] extremely close together
+                                      } across screen, { $envelope ->
+                                        [clusteringIntoTwoFaintSections] clustering into two faint sections, directly across from slits
+                                        [clusteringIntoTwoDistinctSections] clustering into two distinct sections, directly across from slits
+                                       *[brightestAtCenter] brightest band at center
+                                      }.
       hitsClear:                      >-
                                       Distinct vertical bands fill the screen, with dense stripes separated by nearly
-                                      empty gaps. { $spatialDescription }
+                                      empty gaps. Evenly-spaced bright bands are { $spacing ->
+                                        [extremelyFarApart] extremely far apart
+                                        [veryFarApart] very far apart
+                                        [farApart] far apart
+                                        [somewhatCloseTogether] somewhat close together
+                                        [closeTogether] close together
+                                        [veryCloseTogether] very close together
+                                       *[extremelyCloseTogether] extremely close together
+                                      } across screen, { $envelope ->
+                                        [clusteringIntoTwoFaintSections] clustering into two faint sections, directly across from slits
+                                        [clusteringIntoTwoDistinctSections] clustering into two distinct sections, directly across from slits
+                                       *[brightestAtCenter] brightest band at center
+                                      }.
       hitsSingleSlitEmerging:         >-
                                       More particles are appearing in a broad region near the center of the screen, with
                                       fewer toward the edges.
