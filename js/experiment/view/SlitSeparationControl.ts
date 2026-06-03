@@ -89,7 +89,9 @@ export default class SlitSeparationControl extends NumberControl {
         maxWidth: 150
       },
       numberDisplayOptions: numberDisplayOptions,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSeparationSlider.accessibleHelpTextStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSeparationSlider.accessibleHelpText.createProperty( {
+        unit: usesMicrometers ? 'micrometers' : 'millimeters'
+      } ),
       sliderOptions: {
         trackSize: SLIDER_TRACK_SIZE,
         thumbSize: new Dimension2( 13, 22 ),

@@ -618,7 +618,12 @@ a11y:
   positionPlotCheckbox:
     accessibleHelpText: Use added position plot to graph wave value across positions in the wave area.
   slitSeparationSlider:
-    accessibleHelpText: Change distance between centers of slits in barrier in micrometers.
+    accessibleHelpText: >-
+                        { $unit ->
+                          [millimeters] Change distance between centers of slits in barrier in millimeters.
+                          [nanometers] Change distance between centers of slits in barrier in nanometers.
+                         *[micrometers] Change distance between centers of slits in barrier in micrometers.
+                        }
   slitPositionSlider:
     accessibleName:     Barrier-Screen Distance
     accessibleHelpText: >-

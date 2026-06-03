@@ -417,7 +417,7 @@
     },
     "slitSeparationSlider": {
       "accessibleHelpText": {
-        "value": "Change distance between centers of slits in barrier in micrometers."
+        "value": "{ $unit ->\n  [millimeters] Change distance between centers of slits in barrier in millimeters.\n  [nanometers] Change distance between centers of slits in barrier in nanometers.\n *[micrometers] Change distance between centers of slits in barrier in micrometers.\n}"
       }
     },
     "slitPositionSlider": {

@@ -430,7 +430,7 @@ const QuantumWaveInterferenceFluent = {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_positionPlotCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlotCheckbox.accessibleHelpTextStringProperty' ) )
     },
     slitSeparationSlider: {
-      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSeparationSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' ) )
+      accessibleHelpText: new FluentPattern<{ unit: 'millimeters' | 'nanometers' | 'micrometers' | TReadOnlyProperty<'millimeters' | 'nanometers' | 'micrometers'> }>( fluentSupport.bundleProperty, 'a11y_slitSeparationSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' ), [{"name":"unit","variants":["millimeters","nanometers","micrometers"]}] )
     },
     slitPositionSlider: {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleNameStringProperty' ) ),
