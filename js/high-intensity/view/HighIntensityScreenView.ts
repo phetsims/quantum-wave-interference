@@ -542,7 +542,8 @@ export default class HighIntensityScreenView extends ScreenView {
     ManualConstraint.create( this, [ detectorScreenControls.bottomButtonsRow, detectorScreenControls.waveDisplayAndTimeControlsGroup ], () => {
       detectorScreenControls.positionWaveDisplayAndTimeControlsGroup(
         rightPanelCenterX,
-        this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN
+        this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN,
+        this.layoutBounds.maxY - QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN
       );
     } );
 

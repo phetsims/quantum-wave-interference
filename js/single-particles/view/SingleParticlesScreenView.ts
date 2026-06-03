@@ -364,7 +364,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     } );
 
     ManualConstraint.create( this, [ detectorScreenControls.bottomButtonsRow, detectorScreenControls.waveDisplayAndTimeControlsGroup ], () => {
-      detectorScreenControls.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN );
+      detectorScreenControls.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN, this.layoutBounds.maxY - Y_MARGIN );
     } );
 
     const measurementToolsNode = new MeasurementToolsLayerNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
