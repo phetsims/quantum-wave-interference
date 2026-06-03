@@ -12,7 +12,6 @@ import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.j
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import type { AccessibleStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -23,9 +22,11 @@ import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontF
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
+import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorToolViewState, type MeasurementToolsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QWIAccessibleViewState.js';
 import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
 import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
+import type DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
 import MaxHitsReachedPanel from '../../common/view/MaxHitsReachedPanel.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
@@ -63,6 +64,37 @@ const EMITTER_WAVE_REGION_OVERLAP = 2;
 const MAX_HITS_REACHED_PANEL_SPACING = 10;
 type SingleParticlesWavefrontSpacing = 'tightlyPacked' | 'widelySpaced' | 'moderatelySpaced';
 
+type SingleParticlesAccessibleViewState = {
+  sourceType: string;
+  isPlaying: boolean;
+  timeSpeed: string;
+  isEmitting: boolean;
+  isEmitterEnabled: boolean;
+  isMaxHitsReached: boolean;
+  autoRepeat: boolean;
+  isPacketActive: boolean;
+  detectionMode: 'hits';
+  displayMode: 'screen' | 'graph';
+  waveDisplayMode: string;
+  slitConfiguration: string;
+  wavelengthNM: number;
+  particleSpeedMetersPerSecond: number;
+  effectiveWavelengthMeters: number;
+  slitSeparationMM: number;
+  totalHits: number;
+  leftDetectorHits: number;
+  rightDetectorHits: number;
+  screenBrightness: number;
+  numberOfSnapshots: number;
+  detectorScreen: DetectorScreenViewState;
+  detectorPatternGraph: DetectorPatternGraphViewState;
+  waveVisualization: WaveVisualizationViewState;
+  slitBarrier: SlitBarrierViewState;
+  detectorTool: DetectorToolViewState;
+  measurementTools: MeasurementToolsViewState;
+  tools: MeasurementToolsViewState['tools'];
+};
+
 const getSingleParticlesWavefrontSpacing = ( scene: SingleParticlesSceneModel ): SingleParticlesWavefrontSpacing => {
   const sourceType = scene.sourceType;
 
@@ -86,6 +118,9 @@ export default class SingleParticlesScreenView extends ScreenView {
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
   private readonly detectorPatternGraphLayerNode: DetectorPatternGraphLayerNode;
+  private readonly doubleSlitNode: DoubleSlitNode;
+  private readonly detectorToolNode: DetectorToolNode;
+  private readonly measurementToolsNode: MeasurementToolsLayerNode;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
 
@@ -193,6 +228,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( this.detectorScreenNode );
 
     this.waveVisualizationNode = waveRegionNode.waveVisualizationNode;
+    this.doubleSlitNode = waveRegionNode.doubleSlitNode;
     this.addChild( waveRegionNode );
     this.addChild( emitterNode );
     this.addChild( maxHitsReachedPanel );
@@ -275,6 +311,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       () => bottomRow.getSlitSeparationControlCenterY(),
       tandem.createTandem( 'detectorToolNode' )
     );
+    this.detectorToolNode = detectorToolNode;
     this.addChild( detectorToolNode );
 
     // --- Detector screen controls ---
@@ -331,6 +368,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     } );
 
     const measurementToolsNode = new MeasurementToolsLayerNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
+    this.measurementToolsNode = measurementToolsNode;
     this.addChild( measurementToolsNode );
     this.timePlotNode = measurementToolsNode.timePlotNode;
     this.positionPlotNode = measurementToolsNode.positionPlotNode;
@@ -364,55 +402,51 @@ export default class SingleParticlesScreenView extends ScreenView {
   }
 
   /**
-   * Gets authored semantic state for agent-facing accessibility snapshots.
+   * Gets authored semantic view state for agent-facing accessibility snapshots.
    *
-   * @returns current Single Particles accessibility state
+   * @returns current Single Particles accessible view state
    */
-  public getAccessibleState(): AccessibleStateNode {
+  public getAccessibleViewState(): SingleParticlesAccessibleViewState {
     const scene = this.model.sceneProperty.value;
-    const detectorToolPosition = this.model.currentDetectorTool.positionProperty.value;
+    const measurementTools = this.measurementToolsNode.getAccessibleViewState().measurementTools;
+    const slitBarrier = this.doubleSlitNode.getAccessibleViewState()?.slitBarrier;
 
-    return {
-      type: 'QWISingleParticlesScreen',
-      sourceType: scene.sourceType,
-      isPlaying: this.model.isPlayingProperty.value,
-      timeSpeed: this.model.timeSpeedProperty.value.name,
-      isEmitting: this.model.currentIsEmittingProperty.value,
-      isEmitterEnabled: this.model.currentIsEmitterEnabledProperty.value,
-      isMaxHitsReached: this.model.currentIsMaxHitsReachedProperty.value,
-      autoRepeat: this.model.currentAutoRepeatProperty.value,
-      isPacketActive: this.model.currentIsPacketActiveProperty.value,
-      detectionMode: 'hits',
-      displayMode: this.model.isHitsGraphVisibleProperty.value ? 'graph' : 'screen',
-      waveDisplayMode: this.model.currentWaveDisplayModeProperty.value,
-      slitConfiguration: this.model.currentSlitConfigurationProperty.value,
-      wavelengthNM: this.model.currentWavelengthProperty.value,
-      particleSpeedMetersPerSecond: this.model.currentVelocityProperty.value,
-      effectiveWavelengthMeters: scene.getEffectiveWavelength(),
-      slitSeparationMM: this.model.currentSlitSeparationProperty.value,
-      totalHits: this.model.currentTotalHitsProperty.value,
-      leftDetectorHits: this.model.currentLeftDetectorHitsProperty.value,
-      rightDetectorHits: this.model.currentRightDetectorHitsProperty.value,
-      screenBrightness: this.model.currentScreenBrightnessProperty.value,
-      numberOfSnapshots: this.model.currentNumberOfSnapshotsProperty.value,
-      detectorTool: {
-        available: this.model.currentDetectorTool.isAvailableProperty.value,
-        visible: this.model.currentDetectorTool.isVisibleProperty.value,
-        state: this.model.currentDetectorTool.stateProperty.value,
-        probability: this.model.currentDetectorTool.probabilityProperty.value,
-        radius: this.model.currentDetectorTool.radiusProperty.value,
-        position: {
-          x: detectorToolPosition.x,
-          y: detectorToolPosition.y
-        }
+    assert && assert( slitBarrier, 'Expected Single Particles slit-barrier view state.' );
+
+    return Object.assign(
+      {
+        sourceType: scene.sourceType,
+        isPlaying: this.model.isPlayingProperty.value,
+        timeSpeed: this.model.timeSpeedProperty.value.name,
+        isEmitting: this.model.currentIsEmittingProperty.value,
+        isEmitterEnabled: this.model.currentIsEmitterEnabledProperty.value,
+        isMaxHitsReached: this.model.currentIsMaxHitsReachedProperty.value,
+        autoRepeat: this.model.currentAutoRepeatProperty.value,
+        isPacketActive: this.model.currentIsPacketActiveProperty.value,
+        detectionMode: 'hits' as const,
+        displayMode: this.model.isHitsGraphVisibleProperty.value ? 'graph' as const : 'screen' as const,
+        waveDisplayMode: this.model.currentWaveDisplayModeProperty.value,
+        slitConfiguration: this.model.currentSlitConfigurationProperty.value,
+        wavelengthNM: this.model.currentWavelengthProperty.value,
+        particleSpeedMetersPerSecond: this.model.currentVelocityProperty.value,
+        effectiveWavelengthMeters: scene.getEffectiveWavelength(),
+        slitSeparationMM: this.model.currentSlitSeparationProperty.value,
+        totalHits: this.model.currentTotalHitsProperty.value,
+        leftDetectorHits: this.model.currentLeftDetectorHitsProperty.value,
+        rightDetectorHits: this.model.currentRightDetectorHitsProperty.value,
+        screenBrightness: this.model.currentScreenBrightnessProperty.value,
+        numberOfSnapshots: this.model.currentNumberOfSnapshotsProperty.value
       },
-      tools: {
-        tapeMeasure: this.model.isTapeMeasureVisibleProperty.value,
-        stopwatch: this.model.isStopwatchVisibleProperty.value,
-        timePlot: this.model.isTimePlotVisibleProperty.value,
-        positionPlot: this.model.isPositionPlotVisibleProperty.value
-      }
-    };
+      this.detectorScreenNode.getAccessibleViewState(),
+      this.detectorPatternGraphLayerNode.getAccessibleViewState(),
+      this.waveVisualizationNode.getAccessibleViewState(),
+      {
+        slitBarrier: slitBarrier!,
+        measurementTools: measurementTools,
+        tools: measurementTools.tools
+      },
+      this.detectorToolNode.getAccessibleViewState()
+    );
   }
 
   public override step( dt: number ): void {

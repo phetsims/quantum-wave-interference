@@ -19,7 +19,6 @@ import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.j
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
-import type { AccessibleStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
@@ -38,6 +37,32 @@ import StopwatchCheckbox from './StopwatchCheckbox.js';
 type SelfOptions = EmptySelfOptions;
 
 type ExperimentScreenViewOptions = SelfOptions & Pick<ScreenViewOptions, 'tandem'>;
+
+type ExperimentAccessibleState = {
+  sourceType: string;
+  isPlaying: boolean;
+  timeSpeed: string;
+  isEmitting: boolean;
+  isEmitterEnabled: boolean;
+  isMaxHitsReached: boolean;
+  detectionMode: string;
+  slitConfiguration: string;
+  wavelengthNM: number;
+  particleSpeedMetersPerSecond: number;
+  effectiveWavelengthMeters: number;
+  slitSeparationMM: number;
+  screenDistanceMeters: number;
+  screenBrightness: number;
+  totalHits: number;
+  leftDetectorHits: number;
+  rightDetectorHits: number;
+  numberOfSnapshots: number;
+  detectorScreenScaleIndex: number;
+  tools: {
+    ruler: boolean;
+    stopwatch: boolean;
+  };
+};
 
 const MIDDLE_COLUMN_LEFT_SHIFT = 3;
 const BOTTOM_CONTROLS_SPACING = 15;
@@ -305,11 +330,10 @@ export default class ExperimentScreenView extends ScreenView {
    *
    * @returns current Experiment screen accessibility state
    */
-  public getAccessibleState(): AccessibleStateNode {
+  public getAccessibleState(): ExperimentAccessibleState {
     const scene = this.model.sceneProperty.value;
 
     return {
-      type: 'QWIExperimentScreen',
       sourceType: scene.sourceType,
       isPlaying: this.model.isPlayingProperty.value,
       timeSpeed: this.model.timeSpeedProperty.value.name,

@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Semantic accessibility state for the High Intensity screen. This is intentionally not raw model state and not final
- * localized text. It is the screen-reader-relevant meaning of the current experiment, shared by context responses and
- * the current-state PDOM template.
+ * Semantic accessibility view state for the High Intensity screen. This is intentionally not raw model state and not
+ * final localized text. It is the screen-reader-relevant meaning of the current experiment, shared by context responses,
+ * the current-state PDOM template, and authored agent-facing snapshots.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -17,7 +17,8 @@ import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier
 import { type SourceType } from '../../../common/model/SourceType.js';
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
 import QuantumWaveInterferenceConstants from '../../../common/QuantumWaveInterferenceConstants.js';
-import BandAnalysis, { type BandAnalysisResult, type EnvelopeHeuristicAnalysis, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import BandAnalysis, { type BandAnalysisResult, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type MeasurementToolsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../../common/view/description/QWIAccessibleViewState.js';
 import { getWavelengthColorZone, type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import HighIntensitySceneModel, { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../../model/HighIntensitySceneModel.js';
@@ -31,10 +32,9 @@ export type QWIWavefrontSpacing = 'tightlyPacked' | 'moderatelySpaced' | 'widely
 export type QWIWaveSpeedDescription = 'slow' | 'medium' | 'fast';
 export type QWIClockSpeedDescription = 'slow' | 'normal' | 'fast';
 export type QWIBandSpacingDescription = 'farApart' | 'mediumSpaced' | 'closelySpaced';
-export type QWIEnvelopePrevalence = 'brightestAtCenter' | 'clusteringIntoTwoFaintSections' | 'clusteringIntoTwoDistinctSections';
 export type QWIValueTrend = 'increased' | 'decreased' | 'unchanged';
 
-export type QWIAccessibleState = {
+export type HighIntensitySemanticAccessibleViewState = {
   sourceType: SourceType;
   isPlaying: boolean;
   clockSpeedDescription: QWIClockSpeedDescription;
@@ -75,12 +75,15 @@ export type QWIAccessibleState = {
   leftDetectorHits: number;
   rightDetectorHits: number;
   numberOfSnapshots: number;
-  tools: {
-    tapeMeasure: boolean;
-    stopwatch: boolean;
-    timePlot: boolean;
-    positionPlot: boolean;
-  };
+  tools: MeasurementToolsViewState['tools'];
+};
+
+export type HighIntensityAccessibleViewState = HighIntensitySemanticAccessibleViewState & {
+  detectorScreen: DetectorScreenViewState;
+  detectorPatternGraph: DetectorPatternGraphViewState;
+  waveVisualization: WaveVisualizationViewState;
+  slitBarrier: SlitBarrierViewState;
+  measurementTools: MeasurementToolsViewState;
 };
 
 const getPatternKind = ( slitConfiguration: SlitConfigurationWithNoBarrier ): QWIPatternKind =>
@@ -153,7 +156,10 @@ const getBandSpacingDescription = ( bandCount: number ): QWIBandSpacingDescripti
   bandCount >= 13 ? 'closelySpaced' :
   'mediumSpaced';
 
-const getWaveProgress = ( scene: HighIntensitySceneModel, patternKind: QWIPatternKind ): QWIAccessibleState['waveProgress'] => {
+const getWaveProgress = (
+  scene: HighIntensitySceneModel,
+  patternKind: QWIPatternKind
+): HighIntensitySemanticAccessibleViewState['waveProgress'] => {
   if ( !scene.isEmittingProperty.value ) {
     return {
       stage: 'sourceOff',
@@ -208,101 +214,86 @@ const getWaveProgress = ( scene: HighIntensitySceneModel, patternKind: QWIPatter
   };
 };
 
-export default class QWIAccessibleStateDescriber {
+export const createMeasurementToolsViewStateFromHighIntensityModel = ( model: HighIntensityModel ): MeasurementToolsViewState => {
+  const basePosition = model.tapeMeasureBasePositionProperty.value;
+  const tipPosition = model.tapeMeasureTipPositionProperty.value;
 
-  private lastLoggedEnvelopeCategory: QWIEnvelopePrevalence | null = null;
-  private lastLoggedEnvelopeScore: number | null = null;
-
-  public constructor( private readonly model: HighIntensityModel ) {}
-
-  /**
-   * Logs the proposed deterministic envelope heuristic whenever its rounded score or qualitative category changes.
-   * This is a temporary calibration aid for testing breakpoints against High Intensity screen visuals.
-   *
-   * @param analysis - envelope heuristic analysis, or null when the active setup does not produce double-slit envelope
-   *                   descriptions
-   */
-  private logEnvelopeHeuristicIfChanged( analysis: EnvelopeHeuristicAnalysis | null ): void {
-    if ( analysis === null ) {
-      this.lastLoggedEnvelopeCategory = null;
-      this.lastLoggedEnvelopeScore = null;
-      return;
-    }
-
-    const roundedScore = Number( toFixed( analysis.score, 3 ) );
-    if ( analysis.category === this.lastLoggedEnvelopeCategory && roundedScore === this.lastLoggedEnvelopeScore ) {
-      return;
-    }
-
-    this.lastLoggedEnvelopeCategory = analysis.category;
-    this.lastLoggedEnvelopeScore = roundedScore;
-
-    console.log( '[QWI envelope heuristic]', {
-      category: analysis.category,
-      score: roundedScore,
-      fresnelSeparation: Number( toFixed( analysis.fresnelSeparation, 3 ) ),
-      geometryRatio: Number( toFixed( analysis.geometryRatio, 3 ) ),
-      geometryGate: Number( toFixed( analysis.geometryGate, 3 ) ),
-      slitToScreenDistance: Number( toFixed( analysis.slitToScreenDistance, 12 ) ),
-      displaySlitSeparation: Number( toFixed( analysis.displaySlitSeparation, 12 ) ),
-      effectiveWavelength: Number( toFixed( analysis.effectiveWavelength, 12 ) )
-    } );
-  }
-
-  public getState(): QWIAccessibleState {
-    const scene = this.model.sceneProperty.value;
-    const slitConfiguration = scene.slitConfigurationProperty.value;
-    const patternKind = getPatternKind( slitConfiguration );
-    const isDoubleSlitInterference = patternKind === 'doubleSlitInterference';
-    const detectorScreenHalfWidth = scene.regionWidth / 2;
-    const bandAnalysis = BandAnalysis.analyzeTheoreticalPattern( scene, detectorScreenHalfWidth );
-    const hitStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value, isDoubleSlitInterference );
-    const effectiveWavelengthMeters = scene.getEffectiveWavelength();
-    const wavelengthColorZone = scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : null;
-    const waveProgress = getWaveProgress( scene, patternKind );
-    this.logEnvelopeHeuristicIfChanged(
-      isDoubleSlitInterference ? BandAnalysis.analyzeEnvelopeHeuristic( scene ) : null
-    );
-
-    return {
-      sourceType: scene.sourceType,
-      isPlaying: this.model.isPlayingProperty.value,
-      clockSpeedDescription: getClockSpeedDescription( this.model ),
-      isEmitting: scene.isEmittingProperty.value,
-      isEmitterEnabled: scene.isEmitterEnabledProperty.value,
-      isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
-      detectionMode: scene.detectionModeProperty.value,
-      displayMode: this.model.isIntensityGraphVisibleProperty.value ? 'graph' : 'screen',
-      screenBrightness: scene.screenBrightnessProperty.value,
-      screenBrightnessPercent: roundSymmetric( scene.screenBrightnessProperty.value / scene.screenBrightnessProperty.range.max * 100 ),
-      waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
-      slitConfiguration: slitConfiguration,
-      patternKind: patternKind,
-      isDoubleSlitInterference: isDoubleSlitInterference,
-      wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),
-      wavelengthColorZone: wavelengthColorZone,
-      wavefrontSpacing: getWavefrontSpacing( scene, effectiveWavelengthMeters, wavelengthColorZone ),
-      particleSpeedMetersPerSecond: roundSymmetric( scene.velocityProperty.value ),
-      waveSpeedDescription: getWaveSpeedDescription( scene ),
-      effectiveWavelengthMeters: effectiveWavelengthMeters,
-      effectiveWavelengthPicometers: Number( toFixed( effectiveWavelengthMeters * 1e12, 2 ) ),
-      slitSeparationMM: slitConfiguration === 'noBarrier' ? null : scene.slitSeparationProperty.value,
-      slitSeparationMicrometers: slitConfiguration === 'noBarrier' ? null : Number( toFixed( scene.slitSeparationProperty.value * 1000, 2 ) ),
-      bandAnalysis: bandAnalysis,
-      bandSpacingDescription: getBandSpacingDescription( bandAnalysis.bandCount ),
-      hitStage: hitStage,
-      totalHits: scene.totalHitsProperty.value,
-      patternFormation: getPatternFormation( scene, this.model ),
-      waveProgress: waveProgress,
-      leftDetectorHits: scene.leftDetectorHitsProperty.value,
-      rightDetectorHits: scene.rightDetectorHitsProperty.value,
-      numberOfSnapshots: scene.numberOfSnapshotsProperty.value,
-      tools: {
-        tapeMeasure: this.model.isTapeMeasureVisibleProperty.value,
-        stopwatch: this.model.isStopwatchVisibleProperty.value,
-        timePlot: this.model.isTimePlotVisibleProperty.value,
-        positionPlot: this.model.isPositionPlotVisibleProperty.value
+  return {
+    tools: {
+      tapeMeasure: {
+        visible: model.isTapeMeasureVisibleProperty.value,
+        basePosition: {
+          x: basePosition.x,
+          y: basePosition.y
+        },
+        tipPosition: {
+          x: tipPosition.x,
+          y: tipPosition.y
+        }
+      },
+      stopwatch: {
+        visible: model.isStopwatchVisibleProperty.value,
+        isRunning: model.stopwatch.isRunningProperty.value,
+        elapsedTimeSeconds: model.stopwatch.timeProperty.value
+      },
+      timePlot: {
+        visible: model.isTimePlotVisibleProperty.value
+      },
+      positionPlot: {
+        visible: model.isPositionPlotVisibleProperty.value
       }
-    };
-  }
-}
+    }
+  };
+};
+
+export const createHighIntensitySemanticAccessibleViewState = (
+  model: HighIntensityModel,
+  measurementTools = createMeasurementToolsViewStateFromHighIntensityModel( model )
+): HighIntensitySemanticAccessibleViewState => {
+  const scene = model.sceneProperty.value;
+  const slitConfiguration = scene.slitConfigurationProperty.value;
+  const patternKind = getPatternKind( slitConfiguration );
+  const isDoubleSlitInterference = patternKind === 'doubleSlitInterference';
+  const detectorScreenHalfWidth = scene.regionWidth / 2;
+  const bandAnalysis = BandAnalysis.analyzeTheoreticalPattern( scene, detectorScreenHalfWidth );
+  const hitStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value, isDoubleSlitInterference );
+  const effectiveWavelengthMeters = scene.getEffectiveWavelength();
+  const wavelengthColorZone = scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : null;
+  const waveProgress = getWaveProgress( scene, patternKind );
+
+  return {
+    sourceType: scene.sourceType,
+    isPlaying: model.isPlayingProperty.value,
+    clockSpeedDescription: getClockSpeedDescription( model ),
+    isEmitting: scene.isEmittingProperty.value,
+    isEmitterEnabled: scene.isEmitterEnabledProperty.value,
+    isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
+    detectionMode: scene.detectionModeProperty.value,
+    displayMode: model.isIntensityGraphVisibleProperty.value ? 'graph' : 'screen',
+    screenBrightness: scene.screenBrightnessProperty.value,
+    screenBrightnessPercent: roundSymmetric( scene.screenBrightnessProperty.value / scene.screenBrightnessProperty.range.max * 100 ),
+    waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
+    slitConfiguration: slitConfiguration,
+    patternKind: patternKind,
+    isDoubleSlitInterference: isDoubleSlitInterference,
+    wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),
+    wavelengthColorZone: wavelengthColorZone,
+    wavefrontSpacing: getWavefrontSpacing( scene, effectiveWavelengthMeters, wavelengthColorZone ),
+    particleSpeedMetersPerSecond: roundSymmetric( scene.velocityProperty.value ),
+    waveSpeedDescription: getWaveSpeedDescription( scene ),
+    effectiveWavelengthMeters: effectiveWavelengthMeters,
+    effectiveWavelengthPicometers: Number( toFixed( effectiveWavelengthMeters * 1e12, 2 ) ),
+    slitSeparationMM: slitConfiguration === 'noBarrier' ? null : scene.slitSeparationProperty.value,
+    slitSeparationMicrometers: slitConfiguration === 'noBarrier' ? null : Number( toFixed( scene.slitSeparationProperty.value * 1000, 2 ) ),
+    bandAnalysis: bandAnalysis,
+    bandSpacingDescription: getBandSpacingDescription( bandAnalysis.bandCount ),
+    hitStage: hitStage,
+    totalHits: scene.totalHitsProperty.value,
+    patternFormation: getPatternFormation( scene, model ),
+    waveProgress: waveProgress,
+    leftDetectorHits: scene.leftDetectorHitsProperty.value,
+    rightDetectorHits: scene.rightDetectorHitsProperty.value,
+    numberOfSnapshots: scene.numberOfSnapshotsProperty.value,
+    tools: measurementTools.tools
+  };
+};

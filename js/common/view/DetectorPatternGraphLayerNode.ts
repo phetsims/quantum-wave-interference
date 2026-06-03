@@ -10,11 +10,11 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
+import { type DetectorPatternGraphViewStateFragment } from './description/QWIAccessibleViewState.js';
 import DetectorPatternGraphNode, { type DetectorPatternGraphSceneLike } from './DetectorPatternGraphNode.js';
 import { type DetectorPatternGraphZoomLevelOption } from './DetectorPatternGraphZoomLevelProperty.js';
 
@@ -105,17 +105,13 @@ export default class DetectorPatternGraphLayerNode extends Node {
   /**
    * Gets sparse detector-pattern graph view state for agent-facing accessibility snapshots.
    *
-   * @returns graph view state, or null when hidden
+   * @returns graph view state
    */
-  public override getAccessibleViewState(): AccessibleViewStateNode | null {
-    if ( !this.isVisibleProperty.value ) {
-      return null;
-    }
-
+  public getAccessibleViewState(): DetectorPatternGraphViewStateFragment {
     const scene = this.sceneProperty.value;
     return {
       detectorPatternGraph: {
-        visible: true,
+        visible: this.isVisibleProperty.value,
         sourceType: scene.sourceType,
         detectionMode: this.detectionModeProperty?.value || 'hits',
         hitCount: scene.hits.length

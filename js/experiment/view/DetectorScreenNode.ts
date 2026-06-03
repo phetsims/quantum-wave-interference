@@ -17,7 +17,6 @@ import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
-import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -26,6 +25,7 @@ import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import createDetectorZoomLevelResponseProperty from '../../common/view/description/createDetectorZoomLevelResponseProperty.js';
+import { type DetectorScreenViewStateFragment } from '../../common/view/description/QWIAccessibleViewState.js';
 import SnapshotDescriber from '../../common/view/description/SnapshotDescriber.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
 import SnapshotIndicatorDotsNode from '../../common/view/SnapshotIndicatorDotsNode.js';
@@ -333,9 +333,10 @@ export default class DetectorScreenNode extends Node {
    *
    * @returns detector-screen view state
    */
-  public override getAccessibleViewState(): AccessibleViewStateNode {
+  public getAccessibleViewState(): DetectorScreenViewStateFragment {
     return {
       detectorScreen: {
+        visible: this.visible,
         perspective: 'frontFacing',
         sourceType: this.sceneModel.sourceType,
         detectionMode: this.sceneModel.detectionModeProperty.value,

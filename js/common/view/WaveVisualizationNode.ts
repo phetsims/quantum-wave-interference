@@ -16,7 +16,6 @@ import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
-import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -26,6 +25,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import { type WaveVisualizationViewStateFragment } from './description/QWIAccessibleViewState.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -192,7 +192,7 @@ export default class WaveVisualizationNode extends Node {
    *
    * @returns wave-region view state
    */
-  public override getAccessibleViewState(): AccessibleViewStateNode {
+  public getAccessibleViewState(): WaveVisualizationViewStateFragment {
     const scene = this.sceneProperty.value;
 
     return {

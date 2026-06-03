@@ -9,22 +9,22 @@
 
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
-import QWIAccessibleStateDescriber, { type QWIAccessibleState } from './QWIAccessibleStateDescriber.js';
+import { createHighIntensitySemanticAccessibleViewState, type HighIntensitySemanticAccessibleViewState } from './HighIntensityAccessibleViewState.js';
 import QWITransitionDescriber, { type QWITransitionAction } from './QWITransitionDescriber.js';
 
 export default class HighIntensityAccessibleResponses extends Node {
 
-  private previousState: QWIAccessibleState;
+  private previousState: HighIntensitySemanticAccessibleViewState;
   private lastContextResponse: string | null;
   private isClearingFromButton: boolean;
 
   public constructor(
     model: HighIntensityModel,
-    private readonly stateDescriber: QWIAccessibleStateDescriber
+    private readonly getSemanticState: () => HighIntensitySemanticAccessibleViewState = () => createHighIntensitySemanticAccessibleViewState( model )
   ) {
     super( { isDisposable: false } );
 
-    this.previousState = stateDescriber.getState();
+    this.previousState = this.getSemanticState();
     this.lastContextResponse = null;
     this.isClearingFromButton = false;
 
@@ -34,7 +34,7 @@ export default class HighIntensityAccessibleResponses extends Node {
       }
 
       const before = this.previousState;
-      const after = this.stateDescriber.getState();
+      const after = this.getSemanticState();
 
       // Scene changes can also notify DynamicProperties such as wavelength or slit separation. If the semantic
       // source type changed, report the scene change once and silence subsequent no-op notifications.
@@ -62,7 +62,8 @@ export default class HighIntensityAccessibleResponses extends Node {
         effectiveAction.type === 'displayModeChanged' ? before.displayMode !== after.displayMode :
         effectiveAction.type === 'brightnessChanged' ? before.screenBrightness !== after.screenBrightness :
         effectiveAction.type === 'waveDisplayChanged' ? before.waveDisplayMode !== after.waveDisplayMode :
-        effectiveAction.type === 'toolChanged' ? before.tools[ effectiveAction.tool ] !== after.tools[ effectiveAction.tool ] :
+        effectiveAction.type === 'toolChanged' ? before.tools[ effectiveAction.tool ].visible !== after.tools[ effectiveAction.tool ].visible :
+        effectiveAction.type === 'snapshotTaken' ? after.numberOfSnapshots > before.numberOfSnapshots :
         effectiveAction.type === 'screenCleared' ? after.totalHits < before.totalHits :
         effectiveAction.type === 'hitStageChanged' ? before.hitStage !== after.hitStage :
         effectiveAction.type === 'waveProgressChanged' ? waveProgressChanged :
@@ -95,7 +96,7 @@ export default class HighIntensityAccessibleResponses extends Node {
     };
 
     const updateStateSilently = () => {
-      this.previousState = this.stateDescriber.getState();
+      this.previousState = this.getSemanticState();
     };
 
     model.currentIsEmittingProperty.lazyLink( () => emitTransition( { type: 'sourceChanged' } ) );
@@ -114,9 +115,17 @@ export default class HighIntensityAccessibleResponses extends Node {
     model.isPositionPlotVisibleProperty.lazyLink( () => emitTransition( { type: 'toolChanged', tool: 'positionPlot' } ) );
     model.isPlayingProperty.lazyLink( updateStateSilently );
     model.timeSpeedProperty.lazyLink( updateStateSilently );
-    model.currentNumberOfSnapshotsProperty.lazyLink( updateStateSilently );
+    model.currentNumberOfSnapshotsProperty.lazyLink( () => {
+      const after = this.getSemanticState();
+      if ( after.numberOfSnapshots > this.previousState.numberOfSnapshots ) {
+        emitTransition( { type: 'snapshotTaken' } );
+      }
+      else {
+        updateStateSilently();
+      }
+    } );
     model.currentTotalHitsProperty.lazyLink( () => {
-      const after = this.stateDescriber.getState();
+      const after = this.getSemanticState();
       const before = this.previousState;
       if ( after.isMaxHitsReached && !before.isMaxHitsReached ) {
         emitTransition( { type: 'maxHitsReached' } );
@@ -132,7 +141,7 @@ export default class HighIntensityAccessibleResponses extends Node {
       }
     } );
     model.accessibleStateStepProperty.lazyLink( () => {
-      const after = this.stateDescriber.getState();
+      const after = this.getSemanticState();
       const before = this.previousState;
       const patternStarted = before.patternFormation === 'empty' &&
                              ( after.patternFormation === 'forming' || after.patternFormation === 'collectingHits' );
@@ -165,7 +174,7 @@ export default class HighIntensityAccessibleResponses extends Node {
       this.isClearingFromButton = false;
     }
 
-    const after = this.stateDescriber.getState();
+    const after = this.getSemanticState();
     const responsePlan = QWITransitionDescriber.describe( { type: 'screenCleared' }, before, after );
     this.previousState = after;
 

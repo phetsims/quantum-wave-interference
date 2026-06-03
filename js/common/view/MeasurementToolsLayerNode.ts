@@ -28,11 +28,11 @@ import { millisecondsUnit } from '../../../../scenery-phet/js/units/milliseconds
 import { nanosecondsUnit } from '../../../../scenery-phet/js/units/nanosecondsUnit.js';
 import { picosecondsUnit } from '../../../../scenery-phet/js/units/picosecondsUnit.js';
 import { secondsUnit } from '../../../../scenery-phet/js/units/secondsUnit.js';
-import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
+import { type MeasurementToolsViewStateFragment } from './description/QWIAccessibleViewState.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import PositionPlotNode from './PositionPlotNode.js';
 import TimePlotNode from './TimePlotNode.js';
@@ -69,6 +69,8 @@ export default class MeasurementToolsLayerNode extends Node {
 
   public readonly timePlotNode: TimePlotNode;
   public readonly positionPlotNode: PositionPlotNode;
+  private readonly stopwatchNode: StopwatchNode;
+  private readonly measuringTapeNode: MeasuringTapeNode;
   private readonly model: MeasurementToolsModel;
 
   public constructor(
@@ -136,31 +138,49 @@ export default class MeasurementToolsLayerNode extends Node {
     } );
 
     this.model = model;
+    this.stopwatchNode = stopwatchNode;
+    this.measuringTapeNode = measuringTapeNode;
     this.timePlotNode = timePlotNode;
     this.positionPlotNode = positionPlotNode;
   }
 
   /**
-   * Gets sparse measurement-tool view state for agent-facing accessibility snapshots.
+   * Gets measurement-tool view state for agent-facing accessibility snapshots.
    *
    * @returns measurement-tool view state
    */
-  public override getAccessibleViewState(): AccessibleViewStateNode | null {
-    const tools = {
-      tapeMeasure: this.model.isTapeMeasureVisibleProperty.value,
-      stopwatch: this.model.isStopwatchVisibleProperty.value,
-      timePlot: this.model.isTimePlotVisibleProperty.value,
-      positionPlot: this.model.isPositionPlotVisibleProperty.value
-    };
+  public getAccessibleViewState(): MeasurementToolsViewStateFragment {
+    const basePosition = this.model.tapeMeasureBasePositionProperty.value;
+    const tipPosition = this.model.tapeMeasureTipPositionProperty.value;
 
-    return Object.values( tools ).some( Boolean ) ? {
+    return {
       measurementTools: {
-        tapeMeasure: tools.tapeMeasure,
-        stopwatch: tools.stopwatch,
-        timePlot: tools.timePlot,
-        positionPlot: tools.positionPlot
+        tools: {
+          tapeMeasure: {
+            visible: this.measuringTapeNode.visible,
+            basePosition: {
+              x: basePosition.x,
+              y: basePosition.y
+            },
+            tipPosition: {
+              x: tipPosition.x,
+              y: tipPosition.y
+            }
+          },
+          stopwatch: {
+            visible: this.stopwatchNode.visible,
+            isRunning: this.model.stopwatch.isRunningProperty.value,
+            elapsedTimeSeconds: this.model.stopwatch.timeProperty.value
+          },
+          timePlot: {
+            visible: this.model.isTimePlotVisibleProperty.value
+          },
+          positionPlot: {
+            visible: this.model.isPositionPlotVisibleProperty.value
+          }
+        }
       }
-    } : null;
+    };
   }
 }
 

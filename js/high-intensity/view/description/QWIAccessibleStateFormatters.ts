@@ -11,7 +11,7 @@ import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometer
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 import { getWavelengthColorZoneStringProperty } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { type QWIAccessibleState, type QWIPatternKind } from './QWIAccessibleStateDescriber.js';
+import { type HighIntensitySemanticAccessibleViewState, type QWIPatternKind } from './HighIntensityAccessibleViewState.js';
 
 export type FluentBoolean = 'true' | 'false';
 
@@ -19,7 +19,7 @@ export const toFluentBoolean = ( value: boolean ): FluentBoolean => value ? 'tru
 
 const getPatternKindKey = ( patternKind: QWIPatternKind ): QWIPatternKind => patternKind;
 
-export const formatSourceBeamDescription = ( state: QWIAccessibleState ): string =>
+export const formatSourceBeamDescription = ( state: HighIntensitySemanticAccessibleViewState ): string =>
   QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceBeam.format( {
     isEmitting: toFluentBoolean( state.isEmitting ),
     sourceType: state.sourceType,
@@ -27,7 +27,7 @@ export const formatSourceBeamDescription = ( state: QWIAccessibleState ): string
     wavefrontSpacing: state.wavefrontSpacing
   } );
 
-export const formatParticleDescription = ( state: QWIAccessibleState ): string => {
+export const formatParticleDescription = ( state: HighIntensitySemanticAccessibleViewState ): string => {
   if ( state.sourceType === 'photons' ) {
     return QuantumWaveInterferenceFluent.a11y.highIntensityState.photonDetail.format( {
       wavelength: state.wavelengthNM,
@@ -42,7 +42,7 @@ export const formatParticleDescription = ( state: QWIAccessibleState ): string =
   } );
 };
 
-export const formatSlitDescription = ( state: QWIAccessibleState ): string =>
+export const formatSlitDescription = ( state: HighIntensitySemanticAccessibleViewState ): string =>
   QuantumWaveInterferenceFluent.a11y.highIntensityState.slits.format( {
     slitSetting: state.slitConfiguration,
     separation: state.slitSeparationMM === null ? '' :
@@ -51,7 +51,7 @@ export const formatSlitDescription = ( state: QWIAccessibleState ): string =>
                 nanometersUnit.getAccessibleString( state.slitSeparationMM * 1e6, { decimalPlaces: 2 } )
   } );
 
-export const formatDetectorDescription = ( state: QWIAccessibleState ): string =>
+export const formatDetectorDescription = ( state: HighIntensitySemanticAccessibleViewState ): string =>
   QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.format( {
     isEmitting: toFluentBoolean( state.isEmitting ),
     detectionMode: state.detectionMode,

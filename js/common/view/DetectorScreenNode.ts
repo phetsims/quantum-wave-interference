@@ -15,13 +15,13 @@ import Shape from '../../../../kite/js/Shape.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
-import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
+import { type DetectorScreenViewStateFragment } from './description/QWIAccessibleViewState.js';
 import DetectorScreenTextureRenderer, { type DetectorScreenSceneLike } from './DetectorScreenTextureRenderer.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
 
@@ -137,7 +137,7 @@ export default class DetectorScreenNode extends Node {
    *
    * @returns detector-screen view state
    */
-  public override getAccessibleViewState(): AccessibleViewStateNode {
+  public getAccessibleViewState(): DetectorScreenViewStateFragment {
     const scene = this.sceneProperty.value;
     const totalHitsProperty = ( scene as DetectorScreenSceneLike & {
       totalHitsProperty?: TReadOnlyProperty<number>;
@@ -145,6 +145,7 @@ export default class DetectorScreenNode extends Node {
 
     return {
       detectorScreen: {
+        visible: this.visible,
         perspective: 'frontFacingSkewed',
         sourceType: scene.sourceType,
         detectionMode: scene.detectionModeProperty?.value || 'hits',

@@ -17,7 +17,6 @@ import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
-import type { AccessibleStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
@@ -48,7 +47,8 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import HighIntensityModel from '../model/HighIntensityModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
-import QWIAccessibleStateDescriber from './description/QWIAccessibleStateDescriber.js';
+import { createHighIntensitySemanticAccessibleViewState, type HighIntensityAccessibleViewState } from './description/HighIntensityAccessibleViewState.js';
+import QWIAccessibleStateTemplate from './description/QWIAccessibleStateTemplate.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -101,12 +101,13 @@ export default class HighIntensityScreenView extends ScreenView {
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
   private readonly detectorPatternGraphLayerNode: DetectorPatternGraphLayerNode;
+  private readonly doubleSlitNode: DoubleSlitNode;
+  private readonly measurementToolsNode: MeasurementToolsLayerNode;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
-  private readonly accessibleStateDescriber: QWIAccessibleStateDescriber;
 
   public constructor( model: HighIntensityModel, providedOptions: HighIntensityScreenViewOptions ) {
-    const accessibleStateDescriber = new QWIAccessibleStateDescriber( model );
+    const getSemanticAccessibleViewState = () => createHighIntensitySemanticAccessibleViewState( model );
 
     const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
       screenSummaryContent: new QuantumWaveInterferenceScreenSummaryContent(
@@ -126,6 +127,10 @@ export default class HighIntensityScreenView extends ScreenView {
             () => model.currentDetectionModeProperty.value === 'averageIntensity' ?
                   model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() :
                   model.currentTotalHitsProperty.value > 0
+          ),
+          currentDetailsContent: QWIAccessibleStateTemplate.createCurrentDetailsTemplateProperty(
+            model,
+            getSemanticAccessibleViewState
           )
         }
       )
@@ -134,10 +139,9 @@ export default class HighIntensityScreenView extends ScreenView {
     super( options );
 
     this.model = model;
-    this.accessibleStateDescriber = accessibleStateDescriber;
 
     const tandem = options.tandem;
-    const accessibleResponses = new HighIntensityAccessibleResponses( model, accessibleStateDescriber );
+    const accessibleResponses = new HighIntensityAccessibleResponses( model, getSemanticAccessibleViewState );
 
     // Keep this top-level sequence aligned with the visual layers: source controls, wave region,
     // detector readouts, detector screen controls, tools, and accessible description.
@@ -156,6 +160,7 @@ export default class HighIntensityScreenView extends ScreenView {
     const waveRegionNodes = this.createAndAddWaveRegionNodes( model, waveRegionLayout );
     this.detectorScreenNode = waveRegionNodes.detectorScreenNode;
     this.waveVisualizationNode = waveRegionNodes.waveVisualizationNode;
+    this.doubleSlitNode = waveRegionNodes.doubleSlitNode;
 
     const bottomRow = this.createAndAddSlitControls( model, waveRegionLayout, tandem );
     this.detectorPatternGraphLayerNode = this.createAndAddDetectorPatternGraphLayerNode( model, this.detectorScreenNode, waveRegionLayout, tandem );
@@ -170,6 +175,7 @@ export default class HighIntensityScreenView extends ScreenView {
     );
 
     const measurementToolNodes = this.createAndAddMeasurementTools( model, waveRegionLayout, tandem );
+    this.measurementToolsNode = measurementToolNodes.measurementToolsNode;
     this.timePlotNode = measurementToolNodes.timePlotNode;
     this.positionPlotNode = measurementToolNodes.positionPlotNode;
 
@@ -188,12 +194,26 @@ export default class HighIntensityScreenView extends ScreenView {
   }
 
   /**
-   * Gets authored semantic state for agent-facing accessibility snapshots.
+   * Gets authored semantic view state for agent-facing accessibility snapshots.
    *
-   * @returns current High Intensity accessibility state
+   * @returns current High Intensity accessible view state
    */
-  public getAccessibleState(): AccessibleStateNode {
-    return Object.assign( { type: 'QWIHighIntensityScreen' }, this.accessibleStateDescriber.getState() );
+  public getAccessibleViewState(): HighIntensityAccessibleViewState {
+    const measurementTools = this.measurementToolsNode.getAccessibleViewState().measurementTools;
+    const slitBarrier = this.doubleSlitNode.getAccessibleViewState()?.slitBarrier;
+
+    assert && assert( slitBarrier, 'Expected High Intensity slit-barrier view state.' );
+
+    return Object.assign(
+      createHighIntensitySemanticAccessibleViewState( this.model, measurementTools ),
+      this.detectorScreenNode.getAccessibleViewState(),
+      this.detectorPatternGraphLayerNode.getAccessibleViewState(),
+      this.waveVisualizationNode.getAccessibleViewState(),
+      {
+        slitBarrier: slitBarrier!,
+        measurementTools: measurementTools
+      }
+    );
   }
 
   /**

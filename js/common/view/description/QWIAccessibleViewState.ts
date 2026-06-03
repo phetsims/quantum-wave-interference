@@ -1,0 +1,111 @@
+// Copyright 2026, University of Colorado Boulder
+
+/**
+ * QWI-owned accessible view-state contracts for authored agent-facing snapshots. These types intentionally live in
+ * the sim instead of Scenery because the snapshot shape is a semantic QWI contract, not a generic Node API.
+ *
+ * @author Sam Reid (PhET Interactive Simulations)
+ */
+
+import { type DetectionMode } from '../../model/DetectionMode.js';
+import { type SourceType } from '../../model/SourceType.js';
+import { type WaveDisplayMode } from '../../model/WaveDisplayMode.js';
+
+export type DetectorScreenViewState = {
+  visible: boolean;
+  perspective: 'frontFacing' | 'frontFacingSkewed';
+  sourceType: SourceType;
+  detectionMode: DetectionMode;
+  isEmitting: boolean;
+  screenBrightness: number;
+  screenBrightnessPercent?: number | null;
+  totalHits: number;
+  hitCount?: number;
+  numberOfSnapshots?: number;
+  detectorScreenScaleIndex?: number;
+};
+
+export type DetectorScreenViewStateFragment = {
+  detectorScreen: DetectorScreenViewState;
+};
+
+export type DetectorPatternGraphViewState = {
+  visible: boolean;
+  sourceType: SourceType;
+  detectionMode: DetectionMode;
+  hitCount: number;
+};
+
+export type DetectorPatternGraphViewStateFragment = {
+  detectorPatternGraph: DetectorPatternGraphViewState;
+};
+
+export type SlitBarrierViewState = {
+  barrierType: string;
+  slitPositionFraction?: number;
+  slitSeparationMM?: number;
+  topSlitCovered?: boolean;
+  bottomSlitCovered?: boolean;
+  topSlitDetector?: boolean;
+  bottomSlitDetector?: boolean;
+};
+
+export type SlitBarrierViewStateFragment = {
+  slitBarrier: SlitBarrierViewState;
+};
+
+export type WaveVisualizationViewState = {
+  sourceType: SourceType;
+  waveDisplayMode: WaveDisplayMode;
+  isWaveVisible: boolean;
+  regionWidthMeters: number;
+  effectiveWavelengthMeters: number;
+};
+
+export type WaveVisualizationViewStateFragment = {
+  waveVisualization: WaveVisualizationViewState;
+};
+
+export type ToolViewState = {
+  visible: boolean;
+};
+
+export type TapeMeasureViewState = ToolViewState & {
+  basePosition: { x: number; y: number };
+  tipPosition: { x: number; y: number };
+};
+
+export type StopwatchViewState = ToolViewState & {
+  isRunning: boolean;
+  elapsedTimeSeconds: number;
+};
+
+export type TimePlotViewState = ToolViewState;
+
+export type PositionPlotViewState = ToolViewState;
+
+export type MeasurementToolsViewState = {
+  tools: {
+    tapeMeasure: TapeMeasureViewState;
+    stopwatch: StopwatchViewState;
+    timePlot: TimePlotViewState;
+    positionPlot: PositionPlotViewState;
+  };
+};
+
+export type MeasurementToolsViewStateFragment = {
+  measurementTools: MeasurementToolsViewState;
+};
+
+export type DetectorToolViewState = {
+  available: boolean;
+  visible: boolean;
+  state: string;
+  probability: number;
+  radius: number;
+  position: { x: number; y: number };
+};
+
+export type DetectorToolViewStateFragment = {
+  detectorTool: DetectorToolViewState;
+};

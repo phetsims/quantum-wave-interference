@@ -25,7 +25,6 @@ import ArrowNode, { type ArrowNodeOptions } from '../../../../scenery-phet/js/Ar
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
-import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import AccessibleSlider, { type AccessibleSliderOptions } from '../../../../sun/js/accessibility/AccessibleSlider.js';
@@ -35,6 +34,7 @@ import { type BarrierType } from '../model/BarrierType.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import { type SlitBarrierViewStateFragment } from './description/QWIAccessibleViewState.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import SlitDetectorNode from './SlitDetectorNode.js';
 
@@ -289,7 +289,7 @@ export default class DoubleSlitNode extends Node {
    *
    * @returns slit-barrier view state
    */
-  public override getAccessibleViewState(): AccessibleViewStateNode | null {
+  public getAccessibleViewState(): SlitBarrierViewStateFragment | null {
     if ( this.barrierTypeProperty.value !== 'doubleSlit' ) {
       return {
         slitBarrier: {

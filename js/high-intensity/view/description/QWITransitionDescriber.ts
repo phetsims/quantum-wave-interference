@@ -7,7 +7,7 @@
  */
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { type QWIAccessibleState, type QWIValueTrend } from './QWIAccessibleStateDescriber.js';
+import { type HighIntensitySemanticAccessibleViewState, type QWIValueTrend } from './HighIntensityAccessibleViewState.js';
 import { formatDetectorDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
 
 export type QWITransitionAction =
@@ -44,7 +44,11 @@ const getTrend = ( before: number, after: number ): QWIValueTrend =>
 
 export default class QWITransitionDescriber {
 
-  public static describe( action: QWITransitionAction, before: QWIAccessibleState, after: QWIAccessibleState ): QWIResponsePlan {
+  public static describe(
+    action: QWITransitionAction,
+    before: HighIntensitySemanticAccessibleViewState,
+    after: HighIntensitySemanticAccessibleViewState
+  ): QWIResponsePlan {
     let contextResponse: string | null = null;
     const sourceRestartedResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestarted.format( {
       beamDescription: formatSourceBeamDescription( after )
@@ -116,7 +120,7 @@ export default class QWITransitionDescriber {
     else if ( action.type === 'toolChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.toolChanged.format( {
         tool: action.tool,
-        isVisible: after.tools[ action.tool ] ? 'true' : 'false'
+        isVisible: after.tools[ action.tool ].visible ? 'true' : 'false'
       } );
     }
     else if ( action.type === 'screenCleared' ) {

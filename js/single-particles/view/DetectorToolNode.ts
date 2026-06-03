@@ -36,6 +36,7 @@ import Panel from '../../../../sun/js/Panel.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import { type DetectorToolViewStateFragment } from '../../common/view/description/QWIAccessibleViewState.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import CurrentDetectorTool from '../model/CurrentDetectorTool.js';
 
@@ -64,6 +65,8 @@ type DetectorMode = typeof DetectorModeValues[number];
  */
 export default class DetectorToolNode extends Node {
 
+  private readonly currentDetectorTool: CurrentDetectorTool;
+
   /**
    * @param currentDetectorTool - detector tool model for the active Single Particles scene
    * @param waveRegionLeft - left edge of the wave visualization region in this node's parent coordinate frame
@@ -81,6 +84,8 @@ export default class DetectorToolNode extends Node {
     tandem: Tandem
   ) {
     super( { isDisposable: false } );
+
+    this.currentDetectorTool = currentDetectorTool;
 
     const circleNode = new Circle( 1, {
       fill: CIRCLE_FILL_READY,
@@ -317,5 +322,28 @@ export default class DetectorToolNode extends Node {
         this.visible = isVisible && isAvailable;
       }
     );
+  }
+
+  /**
+   * Gets detector-tool view state for agent-facing accessibility snapshots.
+   *
+   * @returns detector-tool view state
+   */
+  public getAccessibleViewState(): DetectorToolViewStateFragment {
+    const position = this.currentDetectorTool.positionProperty.value;
+
+    return {
+      detectorTool: {
+        available: this.currentDetectorTool.isAvailableProperty.value,
+        visible: this.currentDetectorTool.isVisibleProperty.value && this.currentDetectorTool.isAvailableProperty.value,
+        state: this.currentDetectorTool.stateProperty.value,
+        probability: this.currentDetectorTool.probabilityProperty.value,
+        radius: this.currentDetectorTool.radiusProperty.value,
+        position: {
+          x: position.x,
+          y: position.y
+        }
+      }
+    };
   }
 }
