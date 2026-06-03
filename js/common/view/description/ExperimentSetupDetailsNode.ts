@@ -10,11 +10,11 @@
 import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import { roundSymmetric } from '../../../../../dot/js/util/roundSymmetric.js';
-import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import AccessibleList, { type AccessibleListItem } from '../../../../../scenery-phet/js/accessibility/AccessibleList.js';
 import { kilometersPerSecondUnit } from '../../../../../scenery-phet/js/units/kilometersPerSecondUnit.js';
 import { metersPerSecondUnit } from '../../../../../scenery-phet/js/units/metersPerSecondUnit.js';
 import { metersUnit } from '../../../../../scenery-phet/js/units/metersUnit.js';
+import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
@@ -60,6 +60,16 @@ const getDecimalPlacesForValue = ( value: number ): number => {
 
 const getRangeDecimalPlaces = ( min: number, max: number ): number =>
   Math.max( getDecimalPlacesForValue( min ), getDecimalPlacesForValue( max ) );
+
+const NANOMETER_RANGE_THRESHOLD_MM = 0.0001;
+const MICROMETERS_PER_MILLIMETER = 1000;
+const NANOMETERS_PER_MILLIMETER = 1e6;
+
+const getCompactDecimalPlaces = ( maxValue: number ): number => {
+  return maxValue >= 10 ? 0 :
+         maxValue >= 1 ? 1 :
+         2;
+};
 
 export default class ExperimentSetupDetailsNode extends Node {
 
@@ -153,18 +163,29 @@ export default class ExperimentSetupDetailsNode extends Node {
       Array.from( new Set( [
         model.sceneProperty,
         model.currentSlitSeparationProperty,
-        ...QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.getDependentProperties()
+        ...micrometersUnit.getDependentProperties(),
+        ...nanometersUnit.getDependentProperties()
       ] ) ),
       () => {
         const scene = model.sceneProperty.value;
         const slitSeparationMM = model.currentSlitSeparationProperty.value;
-        const slitSeparationUM = slitSeparationMM * 1000;
+        if ( scene.slitSeparationRange.max <= NANOMETER_RANGE_THRESHOLD_MM ) {
+          const slitSeparationNM = slitSeparationMM * NANOMETERS_PER_MILLIMETER;
+          return nanometersUnit.getAccessibleString( slitSeparationNM, {
+            decimalPlaces: getCompactDecimalPlaces( scene.slitSeparationRange.max * NANOMETERS_PER_MILLIMETER ),
+            showTrailingZeros: true
+          } );
+        }
+
+        const slitSeparationUM = slitSeparationMM * MICROMETERS_PER_MILLIMETER;
         const decimalPlaces = getRangeDecimalPlaces(
-          scene.slitSeparationRange.min * 1000,
-          scene.slitSeparationRange.max * 1000
+          scene.slitSeparationRange.min * MICROMETERS_PER_MILLIMETER,
+          scene.slitSeparationRange.max * MICROMETERS_PER_MILLIMETER
         );
-        return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {
-          value: toFixed( slitSeparationUM, decimalPlaces )
+        return micrometersUnit.getAccessibleString( slitSeparationUM, {
+          decimalPlaces: decimalPlaces,
+          showTrailingZeros: false,
+          showIntegersAsIntegers: true
         } );
       }
     );
