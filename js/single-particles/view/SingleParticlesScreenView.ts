@@ -92,7 +92,6 @@ type SingleParticlesAccessibleViewState = {
   slitBarrier: SlitBarrierViewState;
   detectorTool: DetectorToolViewState;
   measurementTools: MeasurementToolsViewState;
-  tools: MeasurementToolsViewState['tools'];
 };
 
 const getSingleParticlesWavefrontSpacing = ( scene: SingleParticlesSceneModel ): SingleParticlesWavefrontSpacing => {
@@ -406,7 +405,7 @@ export default class SingleParticlesScreenView extends ScreenView {
    *
    * @returns current Single Particles accessible view state
    */
-  public getAccessibleViewState(): SingleParticlesAccessibleViewState {
+  public override getAccessibleViewState(): SingleParticlesAccessibleViewState {
     const scene = this.model.sceneProperty.value;
     const measurementTools = this.measurementToolsNode.getAccessibleViewState().measurementTools;
     const slitBarrier = this.doubleSlitNode.getAccessibleViewState()?.slitBarrier;
@@ -442,8 +441,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       this.waveVisualizationNode.getAccessibleViewState(),
       {
         slitBarrier: slitBarrier!,
-        measurementTools: measurementTools,
-        tools: measurementTools.tools
+        measurementTools: measurementTools
       },
       this.detectorToolNode.getAccessibleViewState()
     );

@@ -12,7 +12,7 @@ import { type DetectionMode } from '../../../common/model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../../common/model/SourceType.js';
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
-import { type BandAnalysisResult, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import { type HitStage } from '../../../common/view/description/BandAnalysis.js';
 import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type MeasurementToolsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../../common/view/description/QWIAccessibleViewState.js';
 import { type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 
@@ -47,11 +47,9 @@ export type HighIntensitySemanticAccessibleViewState = {
   wavefrontSpacing: QWIWavefrontSpacing;
   particleSpeedMetersPerSecond: number;
   waveSpeedDescription: QWIWaveSpeedDescription;
-  effectiveWavelengthMeters: number;
   effectiveWavelengthPicometers: number;
   slitSeparationMM: number | null;
   slitSeparationMicrometers: number | null;
-  bandAnalysis: BandAnalysisResult;
   bandSpacingDescription: QWIBandSpacingDescription;
   hitStage: HitStage;
   totalHits: number;
@@ -59,7 +57,6 @@ export type HighIntensitySemanticAccessibleViewState = {
   waveProgress: {
     stage: QWIWaveProgressStage;
     checkpoint: QWIWaveProgressCheckpoint;
-    wavefrontFraction: number;
     wavefrontPercent: number;
     hasReachedSlits: boolean;
     hasPassedSlits: boolean;
@@ -68,7 +65,6 @@ export type HighIntensitySemanticAccessibleViewState = {
   leftDetectorHits: number;
   rightDetectorHits: number;
   numberOfSnapshots: number;
-  tools: MeasurementToolsViewState['tools'];
 };
 
 export type HighIntensityAccessibleViewState = HighIntensitySemanticAccessibleViewState & {

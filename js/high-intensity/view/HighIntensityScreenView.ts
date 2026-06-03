@@ -31,7 +31,6 @@ import createAndAddSlitConfigurationControlsRow from '../../common/view/createAn
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import BandAnalysis from '../../common/view/description/BandAnalysis.js';
-import { type MeasurementToolsViewState } from '../../common/view/description/QWIAccessibleViewState.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
@@ -181,7 +180,6 @@ const getWaveProgress = (
     return {
       stage: 'sourceOff',
       checkpoint: 'none',
-      wavefrontFraction: 0,
       wavefrontPercent: 0,
       hasReachedSlits: false,
       hasPassedSlits: false,
@@ -223,7 +221,6 @@ const getWaveProgress = (
   return {
     stage: stage,
     checkpoint: checkpoint,
-    wavefrontFraction: wavefrontFraction,
     wavefrontPercent: roundSymmetric( wavefrontFraction * 100 ),
     hasReachedSlits: hasReachedSlits,
     hasPassedSlits: hasPassedSlits,
@@ -340,14 +337,14 @@ export default class HighIntensityScreenView extends ScreenView {
    *
    * @returns current High Intensity accessible view state
    */
-  public getAccessibleViewState(): HighIntensityAccessibleViewState {
+  public override getAccessibleViewState(): HighIntensityAccessibleViewState {
     const measurementTools = this.measurementToolsNode.getAccessibleViewState().measurementTools;
     const slitBarrier = this.doubleSlitNode.getAccessibleViewState()?.slitBarrier;
 
     assert && assert( slitBarrier, 'Expected High Intensity slit-barrier view state.' );
 
     return Object.assign(
-      this.getSemanticAccessibleViewState( measurementTools ),
+      this.getSemanticAccessibleViewState(),
       this.detectorScreenNode.getAccessibleViewState(),
       this.detectorPatternGraphLayerNode.getAccessibleViewState(),
       this.waveVisualizationNode.getAccessibleViewState(),
@@ -361,10 +358,9 @@ export default class HighIntensityScreenView extends ScreenView {
   /**
    * Gets the model-derived semantic fragment of the full High Intensity accessible view state.
    *
-   * @param measurementTools - current measurement-tools view state to include in the semantic tools summary
    * @returns semantic accessibility state for the current experiment
    */
-  private getSemanticAccessibleViewState( measurementTools: MeasurementToolsViewState ): HighIntensitySemanticAccessibleViewState {
+  private getSemanticAccessibleViewState(): HighIntensitySemanticAccessibleViewState {
     const scene = this.model.sceneProperty.value;
     const slitConfiguration = scene.slitConfigurationProperty.value;
     const patternKind = getPatternKind( slitConfiguration );
@@ -396,11 +392,9 @@ export default class HighIntensityScreenView extends ScreenView {
       wavefrontSpacing: getWavefrontSpacing( scene, effectiveWavelengthMeters, wavelengthColorZone ),
       particleSpeedMetersPerSecond: roundSymmetric( scene.velocityProperty.value ),
       waveSpeedDescription: getWaveSpeedDescription( scene ),
-      effectiveWavelengthMeters: effectiveWavelengthMeters,
       effectiveWavelengthPicometers: Number( toFixed( effectiveWavelengthMeters * 1e12, 2 ) ),
       slitSeparationMM: slitConfiguration === 'noBarrier' ? null : scene.slitSeparationProperty.value,
       slitSeparationMicrometers: slitConfiguration === 'noBarrier' ? null : Number( toFixed( scene.slitSeparationProperty.value * 1000, 2 ) ),
-      bandAnalysis: bandAnalysis,
       bandSpacingDescription: getBandSpacingDescription( bandAnalysis.bandCount ),
       hitStage: hitStage,
       totalHits: scene.totalHitsProperty.value,
@@ -408,8 +402,7 @@ export default class HighIntensityScreenView extends ScreenView {
       waveProgress: waveProgress,
       leftDetectorHits: scene.leftDetectorHitsProperty.value,
       rightDetectorHits: scene.rightDetectorHitsProperty.value,
-      numberOfSnapshots: scene.numberOfSnapshotsProperty.value,
-      tools: measurementTools.tools
+      numberOfSnapshots: scene.numberOfSnapshotsProperty.value
     };
   }
 

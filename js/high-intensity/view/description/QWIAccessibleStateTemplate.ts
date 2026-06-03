@@ -15,7 +15,7 @@ import { html } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
 import { WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
-import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState } from './HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState } from './HighIntensityAccessibleViewState.js';
 import { formatDetectorDescription, formatParticleDescription, formatSlitDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
 
 export default class QWIAccessibleStateTemplate {
@@ -69,7 +69,7 @@ export default class QWIAccessibleStateTemplate {
     ] ) );
   }
 
-  private static createCurrentDetailsTemplate( state: HighIntensitySemanticAccessibleViewState ): AccessibleTemplateValue {
+  private static createCurrentDetailsTemplate( state: HighIntensityAccessibleViewState ): AccessibleTemplateValue {
     const overview = QuantumWaveInterferenceFluent.a11y.highIntensityState.overview.format( {
       sourceType: state.sourceType,
       isEmitting: toFluentBoolean( state.isEmitting ),
@@ -87,10 +87,10 @@ export default class QWIAccessibleStateTemplate {
       waveDisplayMode: state.waveDisplayMode,
       brightness: state.screenBrightnessPercent,
       snapshotCount: state.numberOfSnapshots,
-      tapeMeasure: toFluentBoolean( state.tools.tapeMeasure.visible ),
-      stopwatch: toFluentBoolean( state.tools.stopwatch.visible ),
-      timePlot: toFluentBoolean( state.tools.timePlot.visible ),
-      positionPlot: toFluentBoolean( state.tools.positionPlot.visible )
+      tapeMeasure: toFluentBoolean( state.measurementTools.tools.tapeMeasure.visible ),
+      stopwatch: toFluentBoolean( state.measurementTools.tools.stopwatch.visible ),
+      timePlot: toFluentBoolean( state.measurementTools.tools.timePlot.visible ),
+      positionPlot: toFluentBoolean( state.measurementTools.tools.positionPlot.visible )
     } );
     const waveProgress = QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgress.format( {
       waveProgressStage: state.waveProgress.stage,

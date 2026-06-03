@@ -9,12 +9,12 @@
 
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
-import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState } from './HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState } from './HighIntensityAccessibleViewState.js';
 import QWITransitionDescriber, { type QWITransitionAction } from './QWITransitionDescriber.js';
 
 export default class HighIntensityAccessibleResponses extends Node {
 
-  private previousState: HighIntensitySemanticAccessibleViewState;
+  private previousState: HighIntensityAccessibleViewState;
   private lastContextResponse: string | null;
   private isClearingFromButton: boolean;
 
@@ -50,6 +50,9 @@ export default class HighIntensityAccessibleResponses extends Node {
       const waveProgressChanged = before.waveProgress.stage !== after.waveProgress.stage ||
                                   ( before.waveProgress.checkpoint !== after.waveProgress.checkpoint &&
                                     ( after.waveProgress.stage === 'travelingToSlits' || after.waveProgress.stage === 'directToScreen' ) );
+      const toolVisibilityChanged = effectiveAction.type === 'toolChanged' &&
+                                    before.measurementTools.tools[ effectiveAction.tool ].visible !==
+                                    after.measurementTools.tools[ effectiveAction.tool ].visible;
       const isMeaningful =
         effectiveAction.type === 'sourceChanged' ? before.isEmitting !== after.isEmitting :
         effectiveAction.type === 'particleTypeChanged' ? before.sourceType !== after.sourceType :
@@ -62,7 +65,7 @@ export default class HighIntensityAccessibleResponses extends Node {
         effectiveAction.type === 'displayModeChanged' ? before.displayMode !== after.displayMode :
         effectiveAction.type === 'brightnessChanged' ? before.screenBrightness !== after.screenBrightness :
         effectiveAction.type === 'waveDisplayChanged' ? before.waveDisplayMode !== after.waveDisplayMode :
-        effectiveAction.type === 'toolChanged' ? before.tools[ effectiveAction.tool ].visible !== after.tools[ effectiveAction.tool ].visible :
+        effectiveAction.type === 'toolChanged' ? toolVisibilityChanged :
         effectiveAction.type === 'screenCleared' ? after.totalHits < before.totalHits :
         effectiveAction.type === 'hitStageChanged' ? before.hitStage !== after.hitStage :
         effectiveAction.type === 'waveProgressChanged' ? waveProgressChanged :

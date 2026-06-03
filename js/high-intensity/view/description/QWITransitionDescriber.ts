@@ -7,7 +7,7 @@
  */
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { type HighIntensitySemanticAccessibleViewState, type QWIValueTrend } from './HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState, type QWIValueTrend } from './HighIntensityAccessibleViewState.js';
 import { formatDetectorDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
 
 export type QWITransitionAction =
@@ -46,8 +46,8 @@ export default class QWITransitionDescriber {
 
   public static describe(
     action: QWITransitionAction,
-    before: HighIntensitySemanticAccessibleViewState,
-    after: HighIntensitySemanticAccessibleViewState
+    before: HighIntensityAccessibleViewState,
+    after: HighIntensityAccessibleViewState
   ): QWIResponsePlan {
     let contextResponse: string | null = null;
     const sourceRestartedResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestarted.format( {
@@ -120,7 +120,7 @@ export default class QWITransitionDescriber {
     else if ( action.type === 'toolChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.toolChanged.format( {
         tool: action.tool,
-        isVisible: after.tools[ action.tool ].visible ? 'true' : 'false'
+        isVisible: after.measurementTools.tools[ action.tool ].visible ? 'true' : 'false'
       } );
     }
     else if ( action.type === 'screenCleared' ) {
