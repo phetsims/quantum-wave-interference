@@ -195,11 +195,19 @@ export default class WaveVisualizationNode extends Node {
   public getAccessibleViewState(): WaveVisualizationViewStateFragment {
     const scene = this.sceneProperty.value;
 
+    if ( !scene.isWaveVisibleProperty.value ) {
+      return {
+        waveVisualization: {
+          visible: false
+        }
+      };
+    }
+
     return {
       waveVisualization: {
+        visible: true,
         sourceType: scene.sourceType,
         waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
-        isWaveVisible: scene.isWaveVisibleProperty.value,
         regionWidthMeters: scene.regionWidth,
         effectiveWavelengthMeters: scene.getEffectiveWavelength()
       }

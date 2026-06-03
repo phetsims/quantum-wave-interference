@@ -51,8 +51,8 @@ export default class HighIntensityAccessibleResponses extends Node {
                                   ( before.waveProgress.checkpoint !== after.waveProgress.checkpoint &&
                                     ( after.waveProgress.stage === 'travelingToSlits' || after.waveProgress.stage === 'directToScreen' ) );
       const toolVisibilityChanged = effectiveAction.type === 'toolChanged' &&
-                                    before.measurementTools.tools[ effectiveAction.tool ].visible !==
-                                    after.measurementTools.tools[ effectiveAction.tool ].visible;
+                                    before.measurementTools[ effectiveAction.tool ].visible !==
+                                    after.measurementTools[ effectiveAction.tool ].visible;
       const isMeaningful =
         effectiveAction.type === 'sourceChanged' ? before.isEmitting !== after.isEmitting :
         effectiveAction.type === 'particleTypeChanged' ? before.sourceType !== after.sourceType :
@@ -63,7 +63,7 @@ export default class HighIntensityAccessibleResponses extends Node {
                                                        before.effectiveWavelengthPicometers !== after.effectiveWavelengthPicometers :
         effectiveAction.type === 'speedChanged' ? before.particleSpeedMetersPerSecond !== after.particleSpeedMetersPerSecond :
         effectiveAction.type === 'displayModeChanged' ? before.displayMode !== after.displayMode :
-        effectiveAction.type === 'brightnessChanged' ? before.screenBrightness !== after.screenBrightness :
+        effectiveAction.type === 'brightnessChanged' ? before.screenBrightnessPercent !== after.screenBrightnessPercent :
         effectiveAction.type === 'waveDisplayChanged' ? before.waveDisplayMode !== after.waveDisplayMode :
         effectiveAction.type === 'toolChanged' ? toolVisibilityChanged :
         effectiveAction.type === 'screenCleared' ? after.totalHits < before.totalHits :

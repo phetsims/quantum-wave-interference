@@ -31,6 +31,7 @@ import createAndAddSlitConfigurationControlsRow from '../../common/view/createAn
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import BandAnalysis from '../../common/view/description/BandAnalysis.js';
+import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
@@ -364,10 +365,9 @@ export default class HighIntensityScreenView extends ScreenView {
     const scene = this.model.sceneProperty.value;
     const slitConfiguration = scene.slitConfigurationProperty.value;
     const patternKind = getPatternKind( slitConfiguration );
-    const isDoubleSlitInterference = patternKind === 'doubleSlitInterference';
     const detectorScreenHalfWidth = scene.regionWidth / 2;
     const bandAnalysis = BandAnalysis.analyzeTheoreticalPattern( scene, detectorScreenHalfWidth );
-    const hitStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value, isDoubleSlitInterference );
+    const hitStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value, patternKind === 'doubleSlitInterference' );
     const effectiveWavelengthMeters = scene.getEffectiveWavelength();
     const wavelengthColorZone = scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : null;
     const waveProgress = getWaveProgress( scene, patternKind );
@@ -381,12 +381,10 @@ export default class HighIntensityScreenView extends ScreenView {
       isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
       detectionMode: scene.detectionModeProperty.value,
       displayMode: this.model.isIntensityGraphVisibleProperty.value ? 'graph' : 'screen',
-      screenBrightness: scene.screenBrightnessProperty.value,
       screenBrightnessPercent: roundSymmetric( scene.screenBrightnessProperty.value / scene.screenBrightnessProperty.range.max * 100 ),
       waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
       slitConfiguration: slitConfiguration,
       patternKind: patternKind,
-      isDoubleSlitInterference: isDoubleSlitInterference,
       wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),
       wavelengthColorZone: wavelengthColorZone,
       wavefrontSpacing: getWavefrontSpacing( scene, effectiveWavelengthMeters, wavelengthColorZone ),
@@ -400,8 +398,11 @@ export default class HighIntensityScreenView extends ScreenView {
       totalHits: scene.totalHitsProperty.value,
       patternFormation: getPatternFormation( scene, this.model ),
       waveProgress: waveProgress,
-      leftDetectorHits: scene.leftDetectorHitsProperty.value,
-      rightDetectorHits: scene.rightDetectorHitsProperty.value,
+      pathDetectors: createPathDetectorsViewState(
+        slitConfiguration,
+        scene.leftDetectorHitsProperty.value,
+        scene.rightDetectorHitsProperty.value
+      ),
       numberOfSnapshots: scene.numberOfSnapshotsProperty.value
     };
   }

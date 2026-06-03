@@ -334,15 +334,19 @@ export default class DetectorScreenNode extends Node {
    * @returns detector-screen view state
    */
   public getAccessibleViewState(): DetectorScreenViewStateFragment {
+    if ( !this.visible ) {
+      return {
+        detectorScreen: {
+          visible: false
+        }
+      };
+    }
+
     return {
       detectorScreen: {
-        visible: this.visible,
+        visible: true,
         perspective: 'frontFacing',
-        sourceType: this.sceneModel.sourceType,
-        detectionMode: this.sceneModel.detectionModeProperty.value,
-        isEmitting: this.sceneModel.isEmittingProperty.value,
-        screenBrightness: this.sceneModel.screenBrightnessProperty.value,
-        totalHits: this.sceneModel.totalHitsProperty.value,
+        hitCount: this.sceneModel.totalHitsProperty.value,
         numberOfSnapshots: this.sceneModel.numberOfSnapshotsProperty.value,
         detectorScreenScaleIndex: this.detectorScreenScaleIndexProperty.value
       }

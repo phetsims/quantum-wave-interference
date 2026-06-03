@@ -155,29 +155,27 @@ export default class MeasurementToolsLayerNode extends Node {
 
     return {
       measurementTools: {
-        tools: {
-          tapeMeasure: {
-            visible: this.measuringTapeNode.visible,
-            basePosition: {
-              x: basePosition.x,
-              y: basePosition.y
-            },
-            tipPosition: {
-              x: tipPosition.x,
-              y: tipPosition.y
-            }
+        tapeMeasure: {
+          visible: this.measuringTapeNode.visible,
+          basePosition: {
+            x: basePosition.x,
+            y: basePosition.y
           },
-          stopwatch: {
-            visible: this.stopwatchNode.visible,
-            isRunning: this.model.stopwatch.isRunningProperty.value,
-            elapsedTimeSeconds: this.model.stopwatch.timeProperty.value
-          },
-          timePlot: {
-            visible: this.model.isTimePlotVisibleProperty.value
-          },
-          positionPlot: {
-            visible: this.model.isPositionPlotVisibleProperty.value
+          tipPosition: {
+            x: tipPosition.x,
+            y: tipPosition.y
           }
+        },
+        stopwatch: {
+          visible: this.stopwatchNode.visible,
+          isRunning: this.model.stopwatch.isRunningProperty.value,
+          elapsedTimeSeconds: this.model.stopwatch.timeProperty.value
+        },
+        timePlot: {
+          visible: this.model.isTimePlotVisibleProperty.value
+        },
+        positionPlot: {
+          visible: this.model.isPositionPlotVisibleProperty.value
         }
       }
     };

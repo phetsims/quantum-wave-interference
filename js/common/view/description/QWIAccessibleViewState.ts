@@ -12,15 +12,11 @@ import { type SourceType } from '../../model/SourceType.js';
 import { type WaveDisplayMode } from '../../model/WaveDisplayMode.js';
 
 export type DetectorScreenViewState = {
-  visible: boolean;
+  visible: false;
+} | {
+  visible: true;
   perspective: 'frontFacing' | 'frontFacingSkewed';
-  sourceType: SourceType;
-  detectionMode: DetectionMode;
-  isEmitting: boolean;
-  screenBrightness: number;
-  screenBrightnessPercent?: number | null;
-  totalHits: number;
-  hitCount?: number;
+  hitCount: number;
   numberOfSnapshots?: number;
   detectorScreenScaleIndex?: number;
 };
@@ -30,7 +26,9 @@ export type DetectorScreenViewStateFragment = {
 };
 
 export type DetectorPatternGraphViewState = {
-  visible: boolean;
+  visible: false;
+} | {
+  visible: true;
   sourceType: SourceType;
   detectionMode: DetectionMode;
   hitCount: number;
@@ -55,9 +53,11 @@ export type SlitBarrierViewStateFragment = {
 };
 
 export type WaveVisualizationViewState = {
+  visible: false;
+} | {
+  visible: true;
   sourceType: SourceType;
   waveDisplayMode: WaveDisplayMode;
-  isWaveVisible: boolean;
   regionWidthMeters: number;
   effectiveWavelengthMeters: number;
 };
@@ -85,12 +85,10 @@ export type TimePlotViewState = ToolViewState;
 export type PositionPlotViewState = ToolViewState;
 
 export type MeasurementToolsViewState = {
-  tools: {
-    tapeMeasure: TapeMeasureViewState;
-    stopwatch: StopwatchViewState;
-    timePlot: TimePlotViewState;
-    positionPlot: PositionPlotViewState;
-  };
+  tapeMeasure: TapeMeasureViewState;
+  stopwatch: StopwatchViewState;
+  timePlot: TimePlotViewState;
+  positionPlot: PositionPlotViewState;
 };
 
 export type MeasurementToolsViewStateFragment = {
@@ -108,4 +106,17 @@ export type DetectorToolViewState = {
 
 export type DetectorToolViewStateFragment = {
   detectorTool: DetectorToolViewState;
+};
+
+export type PathDetectorViewState = {
+  visible: false;
+} | {
+  visible: true;
+  hits: number;
+};
+
+export type PathDetectorsViewState = {
+  visible: boolean;
+  left?: PathDetectorViewState;
+  right?: PathDetectorViewState;
 };

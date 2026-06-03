@@ -109,7 +109,7 @@ export default class QWITransitionDescriber {
     }
     else if ( action.type === 'brightnessChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.brightnessChanged.format( {
-        brightnessTrend: getTrend( before.screenBrightness, after.screenBrightness )
+        brightnessTrend: getTrend( before.screenBrightnessPercent, after.screenBrightnessPercent )
       } );
     }
     else if ( action.type === 'waveDisplayChanged' ) {
@@ -120,7 +120,7 @@ export default class QWITransitionDescriber {
     else if ( action.type === 'toolChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.toolChanged.format( {
         tool: action.tool,
-        isVisible: after.measurementTools.tools[ action.tool ].visible ? 'true' : 'false'
+        isVisible: after.measurementTools[ action.tool ].visible ? 'true' : 'false'
       } );
     }
     else if ( action.type === 'screenCleared' ) {

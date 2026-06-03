@@ -20,9 +20,10 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import createAndAddSlitConfigurationControlsRow from '../../common/view/createAndAddSlitConfigurationControlsRow.js';
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
+import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
-import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorToolViewState, type MeasurementToolsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QWIAccessibleViewState.js';
+import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorToolViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QWIAccessibleViewState.js';
 import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
 import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
@@ -82,9 +83,8 @@ type SingleParticlesAccessibleViewState = {
   effectiveWavelengthMeters: number;
   slitSeparationMM: number;
   totalHits: number;
-  leftDetectorHits: number;
-  rightDetectorHits: number;
-  screenBrightness: number;
+  pathDetectors: PathDetectorsViewState;
+  screenBrightnessPercent: number;
   numberOfSnapshots: number;
   detectorScreen: DetectorScreenViewState;
   detectorPatternGraph: DetectorPatternGraphViewState;
@@ -410,6 +410,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     const scene = this.model.sceneProperty.value;
     const measurementTools = this.measurementToolsNode.getAccessibleViewState().measurementTools;
     const slitBarrier = this.doubleSlitNode.getAccessibleViewState()?.slitBarrier;
+    const slitConfiguration = this.model.currentSlitConfigurationProperty.value;
 
     assert && assert( slitBarrier, 'Expected Single Particles slit-barrier view state.' );
 
@@ -426,15 +427,18 @@ export default class SingleParticlesScreenView extends ScreenView {
         detectionMode: 'hits' as const,
         displayMode: this.model.isHitsGraphVisibleProperty.value ? 'graph' as const : 'screen' as const,
         waveDisplayMode: this.model.currentWaveDisplayModeProperty.value,
-        slitConfiguration: this.model.currentSlitConfigurationProperty.value,
+        slitConfiguration: slitConfiguration,
         wavelengthNM: this.model.currentWavelengthProperty.value,
         particleSpeedMetersPerSecond: this.model.currentVelocityProperty.value,
         effectiveWavelengthMeters: scene.getEffectiveWavelength(),
         slitSeparationMM: this.model.currentSlitSeparationProperty.value,
         totalHits: this.model.currentTotalHitsProperty.value,
-        leftDetectorHits: this.model.currentLeftDetectorHitsProperty.value,
-        rightDetectorHits: this.model.currentRightDetectorHitsProperty.value,
-        screenBrightness: this.model.currentScreenBrightnessProperty.value,
+        pathDetectors: createPathDetectorsViewState(
+          slitConfiguration,
+          this.model.currentLeftDetectorHitsProperty.value,
+          this.model.currentRightDetectorHitsProperty.value
+        ),
+        screenBrightnessPercent: roundSymmetric( scene.screenBrightnessProperty.value / scene.screenBrightnessProperty.range.max * 100 ),
         numberOfSnapshots: this.model.currentNumberOfSnapshotsProperty.value
       },
       this.detectorScreenNode.getAccessibleViewState(),

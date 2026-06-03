@@ -13,7 +13,7 @@ import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitC
 import { type SourceType } from '../../../common/model/SourceType.js';
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
 import { type HitStage } from '../../../common/view/description/BandAnalysis.js';
-import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type MeasurementToolsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../../common/view/description/QWIAccessibleViewState.js';
+import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../../common/view/description/QWIAccessibleViewState.js';
 import { type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 
 export type QWIPatternKind = 'doubleSlitInterference' | 'singleSlitDiffraction' | 'whichPathDiffraction' | 'noBarrier';
@@ -36,12 +36,10 @@ export type HighIntensitySemanticAccessibleViewState = {
   isMaxHitsReached: boolean;
   detectionMode: DetectionMode;
   displayMode: QWIDisplayMode;
-  screenBrightness: number;
   screenBrightnessPercent: number;
   waveDisplayMode: WaveDisplayMode;
   slitConfiguration: SlitConfigurationWithNoBarrier;
   patternKind: QWIPatternKind;
-  isDoubleSlitInterference: boolean;
   wavelengthNM: number;
   wavelengthColorZone: WavelengthColorZone | null;
   wavefrontSpacing: QWIWavefrontSpacing;
@@ -62,8 +60,7 @@ export type HighIntensitySemanticAccessibleViewState = {
     hasPassedSlits: boolean;
     hasReachedScreen: boolean;
   };
-  leftDetectorHits: number;
-  rightDetectorHits: number;
+  pathDetectors: PathDetectorsViewState;
   numberOfSnapshots: number;
 };
 

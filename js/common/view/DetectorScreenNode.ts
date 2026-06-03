@@ -10,7 +10,6 @@
 
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
-import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
@@ -21,7 +20,7 @@ import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
-import { type DetectorScreenViewStateFragment } from './description/QWIAccessibleViewState.js';
+import { type DetectorScreenViewState, type DetectorScreenViewStateFragment } from './description/QWIAccessibleViewState.js';
 import DetectorScreenTextureRenderer, { type DetectorScreenSceneLike } from './DetectorScreenTextureRenderer.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
 
@@ -138,25 +137,31 @@ export default class DetectorScreenNode extends Node {
    * @returns detector-screen view state
    */
   public getAccessibleViewState(): DetectorScreenViewStateFragment {
+    if ( !this.visible ) {
+      return {
+        detectorScreen: {
+          visible: false
+        }
+      };
+    }
+
     const scene = this.sceneProperty.value;
-    const totalHitsProperty = ( scene as DetectorScreenSceneLike & {
-      totalHitsProperty?: TReadOnlyProperty<number>;
-    } ).totalHitsProperty;
+    const sceneWithViewStateProperties = scene as DetectorScreenSceneLike & {
+      numberOfSnapshotsProperty?: TReadOnlyProperty<number>;
+    };
+
+    const detectorScreen: DetectorScreenViewState = {
+      visible: true,
+      perspective: 'frontFacingSkewed',
+      hitCount: scene.hits.length
+    };
+
+    if ( sceneWithViewStateProperties.numberOfSnapshotsProperty ) {
+      detectorScreen.numberOfSnapshots = sceneWithViewStateProperties.numberOfSnapshotsProperty.value;
+    }
 
     return {
-      detectorScreen: {
-        visible: this.visible,
-        perspective: 'frontFacingSkewed',
-        sourceType: scene.sourceType,
-        detectionMode: scene.detectionModeProperty?.value || 'hits',
-        isEmitting: scene.isEmittingProperty.value,
-        screenBrightness: scene.screenBrightnessProperty.value,
-        screenBrightnessPercent: scene.screenBrightnessProperty.range ?
-                                 roundSymmetric( scene.screenBrightnessProperty.value / scene.screenBrightnessProperty.range.max * 100 ) :
-                                 null,
-        totalHits: totalHitsProperty ? totalHitsProperty.value : scene.hits.length,
-        hitCount: scene.hits.length
-      }
+      detectorScreen: detectorScreen
     };
   }
 

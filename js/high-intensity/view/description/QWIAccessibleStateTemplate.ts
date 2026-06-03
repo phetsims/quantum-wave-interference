@@ -87,10 +87,10 @@ export default class QWIAccessibleStateTemplate {
       waveDisplayMode: state.waveDisplayMode,
       brightness: state.screenBrightnessPercent,
       snapshotCount: state.numberOfSnapshots,
-      tapeMeasure: toFluentBoolean( state.measurementTools.tools.tapeMeasure.visible ),
-      stopwatch: toFluentBoolean( state.measurementTools.tools.stopwatch.visible ),
-      timePlot: toFluentBoolean( state.measurementTools.tools.timePlot.visible ),
-      positionPlot: toFluentBoolean( state.measurementTools.tools.positionPlot.visible )
+      tapeMeasure: toFluentBoolean( state.measurementTools.tapeMeasure.visible ),
+      stopwatch: toFluentBoolean( state.measurementTools.stopwatch.visible ),
+      timePlot: toFluentBoolean( state.measurementTools.timePlot.visible ),
+      positionPlot: toFluentBoolean( state.measurementTools.positionPlot.visible )
     } );
     const waveProgress = QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgress.format( {
       waveProgressStage: state.waveProgress.stage,

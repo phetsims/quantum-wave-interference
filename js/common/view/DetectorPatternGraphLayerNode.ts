@@ -111,9 +111,18 @@ export default class DetectorPatternGraphLayerNode extends Node {
    */
   public getAccessibleViewState(): DetectorPatternGraphViewStateFragment {
     const scene = this.sceneProperty.value;
+
+    if ( !this.isVisibleProperty.value ) {
+      return {
+        detectorPatternGraph: {
+          visible: false
+        }
+      };
+    }
+
     return {
       detectorPatternGraph: {
-        visible: this.isVisibleProperty.value,
+        visible: true,
         sourceType: scene.sourceType,
         detectionMode: this.detectionModeProperty?.value || 'hits',
         hitCount: scene.hits.length
