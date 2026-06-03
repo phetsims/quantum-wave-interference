@@ -15,17 +15,17 @@ import { html } from '../../../../../sherpa/lib/lit-core-3.3.1.min.js';
 import { WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
-import { createHighIntensitySemanticAccessibleViewState, type HighIntensitySemanticAccessibleViewState } from './HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState } from './HighIntensityAccessibleViewState.js';
 import { formatDetectorDescription, formatParticleDescription, formatSlitDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
 
 export default class QWIAccessibleStateTemplate {
 
   public static createCurrentDetailsTemplateProperty(
     model: HighIntensityModel,
-    getSemanticState: () => HighIntensitySemanticAccessibleViewState = () => createHighIntensitySemanticAccessibleViewState( model )
+    getAccessibleViewState: () => HighIntensityAccessibleViewState
   ): TReadOnlyProperty<AccessibleTemplateValue> {
     return DerivedProperty.deriveAny( QWIAccessibleStateTemplate.createDependencies( model ), () => {
-      return QWIAccessibleStateTemplate.createCurrentDetailsTemplate( getSemanticState() );
+      return QWIAccessibleStateTemplate.createCurrentDetailsTemplate( getAccessibleViewState() );
     } );
   }
 

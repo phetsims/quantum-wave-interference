@@ -9,7 +9,7 @@
 
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
-import { createHighIntensitySemanticAccessibleViewState, type HighIntensitySemanticAccessibleViewState } from './HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState } from './HighIntensityAccessibleViewState.js';
 import QWITransitionDescriber, { type QWITransitionAction } from './QWITransitionDescriber.js';
 
 export default class HighIntensityAccessibleResponses extends Node {
@@ -20,11 +20,11 @@ export default class HighIntensityAccessibleResponses extends Node {
 
   public constructor(
     model: HighIntensityModel,
-    private readonly getSemanticState: () => HighIntensitySemanticAccessibleViewState = () => createHighIntensitySemanticAccessibleViewState( model )
+    private readonly getAccessibleViewState: () => HighIntensityAccessibleViewState
   ) {
     super( { isDisposable: false } );
 
-    this.previousState = this.getSemanticState();
+    this.previousState = this.getAccessibleViewState();
     this.lastContextResponse = null;
     this.isClearingFromButton = false;
 
@@ -34,7 +34,7 @@ export default class HighIntensityAccessibleResponses extends Node {
       }
 
       const before = this.previousState;
-      const after = this.getSemanticState();
+      const after = this.getAccessibleViewState();
 
       // Scene changes can also notify DynamicProperties such as wavelength or slit separation. If the semantic
       // source type changed, report the scene change once and silence subsequent no-op notifications.
@@ -95,7 +95,7 @@ export default class HighIntensityAccessibleResponses extends Node {
     };
 
     const updateStateSilently = () => {
-      this.previousState = this.getSemanticState();
+      this.previousState = this.getAccessibleViewState();
     };
 
     model.currentIsEmittingProperty.lazyLink( () => emitTransition( { type: 'sourceChanged' } ) );
@@ -116,7 +116,7 @@ export default class HighIntensityAccessibleResponses extends Node {
     model.timeSpeedProperty.lazyLink( updateStateSilently );
     model.currentNumberOfSnapshotsProperty.lazyLink( updateStateSilently );
     model.currentTotalHitsProperty.lazyLink( () => {
-      const after = this.getSemanticState();
+      const after = this.getAccessibleViewState();
       const before = this.previousState;
       if ( after.isMaxHitsReached && !before.isMaxHitsReached ) {
         emitTransition( { type: 'maxHitsReached' } );
@@ -132,7 +132,7 @@ export default class HighIntensityAccessibleResponses extends Node {
       }
     } );
     model.accessibleStateStepProperty.lazyLink( () => {
-      const after = this.getSemanticState();
+      const after = this.getAccessibleViewState();
       const before = this.previousState;
       const patternStarted = before.patternFormation === 'empty' &&
                              ( after.patternFormation === 'forming' || after.patternFormation === 'collectingHits' );
@@ -165,7 +165,7 @@ export default class HighIntensityAccessibleResponses extends Node {
       this.isClearingFromButton = false;
     }
 
-    const after = this.getSemanticState();
+    const after = this.getAccessibleViewState();
     const responsePlan = QWITransitionDescriber.describe( { type: 'screenCleared' }, before, after );
     this.previousState = after;
 

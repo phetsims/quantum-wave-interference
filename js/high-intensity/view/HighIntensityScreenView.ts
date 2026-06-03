@@ -12,20 +12,26 @@
 
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import { clamp } from '../../../../dot/js/util/clamp.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
+import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
-import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
+import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import createAndAddSlitConfigurationControlsRow from '../../common/view/createAndAddSlitConfigurationControlsRow.js';
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
+import BandAnalysis from '../../common/view/description/BandAnalysis.js';
+import { type MeasurementToolsViewState } from '../../common/view/description/QWIAccessibleViewState.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
@@ -43,11 +49,13 @@ import stepDetectorScreenViewNodes from '../../common/view/stepDetectorScreenVie
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
+import { getWavelengthColorZone, type WavelengthColorZone } from '../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
+import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighIntensitySceneModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
-import { createHighIntensitySemanticAccessibleViewState, type HighIntensityAccessibleViewState } from './description/HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QWIBandSpacingDescription, type QWIClockSpeedDescription, type QWIPatternFormation, type QWIPatternKind, type QWIWavefrontSpacing, type QWIWaveProgressCheckpoint, type QWIWaveProgressStage, type QWIWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
 import QWIAccessibleStateTemplate from './description/QWIAccessibleStateTemplate.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
@@ -95,6 +103,134 @@ const WAVE_REGION_Y_OFFSET = -30;
 // mini-symbol and the top of the main wave region.
 const CALLOUT_GAP = 55;
 
+const getPatternKind = ( slitConfiguration: SlitConfigurationWithNoBarrier ): QWIPatternKind =>
+  slitConfiguration === 'noBarrier' ? 'noBarrier' :
+  showsDoubleSlitInterferencePattern( slitConfiguration ) ? 'doubleSlitInterference' :
+  ( slitConfiguration === 'leftDetector' || slitConfiguration === 'rightDetector' || slitConfiguration === 'bothDetectors' ) ? 'whichPathDiffraction' :
+  'singleSlitDiffraction';
+
+const getPatternFormation = ( scene: HighIntensitySceneModel, model: HighIntensityModel ): QWIPatternFormation => {
+  if ( scene.detectionModeProperty.value === 'hits' ) {
+    return scene.totalHitsProperty.value > 0 ? 'collectingHits' :
+           scene.isEmittingProperty.value ? 'collectingHits' :
+           'empty';
+  }
+
+  if ( !scene.isEmittingProperty.value ) {
+    return 'empty';
+  }
+
+  if ( !model.isPlayingProperty.value ) {
+    return 'paused';
+  }
+
+  const formationFactor = scene.detectorPatternFormationFactorProperty.value;
+  return formationFactor >= DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD ? 'complete' :
+         formationFactor > 0 ? 'forming' :
+         'empty';
+};
+
+const getClockSpeedDescription = ( model: HighIntensityModel ): QWIClockSpeedDescription => {
+  const timeSpeed = model.timeSpeedProperty.value;
+  return timeSpeed === TimeSpeed.SLOW ? 'slow' :
+         timeSpeed === TimeSpeed.NORMAL ? 'normal' :
+         timeSpeed === TimeSpeed.FAST ? 'fast' :
+         ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
+};
+
+const getWavefrontSpacing = (
+  scene: HighIntensitySceneModel,
+  effectiveWavelengthMeters: number,
+  wavelengthColorZone: WavelengthColorZone | null
+): QWIWavefrontSpacing => {
+  if ( scene.sourceType === 'photons' ) {
+    return ( wavelengthColorZone === 'violet' || wavelengthColorZone === 'blue' ) ? 'tightlyPacked' :
+           ( wavelengthColorZone === 'red' || wavelengthColorZone === 'orange' ) ? 'widelySpaced' :
+           'moderatelySpaced';
+  }
+
+  const defaultEffectiveWavelength = scene.regionWidth / QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
+  const relativeWavelength = effectiveWavelengthMeters / defaultEffectiveWavelength;
+  return relativeWavelength <= 0.85 ? 'tightlyPacked' :
+         relativeWavelength >= 1.15 ? 'widelySpaced' :
+         'moderatelySpaced';
+};
+
+const getWaveSpeedDescription = ( scene: HighIntensitySceneModel ): QWIWaveSpeedDescription => {
+  if ( scene.sourceType === 'photons' ) {
+    return 'fast';
+  }
+
+  const speedRange = scene.velocityProperty.range;
+  const speedFraction = ( scene.velocityProperty.value - speedRange.min ) / speedRange.getLength();
+  return speedFraction <= 1 / 3 ? 'slow' :
+         speedFraction >= 2 / 3 ? 'fast' :
+         'medium';
+};
+
+const getBandSpacingDescription = ( bandCount: number ): QWIBandSpacingDescription =>
+  bandCount <= 5 ? 'farApart' :
+  bandCount >= 13 ? 'closelySpaced' :
+  'mediumSpaced';
+
+const getWaveProgress = (
+  scene: HighIntensitySceneModel,
+  patternKind: QWIPatternKind
+): HighIntensitySemanticAccessibleViewState['waveProgress'] => {
+  if ( !scene.isEmittingProperty.value ) {
+    return {
+      stage: 'sourceOff',
+      checkpoint: 'none',
+      wavefrontFraction: 0,
+      wavefrontPercent: 0,
+      hasReachedSlits: false,
+      hasPassedSlits: false,
+      hasReachedScreen: false
+    };
+  }
+
+  const propagationSpeed = scene.waveSolver.getDisplayPropagationSpeed();
+  const waveSolverState = scene.waveSolver.getState();
+  const solverTime = scene.waveSolver.getTime();
+  const sourceOnTime = 'sourceOnTime' in waveSolverState && typeof waveSolverState.sourceOnTime === 'number' ?
+                       waveSolverState.sourceOnTime :
+                       solverTime;
+  const wavefrontX = propagationSpeed * Math.max( 0, solverTime - sourceOnTime );
+  const wavefrontFraction = clamp( wavefrontX / scene.regionWidth, 0, 1 );
+  const slitFraction = scene.slitPositionFractionProperty.value;
+  const slitWindow = 0.04;
+  const slitSeparationFraction = scene.slitSeparationProperty.value * 1e-3 / scene.regionWidth;
+  const circularWavesOverlapFraction = slitFraction + Math.max( slitWindow, slitSeparationFraction / 2 );
+  const hasReachedSlits = wavefrontFraction >= slitFraction;
+  const hasPassedSlits = wavefrontFraction > slitFraction + slitWindow;
+  const hasReachedScreen = wavefrontFraction >= 1;
+  const checkpoint: QWIWaveProgressCheckpoint =
+    hasReachedScreen ? 'full' :
+    wavefrontFraction >= 0.75 ? 'threeQuarters' :
+    wavefrontFraction >= 0.5 ? 'half' :
+    wavefrontFraction >= 0.25 ? 'quarter' :
+    'none';
+  const stage: QWIWaveProgressStage =
+    hasReachedScreen ? 'hittingScreen' :
+    patternKind === 'noBarrier' ? 'directToScreen' :
+    Math.abs( wavefrontFraction - slitFraction ) <= slitWindow ? 'atSlits' :
+    !hasReachedSlits ? 'travelingToSlits' :
+    patternKind === 'doubleSlitInterference' && wavefrontFraction < circularWavesOverlapFraction ? 'atSlits' :
+    patternKind === 'doubleSlitInterference' ? 'interferingAfterSlits' :
+    patternKind === 'whichPathDiffraction' ? 'whichPathAfterSlits' :
+    'diffractingAfterSlits';
+
+  return {
+    stage: stage,
+    checkpoint: checkpoint,
+    wavefrontFraction: wavefrontFraction,
+    wavefrontPercent: roundSymmetric( wavefrontFraction * 100 ),
+    hasReachedSlits: hasReachedSlits,
+    hasPassedSlits: hasPassedSlits,
+    hasReachedScreen: hasReachedScreen
+  };
+};
+
 export default class HighIntensityScreenView extends ScreenView {
 
   private readonly model: HighIntensityModel;
@@ -107,41 +243,14 @@ export default class HighIntensityScreenView extends ScreenView {
   private readonly positionPlotNode: PositionPlotNode;
 
   public constructor( model: HighIntensityModel, providedOptions: HighIntensityScreenViewOptions ) {
-    const getSemanticAccessibleViewState = () => createHighIntensitySemanticAccessibleViewState( model );
-
-    const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
-      screenSummaryContent: new QuantumWaveInterferenceScreenSummaryContent(
-        model,
-        model.currentSlitConfigurationProperty,
-        {
-          detectionMode: model.currentDetectionModeProperty,
-          slitOrientation: 'topBottom',
-          detectorScreenHasPatternProperty: DerivedProperty.deriveAny(
-            [
-              model.sceneProperty,
-              model.currentIsEmittingProperty,
-              model.currentDetectionModeProperty,
-              model.currentTotalHitsProperty,
-              model.accessibleStateStepProperty
-            ],
-            () => model.currentDetectionModeProperty.value === 'averageIntensity' ?
-                  model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() :
-                  model.currentTotalHitsProperty.value > 0
-          ),
-          currentDetailsContent: QWIAccessibleStateTemplate.createCurrentDetailsTemplateProperty(
-            model,
-            getSemanticAccessibleViewState
-          )
-        }
-      )
-    }, providedOptions );
+    const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
 
     super( options );
 
     this.model = model;
 
     const tandem = options.tandem;
-    const accessibleResponses = new HighIntensityAccessibleResponses( model, getSemanticAccessibleViewState );
+    let accessibleResponses: HighIntensityAccessibleResponses | null = null;
 
     // Keep this top-level sequence aligned with the visual layers: source controls, wave region,
     // detector readouts, detector screen controls, tools, and accessible description.
@@ -167,7 +276,10 @@ export default class HighIntensityScreenView extends ScreenView {
 
     const detectorScreenControls = this.createAndAddDetectorScreenControls(
       model,
-      accessibleResponses,
+      () => {
+        assert && assert( accessibleResponses, 'Expected accessible responses to be initialized before clearing the screen.' );
+        accessibleResponses!.clearScreenAndEmitResponse( () => model.sceneProperty.value.clearScreen() );
+      },
       this.detectorPatternGraphLayerNode,
       this.detectorScreenNode,
       sourceBeamRightLimitXProperty,
@@ -178,6 +290,9 @@ export default class HighIntensityScreenView extends ScreenView {
     this.measurementToolsNode = measurementToolNodes.measurementToolsNode;
     this.timePlotNode = measurementToolNodes.timePlotNode;
     this.positionPlotNode = measurementToolNodes.positionPlotNode;
+
+    const getAccessibleViewState = () => this.getAccessibleViewState();
+    accessibleResponses = new HighIntensityAccessibleResponses( model, getAccessibleViewState );
 
     const screenViewDescription = this.createAndAddScreenViewDescription(
       model,
@@ -191,10 +306,37 @@ export default class HighIntensityScreenView extends ScreenView {
 
     this.addChild( accessibleResponses );
     this.setHighIntensityPDOMOrder( screenViewDescription, measurementToolNodes.measurementToolsNode, detectorScreenControls );
+
+    this.screenSummaryContent = new QuantumWaveInterferenceScreenSummaryContent(
+      model,
+      model.currentSlitConfigurationProperty,
+      {
+        detectionMode: model.currentDetectionModeProperty,
+        slitOrientation: 'topBottom',
+        detectorScreenHasPatternProperty: DerivedProperty.deriveAny(
+          [
+            model.sceneProperty,
+            model.currentIsEmittingProperty,
+            model.currentDetectionModeProperty,
+            model.currentTotalHitsProperty,
+            model.accessibleStateStepProperty
+          ],
+          () => model.currentDetectionModeProperty.value === 'averageIntensity' ?
+                model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() :
+                model.currentTotalHitsProperty.value > 0
+        ),
+        currentDetailsContent: QWIAccessibleStateTemplate.createCurrentDetailsTemplateProperty(
+          model,
+          getAccessibleViewState
+        )
+      }
+    );
   }
 
   /**
-   * Gets authored semantic view state for agent-facing accessibility snapshots.
+   * Gets the full High Intensity screen snapshot for agent-facing accessibility APIs. The returned state combines
+   * model-derived experiment meaning with view-owned descriptions for the detector, graph, wave display, slit barrier,
+   * and measurement tools.
    *
    * @returns current High Intensity accessible view state
    */
@@ -205,7 +347,7 @@ export default class HighIntensityScreenView extends ScreenView {
     assert && assert( slitBarrier, 'Expected High Intensity slit-barrier view state.' );
 
     return Object.assign(
-      createHighIntensitySemanticAccessibleViewState( this.model, measurementTools ),
+      this.getSemanticAccessibleViewState( measurementTools ),
       this.detectorScreenNode.getAccessibleViewState(),
       this.detectorPatternGraphLayerNode.getAccessibleViewState(),
       this.waveVisualizationNode.getAccessibleViewState(),
@@ -214,6 +356,61 @@ export default class HighIntensityScreenView extends ScreenView {
         measurementTools: measurementTools
       }
     );
+  }
+
+  /**
+   * Gets the model-derived semantic fragment of the full High Intensity accessible view state.
+   *
+   * @param measurementTools - current measurement-tools view state to include in the semantic tools summary
+   * @returns semantic accessibility state for the current experiment
+   */
+  private getSemanticAccessibleViewState( measurementTools: MeasurementToolsViewState ): HighIntensitySemanticAccessibleViewState {
+    const scene = this.model.sceneProperty.value;
+    const slitConfiguration = scene.slitConfigurationProperty.value;
+    const patternKind = getPatternKind( slitConfiguration );
+    const isDoubleSlitInterference = patternKind === 'doubleSlitInterference';
+    const detectorScreenHalfWidth = scene.regionWidth / 2;
+    const bandAnalysis = BandAnalysis.analyzeTheoreticalPattern( scene, detectorScreenHalfWidth );
+    const hitStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value, isDoubleSlitInterference );
+    const effectiveWavelengthMeters = scene.getEffectiveWavelength();
+    const wavelengthColorZone = scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : null;
+    const waveProgress = getWaveProgress( scene, patternKind );
+
+    return {
+      sourceType: scene.sourceType,
+      isPlaying: this.model.isPlayingProperty.value,
+      clockSpeedDescription: getClockSpeedDescription( this.model ),
+      isEmitting: scene.isEmittingProperty.value,
+      isEmitterEnabled: scene.isEmitterEnabledProperty.value,
+      isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
+      detectionMode: scene.detectionModeProperty.value,
+      displayMode: this.model.isIntensityGraphVisibleProperty.value ? 'graph' : 'screen',
+      screenBrightness: scene.screenBrightnessProperty.value,
+      screenBrightnessPercent: roundSymmetric( scene.screenBrightnessProperty.value / scene.screenBrightnessProperty.range.max * 100 ),
+      waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
+      slitConfiguration: slitConfiguration,
+      patternKind: patternKind,
+      isDoubleSlitInterference: isDoubleSlitInterference,
+      wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),
+      wavelengthColorZone: wavelengthColorZone,
+      wavefrontSpacing: getWavefrontSpacing( scene, effectiveWavelengthMeters, wavelengthColorZone ),
+      particleSpeedMetersPerSecond: roundSymmetric( scene.velocityProperty.value ),
+      waveSpeedDescription: getWaveSpeedDescription( scene ),
+      effectiveWavelengthMeters: effectiveWavelengthMeters,
+      effectiveWavelengthPicometers: Number( toFixed( effectiveWavelengthMeters * 1e12, 2 ) ),
+      slitSeparationMM: slitConfiguration === 'noBarrier' ? null : scene.slitSeparationProperty.value,
+      slitSeparationMicrometers: slitConfiguration === 'noBarrier' ? null : Number( toFixed( scene.slitSeparationProperty.value * 1000, 2 ) ),
+      bandAnalysis: bandAnalysis,
+      bandSpacingDescription: getBandSpacingDescription( bandAnalysis.bandCount ),
+      hitStage: hitStage,
+      totalHits: scene.totalHitsProperty.value,
+      patternFormation: getPatternFormation( scene, this.model ),
+      waveProgress: waveProgress,
+      leftDetectorHits: scene.leftDetectorHitsProperty.value,
+      rightDetectorHits: scene.rightDetectorHitsProperty.value,
+      numberOfSnapshots: scene.numberOfSnapshotsProperty.value,
+      tools: measurementTools.tools
+    };
   }
 
   /**
@@ -479,7 +676,7 @@ export default class HighIntensityScreenView extends ScreenView {
    * and reset buttons.
    *
    * @param model - the screen model that owns detector-screen control state
-   * @param accessibleResponses - response node used for clear-screen alerts
+   * @param clearScreen - callback that clears the detector screen and emits the appropriate accessibility response
    * @param detectorPatternGraphLayerNode - graph layer reset by the detector-screen controls reset action
    * @param detectorScreenNode - detector screen node used for snapshot flash and reset
    * @param sourceBeamRightLimitXProperty - mutable right limit for the source beam callout
@@ -488,7 +685,7 @@ export default class HighIntensityScreenView extends ScreenView {
    */
   private createAndAddDetectorScreenControls(
     model: HighIntensityModel,
-    accessibleResponses: HighIntensityAccessibleResponses,
+    clearScreen: () => void,
     detectorPatternGraphLayerNode: DetectorPatternGraphLayerNode,
     detectorScreenNode: DetectorScreenNode,
     sourceBeamRightLimitXProperty: NumberProperty,
@@ -507,7 +704,7 @@ export default class HighIntensityScreenView extends ScreenView {
         timePlotCheckbox,
         positionPlotCheckbox
       ],
-      clearScreen: () => accessibleResponses.clearScreenAndEmitResponse( () => model.sceneProperty.value.clearScreen() ),
+      clearScreen: clearScreen,
       onSnapshotCaptured: () => detectorScreenNode.startSnapshotFlash(),
       onStepForward: () => this.timePlotNode.step( model.getNominalStepDt() ),
       slitOrientation: 'topBottom',
