@@ -343,8 +343,15 @@ export default class DetectorScreenControls extends VBox {
    * Aligns Reset All exactly to the screen margin, even though the neighboring eraser button has a shorter background.
    */
   public positionBottomButtonsRow( right: number, resetAllButtonBottom: number ): void {
-    this.bottomButtonsRow.right = right;
-    this.bottomButtonsRow.centerY = resetAllButtonBottom - this.resetAllButton.height / 2;
+    if ( this.bottomButtonsRow.bounds.isFinite() ) {
+      this.bottomButtonsRow.right = right;
+      if ( this.resetAllButton.bounds.isFinite() ) {
+        this.bottomButtonsRow.centerY = resetAllButtonBottom - this.resetAllButton.height / 2;
+      }
+      else {
+        this.bottomButtonsRow.centerY = resetAllButtonBottom - this.bottomButtonsRow.height / 2;
+      }
+    }
   }
 
   /**
@@ -352,18 +359,23 @@ export default class DetectorScreenControls extends VBox {
    * Locale changes can make the time-speed radio buttons wider than the right panels, so maxRight keeps the group
    * within the screen's right padding while preserving the normal centered placement when there is enough room.
    */
-  public positionWaveDisplayAndTimeControlsGroup( centerX: number, maxRight: number ): void {
-    this.waveDisplayAndTimeControlsGroup.bottom = this.bottomButtonsRow.top -
-                                                  QuantumWaveInterferenceConstants.WAVE_DISPLAY_AND_TIME_CONTROLS_BOTTOM_OFFSET;
+  public positionWaveDisplayAndTimeControlsGroup( centerX: number, maxRight: number, fallbackBottom: number ): void {
+    if ( this.waveDisplayAndTimeControlsGroup.bounds.isFinite() ) {
+      const bottom = this.bottomButtonsRow.bounds.isFinite() ?
+                     this.bottomButtonsRow.top :
+                     fallbackBottom;
+      this.waveDisplayAndTimeControlsGroup.bottom = bottom -
+                                                    QuantumWaveInterferenceConstants.WAVE_DISPLAY_AND_TIME_CONTROLS_BOTTOM_OFFSET;
 
-    // Choose one horizontal position per constraint update. Centering and then clamping would oscillate because the
-    // ManualConstraint observes this group's bounds and would immediately re-run after each position change.
-    const centeredRight = centerX + this.waveDisplayAndTimeControlsGroup.width / 2;
-    if ( centeredRight > maxRight ) {
-      this.waveDisplayAndTimeControlsGroup.right = maxRight;
-    }
-    else {
-      this.waveDisplayAndTimeControlsGroup.centerX = centerX;
+      // Choose one horizontal position per constraint update. Centering and then clamping would oscillate because the
+      // ManualConstraint observes this group's bounds and would immediately re-run after each position change.
+      const centeredRight = centerX + this.waveDisplayAndTimeControlsGroup.width / 2;
+      if ( centeredRight > maxRight ) {
+        this.waveDisplayAndTimeControlsGroup.right = maxRight;
+      }
+      else {
+        this.waveDisplayAndTimeControlsGroup.centerX = centerX;
+      }
     }
   }
 }
