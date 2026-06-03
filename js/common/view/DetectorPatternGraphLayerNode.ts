@@ -72,7 +72,9 @@ export default class DetectorPatternGraphLayerNode extends Node {
       initialZoomLevels: options.initialZoomLevels,
       tandem: tandem
     } );
+
     this.addChild( this.graphNode );
+    this.pdomOrder = [ this.graphNode ];
 
     isVisibleProperty.link( isVisible => {
       this.visible = isVisible;

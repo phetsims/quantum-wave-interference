@@ -7,6 +7,7 @@
  */
 
 import BooleanProperty from '../../../../../axon/js/BooleanProperty.js';
+import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
@@ -14,10 +15,11 @@ import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
 import DetectorScreenDescriber, { type DetectorScreenDescriberScene } from './DetectorScreenDescriber.js';
+import DetectorPatternGraphDescriber, { type DetectorPatternGraphDescriberScene } from './DetectorPatternGraphDescriber.js';
 import ExperimentSetupDetailsNode from './ExperimentSetupDetailsNode.js';
 import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryContent.js';
 
-type SharedDescriptionScene = DetectorScreenDescriberScene & {
+type SharedDescriptionScene = DetectorScreenDescriberScene & DetectorPatternGraphDescriberScene & {
   sourceType: SourceType;
   velocityRange: { min: number; max: number };
   slitSeparationRange: { min: number; max: number };
@@ -34,6 +36,7 @@ type SharedDescriptionModel = {
 type SharedDescriptionOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   detectorScreenUpdateTriggerProperty?: TReadOnlyProperty<unknown>;
+  screenGraphVisibleProperty?: TReadOnlyProperty<boolean>;
   slitOrientation?: SlitOrientation;
   includeExperimentSetupDetails?: boolean;
   sourceNodes: Node[];
@@ -59,6 +62,7 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
     const includeExperimentSetupDetails = providedOptions.includeExperimentSetupDetails !== false;
 
     let detectorScreenDescriptionNode: Node | null = null;
+    let graphDescriptionNode: Node | null = null;
     let experimentSetupDetailsNode: Node | null = null;
     if ( includeExperimentSetupDetails ) {
       const detectorScreenDescriber = new DetectorScreenDescriber(
@@ -67,10 +71,25 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
         model.sceneProperty.derived( scene => 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2 ),
         providedOptions.detectorScreenUpdateTriggerProperty
       );
-      detectorScreenDescriptionNode = new Node( {
+
+      const detectorScreenDescriptionNodeOptions = providedOptions.screenGraphVisibleProperty ? {
+        accessibleParagraph: detectorScreenDescriber.descriptionProperty,
+        visibleProperty: DerivedProperty.not( providedOptions.screenGraphVisibleProperty )
+      } : {
         accessibleParagraph: detectorScreenDescriber.descriptionProperty
-      } );
+      };
+
+      detectorScreenDescriptionNode = new Node( detectorScreenDescriptionNodeOptions );
       this.addChild( detectorScreenDescriptionNode );
+
+      if ( providedOptions.screenGraphVisibleProperty ) {
+        const graphDescriber = new DetectorPatternGraphDescriber( model.sceneProperty, new BooleanProperty( false ) );
+        graphDescriptionNode = new Node( {
+          accessibleParagraph: graphDescriber.descriptionProperty,
+          visibleProperty: providedOptions.screenGraphVisibleProperty
+        } );
+        this.addChild( graphDescriptionNode );
+      }
 
       experimentSetupDetailsNode = new ExperimentSetupDetailsNode( model, slitSettingProperty, {
         detectionModeProperty: providedOptions.detectionModeProperty,
@@ -99,10 +118,11 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
     } );
     this.addChild( this.detectorScreenHeadingNode );
 
-    this.experimentSetupHeadingNode.pdomOrder = detectorScreenDescriptionNode && experimentSetupDetailsNode ? [
-      detectorScreenDescriptionNode,
-      experimentSetupDetailsNode
-    ] : [];
+    this.experimentSetupHeadingNode.pdomOrder = [
+      ...( detectorScreenDescriptionNode ? [ detectorScreenDescriptionNode ] : [] ),
+      ...( graphDescriptionNode ? [ graphDescriptionNode ] : [] ),
+      ...( experimentSetupDetailsNode ? [ experimentSetupDetailsNode ] : [] )
+    ];
 
     this.sourceHeadingNode.pdomOrder = providedOptions.sourceNodes;
     this.slitsHeadingNode.pdomOrder = providedOptions.slitNodes;

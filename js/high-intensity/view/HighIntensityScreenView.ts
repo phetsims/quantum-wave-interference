@@ -795,6 +795,7 @@ export default class HighIntensityScreenView extends ScreenView {
       model.currentSlitConfigurationProperty, {
         detectionModeProperty: model.currentDetectionModeProperty,
         detectorScreenUpdateTriggerProperty: model.accessibleStateStepProperty,
+        screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,
         slitOrientation: 'topBottom',
         sourceNodes: [ sourceBeamCalloutNode, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow, doubleSlitNode ],

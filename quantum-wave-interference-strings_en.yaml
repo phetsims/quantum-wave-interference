@@ -207,7 +207,7 @@ a11y:
                              }
   snapshotNode:
     deleteSnapshotAccessibleName: 'Delete { $snapshotTitle }'
-  experimentSetupHeading:      Detector Screen and Experiment Setup
+  experimentSetupHeading:      Experiment Setup
   sourceHeading:               Source Controls
   slitsHeading:                Slits and Screen Configuration
   detectorScreenHeading:       Detector Screen Controls

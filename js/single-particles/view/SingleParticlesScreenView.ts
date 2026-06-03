@@ -376,6 +376,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       model,
       model.currentSlitConfigurationProperty,
       {
+        screenGraphVisibleProperty: model.isHitsGraphVisibleProperty,
         slitOrientation: 'topBottom',
         sourceNodes: [ emitterNode, maxHitsReachedPanel, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow, waveRegionNode.doubleSlitNode ],
