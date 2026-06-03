@@ -152,11 +152,13 @@ export default class MeasurementToolsLayerNode extends Node {
   public getAccessibleViewState(): MeasurementToolsViewStateFragment {
     const basePosition = this.model.tapeMeasureBasePositionProperty.value;
     const tipPosition = this.model.tapeMeasureTipPositionProperty.value;
+    const isTapeMeasureVisible = this.measuringTapeNode.visible;
+    const isStopwatchVisible = this.stopwatchNode.visible;
 
     return {
       measurementTools: {
-        tapeMeasure: {
-          visible: this.measuringTapeNode.visible,
+        tapeMeasure: isTapeMeasureVisible ? {
+          visible: true,
           basePosition: {
             x: basePosition.x,
             y: basePosition.y
@@ -165,11 +167,15 @@ export default class MeasurementToolsLayerNode extends Node {
             x: tipPosition.x,
             y: tipPosition.y
           }
+        } : {
+          visible: false
         },
-        stopwatch: {
-          visible: this.stopwatchNode.visible,
+        stopwatch: isStopwatchVisible ? {
+          visible: true,
           isRunning: this.model.stopwatch.isRunningProperty.value,
           elapsedTimeSeconds: this.model.stopwatch.timeProperty.value
+        } : {
+          visible: false
         },
         timePlot: {
           visible: this.model.isTimePlotVisibleProperty.value

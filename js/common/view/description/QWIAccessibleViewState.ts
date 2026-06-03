@@ -66,23 +66,29 @@ export type WaveVisualizationViewStateFragment = {
   waveVisualization: WaveVisualizationViewState;
 };
 
-export type ToolViewState = {
-  visible: boolean;
-};
-
-export type TapeMeasureViewState = ToolViewState & {
+export type TapeMeasureViewState = {
+  visible: false;
+} | {
+  visible: true;
   basePosition: { x: number; y: number };
   tipPosition: { x: number; y: number };
 };
 
-export type StopwatchViewState = ToolViewState & {
+export type StopwatchViewState = {
+  visible: false;
+} | {
+  visible: true;
   isRunning: boolean;
   elapsedTimeSeconds: number;
 };
 
-export type TimePlotViewState = ToolViewState;
+export type TimePlotViewState = {
+  visible: boolean;
+};
 
-export type PositionPlotViewState = ToolViewState;
+export type PositionPlotViewState = {
+  visible: boolean;
+};
 
 export type MeasurementToolsViewState = {
   tapeMeasure: TapeMeasureViewState;
