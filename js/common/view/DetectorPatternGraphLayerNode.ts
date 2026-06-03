@@ -10,6 +10,7 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -32,6 +33,9 @@ type DetectorPatternGraphLayerNodeOptions = {
 
 export default class DetectorPatternGraphLayerNode extends Node {
 
+  private readonly sceneProperty: TReadOnlyProperty<DetectorPatternGraphSceneLike>;
+  private readonly isVisibleProperty: TReadOnlyProperty<boolean>;
+  private readonly detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   private readonly graphNode: DetectorPatternGraphNode;
 
   public constructor(
@@ -44,6 +48,10 @@ export default class DetectorPatternGraphLayerNode extends Node {
     options: DetectorPatternGraphLayerNodeOptions = {}
   ) {
     super();
+
+    this.sceneProperty = sceneProperty;
+    this.isVisibleProperty = isVisibleProperty;
+    this.detectionModeProperty = options.detectionModeProperty;
 
     const axisLabelStringProperty = options.detectionModeProperty
                                     ? new DerivedProperty(
@@ -92,5 +100,26 @@ export default class DetectorPatternGraphLayerNode extends Node {
    */
   public reset(): void {
     this.graphNode.reset();
+  }
+
+  /**
+   * Gets sparse detector-pattern graph view state for agent-facing accessibility snapshots.
+   *
+   * @returns graph view state, or null when hidden
+   */
+  public override getAccessibleViewState(): AccessibleViewStateNode | null {
+    if ( !this.isVisibleProperty.value ) {
+      return null;
+    }
+
+    const scene = this.sceneProperty.value;
+    return {
+      detectorPatternGraph: {
+        visible: true,
+        sourceType: scene.sourceType,
+        detectionMode: this.detectionModeProperty?.value || 'hits',
+        hitCount: scene.hits.length
+      }
+    };
   }
 }

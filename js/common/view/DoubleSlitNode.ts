@@ -25,6 +25,7 @@ import ArrowNode, { type ArrowNodeOptions } from '../../../../scenery-phet/js/Ar
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
+import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import AccessibleSlider, { type AccessibleSliderOptions } from '../../../../sun/js/accessibility/AccessibleSlider.js';
@@ -79,6 +80,14 @@ export type DoubleSlitNodeOptions = SelfOptions & NodeOptions;
 
 export default class DoubleSlitNode extends Node {
 
+  private readonly barrierTypeProperty: TReadOnlyProperty<BarrierType>;
+  private readonly slitPositionFractionProperty: TReadOnlyProperty<number>;
+  private readonly slitSeparationProperty: TReadOnlyProperty<number>;
+  private readonly isTopSlitCoveredProperty: TReadOnlyProperty<boolean>;
+  private readonly isBottomSlitCoveredProperty: TReadOnlyProperty<boolean>;
+  private readonly isTopSlitDetectorProperty: TReadOnlyProperty<boolean>;
+  private readonly isBottomSlitDetectorProperty: TReadOnlyProperty<boolean>;
+
   public constructor(
     sceneProperty: TReadOnlyProperty<{ readonly regionWidth: number; readonly sourceType: SourceType }>,
     barrierTypeProperty: TReadOnlyProperty<BarrierType>,
@@ -97,6 +106,14 @@ export default class DoubleSlitNode extends Node {
     }, providedOptions );
 
     super( options );
+
+    this.barrierTypeProperty = barrierTypeProperty;
+    this.slitPositionFractionProperty = slitPositionFractionProperty;
+    this.slitSeparationProperty = slitSeparationProperty;
+    this.isTopSlitCoveredProperty = options.isTopSlitCoveredProperty;
+    this.isBottomSlitCoveredProperty = options.isBottomSlitCoveredProperty;
+    this.isTopSlitDetectorProperty = options.isTopSlitDetectorProperty;
+    this.isBottomSlitDetectorProperty = options.isBottomSlitDetectorProperty;
 
     const topBarrier = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, 0, CORNER_RADIUS, CORNER_RADIUS, {
       fill: BARRIER_FILL
@@ -265,5 +282,32 @@ export default class DoubleSlitNode extends Node {
         arrowNode.setTailAndTip( barrierCenterX - ARROW_WIDTH / 2, arrowY, barrierCenterX + ARROW_WIDTH / 2, arrowY );
       }
     );
+  }
+
+  /**
+   * Gets sparse slit-barrier view state for agent-facing accessibility snapshots.
+   *
+   * @returns slit-barrier view state
+   */
+  public override getAccessibleViewState(): AccessibleViewStateNode | null {
+    if ( this.barrierTypeProperty.value !== 'doubleSlit' ) {
+      return {
+        slitBarrier: {
+          barrierType: this.barrierTypeProperty.value
+        }
+      };
+    }
+
+    return {
+      slitBarrier: {
+        barrierType: this.barrierTypeProperty.value,
+        slitPositionFraction: this.slitPositionFractionProperty.value,
+        slitSeparationMM: this.slitSeparationProperty.value,
+        topSlitCovered: this.isTopSlitCoveredProperty.value,
+        bottomSlitCovered: this.isBottomSlitCoveredProperty.value,
+        topSlitDetector: this.isTopSlitDetectorProperty.value,
+        bottomSlitDetector: this.isBottomSlitDetectorProperty.value
+      }
+    };
   }
 }

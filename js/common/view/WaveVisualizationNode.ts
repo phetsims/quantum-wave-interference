@@ -16,6 +16,7 @@ import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
+import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -95,6 +96,7 @@ const formatDistance = ( meters: number ): string => {
 
 export default class WaveVisualizationNode extends Node {
 
+  private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
   private readonly waveCanvas: WaveVisualizationCanvasNode;
 
   public constructor( sceneProperty: TReadOnlyProperty<WaveVisualizableScene>, providedOptions?: WaveVisualizationNodeOptions ) {
@@ -104,6 +106,8 @@ export default class WaveVisualizationNode extends Node {
     }, providedOptions );
 
     super( options );
+
+    this.sceneProperty = sceneProperty;
 
     const width = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const height = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -181,5 +185,24 @@ export default class WaveVisualizationNode extends Node {
 
   public step(): void {
     this.waveCanvas.invalidatePaint();
+  }
+
+  /**
+   * Gets sparse wave-region view state for agent-facing accessibility snapshots.
+   *
+   * @returns wave-region view state
+   */
+  public override getAccessibleViewState(): AccessibleViewStateNode {
+    const scene = this.sceneProperty.value;
+
+    return {
+      waveVisualization: {
+        sourceType: scene.sourceType,
+        waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
+        isWaveVisible: scene.isWaveVisibleProperty.value,
+        regionWidthMeters: scene.regionWidth,
+        effectiveWavelengthMeters: scene.getEffectiveWavelength()
+      }
+    };
   }
 }

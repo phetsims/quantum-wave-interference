@@ -28,6 +28,7 @@ import { millisecondsUnit } from '../../../../scenery-phet/js/units/milliseconds
 import { nanosecondsUnit } from '../../../../scenery-phet/js/units/nanosecondsUnit.js';
 import { picosecondsUnit } from '../../../../scenery-phet/js/units/picosecondsUnit.js';
 import { secondsUnit } from '../../../../scenery-phet/js/units/secondsUnit.js';
+import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
@@ -68,6 +69,7 @@ export default class MeasurementToolsLayerNode extends Node {
 
   public readonly timePlotNode: TimePlotNode;
   public readonly positionPlotNode: PositionPlotNode;
+  private readonly model: MeasurementToolsModel;
 
   public constructor(
     model: MeasurementToolsModel,
@@ -133,8 +135,32 @@ export default class MeasurementToolsLayerNode extends Node {
       children: [ stopwatchNode, measuringTapeNode, timePlotNode, positionPlotNode ]
     } );
 
+    this.model = model;
     this.timePlotNode = timePlotNode;
     this.positionPlotNode = positionPlotNode;
+  }
+
+  /**
+   * Gets sparse measurement-tool view state for agent-facing accessibility snapshots.
+   *
+   * @returns measurement-tool view state
+   */
+  public override getAccessibleViewState(): AccessibleViewStateNode | null {
+    const tools = {
+      tapeMeasure: this.model.isTapeMeasureVisibleProperty.value,
+      stopwatch: this.model.isStopwatchVisibleProperty.value,
+      timePlot: this.model.isTimePlotVisibleProperty.value,
+      positionPlot: this.model.isPositionPlotVisibleProperty.value
+    };
+
+    return Object.values( tools ).some( Boolean ) ? {
+      measurementTools: {
+        tapeMeasure: tools.tapeMeasure,
+        stopwatch: tools.stopwatch,
+        timePlot: tools.timePlot,
+        positionPlot: tools.positionPlot
+      }
+    } : null;
   }
 }
 

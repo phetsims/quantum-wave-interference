@@ -19,6 +19,7 @@ import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.j
 import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import type { AccessibleStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
@@ -42,6 +43,7 @@ const MIDDLE_COLUMN_LEFT_SHIFT = 3;
 const BOTTOM_CONTROLS_SPACING = 15;
 
 export default class ExperimentScreenView extends ScreenView {
+  private readonly model: ExperimentModel;
   private readonly detectorColumnNode: ExperimentDetectorColumnNode;
   private readonly centerRulerOnDetectorScreen: () => void;
 
@@ -58,6 +60,8 @@ export default class ExperimentScreenView extends ScreenView {
       providedOptions );
 
     super( options );
+
+    this.model = model;
 
     const overheadApparatusNode = new ExperimentOverheadApparatusNode( model, this.layoutBounds, options.tandem );
     this.addChild( overheadApparatusNode );
@@ -294,6 +298,42 @@ export default class ExperimentScreenView extends ScreenView {
       eraserButton,
       resetAllButton
     ];
+  }
+
+  /**
+   * Gets authored semantic state for agent-facing accessibility snapshots.
+   *
+   * @returns current Experiment screen accessibility state
+   */
+  public getAccessibleState(): AccessibleStateNode {
+    const scene = this.model.sceneProperty.value;
+
+    return {
+      type: 'QWIExperimentScreen',
+      sourceType: scene.sourceType,
+      isPlaying: this.model.isPlayingProperty.value,
+      timeSpeed: this.model.timeSpeedProperty.value.name,
+      isEmitting: this.model.currentIsEmittingProperty.value,
+      isEmitterEnabled: this.model.currentIsEmitterEnabledProperty.value,
+      isMaxHitsReached: this.model.currentIsMaxHitsReachedProperty.value,
+      detectionMode: this.model.currentDetectionModeProperty.value,
+      slitConfiguration: this.model.currentSlitSettingProperty.value,
+      wavelengthNM: this.model.currentWavelengthProperty.value,
+      particleSpeedMetersPerSecond: this.model.currentVelocityProperty.value,
+      effectiveWavelengthMeters: scene.getEffectiveWavelength(),
+      slitSeparationMM: this.model.currentSlitSeparationProperty.value,
+      screenDistanceMeters: this.model.currentScreenDistanceProperty.value,
+      screenBrightness: this.model.currentScreenBrightnessProperty.value,
+      totalHits: this.model.currentTotalHitsProperty.value,
+      leftDetectorHits: this.model.currentLeftDetectorHitsProperty.value,
+      rightDetectorHits: this.model.currentRightDetectorHitsProperty.value,
+      numberOfSnapshots: scene.numberOfSnapshotsProperty.value,
+      detectorScreenScaleIndex: this.model.detectorScreenScaleIndexProperty.value,
+      tools: {
+        ruler: this.model.isRulerVisibleProperty.value,
+        stopwatch: this.model.stopwatch.isVisibleProperty.value
+      }
+    };
   }
 
   /**

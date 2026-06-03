@@ -17,6 +17,7 @@ import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
+import type { AccessibleStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
@@ -102,6 +103,7 @@ export default class HighIntensityScreenView extends ScreenView {
   private readonly detectorPatternGraphLayerNode: DetectorPatternGraphLayerNode;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
+  private readonly accessibleStateDescriber: QWIAccessibleStateDescriber;
 
   public constructor( model: HighIntensityModel, providedOptions: HighIntensityScreenViewOptions ) {
     const accessibleStateDescriber = new QWIAccessibleStateDescriber( model );
@@ -132,6 +134,7 @@ export default class HighIntensityScreenView extends ScreenView {
     super( options );
 
     this.model = model;
+    this.accessibleStateDescriber = accessibleStateDescriber;
 
     const tandem = options.tandem;
     const accessibleResponses = new HighIntensityAccessibleResponses( model, accessibleStateDescriber );
@@ -182,6 +185,15 @@ export default class HighIntensityScreenView extends ScreenView {
 
     this.addChild( accessibleResponses );
     this.setHighIntensityPDOMOrder( screenViewDescription, measurementToolNodes.measurementToolsNode, detectorScreenControls );
+  }
+
+  /**
+   * Gets authored semantic state for agent-facing accessibility snapshots.
+   *
+   * @returns current High Intensity accessibility state
+   */
+  public getAccessibleState(): AccessibleStateNode {
+    return Object.assign( { type: 'QWIHighIntensityScreen' }, this.accessibleStateDescriber.getState() );
   }
 
   /**

@@ -10,10 +10,12 @@
 
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
+import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Animation from '../../../../twixt/js/Animation.js';
@@ -36,6 +38,7 @@ const SNAPSHOT_FLASH_DURATION = 0.6;
 export default class DetectorScreenNode extends Node {
 
   private readonly canvasNode: CanvasNode;
+  private readonly sceneProperty: TReadOnlyProperty<DetectorScreenSceneLike>;
   private readonly snapshotFlashRect: Rectangle;
   private snapshotFlashAnimation: Animation | null = null;
 
@@ -46,6 +49,8 @@ export default class DetectorScreenNode extends Node {
     }, providedOptions );
 
     super( options );
+
+    this.sceneProperty = sceneProperty;
 
     const textureRenderer = new DetectorScreenTextureRenderer(
       SCREEN_WIDTH,
@@ -125,6 +130,33 @@ export default class DetectorScreenNode extends Node {
     }
     this.snapshotFlashRect.opacity = 0;
     this.snapshotFlashRect.visible = false;
+  }
+
+  /**
+   * Gets sparse detector-screen view state for agent-facing accessibility snapshots.
+   *
+   * @returns detector-screen view state
+   */
+  public override getAccessibleViewState(): AccessibleViewStateNode {
+    const scene = this.sceneProperty.value;
+    const totalHitsProperty = ( scene as DetectorScreenSceneLike & {
+      totalHitsProperty?: TReadOnlyProperty<number>;
+    } ).totalHitsProperty;
+
+    return {
+      detectorScreen: {
+        perspective: 'frontFacingSkewed',
+        sourceType: scene.sourceType,
+        detectionMode: scene.detectionModeProperty?.value || 'hits',
+        isEmitting: scene.isEmittingProperty.value,
+        screenBrightness: scene.screenBrightnessProperty.value,
+        screenBrightnessPercent: scene.screenBrightnessProperty.range ?
+                                 roundSymmetric( scene.screenBrightnessProperty.value / scene.screenBrightnessProperty.range.max * 100 ) :
+                                 null,
+        totalHits: totalHitsProperty ? totalHitsProperty.value : scene.hits.length,
+        hitCount: scene.hits.length
+      }
+    };
   }
 
   public step(): void {

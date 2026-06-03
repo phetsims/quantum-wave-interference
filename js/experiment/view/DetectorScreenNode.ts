@@ -17,6 +17,7 @@ import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
+import type { AccessibleViewStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
@@ -64,6 +65,8 @@ type SelfOptions = {
 type DetectorScreenNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
 
 export default class DetectorScreenNode extends Node {
+  private readonly sceneModel: SceneModel;
+  private readonly detectorScreenScaleIndexProperty: NumberProperty;
   private readonly screenCanvasNode: DetectorScreenCanvasNode;
   private readonly screenBackgroundRect: Rectangle;
 
@@ -86,6 +89,9 @@ export default class DetectorScreenNode extends Node {
     );
 
     super( options );
+
+    this.sceneModel = sceneModel;
+    this.detectorScreenScaleIndexProperty = detectorScreenScaleIndexProperty;
 
     // Black rounded rectangle background representing the detector screen
     this.screenBackgroundRect = new Rectangle(
@@ -320,5 +326,25 @@ export default class DetectorScreenNode extends Node {
    */
   public getScreenRectangleGlobalBounds(): Bounds2 {
     return this.screenBackgroundRect.localToGlobalBounds( this.screenBackgroundRect.localBounds );
+  }
+
+  /**
+   * Gets sparse detector-screen view state for agent-facing accessibility snapshots.
+   *
+   * @returns detector-screen view state
+   */
+  public override getAccessibleViewState(): AccessibleViewStateNode {
+    return {
+      detectorScreen: {
+        perspective: 'frontFacing',
+        sourceType: this.sceneModel.sourceType,
+        detectionMode: this.sceneModel.detectionModeProperty.value,
+        isEmitting: this.sceneModel.isEmittingProperty.value,
+        screenBrightness: this.sceneModel.screenBrightnessProperty.value,
+        totalHits: this.sceneModel.totalHitsProperty.value,
+        numberOfSnapshots: this.sceneModel.numberOfSnapshotsProperty.value,
+        detectorScreenScaleIndex: this.detectorScreenScaleIndexProperty.value
+      }
+    };
   }
 }

@@ -38,6 +38,7 @@ type WaveVisualizableScene = {
   readonly slitPositionFractionProperty: TReadOnlyProperty<number>;
   readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
+  getEffectiveWavelength(): number;
 
   // Optional display-only gain for wave-field rendering. Scenes that omit this render with unity gain.
   readonly waveAmplitudeScaleProperty?: TReadOnlyProperty<number>;

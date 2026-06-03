@@ -12,6 +12,7 @@ import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.j
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import type { AccessibleStateNode } from '../../../../scenery/js/accessibility/AccessibleSnapshotTypes.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -360,6 +361,58 @@ export default class SingleParticlesScreenView extends ScreenView {
       detectorScreenControls.waveDisplayAndTimeControlsGroup,
       detectorScreenControls.bottomButtonsRow
     ];
+  }
+
+  /**
+   * Gets authored semantic state for agent-facing accessibility snapshots.
+   *
+   * @returns current Single Particles accessibility state
+   */
+  public getAccessibleState(): AccessibleStateNode {
+    const scene = this.model.sceneProperty.value;
+    const detectorToolPosition = this.model.currentDetectorTool.positionProperty.value;
+
+    return {
+      type: 'QWISingleParticlesScreen',
+      sourceType: scene.sourceType,
+      isPlaying: this.model.isPlayingProperty.value,
+      timeSpeed: this.model.timeSpeedProperty.value.name,
+      isEmitting: this.model.currentIsEmittingProperty.value,
+      isEmitterEnabled: this.model.currentIsEmitterEnabledProperty.value,
+      isMaxHitsReached: this.model.currentIsMaxHitsReachedProperty.value,
+      autoRepeat: this.model.currentAutoRepeatProperty.value,
+      isPacketActive: this.model.currentIsPacketActiveProperty.value,
+      detectionMode: 'hits',
+      displayMode: this.model.isHitsGraphVisibleProperty.value ? 'graph' : 'screen',
+      waveDisplayMode: this.model.currentWaveDisplayModeProperty.value,
+      slitConfiguration: this.model.currentSlitConfigurationProperty.value,
+      wavelengthNM: this.model.currentWavelengthProperty.value,
+      particleSpeedMetersPerSecond: this.model.currentVelocityProperty.value,
+      effectiveWavelengthMeters: scene.getEffectiveWavelength(),
+      slitSeparationMM: this.model.currentSlitSeparationProperty.value,
+      totalHits: this.model.currentTotalHitsProperty.value,
+      leftDetectorHits: this.model.currentLeftDetectorHitsProperty.value,
+      rightDetectorHits: this.model.currentRightDetectorHitsProperty.value,
+      screenBrightness: this.model.currentScreenBrightnessProperty.value,
+      numberOfSnapshots: this.model.currentNumberOfSnapshotsProperty.value,
+      detectorTool: {
+        available: this.model.currentDetectorTool.isAvailableProperty.value,
+        visible: this.model.currentDetectorTool.isVisibleProperty.value,
+        state: this.model.currentDetectorTool.stateProperty.value,
+        probability: this.model.currentDetectorTool.probabilityProperty.value,
+        radius: this.model.currentDetectorTool.radiusProperty.value,
+        position: {
+          x: detectorToolPosition.x,
+          y: detectorToolPosition.y
+        }
+      },
+      tools: {
+        tapeMeasure: this.model.isTapeMeasureVisibleProperty.value,
+        stopwatch: this.model.isStopwatchVisibleProperty.value,
+        timePlot: this.model.isTimePlotVisibleProperty.value,
+        positionPlot: this.model.isPositionPlotVisibleProperty.value
+      }
+    };
   }
 
   public override step( dt: number ): void {
