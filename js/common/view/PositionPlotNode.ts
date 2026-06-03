@@ -2,7 +2,7 @@
 
 /**
  * PositionPlotNode is a tool that shows the currently displayed wave quantity versus horizontal
- * position along a draggable horizontal dotted line across the wave visualization region.
+ * position along a draggable horizontal aperture probe across the wave visualization region.
  * It consists of a full-width aperture probe, a fixed chart panel below that probe, and a short
  * vertical wire that visually connects them. The aperture probe's y-position selects a horizontal
  * row through the current scene's wave field; each frame, this node samples that row and redraws
@@ -34,16 +34,27 @@ import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQu
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
 import WavePlotChartNode, { MEASUREMENT_PLOT_CHART_HEIGHT, type WavePlotDataPoint } from './WavePlotChartNode.js';
 
-const WIRE_LINE_WIDTH = 3;
-const MIN_Y_FRACTION = 0.1;
-const MAX_Y_FRACTION = 0.9;
-const APERTURE_TO_PANEL_GAP = 18;
+const WIRE_WIDTH = 5;
+const WIRE_EDGE_LINE_WIDTH = 1;
+
+// The chart panel is tall, so the row selector is clamped away from the wave-region edges to keep more
+// of the attached panel within the visible screen area without changing the chart panel dimensions.
+const MIN_Y_FRACTION = 0.12;
+const MAX_Y_FRACTION = 0.88;
+
+// This gap is also the wire length. The chart panel is positioned from this value so shortening the
+// wire moves the panel toward the aperture while preserving the sampled row position.
+const APERTURE_TO_PANEL_GAP = 8;
 const POSITION_PROBE_COLOR = '#808080';
 const POSITION_PROBE_STROKE_COLOR = new Color( POSITION_PROBE_COLOR ).darkerColor( 0.7 );
-const POSITION_PROBE_APERTURE_HEIGHT = 9.6;
-const POSITION_PROBE_FRAME_THICKNESS = 7;
-const POSITION_PROBE_SIDE_FRAME_WIDTH = 8;
+const POSITION_PROBE_APERTURE_HEIGHT = 6;
+const POSITION_PROBE_FRAME_THICKNESS = 3.5;
+const POSITION_PROBE_SIDE_FRAME_WIDTH = 4;
 const POSITION_PROBE_SIDE_FRAME_OVERLAP = 1;
+
+// Hide the wave visualizer's right-edge stroke behind the aperture frame. The outer frame and hit
+// target still span the full wave region plus side frames; only the transparent opening is inset.
+const POSITION_PROBE_APERTURE_RIGHT_INSET = 1;
 const POSITION_PROBE_CORNER_RADIUS = 5;
 const POSITION_PLOT_PANEL_LEFT_PADDING = 8;
 const POSITION_PLOT_PANEL_BOTTOM_PADDING = 8;
@@ -61,7 +72,9 @@ export default class PositionPlotNode extends Node {
   private readonly chartNode: WavePlotChartNode;
   private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
   private readonly apertureProbeNode: Node;
-  private readonly wireLine: Line;
+  private readonly wireRectangle: Rectangle;
+  private readonly wireLeftEdgeLine: Line;
+  private readonly wireRightEdgeLine: Line;
   private readonly waveRegionY: number;
   private readonly waveRegionHeight: number;
   private readonly lineCenterX: number;
@@ -107,12 +120,22 @@ export default class PositionPlotNode extends Node {
     this.chartNode.addInputListener( verticalDragListener );
     this.addChild( this.chartNode );
 
-    this.wireLine = new Line( this.lineCenterX, 0, this.lineCenterX, 0, {
-      stroke: POSITION_PROBE_STROKE_COLOR,
-      lineWidth: WIRE_LINE_WIDTH
+    this.wireRectangle = new Rectangle( 0, 0, 0, 0, {
+      fill: POSITION_PROBE_COLOR
     } );
-    this.addChild( this.wireLine );
-    this.wireLine.moveToBack();
+    this.wireLeftEdgeLine = new Line( 0, 0, 0, 0, {
+      stroke: POSITION_PROBE_STROKE_COLOR,
+      lineWidth: WIRE_EDGE_LINE_WIDTH
+    } );
+    this.wireRightEdgeLine = new Line( 0, 0, 0, 0, {
+      stroke: POSITION_PROBE_STROKE_COLOR,
+      lineWidth: WIRE_EDGE_LINE_WIDTH
+    } );
+    const wireNode = new Node( {
+      children: [ this.wireRectangle, this.wireLeftEdgeLine, this.wireRightEdgeLine ]
+    } );
+    this.addChild( wireNode );
+    wireNode.moveToBack();
 
     this.lineYFractionProperty.link( () => this.updateProbeChartAndWireLayout() );
 
@@ -190,10 +213,16 @@ export default class PositionPlotNode extends Node {
     this.apertureProbeNode.centerY = viewY;
 
     this.chartNode.top = this.apertureProbeNode.bottom + APERTURE_TO_PANEL_GAP;
-    this.wireLine.x1 = this.lineCenterX;
-    this.wireLine.x2 = this.lineCenterX;
-    this.wireLine.y1 = this.chartNode.top;
-    this.wireLine.y2 = this.apertureProbeNode.bottom;
+
+    // Draw the wire as a filled rectangle with two side strokes instead of one stroked line so its
+    // interior matches the aperture fill while its vertical edges match the aperture outline.
+    const wireLeft = this.lineCenterX - WIRE_WIDTH / 2;
+    const wireRight = this.lineCenterX + WIRE_WIDTH / 2;
+    const wireTop = this.apertureProbeNode.bottom;
+    const wireBottom = this.chartNode.top;
+    this.wireRectangle.setRect( wireLeft, wireTop, WIRE_WIDTH, wireBottom - wireTop );
+    this.wireLeftEdgeLine.setLine( wireLeft, wireTop, wireLeft, wireBottom );
+    this.wireRightEdgeLine.setLine( wireRight, wireTop, wireRight, wireBottom );
   }
 
   /**
@@ -208,7 +237,10 @@ export default class PositionPlotNode extends Node {
     const outerHeight = POSITION_PROBE_APERTURE_HEIGHT + 2 * POSITION_PROBE_FRAME_THICKNESS;
     const apertureLeft = POSITION_PROBE_SIDE_FRAME_WIDTH;
     const apertureTop = POSITION_PROBE_FRAME_THICKNESS;
-    const apertureRight = apertureLeft + waveRegionWidth;
+
+    // Only the transparent aperture opening is narrowed; the right side frame grows by the same amount.
+    const apertureWidth = waveRegionWidth - POSITION_PROBE_APERTURE_RIGHT_INSET;
+    const apertureRight = apertureLeft + apertureWidth;
     const apertureBottom = apertureTop + POSITION_PROBE_APERTURE_HEIGHT;
 
     const fillOptions = {
@@ -233,7 +265,7 @@ export default class PositionPlotNode extends Node {
         } ), fillOptions ),
         new Rectangle( 0, apertureTop - POSITION_PROBE_SIDE_FRAME_OVERLAP, POSITION_PROBE_SIDE_FRAME_WIDTH,
           POSITION_PROBE_APERTURE_HEIGHT + 2 * POSITION_PROBE_SIDE_FRAME_OVERLAP, fillOptions ),
-        new Rectangle( apertureRight, apertureTop - POSITION_PROBE_SIDE_FRAME_OVERLAP, POSITION_PROBE_SIDE_FRAME_WIDTH,
+        new Rectangle( apertureRight, apertureTop - POSITION_PROBE_SIDE_FRAME_OVERLAP, outerWidth - apertureRight,
           POSITION_PROBE_APERTURE_HEIGHT + 2 * POSITION_PROBE_SIDE_FRAME_OVERLAP, fillOptions ),
         new Path( Shape.roundedRectangleWithRadii( 0, 0, outerWidth, outerHeight, {
           topLeft: POSITION_PROBE_CORNER_RADIUS,
@@ -241,7 +273,7 @@ export default class PositionPlotNode extends Node {
           bottomLeft: POSITION_PROBE_CORNER_RADIUS,
           bottomRight: POSITION_PROBE_CORNER_RADIUS
         } ), outlineOptions ),
-        new Rectangle( apertureLeft, apertureTop, waveRegionWidth, POSITION_PROBE_APERTURE_HEIGHT, outlineOptions ),
+        new Rectangle( apertureLeft, apertureTop, apertureWidth, POSITION_PROBE_APERTURE_HEIGHT, outlineOptions ),
 
         // Invisible hit target. The center remains visually transparent so the wave field is visible
         // through the aperture.
