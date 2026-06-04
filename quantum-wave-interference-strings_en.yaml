@@ -606,7 +606,7 @@ a11y:
                                   }
     accessibleContextResponseOff: Experiment stopped.
   rulerCheckbox:
-    accessibleHelpText:                 Add ruler to measure distances across detector screen or graph. Once added, move ruler up or down with keyboard shortcuts.
+    accessibleHelpText:                 Add tape measure to measure distances on detector screen or graph. Once added, move ruler up or down with keyboard shortcuts.
     accessibleContextResponseChecked:   Ruler added near detector screen.
     accessibleContextResponseUnchecked: Ruler removed.
   stopwatchCheckbox:
@@ -686,7 +686,7 @@ a11y:
                                }
   brightnessSlider:
     accessibleName:     Screen Brightness
-    accessibleHelpText: Adjust brightness to optimize visual analysis of pattern on detector screen.
+    accessibleHelpText: Adjust brightness for pattern on detector screen.
   detectionModeRadioButtons:
     accessibleName:     Detection Mode Sensitivity
     accessibleHelpText: Choose continuous intensity pattern or individual hits pattern for particle detection.
@@ -752,7 +752,7 @@ a11y:
                                 *[bothDetectors] Detectors added to both slits in barrier.
                                }
   screenGraphSwitch:
-    accessibleHelpText: Choose graph or screen representation for data analysis.
+    accessibleHelpText: Choose screen or graph representation for data analysis.
   photonWaveDisplayComboBox:
     accessibleHelpText: Choose Amplitude or Electric Field display for photon wave.
   matterWaveDisplayComboBox:
@@ -991,7 +991,7 @@ a11y:
                                  }
     viewSnapshots:
       accessibleName:            View Snapshots
-      accessibleHelpText:        Open stored snapshots for comparison or deletion.
+      accessibleHelpText:        Open stored snapshots for comparison.
       accessibleContextResponse: |-
                                  { $snapshotCount ->
                                    [one] 1 snapshot ready to review.

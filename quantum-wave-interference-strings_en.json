@@ -385,7 +385,7 @@
     },
     "rulerCheckbox": {
       "accessibleHelpText": {
-        "value": "Add ruler to measure distances across detector screen or graph. Once added, move ruler up or down with keyboard shortcuts."
+        "value": "Add tape measure to measure distances on detector screen or graph. Once added, move ruler up or down with keyboard shortcuts."
       },
       "accessibleContextResponseChecked": {
         "value": "Ruler added near detector screen."
@@ -485,7 +485,7 @@
         "value": "Screen Brightness"
       },
       "accessibleHelpText": {
-        "value": "Adjust brightness to optimize visual analysis of pattern on detector screen."
+        "value": "Adjust brightness for pattern on detector screen."
       }
     },
     "detectionModeRadioButtons": {
@@ -555,7 +555,7 @@
     },
     "screenGraphSwitch": {
       "accessibleHelpText": {
-        "value": "Choose graph or screen representation for data analysis."
+        "value": "Choose screen or graph representation for data analysis."
       }
     },
     "photonWaveDisplayComboBox": {
@@ -765,7 +765,7 @@
           "value": "View Snapshots"
         },
         "accessibleHelpText": {
-          "value": "Open stored snapshots for comparison or deletion."
+          "value": "Open stored snapshots for comparison."
         },
         "accessibleContextResponse": {
           "value": "{ $snapshotCount ->\n  [one] 1 snapshot ready to review.\n *[other] { $snapshotCount } snapshots ready to review.\n}"
