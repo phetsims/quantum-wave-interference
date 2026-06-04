@@ -131,6 +131,7 @@ export default class SingleParticlesScreenView extends ScreenView {
         {
           detectionMode: 'hits',
           slitOrientation: 'topBottom',
+          playAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.playAreaSingleParticlesStringProperty,
           detectorScreenHasPatternProperty: model.currentTotalHitsProperty.derived( totalHits => totalHits > 0 )
         }
       )

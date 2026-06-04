@@ -31,6 +31,7 @@ type ScreenSummaryModel = {
 type ScreenSummaryOptions = {
   detectionMode: DetectionMode | TReadOnlyProperty<DetectionMode>;
   slitOrientation?: SlitOrientation;
+  playAreaContent?: SectionContent;
   detectorScreenHasPatternProperty?: TReadOnlyProperty<boolean>;
   currentDetailsContent?: SectionContent;
 };
@@ -92,7 +93,8 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
     );
 
     super( {
-      playAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.playAreaStringProperty,
+      playAreaContent: providedOptions.playAreaContent ||
+                       QuantumWaveInterferenceFluent.a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.controlAreaStringProperty,
       currentDetailsContent: providedOptions.currentDetailsContent || currentDetailsContentProperty,
       interactionHintContent: interactionHintContentProperty

@@ -56,7 +56,6 @@ import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighInte
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
 import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QWIBandSpacingDescription, type QWIClockSpeedDescription, type QWIPatternFormation, type QWIPatternKind, type QWIWavefrontSpacing, type QWIWaveProgressCheckpoint, type QWIWaveProgressStage, type QWIWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
-import QWIAccessibleStateTemplate from './description/QWIAccessibleStateTemplate.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -311,6 +310,7 @@ export default class HighIntensityScreenView extends ScreenView {
       {
         detectionMode: model.currentDetectionModeProperty,
         slitOrientation: 'topBottom',
+        playAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.playAreaHighIntensityStringProperty,
         detectorScreenHasPatternProperty: DerivedProperty.deriveAny(
           [
             model.sceneProperty,
@@ -322,10 +322,6 @@ export default class HighIntensityScreenView extends ScreenView {
           () => model.currentDetectionModeProperty.value === 'averageIntensity' ?
                 model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() :
                 model.currentTotalHitsProperty.value > 0
-        ),
-        currentDetailsContent: QWIAccessibleStateTemplate.createCurrentDetailsTemplateProperty(
-          model,
-          getAccessibleViewState
         )
       }
     );

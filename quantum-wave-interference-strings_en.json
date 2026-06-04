@@ -223,6 +223,12 @@
       "playArea": {
         "value": "A highly configurable three-part experimental setup includes a particle source emitter, double-slit barrier, and detector screen. When experiment is running, particles pass through available slits in barrier to land on detector screen and build patterns. You can choose and adjust source particles, configure slits in barrier, observe and take snapshots of resulting patterns on detector screen."
       },
+      "playAreaHighIntensity": {
+        "value": "A zoomed-in wave area shows a particle source, double-slit barrier, and detector screen. When the source is on, waves travel through available slits and build a pattern on the detector screen. You can change particle type, slit configuration, wave display, detector view, and measurement tools."
+      },
+      "playAreaSingleParticles": {
+        "value": "A zoomed-in wave area shows a single-particle source, double-slit barrier, and detector screen. When the source is on, individual particles travel through available slits and build a hits pattern on the detector screen. You can change particle type, slit configuration, wave display, detector view, and measurement tools."
+      },
       "controlArea": {
         "value": "Measurement tools can be added or removed to assist with data collection and analysis. Reset sim to start over."
       },

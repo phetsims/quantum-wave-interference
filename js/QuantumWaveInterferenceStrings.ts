@@ -100,6 +100,8 @@ type StringsType = {
   'a11y': {
     'screenSummary': {
       'playAreaStringProperty': LocalizedStringProperty;
+      'playAreaHighIntensityStringProperty': LocalizedStringProperty;
+      'playAreaSingleParticlesStringProperty': LocalizedStringProperty;
       'controlAreaStringProperty': LocalizedStringProperty;
       'maxHitsReachedHintStringProperty': LocalizedStringProperty;
       'currentDetailsStringProperty': LocalizedStringProperty;
