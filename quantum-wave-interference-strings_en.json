@@ -765,7 +765,7 @@
           "value": "View Snapshots"
         },
         "accessibleHelpText": {
-          "value": "Open stored snapshots for comparative analysis or deletion."
+          "value": "Open stored snapshots for comparison or deletion."
         },
         "accessibleContextResponse": {
           "value": "{ $snapshotCount ->\n  [one] 1 snapshot ready to review.\n *[other] { $snapshotCount } snapshots ready to review.\n}"
