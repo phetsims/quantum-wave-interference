@@ -29,7 +29,15 @@ export default class QWIAccessibleStateTemplate {
     } );
   }
 
-  private static createDependencies( model: HighIntensityModel ): TReadOnlyProperty<unknown>[] {
+  /**
+   * Creates the Property dependency list for derived descriptions that read the full High Intensity accessible state.
+   * Callers use this when their derivation samples getAccessibleViewState() and must update for model, locale, and
+   * localized-unit changes.
+   *
+   * @param model - High Intensity model that owns the accessible state dependencies
+   * @returns dependencies that should trigger recomputation of High Intensity accessible-state descriptions
+   */
+  public static createDependencies( model: HighIntensityModel ): TReadOnlyProperty<unknown>[] {
     return Array.from( new Set( [
       model.sceneProperty,
       model.currentIsEmittingProperty,

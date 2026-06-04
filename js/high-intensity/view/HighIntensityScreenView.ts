@@ -55,6 +55,7 @@ import HighIntensityModel from '../model/HighIntensityModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighIntensitySceneModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
+import HighIntensityExperimentSetupSequenceItems from './description/HighIntensityExperimentSetupSequenceItems.js';
 import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QWIBandSpacingDescription, type QWIClockSpeedDescription, type QWIPatternFormation, type QWIPatternKind, type QWIWavefrontSpacing, type QWIWaveProgressCheckpoint, type QWIWaveProgressStage, type QWIWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
@@ -298,7 +299,8 @@ export default class HighIntensityScreenView extends ScreenView {
       sourceControlNodes.sceneRadioButtonGroup,
       bottomRow,
       waveRegionNodes.doubleSlitNode,
-      detectorScreenControls
+      detectorScreenControls,
+      getAccessibleViewState
     );
 
     this.addChild( accessibleResponses );
@@ -785,7 +787,8 @@ export default class HighIntensityScreenView extends ScreenView {
     sceneRadioButtonGroup: SceneRadioButtonGroup<HighIntensitySceneModel>,
     bottomRow: SlitConfigurationControlsRow<SlitConfigurationWithNoBarrier>,
     doubleSlitNode: DoubleSlitNode,
-    detectorScreenControls: DetectorScreenControls
+    detectorScreenControls: DetectorScreenControls,
+    getAccessibleViewState: () => HighIntensityAccessibleViewState
   ): QuantumWaveInterferenceScreenViewDescription {
     const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
       model,
@@ -794,6 +797,7 @@ export default class HighIntensityScreenView extends ScreenView {
         detectorScreenUpdateTriggerProperty: model.accessibleStateStepProperty,
         screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,
         slitOrientation: 'topBottom',
+        experimentSetupAdditionalListItems: HighIntensityExperimentSetupSequenceItems( model, getAccessibleViewState ),
         sourceNodes: [ sourceBeamCalloutNode, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow, doubleSlitNode ],
         detectorScreenControlNodes: [ detectorScreenControls ]

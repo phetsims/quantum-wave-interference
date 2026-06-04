@@ -47,6 +47,7 @@ type SetupDetailsOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   screenDistanceProperty?: TReadOnlyProperty<number>;
   slitOrientation?: SlitOrientation;
+  additionalListItems?: AccessibleListItem[];
 };
 
 const getDecimalPlacesForValue = ( value: number ): number => {
@@ -241,6 +242,8 @@ export default class ExperimentSetupDetailsNode extends Node {
         } )
       );
     }
+
+    providedOptions.additionalListItems && listItems.push( ...providedOptions.additionalListItems );
 
     super( {
       accessibleTemplate: AccessibleList.createTemplateProperty( {

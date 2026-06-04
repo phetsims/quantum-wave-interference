@@ -10,6 +10,7 @@ import BooleanProperty from '../../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
+import { type AccessibleListItem } from '../../../../../scenery-phet/js/accessibility/AccessibleList.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
@@ -39,6 +40,7 @@ type SharedDescriptionOptions = {
   screenGraphVisibleProperty?: TReadOnlyProperty<boolean>;
   slitOrientation?: SlitOrientation;
   includeExperimentSetupDetails?: boolean;
+  experimentSetupAdditionalListItems?: AccessibleListItem[];
   sourceNodes: Node[];
   slitNodes: Node[];
   detectorScreenControlNodes: Node[];
@@ -93,7 +95,8 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
       experimentSetupDetailsNode = new ExperimentSetupDetailsNode( model, slitSettingProperty, {
         detectionModeProperty: providedOptions.detectionModeProperty,
-        slitOrientation: providedOptions.slitOrientation
+        slitOrientation: providedOptions.slitOrientation,
+        additionalListItems: providedOptions.experimentSetupAdditionalListItems
       } );
       this.addChild( experimentSetupDetailsNode );
     }
