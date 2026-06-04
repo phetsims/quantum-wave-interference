@@ -29,7 +29,7 @@ export default function createStandardToolCheckboxes<T extends BaseSceneModel>(
       QuantumWaveInterferenceFluent.tapeMeasureStringProperty,
       tandem.createTandem( 'tapeMeasureCheckbox' ),
       ToolIcons.createTapeMeasureIcon(),
-      QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty
+      QuantumWaveInterferenceFluent.a11y.tapeMeasureCheckbox.accessibleHelpTextStringProperty
     ),
     stopwatchCheckbox: new ToolCheckbox(
       model.isStopwatchVisibleProperty,

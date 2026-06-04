@@ -533,7 +533,7 @@ a11y:
                                   [electrons] Electron Source Emitter
                                   [neutrons] Neutron Source Emitter
                                  *[heliumAtoms] Helium Atom Source Emitter
-                                } is { $isEmitting ->
+                                } { $isEmitting ->
                                   [true] on.
                                  *[false] off.
                                 }
@@ -542,7 +542,7 @@ a11y:
                                   [averageIntensity] Intensity Mode.
                                  *[hits] Hits Mode.
                                 }
-    wavelength:                 'Wavelength is { $wavelength }, and in { $color } zone.'
+    wavelength:                 'Wavelength is { $wavelength }, in { $color } zone.'
     particleSpeed:              'Particle Speed is { $speed }.'
     slitConfiguration:          >-
                                 { $slitSetting ->
@@ -606,17 +606,19 @@ a11y:
                                   }
     accessibleContextResponseOff: Experiment stopped.
   rulerCheckbox:
-    accessibleHelpText:                 Add tape measure to measure distances on detector screen or graph. Once added, move ruler up or down with keyboard shortcuts.
+    accessibleHelpText:                 Add ruler to measure distances on detector screen or graph. Once added, move ruler up or down with keyboard shortcuts.
     accessibleContextResponseChecked:   Ruler added near detector screen.
     accessibleContextResponseUnchecked: Ruler removed.
+  tapeMeasureCheckbox:
+    accessibleHelpText: Add tape measure to measure distances on detector screen or graph. Once added, move with keyboard shortcuts.
   stopwatchCheckbox:
     accessibleHelpText:                 Add stopwatch to time experiment. Once added, Start, Pause, Reset Stopwatch, and move with keyboard shortcuts.
     accessibleContextResponseChecked:   Stopwatch added near detector screen.
     accessibleContextResponseUnchecked: Stopwatch removed.
   timePlotCheckbox:
-    accessibleHelpText: Use added time plot to graph wave value at a position over time.
+    accessibleHelpText: Use added time plot to graph wave value at position over time.
   positionPlotCheckbox:
-    accessibleHelpText: Use added position plot to graph wave value across positions in the wave area.
+    accessibleHelpText: Use added position plot to graph wave value across positions in wave area.
   slitSeparationSlider:
     accessibleHelpText: >-
                         { $unit ->
@@ -762,13 +764,13 @@ a11y:
     accessibleParagraph: >-
                          Magnified view of the barrier with two vertical slits, each { $slitWidth } wide.
                          { $slitSetting ->
-                           [bothOpen] Both slits are open.
-                           [leftCovered] Left slit is covered.
-                           [rightCovered] Right slit is covered.
-                           [leftDetector] Left slit is monitored by a detector.
-                           [rightDetector] Right slit is monitored by a detector.
+                           [bothOpen] Both slits open.
+                           [leftCovered] Left slit covered.
+                           [rightCovered] Right slit covered.
+                           [leftDetector] Left slit monitored by a detector.
+                           [rightDetector] Right slit monitored by a detector.
                            [noBarrier] No barrier between source and screen.
-                          *[bothDetectors] Both slits are monitored by detectors.
+                          *[bothDetectors] Both slits monitored by detectors.
                          }
   zoomInButton:
     accessibleName: Zoom In
@@ -821,7 +823,7 @@ a11y:
     maxHitsReached:
       accessibleContextResponse: Maximum number of hits reached. Source is off. Clear detector screen to make more observations.
     accessibleParagraph:
-      intensityOff:                   Detector screen is empty.
+      intensityOff:                   Detector screen empty.
       intensity:                      >-
                                       Evenly spaced bright bands form across the screen. Bands are { $spacing ->
                                         [extremelyFarApart] extremely far apart

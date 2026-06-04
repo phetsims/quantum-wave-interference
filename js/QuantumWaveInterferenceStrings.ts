@@ -167,6 +167,9 @@ type StringsType = {
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseUncheckedStringProperty': LocalizedStringProperty;
     };
+    'tapeMeasureCheckbox': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'stopwatchCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;

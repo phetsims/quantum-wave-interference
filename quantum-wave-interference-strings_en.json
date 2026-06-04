@@ -343,13 +343,13 @@
         "value": "Current experimental details:"
       },
       "sourceEmitter": {
-        "value": "{ $sourceType ->\n  [photons] Photon Source Emitter\n  [electrons] Electron Source Emitter\n  [neutrons] Neutron Source Emitter\n *[heliumAtoms] Helium Atom Source Emitter\n} is { $isEmitting ->\n  [true] on.\n *[false] off.\n}"
+        "value": "{ $sourceType ->\n  [photons] Photon Source Emitter\n  [electrons] Electron Source Emitter\n  [neutrons] Neutron Source Emitter\n *[heliumAtoms] Helium Atom Source Emitter\n} { $isEmitting ->\n  [true] on.\n *[false] off.\n}"
       },
       "detectionMode": {
         "value": "Screen Detection set to { $detectionMode ->\n  [averageIntensity] Intensity Mode.\n *[hits] Hits Mode.\n}"
       },
       "wavelength": {
-        "value": "Wavelength is { $wavelength }, and in { $color } zone."
+        "value": "Wavelength is { $wavelength }, in { $color } zone."
       },
       "particleSpeed": {
         "value": "Particle Speed is { $speed }."
@@ -385,13 +385,18 @@
     },
     "rulerCheckbox": {
       "accessibleHelpText": {
-        "value": "Add tape measure to measure distances on detector screen or graph. Once added, move ruler up or down with keyboard shortcuts."
+        "value": "Add ruler to measure distances on detector screen or graph. Once added, move ruler up or down with keyboard shortcuts."
       },
       "accessibleContextResponseChecked": {
         "value": "Ruler added near detector screen."
       },
       "accessibleContextResponseUnchecked": {
         "value": "Ruler removed."
+      }
+    },
+    "tapeMeasureCheckbox": {
+      "accessibleHelpText": {
+        "value": "Add tape measure to measure distances on detector screen or graph. Once added, move with keyboard shortcuts."
       }
     },
     "stopwatchCheckbox": {
@@ -407,12 +412,12 @@
     },
     "timePlotCheckbox": {
       "accessibleHelpText": {
-        "value": "Use added time plot to graph wave value at a position over time."
+        "value": "Use added time plot to graph wave value at position over time."
       }
     },
     "positionPlotCheckbox": {
       "accessibleHelpText": {
-        "value": "Use added position plot to graph wave value across positions in the wave area."
+        "value": "Use added position plot to graph wave value across positions in wave area."
       }
     },
     "slitSeparationSlider": {
@@ -573,7 +578,7 @@
     },
     "slitView": {
       "accessibleParagraph": {
-        "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits are open.\n  [leftCovered] Left slit is covered.\n  [rightCovered] Right slit is covered.\n  [leftDetector] Left slit is monitored by a detector.\n  [rightDetector] Right slit is monitored by a detector.\n  [noBarrier] No barrier between source and screen.\n *[bothDetectors] Both slits are monitored by detectors.\n}"
+        "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits open.\n  [leftCovered] Left slit covered.\n  [rightCovered] Right slit covered.\n  [leftDetector] Left slit monitored by a detector.\n  [rightDetector] Right slit monitored by a detector.\n  [noBarrier] No barrier between source and screen.\n *[bothDetectors] Both slits monitored by detectors.\n}"
       }
     },
     "zoomInButton": {
@@ -648,7 +653,7 @@
       },
       "accessibleParagraph": {
         "intensityOff": {
-          "value": "Detector screen is empty."
+          "value": "Detector screen empty."
         },
         "intensity": {
           "value": "Evenly spaced bright bands form across the screen. Bands are { $spacing ->\n  [extremelyFarApart] extremely far apart\n  [veryFarApart] very far apart\n  [farApart] far apart\n  [somewhatCloseTogether] somewhat close together\n  [closeTogether] close together\n  [veryCloseTogether] very close together\n *[extremelyCloseTogether] extremely close together\n} across screen, { $envelope ->\n  [clusteringIntoTwoFaintSections] clustering into two faint sections, directly across from slits\n  [clusteringIntoTwoDistinctSections] clustering into two distinct sections, directly across from slits\n *[brightestAtCenter] brightest band at center\n}."
