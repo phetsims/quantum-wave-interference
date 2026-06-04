@@ -8,13 +8,13 @@ neutrons:                        Neutrons
 heliumAtoms:                     Helium Atoms
 
 # Shown above the emitter
-photonSource:                    Photon source
-electronSource:                  Electron source
-neutronSource:                   Neutron source
-heliumAtomSource:                Helium atom source
+photonSource:                    Photon Source
+electronSource:                  Electron Source
+neutronSource:                   Neutron Source
+heliumAtomSource:                Helium Atom Source
 
 doubleSlit:                      Slitted Barrier
-detectorScreen:                  Detector screen
+detectorScreen:                  Detector Screen
 maximumHitsReached:              Maximum hits reached
 intensity:                       Intensity
 sourceIntensity:                 Source Intensity

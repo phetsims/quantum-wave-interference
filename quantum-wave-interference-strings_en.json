@@ -24,22 +24,22 @@
     "value": "Helium Atoms"
   },
   "photonSource": {
-    "value": "Photon source"
+    "value": "Photon Source"
   },
   "electronSource": {
-    "value": "Electron source"
+    "value": "Electron Source"
   },
   "neutronSource": {
-    "value": "Neutron source"
+    "value": "Neutron Source"
   },
   "heliumAtomSource": {
-    "value": "Helium atom source"
+    "value": "Helium Atom Source"
   },
   "doubleSlit": {
     "value": "Slitted Barrier"
   },
   "detectorScreen": {
-    "value": "Detector screen"
+    "value": "Detector Screen"
   },
   "maximumHitsReached": {
     "value": "Maximum hits reached"
