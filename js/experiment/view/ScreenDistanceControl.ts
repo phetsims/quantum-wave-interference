@@ -25,39 +25,47 @@ const SCREEN_DISTANCE_DECIMAL_PLACES = 2;
 const SCREEN_DISTANCE_DELTA = 0.01;
 const SCREEN_DISTANCE_RESPONSE_EPSILON = 1e-12;
 
-type ScreenDistanceDirection = 'closer' | 'farther';
+type ScreenDistancePosition = 'closest' | 'closer' | 'farther' | 'farthest';
 type ScreenDistancePatternEffect = 'doubleSlitCloser' | 'doubleSlitFarther' | 'singleSlitCloser' | 'singleSlitFarther';
 
 type SelfOptions = EmptySelfOptions;
 
 export type ScreenDistanceControlOptions = SelfOptions & PickRequired<NumberControlOptions, 'tandem'>;
 
+function getScreenDistancePosition( scene: SceneModel, value: number, valueOnStart: number ): ScreenDistancePosition {
+  return equalsEpsilon( value, scene.screenDistanceRange.min, SCREEN_DISTANCE_RESPONSE_EPSILON ) ? 'closest' :
+         equalsEpsilon( value, scene.screenDistanceRange.max, SCREEN_DISTANCE_RESPONSE_EPSILON ) ? 'farthest' :
+         value < valueOnStart ? 'closer' :
+         'farther';
+}
+
 function getScreenDistanceContextResponse( scene: SceneModel, value: number, valueOnStart: number ): string | null {
   if ( equalsEpsilon( value, valueOnStart, SCREEN_DISTANCE_RESPONSE_EPSILON ) ) {
     return null;
   }
 
-  const direction: ScreenDistanceDirection = value < valueOnStart ? 'closer' : 'farther';
+  const position = getScreenDistancePosition( scene, value, valueOnStart );
 
   if ( !scene.isEmittingProperty.value ) {
     return QuantumWaveInterferenceFluent.a11y.screenDistanceSlider.accessibleContextResponseNoPattern.format( {
-      direction: direction
+      position: position
     } );
   }
 
   if ( scene.detectionModeProperty.value === 'hits' ) {
     return QuantumWaveInterferenceFluent.a11y.screenDistanceSlider.accessibleContextResponseHits.format( {
-      direction: direction
+      position: position
     } );
   }
 
   const isDoubleSlitInterferencePattern = showsDoubleSlitInterferencePattern( scene.slitSettingProperty.value );
+  const isCloser = position === 'closest' || position === 'closer';
   const patternEffect: ScreenDistancePatternEffect = isDoubleSlitInterferencePattern ?
-                                                     ( direction === 'closer' ? 'doubleSlitCloser' : 'doubleSlitFarther' ) :
-                                                     ( direction === 'closer' ? 'singleSlitCloser' : 'singleSlitFarther' );
+                                                     ( isCloser ? 'doubleSlitCloser' : 'doubleSlitFarther' ) :
+                                                     ( isCloser ? 'singleSlitCloser' : 'singleSlitFarther' );
 
   return QuantumWaveInterferenceFluent.a11y.screenDistanceSlider.accessibleContextResponse.format( {
-    direction: direction,
+    position: position,
     patternEffect: patternEffect
   } );
 }

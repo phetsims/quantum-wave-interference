@@ -29,6 +29,7 @@ import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import AccessibleSlider, { type AccessibleSliderOptions } from '../../../../sun/js/accessibility/AccessibleSlider.js';
+import ValueChangeSoundPlayer from '../../../../tambo/js/sound-generators/ValueChangeSoundPlayer.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { DISPLAY_SLIT_WIDTH, getDisplaySlitLayout } from '../getDisplaySlitLayout.js';
 import { type BarrierType } from '../model/BarrierType.js';
@@ -55,7 +56,9 @@ const SLIT_POSITION_PAGE_KEYBOARD_STEP = 0.05;
 const SLIT_POSITION_DISTANCE_DECIMAL_PLACES = 2;
 const SLIT_POSITION_RESPONSE_EPSILON = 1e-12;
 
-type SlitPositionDirection = 'closer' | 'farther';
+type SlitPositionPosition = 'closest' | 'closer' | 'farther' | 'farthest';
+
+const slitPositionBoundarySoundPlayer = new ValueChangeSoundPlayer( SLIT_POSITION_FRACTION_RANGE );
 
 type AccessibleArrowNodeOptions = ArrowNodeOptions & AccessibleSliderOptions;
 
@@ -97,11 +100,23 @@ function getSlitPositionContextResponse(
     return null;
   }
 
-  const direction: SlitPositionDirection = distance < distanceOnStart ? 'closer' : 'farther';
+  const position: SlitPositionPosition =
+    equalsEpsilon( slitPositionFraction, SLIT_POSITION_FRACTION_RANGE.max, SLIT_POSITION_RESPONSE_EPSILON ) ? 'closest' :
+    equalsEpsilon( slitPositionFraction, SLIT_POSITION_FRACTION_RANGE.min, SLIT_POSITION_RESPONSE_EPSILON ) ? 'farthest' :
+    distance < distanceOnStart ? 'closer' :
+    'farther';
 
   return QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleContextResponse.format( {
-    direction: direction
+    position: position
   } );
+}
+
+function playSlitPositionBoundarySound( newSlitPositionFraction: number, oldSlitPositionFraction: number ): void {
+  if ( !equalsEpsilon( newSlitPositionFraction, oldSlitPositionFraction, SLIT_POSITION_RESPONSE_EPSILON ) &&
+       ( equalsEpsilon( newSlitPositionFraction, SLIT_POSITION_FRACTION_RANGE.min, SLIT_POSITION_RESPONSE_EPSILON ) ||
+         equalsEpsilon( newSlitPositionFraction, SLIT_POSITION_FRACTION_RANGE.max, SLIT_POSITION_RESPONSE_EPSILON ) ) ) {
+    slitPositionBoundarySoundPlayer.playSoundForValueChange( newSlitPositionFraction, oldSlitPositionFraction );
+  }
 }
 
 type SelfOptions = {
@@ -192,6 +207,7 @@ export default class DoubleSlitNode extends Node {
     this.addChild( barrierContainer );
 
     const sourceTypeProperty = sceneProperty.derived( scene => scene.sourceType );
+    let previousAccessibleSlitPositionFraction = slitPositionFractionProperty.value;
 
     const arrowNode = new AccessibleArrowNode( 0, 0, 0, 0, {
       doubleHead: true,
@@ -207,6 +223,13 @@ export default class DoubleSlitNode extends Node {
       shiftKeyboardStep: SLIT_POSITION_SHIFT_KEYBOARD_STEP,
       pageKeyboardStep: SLIT_POSITION_PAGE_KEYBOARD_STEP,
       constrainValue: ( value: number ) => SLIT_POSITION_FRACTION_RANGE.constrainValue( value ),
+      startDrag: () => {
+        previousAccessibleSlitPositionFraction = slitPositionFractionProperty.value;
+      },
+      drag: () => {
+        playSlitPositionBoundarySound( slitPositionFractionProperty.value, previousAccessibleSlitPositionFraction );
+        previousAccessibleSlitPositionFraction = slitPositionFractionProperty.value;
+      },
       accessibleName: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleHelpText.createProperty( {
         sourceType: sourceTypeProperty
@@ -241,7 +264,9 @@ export default class DoubleSlitNode extends Node {
       drag: ( event, listener ) => {
         const dx = listener.parentPoint.x - dragStartX;
         const fractionDelta = dx / WAVE_REGION_WIDTH;
+        const oldSlitPositionFraction = slitPositionFractionProperty.value;
         slitPositionFractionProperty.value = SLIT_POSITION_FRACTION_RANGE.constrainValue( dragStartFraction + fractionDelta );
+        playSlitPositionBoundarySound( slitPositionFractionProperty.value, oldSlitPositionFraction );
       }
     } );
     arrowNode.addInputListener( createDragListener() );

@@ -647,25 +647,33 @@ a11y:
                         }
     accessibleValue:    '{ $value }'
     accessibleContextResponse: >-
-                               { $direction ->
+                               { $position ->
+                                 [closest] Closest to detector screen.
                                  [closer] Closer to detector screen.
+                                 [farthest] Farthest from detector screen.
                                 *[farther] Farther from detector screen.
                                }
   screenDistanceSlider:
     accessibleHelpText: Move detector screen closer to or farther from slitted barrier in meters.
     accessibleContextResponseNoPattern: >-
-                                        { $direction ->
+                                        { $position ->
+                                          [closest] Closest to barrier.
                                           [closer] Closer to barrier.
+                                          [farthest] Farthest from barrier.
                                          *[farther] Farther from barrier.
                                         }
     accessibleContextResponseHits: >-
-                                   { $direction ->
+                                   { $position ->
+                                     [closest] Closest to barrier
                                      [closer] Closer to barrier
+                                     [farthest] Farthest from barrier
                                     *[farther] Farther from barrier
                                    }, hits cleared, new pattern forming.
     accessibleContextResponse: >-
-                               { $direction ->
+                               { $position ->
+                                 [closest] Closest to barrier
                                  [closer] Closer to barrier
+                                 [farthest] Farthest from barrier
                                 *[farther] Farther from barrier
                                }, { $patternEffect ->
                                  [doubleSlitCloser] bright bands get closer together
