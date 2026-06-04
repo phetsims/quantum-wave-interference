@@ -991,7 +991,7 @@ a11y:
                                  }
     viewSnapshots:
       accessibleName:            View Snapshots
-      accessibleHelpText:        Open stored snapshots for comparison.
+      accessibleHelpText:        Open stored snapshots for comparison or deletion.
       accessibleContextResponse: |-
                                  { $snapshotCount ->
                                    [one] 1 snapshot ready to review.
