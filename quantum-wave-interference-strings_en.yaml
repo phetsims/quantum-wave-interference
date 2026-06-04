@@ -646,8 +646,33 @@ a11y:
                          *[heliumAtoms] Move slitted barrier closer to or farther from detector screen in nanometers.
                         }
     accessibleValue:    '{ $value }'
+    accessibleContextResponse: >-
+                               { $direction ->
+                                 [closer] Closer to detector screen.
+                                *[farther] Farther from detector screen.
+                               }
   screenDistanceSlider:
     accessibleHelpText: Move detector screen closer to or farther from slitted barrier in meters.
+    accessibleContextResponseNoPattern: >-
+                                        { $direction ->
+                                          [closer] Closer to barrier.
+                                         *[farther] Farther from barrier.
+                                        }
+    accessibleContextResponseHits: >-
+                                   { $direction ->
+                                     [closer] Closer to barrier
+                                    *[farther] Farther from barrier
+                                   }, hits cleared, new pattern forming.
+    accessibleContextResponse: >-
+                               { $direction ->
+                                 [closer] Closer to barrier
+                                *[farther] Farther from barrier
+                               }, { $patternEffect ->
+                                 [doubleSlitCloser] bright bands get closer together
+                                 [doubleSlitFarther] bright bands get farther apart
+                                 [singleSlitCloser] central bright area gets narrower
+                                *[singleSlitFarther] central bright area gets wider
+                               }.
   wavelengthSlider:
     accessibleHelpText: Change wavelength of emitted photons in nanometers from shortest, violet, to longest, red.
     accessibleValue:    '{ $value }, { $color } zone'

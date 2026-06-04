@@ -190,9 +190,13 @@ type StringsType = {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleValueStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseStringProperty': LocalizedStringProperty;
     };
     'screenDistanceSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseNoPatternStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseHitsStringProperty': LocalizedStringProperty;
+      'accessibleContextResponseStringProperty': LocalizedStringProperty;
     };
     'wavelengthSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;

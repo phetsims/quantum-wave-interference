@@ -18,6 +18,7 @@ import TinyProperty from '../../../../axon/js/TinyProperty.js';
 import TProperty from '../../../../axon/js/TProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
+import { equalsEpsilon } from '../../../../dot/js/util/equalsEpsilon.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import Orientation from '../../../../phet-core/js/Orientation.js';
@@ -52,6 +53,9 @@ const SLIT_POSITION_KEYBOARD_STEP = 0.01;
 const SLIT_POSITION_SHIFT_KEYBOARD_STEP = 0.0025;
 const SLIT_POSITION_PAGE_KEYBOARD_STEP = 0.05;
 const SLIT_POSITION_DISTANCE_DECIMAL_PLACES = 2;
+const SLIT_POSITION_RESPONSE_EPSILON = 1e-12;
+
+type SlitPositionDirection = 'closer' | 'farther';
 
 type AccessibleArrowNodeOptions = ArrowNodeOptions & AccessibleSliderOptions;
 
@@ -65,6 +69,39 @@ class AccessibleArrowNode extends AccessibleSlider( ArrowNode, 4 ) {
   ) {
     super( tailX, tailY, tipX, tipY, providedOptions );
   }
+}
+
+function getSlitToScreenDistance( regionWidth: number, slitPositionFraction: number ): number {
+  const measuringTapeUnits = getMeasuringTapeUnits( regionWidth );
+  return ( 1 - slitPositionFraction ) * WAVE_REGION_WIDTH * measuringTapeUnits.multiplier;
+}
+
+function getSlitPositionAccessibleDistance( regionWidth: number, slitPositionFraction: number ): string {
+  const measuringTapeUnits = getMeasuringTapeUnits( regionWidth );
+  return measuringTapeUnits.unit.getAccessibleString( getSlitToScreenDistance( regionWidth, slitPositionFraction ), {
+    decimalPlaces: SLIT_POSITION_DISTANCE_DECIMAL_PLACES,
+    showTrailingZeros: true,
+    showIntegersAsIntegers: true
+  } );
+}
+
+function getSlitPositionContextResponse(
+  regionWidth: number,
+  slitPositionFraction: number,
+  slitPositionFractionOnStart: number
+): string | null {
+  const distance = getSlitToScreenDistance( regionWidth, slitPositionFraction );
+  const distanceOnStart = getSlitToScreenDistance( regionWidth, slitPositionFractionOnStart );
+
+  if ( equalsEpsilon( distance, distanceOnStart, SLIT_POSITION_RESPONSE_EPSILON ) ) {
+    return null;
+  }
+
+  const direction: SlitPositionDirection = distance < distanceOnStart ? 'closer' : 'farther';
+
+  return QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleContextResponse.format( {
+    direction: direction
+  } );
 }
 
 type SelfOptions = {
@@ -175,17 +212,12 @@ export default class DoubleSlitNode extends Node {
         sourceType: sourceTypeProperty
       } ),
       createAriaValueText: ( value: number ) => {
-        const measuringTapeUnits = getMeasuringTapeUnits( sceneProperty.value.regionWidth );
-        const distance = ( 1 - value ) * WAVE_REGION_WIDTH * measuringTapeUnits.multiplier;
-
         return QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleValue.format( {
-          value: measuringTapeUnits.unit.getAccessibleString( distance, {
-            decimalPlaces: SLIT_POSITION_DISTANCE_DECIMAL_PLACES,
-            showTrailingZeros: true,
-            showIntegersAsIntegers: true
-          } )
+          value: getSlitPositionAccessibleDistance( sceneProperty.value.regionWidth, value )
         } );
       },
+      createContextResponseAlert: ( value, _newValue, valueOnStart ) =>
+        getSlitPositionContextResponse( sceneProperty.value.regionWidth, value, valueOnStart ),
       descriptionDependencies: Array.from( new Set( [
         sceneProperty,
         ...micrometersUnit.getDependentProperties(),

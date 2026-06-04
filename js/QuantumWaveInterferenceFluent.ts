@@ -160,7 +160,11 @@ addToMapIfDefined( 'a11y_slitSeparationSlider_accessibleHelpText', 'a11y.slitSep
 addToMapIfDefined( 'a11y_slitPositionSlider_accessibleName', 'a11y.slitPositionSlider.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_slitPositionSlider_accessibleHelpText', 'a11y.slitPositionSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitPositionSlider_accessibleValue', 'a11y.slitPositionSlider.accessibleValueStringProperty' );
+addToMapIfDefined( 'a11y_slitPositionSlider_accessibleContextResponse', 'a11y.slitPositionSlider.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_screenDistanceSlider_accessibleHelpText', 'a11y.screenDistanceSlider.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_screenDistanceSlider_accessibleContextResponseNoPattern', 'a11y.screenDistanceSlider.accessibleContextResponseNoPatternStringProperty' );
+addToMapIfDefined( 'a11y_screenDistanceSlider_accessibleContextResponseHits', 'a11y.screenDistanceSlider.accessibleContextResponseHitsStringProperty' );
+addToMapIfDefined( 'a11y_screenDistanceSlider_accessibleContextResponse', 'a11y.screenDistanceSlider.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_accessibleHelpText', 'a11y.wavelengthSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_accessibleValue', 'a11y.wavelengthSlider.accessibleValueStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_color_violet', 'a11y.wavelengthSlider.color.violetStringProperty' );
@@ -443,10 +447,14 @@ const QuantumWaveInterferenceFluent = {
     slitPositionSlider: {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleNameStringProperty' ) ),
       accessibleHelpText: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleHelpTextStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
-      accessibleValue: new FluentPattern<{ value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleValue', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleValueStringProperty' ), [{"name":"value"}] )
+      accessibleValue: new FluentPattern<{ value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleValue', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleValueStringProperty' ), [{"name":"value"}] ),
+      accessibleContextResponse: new FluentPattern<{ direction: 'closer' | 'farther' | TReadOnlyProperty<'closer' | 'farther'> }>( fluentSupport.bundleProperty, 'a11y_slitPositionSlider_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.slitPositionSlider.accessibleContextResponseStringProperty' ), [{"name":"direction","variants":["closer","farther"]}] )
     },
     screenDistanceSlider: {
-      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenDistanceSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.screenDistanceSlider.accessibleHelpTextStringProperty' ) )
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenDistanceSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.screenDistanceSlider.accessibleHelpTextStringProperty' ) ),
+      accessibleContextResponseNoPattern: new FluentPattern<{ direction: 'closer' | 'farther' | TReadOnlyProperty<'closer' | 'farther'> }>( fluentSupport.bundleProperty, 'a11y_screenDistanceSlider_accessibleContextResponseNoPattern', _.get( QuantumWaveInterferenceStrings, 'a11y.screenDistanceSlider.accessibleContextResponseNoPatternStringProperty' ), [{"name":"direction","variants":["closer","farther"]}] ),
+      accessibleContextResponseHits: new FluentPattern<{ direction: 'closer' | 'farther' | TReadOnlyProperty<'closer' | 'farther'> }>( fluentSupport.bundleProperty, 'a11y_screenDistanceSlider_accessibleContextResponseHits', _.get( QuantumWaveInterferenceStrings, 'a11y.screenDistanceSlider.accessibleContextResponseHitsStringProperty' ), [{"name":"direction","variants":["closer","farther"]}] ),
+      accessibleContextResponse: new FluentPattern<{ direction: 'closer' | 'farther' | TReadOnlyProperty<'closer' | 'farther'>, patternEffect: 'doubleSlitCloser' | 'doubleSlitFarther' | 'singleSlitCloser' | 'singleSlitFarther' | TReadOnlyProperty<'doubleSlitCloser' | 'doubleSlitFarther' | 'singleSlitCloser' | 'singleSlitFarther'> }>( fluentSupport.bundleProperty, 'a11y_screenDistanceSlider_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.screenDistanceSlider.accessibleContextResponseStringProperty' ), [{"name":"direction","variants":["closer","farther"]},{"name":"patternEffect","variants":["doubleSlitCloser","doubleSlitFarther","singleSlitCloser","singleSlitFarther"]}] )
     },
     wavelengthSlider: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.accessibleHelpTextStringProperty' ) ),

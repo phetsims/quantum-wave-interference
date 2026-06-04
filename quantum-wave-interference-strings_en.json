@@ -440,11 +440,23 @@
       },
       "accessibleValue": {
         "value": "{ $value }"
+      },
+      "accessibleContextResponse": {
+        "value": "{ $direction ->\n  [closer] Closer to detector screen.\n *[farther] Farther from detector screen.\n}"
       }
     },
     "screenDistanceSlider": {
       "accessibleHelpText": {
         "value": "Move detector screen closer to or farther from slitted barrier in meters."
+      },
+      "accessibleContextResponseNoPattern": {
+        "value": "{ $direction ->\n  [closer] Closer to barrier.\n *[farther] Farther from barrier.\n}"
+      },
+      "accessibleContextResponseHits": {
+        "value": "{ $direction ->\n  [closer] Closer to barrier\n *[farther] Farther from barrier\n}, hits cleared, new pattern forming."
+      },
+      "accessibleContextResponse": {
+        "value": "{ $direction ->\n  [closer] Closer to barrier\n *[farther] Farther from barrier\n}, { $patternEffect ->\n  [doubleSlitCloser] bright bands get closer together\n  [doubleSlitFarther] bright bands get farther apart\n  [singleSlitCloser] central bright area gets narrower\n *[singleSlitFarther] central bright area gets wider\n}."
       }
     },
     "wavelengthSlider": {
