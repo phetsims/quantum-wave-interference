@@ -13,7 +13,7 @@ electronSource:                  Electron source
 neutronSource:                   Neutron source
 heliumAtomSource:                Helium atom source
 
-doubleSlit:                      Double slit
+doubleSlit:                      Slitted Barrier
 detectorScreen:                  Detector screen
 maximumHitsReached:              Maximum hits reached
 intensity:                       Intensity
