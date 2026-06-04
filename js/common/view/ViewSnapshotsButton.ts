@@ -85,6 +85,8 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleHelpTextStringProperty,
       accessibleContextResponse: accessibleContextResponseProperty,
       accessibleContextResponseOptions: {
+
+        // TODO: Document the reason for alertWhenNotDisplayed: true, see https://github.com/phetsims/quantum-wave-interference/issues/135
         alertWhenNotDisplayed: true
       },
       soundPlayer: nullSoundPlayer,
