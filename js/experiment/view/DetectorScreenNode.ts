@@ -8,6 +8,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+// TODO: Cannot have same name as other DetectorScreenNode in quantum-wave-interference, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
