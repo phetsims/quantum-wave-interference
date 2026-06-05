@@ -26,14 +26,14 @@ export function getDisplaySlitLayout(
   slitSeparation: number, slitSeparationMin: number, slitSeparationMax: number,
   regionHeight: number
 ): DisplaySlitLayout {
-  const sepRange = slitSeparationMax - slitSeparationMin;
-  const sepFraction = sepRange > 0 ? ( slitSeparation - slitSeparationMin ) / sepRange : 0.5;
+  const separationRange = slitSeparationMax - slitSeparationMin;
+  const separationFraction = separationRange > 0 ? ( slitSeparation - slitSeparationMin ) / separationRange : 0.5;
   const displaySeparationPixels = linear(
     0,
     1,
     MIN_DISPLAY_SLIT_SEPARATION,
     MAX_DISPLAY_SLIT_SEPARATION,
-    sepFraction
+    separationFraction
   );
   const displaySlitSeparation = displaySeparationPixels / WAVE_REGION_HEIGHT * regionHeight;
   const displaySlitWidth = DISPLAY_SLIT_WIDTH / WAVE_REGION_HEIGHT * regionHeight;
