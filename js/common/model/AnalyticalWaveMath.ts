@@ -23,6 +23,7 @@ export function smoothStep( edge0: number, edge1: number, x: number ): number {
 }
 
 // Boundary helper for code paths that must return a public Complex object.
+// TODO: Add to Complex, right? See https://github.com/phetsims/quantum-wave-interference/issues/135
 export function createPolarComplex( magnitude: number, phase: number ): Complex {
   return new Complex( magnitude * Math.cos( phase ), magnitude * Math.sin( phase ) );
 }

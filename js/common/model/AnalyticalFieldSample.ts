@@ -39,6 +39,8 @@ export function computeSampleIntensity( sample: FieldSample ): number {
     }
   }
 
+
+  // TODO: Duplicated fragment, 19 lines long, see https://github.com/phetsims/quantum-wave-interference/issues/135
   const groupNames: string[] = [];
   const groupRealSums: number[] = [];
   const groupImaginarySums: number[] = [];
@@ -66,6 +68,7 @@ export function computeSampleIntensity( sample: FieldSample ): number {
 
 /**
  * Legacy display adapter: produce one complex value from a physically richer FieldSample.
+ * TODO: Why is this a legacy display adapter? Is it unused? Why does our sim have any legacy things? See https://github.com/phetsims/quantum-wave-interference/issues/135
  *
  * If there is one coherence group, this is the coherent sum. If there are multiple groups, the
  * returned phase is taken from the strongest group and the magnitude is scaled to the total

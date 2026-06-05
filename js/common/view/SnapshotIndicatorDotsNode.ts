@@ -8,8 +8,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';

@@ -73,8 +73,8 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
     type: 'number',
     defaultValue: QuantumWaveInterferenceConstants.MAX_HITS,
     isValidValue: value => Number.isInteger( value ) &&
-                            value > 0 &&
-                            value <= QuantumWaveInterferenceConstants.MAX_HITS
+                           value > 0 &&
+                           value <= QuantumWaveInterferenceConstants.MAX_HITS
   },
 
   // Internal performance tuning knob for the vertical detector graph on High Intensity/Single Particles.

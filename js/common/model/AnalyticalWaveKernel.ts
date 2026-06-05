@@ -28,9 +28,9 @@
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { EPSILON, NEAR_APERTURE_X_FRACTION, createPolarComplex, createPolarTimesComplex, smoothStep } from './AnalyticalWaveMath.js';
-import { getFresnelApertureTransfer } from './FresnelApertureTransfer.js';
 import { type AnalyticalBarrier, type AnalyticalSlit, type AnalyticalSource, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldComponent, type FieldComponentSource, type FieldLayer, type FieldSample, type GaussianPacketReEmission, type GaussianPacketSource, type LayeredFieldSample, type MeasurementProjection, type PlaneWaveSource } from './AnalyticalWaveKernelTypes.js';
+import { createPolarComplex, createPolarTimesComplex, EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './AnalyticalWaveMath.js';
+import { getFresnelApertureTransfer } from './FresnelApertureTransfer.js';
 
 export { computeSampleIntensity, getRepresentativeComplex } from './AnalyticalFieldSample.js';
 export type {
@@ -458,7 +458,7 @@ function applyPlaneWaveDecoherenceEventLayers(
  * Applies which-path detector records to a model-facing field sample.
  *
  * Detector records preserve the selected slit component and attenuate the other slit component. For
- * gaussian packets the latest causal record projects the whole packet, while for plane waves the
+ * Gaussian packets the latest causal record projects the whole packet, while for plane waves the
  * projection is restricted to the retarded temporal chain for each component. This pure helper is
  * called after the undecohered source/barrier field has been evaluated.
  */
@@ -653,6 +653,7 @@ function evaluateDoubleSlitSample(
   const components: FieldComponent[] = [];
   let hasReachablePath = false;
 
+  // TODO: Add documentation, see https://github.com/phetsims/quantum-wave-interference/issues/135
   for ( let i = 0; i < openSlits.length; i++ ) {
     const slit = openSlits[ i ];
     const xPastBarrier = x - barrier.barrierX;

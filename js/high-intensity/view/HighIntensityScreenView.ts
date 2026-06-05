@@ -10,8 +10,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
@@ -34,29 +34,29 @@ import BandAnalysis from '../../common/view/description/BandAnalysis.js';
 import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
+import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
+import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import type DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
 import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
-import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
-import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
-import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
 import resetDetectorScreenView from '../../common/view/resetDetectorScreenView.js';
+import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationControlsRow.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import stepDetectorScreenViewNodes from '../../common/view/stepDetectorScreenViewNodes.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
+import { getWavelengthColorZone, type WavelengthColorZone } from '../../common/view/WavelengthColorUtils.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
-import { getWavelengthColorZone, type WavelengthColorZone } from '../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../model/HighIntensityModel.js';
-import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighIntensitySceneModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
+import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
-import HighIntensityExperimentSetupSequenceItems from './description/HighIntensityExperimentSetupSequenceItems.js';
 import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QWIBandSpacingDescription, type QWIClockSpeedDescription, type QWIPatternFormation, type QWIPatternKind, type QWIWavefrontSpacing, type QWIWaveProgressCheckpoint, type QWIWaveProgressStage, type QWIWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
+import HighIntensityExperimentSetupSequenceItems from './description/HighIntensityExperimentSetupSequenceItems.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
 type SelfOptions = EmptySelfOptions;

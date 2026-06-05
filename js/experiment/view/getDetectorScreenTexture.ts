@@ -10,7 +10,7 @@
 
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
-import renderDetectorScreenTexture, { createDetectorScreenHitRenderCache, detectorScreenTextureRenderParametersChanged, type DetectorScreenHitRenderCache, type DetectorScreenTextureRenderParameters, resetDetectorScreenHitRenderCache } from '../../common/view/renderDetectorScreenTexture.js';
+import renderDetectorScreenTexture, { createDetectorScreenHitRenderCache, type DetectorScreenHitRenderCache, type DetectorScreenTextureRenderParameters, detectorScreenTextureRenderParametersChanged, resetDetectorScreenHitRenderCache } from '../../common/view/renderDetectorScreenTexture.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 import SceneModel from '../model/SceneModel.js';

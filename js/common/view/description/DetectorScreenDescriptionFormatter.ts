@@ -59,9 +59,9 @@ export function formatLiveHitsDescription(
   if ( isDoubleSlit ) {
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty.value :
            hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDeveloping.format( {
-                                      spacing: analysis.spacingCategory,
-                                      envelope: analysis.envelopeCategory
-                                    } ) :
+                                       spacing: analysis.spacingCategory,
+                                       envelope: analysis.envelopeCategory
+                                     } ) :
            hitStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( {
                                   spacing: analysis.spacingCategory,
                                   envelope: analysis.envelopeCategory

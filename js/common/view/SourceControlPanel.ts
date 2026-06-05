@@ -28,8 +28,8 @@ import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import createSourceControlPanelContent from './createSourceControlPanelContent.js';
-import SourceControlScene from './SourceControlScene.js';
 import { SOURCE_CONTROL_SECTION_SPACING } from './SourceControlPanelConstants.js';
+import SourceControlScene from './SourceControlScene.js';
 
 export type { default as SourceControlScene } from './SourceControlScene.js';
 

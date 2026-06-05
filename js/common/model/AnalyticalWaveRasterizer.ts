@@ -6,6 +6,7 @@
  * This intentionally avoids Scenery and browser canvas APIs. It maps AnalyticalWaveKernel
  * FieldSample status/value objects to RGBA bytes for the production canvas renderer.
  *
+ * TODO: Why is there a legacy thing in a new sim? See https://github.com/phetsims/quantum-wave-interference/issues/135
  * There are two rendering paths. The legacy FieldSample path returns opaque pixels and encodes weak
  * field support by blending RGB toward the vacuum color. The layered path is used for the experimental
  * High Intensity particle-chain interpretation: each selected-slit band is drawn as a transparent
@@ -305,17 +306,17 @@ function getDisplayModeIntensity(
   const imaginary = displayState.imaginary * amplitudeScale;
 
   return displayMode === 'timeAveragedIntensity' ? clamp(
-           FIELD_DISPLAY_CUTOFF * minimumIntensityVisibility +
-           ( 1 - FIELD_DISPLAY_CUTOFF ) * displayState.intensity * boostedAmplitudeScale * boostedAmplitudeScale,
-           0,
-           1
-         ) :
+                                                   FIELD_DISPLAY_CUTOFF * minimumIntensityVisibility +
+                                                   ( 1 - FIELD_DISPLAY_CUTOFF ) * displayState.intensity * boostedAmplitudeScale * boostedAmplitudeScale,
+                                                   0,
+                                                   1
+                                                 ) :
          displayMode === 'magnitude' ? clamp(
-           FIELD_DISPLAY_CUTOFF * minimumIntensityVisibility +
-           ( 1 - FIELD_DISPLAY_CUTOFF ) * Math.sqrt( displayState.intensity ) * boostedAmplitudeScale,
-           0,
-           1
-         ) :
+                                       FIELD_DISPLAY_CUTOFF * minimumIntensityVisibility +
+                                       ( 1 - FIELD_DISPLAY_CUTOFF ) * Math.sqrt( displayState.intensity ) * boostedAmplitudeScale,
+                                       0,
+                                       1
+                                     ) :
          displayMode === 'electricField' ? getPhaseDisplayIntensity( real * colorPower ) * phaseVisibility :
          displayMode === 'realPart' ? getPhaseDisplayIntensity( real * colorPower ) * phaseVisibility :
          displayMode === 'imaginaryPart' ? getPhaseDisplayIntensity( imaginary * colorPower ) * phaseVisibility :

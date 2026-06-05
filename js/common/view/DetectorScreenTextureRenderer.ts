@@ -17,7 +17,7 @@ import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
-import { createDetectorScreenHitRenderCache, createDetectorScreenHitSpriteParams, detectorScreenHitSpriteParamsMatch, detectorScreenTextureRenderParametersChanged, type DetectorScreenHitRenderCache, type DetectorScreenTextureRenderParameters, resetDetectorScreenHitRenderCache } from './renderDetectorScreenTexture.js';
+import { createDetectorScreenHitRenderCache, createDetectorScreenHitSpriteParams, type DetectorScreenHitRenderCache, detectorScreenHitSpriteParamsMatch, type DetectorScreenTextureRenderParameters, detectorScreenTextureRenderParametersChanged, resetDetectorScreenHitRenderCache } from './renderDetectorScreenTexture.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
 // Supersampling factor for the offscreen detector-screen texture. Rendering above the displayed screen size keeps

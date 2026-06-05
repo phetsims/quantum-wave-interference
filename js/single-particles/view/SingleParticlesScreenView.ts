@@ -28,8 +28,8 @@ import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGrap
 import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
 import type DoubleSlitNode from '../../common/view/DoubleSlitNode.js';
-import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
 import MaxHitsReachedPanel from '../../common/view/MaxHitsReachedPanel.js';
+import MeasurementToolsLayerNode from '../../common/view/MeasurementToolsLayerNode.js';
 import ParticleMassAnnotationNode from '../../common/view/ParticleMassAnnotationNode.js';
 import PositionPlotNode from '../../common/view/PositionPlotNode.js';
 import resetDetectorScreenView from '../../common/view/resetDetectorScreenView.js';
@@ -39,9 +39,9 @@ import stepDetectorScreenViewNodes from '../../common/view/stepDetectorScreenVie
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 import ToolCheckbox from '../../common/view/ToolCheckbox.js';
 import ToolIcons from '../../common/view/ToolIcons.js';
+import { getWavelengthColorZone } from '../../common/view/WavelengthColorUtils.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
-import { getWavelengthColorZone } from '../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import type SingleParticlesSceneModel from '../model/SingleParticlesSceneModel.js';
