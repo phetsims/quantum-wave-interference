@@ -19,6 +19,7 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
+import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import ShadedRectangle from '../../../../scenery-phet/js/ShadedRectangle.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
@@ -64,7 +65,7 @@ type SelfOptions = {
   panelRightPadding?: number;
 };
 
-type WavePlotChartNodeOptions = SelfOptions & NodeOptions;
+type WavePlotChartNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
 export type WavePlotDataPoint = {
   x: number;
@@ -225,7 +226,9 @@ export default class WavePlotChartNode extends Node {
 
     this.children = [ shadedBackground, chartPanel ];
 
-    this.positionProperty = new Vector2Property( new Vector2( initialX, initialY ) );
+    this.positionProperty = new Vector2Property( new Vector2( initialX, initialY ), {
+      tandem: options.tandem.createTandem( 'positionProperty' )
+    } );
     this.positionProperty.link( position => {
       this.x = position.x;
       this.y = position.y;
@@ -266,7 +269,8 @@ export default class WavePlotChartNode extends Node {
 
       this.addInputListener( new DragListener( {
         positionProperty: this.positionProperty,
-        dragBoundsProperty: adjustedDragBoundsProperty
+        dragBoundsProperty: adjustedDragBoundsProperty,
+        tandem: options.tandem.createTandem( 'dragListener' )
       } ) );
     }
   }

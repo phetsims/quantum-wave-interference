@@ -122,7 +122,8 @@ export default class MeasurementToolsLayerNode extends Node {
       waveRegionLeft,
       waveRegionTop,
       visibleBoundsProperty,
-      model.isTimePlotVisibleProperty
+      model.isTimePlotVisibleProperty,
+      tandem.createTandem( 'timePlotNode' )
     );
 
     const positionPlotNode = new PositionPlotNode(
@@ -130,7 +131,8 @@ export default class MeasurementToolsLayerNode extends Node {
       model.currentWaveDisplayModeProperty,
       waveRegionLeft,
       waveRegionTop,
-      model.isPositionPlotVisibleProperty
+      model.isPositionPlotVisibleProperty,
+      tandem.createTandem( 'positionPlotNode' )
     );
 
     super( {

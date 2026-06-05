@@ -63,7 +63,8 @@ export default class CurrentDetectorTool {
     );
 
     this.isVisibleProperty = new BooleanProperty( false, {
-      tandem: toolsTandem.createTandem( 'isDetectorToolVisibleProperty' )
+      tandem: toolsTandem.createTandem( 'isDetectorToolVisibleProperty' ),
+      phetioFeatured: true
     } );
   }
 

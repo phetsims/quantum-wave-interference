@@ -264,7 +264,7 @@ export default class HighIntensityScreenView extends ScreenView {
     );
     this.positionAndAddParticleMassAnnotation( sourceControlNodes.particleMassAnnotation, sourceBeamCalloutNode );
 
-    const waveRegionNodes = this.createAndAddWaveRegionNodes( model, waveRegionLayout );
+    const waveRegionNodes = this.createAndAddWaveRegionNodes( model, waveRegionLayout, tandem );
     this.detectorScreenNode = waveRegionNodes.detectorScreenNode;
     this.waveVisualizationNode = waveRegionNodes.waveVisualizationNode;
     this.doubleSlitNode = waveRegionNodes.doubleSlitNode;
@@ -534,8 +534,9 @@ export default class HighIntensityScreenView extends ScreenView {
    * @param waveRegionLayout - coordinates for positioning the wave region and detector screen
    * @returns the detector screen and wave visualization nodes retained by the ScreenView
    */
-  private createAndAddWaveRegionNodes( model: HighIntensityModel, waveRegionLayout: WaveRegionLayout ): WaveRegionNodes {
+  private createAndAddWaveRegionNodes( model: HighIntensityModel, waveRegionLayout: WaveRegionLayout, tandem: Tandem ): WaveRegionNodes {
     const waveRegionNode = new WaveRegionNode( model, {
+      tandem: tandem.createTandem( 'waveRegionNode' ),
       waveRegionLeft: waveRegionLayout.waveRegionLeft,
       waveRegionTop: waveRegionLayout.waveRegionTop,
       additionalDoubleSlitOptions: createFrontFacingSlitDetectorOptions(

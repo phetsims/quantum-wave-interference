@@ -23,6 +23,7 @@ import WireNode from '../../../../scenery-phet/js/WireNode.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Color from '../../../../scenery/js/util/Color.js';
+import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { getDisplayedWaveValue, getMaxDisplayedWaveValue, type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import { waveDisplayModePolarityProperty } from '../model/WaveModeDisplayPolarity.js';
@@ -54,6 +55,7 @@ export default class TimePlotNode extends Node {
   private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
   private readonly probeNode: Node;
   private readonly probePositionProperty: Vector2Property;
+  private readonly plotTandem: Tandem;
   private readonly waveRegionBounds: Bounds2;
   private readonly visibleBoundsProperty: TReadOnlyProperty<Bounds2>;
 
@@ -63,12 +65,14 @@ export default class TimePlotNode extends Node {
     waveRegionX: number,
     waveRegionY: number,
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
-    visibleProperty: TReadOnlyProperty<boolean>
+    visibleProperty: TReadOnlyProperty<boolean>,
+    tandem: Tandem
   ) {
-    super( { isDisposable: false, visibleProperty: visibleProperty } );
+    super( { isDisposable: false, visibleProperty: visibleProperty, tandem: tandem } );
 
     this.sceneProperty = sceneProperty;
     this.activeDisplayModeProperty = activeDisplayModeProperty;
+    this.plotTandem = tandem;
     this.dataSeries = new TimePlotDataSeries();
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
@@ -92,7 +96,9 @@ export default class TimePlotNode extends Node {
     this.probePositionProperty = new Vector2Property( new Vector2(
       waveRegionX + waveRegionWidth * 0.3,
       waveRegionY + waveRegionHeight * 0.4
-    ) );
+    ), {
+      tandem: tandem.createTandem( 'probePositionProperty' )
+    } );
 
     this.probeNode = this.createCrosshairProbe();
 
@@ -141,7 +147,8 @@ export default class TimePlotNode extends Node {
       panelTopPadding: TIME_PLOT_PANEL_TOP_PADDING,
       panelRightPadding: TIME_PLOT_PANEL_RIGHT_PADDING,
       x: waveRegionX + waveRegionWidth - TIME_PLOT_CHART_WIDTH - 30,
-      y: waveRegionY + waveRegionHeight - MEASUREMENT_PLOT_CHART_HEIGHT - 40
+      y: waveRegionY + waveRegionHeight - MEASUREMENT_PLOT_CHART_HEIGHT - 40,
+      tandem: this.plotTandem.createTandem( 'chartNode' )
     } );
   }
 
@@ -160,7 +167,8 @@ export default class TimePlotNode extends Node {
       positionProperty: this.probePositionProperty,
       dragBoundsProperty: new Property( this.waveRegionBounds ),
       useParentOffset: true,
-      start: () => this.moveToFront()
+      start: () => this.moveToFront(),
+      tandem: this.plotTandem.createTandem( 'probeDragListener' )
     } ) );
 
     return probe;

@@ -22,6 +22,7 @@ import { equalsEpsilon } from '../../../../dot/js/util/equalsEpsilon.js';
 import Shape from '../../../../kite/js/Shape.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import Orientation from '../../../../phet-core/js/Orientation.js';
+import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import ArrowNode, { type ArrowNodeOptions } from '../../../../scenery-phet/js/ArrowNode.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
@@ -128,7 +129,7 @@ type SelfOptions = {
   bottomDetectorCountProperty?: TReadOnlyProperty<number>;
 };
 
-export type DoubleSlitNodeOptions = SelfOptions & NodeOptions;
+export type DoubleSlitNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
 export default class DoubleSlitNode extends Node {
 
@@ -256,7 +257,7 @@ export default class DoubleSlitNode extends Node {
     let dragStartFraction = 0;
     let dragStartX = 0;
 
-    const createDragListener = () => new DragListener( {
+    const createDragListener = ( tandemName: string ) => new DragListener( {
       start: ( event, listener ) => {
         dragStartFraction = slitPositionFractionProperty.value;
         dragStartX = listener.parentPoint.x;
@@ -267,10 +268,11 @@ export default class DoubleSlitNode extends Node {
         const oldSlitPositionFraction = slitPositionFractionProperty.value;
         slitPositionFractionProperty.value = SLIT_POSITION_FRACTION_RANGE.constrainValue( dragStartFraction + fractionDelta );
         playSlitPositionBoundarySound( slitPositionFractionProperty.value, oldSlitPositionFraction );
-      }
+      },
+      tandem: options.tandem.createTandem( tandemName )
     } );
-    arrowNode.addInputListener( createDragListener() );
-    barrierContainer.addInputListener( createDragListener() );
+    arrowNode.addInputListener( createDragListener( 'arrowDragListener' ) );
+    barrierContainer.addInputListener( createDragListener( 'barrierDragListener' ) );
 
     Multilink.multilink(
       [ barrierTypeProperty, slitPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,

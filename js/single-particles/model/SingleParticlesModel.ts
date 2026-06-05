@@ -11,8 +11,10 @@ import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
+import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
+import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
 import BaseScreenModel from '../../common/model/BaseScreenModel.js';
-import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
+import { type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
 import CurrentDetectorTool from './CurrentDetectorTool.js';
 import SingleParticlesSceneModel from './SingleParticlesSceneModel.js';
 
@@ -57,12 +59,18 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
 
     this.currentSlitConfigurationProperty = new DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, SingleParticlesSceneModel>( this.sceneProperty, {
       derive: 'slitConfigurationProperty',
-      bidirectional: true
+      bidirectional: true,
+      tandem: tandem.createTandem( 'currentSlitConfigurationProperty' ),
+      phetioFeatured: true,
+      phetioValueType: StringUnionIO( SlitConfigurationWithNoBarrierValues )
     } );
 
     this.currentAutoRepeatProperty = new DynamicProperty<boolean, boolean, SingleParticlesSceneModel>( this.sceneProperty, {
       derive: 'autoRepeatProperty',
-      bidirectional: true
+      bidirectional: true,
+      tandem: tandem.createTandem( 'currentAutoRepeatProperty' ),
+      phetioFeatured: true,
+      phetioValueType: BooleanIO
     } );
 
     this.currentIsPacketActiveProperty = new DynamicProperty<boolean, boolean, SingleParticlesSceneModel>( this.sceneProperty, {

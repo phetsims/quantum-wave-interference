@@ -25,6 +25,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Color from '../../../../scenery/js/util/Color.js';
+import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { getDisplayedWaveValue, getMaxDisplayedWaveValue, type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import { type WaveDisplayModePolarity, waveDisplayModePolarityProperty } from '../model/WaveModeDisplayPolarity.js';
@@ -75,6 +76,7 @@ export default class PositionPlotNode extends Node {
   private readonly wireRectangle: Rectangle;
   private readonly wireLeftEdgeLine: Line;
   private readonly wireRightEdgeLine: Line;
+  private readonly plotTandem: Tandem;
   private readonly waveRegionY: number;
   private readonly waveRegionHeight: number;
   private readonly lineCenterX: number;
@@ -87,12 +89,14 @@ export default class PositionPlotNode extends Node {
     activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>,
     waveRegionX: number,
     waveRegionY: number,
-    visibleProperty: TReadOnlyProperty<boolean>
+    visibleProperty: TReadOnlyProperty<boolean>,
+    tandem: Tandem
   ) {
-    super( { isDisposable: false, visibleProperty: visibleProperty } );
+    super( { isDisposable: false, visibleProperty: visibleProperty, tandem: tandem } );
 
     this.sceneProperty = sceneProperty;
     this.activeDisplayModeProperty = activeDisplayModeProperty;
+    this.plotTandem = tandem;
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     this.waveRegionY = waveRegionY;
@@ -100,7 +104,8 @@ export default class PositionPlotNode extends Node {
     this.lineCenterX = waveRegionX + waveRegionWidth / 2;
 
     this.lineYFractionProperty = new NumberProperty( 0.5, {
-      range: new Range( MIN_Y_FRACTION, MAX_Y_FRACTION )
+      range: new Range( MIN_Y_FRACTION, MAX_Y_FRACTION ),
+      tandem: tandem.createTandem( 'lineYFractionProperty' )
     } );
 
     const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( activeDisplayModeProperty );
@@ -165,7 +170,8 @@ export default class PositionPlotNode extends Node {
           MIN_Y_FRACTION,
           MAX_Y_FRACTION
         );
-      }
+      },
+      tandem: this.plotTandem.createTandem( 'verticalDragListener' )
     } );
   }
 
@@ -199,7 +205,8 @@ export default class PositionPlotNode extends Node {
       panelTopPadding: POSITION_PLOT_PANEL_TOP_PADDING,
       panelRightPadding: POSITION_PLOT_PANEL_RIGHT_PADDING,
       x: waveRegionX,
-      y: this.waveRegionY + this.waveRegionHeight + 30
+      y: this.waveRegionY + this.waveRegionHeight + 30,
+      tandem: this.plotTandem.createTandem( 'chartNode' )
     } );
   }
 

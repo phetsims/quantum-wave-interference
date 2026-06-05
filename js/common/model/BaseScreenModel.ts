@@ -20,11 +20,12 @@ import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
+import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
 import { type BarrierType } from './BarrierType.js';
 import type BaseSceneModel from './BaseSceneModel.js';
 import type { Snapshot } from './Snapshot.js';
 import TimeSpeedProperty from './TimeSpeedProperty.js';
-import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode, type WaveDisplayMode } from './WaveDisplayMode.js';
+import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues, type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues, type WaveDisplayMode } from './WaveDisplayMode.js';
 
 const NOMINAL_DT = 1 / 60;
 const SLOW_TIME_SPEED_FACTOR = 0.15;
@@ -90,6 +91,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     this.sceneProperty = new Property<T>( scenes[ 0 ], {
       validValues: scenes,
       tandem: tandem.createTandem( 'sceneProperty' ),
+      phetioFeatured: true,
       phetioValueType: ReferenceIO( IOType.ObjectIO )
     } );
 
@@ -152,12 +154,20 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
 
     this.currentPhotonWaveDisplayModeProperty = new DynamicProperty<PhotonWaveDisplayMode, PhotonWaveDisplayMode, BaseSceneModel>( this.sceneProperty, {
       derive: 'photonWaveDisplayModeProperty',
-      bidirectional: true
+      bidirectional: true,
+      tandem: tandem.createTandem( 'currentPhotonWaveDisplayModeProperty' ),
+      phetioFeatured: true,
+      phetioValueType: StringUnionIO( PhotonWaveDisplayModeValues ),
+      validValues: PhotonWaveDisplayModeValues
     } );
 
     this.currentMatterWaveDisplayModeProperty = new DynamicProperty<MatterWaveDisplayMode, MatterWaveDisplayMode, BaseSceneModel>( this.sceneProperty, {
       derive: 'matterWaveDisplayModeProperty',
-      bidirectional: true
+      bidirectional: true,
+      tandem: tandem.createTandem( 'currentMatterWaveDisplayModeProperty' ),
+      phetioFeatured: true,
+      phetioValueType: StringUnionIO( MatterWaveDisplayModeValues ),
+      validValues: MatterWaveDisplayModeValues
     } );
 
     this.currentSnapshotsProperty = new DynamicProperty<Snapshot[], Snapshot[], BaseSceneModel>( this.sceneProperty, {
@@ -170,7 +180,8 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     } );
 
     this.isPlayingProperty = new BooleanProperty( true, {
-      tandem: tandem.createTandem( 'isPlayingProperty' )
+      tandem: tandem.createTandem( 'isPlayingProperty' ),
+      phetioFeatured: true
     } );
 
     this.timeSpeedProperty = new TimeSpeedProperty( tandem.createTandem( 'timeSpeedProperty' ) );
@@ -178,19 +189,23 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     this.toolsTandem = tandem.createTandem( 'tools' );
 
     this.isTapeMeasureVisibleProperty = new BooleanProperty( false, {
-      tandem: this.toolsTandem.createTandem( 'isTapeMeasureVisibleProperty' )
+      tandem: this.toolsTandem.createTandem( 'isTapeMeasureVisibleProperty' ),
+      phetioFeatured: true
     } );
 
     this.isStopwatchVisibleProperty = new BooleanProperty( false, {
-      tandem: this.toolsTandem.createTandem( 'isStopwatchVisibleProperty' )
+      tandem: this.toolsTandem.createTandem( 'isStopwatchVisibleProperty' ),
+      phetioFeatured: true
     } );
 
     this.isTimePlotVisibleProperty = new BooleanProperty( false, {
-      tandem: this.toolsTandem.createTandem( 'isTimePlotVisibleProperty' )
+      tandem: this.toolsTandem.createTandem( 'isTimePlotVisibleProperty' ),
+      phetioFeatured: true
     } );
 
     this.isPositionPlotVisibleProperty = new BooleanProperty( false, {
-      tandem: this.toolsTandem.createTandem( 'isPositionPlotVisibleProperty' )
+      tandem: this.toolsTandem.createTandem( 'isPositionPlotVisibleProperty' ),
+      phetioFeatured: true
     } );
 
     this.tapeMeasureBasePositionProperty = new Vector2Property( new Vector2( 300, 300 ), {

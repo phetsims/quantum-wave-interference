@@ -279,7 +279,8 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
             sourceType: sourceTypeProperty
           } )
         },
-        tandem: emittersTandem.createTandem( `${scene.sourceType}EmitterNode` )
+        tandem: emittersTandem.createTandem( `${scene.sourceType}EmitterNode` ),
+        tandemNameSuffix: `${scene.sourceType}EmitterNode`
       } );
     } );
 

@@ -175,7 +175,8 @@ export default class DetectorToolNode extends Node {
 
     const detectorModeProperty = new StringUnionProperty<DetectorMode>( 'destructive', {
       validValues: DetectorModeValues,
-      tandem: tandem.createTandem( 'detectorModeProperty' )
+      tandem: tandem.createTandem( 'detectorModeProperty' ),
+      phetioFeatured: true
     } );
 
     const detectorModeItems: AquaRadioButtonGroupItem<DetectorMode>[] = [

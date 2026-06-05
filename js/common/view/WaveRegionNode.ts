@@ -12,7 +12,9 @@ import type TProperty from '../../../../axon/js/TProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
+import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
+import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import { type BarrierType } from '../model/BarrierType.js';
 import { isBottomSlitCovered, isTopSlitCovered, type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import { type WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
@@ -40,7 +42,7 @@ type WaveRegionModel = {
   readonly currentSlitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
 };
 
-type WaveRegionNodeOptions = {
+type WaveRegionNodeSelfOptions = {
 
   // Left edge of the wave visualization region in parent coordinates.
   waveRegionLeft: number;
@@ -51,6 +53,8 @@ type WaveRegionNodeOptions = {
   // Screen-specific DoubleSlitNode options, such as detector overlays on the High Intensity screen.
   additionalDoubleSlitOptions?: Partial<DoubleSlitNodeOptions>;
 };
+
+type WaveRegionNodeOptions = WaveRegionNodeSelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class WaveRegionNode extends Node {
 
@@ -78,6 +82,7 @@ export default class WaveRegionNode extends Node {
         [ model.currentSlitConfigurationProperty ],
         slitConfig => isBottomSlitCovered( slitConfig )
       ),
+      tandem: options.tandem.createTandem( 'doubleSlitNode' ),
       x: options.waveRegionLeft,
       y: options.waveRegionTop
     }, options.additionalDoubleSlitOptions );
@@ -92,6 +97,7 @@ export default class WaveRegionNode extends Node {
     );
 
     super( {
+      tandem: options.tandem,
       children: [ waveVisualizationNode, doubleSlitNode ]
     } );
 

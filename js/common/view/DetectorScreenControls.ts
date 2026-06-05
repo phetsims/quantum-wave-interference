@@ -142,13 +142,15 @@ export default class DetectorScreenControls extends VBox {
       new Text( QuantumWaveInterferenceFluent.screenGraphSwitch.screenStringProperty, {
         font: new PhetFont( 14 ),
         maxWidth: screenGraphSwitchLabelMaxWidth,
-        tandem: screenGraphSwitchTandem.createTandem( 'screenLabel' )
+        tandem: screenGraphSwitchTandem.createTandem( 'screenLabel' ),
+        tandemNameSuffix: 'screenLabel'
       } ),
       true,
       new Text( QuantumWaveInterferenceFluent.screenGraphSwitch.graphStringProperty, {
         font: new PhetFont( 14 ),
         maxWidth: screenGraphSwitchLabelMaxWidth,
-        tandem: screenGraphSwitchTandem.createTandem( 'graphLabel' )
+        tandem: screenGraphSwitchTandem.createTandem( 'graphLabel' ),
+        tandemNameSuffix: 'graphLabel'
       } ),
       {
         spacing: screenGraphSwitchLabelToggleSpacing,

@@ -13,9 +13,10 @@ import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
+import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
 import BaseScreenModel from '../../common/model/BaseScreenModel.js';
-import { type DetectionMode } from '../../common/model/DetectionMode.js';
-import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
+import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
+import { type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
 import HighIntensitySceneModel from './HighIntensitySceneModel.js';
 
 // Keep the highest-frequency High Intensity continuous waves below the 30 FPS Nyquist limit.
@@ -62,12 +63,22 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
 
     this.currentSlitConfigurationProperty = new DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, HighIntensitySceneModel>( this.sceneProperty, {
       derive: 'slitConfigurationProperty',
-      bidirectional: true
+      bidirectional: true,
+      tandem: tandem.createTandem( 'currentSlitConfigurationProperty' ),
+      phetioFeatured: true,
+      phetioValueType: StringUnionIO( SlitConfigurationWithNoBarrierValues )
     } );
 
     this.currentDetectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, HighIntensitySceneModel>( this.sceneProperty, {
       derive: 'detectionModeProperty',
-      bidirectional: true
+      bidirectional: true,
+      tandem: tandem.createTandem( 'currentDetectionModeProperty' ),
+      phetioFeatured: true,
+      phetioDocumentation: 'The detector screen display mode for the current source scene.',
+      phetioReadOnly: true,
+      phetioState: false,
+      phetioValueType: StringUnionIO( DetectionModeValues ),
+      validValues: DetectionModeValues
     } );
 
     this.isIntensityGraphVisibleProperty = new BooleanProperty( false, {
