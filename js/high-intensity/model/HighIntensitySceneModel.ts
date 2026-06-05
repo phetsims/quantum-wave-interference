@@ -322,10 +322,12 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this._detectorPatternFormationFactorProperty.value = 0;
   }
 
+  // TODO: Inline this one, see https://github.com/phetsims/quantum-wave-interference/issues/135
   private getDetectorScreenHitRate(): number {
     return DETECTOR_SCREEN_HIT_RATE;
   }
 
+  // TODO: Inline this one, see https://github.com/phetsims/quantum-wave-interference/issues/135
   private getSlitDetectorEventRate(): number {
     return SLIT_DETECTOR_EVENT_RATE;
   }

@@ -70,15 +70,12 @@ export default class SingleParticleEmitterNode extends Node {
         isEmitting: isEmittingStringProperty,
         sourceType: sourceTypeProperty
       } ),
-      tandem: providedOptions.tandem.createTandem( 'emitButton' )
+      tandem: providedOptions.tandem.createTandem( 'emitButton' ),
+      enabledProperty: isEmitterEnabledProperty
     } );
 
     emitButton.centerX = imageNode.width * BUTTON_CENTER_X_FRACTION;
     emitButton.centerY = imageNode.height * BUTTON_CENTER_Y_FRACTION;
     this.addChild( emitButton );
-
-    isEmitterEnabledProperty.link( isEnabled => {
-      emitButton.enabled = isEnabled;
-    } );
   }
 }

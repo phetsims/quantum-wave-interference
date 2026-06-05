@@ -15,6 +15,8 @@
  * palette (electrons → blue, neutrons → teal, helium → tan/orange). One LaserPointerNode is created
  * per scene; visibility is toggled with the active scene to avoid recoloring node children at runtime.
  *
+ * TODO: Let's call "callout" "thumbnail" thoughout the sim, https://github.com/phetsims/quantum-wave-interference/issues/135
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
