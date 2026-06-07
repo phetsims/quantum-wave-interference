@@ -227,7 +227,8 @@ export default class WavePlotChartNode extends Node {
     this.children = [ shadedBackground, chartPanel ];
 
     this.positionProperty = new Vector2Property( new Vector2( initialX, initialY ), {
-      tandem: options.tandem.createTandem( 'positionProperty' )
+      tandem: options.tandem.createTandem( 'positionProperty' ),
+      phetioState: options.isDraggable
     } );
     this.positionProperty.link( position => {
       this.x = position.x;
