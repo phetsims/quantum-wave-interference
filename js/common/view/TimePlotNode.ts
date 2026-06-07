@@ -73,7 +73,10 @@ export default class TimePlotNode extends Node {
     this.sceneProperty = sceneProperty;
     this.activeDisplayModeProperty = activeDisplayModeProperty;
     this.plotTandem = tandem;
-    this.dataSeries = new TimePlotDataSeries();
+    this.dataSeries = new TimePlotDataSeries( {
+      tandem: tandem.createTandem( 'dataSeries' ),
+      stateAppliedListener: () => this.updateChart()
+    } );
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
     const waveRegionHeight = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;

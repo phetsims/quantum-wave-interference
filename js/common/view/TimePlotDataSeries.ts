@@ -8,6 +8,16 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import optionize from '../../../../phet-core/js/optionize.js';
+import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
+import PhetioObject from '../../../../tandem/js/PhetioObject.js';
+import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
+import IOType from '../../../../tandem/js/types/IOType.js';
+import NullableIO from '../../../../tandem/js/types/NullableIO.js';
+import NumberIO from '../../../../tandem/js/types/NumberIO.js';
+import SchemaOrientedIOType from '../../../../tandem/js/types/SchemaOrientedIOType.js';
+import { type CoreRecord } from '../../../../tandem/js/types/StateSchema.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 
 const MAX_TIME_WINDOW = 1; // seconds of data shown
@@ -15,22 +25,55 @@ const MAX_SAMPLES = QuantumWaveInterferenceQueryParameters.timePlotMaxSamples;
 const TIME_SAMPLE_INTERVAL = MAX_TIME_WINDOW / MAX_SAMPLES;
 const TIME_EPSILON = 1e-12;
 
-export type TimePlotDataPoint = {
-  time: number;
-  value: number;
+const TIME_PLOT_DATA_POINT_SCHEMA = {
+  time: NumberIO,
+  value: NumberIO
+};
+
+export type TimePlotDataPoint = CoreRecord<typeof TIME_PLOT_DATA_POINT_SCHEMA>;
+
+type TimePlotDataSeriesStateObject = {
+  dataPoints: TimePlotDataPoint[];
+  elapsedTime: number;
+  previousSolverTime: number | null;
+  nextSampleSolverTime: number | null;
 };
 
 type TimePlotSampleFunction = ( solverTime: number ) => number;
 
-export default class TimePlotDataSeries {
+type SelfOptions = {
+  stateAppliedListener?: () => void;
+};
+
+type TimePlotDataSeriesOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
+
+const TimePlotDataPointIO = new SchemaOrientedIOType<TimePlotDataPoint, typeof TIME_PLOT_DATA_POINT_SCHEMA>(
+  'TimePlotDataPointIO', {
+    documentation: 'Serialization for a time plot sample.',
+    stateSchema: TIME_PLOT_DATA_POINT_SCHEMA
+  } );
+
+export default class TimePlotDataSeries extends PhetioObject {
 
   private readonly dataPoints: TimePlotDataPoint[];
+  private readonly stateAppliedListener: () => void;
   private elapsedTime: number;
   private previousSolverTime: number | null;
   private nextSampleSolverTime: number | null;
 
-  public constructor() {
+  public constructor( providedOptions: TimePlotDataSeriesOptions ) {
+    const options = optionize<TimePlotDataSeriesOptions, SelfOptions, PhetioObjectOptions>()( {
+      isDisposable: false,
+      phetioType: TimePlotDataSeries.TimePlotDataSeriesIO,
+      phetioDocumentation: 'Stores the samples and timing state for the wave quantity versus time plot.',
+      phetioState: true,
+      stateAppliedListener: _.noop
+    }, providedOptions );
+
+    super( options );
+
     this.dataPoints = [];
+    this.stateAppliedListener = options.stateAppliedListener;
     this.elapsedTime = 0;
     this.previousSolverTime = null;
     this.nextSampleSolverTime = null;
@@ -164,4 +207,45 @@ export default class TimePlotDataSeries {
       this.dataPoints.shift();
     }
   }
+
+  /**
+   * Applies serialized data-series state during PhET-iO state restore and notifies the owning plot
+   * node so it can redraw from the restored samples.
+   *
+   * @param stateObject - serialized samples and timing fields for the time plot
+   */
+  private applyStateObject( stateObject: TimePlotDataSeriesStateObject ): void {
+    this.dataPoints.length = 0;
+    this.dataPoints.push( ...stateObject.dataPoints.map( point => _.assign( {}, point ) ) );
+    this.elapsedTime = stateObject.elapsedTime;
+    this.previousSolverTime = stateObject.previousSolverTime;
+    this.nextSampleSolverTime = stateObject.nextSampleSolverTime;
+    this.stateAppliedListener();
+  }
+
+  /**
+   * IOType for the stored time-plot samples and the timing bookkeeping that maps solver time to
+   * chart time. Reference serialization is used because the data series instance persists for the
+   * life of the owning TimePlotNode.
+   */
+  public static readonly TimePlotDataSeriesIO = new IOType<TimePlotDataSeries, TimePlotDataSeriesStateObject>(
+    'TimePlotDataSeriesIO', {
+      valueType: TimePlotDataSeries,
+      documentation: 'Serializes the plotted samples and timing state for a time plot.',
+      stateSchema: {
+        dataPoints: ArrayIO( TimePlotDataPointIO ),
+        elapsedTime: NumberIO,
+        previousSolverTime: NullableIO( NumberIO ),
+        nextSampleSolverTime: NullableIO( NumberIO )
+      },
+      toStateObject: dataSeries => ( {
+        dataPoints: dataSeries.dataPoints.map( point => _.assign( {}, point ) ),
+        elapsedTime: dataSeries.elapsedTime,
+        previousSolverTime: dataSeries.previousSolverTime,
+        nextSampleSolverTime: dataSeries.nextSampleSolverTime
+      } ),
+      applyState: ( dataSeries, stateObject ) => {
+        dataSeries.applyStateObject( stateObject );
+      }
+    } );
 }
