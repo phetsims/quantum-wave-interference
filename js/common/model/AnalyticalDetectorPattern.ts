@@ -7,7 +7,7 @@
  * @author Matthew Blackman (PhET Interactive Simulations)
  */
 
-import { type SlitConfigurationWithNoBarrier } from './SlitConfiguration.js';
+import { hasAnyDetector, type SlitConfigurationWithNoBarrier } from './SlitConfiguration.js';
 
 export type AnalyticalDetectorPatternOptions = {
 
@@ -78,50 +78,6 @@ export function getLocalDoubleSlitFringeSpacing( options: AnalyticalDetectorPatt
          ( options.slitSeparation * screenDistanceSquared );
 }
 
-function getSingleOpenSlitIntensity(
-  options: AnalyticalDetectorPatternOptions,
-  lambda: number,
-  uncoveredSlitOffset: number
-): number {
-
-  // With one slit covered, half the incident beam is blocked, so the transmitted peak intensity is halved.
-  return SINGLE_OPEN_SLIT_INTENSITY_SCALE * getAnalyticalSingleSlitEnvelopeIntensity(
-    options.positionOnScreen - uncoveredSlitOffset,
-    lambda,
-    options.screenDistance,
-    options.slitWidth
-  );
-}
-
-function getWhichPathDetectorIntensity( options: AnalyticalDetectorPatternOptions, lambda: number ): number {
-
-  // Which-path detection destroys coherence, so only the broad single-slit-like envelope remains.
-  return getAnalyticalSingleSlitEnvelopeIntensity(
-    options.positionOnScreen,
-    lambda,
-    options.screenDistance,
-    options.slitWidth
-  );
-}
-
-function getBothOpenIntensity( options: AnalyticalDetectorPatternOptions, lambda: number ): number {
-  const envelope = getAnalyticalSingleSlitEnvelopeIntensity(
-    options.positionOnScreen,
-    lambda,
-    options.screenDistance,
-    options.slitWidth
-  );
-
-  // Convert detector position to sin(theta) for the double-slit interference phase.
-  const sinTheta = options.positionOnScreen /
-                   Math.sqrt( options.positionOnScreen * options.positionOnScreen +
-                              options.screenDistance * options.screenDistance );
-
-  // Both open: double-slit interference cos^2(pi * d * sin(theta) / lambda) modulates the diffraction envelope.
-  const doubleSlitArg = Math.PI * options.slitSeparation * sinTheta / lambda;
-  return Math.pow( Math.cos( doubleSlitArg ), 2 ) * envelope;
-}
-
 /**
  * Exact detector intensity from the Experiment screen's Fraunhofer formulas.
  */
@@ -131,15 +87,41 @@ export function getExactAnalyticalDetectorIntensity( options: AnalyticalDetector
     return 0;
   }
 
+  if ( options.slitSetting === 'noBarrier' ) {
+    return 1;
+  }
+
   const slitSetting = options.slitSetting;
 
-  // Dispatch exhaustively over the closed slit-setting union.
-  return slitSetting === 'noBarrier' ? 1 :
-         slitSetting === 'bothOpen' ? getBothOpenIntensity( options, lambda ) :
-         slitSetting === 'leftCovered' ? getSingleOpenSlitIntensity( options, lambda, options.slitSeparation / 2 ) :
-         slitSetting === 'rightCovered' ? getSingleOpenSlitIntensity( options, lambda, -options.slitSeparation / 2 ) :
-         slitSetting === 'leftDetector' ? getWhichPathDetectorIntensity( options, lambda ) :
-         slitSetting === 'rightDetector' ? getWhichPathDetectorIntensity( options, lambda ) :
-         slitSetting === 'bothDetectors' ? getWhichPathDetectorIntensity( options, lambda ) :
-         ( () => { throw new Error( `Unrecognized slitSetting: ${slitSetting}` ); } )();
+  if ( slitSetting === 'leftCovered' || slitSetting === 'rightCovered' ) {
+
+    // Center the single-slit envelope on the open slit, which is half a slit-separation away from center.
+    const uncoveredSlitOffset = slitSetting === 'leftCovered' ? options.slitSeparation / 2 :
+                                -options.slitSeparation / 2;
+
+    // With one slit covered, half the incident beam is blocked, so the transmitted peak intensity is halved.
+    return SINGLE_OPEN_SLIT_INTENSITY_SCALE * getAnalyticalSingleSlitEnvelopeIntensity(
+      options.positionOnScreen - uncoveredSlitOffset,
+      lambda,
+      options.screenDistance,
+      options.slitWidth
+    );
+  }
+
+  const envelope = getAnalyticalSingleSlitEnvelopeIntensity( options.positionOnScreen, lambda, options.screenDistance, options.slitWidth );
+
+  if ( hasAnyDetector( slitSetting ) ) {
+
+    // Which-path detection destroys coherence, so only the broad single-slit-like envelope remains.
+    return envelope;
+  }
+
+  // Convert detector position to sin(theta) for the double-slit interference phase.
+  const sinTheta = options.positionOnScreen /
+                   Math.sqrt( options.positionOnScreen * options.positionOnScreen +
+                              options.screenDistance * options.screenDistance );
+
+  // Both open: double-slit interference cos^2(pi * d * sin(theta) / lambda) modulates the diffraction envelope.
+  const doubleSlitArg = Math.PI * options.slitSeparation * sinTheta / lambda;
+  return Math.pow( Math.cos( doubleSlitArg ), 2 ) * envelope;
 }
