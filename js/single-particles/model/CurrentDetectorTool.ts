@@ -62,7 +62,7 @@ export default class CurrentDetectorTool {
       slitConfiguration => slitConfiguration === 'noBarrier'
     );
 
-    this.isVisibleProperty = new BooleanProperty( false, {
+    this.isVisibleProperty = new BooleanProperty( true, {
       tandem: toolsTandem.createTandem( 'isDetectorToolVisibleProperty' ),
       phetioFeatured: true
     } );
