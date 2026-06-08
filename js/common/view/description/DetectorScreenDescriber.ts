@@ -29,7 +29,7 @@ export type DetectorScreenDescriberScene = {
   isEmittingProperty: TReadOnlyProperty<boolean>;
   slitSeparationProperty: TReadOnlyProperty<number>;
   wavelengthProperty: TReadOnlyProperty<number>;
-  velocityProperty: TReadOnlyProperty<number>;
+  particleSpeedProperty: TReadOnlyProperty<number>;
   getEffectiveWavelength(): number;
   slitWidth: number;
   hasWavefrontReachedScreen?(): boolean;
@@ -147,7 +147,7 @@ export default class DetectorScreenDescriber {
         }
         previousScene.slitSeparationProperty.unlink( fullUpdate );
         previousScene.wavelengthProperty.unlink( fullUpdate );
-        previousScene.velocityProperty.unlink( fullUpdate );
+        previousScene.particleSpeedProperty.unlink( fullUpdate );
       }
       scene.hitsChangedEmitter.addListener( update );
       scene.detectionModeProperty?.lazyLink( fullUpdate );
@@ -162,7 +162,7 @@ export default class DetectorScreenDescriber {
       }
       scene.slitSeparationProperty.lazyLink( fullUpdate );
       scene.wavelengthProperty.lazyLink( fullUpdate );
-      scene.velocityProperty.lazyLink( fullUpdate );
+      scene.particleSpeedProperty.lazyLink( fullUpdate );
       fullUpdate();
     } );
 

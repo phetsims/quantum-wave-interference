@@ -25,6 +25,7 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import createSourceControlPanelContent from './createSourceControlPanelContent.js';
@@ -46,6 +47,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
   public constructor(
     sceneProperty: Property<T>,
     scenes: T[],
+    sceneTandems: ReadonlyMap<object, Tandem> | null,
     providedOptions: SourceControlPanelOptions
   ) {
     const options = optionize<SourceControlPanelOptions, SelfOptions, PanelOptions>()(
@@ -67,6 +69,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
       sceneProperty,
       scenes,
       options.tandem,
+      sceneTandems,
       options.photonIntensityLabelStringProperty,
       options.particleIntensityLabelStringProperty
     );

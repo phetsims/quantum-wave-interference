@@ -144,6 +144,7 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
     beamRightLimitXProperty: TReadOnlyProperty<number>,
     layout: HighIntensitySourceBeamCalloutLayout,
+    sceneTandems: ReadonlyMap<object, Tandem>,
     tandem: Tandem
   ) {
     super( { isDisposable: false } );
@@ -253,7 +254,6 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
 
     // One LaserPointerNode per scene with a scene-specific palette. Visibility is toggled per scene
     // so we never recolor nodes at runtime — each emitter is constructed once with its final colors.
-    const emittersTandem = tandem.createTandem( 'emitters' );
     const sourceTypeProperty = sceneProperty.derived( scene => scene.sourceType );
     const isEmittingStringProperty = currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
 
@@ -282,8 +282,8 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
             sourceType: sourceTypeProperty
           } )
         },
-        tandem: emittersTandem.createTandem( `${scene.sourceType}EmitterNode` ),
-        tandemNameSuffix: `${scene.sourceType}EmitterNode`
+        tandem: sceneTandems.get( scene )!.createTandem( 'emitterNode' ),
+        tandemNameSuffix: 'emitterNode'
       } );
     } );
 

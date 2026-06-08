@@ -20,13 +20,17 @@ export default class ExperimentSlitColumnNode extends Node {
 
   private readonly frontFacingSlitNodes: FrontFacingSlitNode[];
 
-  public constructor( model: ExperimentModel, comboBoxParent: Node, tandem: Tandem ) {
+  public constructor(
+    model: ExperimentModel,
+    comboBoxParent: Node,
+    sceneTandems: ReadonlyMap<object, Tandem>,
+    tandem: Tandem
+  ) {
     super( { isDisposable: false } );
 
-    const frontFacingSlitTandem = tandem.createTandem( 'frontFacingSlitNodes' );
-    this.frontFacingSlitNodes = model.scenes.map( ( scene, index ) => {
+    this.frontFacingSlitNodes = model.scenes.map( scene => {
       const slitNode = new FrontFacingSlitNode( scene, {
-        tandem: frontFacingSlitTandem.createTandem( `frontFacingSlitNode${index}` )
+        tandem: sceneTandems.get( scene )!.createTandem( 'frontFacingSlitNode' )
       } );
       slitNode.y = ExperimentConstants.FRONT_FACING_ROW_TOP;
       return slitNode;
@@ -34,7 +38,7 @@ export default class ExperimentSlitColumnNode extends Node {
     const frontFacingSlitToggleNode = new QuantumWaveInterferenceToggleNode( model.sceneProperty, model.scenes, this.frontFacingSlitNodes );
     this.addChild( frontFacingSlitToggleNode );
 
-    this.slitControlPanel = new SlitControlPanel( model.sceneProperty, model.scenes, comboBoxParent, {
+    this.slitControlPanel = new SlitControlPanel( model.sceneProperty, model.scenes, sceneTandems, comboBoxParent, {
       tandem: tandem.createTandem( 'slitControlPanel' )
     } );
     this.slitControlPanel.top = this.frontFacingSlitNodes[ 0 ].bottom + 8;

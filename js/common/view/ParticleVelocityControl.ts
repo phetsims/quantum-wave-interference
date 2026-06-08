@@ -21,16 +21,16 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import { type SourceType } from '../model/SourceType.js';
 import { SOURCE_CONTROL_SLIDER_TRACK_HEIGHT, SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SOURCE_CONTROL_TICK_LABEL_FONT, SOURCE_CONTROL_TITLE_FONT } from './SourceControlPanelConstants.js';
 
-type ParticleVelocityScene = {
+type ParticleSpeedScene = {
   readonly sourceType: SourceType;
-  readonly velocityProperty: NumberProperty;
-  readonly velocityRange: Range;
+  readonly particleSpeedProperty: NumberProperty;
+  readonly particleSpeedRange: Range;
 };
 
 /**
- * Returns the keyboard/button step size for a particle velocity control.
+ * Returns the keyboard/button step size for a particle speed control.
  */
-function getVelocityDelta( sourceType: SourceType ): number {
+function getParticleSpeedDelta( sourceType: SourceType ): number {
   return sourceType === 'electrons' ? 10000 :
          sourceType === 'neutrons' ? 10 :
          sourceType === 'heliumAtoms' ? 50 :
@@ -38,7 +38,7 @@ function getVelocityDelta( sourceType: SourceType ): number {
 }
 
 /**
- * Returns a value formatter for electron velocity controls that display meters-per-second model values as
+ * Returns a value formatter for electron particle speed controls that display meters-per-second model values as
  * kilometers per second.
  */
 function formatKilometersPerSecond( value: number ): { visualString: string; accessibleString: string } {
@@ -67,16 +67,16 @@ function formatTickLabel( value: number, useKilometersPerSecond: boolean ): stri
 
 export default class ParticleVelocityControl extends NumberControl {
 
-  public constructor( scene: ParticleVelocityScene, tandem: Tandem ) {
-    const velocityRange = scene.velocityRange;
-    const useKilometersPerSecond = velocityRange.max >= 10000;
+  public constructor( scene: ParticleSpeedScene, tandem: Tandem ) {
+    const particleSpeedRange = scene.particleSpeedRange;
+    const useKilometersPerSecond = particleSpeedRange.max >= 10000;
 
     super(
       QuantumWaveInterferenceFluent.particleSpeedStringProperty,
-      scene.velocityProperty,
-      velocityRange,
+      scene.particleSpeedProperty,
+      particleSpeedRange,
       {
-        delta: getVelocityDelta( scene.sourceType ),
+        delta: getParticleSpeedDelta( scene.sourceType ),
         titleNodeOptions: {
           font: SOURCE_CONTROL_TITLE_FONT,
           maxWidth: 100
@@ -105,15 +105,15 @@ export default class ParticleVelocityControl extends NumberControl {
           majorTickLength: 12,
           majorTicks: [
             {
-              value: velocityRange.min,
-              label: new Text( formatTickLabel( velocityRange.min, useKilometersPerSecond ), {
+              value: particleSpeedRange.min,
+              label: new Text( formatTickLabel( particleSpeedRange.min, useKilometersPerSecond ), {
                 font: SOURCE_CONTROL_TICK_LABEL_FONT,
                 maxWidth: 40
               } )
             },
             {
-              value: velocityRange.max,
-              label: new Text( formatTickLabel( velocityRange.max, useKilometersPerSecond ), {
+              value: particleSpeedRange.max,
+              label: new Text( formatTickLabel( particleSpeedRange.max, useKilometersPerSecond ), {
                 font: SOURCE_CONTROL_TICK_LABEL_FONT,
                 maxWidth: 40
               } )
@@ -125,7 +125,7 @@ export default class ParticleVelocityControl extends NumberControl {
           ySpacing: 8
         } ),
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.particleSpeedSlider.accessibleHelpTextStringProperty,
-        tandem: tandem.createTandem( `${scene.sourceType}VelocityControl` )
+        tandem: tandem.createTandem( 'particleSpeedControl' )
       }
     );
   }

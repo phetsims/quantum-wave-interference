@@ -30,6 +30,7 @@ import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPer
 import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
+import Tandem from '../../../../tandem/js/Tandem.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
@@ -55,30 +56,30 @@ const DEFAULT_SLIT_SEPARATION_FRACTION = 9 / 19;
 
 type SourceTypeConfig = {
   particleMass: number;
-  velocityRange: [ number, number ];
-  defaultVelocity: number;
+  particleSpeedRange: [ number, number ];
+  defaultParticleSpeed: number;
 };
 
 const SOURCE_TYPE_CONFIG: Record<SourceType, SourceTypeConfig> = {
   photons: {
     particleMass: QuantumWaveInterferenceConstants.getParticleMass( 'photons' ),
-    velocityRange: [ 0, 0 ],
-    defaultVelocity: 0
+    particleSpeedRange: [ 0, 0 ],
+    defaultParticleSpeed: 0
   },
   electrons: {
     particleMass: QuantumWaveInterferenceConstants.getParticleMass( 'electrons' ),
-    velocityRange: [ 7e5, 1.5e6 ],
-    defaultVelocity: 1.1e6
+    particleSpeedRange: [ 7e5, 1.5e6 ],
+    defaultParticleSpeed: 1.1e6
   },
   neutrons: {
     particleMass: QuantumWaveInterferenceConstants.getParticleMass( 'neutrons' ),
-    velocityRange: [ 200, 800 ],
-    defaultVelocity: 500
+    particleSpeedRange: [ 200, 800 ],
+    defaultParticleSpeed: 500
   },
   heliumAtoms: {
     particleMass: QuantumWaveInterferenceConstants.getParticleMass( 'heliumAtoms' ),
-    velocityRange: [ 400, 2000 ],
-    defaultVelocity: 1200
+    particleSpeedRange: [ 400, 2000 ],
+    defaultParticleSpeed: 1200
   }
 };
 
@@ -86,7 +87,7 @@ const getDefaultEffectiveWavelength = ( sourceType: SourceType ): number => {
   const config = SOURCE_TYPE_CONFIG[ sourceType ];
   return sourceType === 'photons' ?
          QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
-         QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( config.particleMass * config.defaultVelocity );
+         QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( config.particleMass * config.defaultParticleSpeed );
 };
 
 type SelfOptions = {
@@ -116,7 +117,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly sourceType: SourceType;
   protected readonly particleMass: number;
   public readonly slitWidth: number;
-  public readonly velocityRange: Range;
+  public readonly particleSpeedRange: Range;
   public readonly slitSeparationRange: Range;
   public readonly regionWidth: number;
   public readonly regionHeight: number;
@@ -124,7 +125,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   public readonly isEmittingProperty: BooleanProperty;
   public readonly wavelengthProperty: NumberProperty;
-  public readonly velocityProperty: NumberProperty;
+  public readonly particleSpeedProperty: NumberProperty;
   public readonly barrierTypeProperty: StringUnionProperty<BarrierType>;
   public readonly slitSeparationProperty: NumberProperty;
   public readonly slitPositionFractionProperty: NumberProperty;
@@ -173,7 +174,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     const config = SOURCE_TYPE_CONFIG[ this.sourceType ];
     this.waveSolver = waveSolver;
     this.particleMass = config.particleMass;
-    this.velocityRange = new Range( ...config.velocityRange );
+    this.particleSpeedRange = new Range( ...config.particleSpeedRange );
     this.decoherenceEvents = [];
 
     const defaultEffectiveWavelength = getDefaultEffectiveWavelength( this.sourceType );
@@ -206,7 +207,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.slitSeparationRange = slitSeparationConfig.range;
     this.slitWidth = DISPLAY_SLIT_WIDTH / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
                      this.regionHeight * 1e3;
-    this.defaultWaveSpeed = this.sourceType === 'photons' ? QuantumWaveInterferenceConstants.SPEED_OF_LIGHT : config.defaultVelocity;
+    this.defaultWaveSpeed = this.sourceType === 'photons' ?
+                            QuantumWaveInterferenceConstants.SPEED_OF_LIGHT :
+                            config.defaultParticleSpeed;
 
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
@@ -235,13 +238,13 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.wavelengthProperty = new NumberProperty( defaultWavelengthNM, {
       range: QuantumWaveInterferenceConstants.createWavelengthRangeNM( options.sourceType ),
       units: nanometersUnit,
-      tandem: tandem.createTandem( 'wavelengthProperty' )
+      tandem: options.sourceType === 'photons' ? tandem.createTandem( 'wavelengthProperty' ) : Tandem.OPT_OUT
     } );
 
-    this.velocityProperty = new NumberProperty( config.defaultVelocity, {
-      range: this.velocityRange,
+    this.particleSpeedProperty = new NumberProperty( config.defaultParticleSpeed, {
+      range: this.particleSpeedRange,
       units: metersPerSecondUnit,
-      tandem: tandem.createTandem( 'velocityProperty' )
+      tandem: options.sourceType === 'photons' ? Tandem.OPT_OUT : tandem.createTandem( 'particleSpeedProperty' )
     } );
 
     this.barrierTypeProperty = new StringUnionProperty<BarrierType>( 'doubleSlit', {
@@ -313,13 +316,13 @@ export default abstract class BaseSceneModel extends PhetioObject {
     if ( this.sourceType === 'photons' ) {
       return this.wavelengthProperty.value * 1e-9;
     }
-    const velocity = this.velocityProperty.value;
+    const velocity = this.particleSpeedProperty.value;
     return velocity === 0 ? 0 :
            QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * velocity );
   }
 
   public getEffectiveWaveSpeed(): number {
-    return this.sourceType === 'photons' ? QuantumWaveInterferenceConstants.SPEED_OF_LIGHT : this.velocityProperty.value;
+    return this.sourceType === 'photons' ? QuantumWaveInterferenceConstants.SPEED_OF_LIGHT : this.particleSpeedProperty.value;
   }
 
   public getPhysicalDt( visualDt: number ): number {
@@ -558,7 +561,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   /**
    * Clears the current detector-screen run without resetting user controls or saved snapshots. This is called by the
    * Clear Screen button and by listeners for model parameters whose changes make the current wave state and accumulated
-   * hits stale, including wavelength, velocity, barrier type, slit separation, slit position, and slit configuration.
+   * hits stale, including wavelength, particle speed, barrier type, slit separation, slit position, and slit configuration.
    *
    * The base implementation clears detector-screen hit positions, total hit count, on-slit detector counts, wavefront
    * status, decoherence event history, and the wave solver state/parameters, then emits hitsChangedEmitter so renderers
@@ -587,7 +590,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   protected setupClearScreenListeners(): void {
     this.wavelengthProperty.lazyLink( () => this.clearScreen() );
-    this.velocityProperty.lazyLink( () => this.clearScreen() );
+    this.particleSpeedProperty.lazyLink( () => this.clearScreen() );
     this.barrierTypeProperty.lazyLink( () => this.clearScreen() );
     this.slitSeparationProperty.lazyLink( () => this.clearScreen() );
     this.slitPositionFractionProperty.lazyLink( () => this.clearScreen() );
@@ -709,7 +712,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.isEmittingProperty.reset();
     this.wavelengthProperty.reset();
-    this.velocityProperty.reset();
+    this.particleSpeedProperty.reset();
     this.barrierTypeProperty.reset();
     this.slitSeparationProperty.reset();
     this.slitPositionFractionProperty.reset();

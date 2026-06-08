@@ -152,7 +152,7 @@ export default class SlitSeparationNumberControl extends NumberControl {
           ySpacing: NUMBER_CONTROL_Y_SPACING,
           arrowButtonsXSpacing: ARROW_BUTTONS_X_SPACING
         } ),
-        tandem: tandem.createTandem( `${scene.sourceType}SlitSeparationControl` )
+        tandem: tandem.createTandem( 'slitSeparationControl' )
       }
     );
   }

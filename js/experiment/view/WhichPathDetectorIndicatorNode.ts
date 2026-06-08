@@ -68,13 +68,13 @@ class DetectorPanelNode extends Node {
       maxWidth: DETECTOR_BOX_WIDTH - 6 * OVERHEAD_SCALE
     } );
 
-    const detectorHitsProperty = detectorSide === 'left' ?
-                                 model.currentLeftDetectorHitsProperty :
-                                 model.currentRightDetectorHitsProperty;
+    const selectedDetectorHitsProperty = detectorSide === 'left' ?
+                                         model.currentLeftDetectorHitsProperty :
+                                         model.currentRightDetectorHitsProperty;
 
     // Reactive: updates on hit count change and on locale change for the hit-count pattern.
     const detectorHitCountStringProperty = new DerivedProperty( [
-        detectorHitsProperty,
+        selectedDetectorHitsProperty,
         QuantumWaveInterferenceFluent.detectorHitsCountPatternStringProperty
       ], ( hits, pattern ) => StringUtils.fillIn( pattern, { count: hits } )
     );

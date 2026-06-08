@@ -38,12 +38,13 @@ export default function createSourceControlPanelContent<T extends SourceControlS
   sceneProperty: Property<T>,
   scenes: T[],
   tandem: Tandem,
+  sceneTandems: ReadonlyMap<object, Tandem> | null,
   photonIntensityLabelStringProperty: TReadOnlyProperty<string>,
   particleIntensityLabelStringProperty: TReadOnlyProperty<string>
 ): SourceControlPanelContent {
   const sceneControlContents = scenes.map( scene => createSceneControlContent(
     scene,
-    tandem,
+    sceneTandems?.get( scene ) || tandem,
     scene.sourceType === 'photons' ? photonIntensityLabelStringProperty : particleIntensityLabelStringProperty
   ) );
 

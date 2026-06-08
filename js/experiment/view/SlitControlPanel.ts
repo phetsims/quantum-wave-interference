@@ -19,6 +19,7 @@ import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -42,6 +43,7 @@ export default class SlitControlPanel extends Panel {
   public constructor(
     sceneProperty: Property<SceneModel>,
     scenes: SceneModel[],
+    sceneTandems: ReadonlyMap<object, Tandem>,
     comboBoxParent: Node,
     providedOptions: SlitControlPanelOptions
   ) {
@@ -63,7 +65,7 @@ export default class SlitControlPanel extends Panel {
     const sceneNodes: Node[] = [];
 
     for ( const scene of scenes ) {
-      const sceneContent = SlitControlPanel.createSceneContent( scene, comboBoxParent, options.tandem );
+      const sceneContent = SlitControlPanel.createSceneContent( scene, comboBoxParent, sceneTandems.get( scene )! );
       sceneNodes.push( sceneContent );
     }
 
@@ -81,14 +83,12 @@ export default class SlitControlPanel extends Panel {
     comboBoxParent: Node,
     tandem: SlitControlPanelOptions['tandem']
   ): Node {
-    const sceneTandemName = scene.sourceType;
-
     const slitSeparationControl = new SlitSeparationControl( scene, {
-      tandem: tandem.createTandem( `${sceneTandemName}SlitSeparationControl` )
+      tandem: tandem.createTandem( 'slitSeparationControl' )
     } );
 
     const screenDistanceControl = new ScreenDistanceControl( scene, {
-      tandem: tandem.createTandem( `${sceneTandemName}ScreenDistanceControl` )
+      tandem: tandem.createTandem( 'screenDistanceControl' )
     } );
 
     const slitSettingsLabel = new Text( QuantumWaveInterferenceFluent.slitConfigurationStringProperty, {
@@ -97,7 +97,7 @@ export default class SlitControlPanel extends Panel {
     } );
 
     const slitSettingsComboBox = new SlitSettingsComboBox( scene, comboBoxParent, {
-      tandem: tandem.createTandem( `${sceneTandemName}SlitSettingsComboBox` )
+      tandem: tandem.createTandem( 'slitSettingsComboBox' )
     } );
 
     const slitSettingsSection = new VBox( {

@@ -20,6 +20,7 @@ import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
+import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
@@ -87,17 +88,22 @@ export default class ExperimentScreenView extends ScreenView {
     super( options );
 
     this.model = model;
+    const sceneTandems = new Map<object, Tandem>( model.scenes.map( scene => [
+      scene,
+      options.tandem.createTandem( `${scene.sourceType}Scene` )
+    ] ) );
 
     const overheadApparatusNode = new ExperimentOverheadApparatusNode( model, this.layoutBounds, options.tandem );
     this.addChild( overheadApparatusNode );
 
-    const slitColumnNode = new ExperimentSlitColumnNode( model, this, options.tandem );
+    const slitColumnNode = new ExperimentSlitColumnNode( model, this, sceneTandems, options.tandem );
     this.addChild( slitColumnNode );
 
     this.detectorColumnNode = new ExperimentDetectorColumnNode(
       model,
       this.layoutBounds.maxX,
       () => overheadApparatusNode.startSnapshotFlash(),
+      sceneTandems,
       options.tandem
     );
     this.addChild( this.detectorColumnNode );
@@ -106,7 +112,7 @@ export default class ExperimentScreenView extends ScreenView {
       this.detectorColumnNode.detectorScreenRight
     );
 
-    const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
+    const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, sceneTandems, {
       tandem: options.tandem.createTandem( 'sourceControlPanel' )
     } );
     sourceControlPanel.left = overheadApparatusNode.overheadEmitterNode.laserPointerNode.left;
@@ -243,7 +249,6 @@ export default class ExperimentScreenView extends ScreenView {
 
     // Draggable ruler. The ruler's horizontal scale is calibrated to the active detector screen: its full width maps to
     // the scene's full detector width in mm.
-    const rulerNodesTandem = options.tandem.createTandem( 'rulerNodes' );
     const rulerNodes = model.scenes.map( ( scene, index ) => {
       const rulerNode = new DetectorRulerNode(
         scene,
@@ -256,7 +261,7 @@ export default class ExperimentScreenView extends ScreenView {
         this.detectorColumnNode.detectorScreenNodes[ index ],
         this.detectorColumnNode.graphAccordionBoxes[ index ],
         this,
-        rulerNodesTandem.createTandem( `rulerNode${index}` )
+        sceneTandems.get( scene )!.createTandem( 'rulerNode' )
       );
       this.addChild( rulerNode );
       return rulerNode;
@@ -346,7 +351,7 @@ export default class ExperimentScreenView extends ScreenView {
       detectionMode: this.model.currentDetectionModeProperty.value,
       slitConfiguration: this.model.currentSlitSettingProperty.value,
       wavelengthNM: this.model.currentWavelengthProperty.value,
-      particleSpeedMetersPerSecond: this.model.currentVelocityProperty.value,
+      particleSpeedMetersPerSecond: this.model.currentParticleSpeedProperty.value,
       effectiveWavelengthMeters: scene.getEffectiveWavelength(),
       slitSeparationMM: this.model.currentSlitSeparationProperty.value,
       screenDistanceMeters: this.model.currentScreenDistanceProperty.value,

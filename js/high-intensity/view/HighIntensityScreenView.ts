@@ -161,8 +161,8 @@ const getWaveSpeedDescription = ( scene: HighIntensitySceneModel ): QWIWaveSpeed
     return 'fast';
   }
 
-  const speedRange = scene.velocityProperty.range;
-  const speedFraction = ( scene.velocityProperty.value - speedRange.min ) / speedRange.getLength();
+  const speedRange = scene.particleSpeedProperty.range;
+  const speedFraction = ( scene.particleSpeedProperty.value - speedRange.min ) / speedRange.getLength();
   return speedFraction <= 1 / 3 ? 'slow' :
          speedFraction >= 2 / 3 ? 'fast' :
          'medium';
@@ -248,11 +248,15 @@ export default class HighIntensityScreenView extends ScreenView {
     this.model = model;
 
     const tandem = options.tandem;
+    const sceneTandems = new Map<object, Tandem>( model.scenes.map( scene => [
+      scene,
+      tandem.createTandem( `${scene.sourceType}Scene` )
+    ] ) );
     let accessibleResponses: HighIntensityAccessibleResponses | null = null;
 
     // Keep this top-level sequence aligned with the visual layers: source controls, wave region,
     // detector readouts, detector screen controls, tools, and accessible description.
-    const sourceControlNodes = this.createAndAddSourceControls( model, tandem );
+    const sourceControlNodes = this.createAndAddSourceControls( model, sceneTandems, tandem );
     const waveRegionLayout = this.createWaveRegionLayout( sourceControlNodes.leftColumnWidth );
     const sourceBeamRightLimitXProperty = new NumberProperty( this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN );
     const sourceBeamCalloutNode = this.createAndAddSourceBeamCalloutNode(
@@ -260,6 +264,7 @@ export default class HighIntensityScreenView extends ScreenView {
       sourceControlNodes.leftColumnCenterX,
       waveRegionLayout,
       sourceBeamRightLimitXProperty,
+      sceneTandems,
       tandem
     );
     this.positionAndAddParticleMassAnnotation( sourceControlNodes.particleMassAnnotation, sourceBeamCalloutNode );
@@ -269,7 +274,7 @@ export default class HighIntensityScreenView extends ScreenView {
     this.waveVisualizationNode = waveRegionNodes.waveVisualizationNode;
     this.doubleSlitNode = waveRegionNodes.doubleSlitNode;
 
-    const bottomRow = this.createAndAddSlitControls( model, waveRegionLayout, tandem );
+    const bottomRow = this.createAndAddSlitControls( model, waveRegionLayout, sceneTandems, tandem );
     this.detectorPatternGraphLayerNode = this.createAndAddDetectorPatternGraphLayerNode( model, this.detectorScreenNode, waveRegionLayout, tandem );
 
     const detectorScreenControls = this.createAndAddDetectorScreenControls(
@@ -386,7 +391,7 @@ export default class HighIntensityScreenView extends ScreenView {
       wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),
       wavelengthColorZone: wavelengthColorZone,
       wavefrontSpacing: getWavefrontSpacing( scene, effectiveWavelengthMeters, wavelengthColorZone ),
-      particleSpeedMetersPerSecond: roundSymmetric( scene.velocityProperty.value ),
+      particleSpeedMetersPerSecond: roundSymmetric( scene.particleSpeedProperty.value ),
       waveSpeedDescription: getWaveSpeedDescription( scene ),
       effectiveWavelengthPicometers: Number( toFixed( effectiveWavelengthMeters * 1e12, 2 ) ),
       slitSeparationMM: slitConfiguration === 'noBarrier' ? null : scene.slitSeparationProperty.value,
@@ -412,8 +417,12 @@ export default class HighIntensityScreenView extends ScreenView {
    * @param tandem - parent tandem for child instrumentation
    * @returns the source nodes and left-column measurements needed by later layout sections
    */
-  private createAndAddSourceControls( model: HighIntensityModel, tandem: Tandem ): SourceControlNodes {
-    const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
+  private createAndAddSourceControls(
+    model: HighIntensityModel,
+    sceneTandems: ReadonlyMap<object, Tandem>,
+    tandem: Tandem
+  ): SourceControlNodes {
+    const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, sceneTandems, {
       tandem: tandem.createTandem( 'sourceControlPanel' )
     } );
 
@@ -488,6 +497,7 @@ export default class HighIntensityScreenView extends ScreenView {
     leftColumnCenterX: number,
     waveRegionLayout: WaveRegionLayout,
     sourceBeamRightLimitXProperty: NumberProperty,
+    sceneTandems: ReadonlyMap<object, Tandem>,
     tandem: Tandem
   ): HighIntensitySourceBeamCalloutNode<HighIntensitySceneModel> {
     const sourceBeamCalloutNode = new HighIntensitySourceBeamCalloutNode(
@@ -501,6 +511,7 @@ export default class HighIntensityScreenView extends ScreenView {
         waveRegionRight: waveRegionLayout.waveRegionRight,
         waveRegionTop: waveRegionLayout.waveRegionTop
       },
+      sceneTandems,
       tandem.createTandem( 'topRowNode' )
     );
     this.addChild( sourceBeamCalloutNode );
@@ -571,12 +582,14 @@ export default class HighIntensityScreenView extends ScreenView {
   private createAndAddSlitControls(
     model: HighIntensityModel,
     waveRegionLayout: WaveRegionLayout,
+    sceneTandems: ReadonlyMap<object, Tandem>,
     tandem: Tandem
   ): SlitConfigurationControlsRow<SlitConfigurationWithNoBarrier> {
     return createAndAddSlitConfigurationControlsRow(
       model.currentSlitConfigurationProperty,
       model.sceneProperty,
       model.scenes,
+      sceneTandems,
       waveRegionLayout.waveRegionLeft,
       waveRegionLayout.slitControlsBottom,
       this,

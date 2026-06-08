@@ -32,7 +32,7 @@ type RangeLike = {
 
 type SetupDetailsScene = {
   sourceType: SourceType;
-  velocityRange: RangeLike;
+  particleSpeedRange: RangeLike;
   slitSeparationRange: RangeLike;
 };
 
@@ -40,7 +40,7 @@ type SetupDetailsModel = {
   sceneProperty: TReadOnlyProperty<SetupDetailsScene>;
   currentIsEmittingProperty: TReadOnlyProperty<boolean>;
   currentWavelengthProperty: TReadOnlyProperty<number>;
-  currentVelocityProperty: TReadOnlyProperty<number>;
+  currentParticleSpeedProperty: TReadOnlyProperty<number>;
   currentSlitSeparationProperty: TReadOnlyProperty<number>;
 };
 
@@ -104,7 +104,7 @@ export default class ExperimentSetupDetailsNode extends Node {
     const particleSpeedStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [
         model.sceneProperty,
-        model.currentVelocityProperty,
+        model.currentParticleSpeedProperty,
         ...kilometersPerSecondUnit.getDependentProperties(),
         ...metersPerSecondUnit.getDependentProperties()
       ] ) ),
@@ -112,8 +112,8 @@ export default class ExperimentSetupDetailsNode extends Node {
 
         // Match the visual controls: electrons use km/s, while the slower particle sources use m/s.
         const scene = model.sceneProperty.value;
-        const velocity = model.currentVelocityProperty.value;
-        const useKmPerSecond = scene.velocityRange.max >= 10000;
+        const velocity = model.currentParticleSpeedProperty.value;
+        const useKmPerSecond = scene.particleSpeedRange.max >= 10000;
         const speedUnit = useKmPerSecond ? kilometersPerSecondUnit : metersPerSecondUnit;
         const speedValue = useKmPerSecond ? velocity / 1000 : velocity;
         return speedUnit.getAccessibleString( roundSymmetric( speedValue ), {

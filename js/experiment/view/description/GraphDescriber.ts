@@ -114,7 +114,7 @@ export default class GraphDescriber {
     sceneModel.slitSeparationProperty.lazyLink( fullUpdate );
     sceneModel.screenDistanceProperty.lazyLink( fullUpdate );
     sceneModel.wavelengthProperty.lazyLink( fullUpdate );
-    sceneModel.velocityProperty.lazyLink( fullUpdate );
+    sceneModel.particleSpeedProperty.lazyLink( fullUpdate );
     detectorScreenScaleIndexProperty.lazyLink( fullUpdate );
     isRulerVisibleProperty.lazyLink( fullUpdate );
 

@@ -33,6 +33,7 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
     slitConfigItems: ComboBoxItem<T>[],
     sceneProperty: TReadOnlyProperty<BaseSceneModel>,
     scenes: BaseSceneModel[],
+    sceneTandems: ReadonlyMap<object, Tandem> | null,
     waveRegionLeft: number,
     controlsBottom: number,
     listParent: Node,
@@ -61,7 +62,7 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
     } );
 
     const slitSeparationNodes: Node[] = scenes.map( scene =>
-      new SlitSeparationNumberControl( scene, tandem )
+      new SlitSeparationNumberControl( scene, sceneTandems?.get( scene ) || tandem )
     );
 
     // Owns one scene-specific slit separation control per scene, while this container is hidden entirely when there is no barrier.

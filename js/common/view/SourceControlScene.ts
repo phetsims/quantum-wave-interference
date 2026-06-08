@@ -15,8 +15,8 @@ import { type SourceType } from '../model/SourceType.js';
 type SourceControlScene = {
   readonly sourceType: SourceType;
   readonly wavelengthProperty: NumberProperty;
-  readonly velocityProperty: NumberProperty;
-  readonly velocityRange: Range;
+  readonly particleSpeedProperty: NumberProperty;
+  readonly particleSpeedRange: Range;
 
   // Scenes omit this property when their source intensity is fixed, which hides the intensity slider.
   readonly intensityProperty?: NumberProperty;

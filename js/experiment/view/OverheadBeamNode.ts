@@ -195,7 +195,7 @@ export default class OverheadBeamNode extends Node {
     };
 
     const patternProperties = [
-      'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'velocityProperty',
+      'isEmittingProperty', 'intensityProperty', 'wavelengthProperty', 'particleSpeedProperty',
       'slitSeparationProperty', 'screenDistanceProperty', 'slitSettingProperty',
       'detectionModeProperty', 'screenBrightnessProperty'
     ] as const;

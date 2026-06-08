@@ -56,7 +56,7 @@ export default class ExperimentModel implements TModel {
   public readonly currentIsMaxHitsReachedProperty: DynamicProperty<boolean, boolean, SceneModel>;
   public readonly currentIsEmitterEnabledProperty: DynamicProperty<boolean, boolean, SceneModel>;
   public readonly currentWavelengthProperty: DynamicProperty<number, number, SceneModel>;
-  public readonly currentVelocityProperty: DynamicProperty<number, number, SceneModel>;
+  public readonly currentParticleSpeedProperty: DynamicProperty<number, number, SceneModel>;
   public readonly currentSlitSeparationProperty: DynamicProperty<number, number, SceneModel>;
   public readonly currentScreenDistanceProperty: DynamicProperty<number, number, SceneModel>;
   public readonly currentTotalHitsProperty: DynamicProperty<number, number, SceneModel>;
@@ -140,8 +140,8 @@ export default class ExperimentModel implements TModel {
       derive: 'wavelengthProperty'
     } );
 
-    this.currentVelocityProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
-      derive: 'velocityProperty'
+    this.currentParticleSpeedProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
+      derive: 'particleSpeedProperty'
     } );
 
     this.currentSlitSeparationProperty = new DynamicProperty<number, number, SceneModel>( this.sceneProperty, {
@@ -195,7 +195,8 @@ export default class ExperimentModel implements TModel {
 
     // Initial ruler position: centered in the layout bounds, below the middle row
     this.rulerPositionProperty = new Vector2Property( new Vector2( 300, 350 ), {
-      tandem: tandem.createTandem( 'rulerPositionProperty' )
+      tandem: tandem.createTandem( 'rulerPositionProperty' ),
+      phetioReadOnly: true
     } );
 
     this.stopwatch = new Stopwatch( {

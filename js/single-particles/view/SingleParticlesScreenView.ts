@@ -16,6 +16,7 @@ import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualCo
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Checkbox from '../../../../sun/js/Checkbox.js';
+import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import createAndAddSlitConfigurationControlsRow from '../../common/view/createAndAddSlitConfigurationControlsRow.js';
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
@@ -142,6 +143,10 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.model = model;
 
     const tandem = options.tandem;
+    const sceneTandems = new Map<object, Tandem>( model.scenes.map( scene => [
+      scene,
+      tandem.createTandem( `${scene.sourceType}Scene` )
+    ] ) );
 
     // This top-level layout intentionally parallels HighIntensityScreenView while keeping screen-specific
     // controls and tandems explicit.
@@ -160,7 +165,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       }
     );
 
-    const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, {
+    const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, sceneTandems, {
       tandem: tandem.createTandem( 'sourceControlPanel' ),
       additionalContent: autoRepeatCheckbox
     } );
@@ -261,7 +266,7 @@ export default class SingleParticlesScreenView extends ScreenView {
         model.currentSlitConfigurationProperty,
         model.sceneProperty,
         model.currentWavelengthProperty,
-        model.currentVelocityProperty
+        model.currentParticleSpeedProperty
       ],
       ( isEmitting, slitConfiguration, scene ) => {
         const sourceRestartedResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestarted.format( {
@@ -285,6 +290,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       model.currentSlitConfigurationProperty,
       model.sceneProperty,
       model.scenes,
+      sceneTandems,
       waveRegionLeft,
       slitControlsBottom,
       this,
@@ -438,7 +444,7 @@ export default class SingleParticlesScreenView extends ScreenView {
         waveDisplayMode: this.model.currentWaveDisplayModeProperty.value,
         slitConfiguration: slitConfiguration,
         wavelengthNM: this.model.currentWavelengthProperty.value,
-        particleSpeedMetersPerSecond: this.model.currentVelocityProperty.value,
+        particleSpeedMetersPerSecond: this.model.currentParticleSpeedProperty.value,
         effectiveWavelengthMeters: scene.getEffectiveWavelength(),
         slitSeparationMM: this.model.currentSlitSeparationProperty.value,
         totalHits: this.model.currentTotalHitsProperty.value,

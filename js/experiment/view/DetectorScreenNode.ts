@@ -235,7 +235,7 @@ export default class DetectorScreenNode extends Node {
     // These Properties affect the detector texture directly. In Hits mode, geometry changes clear the screen through
     // SceneModel, but Average Intensity mode must also repaint when the theoretical pattern changes.
     sceneModel.wavelengthProperty.link( () => this.screenCanvasNode.invalidatePaint() );
-    sceneModel.velocityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.particleSpeedProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.slitSeparationProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.screenDistanceProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.slitSettingProperty.link( () => this.screenCanvasNode.invalidatePaint() );

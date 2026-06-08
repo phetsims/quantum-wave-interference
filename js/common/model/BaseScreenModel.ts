@@ -48,7 +48,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   public readonly currentIsMaxHitsReachedProperty: DynamicProperty<boolean, boolean, BaseSceneModel>;
   public readonly currentIsEmitterEnabledProperty: DynamicProperty<boolean, boolean, BaseSceneModel>;
   public readonly currentWavelengthProperty: DynamicProperty<number, number, BaseSceneModel>;
-  public readonly currentVelocityProperty: DynamicProperty<number, number, BaseSceneModel>;
+  public readonly currentParticleSpeedProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentScreenBrightnessProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentWaveDisplayModeProperty: DynamicProperty<WaveDisplayMode, WaveDisplayMode, BaseSceneModel>;
   public readonly currentSlitSeparationProperty: DynamicProperty<number, number, BaseSceneModel>;
@@ -117,8 +117,8 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       derive: 'wavelengthProperty'
     } );
 
-    this.currentVelocityProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {
-      derive: 'velocityProperty'
+    this.currentParticleSpeedProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {
+      derive: 'particleSpeedProperty'
     } );
 
     this.currentScreenBrightnessProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {

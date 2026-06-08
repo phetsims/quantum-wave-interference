@@ -29,6 +29,7 @@ import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
 import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
+import Tandem from '../../../../tandem/js/Tandem.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
@@ -78,11 +79,11 @@ export default class SceneModel extends PhetioObject {
   // Whether the emitter is on
   public readonly isEmittingProperty: BooleanProperty;
 
-  // Wavelength in nm (for photons, directly controlled; for particles, derived from velocity)
+  // Wavelength in nm. Photon scenes instrument this direct control; matter-particle scenes derive wavelength from speed.
   public readonly wavelengthProperty: NumberProperty;
 
-  // Velocity in m/s (for particles only; photons always travel at c)
-  public readonly velocityProperty: NumberProperty;
+  // Particle speed in m/s. Matter-particle scenes instrument this direct control; photons always travel at c.
+  public readonly particleSpeedProperty: NumberProperty;
 
   // Intensity: 0 to 1 (controls beam opacity and emission rate)
   public readonly intensityProperty: NumberProperty;
@@ -115,7 +116,6 @@ export default class SceneModel extends PhetioObject {
   // Approximately half of all hits pass through the monitored slit.
   public readonly leftDetectorHitsProperty: NumberProperty;
   public readonly rightDetectorHitsProperty: NumberProperty;
-  private readonly detectorHitsProperty: NumberProperty;
 
   // True when Hits mode has reached the per-scene hit cap.
   public readonly isMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
@@ -123,8 +123,8 @@ export default class SceneModel extends PhetioObject {
   // False when the emitter button should be disabled because the hit cap has been reached.
   public readonly isEmitterEnabledProperty: TReadOnlyProperty<boolean>;
 
-  // Ranges for velocity (m/s) - specific to each particle type
-  public readonly velocityRange: Range;
+  // Ranges for particle speed (m/s) - specific to each particle type
+  public readonly particleSpeedRange: Range;
 
   // Ranges for slit separation (mm) and screen distance (m)
   public readonly slitSeparationRange: Range;
@@ -159,8 +159,8 @@ export default class SceneModel extends PhetioObject {
 
     this.sourceType = options.sourceType;
 
-    // Set per-source-type constants. defaultVelocity and defaultSlitSeparation are set per source type.
-    let defaultVelocity: number;
+    // Set per-source-type constants. defaultParticleSpeed and defaultSlitSeparation are set per source type.
+    let defaultParticleSpeed: number;
     let defaultSlitSeparation: number;
 
     this.slitWidth = SceneModel.getSlitWidth( options.sourceType );
@@ -171,25 +171,25 @@ export default class SceneModel extends PhetioObject {
 
     if ( options.sourceType === 'photons' ) {
       this.particleMass = QuantumWaveInterferenceConstants.getParticleMass( 'photons' );
-      this.velocityRange = new Range( 0, 0 ); // Not used for photons
+      this.particleSpeedRange = new Range( 0, 0 ); // Not used for photons
       this.slitSeparationRange = new Range( 0.05, 0.5 ); // mm
-      defaultVelocity = 0;
+      defaultParticleSpeed = 0;
       defaultSlitSeparation = 0.25;
     }
     else if ( options.sourceType === 'electrons' ) {
       this.particleMass = QuantumWaveInterferenceConstants.getParticleMass( 'electrons' );
-      this.velocityRange = new Range( 2e5, 1e6 ); // m/s (200–1000 km/s)
+      this.particleSpeedRange = new Range( 2e5, 1e6 ); // m/s (200–1000 km/s)
       this.slitSeparationRange = new Range( 0.0001, 0.002 ); // mm (0.1–2.0 μm)
-      defaultVelocity = 6e5; // 600 km/s
+      defaultParticleSpeed = 6e5; // 600 km/s
       defaultSlitSeparation = 0.001; // 1 μm
     }
     else if ( options.sourceType === 'neutrons' ) {
       this.particleMass = QuantumWaveInterferenceConstants.getParticleMass( 'neutrons' );
 
       // NOTE: The settings are similar to Helium by design
-      this.velocityRange = new Range( 200, 1000 ); // m/s
+      this.particleSpeedRange = new Range( 200, 1000 ); // m/s
       this.slitSeparationRange = new Range( 0.0001, 0.002 ); // mm (0.1–2.0 μm)
-      defaultVelocity = 600;
+      defaultParticleSpeed = 600;
       defaultSlitSeparation = 0.001; // mm (1 μm)
     }
     else {
@@ -197,9 +197,9 @@ export default class SceneModel extends PhetioObject {
       this.particleMass = QuantumWaveInterferenceConstants.getParticleMass( 'heliumAtoms' );
 
       // NOTE: The settings are similar to Neutrons by design
-      this.velocityRange = new Range( 200, 1000 ); // m/s
+      this.particleSpeedRange = new Range( 200, 1000 ); // m/s
       this.slitSeparationRange = new Range( 0.0001, 0.002 ); // mm (0.1–2.0 μm)
-      defaultVelocity = 600;
+      defaultParticleSpeed = 600;
       defaultSlitSeparation = 0.001; // mm (1 μm)
     }
 
@@ -214,8 +214,8 @@ export default class SceneModel extends PhetioObject {
     } );
 
     // Wavelength in nm. For photons, this is directly controlled via a slider. For particles, this property is
-    // not used directly — the effective wavelength is computed from velocity via de Broglie relation.
-    // For non-photons, the wavelength is derived from velocity via de Broglie (see getEffectiveWavelength),
+    // not used directly — the effective wavelength is computed from particle speed via de Broglie relation.
+    // For non-photons, the wavelength is derived from particle speed via de Broglie (see getEffectiveWavelength),
     // so this property's range is [0,0] and its value is unused directly.
     // NOTE: see other duplicate in quantum-wave-interference/js/common/model/BaseSceneModel.ts. Wavelength defaults
     // match across model families, but the surrounding source-type configuration differs.
@@ -225,13 +225,13 @@ export default class SceneModel extends PhetioObject {
     this.wavelengthProperty = new NumberProperty( defaultWavelengthNM, {
       range: QuantumWaveInterferenceConstants.createWavelengthRangeNM( options.sourceType ),
       units: nanometersUnit,
-      tandem: tandem.createTandem( 'wavelengthProperty' )
+      tandem: options.sourceType === 'photons' ? tandem.createTandem( 'wavelengthProperty' ) : Tandem.OPT_OUT
     } );
 
-    this.velocityProperty = new NumberProperty( defaultVelocity, {
-      range: this.velocityRange,
+    this.particleSpeedProperty = new NumberProperty( defaultParticleSpeed, {
+      range: this.particleSpeedRange,
       units: metersPerSecondUnit,
-      tandem: tandem.createTandem( 'velocityProperty' )
+      tandem: options.sourceType === 'photons' ? Tandem.OPT_OUT : tandem.createTandem( 'particleSpeedProperty' )
     } );
 
     this.intensityProperty = new NumberProperty( 0.5, {
@@ -288,11 +288,6 @@ export default class SceneModel extends PhetioObject {
       phetioReadOnly: true
     } );
 
-    this.detectorHitsProperty = new NumberProperty( 0, {
-      tandem: tandem.createTandem( 'detectorHitsProperty' ),
-      phetioReadOnly: true
-    } );
-
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.detectionModeProperty, this.totalHitsProperty ],
       ( detectionMode, totalHits ) =>
@@ -323,7 +318,7 @@ export default class SceneModel extends PhetioObject {
     this.screenDistanceProperty.lazyLink( () => this.clearScreen() );
     this.slitSettingProperty.lazyLink( () => this.clearScreen() );
     this.wavelengthProperty.lazyLink( () => this.clearScreen() );
-    this.velocityProperty.lazyLink( () => this.clearScreen() );
+    this.particleSpeedProperty.lazyLink( () => this.clearScreen() );
 
     // When the hit cap is reached in Hits mode, stop the source and require the user to clear the screen.
     this.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
@@ -344,12 +339,12 @@ export default class SceneModel extends PhetioObject {
     }
     else {
 
-      affirm( this.velocityProperty.value !== undefined, 'Non-photon scenes must have a velocity' );
-      const velocity = this.velocityProperty.value;
-      if ( velocity === 0 ) {
+      affirm( this.particleSpeedProperty.value !== undefined, 'Non-photon scenes must have a particle speed' );
+      const particleSpeed = this.particleSpeedProperty.value;
+      if ( particleSpeed === 0 ) {
         return 0;
       }
-      return QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * velocity );
+      return QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * particleSpeed );
     }
   }
 
@@ -383,7 +378,6 @@ export default class SceneModel extends PhetioObject {
     this.totalHitsProperty.value = 0;
     this.leftDetectorHitsProperty.value = 0;
     this.rightDetectorHitsProperty.value = 0;
-    this.detectorHitsProperty.value = 0;
     this.hitsChangedEmitter.emit();
   }
 
@@ -433,7 +427,7 @@ export default class SceneModel extends PhetioObject {
   public reset(): void {
     this.isEmittingProperty.reset();
     this.wavelengthProperty.reset();
-    this.velocityProperty.reset();
+    this.particleSpeedProperty.reset();
     this.intensityProperty.reset();
     this.slitSeparationProperty.reset();
     this.screenDistanceProperty.reset();
@@ -445,7 +439,6 @@ export default class SceneModel extends PhetioObject {
     this.totalHitsProperty.reset();
     this.leftDetectorHitsProperty.reset();
     this.rightDetectorHitsProperty.reset();
-    this.detectorHitsProperty.reset();
     this.snapshotsProperty.value = [];
     this.hitsChangedEmitter.emit();
   }
@@ -547,7 +540,6 @@ export default class SceneModel extends PhetioObject {
     if ( isDetectorActive ) {
       this.leftDetectorHitsProperty.value += leftDetectorHitsThisFrame;
       this.rightDetectorHitsProperty.value += rightDetectorHitsThisFrame;
-      this.detectorHitsProperty.value = this.leftDetectorHitsProperty.value + this.rightDetectorHitsProperty.value;
     }
 
     if ( this.isMaxHitsReachedProperty.value ) {

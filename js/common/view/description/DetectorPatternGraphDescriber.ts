@@ -22,7 +22,7 @@ export type DetectorPatternGraphDescriberScene = {
   isEmittingProperty: TReadOnlyProperty<boolean>;
   slitSeparationProperty: TReadOnlyProperty<number>;
   wavelengthProperty: TReadOnlyProperty<number>;
-  velocityProperty: TReadOnlyProperty<number>;
+  particleSpeedProperty: TReadOnlyProperty<number>;
   getEffectiveWavelength(): number;
   slitWidth: number;
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
@@ -120,7 +120,7 @@ export default class DetectorPatternGraphDescriber {
         previousScene.slitPositionFractionProperty.unlink( fullUpdate );
         previousScene.slitSeparationProperty.unlink( fullUpdate );
         previousScene.wavelengthProperty.unlink( fullUpdate );
-        previousScene.velocityProperty.unlink( fullUpdate );
+        previousScene.particleSpeedProperty.unlink( fullUpdate );
       }
 
       scene.hitsChangedEmitter.addListener( update );
@@ -130,7 +130,7 @@ export default class DetectorPatternGraphDescriber {
       scene.slitPositionFractionProperty.lazyLink( fullUpdate );
       scene.slitSeparationProperty.lazyLink( fullUpdate );
       scene.wavelengthProperty.lazyLink( fullUpdate );
-      scene.velocityProperty.lazyLink( fullUpdate );
+      scene.particleSpeedProperty.lazyLink( fullUpdate );
       fullUpdate();
     } );
 

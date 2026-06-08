@@ -63,7 +63,7 @@ export default class SourceIntensityControl extends VBox {
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleHelpText.createProperty( {
         sourceType: sourceType
       } ),
-      tandem: tandem.createTandem( `${sourceType}IntensitySlider` )
+      tandem: tandem.createTandem( 'intensitySlider' )
     } );
 
     intensitySlider.addMajorTick( 0, new Text( '0', { font: SOURCE_CONTROL_TICK_LABEL_FONT } ) );

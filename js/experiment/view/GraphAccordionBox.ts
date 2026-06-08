@@ -326,7 +326,7 @@ export default class GraphAccordionBox extends Node {
       sceneModel.wavelengthProperty.link( () => updateGraph() );
     }
     else {
-      sceneModel.velocityProperty.link( () => updateGraph() );
+      sceneModel.particleSpeedProperty.link( () => updateGraph() );
     }
   }
 

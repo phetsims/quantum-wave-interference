@@ -29,19 +29,19 @@ export default class ExperimentDetectorColumnNode extends Node {
     model: ExperimentModel,
     layoutBoundsMaxX: number,
     startSnapshotFlash: () => void,
+    sceneTandems: ReadonlyMap<object, Tandem>,
     tandem: Tandem
   ) {
     super( { isDisposable: false } );
 
     const controlsRight = layoutBoundsMaxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
-    const detectorScreenTandem = tandem.createTandem( 'detectorScreenNodes' );
-    this.detectorScreenNodes = model.scenes.map( ( scene, index ) => new DetectorScreenNode(
+    this.detectorScreenNodes = model.scenes.map( scene => new DetectorScreenNode(
       scene,
       model.detectorScreenScaleIndexProperty,
       model.isPlayingProperty,
       {
         onSnapshotCaptured: startSnapshotFlash,
-        tandem: detectorScreenTandem.createTandem( `detectorScreenNode${index}` )
+        tandem: sceneTandems.get( scene )!.createTandem( 'detectorScreenNode' )
       }
     ) );
 
@@ -69,12 +69,11 @@ export default class ExperimentDetectorColumnNode extends Node {
       tandem: tandem.createTandem( 'graphExpandedProperty' )
     } );
 
-    const graphTandem = tandem.createTandem( 'graphAccordionBoxes' );
-    this.graphAccordionBoxes = model.scenes.map( ( scene, index ) => new GraphAccordionBox( scene, {
+    this.graphAccordionBoxes = model.scenes.map( scene => new GraphAccordionBox( scene, {
       expandedProperty: this.graphExpandedProperty,
       isRulerVisibleProperty: model.isRulerVisibleProperty,
       detectorScreenScaleIndexProperty: model.detectorScreenScaleIndexProperty,
-      tandem: graphTandem.createTandem( `graphAccordionBox${index}` )
+      tandem: sceneTandems.get( scene )!.createTandem( 'graphAccordionBox' )
     } ) );
     this.addChild( new QuantumWaveInterferenceToggleNode( model.sceneProperty, model.scenes, this.graphAccordionBoxes ) );
 

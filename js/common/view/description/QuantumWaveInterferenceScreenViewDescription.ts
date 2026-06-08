@@ -22,7 +22,7 @@ import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryCont
 
 type SharedDescriptionScene = DetectorScreenDescriberScene & DetectorPatternGraphDescriberScene & {
   sourceType: SourceType;
-  velocityRange: { min: number; max: number };
+  particleSpeedRange: { min: number; max: number };
   slitSeparationRange: { min: number; max: number };
 };
 
@@ -30,7 +30,7 @@ type SharedDescriptionModel = {
   sceneProperty: TReadOnlyProperty<SharedDescriptionScene>;
   currentIsEmittingProperty: TReadOnlyProperty<boolean>;
   currentWavelengthProperty: TReadOnlyProperty<number>;
-  currentVelocityProperty: TReadOnlyProperty<number>;
+  currentParticleSpeedProperty: TReadOnlyProperty<number>;
   currentSlitSeparationProperty: TReadOnlyProperty<number>;
 };
 

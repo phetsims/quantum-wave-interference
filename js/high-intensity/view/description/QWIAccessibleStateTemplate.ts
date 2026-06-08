@@ -49,7 +49,7 @@ export default class QWIAccessibleStateTemplate {
       model.currentWaveDisplayModeProperty,
       model.currentSlitConfigurationProperty,
       model.currentWavelengthProperty,
-      model.currentVelocityProperty,
+      model.currentParticleSpeedProperty,
       model.currentSlitSeparationProperty,
       model.currentLeftDetectorHitsProperty,
       model.currentRightDetectorHitsProperty,
