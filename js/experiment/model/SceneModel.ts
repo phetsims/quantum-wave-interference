@@ -30,7 +30,6 @@ import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUn
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
-import GetSetButtonsIO from '../../../../tandem/js/types/GetSetButtonsIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import { getExactAnalyticalDetectorIntensity } from '../../common/model/AnalyticalDetectorPattern.js';
@@ -568,7 +567,6 @@ export default class SceneModel extends PhetioObject {
    */
   private static readonly SceneModelIO = new IOType<SceneModel, SceneModelStateObject>( 'SceneModelIO', {
     valueType: SceneModel,
-    supertype: GetSetButtonsIO,
     stateSchema: {
       hits: ArrayIO( Vector2.Vector2IO ),
       hitAccumulator: NumberIO

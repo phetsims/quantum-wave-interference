@@ -10,8 +10,7 @@
 
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
-import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
-import PhetioObject from '../../../../tandem/js/PhetioObject.js';
+import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NullableIO from '../../../../tandem/js/types/NullableIO.js';
@@ -227,6 +226,9 @@ export default class TimePlotDataSeries extends PhetioObject {
    * IOType for the stored time-plot samples and the timing bookkeeping that maps solver time to
    * chart time. Reference serialization is used because the data series instance persists for the
    * life of the owning TimePlotNode.
+   *
+   * On the other hand, the position plot curve itself is not serialized because it is derived from current solver state
+   * each frame (which is already in the PhET-iO state)
    */
   public static readonly TimePlotDataSeriesIO = new IOType<TimePlotDataSeries, TimePlotDataSeriesStateObject>(
     'TimePlotDataSeriesIO', {
