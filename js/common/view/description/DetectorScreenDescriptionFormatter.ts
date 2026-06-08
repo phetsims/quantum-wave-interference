@@ -56,6 +56,8 @@ export function formatLiveHitsDescription(
     return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsFewStringProperty.value;
   }
 
+  // NOTE: see other duplicate in formatSnapshotHitsDescription below. The live and snapshot descriptions intentionally
+  // share the same hit-stage decision tree but target different Fluent strings and count arguments.
   if ( isDoubleSlit ) {
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty.value :
            hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDeveloping.format( {
@@ -103,6 +105,8 @@ export function formatSnapshotHitsDescription(
     return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsFew.format( { hitCount: hitCount } );
   }
 
+  // NOTE: see other duplicate in formatLiveHitsDescription above. The live and snapshot descriptions intentionally
+  // share the same hit-stage decision tree but target different Fluent strings and count arguments.
   if ( isDoubleSlit ) {
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsEmerging.format( { hitCount: hitCount } ) :
            hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsDeveloping.format( {

@@ -37,6 +37,8 @@ export default class SlitSeparationControl extends NumberControl {
     let ticks;
     let delta;
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/common/view/SlitSeparationNumberControl.ts. The
+    // micrometer display formatter is parallel, but Experiment has its own ticks, deltas, and slider width.
     if ( usesMicrometers ) {
 
       // Display in μm: convert mm values to μm (×1000) for the number display and ticks.
@@ -89,6 +91,8 @@ export default class SlitSeparationControl extends NumberControl {
         maxWidth: 150
       },
       numberDisplayOptions: numberDisplayOptions,
+      // NOTE: see other duplicate in quantum-wave-interference/js/common/view/SlitSeparationNumberControl.ts. Control
+      // layout stays local because the shared and Experiment sliders have different ranges, widths, and tandems.
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSeparationSlider.accessibleHelpText.createProperty( {
         unit: usesMicrometers ? 'micrometers' : 'millimeters'
       } ),

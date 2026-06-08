@@ -15,7 +15,8 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
 import BaseScreenModel from '../../common/model/BaseScreenModel.js';
-import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
+import createCurrentDetectionModeProperty from '../../common/model/createCurrentDetectionModeProperty.js';
+import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
 import HighIntensitySceneModel from './HighIntensitySceneModel.js';
 
@@ -69,17 +70,7 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
       phetioValueType: StringUnionIO( SlitConfigurationWithNoBarrierValues )
     } );
 
-    this.currentDetectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, HighIntensitySceneModel>( this.sceneProperty, {
-      derive: 'detectionModeProperty',
-      bidirectional: true,
-      tandem: tandem.createTandem( 'currentDetectionModeProperty' ),
-      phetioFeatured: true,
-      phetioDocumentation: 'The detector screen display mode for the current source scene.',
-      phetioReadOnly: true,
-      phetioState: false,
-      phetioValueType: StringUnionIO( DetectionModeValues ),
-      validValues: DetectionModeValues
-    } );
+    this.currentDetectionModeProperty = createCurrentDetectionModeProperty( this.sceneProperty, tandem );
 
     this.isIntensityGraphVisibleProperty = new BooleanProperty( false, {
       tandem: this.toolsTandem.createTandem( 'isIntensityGraphVisibleProperty' )

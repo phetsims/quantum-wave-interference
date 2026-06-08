@@ -44,6 +44,9 @@ export default class GraphDescriber {
       const slitSetting = sceneModel.slitSettingProperty.value;
       const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
 
+      // NOTE: see other duplicate in
+      // quantum-wave-interference/js/common/view/description/DetectorPatternGraphDescriber.ts. Experiment graph
+      // descriptions use a detector-screen scale Property instead of the shared scene region width.
       if ( detectionMode === 'averageIntensity' ) {
         if ( !sceneModel.isEmittingProperty.value ) {
           descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty.value;
@@ -78,6 +81,9 @@ export default class GraphDescriber {
       );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
 
+      // NOTE: see other duplicate in
+      // quantum-wave-interference/js/common/view/description/DetectorPatternGraphDescriber.ts. These graph strings
+      // stay parallel so the Experiment graph can diverge from the High Intensity/Single Particles graph if needed.
       if ( isDoubleSlit ) {
         descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsNoneStringProperty.value :
                                     newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.hitsFewStringProperty.value :

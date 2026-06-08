@@ -7,6 +7,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+// NOTE: see other duplicate import block in quantum-wave-interference/js/common/model/BaseSceneModel.ts. These models
+// intentionally remain separate because Experiment uses a legacy analytical model while High Intensity/Single Particles
+// share BaseSceneModel.
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Emitter from '../../../../axon/js/Emitter.js';
@@ -215,6 +218,8 @@ export default class SceneModel extends PhetioObject {
     // not used directly — the effective wavelength is computed from velocity via de Broglie relation.
     // For non-photons, the wavelength is derived from velocity via de Broglie (see getEffectiveWavelength),
     // so this property's range is [0,0] and its value is unused directly.
+    // NOTE: see other duplicate in quantum-wave-interference/js/common/model/BaseSceneModel.ts. Wavelength defaults
+    // match across model families, but the surrounding source-type configuration differs.
     const defaultWavelengthNM = options.sourceType === 'photons' ?
                                 QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM :
                                 0;
@@ -235,7 +240,8 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'intensityProperty' )
     } );
 
-    // NOTE: identical implementation in quantum-wave-interference/js/common/model/BaseSceneModel.ts
+    // NOTE: see other duplicate in quantum-wave-interference/js/common/model/BaseSceneModel.ts. Slit separation is
+    // initialized locally because each model family owns its own range/default calculation.
     this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
       range: this.slitSeparationRange,
       units: millimetersUnit,
@@ -271,6 +277,8 @@ export default class SceneModel extends PhetioObject {
       phetioReadOnly: true
     } );
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/common/model/BaseSceneModel.ts. Hit counters stay in
+    // each scene model because their clearing and serialization paths differ by model family.
     this.leftDetectorHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'leftDetectorHitsProperty' ),
       phetioReadOnly: true

@@ -16,12 +16,11 @@ import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
-import Animation from '../../../../twixt/js/Animation.js';
-import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import { type DetectorScreenViewState, type DetectorScreenViewStateFragment } from './description/QWIAccessibleViewState.js';
 import DetectorScreenTextureRenderer, { type DetectorScreenSceneLike } from './DetectorScreenTextureRenderer.js';
+import SnapshotFlashController from './SnapshotFlashController.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -31,15 +30,13 @@ export type DetectorScreenNodeOptions = SelfOptions & NodeOptions;
 const SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
 const SCREEN_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW;
-const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
-const SNAPSHOT_FLASH_DURATION = 0.6;
 
 export default class DetectorScreenNode extends Node {
 
   private readonly canvasNode: CanvasNode;
   private readonly sceneProperty: TReadOnlyProperty<DetectorScreenSceneLike>;
   private readonly snapshotFlashRect: Rectangle;
-  private snapshotFlashAnimation: Animation | null = null;
+  private readonly snapshotFlashController: SnapshotFlashController;
 
   public constructor( sceneProperty: TReadOnlyProperty<DetectorScreenSceneLike>, providedOptions?: DetectorScreenNodeOptions ) {
 
@@ -94,41 +91,15 @@ export default class DetectorScreenNode extends Node {
     } );
     this.snapshotFlashRect.clipArea = shape;
     this.addChild( this.snapshotFlashRect );
+    this.snapshotFlashController = new SnapshotFlashController( this.snapshotFlashRect );
   }
 
   public startSnapshotFlash(): void {
-    this.clearFlash();
-    this.snapshotFlashRect.opacity = SNAPSHOT_FLASH_INITIAL_OPACITY;
-    this.snapshotFlashRect.visible = true;
-
-    const flashAnimation = new Animation( {
-      object: this.snapshotFlashRect,
-      attribute: 'opacity',
-      from: SNAPSHOT_FLASH_INITIAL_OPACITY,
-      to: 0,
-      duration: SNAPSHOT_FLASH_DURATION,
-      easing: Easing.LINEAR
-    } );
-
-    this.snapshotFlashAnimation = flashAnimation;
-
-    flashAnimation.endedEmitter.addListener( () => {
-      if ( this.snapshotFlashAnimation === flashAnimation ) {
-        this.snapshotFlashAnimation = null;
-      }
-      this.snapshotFlashRect.visible = false;
-      flashAnimation.dispose();
-    } );
-
-    flashAnimation.start();
+    this.snapshotFlashController.start();
   }
 
   public clearFlash(): void {
-    if ( this.snapshotFlashAnimation ) {
-      this.snapshotFlashAnimation.stop();
-    }
-    this.snapshotFlashRect.opacity = 0;
-    this.snapshotFlashRect.visible = false;
+    this.snapshotFlashController.clear();
   }
 
   /**

@@ -8,7 +8,13 @@
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { type FieldSample } from './AnalyticalWaveKernelTypes.js';
+import { type FieldComponent, type FieldSample } from './AnalyticalWaveKernelTypes.js';
+
+type CoherentGroupSum = {
+  name: string;
+  real: number;
+  imaginary: number;
+};
 
 export function computeSampleIntensity( sample: FieldSample ): number {
   if ( sample.kind !== 'field' ) {
@@ -38,30 +44,12 @@ export function computeSampleIntensity( sample: FieldSample ): number {
       return value0.magnitudeSquared + value1.magnitudeSquared;
     }
   }
-
-
-  // TODO: Duplicated fragment, 19 lines long, see https://github.com/phetsims/quantum-wave-interference/issues/135
-  const groupNames: string[] = [];
-  const groupRealSums: number[] = [];
-  const groupImaginarySums: number[] = [];
-
-  for ( let i = 0; i < components.length; i++ ) {
-    const component = components[ i ];
-    const groupIndex = getCoherenceGroupIndex( groupNames, component.coherenceGroup );
-    if ( groupIndex < 0 ) {
-      groupNames.push( component.coherenceGroup );
-      groupRealSums.push( component.value.real );
-      groupImaginarySums.push( component.value.imaginary );
-    }
-    else {
-      groupRealSums[ groupIndex ] += component.value.real;
-      groupImaginarySums[ groupIndex ] += component.value.imaginary;
-    }
-  }
+  const groupSums = getCoherentGroupSums( components );
 
   let intensity = 0;
-  for ( let i = 0; i < groupNames.length; i++ ) {
-    intensity += groupRealSums[ i ] * groupRealSums[ i ] + groupImaginarySums[ i ] * groupImaginarySums[ i ];
+  for ( let i = 0; i < groupSums.length; i++ ) {
+    const groupSum = groupSums[ i ];
+    intensity += groupSum.real * groupSum.real + groupSum.imaginary * groupSum.imaginary;
   }
   return intensity;
 }
@@ -107,32 +95,16 @@ export function getRepresentativeComplex( sample: FieldSample ): Complex {
     }
   }
 
-  const groupNames: string[] = [];
-  const groupRealSums: number[] = [];
-  const groupImaginarySums: number[] = [];
-
-  for ( let i = 0; i < components.length; i++ ) {
-    const component = components[ i ];
-    const groupIndex = getCoherenceGroupIndex( groupNames, component.coherenceGroup );
-    if ( groupIndex < 0 ) {
-      groupNames.push( component.coherenceGroup );
-      groupRealSums.push( component.value.real );
-      groupImaginarySums.push( component.value.imaginary );
-    }
-    else {
-      groupRealSums[ groupIndex ] += component.value.real;
-      groupImaginarySums[ groupIndex ] += component.value.imaginary;
-    }
-  }
+  const groupSums = getCoherentGroupSums( components );
 
   let totalIntensity = 0;
   let strongestReal = 0;
   let strongestImaginary = 0;
   let strongestIntensity = 0;
 
-  for ( let i = 0; i < groupNames.length; i++ ) {
-    const real = groupRealSums[ i ];
-    const imaginary = groupImaginarySums[ i ];
+  for ( let i = 0; i < groupSums.length; i++ ) {
+    const real = groupSums[ i ].real;
+    const imaginary = groupSums[ i ].imaginary;
     const intensity = real * real + imaginary * imaginary;
     totalIntensity += intensity;
     if ( intensity > strongestIntensity ) {
@@ -145,13 +117,35 @@ export function getRepresentativeComplex( sample: FieldSample ): Complex {
   return createRepresentativeComplexFromStrongestGroup( totalIntensity, strongestReal, strongestImaginary, strongestIntensity );
 }
 
-function getCoherenceGroupIndex( groupNames: string[], coherenceGroup: string ): number {
-  for ( let i = 0; i < groupNames.length; i++ ) {
-    if ( groupNames[ i ] === coherenceGroup ) {
+function getCoherenceGroupIndex( groupSums: CoherentGroupSum[], coherenceGroup: string ): number {
+  for ( let i = 0; i < groupSums.length; i++ ) {
+    if ( groupSums[ i ].name === coherenceGroup ) {
       return i;
     }
   }
   return -1;
+}
+
+function getCoherentGroupSums( components: FieldComponent[] ): CoherentGroupSum[] {
+  const groupSums: CoherentGroupSum[] = [];
+
+  for ( let i = 0; i < components.length; i++ ) {
+    const component = components[ i ];
+    const groupIndex = getCoherenceGroupIndex( groupSums, component.coherenceGroup );
+    if ( groupIndex < 0 ) {
+      groupSums.push( {
+        name: component.coherenceGroup,
+        real: component.value.real,
+        imaginary: component.value.imaginary
+      } );
+    }
+    else {
+      groupSums[ groupIndex ].real += component.value.real;
+      groupSums[ groupIndex ].imaginary += component.value.imaginary;
+    }
+  }
+
+  return groupSums;
 }
 
 function createRepresentativeComplexFromStrongestGroup(

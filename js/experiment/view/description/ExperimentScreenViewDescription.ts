@@ -74,6 +74,8 @@ export default class ExperimentScreenViewDescription extends Node {
     } );
     this.addChild( experimentSetupDetailsListNode );
 
+    // NOTE: see other duplicate in
+    // quantum-wave-interference/js/common/view/description/QuantumWaveInterferenceScreenViewDescription.ts.
     // Heading nodes for PDOM navigation. Each groups related controls under a heading so screen reader users can jump
     // between major sections with heading shortcuts.
     this.experimentSetupHeadingNode = new Node( {

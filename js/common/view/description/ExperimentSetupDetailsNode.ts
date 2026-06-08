@@ -21,6 +21,7 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
+import QuantumWaveInterferenceConstants from '../../QuantumWaveInterferenceConstants.js';
 import { getWavelengthColorZone, getWavelengthColorZoneStringProperty, WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from '../WavelengthColorUtils.js';
 import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryContent.js';
 
@@ -50,27 +51,9 @@ type SetupDetailsOptions = {
   additionalListItems?: AccessibleListItem[];
 };
 
-const getDecimalPlacesForValue = ( value: number ): number => {
-  if ( value === Math.floor( value ) ) {
-    return 0;
-  }
-  const str = value.toString();
-  const decimalIndex = str.indexOf( '.' );
-  return decimalIndex === -1 ? 0 : str.length - decimalIndex - 1;
-};
-
-const getRangeDecimalPlaces = ( min: number, max: number ): number =>
-  Math.max( getDecimalPlacesForValue( min ), getDecimalPlacesForValue( max ) );
-
 const NANOMETER_RANGE_THRESHOLD_MM = 0.0001;
 const MICROMETERS_PER_MILLIMETER = 1000;
 const NANOMETERS_PER_MILLIMETER = 1e6;
-
-const getCompactDecimalPlaces = ( maxValue: number ): number => {
-  return maxValue >= 10 ? 0 :
-         maxValue >= 1 ? 1 :
-         2;
-};
 
 export default class ExperimentSetupDetailsNode extends Node {
 
@@ -173,13 +156,15 @@ export default class ExperimentSetupDetailsNode extends Node {
         if ( scene.slitSeparationRange.max <= NANOMETER_RANGE_THRESHOLD_MM ) {
           const slitSeparationNM = slitSeparationMM * NANOMETERS_PER_MILLIMETER;
           return nanometersUnit.getAccessibleString( slitSeparationNM, {
-            decimalPlaces: getCompactDecimalPlaces( scene.slitSeparationRange.max * NANOMETERS_PER_MILLIMETER ),
+            decimalPlaces: QuantumWaveInterferenceConstants.getCompactDecimalPlacesForMaxValue(
+              scene.slitSeparationRange.max * NANOMETERS_PER_MILLIMETER
+            ),
             showTrailingZeros: true
           } );
         }
 
         const slitSeparationUM = slitSeparationMM * MICROMETERS_PER_MILLIMETER;
-        const decimalPlaces = getRangeDecimalPlaces(
+        const decimalPlaces = QuantumWaveInterferenceConstants.getRangeDecimalPlaces(
           scene.slitSeparationRange.min * MICROMETERS_PER_MILLIMETER,
           scene.slitSeparationRange.max * MICROMETERS_PER_MILLIMETER
         );

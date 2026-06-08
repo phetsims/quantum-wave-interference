@@ -21,6 +21,8 @@ import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier
 import BandAnalysis from './BandAnalysis.js';
 import { formatIntensityDescription, formatLiveHitsDescription } from './DetectorScreenDescriptionFormatter.js';
 
+// NOTE: see other duplicate in DetectorPatternGraphDescriber.ts. Graph and detector-screen describers read the same
+// physics state, but their scene types stay separate because their wording and screen-distance inputs diverge.
 export type DetectorScreenDescriberScene = {
   hitsChangedEmitter: { addListener( listener: () => void ): void; removeListener( listener: () => void ): void };
   totalHitsProperty: TReadOnlyProperty<number>;
@@ -74,6 +76,8 @@ export default class DetectorScreenDescriber {
     // threshold, not on every frame of hit accumulation.
     let hitStage = '';
 
+    // NOTE: see other duplicate in DetectorPatternGraphDescriber.ts. The detector-screen description has separate
+    // no-barrier, screen-distance, and wavefront-reached handling, so a shared updater would obscure behavior.
     const update = () => {
       const scene = sceneProperty.value;
       const detectionMode = getDetectionMode( scene );
@@ -126,6 +130,8 @@ export default class DetectorScreenDescriber {
     };
 
     // Listen to scene changes and rewire listeners for the active scene.
+    // NOTE: see other duplicate in DetectorPatternGraphDescriber.ts. Listener rewiring mirrors the same scene
+    // dependencies, but the describers intentionally own separate update functions and string dependencies.
     sceneProperty.link( ( scene, previousScene ) => {
       if ( previousScene ) {
         previousScene.hitsChangedEmitter.removeListener( update );

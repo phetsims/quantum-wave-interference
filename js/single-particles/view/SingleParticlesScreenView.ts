@@ -416,6 +416,8 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     assert && assert( slitBarrier, 'Expected Single Particles slit-barrier view state.' );
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/experiment/view/ExperimentScreenView.ts.
+    // These common accessible-state fields stay inline because the screens expose different authored state shapes.
     return Object.assign(
       {
         sourceType: scene.sourceType,
@@ -456,6 +458,9 @@ export default class SingleParticlesScreenView extends ScreenView {
 
   public override step( dt: number ): void {
     super.step( dt );
+
+    // NOTE: see other duplicate in quantum-wave-interference/js/high-intensity/view/HighIntensityScreenView.ts.
+    // Both screens call the shared step helper, but each passes its own screen-specific node fields.
     stepDetectorScreenViewNodes(
       this.model,
       dt,

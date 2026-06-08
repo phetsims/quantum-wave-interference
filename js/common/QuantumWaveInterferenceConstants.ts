@@ -130,4 +130,16 @@ export default class QuantumWaveInterferenceConstants {
   public static getRangeDecimalPlaces( min: number, max: number ): number {
     return Math.max( numberOfDecimalPlaces( min ), numberOfDecimalPlaces( max ) );
   }
+
+  /**
+   * Chooses a compact number of decimal places for values whose largest display value is known.
+   *
+   * @param maxValue - largest value expected in the displayed range
+   * @returns decimal places that keep labels compact while preserving small-range readability
+   */
+  public static getCompactDecimalPlacesForMaxValue( maxValue: number ): number {
+    return maxValue >= 10 ? 0 :
+           maxValue >= 1 ? 1 :
+           2;
+  }
 }

@@ -101,6 +101,8 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
       this.addChild( experimentSetupDetailsNode );
     }
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/experiment/view/description/ExperimentScreenViewDescription.ts.
+    // These heading nodes stay parallel because this shared description owns different optional content and pdomOrder.
     this.experimentSetupHeadingNode = new Node( includeExperimentSetupDetails ? {
       accessibleHeading: QuantumWaveInterferenceFluent.a11y.experimentSetupHeadingStringProperty
     } : {} );

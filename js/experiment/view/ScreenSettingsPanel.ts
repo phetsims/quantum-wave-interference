@@ -102,6 +102,8 @@ export default class ScreenSettingsPanel extends Panel {
     } );
 
     const brightnessRange = new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX );
+    // NOTE: see other duplicate in quantum-wave-interference/js/common/view/BrightnessControl.ts. The brightness slider
+    // options stay local because this panel combines brightness with detection-mode controls.
     const brightnessSlider = new HSlider( screenBrightnessProperty, brightnessRange, {
       trackSize: new Dimension2( 130, 3 ),
       thumbSize: new Dimension2( 13, 22 ),

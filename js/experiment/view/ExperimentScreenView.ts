@@ -333,6 +333,8 @@ export default class ExperimentScreenView extends ScreenView {
   public getAccessibleState(): ExperimentAccessibleState {
     const scene = this.model.sceneProperty.value;
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/single-particles/view/SingleParticlesScreenView.ts.
+    // These common accessible-state fields stay inline because the screens expose different authored state shapes.
     return {
       sourceType: scene.sourceType,
       isPlaying: this.model.isPlayingProperty.value,

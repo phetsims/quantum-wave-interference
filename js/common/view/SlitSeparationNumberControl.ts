@@ -33,15 +33,6 @@ const MICROMETER_RANGE_THRESHOLD_MM = 0.1;
 const MICROMETERS_PER_MILLIMETER = 1000;
 const NANOMETERS_PER_MILLIMETER = 1e6;
 
-/**
- * Chooses the fewest decimal places that still produce compact min/max tick labels for converted unit values.
- */
-const getCompactDecimalPlaces = ( maxValue: number ): number => {
-  return maxValue >= 10 ? 0 :
-         maxValue >= 1 ? 1 :
-         2;
-};
-
 export default class SlitSeparationNumberControl extends NumberControl {
 
   /**
@@ -62,7 +53,7 @@ export default class SlitSeparationNumberControl extends NumberControl {
       // Nanometer scenes keep the model value in millimeters, but display and label values in nanometers.
       const minNM = range.min * NANOMETERS_PER_MILLIMETER;
       const maxNM = range.max * NANOMETERS_PER_MILLIMETER;
-      const decimalPlaces = getCompactDecimalPlaces( maxNM );
+      const decimalPlaces = QuantumWaveInterferenceConstants.getCompactDecimalPlacesForMaxValue( maxNM );
       delta = Math.pow( 10, -decimalPlaces ) / NANOMETERS_PER_MILLIMETER;
       numberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
@@ -87,12 +78,14 @@ export default class SlitSeparationNumberControl extends NumberControl {
         { value: range.max, label: new Text( toFixed( maxNM, decimalPlaces ), { font: TICK_LABEL_FONT, maxWidth: 40 } ) }
       ];
     }
+    // NOTE: see other duplicate in quantum-wave-interference/js/experiment/view/SlitSeparationControl.ts. The
+    // micrometer display formatter is parallel, but this shared control also supports nanometer-scale scenes.
     else if ( usesMicrometers ) {
 
       // Micrometer scenes use the same millimeter-backed Property with micrometer formatting for readability.
       const minUM = range.min * MICROMETERS_PER_MILLIMETER;
       const maxUM = range.max * MICROMETERS_PER_MILLIMETER;
-      const dp = getCompactDecimalPlaces( maxUM );
+      const dp = QuantumWaveInterferenceConstants.getCompactDecimalPlacesForMaxValue( maxUM );
       delta = Math.pow( 10, -dp ) / MICROMETERS_PER_MILLIMETER;
       numberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
@@ -144,6 +137,8 @@ export default class SlitSeparationNumberControl extends NumberControl {
           maxWidth: 150
         },
         numberDisplayOptions: numberDisplayOptions,
+        // NOTE: see other duplicate in quantum-wave-interference/js/experiment/view/SlitSeparationControl.ts. Control
+        // layout stays local because the shared and Experiment sliders have different ranges, widths, and tandems.
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSeparationSlider.accessibleHelpText.createProperty( {
           unit: usesNanometers ? 'nanometers' : usesMicrometers ? 'micrometers' : 'millimeters'
         } ),

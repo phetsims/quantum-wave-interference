@@ -24,8 +24,8 @@ import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
-import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
-import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
+import createCurrentDetectionModeProperty from '../../common/model/createCurrentDetectionModeProperty.js';
+import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import TimeSpeedProperty from '../../common/model/TimeSpeedProperty.js';
 import { DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, DETECTOR_SCREEN_SCALE_OPTIONS } from './DetectorScreenScale.js';
@@ -121,17 +121,7 @@ export default class ExperimentModel implements TModel {
       derive: 'slitSettingProperty'
     } );
 
-    this.currentDetectionModeProperty = new DynamicProperty<DetectionMode, DetectionMode, SceneModel>( this.sceneProperty, {
-      derive: 'detectionModeProperty',
-      bidirectional: true,
-      tandem: tandem.createTandem( 'currentDetectionModeProperty' ),
-      phetioFeatured: true,
-      phetioDocumentation: 'The detector screen display mode for the current source scene.',
-      phetioReadOnly: true,
-      phetioState: false,
-      phetioValueType: StringUnionIO( DetectionModeValues ),
-      validValues: DetectionModeValues
-    } );
+    this.currentDetectionModeProperty = createCurrentDetectionModeProperty( this.sceneProperty, tandem );
 
     this.currentIsEmittingProperty = new DynamicProperty<boolean, boolean, SceneModel>( this.sceneProperty, {
       derive: 'isEmittingProperty',

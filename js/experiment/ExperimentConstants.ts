@@ -10,6 +10,7 @@ import { toFixed } from '../../../dot/js/util/toFixed.js';
 import PhetFont from '../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../scenery/js/nodes/Node.js';
 import Text from '../../../scenery/js/nodes/Text.js';
+import QuantumWaveInterferenceConstants from '../common/QuantumWaveInterferenceConstants.js';
 
 const TICK_LABEL_FONT = new PhetFont( 12 );
 
@@ -43,19 +44,14 @@ export default class ExperimentConstants {
    * For example, 0.2 -> 1, 0.002 -> 3, 5 -> 0, 0.1 -> 1.
    */
   public static getDecimalPlacesForValue( value: number ): number {
-    if ( value === Math.floor( value ) ) {
-      return 0;
-    }
-    const str = value.toString();
-    const decimalIndex = str.indexOf( '.' );
-    return decimalIndex === -1 ? 0 : str.length - decimalIndex - 1;
+    return QuantumWaveInterferenceConstants.getRangeDecimalPlaces( value, value );
   }
 
   /**
    * Determines the maximum number of decimal places needed to display both boundary values of a range.
    */
   public static getRangeDecimalPlaces( min: number, max: number ): number {
-    return Math.max( ExperimentConstants.getDecimalPlacesForValue( min ), ExperimentConstants.getDecimalPlacesForValue( max ) );
+    return QuantumWaveInterferenceConstants.getRangeDecimalPlaces( min, max );
   }
 
   /**

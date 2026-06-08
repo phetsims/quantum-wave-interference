@@ -266,6 +266,9 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
         bottomColor: palette ? palette.bottomColor : undefined,
         highlightColor: palette ? palette.highlightColor : undefined,
         hasGlass: palette !== null,
+        // NOTE: see other duplicate in quantum-wave-interference/js/single-particles/view/SingleParticleEmitterNode.ts.
+        // These button options stay inline because LaserPointerNode and RoundStickyToggleButton own different option
+        // surfaces and tandems.
         buttonOptions: {
           baseColor: 'red',
           radius: EMITTER_BUTTON_RADIUS,

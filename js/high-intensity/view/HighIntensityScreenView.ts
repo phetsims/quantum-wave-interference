@@ -838,6 +838,9 @@ export default class HighIntensityScreenView extends ScreenView {
 
   public override step( dt: number ): void {
     super.step( dt );
+
+    // NOTE: see other duplicate in quantum-wave-interference/js/single-particles/view/SingleParticlesScreenView.ts.
+    // Both screens call the shared step helper, but each passes its own screen-specific node fields.
     stepDetectorScreenViewNodes(
       this.model,
       dt,

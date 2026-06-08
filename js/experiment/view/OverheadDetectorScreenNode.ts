@@ -17,8 +17,7 @@ import Line from '../../../../scenery/js/nodes/Line.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import Animation from '../../../../twixt/js/Animation.js';
-import Easing from '../../../../twixt/js/Easing.js';
+import SnapshotFlashController from '../../common/view/SnapshotFlashController.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
@@ -36,8 +35,6 @@ const BASE_DOUBLE_SLIT_SKEW_DY = 21;
 const DISTANCE_LABEL_FONT = new PhetFont( 12 );
 const VISIBLE_REGION_STROKE = 'white';
 const VISIBLE_REGION_LINE_WIDTH = 1.5;
-const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
-const SNAPSHOT_FLASH_DURATION = 0.6;
 
 export const DETECTOR_DX = BASE_DETECTOR_DX * OVERHEAD_SCALE;
 export const DETECTOR_DY = BASE_DETECTOR_DX * ( BASE_DOUBLE_SLIT_SKEW_DY / BASE_DOUBLE_SLIT_SKEW_DX ) * OVERHEAD_SCALE * OVERHEAD_SKEW_SCALE;
@@ -68,7 +65,7 @@ export default class OverheadDetectorScreenNode extends Node {
   public readonly overheadPatternNode: OverheadDetectorPatternNode;
   private readonly visibleRegionNode: Path;
   private readonly snapshotFlashNode: Path;
-  private snapshotFlashAnimation: Animation | null = null;
+  private readonly snapshotFlashController: SnapshotFlashController;
 
   private readonly sceneProperty: TReadOnlyProperty<SceneModel>;
   private readonly detectorScreenScaleIndexProperty: TReadOnlyProperty<number>;
@@ -118,6 +115,7 @@ export default class OverheadDetectorScreenNode extends Node {
       pickable: false
     } );
     this.parallelogramNode.addChild( this.snapshotFlashNode );
+    this.snapshotFlashController = new SnapshotFlashController( this.snapshotFlashNode );
 
     this.visibleRegionNode = new Path( createVisibleRegionShape( DETECTOR_DX, DETECTOR_DY, DETECTOR_LEFT_HEIGHT, 1 ), {
       fill: null,
@@ -287,37 +285,10 @@ export default class OverheadDetectorScreenNode extends Node {
    * time, so rapid snapshots restart the visual feedback instead of stacking animations.
    */
   public startSnapshotFlash(): void {
-    this.clearSnapshotFlash();
-    this.snapshotFlashNode.opacity = SNAPSHOT_FLASH_INITIAL_OPACITY;
-    this.snapshotFlashNode.visible = true;
-
-    const flashAnimation = new Animation( {
-      object: this.snapshotFlashNode,
-      attribute: 'opacity',
-      from: SNAPSHOT_FLASH_INITIAL_OPACITY,
-      to: 0,
-      duration: SNAPSHOT_FLASH_DURATION,
-      easing: Easing.LINEAR
-    } );
-
-    this.snapshotFlashAnimation = flashAnimation;
-
-    flashAnimation.endedEmitter.addListener( () => {
-      if ( this.snapshotFlashAnimation === flashAnimation ) {
-        this.snapshotFlashAnimation = null;
-      }
-      this.snapshotFlashNode.visible = false;
-      flashAnimation.dispose();
-    } );
-
-    flashAnimation.start();
+    this.snapshotFlashController.start();
   }
 
   private clearSnapshotFlash(): void {
-    if ( this.snapshotFlashAnimation ) {
-      this.snapshotFlashAnimation.stop();
-    }
-    this.snapshotFlashNode.opacity = 0;
-    this.snapshotFlashNode.visible = false;
+    this.snapshotFlashController.clear();
   }
 }

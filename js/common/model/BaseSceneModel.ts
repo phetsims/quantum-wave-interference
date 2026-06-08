@@ -10,6 +10,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+// NOTE: see other duplicate import block in quantum-wave-interference/js/experiment/model/SceneModel.ts. These models
+// intentionally remain separate because Experiment uses a legacy analytical model while High Intensity/Single Particles
+// share BaseSceneModel.
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Emitter from '../../../../axon/js/Emitter.js';
@@ -208,6 +211,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.hits = [];
     this.hitsChangedEmitter = new Emitter();
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/experiment/model/SceneModel.ts. Hit counters stay in
+    // each scene model because their clearing and serialization paths differ by model family.
     this.leftDetectorHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'leftDetectorHitsProperty' ),
       phetioReadOnly: true
@@ -222,6 +227,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'isEmittingProperty' )
     } );
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/experiment/model/SceneModel.ts. Wavelength defaults
+    // match across model families, but the surrounding source-type configuration differs.
     const defaultWavelengthNM = options.sourceType === 'photons' ?
                                 QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM :
                                 0;
@@ -242,7 +249,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'barrierTypeProperty' )
     } );
 
-    // NOTE: identical implementation in quantum-wave-interference/js/experiment/model/SceneModel.ts
+    // NOTE: see other duplicate in quantum-wave-interference/js/experiment/model/SceneModel.ts. Slit separation is
+    // initialized locally because each model family owns its own range/default calculation.
     this.slitSeparationProperty = new NumberProperty( slitSeparationConfig.defaultValue, {
       range: this.slitSeparationRange,
       units: millimetersUnit,

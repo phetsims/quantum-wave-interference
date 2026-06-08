@@ -58,6 +58,9 @@ export default class SingleParticleEmitterNode extends Node {
     const sourceTypeProperty = sceneProperty.derived( scene => scene.sourceType );
     const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/high-intensity/view/HighIntensitySourceBeamCalloutNode.ts.
+    // These button options stay inline because RoundStickyToggleButton and LaserPointerNode own different option
+    // surfaces and tandems.
     const emitButton = new RoundStickyToggleButton( isEmittingProperty, false, true, {
       baseColor: 'red',
       radius: BUTTON_RADIUS,
