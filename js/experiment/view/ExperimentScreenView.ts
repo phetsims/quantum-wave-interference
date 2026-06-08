@@ -171,6 +171,7 @@ export default class ExperimentScreenView extends ScreenView {
     const checkboxGroup = new VBox( {
       spacing: 6,
       align: 'left',
+      stretch: true,
       children: [ rulerCheckbox, stopwatchCheckbox ]
     } );
     this.addChild( checkboxGroup );

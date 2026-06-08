@@ -52,6 +52,10 @@ export default class ToolCheckbox extends Checkbox {
     super( property, content, {
       boxWidth: CHECKBOX_BOX_WIDTH,
       spacing: CHECKBOX_LABEL_SPACING,
+      touchAreaXDilation: 5,
+      touchAreaYDilation: 4,
+      mouseAreaXDilation: 5,
+      mouseAreaYDilation: 4,
       accessibleHelpText: accessibleHelpText,
       layoutOptions: { stretch: true },
       tandem: tandem

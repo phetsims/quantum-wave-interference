@@ -28,9 +28,14 @@ export default class RulerCheckbox extends Checkbox {
     super( isRulerVisibleProperty, rulerCheckboxLabel, {
       boxWidth: 16,
       spacing: 6,
+      touchAreaXDilation: 5,
+      touchAreaYDilation: 3,
+      mouseAreaXDilation: 5,
+      mouseAreaYDilation: 3,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleHelpTextStringProperty,
       accessibleContextResponseChecked: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleContextResponseCheckedStringProperty,
       accessibleContextResponseUnchecked: QuantumWaveInterferenceFluent.a11y.rulerCheckbox.accessibleContextResponseUncheckedStringProperty,
+      layoutOptions: { stretch: true },
       tandem: providedOptions.tandem
     } );
   }

@@ -64,6 +64,10 @@ export default class SnapshotButton extends RectangularPushButton {
         scale: 0.04
       } ),
       minWidth: BUTTON_MIN_WIDTH,
+      touchAreaXDilation: 5,
+      touchAreaYDilation: 2,
+      mouseAreaXDilation: 5,
+      mouseAreaYDilation: 2,
       enabledProperty: new DerivedProperty(
         [ numberOfSnapshotsProperty ],
         numberOfSnapshots => numberOfSnapshots < QuantumWaveInterferenceConstants.MAX_SNAPSHOTS,

@@ -75,6 +75,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
                          new VBox( {
                            spacing: SOURCE_CONTROL_SECTION_SPACING,
                            align: 'left',
+                           stretch: true,
                            children: [ sourceContent.contentNode, options.additionalContent ]
                          } ) :
                          sourceContent.contentNode;

@@ -73,6 +73,10 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
       } ),
       minWidth: minWidth,
       minHeight: minHeight,
+      touchAreaXDilation: 5,
+      touchAreaYDilation: 2,
+      mouseAreaXDilation: 5,
+      mouseAreaYDilation: 2,
       enabledProperty: new DerivedProperty(
         [ numberOfSnapshotsProperty ],
         numberOfSnapshots => numberOfSnapshots > 0,

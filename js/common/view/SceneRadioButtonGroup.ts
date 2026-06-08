@@ -172,5 +172,18 @@ export default class SceneRadioButtonGroup<T extends HasSourceType> extends Rect
     // Force two columns. RectangularRadioButtonGroup wraps based on preferredWidth, so compute it from the actual
     // button width after construction instead of duplicating the internal button sizing formula.
     this.preferredWidth = actualChildWidth * GRID_COLUMNS + GRID_HORIZONTAL_SPACING * ( GRID_COLUMNS - 1 );
+
+    scenes.forEach( ( scene, index ) => {
+      const radioButton = this.getButtonForValue( scene );
+      const layoutNode = this.children[ index ];
+      const pointerBounds = layoutNode.localBounds.dilatedXY(
+        GRID_HORIZONTAL_SPACING / 2,
+        GRID_VERTICAL_SPACING / 2
+      );
+      const radioButtonPointerBounds = radioButton.parentToLocalBounds( pointerBounds );
+
+      radioButton.touchArea = radioButtonPointerBounds;
+      radioButton.mouseArea = radioButtonPointerBounds;
+    } );
   }
 }

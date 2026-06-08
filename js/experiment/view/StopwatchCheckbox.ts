@@ -29,9 +29,14 @@ export default class StopwatchCheckbox extends Checkbox {
     super( isStopwatchVisibleProperty, stopwatchCheckboxLabel, {
       boxWidth: 16,
       spacing: 6,
+      touchAreaXDilation: 5,
+      touchAreaYDilation: 3,
+      mouseAreaXDilation: 5,
+      mouseAreaYDilation: 3,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleHelpTextStringProperty,
       accessibleContextResponseChecked: QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleContextResponseCheckedStringProperty,
       accessibleContextResponseUnchecked: QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty,
+      layoutOptions: { stretch: true },
       tandem: providedOptions.tandem
     } );
 

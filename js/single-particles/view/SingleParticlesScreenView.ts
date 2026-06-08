@@ -151,6 +151,11 @@ export default class SingleParticlesScreenView extends ScreenView {
       {
         boxWidth: 16,
         spacing: 6,
+        touchAreaXDilation: 5,
+        touchAreaYDilation: 4,
+        mouseAreaXDilation: 5,
+        mouseAreaYDilation: 4,
+        layoutOptions: { stretch: true },
         tandem: tandem.createTandem( 'autoRepeatCheckbox' )
       }
     );
