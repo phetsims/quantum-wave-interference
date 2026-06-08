@@ -95,13 +95,10 @@ function getSingleOpenSlitIntensity(
 
 function getWhichPathDetectorIntensity( options: AnalyticalDetectorPatternOptions, lambda: number ): number {
 
-  // Which-path detection destroys coherence, so only the broad single-slit-like envelope remains.
-  return getAnalyticalSingleSlitEnvelopeIntensity(
-    options.positionOnScreen,
-    lambda,
-    options.screenDistance,
-    options.slitWidth
-  );
+  // Which-path detection destroys coherence between the two open slit paths, so their intensities
+  // add without the double-slit interference modulation.
+  return getSingleOpenSlitIntensity( options, lambda, -options.slitSeparation / 2 ) +
+         getSingleOpenSlitIntensity( options, lambda, options.slitSeparation / 2 );
 }
 
 function getBothOpenIntensity( options: AnalyticalDetectorPatternOptions, lambda: number ): number {
