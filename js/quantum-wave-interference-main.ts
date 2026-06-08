@@ -9,6 +9,7 @@
 import Sim, { SimOptions } from '../../joist/js/Sim.js';
 import simLauncher from '../../joist/js/simLauncher.js';
 import Tandem from '../../tandem/js/Tandem.js';
+import QuantumWaveInterferenceConstants from './common/QuantumWaveInterferenceConstants.js';
 import ExperimentScreen from './experiment/ExperimentScreen.js';
 import HighIntensityScreen from './high-intensity/HighIntensityScreen.js';
 import QuantumWaveInterferenceFluent from './QuantumWaveInterferenceFluent.js';
@@ -28,14 +29,7 @@ simLauncher.launch( () => {
 
   const options: SimOptions = {
 
-    credits: {
-      leadDesign: 'Amy Rouinfar',
-      softwareDevelopment: 'Sam Reid',
-      team: 'Wendy Adams, Diana López Tavares, Ariel Paul, Kathy Perkins',
-      qualityAssurance: '',
-      graphicArts: '',
-      thanks: ''
-    }
+    credits: QuantumWaveInterferenceConstants.CREDITS
   };
 
   const sim = new Sim( titleStringProperty, screens, options );

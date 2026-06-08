@@ -8,7 +8,21 @@
 
 import Range from '../../../dot/js/Range.js';
 import { numberOfDecimalPlaces } from '../../../dot/js/util/numberOfDecimalPlaces.js';
+import { type CreditsData } from '../../../joist/js/CreditsNode.js';
 import { type SourceType } from './model/SourceType.js';
+
+const CREDITS: CreditsData = {
+  leadDesign: 'Matthew Blackman',
+  softwareDevelopment: 'Sam Reid, Matthew Blackman',
+  team: 'Kathy Perkins, Martin Veillette, Ariel Paul, Amy Rouinfar',
+  contributors: 'Stephen Pollock (University of Colorado Boulder), Gina Passante (California State ' +
+                'University, Fullerton), Noah Finkelstein (University of Colorado Boulder), Carl Wieman ' +
+                '(Stanford University), Sam McKagan',
+  qualityAssurance: 'Matthew Moore, Valentina Pérez, Nancy Salpepi, Kathryn Woessner',
+  graphicArts: '',
+  soundDesign: '',
+  thanks: ''
+};
 
 const WAVELENGTH_RANGE_NM_BY_SOURCE_TYPE: Readonly<Record<SourceType, readonly [ number, number ]>> = {
   photons: [ 380, 780 ],
@@ -25,6 +39,8 @@ export default class QuantumWaveInterferenceConstants {
 
   public static readonly SCREEN_VIEW_X_MARGIN = 15;
   public static readonly SCREEN_VIEW_Y_MARGIN = 15;
+
+  public static readonly CREDITS = CREDITS;
 
   // Physical constants
   public static readonly PLANCK_CONSTANT = 6.626e-34; // J·s
