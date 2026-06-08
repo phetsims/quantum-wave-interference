@@ -5,7 +5,7 @@
  * - A draggable circular detector overlaid on the wave visualization region
  * - A probability percentage label inside the circle
  * - A curved wire connecting the circle to a control panel
- * - A control panel with a Detect/Reset button, detector size slider, and detector mode radio buttons
+ * - A control panel with a Detect/Reset button and detector size slider
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -13,7 +13,6 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
 import Property from '../../../../axon/js/Property.js';
-import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -29,7 +28,6 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Color from '../../../../scenery/js/util/Color.js';
-import AquaRadioButtonGroup, { type AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
 import HSlider from '../../../../sun/js/HSlider.js';
 import Panel from '../../../../sun/js/Panel.js';
@@ -50,9 +48,6 @@ const CIRCLE_FILL_NOT_DETECTED = new Color( 80, 80, 80, 0.5 );
 const CIRCLE_STROKE = new Color( 50, 50, 50 );
 const WIRE_STROKE = new Color( 100, 100, 100 );
 const DETECTOR_TOOL_DRAG_BOUNDS = new Bounds2( 0.05, 0.05, 0.95, 0.95 );
-
-const DetectorModeValues = [ 'destructive', 'nonDestructive' ] as const;
-type DetectorMode = typeof DetectorModeValues[number];
 
 /**
  * View/controller for the detector tool. The detector's position and radius are stored in model coordinates normalized
@@ -173,41 +168,8 @@ export default class DetectorToolNode extends Node {
       align: 'center'
     } );
 
-    const detectorModeProperty = new StringUnionProperty<DetectorMode>( 'destructive', {
-      validValues: DetectorModeValues,
-      tandem: tandem.createTandem( 'detectorModeProperty' ),
-      phetioFeatured: true
-    } );
-
-    const detectorModeItems: AquaRadioButtonGroupItem<DetectorMode>[] = [
-      {
-        value: 'destructive',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.destructiveStringProperty, {
-          font: LABEL_FONT,
-          maxWidth: 100
-        } ),
-        tandemName: 'destructiveRadioButton'
-      },
-      {
-        value: 'nonDestructive',
-        createNode: () => new Text( QuantumWaveInterferenceFluent.nonDestructiveStringProperty, {
-          font: LABEL_FONT,
-          maxWidth: 100
-        } ),
-        tandemName: 'nonDestructiveRadioButton'
-      }
-    ];
-
-    const detectorModeRadioButtonGroup = new AquaRadioButtonGroup<DetectorMode>( detectorModeProperty, detectorModeItems, {
-      spacing: 8,
-      align: 'left',
-      orientation: 'vertical',
-      radioButtonOptions: { radius: 7 },
-      tandem: tandem.createTandem( 'detectorModeRadioButtonGroup' )
-    } );
-
     const panelContent = new HBox( {
-      children: [ detectButton, sizeControl, detectorModeRadioButtonGroup ],
+      children: [ detectButton, sizeControl ],
       spacing: 15,
       align: 'center'
     } );

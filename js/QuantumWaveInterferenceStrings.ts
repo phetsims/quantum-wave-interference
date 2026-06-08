@@ -91,8 +91,6 @@ type StringsType = {
   'autoRepeatStringProperty': LocalizedStringProperty;
   'timeScaleLabelStringProperty': LocalizedStringProperty;
   'detectorSizeStringProperty': LocalizedStringProperty;
-  'destructiveStringProperty': LocalizedStringProperty;
-  'nonDestructiveStringProperty': LocalizedStringProperty;
   'detectStringProperty': LocalizedStringProperty;
   'resetDetectorStringProperty': LocalizedStringProperty;
   'particleDetectedStringProperty': LocalizedStringProperty;

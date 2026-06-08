@@ -89,8 +89,6 @@ addToMapIfDefined( 'detectorBottom', 'detectorBottomStringProperty' );
 addToMapIfDefined( 'autoRepeat', 'autoRepeatStringProperty' );
 addToMapIfDefined( 'timeScaleLabel', 'timeScaleLabelStringProperty' );
 addToMapIfDefined( 'detectorSize', 'detectorSizeStringProperty' );
-addToMapIfDefined( 'destructive', 'destructiveStringProperty' );
-addToMapIfDefined( 'nonDestructive', 'nonDestructiveStringProperty' );
 addToMapIfDefined( 'detect', 'detectStringProperty' );
 addToMapIfDefined( 'resetDetector', 'resetDetectorStringProperty' );
 addToMapIfDefined( 'particleDetected', 'particleDetectedStringProperty' );
@@ -348,8 +346,6 @@ const QuantumWaveInterferenceFluent = {
   autoRepeatStringProperty: _.get( QuantumWaveInterferenceStrings, 'autoRepeatStringProperty' ),
   timeScaleLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeScaleLabelStringProperty' ),
   detectorSizeStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorSizeStringProperty' ),
-  destructiveStringProperty: _.get( QuantumWaveInterferenceStrings, 'destructiveStringProperty' ),
-  nonDestructiveStringProperty: _.get( QuantumWaveInterferenceStrings, 'nonDestructiveStringProperty' ),
   detectStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectStringProperty' ),
   resetDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'resetDetectorStringProperty' ),
   particleDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleDetectedStringProperty' ),
