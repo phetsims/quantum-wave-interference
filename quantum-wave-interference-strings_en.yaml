@@ -411,9 +411,13 @@ a11y:
                                 }
                                 [complete] { $patternKind ->
                                   [doubleSlitInterference] Evenly-spaced bright bands, { $bandSpacing ->
+                                    [extremelyFarApart] extremely far apart
+                                    [veryFarApart] very far apart
                                     [farApart] far apart
-                                    [closelySpaced] closely spaced
-                                   *[mediumSpaced] medium spaced
+                                    [somewhatCloseTogether] somewhat close together
+                                    [closeTogether] close together
+                                    [veryCloseTogether] very close together
+                                   *[extremelyCloseTogether] extremely close together
                                   }, with brightest at center form a stable pattern on detector screen.
                                   [singleSlitDiffraction] { $slitSetting ->
                                     [leftCovered] Wide central bright area, brightest at center and fading toward the edges,

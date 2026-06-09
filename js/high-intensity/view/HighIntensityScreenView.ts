@@ -55,7 +55,7 @@ import HighIntensityModel from '../model/HighIntensityModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
-import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QWIBandSpacingDescription, type QWIClockSpeedDescription, type QWIPatternFormation, type QWIPatternKind, type QWIWavefrontSpacing, type QWIWaveProgressCheckpoint, type QWIWaveProgressStage, type QWIWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QWIClockSpeedDescription, type QWIPatternFormation, type QWIPatternKind, type QWIWavefrontSpacing, type QWIWaveProgressCheckpoint, type QWIWaveProgressStage, type QWIWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
 import HighIntensityExperimentSetupSequenceItems from './description/HighIntensityExperimentSetupSequenceItems.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
@@ -167,11 +167,6 @@ const getWaveSpeedDescription = ( scene: HighIntensitySceneModel ): QWIWaveSpeed
          speedFraction >= 2 / 3 ? 'fast' :
          'medium';
 };
-
-const getBandSpacingDescription = ( bandCount: number ): QWIBandSpacingDescription =>
-  bandCount <= 5 ? 'farApart' :
-  bandCount >= 13 ? 'closelySpaced' :
-  'mediumSpaced';
 
 const getWaveProgress = (
   scene: HighIntensitySceneModel,
@@ -396,7 +391,7 @@ export default class HighIntensityScreenView extends ScreenView {
       effectiveWavelengthPicometers: Number( toFixed( effectiveWavelengthMeters * 1e12, 2 ) ),
       slitSeparationMM: slitConfiguration === 'noBarrier' ? null : scene.slitSeparationProperty.value,
       slitSeparationMicrometers: slitConfiguration === 'noBarrier' ? null : Number( toFixed( scene.slitSeparationProperty.value * 1000, 2 ) ),
-      bandSpacingDescription: getBandSpacingDescription( bandAnalysis.bandCount ),
+      bandSpacingDescription: bandAnalysis.spacingCategory,
       hitStage: hitStage,
       totalHits: scene.totalHitsProperty.value,
       patternFormation: getPatternFormation( scene, this.model ),

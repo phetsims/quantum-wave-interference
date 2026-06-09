@@ -83,12 +83,14 @@ const smoothStep = ( edge0: number, edge1: number, value: number ): number => {
 
 const getSpacingCategory = ( averageSpacingMM: number, screenWidthMM: number ): BandSpacingCategory => {
   const spacingFraction = screenWidthMM > 0 ? averageSpacingMM / screenWidthMM : 0;
-  return spacingFraction >= 0.6 ? 'extremelyFarApart' :
-         spacingFraction >= 0.42 ? 'veryFarApart' :
-         spacingFraction >= 0.28 ? 'farApart' :
-         spacingFraction >= 0.16 ? 'somewhatCloseTogether' :
-         spacingFraction >= 0.1 ? 'closeTogether' :
-         spacingFraction >= 0.065 ? 'veryCloseTogether' :
+
+  // Keep the default double-slit photon pattern in the middle of this seven-point scale.
+  return spacingFraction >= 0.5 ? 'extremelyFarApart' :
+         spacingFraction >= 0.33 ? 'veryFarApart' :
+         spacingFraction >= 0.16 ? 'farApart' :
+         spacingFraction >= 0.08 ? 'somewhatCloseTogether' :
+         spacingFraction >= 0.05 ? 'closeTogether' :
+         spacingFraction >= 0.03 ? 'veryCloseTogether' :
          'extremelyCloseTogether';
 };
 

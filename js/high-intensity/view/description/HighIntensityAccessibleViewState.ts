@@ -12,7 +12,7 @@ import { type DetectionMode } from '../../../common/model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../../common/model/SourceType.js';
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
-import { type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import { type BandSpacingCategory, type HitStage } from '../../../common/view/description/BandAnalysis.js';
 import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../../common/view/description/QWIAccessibleViewState.js';
 import { type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 
@@ -24,7 +24,7 @@ export type QWIWaveProgressCheckpoint = 'none' | 'quarter' | 'half' | 'threeQuar
 export type QWIWavefrontSpacing = 'tightlyPacked' | 'moderatelySpaced' | 'widelySpaced';
 export type QWIWaveSpeedDescription = 'slow' | 'medium' | 'fast';
 export type QWIClockSpeedDescription = 'slow' | 'normal' | 'fast';
-export type QWIBandSpacingDescription = 'farApart' | 'mediumSpaced' | 'closelySpaced';
+export type QWIBandSpacingDescription = BandSpacingCategory;
 export type QWIValueTrend = 'increased' | 'decreased' | 'unchanged';
 
 export type HighIntensitySemanticAccessibleViewState = {
