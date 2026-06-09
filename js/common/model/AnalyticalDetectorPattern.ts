@@ -9,6 +9,10 @@
 
 import { hasAnyDetector, type SlitConfigurationWithNoBarrier } from './SlitConfiguration.js';
 
+/**
+ * Physical parameters used to evaluate an analytical detector-screen pattern. All distances and wavelengths are
+ * expressed in meters.
+ */
 export type AnalyticalDetectorPatternOptions = {
 
   // Position on the detector screen in meters, relative to the screen center.
@@ -26,6 +30,9 @@ export type AnalyticalDetectorPatternOptions = {
   // Center-to-center slit separation in meters.
   slitSeparation: number;
 
+  /**
+   * Barrier, slit-cover, and which-path detector configuration used to select the analytical pattern.
+   */
   slitSetting: SlitConfigurationWithNoBarrier;
 };
 
@@ -36,7 +43,14 @@ function sincSquared( arg: number ): number {
 }
 
 /**
- * Returns the single-slit diffraction envelope at the given detector position.
+ * Evaluates the single-slit diffraction envelope at a detector-screen position.
+ *
+ * @param positionOnScreen - position on the detector screen in meters, relative to the screen center
+ * @param effectiveWavelength - effective wavelength in meters
+ * @param screenDistance - distance from the slits to the detector screen in meters
+ * @param slitWidth - slit width in meters
+ * @returns normalized envelope intensity from 0 (dark) to 1 (peak intensity), or 0 when the effective wavelength is
+ *          zero
  */
 export function getAnalyticalSingleSlitEnvelopeIntensity(
   positionOnScreen: number,
@@ -57,7 +71,11 @@ export function getAnalyticalSingleSlitEnvelopeIntensity(
 }
 
 /**
- * Returns the local spacing between neighboring double-slit bright fringes, in meters.
+ * Computes the local spacing between neighboring double-slit bright fringes.
+ *
+ * @param options - physical detector-pattern parameters, with all distances and wavelengths in meters
+ * @returns fringe spacing in meters, or positive infinity when slitSetting is not `bothOpen` or the wavelength, slit
+ *          separation, or screen distance is zero
  */
 export function getLocalDoubleSlitFringeSpacing( options: AnalyticalDetectorPatternOptions ): number {
   if (
@@ -79,7 +97,11 @@ export function getLocalDoubleSlitFringeSpacing( options: AnalyticalDetectorPatt
 }
 
 /**
- * Exact detector intensity from the Experiment screen's Fraunhofer formulas.
+ * Evaluates the exact detector intensity from the Experiment screen's Fraunhofer formulas.
+ *
+ * @param options - physical detector-pattern parameters, with all distances and wavelengths in meters
+ * @returns normalized intensity from 0 (dark) to 1 (the unobstructed reference intensity); returns 0 when the
+ *          effective wavelength is zero
  */
 export function getExactAnalyticalDetectorIntensity( options: AnalyticalDetectorPatternOptions ): number {
   const lambda = options.effectiveWavelength;
