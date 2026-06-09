@@ -59,7 +59,7 @@ const SLIT_POSITION_RESPONSE_EPSILON = 1e-12;
 
 type SlitPositionPosition = 'closest' | 'closer' | 'farther' | 'farthest';
 
-const slitPositionBoundarySoundPlayer = new ValueChangeSoundPlayer( SLIT_POSITION_FRACTION_RANGE );
+const slitPositionSoundPlayer = new ValueChangeSoundPlayer( SLIT_POSITION_FRACTION_RANGE );
 
 type AccessibleArrowNodeOptions = ArrowNodeOptions & AccessibleSliderOptions;
 
@@ -110,14 +110,6 @@ function getSlitPositionContextResponse(
   return QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleContextResponse.format( {
     position: position
   } );
-}
-
-function playSlitPositionBoundarySound( newSlitPositionFraction: number, oldSlitPositionFraction: number ): void {
-  if ( !equalsEpsilon( newSlitPositionFraction, oldSlitPositionFraction, SLIT_POSITION_RESPONSE_EPSILON ) &&
-       ( equalsEpsilon( newSlitPositionFraction, SLIT_POSITION_FRACTION_RANGE.min, SLIT_POSITION_RESPONSE_EPSILON ) ||
-         equalsEpsilon( newSlitPositionFraction, SLIT_POSITION_FRACTION_RANGE.max, SLIT_POSITION_RESPONSE_EPSILON ) ) ) {
-    slitPositionBoundarySoundPlayer.playSoundForValueChange( newSlitPositionFraction, oldSlitPositionFraction );
-  }
 }
 
 type SelfOptions = {
@@ -227,8 +219,19 @@ export default class DoubleSlitNode extends Node {
       startDrag: () => {
         previousAccessibleSlitPositionFraction = slitPositionFractionProperty.value;
       },
-      drag: () => {
-        playSlitPositionBoundarySound( slitPositionFractionProperty.value, previousAccessibleSlitPositionFraction );
+      drag: event => {
+        if ( event.isFromPDOM() ) {
+          slitPositionSoundPlayer.playSoundForValueChange(
+            slitPositionFractionProperty.value,
+            previousAccessibleSlitPositionFraction
+          );
+        }
+        else {
+          slitPositionSoundPlayer.playSoundIfThresholdReached(
+            slitPositionFractionProperty.value,
+            previousAccessibleSlitPositionFraction
+          );
+        }
         previousAccessibleSlitPositionFraction = slitPositionFractionProperty.value;
       },
       accessibleName: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleNameStringProperty,
@@ -267,7 +270,10 @@ export default class DoubleSlitNode extends Node {
         const fractionDelta = dx / WAVE_REGION_WIDTH;
         const oldSlitPositionFraction = slitPositionFractionProperty.value;
         slitPositionFractionProperty.value = SLIT_POSITION_FRACTION_RANGE.constrainValue( dragStartFraction + fractionDelta );
-        playSlitPositionBoundarySound( slitPositionFractionProperty.value, oldSlitPositionFraction );
+        slitPositionSoundPlayer.playSoundIfThresholdReached(
+          slitPositionFractionProperty.value,
+          oldSlitPositionFraction
+        );
       },
       tandem: options.tandem.createTandem( tandemName )
     } );
