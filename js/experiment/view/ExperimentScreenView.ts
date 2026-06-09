@@ -11,15 +11,12 @@
 
 import GatedEnabledProperty from '../../../../axon/js/GatedEnabledProperty.js';
 import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
-import Vector2 from '../../../../dot/js/Vector2.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
-import StopwatchNode from '../../../../scenery-phet/js/StopwatchNode.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
-import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
@@ -33,7 +30,6 @@ import ExperimentDetectorColumnNode from './ExperimentDetectorColumnNode.js';
 import ExperimentOverheadApparatusNode from './ExperimentOverheadApparatusNode.js';
 import ExperimentSlitColumnNode from './ExperimentSlitColumnNode.js';
 import RulerCheckbox from './RulerCheckbox.js';
-import StopwatchCheckbox from './StopwatchCheckbox.js';
 
 type SelfOptions = EmptySelfOptions;
 
@@ -61,12 +57,13 @@ type ExperimentAccessibleState = {
   detectorScreenScaleIndex: number;
   tools: {
     ruler: boolean;
-    stopwatch: boolean;
   };
 };
 
 const MIDDLE_COLUMN_LEFT_SHIFT = 3;
 const BOTTOM_CONTROLS_SPACING = 15;
+const TOOL_CHECKBOX_SPACING = 6;
+const SLIT_CONTROL_PANEL_BOTTOM_MARGIN = 2;
 
 export default class ExperimentScreenView extends ScreenView {
   private readonly model: ExperimentModel;
@@ -170,17 +167,7 @@ export default class ExperimentScreenView extends ScreenView {
     const rulerCheckbox = new RulerCheckbox( model.isRulerVisibleProperty, {
       tandem: options.tandem.createTandem( 'rulerCheckbox' )
     } );
-
-    const stopwatchCheckbox = new StopwatchCheckbox( model.stopwatch.isVisibleProperty, {
-      tandem: options.tandem.createTandem( 'stopwatchCheckbox' )
-    } );
-    const checkboxGroup = new VBox( {
-      spacing: 6,
-      align: 'left',
-      stretch: true,
-      children: [ rulerCheckbox, stopwatchCheckbox ]
-    } );
-    this.addChild( checkboxGroup );
+    this.addChild( rulerCheckbox );
 
     // Time controls: play/pause button with speed radio buttons.
     const timeControlNodeTandem = options.tandem.createTandem( 'timeControlNode' );
@@ -232,20 +219,23 @@ export default class ExperimentScreenView extends ScreenView {
     } );
     this.addChild( eraserButton );
 
-    checkboxGroup.left = this.detectorColumnNode.bottomControlsLeft;
+    rulerCheckbox.left = this.detectorColumnNode.bottomControlsLeft;
     eraserButton.right = resetAllButton.left - BOTTOM_CONTROLS_SPACING;
 
-    // Center time controls on the detector graph instead of spacing them from the checkbox group. This leaves a
+    // Center time controls on the detector graph instead of spacing them from the ruler checkbox. This leaves a
     // stable gap for the eraser button while preserving the visual relationship with the graph below the screen.
     timeControlNode.centerX = this.detectorColumnNode.graphAccordionBoxes[ 0 ].centerX;
 
     resetAllButton.right = this.layoutBounds.maxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
     eraserButton.centerY = resetAllButton.centerY;
     timeControlNode.centerY = resetAllButton.centerY;
-    checkboxGroup.centerY = resetAllButton.centerY;
+    rulerCheckbox.centerY = resetAllButton.centerY;
 
-    // Nudge the slit control panel slightly lower than the checkbox group.
-    slitColumnNode.slitControlPanel.bottom = checkboxGroup.bottom + 2;
+    // Preserve the slit control panel position from when two tool checkboxes were centered in this row.
+    const previousToolCheckboxGroupBottom =
+      resetAllButton.centerY + rulerCheckbox.height + TOOL_CHECKBOX_SPACING / 2;
+    slitColumnNode.slitControlPanel.bottom =
+      previousToolCheckboxGroupBottom + SLIT_CONTROL_PANEL_BOTTOM_MARGIN;
 
     // Draggable ruler. The ruler's horizontal scale is calibrated to the active detector screen: its full width maps to
     // the scene's full detector width in mm.
@@ -272,33 +262,6 @@ export default class ExperimentScreenView extends ScreenView {
     };
     this.centerRulerOnDetectorScreen();
 
-    // Draggable stopwatch for timing experiments
-    const stopwatchNode = new StopwatchNode( model.stopwatch, {
-      dragBoundsProperty: this.visibleBoundsProperty,
-      accessibleHelpText: null,
-      tandem: options.tandem.createTandem( 'stopwatchNode' )
-    } );
-    this.addChild( stopwatchNode );
-
-    // When shown via checkbox, place the stopwatch above and to the right of the checkbox,
-    // with stopwatch bottom aligned to the top of the checkbox text label.
-    const positionStopwatchNearCheckbox = () => {
-      const checkboxBounds = this.globalToLocalBounds(
-        stopwatchCheckbox.localToGlobalBounds( stopwatchCheckbox.localBounds )
-      );
-      const checkboxLabelBounds = this.globalToLocalBounds(
-        stopwatchCheckbox.labelNode.localToGlobalBounds( stopwatchCheckbox.labelNode.localBounds )
-      );
-      const x = checkboxBounds.right + 8;
-      const y = checkboxLabelBounds.top - stopwatchNode.height;
-      model.stopwatch.positionProperty.value = new Vector2( x, y );
-    };
-    model.stopwatch.isVisibleProperty.lazyLink( isVisible => {
-      if ( isVisible ) {
-        positionStopwatchNearCheckbox();
-      }
-    } );
-
     const experimentScreenViewDescription = new ExperimentScreenViewDescription(
       model,
       overheadApparatusNode.overheadEmitterNode,
@@ -316,15 +279,13 @@ export default class ExperimentScreenView extends ScreenView {
       experimentScreenViewDescription.slitsHeadingNode,
       experimentScreenViewDescription.detectorScreenHeadingNode,
       ...this.detectorColumnNode.graphAccordionBoxes,
-      ...rulerNodes,
-      stopwatchNode
+      ...rulerNodes
     ];
 
-    // Control Area focus order. The ruler and stopwatch tools themselves remain in the Play Area,
-    // while their visibility checkboxes stay in the Control Area.
+    // Control Area focus order. The ruler remains in the Play Area, while its visibility checkbox stays in the
+    // Control Area.
     this.pdomControlAreaNode.pdomOrder = [
       rulerCheckbox,
-      stopwatchCheckbox,
       timeControlNode,
       eraserButton,
       resetAllButton
@@ -362,8 +323,7 @@ export default class ExperimentScreenView extends ScreenView {
       numberOfSnapshots: scene.numberOfSnapshotsProperty.value,
       detectorScreenScaleIndex: this.model.detectorScreenScaleIndexProperty.value,
       tools: {
-        ruler: this.model.isRulerVisibleProperty.value,
-        stopwatch: this.model.stopwatch.isVisibleProperty.value
+        ruler: this.model.isRulerVisibleProperty.value
       }
     };
   }
