@@ -10,12 +10,24 @@
 import Complex from '../../../../dot/js/Complex.js';
 import { type FieldComponent, type FieldSample } from './AnalyticalWaveKernelTypes.js';
 
+/**
+ * The coherent complex-amplitude sum for all field components with the same coherence-group name.
+ * Separate group sums are decoherent and therefore combine by intensity rather than amplitude.
+ */
 type CoherentGroupSum = {
   name: string;
   real: number;
   imaginary: number;
 };
 
+/**
+ * Computes the physical intensity represented by a field sample. Complex amplitudes are summed
+ * within each coherence group before taking magnitude squared, then those group intensities are
+ * summed. Empty field samples and non-field samples have zero intensity.
+ *
+ * @param sample - The analytical sample to reduce to intensity.
+ * @returns The non-negative total intensity, or zero when the sample has no field value.
+ */
 export function computeSampleIntensity( sample: FieldSample ): number {
   if ( sample.kind !== 'field' ) {
     return 0;
@@ -126,6 +138,14 @@ function getCoherenceGroupIndex( groupSums: CoherentGroupSum[], coherenceGroup: 
   return -1;
 }
 
+/**
+ * Groups field components by coherence-group name and coherently sums each group's complex
+ * amplitudes. Group order follows the first occurrence of each name, and an empty component array
+ * produces an empty result.
+ *
+ * @param components - Field components whose amplitudes will be grouped and summed.
+ * @returns One complex-amplitude sum per distinct coherence group.
+ */
 function getCoherentGroupSums( components: FieldComponent[] ): CoherentGroupSum[] {
   const groupSums: CoherentGroupSum[] = [];
 
@@ -148,6 +168,18 @@ function getCoherentGroupSums( components: FieldComponent[] ): CoherentGroupSum[
   return groupSums;
 }
 
+/**
+ * Creates a single legacy display value whose phase matches the strongest coherent group and whose
+ * magnitude squared equals the total intensity across all groups. Returns zero when either the
+ * total intensity or strongest-group intensity is non-positive, avoiding an undefined phase and
+ * division by zero.
+ *
+ * @param totalIntensity - Intensity summed across all decoherent groups.
+ * @param strongestReal - Real component of the strongest coherent-group sum.
+ * @param strongestImaginary - Imaginary component of the strongest coherent-group sum.
+ * @param strongestIntensity - Magnitude squared of the strongest coherent-group sum.
+ * @returns A representative complex value preserving total intensity and the strongest-group phase.
+ */
 function createRepresentativeComplexFromStrongestGroup(
   totalIntensity: number,
   strongestReal: number,
