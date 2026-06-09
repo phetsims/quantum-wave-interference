@@ -1,8 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Factory for the four standard measurement tool checkboxes (tape measure, stopwatch, time plot,
- * position plot) shared by the High Intensity and Single Particles screen views.
+ * Factory for the standard measurement tool checkboxes shared by the High Intensity and Single Particles screen views.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -12,7 +11,6 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import BaseSceneModel from '../model/BaseSceneModel.js';
 import BaseScreenModel from '../model/BaseScreenModel.js';
 import ToolCheckbox from './ToolCheckbox.js';
-import ToolIcons from './ToolIcons.js';
 
 export default function createStandardToolCheckboxes<T extends BaseSceneModel>(
   model: BaseScreenModel<T>,
@@ -28,28 +26,24 @@ export default function createStandardToolCheckboxes<T extends BaseSceneModel>(
       model.isTapeMeasureVisibleProperty,
       QuantumWaveInterferenceFluent.tapeMeasureStringProperty,
       tandem.createTandem( 'tapeMeasureCheckbox' ),
-      ToolIcons.createTapeMeasureIcon(),
       QuantumWaveInterferenceFluent.a11y.tapeMeasureCheckbox.accessibleHelpTextStringProperty
     ),
     stopwatchCheckbox: new ToolCheckbox(
       model.isStopwatchVisibleProperty,
       QuantumWaveInterferenceFluent.stopwatchStringProperty,
       tandem.createTandem( 'stopwatchCheckbox' ),
-      ToolIcons.createStopwatchIcon(),
       QuantumWaveInterferenceFluent.a11y.stopwatchCheckbox.accessibleHelpTextStringProperty
     ),
     timePlotCheckbox: new ToolCheckbox(
       model.isTimePlotVisibleProperty,
       QuantumWaveInterferenceFluent.timePlotStringProperty,
       tandem.createTandem( 'timePlotCheckbox' ),
-      ToolIcons.createTimePlotIcon(),
       QuantumWaveInterferenceFluent.a11y.timePlotCheckbox.accessibleHelpTextStringProperty
     ),
     positionPlotCheckbox: new ToolCheckbox(
       model.isPositionPlotVisibleProperty,
       QuantumWaveInterferenceFluent.positionPlotStringProperty,
       tandem.createTandem( 'positionPlotCheckbox' ),
-      ToolIcons.createPositionPlotIcon(),
       QuantumWaveInterferenceFluent.a11y.positionPlotCheckbox.accessibleHelpTextStringProperty
     )
   };

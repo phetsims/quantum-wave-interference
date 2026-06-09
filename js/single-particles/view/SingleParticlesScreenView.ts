@@ -39,7 +39,6 @@ import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import stepDetectorScreenViewNodes from '../../common/view/stepDetectorScreenViewNodes.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 import ToolCheckbox from '../../common/view/ToolCheckbox.js';
-import ToolIcons from '../../common/view/ToolIcons.js';
 import { getWavelengthColorZone } from '../../common/view/WavelengthColorUtils.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
@@ -330,7 +329,11 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const { tapeMeasureCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
       createStandardToolCheckboxes( model, tandem );
-    const detectorCheckbox = new ToolCheckbox( model.currentDetectorTool.isVisibleProperty, QuantumWaveInterferenceFluent.detectorStringProperty, tandem.createTandem( 'detectorCheckbox' ), ToolIcons.createDetectorIcon() );
+    const detectorCheckbox = new ToolCheckbox(
+      model.currentDetectorTool.isVisibleProperty,
+      QuantumWaveInterferenceFluent.detectorProbeStringProperty,
+      tandem.createTandem( 'detectorCheckbox' )
+    );
 
     // Detector checkbox is only shown when barrier is None; its checked state is preserved in the model.
     model.currentDetectorTool.isAvailableProperty.link( isAvailable => {
