@@ -140,9 +140,8 @@ export default class QWITransitionDescriber {
     else if ( action.type === 'waveProgressChanged' ) {
       contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
         waveProgressStage: after.waveProgress.stage,
-        waveProgressCheckpoint: after.waveProgress.checkpoint,
-        waveSpeed: after.waveSpeedDescription,
-        progress: after.waveProgress.wavefrontPercent
+        waveDisplayMode: after.waveDisplayMode,
+        patternKind: after.patternKind
       } );
     }
     else if ( action.type === 'patternFormationStarted' ) {

@@ -102,9 +102,8 @@ export default class QWIAccessibleStateTemplate {
     } );
     const waveProgress = QuantumWaveInterferenceFluent.a11y.highIntensityState.waveProgress.format( {
       waveProgressStage: state.waveProgress.stage,
-      waveProgressCheckpoint: state.waveProgress.checkpoint,
-      waveSpeed: state.waveSpeedDescription,
-      progress: state.waveProgress.wavefrontPercent
+      waveDisplayMode: state.waveDisplayMode,
+      patternKind: state.patternKind
     } );
     const sourceDescription = formatParticleDescription( state );
     const sourceBeamDescription = formatSourceBeamDescription( state );

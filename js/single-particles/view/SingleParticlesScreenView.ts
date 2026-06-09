@@ -273,7 +273,9 @@ export default class SingleParticlesScreenView extends ScreenView {
             isEmitting: isEmitting ? 'true' : 'false',
             sourceType: scene.sourceType,
             photonColor: scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : 'red',
-            wavefrontSpacing: getSingleParticlesWavefrontSpacing( scene )
+            wavefrontSpacing: getSingleParticlesWavefrontSpacing( scene ),
+            waveDisplayMode: 'electricField',
+            slitSetting: slitConfiguration
           } )
         } );
 

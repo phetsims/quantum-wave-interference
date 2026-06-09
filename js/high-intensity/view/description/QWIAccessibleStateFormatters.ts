@@ -19,12 +19,20 @@ export const toFluentBoolean = ( value: boolean ): FluentBoolean => value ? 'tru
 
 const getPatternKindKey = ( patternKind: QWIPatternKind ): QWIPatternKind => patternKind;
 
+type SingleSlitLocationKey = 'leftCovered' | 'rightCovered';
+
+const getSingleSlitLocationKey = ( state: HighIntensitySemanticAccessibleViewState ): SingleSlitLocationKey =>
+  state.slitConfiguration === 'leftCovered' ? 'leftCovered' :
+  'rightCovered';
+
 export const formatSourceBeamDescription = ( state: HighIntensitySemanticAccessibleViewState ): string =>
   QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceBeam.format( {
     isEmitting: toFluentBoolean( state.isEmitting ),
     sourceType: state.sourceType,
     photonColor: state.wavelengthColorZone || 'red',
-    wavefrontSpacing: state.wavefrontSpacing
+    wavefrontSpacing: state.wavefrontSpacing,
+    waveDisplayMode: state.waveDisplayMode,
+    slitSetting: state.slitConfiguration
   } );
 
 export const formatParticleDescription = ( state: HighIntensitySemanticAccessibleViewState ): string => {
@@ -60,6 +68,7 @@ export const formatDetectorDescription = (
     detectionMode: state.detectionMode,
     patternFormation: patternFormation,
     patternKind: getPatternKindKey( state.patternKind ),
+    slitSetting: getSingleSlitLocationKey( state ),
     hitStage: state.hitStage,
     hitCount: state.totalHits,
     bandSpacing: state.bandSpacingDescription

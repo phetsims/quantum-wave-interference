@@ -13,7 +13,7 @@ import { type AccessibleListItem } from '../../../../../scenery-phet/js/accessib
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../../model/HighIntensitySceneModel.js';
-import { type HighIntensityAccessibleViewState, type QWIPatternFormation, type QWIWaveProgressCheckpoint, type QWIWaveProgressStage } from './HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState, type QWIPatternFormation, type QWIWaveProgressStage } from './HighIntensityAccessibleViewState.js';
 import { formatDetectorDescription, formatSourceBeamDescription } from './QWIAccessibleStateFormatters.js';
 import QWIAccessibleStateTemplate from './QWIAccessibleStateTemplate.js';
 
@@ -65,15 +65,12 @@ const formatSourceStarted = ( state: HighIntensityAccessibleViewState ): string 
 
 const formatWaveProgress = (
   state: HighIntensityAccessibleViewState,
-  stage: QWIWaveProgressStage,
-  checkpoint: QWIWaveProgressCheckpoint = 'none',
-  progress = 0
+  stage: QWIWaveProgressStage
 ): string =>
   QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
     waveProgressStage: stage,
-    waveProgressCheckpoint: checkpoint,
-    waveSpeed: state.waveSpeedDescription,
-    progress: progress
+    waveDisplayMode: state.waveDisplayMode,
+    patternKind: state.patternKind
   } );
 
 const getAfterSlitsStage = ( state: HighIntensityAccessibleViewState ): QWIWaveProgressStage => {
@@ -127,12 +124,7 @@ export default function HighIntensityExperimentSetupSequenceItems(
     createItem(
       model,
       getAccessibleViewState,
-      state => formatWaveProgress(
-        state,
-        getAfterSlitsStage( state ),
-        state.patternKind === 'noBarrier' && state.waveProgress.hasReachedScreen ? 'full' : 'none',
-        state.patternKind === 'noBarrier' && state.waveProgress.hasReachedScreen ? 100 : 0
-      ),
+      state => formatWaveProgress( state, getAfterSlitsStage( state ) ),
       state => state.isEmitting && ( state.patternKind === 'noBarrier' ? state.waveProgress.hasReachedScreen : state.waveProgress.hasPassedSlits )
     ),
     createItem(
