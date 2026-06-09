@@ -13,6 +13,7 @@ import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitC
 import { type SourceType } from '../../../common/model/SourceType.js';
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
 import { type BandSpacingCategory, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import { type WavePeakSpacingCategory } from '../../../common/view/description/getWavePeakSpacingCategory.js';
 import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../../common/view/description/QWIAccessibleViewState.js';
 import { type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 
@@ -21,7 +22,7 @@ export type QWIDisplayMode = 'screen' | 'graph';
 export type QWIPatternFormation = 'empty' | 'forming' | 'complete' | 'collectingHits' | 'paused' | 'notApplicable';
 export type QWIWaveProgressStage = 'sourceOff' | 'travelingToSlits' | 'atSlits' | 'interferingAfterSlits' | 'diffractingAfterSlits' | 'whichPathAfterSlits' | 'directToScreen' | 'hittingScreen';
 export type QWIWaveProgressCheckpoint = 'none' | 'quarter' | 'half' | 'threeQuarters' | 'full';
-export type QWIWavefrontSpacing = 'tightlyPacked' | 'moderatelySpaced' | 'widelySpaced';
+export type QWIWavefrontSpacing = WavePeakSpacingCategory;
 export type QWIWaveSpeedDescription = 'slow' | 'medium' | 'fast';
 export type QWIClockSpeedDescription = 'slow' | 'normal' | 'fast';
 export type QWIBandSpacingDescription = BandSpacingCategory;

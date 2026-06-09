@@ -267,12 +267,12 @@ a11y:
                                 [heliumAtoms] gray
                               } wave moves toward { $slitSetting ->
                                 [noBarrier] the detector screen.
-                               *[bothOpen] the slitted barrier.
-                                [leftCovered] the slitted barrier.
-                                [rightCovered] the slitted barrier.
-                                [leftDetector] the slitted barrier.
-                                [rightDetector] the slitted barrier.
-                                [bothDetectors] the slitted barrier.
+                               *[bothOpen] slitted barrier.
+                                [leftCovered] slitted barrier.
+                                [rightCovered] slitted barrier.
+                                [leftDetector] slitted barrier.
+                                [rightDetector] slitted barrier.
+                                [bothDetectors] slitted barrier.
                               }
                               [magnitude] Solid { $sourceType ->
                                 [photons] { $photonColor ->
@@ -289,12 +289,12 @@ a11y:
                                 [heliumAtoms] gray
                               } wave moves toward { $slitSetting ->
                                 [noBarrier] the detector screen.
-                               *[bothOpen] the slitted barrier.
-                                [leftCovered] the slitted barrier.
-                                [rightCovered] the slitted barrier.
-                                [leftDetector] the slitted barrier.
-                                [rightDetector] the slitted barrier.
-                                [bothDetectors] the slitted barrier.
+                               *[bothOpen] slitted barrier.
+                                [leftCovered] slitted barrier.
+                                [rightCovered] slitted barrier.
+                                [leftDetector] slitted barrier.
+                                [rightDetector] slitted barrier.
+                                [bothDetectors] slitted barrier.
                               }
                              *[electricField] { $sourceType ->
                                 [photons] { $photonColor ->
@@ -311,16 +311,20 @@ a11y:
                                 [heliumAtoms] Gray and black
                               } plane wave fronts move toward { $slitSetting ->
                                 [noBarrier] the detector screen.
-                               *[bothOpen] the slitted barrier.
-                                [leftCovered] the slitted barrier.
-                                [rightCovered] the slitted barrier.
-                                [leftDetector] the slitted barrier.
-                                [rightDetector] the slitted barrier.
-                                [bothDetectors] the slitted barrier.
+                               *[bothOpen] slitted barrier.
+                                [leftCovered] slitted barrier.
+                                [rightCovered] slitted barrier.
+                                [leftDetector] slitted barrier.
+                                [rightDetector] slitted barrier.
+                                [bothDetectors] slitted barrier.
                               } { $wavefrontSpacing ->
-                                [tightlyPacked] Wave peaks closely spaced.
-                                [widelySpaced] Wave peaks somewhat far apart.
-                               *[moderatelySpaced] Wave peaks moderately spaced.
+                                [extremelyFarApart] Wave peaks, extremely far apart.
+                                [veryFarApart] Wave peaks, very far apart.
+                                [farApart] Wave peaks, far apart.
+                                [somewhatCloseTogether] Wave peaks, somewhat close together.
+                                [closeTogether] Wave peaks, close together.
+                                [veryCloseTogether] Wave peaks, very close together.
+                               *[extremelyCloseTogether] Wave peaks, extremely close together.
                               }
                               [realPart] { $sourceType ->
                                 [photons] { $photonColor ->
@@ -337,16 +341,20 @@ a11y:
                                 [heliumAtoms] Gray and black
                               } plane wave fronts move toward { $slitSetting ->
                                 [noBarrier] the detector screen.
-                               *[bothOpen] the slitted barrier.
-                                [leftCovered] the slitted barrier.
-                                [rightCovered] the slitted barrier.
-                                [leftDetector] the slitted barrier.
-                                [rightDetector] the slitted barrier.
-                                [bothDetectors] the slitted barrier.
+                               *[bothOpen] slitted barrier.
+                                [leftCovered] slitted barrier.
+                                [rightCovered] slitted barrier.
+                                [leftDetector] slitted barrier.
+                                [rightDetector] slitted barrier.
+                                [bothDetectors] slitted barrier.
                               } { $wavefrontSpacing ->
-                                [tightlyPacked] Wave peaks closely spaced.
-                                [widelySpaced] Wave peaks somewhat far apart.
-                               *[moderatelySpaced] Wave peaks moderately spaced.
+                                [extremelyFarApart] Wave peaks, extremely far apart.
+                                [veryFarApart] Wave peaks, very far apart.
+                                [farApart] Wave peaks, far apart.
+                                [somewhatCloseTogether] Wave peaks, somewhat close together.
+                                [closeTogether] Wave peaks, close together.
+                                [veryCloseTogether] Wave peaks, very close together.
+                               *[extremelyCloseTogether] Wave peaks, extremely close together.
                               }
                               [imaginaryPart] { $sourceType ->
                                 [photons] { $photonColor ->
@@ -363,16 +371,20 @@ a11y:
                                 [heliumAtoms] Gray and black
                               } plane wave fronts move toward { $slitSetting ->
                                 [noBarrier] the detector screen.
-                               *[bothOpen] the slitted barrier.
-                                [leftCovered] the slitted barrier.
-                                [rightCovered] the slitted barrier.
-                                [leftDetector] the slitted barrier.
-                                [rightDetector] the slitted barrier.
-                                [bothDetectors] the slitted barrier.
+                               *[bothOpen] slitted barrier.
+                                [leftCovered] slitted barrier.
+                                [rightCovered] slitted barrier.
+                                [leftDetector] slitted barrier.
+                                [rightDetector] slitted barrier.
+                                [bothDetectors] slitted barrier.
                               } { $wavefrontSpacing ->
-                                [tightlyPacked] Wave peaks closely spaced.
-                                [widelySpaced] Wave peaks somewhat far apart.
-                               *[moderatelySpaced] Wave peaks moderately spaced.
+                                [extremelyFarApart] Wave peaks, extremely far apart.
+                                [veryFarApart] Wave peaks, very far apart.
+                                [farApart] Wave peaks, far apart.
+                                [somewhatCloseTogether] Wave peaks, somewhat close together.
+                                [closeTogether] Wave peaks, close together.
+                                [veryCloseTogether] Wave peaks, very close together.
+                               *[extremelyCloseTogether] Wave peaks, extremely close together.
                               }
                             }
                           }
@@ -461,11 +473,11 @@ a11y:
                           { $waveProgressStage ->
                             [sourceOff] Source is off, so no wave is traveling.
                             [travelingToSlits] { $waveDisplayMode ->
-                              [timeAveragedIntensity] Solid wave moves toward the slitted barrier.
-                              [magnitude] Solid wave moves toward the slitted barrier.
-                             *[electricField] Plane wave fronts move toward the slitted barrier.
-                              [realPart] Plane wave fronts move toward the slitted barrier.
-                              [imaginaryPart] Plane wave fronts move toward the slitted barrier.
+                              [timeAveragedIntensity] Solid wave moves toward slitted barrier.
+                              [magnitude] Solid wave moves toward slitted barrier.
+                             *[electricField] Plane wave fronts move toward slitted barrier.
+                              [realPart] Plane wave fronts move toward slitted barrier.
+                              [imaginaryPart] Plane wave fronts move toward slitted barrier.
                             }
                             [atSlits] { $waveDisplayMode ->
                               [timeAveragedIntensity] { $patternKind ->
@@ -680,11 +692,11 @@ a11y:
                               { $waveProgressStage ->
                                 [sourceOff] Source is off, so no wave is traveling.
                                 [travelingToSlits] { $waveDisplayMode ->
-                                  [timeAveragedIntensity] Solid wave moves toward the slitted barrier.
-                                  [magnitude] Solid wave moves toward the slitted barrier.
-                                 *[electricField] Plane wave fronts move toward the slitted barrier.
-                                  [realPart] Plane wave fronts move toward the slitted barrier.
-                                  [imaginaryPart] Plane wave fronts move toward the slitted barrier.
+                                  [timeAveragedIntensity] Solid wave moves toward slitted barrier.
+                                  [magnitude] Solid wave moves toward slitted barrier.
+                                 *[electricField] Plane wave fronts move toward slitted barrier.
+                                  [realPart] Plane wave fronts move toward slitted barrier.
+                                  [imaginaryPart] Plane wave fronts move toward slitted barrier.
                                 }
                                 [atSlits] { $waveDisplayMode ->
                                   [timeAveragedIntensity] { $patternKind ->

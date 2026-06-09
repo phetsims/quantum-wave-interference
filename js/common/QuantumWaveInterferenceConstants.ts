@@ -31,6 +31,8 @@ const WAVELENGTH_RANGE_NM_BY_SOURCE_TYPE: Readonly<Record<SourceType, readonly [
   heliumAtoms: [ 0, 0 ]
 };
 
+const PHOTON_WAVELENGTH_CONTROL_RANGE_NM = [ 400, 700 ] as const;
+
 export default class QuantumWaveInterferenceConstants {
 
   private constructor() {
@@ -61,6 +63,9 @@ export default class QuantumWaveInterferenceConstants {
   }
 
   public static readonly DEFAULT_PHOTON_WAVELENGTH_NM = 650;
+
+  public static readonly PHOTON_WAVELENGTH_CONTROL_MIN_NM = PHOTON_WAVELENGTH_CONTROL_RANGE_NM[ 0 ];
+  public static readonly PHOTON_WAVELENGTH_CONTROL_MAX_NM = PHOTON_WAVELENGTH_CONTROL_RANGE_NM[ 1 ];
 
   // Number of display-scale wavelengths visible across the wave region at default settings.
   // Shared between the continuous-wave and wave-packet solvers so both screens show matching wavelengths.
@@ -141,6 +146,19 @@ export default class QuantumWaveInterferenceConstants {
   public static createWavelengthRangeNM( sourceType: SourceType ): Range {
     const range = WAVELENGTH_RANGE_NM_BY_SOURCE_TYPE[ sourceType ];
     return new Range( range[ 0 ], range[ 1 ] );
+  }
+
+  /**
+   * Creates the photon wavelength slider range. This is narrower than the instrumented wavelength Property range so
+   * PhET-iO can represent wavelengths just outside the visible slider while the UI stays on the authored color scale.
+   *
+   * @returns photon wavelength slider range in nanometers
+   */
+  public static createPhotonWavelengthControlRangeNM(): Range {
+    return new Range(
+      QuantumWaveInterferenceConstants.PHOTON_WAVELENGTH_CONTROL_MIN_NM,
+      QuantumWaveInterferenceConstants.PHOTON_WAVELENGTH_CONTROL_MAX_NM
+    );
   }
 
   public static getRangeDecimalPlaces( min: number, max: number ): number {

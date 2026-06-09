@@ -22,6 +22,7 @@ import createAndAddSlitConfigurationControlsRow from '../../common/view/createAn
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
+import { getWavePeakSpacingCategory } from '../../common/view/description/getWavePeakSpacingCategory.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorToolViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QWIAccessibleViewState.js';
@@ -44,7 +45,6 @@ import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
-import type SingleParticlesSceneModel from '../model/SingleParticlesSceneModel.js';
 import DetectorToolNode from './DetectorToolNode.js';
 import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 
@@ -63,7 +63,6 @@ const CALLOUT_GAP = 55;
 const WAVE_REGION_Y_OFFSET = -30;
 const EMITTER_WAVE_REGION_OVERLAP = 2;
 const MAX_HITS_REACHED_PANEL_SPACING = 10;
-type SingleParticlesWavefrontSpacing = 'tightlyPacked' | 'widelySpaced' | 'moderatelySpaced';
 
 type SingleParticlesAccessibleViewState = {
   sourceType: string;
@@ -92,23 +91,6 @@ type SingleParticlesAccessibleViewState = {
   slitBarrier: SlitBarrierViewState;
   detectorTool: DetectorToolViewState;
   measurementTools: MeasurementToolsViewState;
-};
-
-const getSingleParticlesWavefrontSpacing = ( scene: SingleParticlesSceneModel ): SingleParticlesWavefrontSpacing => {
-  const sourceType = scene.sourceType;
-
-  if ( sourceType === 'photons' ) {
-    const wavelengthColorZone = getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) );
-    return ( wavelengthColorZone === 'violet' || wavelengthColorZone === 'blue' ) ? 'tightlyPacked' :
-           ( wavelengthColorZone === 'red' || wavelengthColorZone === 'orange' ) ? 'widelySpaced' :
-           'moderatelySpaced';
-  }
-
-  const defaultEffectiveWavelength = scene.regionWidth / QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
-  const relativeWavelength = scene.getEffectiveWavelength() / defaultEffectiveWavelength;
-  return relativeWavelength <= 0.85 ? 'tightlyPacked' :
-         relativeWavelength >= 1.15 ? 'widelySpaced' :
-         'moderatelySpaced';
 };
 
 export default class SingleParticlesScreenView extends ScreenView {
@@ -273,7 +255,7 @@ export default class SingleParticlesScreenView extends ScreenView {
             isEmitting: isEmitting ? 'true' : 'false',
             sourceType: scene.sourceType,
             photonColor: scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : 'red',
-            wavefrontSpacing: getSingleParticlesWavefrontSpacing( scene ),
+            wavefrontSpacing: getWavePeakSpacingCategory( scene ),
             waveDisplayMode: 'electricField',
             slitSetting: slitConfiguration
           } )

@@ -32,6 +32,7 @@ import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontF
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import BandAnalysis from '../../common/view/description/BandAnalysis.js';
 import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
+import { getWavePeakSpacingCategory } from '../../common/view/description/getWavePeakSpacingCategory.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
@@ -47,7 +48,7 @@ import SlitConfigurationControlsRow from '../../common/view/SlitConfigurationCon
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import stepDetectorScreenViewNodes from '../../common/view/stepDetectorScreenViewNodes.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
-import { getWavelengthColorZone, type WavelengthColorZone } from '../../common/view/WavelengthColorUtils.js';
+import { getWavelengthColorZone } from '../../common/view/WavelengthColorUtils.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -55,7 +56,7 @@ import HighIntensityModel from '../model/HighIntensityModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
-import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QWIClockSpeedDescription, type QWIPatternFormation, type QWIPatternKind, type QWIWavefrontSpacing, type QWIWaveProgressCheckpoint, type QWIWaveProgressStage, type QWIWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QWIClockSpeedDescription, type QWIPatternFormation, type QWIPatternKind, type QWIWaveProgressCheckpoint, type QWIWaveProgressStage, type QWIWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
 import HighIntensityExperimentSetupSequenceItems from './description/HighIntensityExperimentSetupSequenceItems.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
@@ -136,24 +137,6 @@ const getClockSpeedDescription = ( model: HighIntensityModel ): QWIClockSpeedDes
          timeSpeed === TimeSpeed.NORMAL ? 'normal' :
          timeSpeed === TimeSpeed.FAST ? 'fast' :
          ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
-};
-
-const getWavefrontSpacing = (
-  scene: HighIntensitySceneModel,
-  effectiveWavelengthMeters: number,
-  wavelengthColorZone: WavelengthColorZone | null
-): QWIWavefrontSpacing => {
-  if ( scene.sourceType === 'photons' ) {
-    return ( wavelengthColorZone === 'violet' || wavelengthColorZone === 'blue' ) ? 'tightlyPacked' :
-           ( wavelengthColorZone === 'red' || wavelengthColorZone === 'orange' ) ? 'widelySpaced' :
-           'moderatelySpaced';
-  }
-
-  const defaultEffectiveWavelength = scene.regionWidth / QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
-  const relativeWavelength = effectiveWavelengthMeters / defaultEffectiveWavelength;
-  return relativeWavelength <= 0.85 ? 'tightlyPacked' :
-         relativeWavelength >= 1.15 ? 'widelySpaced' :
-         'moderatelySpaced';
 };
 
 const getWaveSpeedDescription = ( scene: HighIntensitySceneModel ): QWIWaveSpeedDescription => {
@@ -385,7 +368,7 @@ export default class HighIntensityScreenView extends ScreenView {
       patternKind: patternKind,
       wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),
       wavelengthColorZone: wavelengthColorZone,
-      wavefrontSpacing: getWavefrontSpacing( scene, effectiveWavelengthMeters, wavelengthColorZone ),
+      wavefrontSpacing: getWavePeakSpacingCategory( scene ),
       particleSpeedMetersPerSecond: roundSymmetric( scene.particleSpeedProperty.value ),
       waveSpeedDescription: getWaveSpeedDescription( scene ),
       effectiveWavelengthPicometers: Number( toFixed( effectiveWavelengthMeters * 1e12, 2 ) ),
