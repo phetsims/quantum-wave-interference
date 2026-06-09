@@ -16,7 +16,6 @@
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import optionize from '../../../../phet-core/js/optionize.js';
-import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import WithRequired from '../../../../phet-core/js/types/WithRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -40,7 +39,7 @@ type SelfOptions = {
   initialZoomLevels?: Partial<Record<DetectionMode, DetectorPatternGraphZoomLevelOption>>;
 };
 
-type DetectorPatternGraphNodeOptions = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
+export type DetectorPatternGraphNodeOptions = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
 
 const getModeZoomLevel = (
   detectionMode: DetectionMode,
@@ -63,7 +62,8 @@ export default class DetectorPatternGraphNode extends Node {
     sceneProperty: TReadOnlyProperty<DetectorPatternGraphSceneLike>,
     providedOptions: DetectorPatternGraphNodeOptions
   ) {
-    const options = optionize<DetectorPatternGraphNodeOptions, StrictOmit<SelfOptions, 'detectionModeProperty'>, NodeOptions>()( {
+    const options = optionize<DetectorPatternGraphNodeOptions, SelfOptions, NodeOptions>()( {
+      detectionModeProperty: undefined as never,
       initialZoomLevel: 'default',
       initialZoomLevels: {},
       isDisposable: false
