@@ -49,7 +49,7 @@ export default class HighIntensityAccessibleResponses extends Node {
 
       const waveProgressChanged = before.waveProgress.stage !== after.waveProgress.stage ||
                                   ( before.waveProgress.checkpoint !== after.waveProgress.checkpoint &&
-                                    ( after.waveProgress.stage === 'travelingToSlits' || after.waveProgress.stage === 'directToScreen' ) );
+                                    after.waveProgress.stage === 'directToScreen' );
       const toolVisibilityChanged = effectiveAction.type === 'toolChanged' &&
                                     before.measurementTools[ effectiveAction.tool ].visible !==
                                     after.measurementTools[ effectiveAction.tool ].visible;
@@ -148,7 +148,7 @@ export default class HighIntensityAccessibleResponses extends Node {
       }
       else if ( after.waveProgress.stage !== before.waveProgress.stage ||
                 ( after.waveProgress.checkpoint !== before.waveProgress.checkpoint &&
-                  ( after.waveProgress.stage === 'travelingToSlits' || after.waveProgress.stage === 'directToScreen' ) ) ) {
+                  after.waveProgress.stage === 'directToScreen' ) ) {
         emitTransition( { type: 'waveProgressChanged' } );
       }
       else {

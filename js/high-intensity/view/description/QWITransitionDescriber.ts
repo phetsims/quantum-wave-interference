@@ -138,11 +138,13 @@ export default class QWITransitionDescriber {
       } );
     }
     else if ( action.type === 'waveProgressChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
-        waveProgressStage: after.waveProgress.stage,
-        waveDisplayMode: after.waveDisplayMode,
-        patternKind: after.patternKind
-      } );
+      const waveProgressStage = after.waveProgress.stage;
+      contextResponse = waveProgressStage === 'travelingToSlits' ? null :
+                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
+                          waveProgressStage: waveProgressStage,
+                          waveDisplayMode: after.waveDisplayMode,
+                          patternKind: after.patternKind
+                        } );
     }
     else if ( action.type === 'patternFormationStarted' ) {
       contextResponse = formatDetectorDescription( after );

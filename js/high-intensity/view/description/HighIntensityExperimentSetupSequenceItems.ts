@@ -17,6 +17,8 @@ import { type HighIntensityAccessibleViewState, type QWIPatternFormation, type Q
 import { formatDetectorDescription, formatSourceBeamDescription } from './QWIAccessibleStateFormatters.js';
 import QWIAccessibleStateTemplate from './QWIAccessibleStateTemplate.js';
 
+type SequenceWaveProgressStage = Exclude<QWIWaveProgressStage, 'sourceOff' | 'travelingToSlits'>;
+
 type SequenceItem = {
   stringProperty: TReadOnlyProperty<string>;
   visibleProperty: TReadOnlyProperty<boolean>;
@@ -65,7 +67,7 @@ const formatSourceStarted = ( state: HighIntensityAccessibleViewState ): string 
 
 const formatWaveProgress = (
   state: HighIntensityAccessibleViewState,
-  stage: QWIWaveProgressStage
+  stage: SequenceWaveProgressStage
 ): string =>
   QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
     waveProgressStage: stage,
@@ -73,7 +75,7 @@ const formatWaveProgress = (
     patternKind: state.patternKind
   } );
 
-const getAfterSlitsStage = ( state: HighIntensityAccessibleViewState ): QWIWaveProgressStage => {
+const getAfterSlitsStage = ( state: HighIntensityAccessibleViewState ): SequenceWaveProgressStage => {
   const patternKind = state.patternKind;
 
   return patternKind === 'doubleSlitInterference' ? 'interferingAfterSlits' :
@@ -108,12 +110,6 @@ export default function HighIntensityExperimentSetupSequenceItems(
       getAccessibleViewState,
       state => formatSourceStarted( state ),
       state => state.isEmitting
-    ),
-    createItem(
-      model,
-      getAccessibleViewState,
-      state => formatWaveProgress( state, 'travelingToSlits' ),
-      state => state.isEmitting && state.patternKind !== 'noBarrier'
     ),
     createItem(
       model,

@@ -691,13 +691,6 @@ a11y:
     waveProgressChanged:      >-
                               { $waveProgressStage ->
                                 [sourceOff] Source is off, so no wave is traveling.
-                                [travelingToSlits] { $waveDisplayMode ->
-                                  [timeAveragedIntensity] Solid wave moves toward slitted barrier.
-                                  [magnitude] Solid wave moves toward slitted barrier.
-                                 *[electricField] Plane wave fronts move toward slitted barrier.
-                                  [realPart] Plane wave fronts move toward slitted barrier.
-                                  [imaginaryPart] Plane wave fronts move toward slitted barrier.
-                                }
                                 [atSlits] { $waveDisplayMode ->
                                   [timeAveragedIntensity] { $patternKind ->
                                     [doubleSlitInterference] Solid waves emerge from each open slit and overlap.
