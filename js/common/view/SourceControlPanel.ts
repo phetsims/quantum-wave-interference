@@ -40,7 +40,7 @@ type SelfOptions = {
   additionalContent?: Node | null;
 };
 
-type SourceControlPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tandem'>;
+export type SourceControlPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tandem'>;
 
 export default class SourceControlPanel<T extends SourceControlScene> extends Panel {
 
