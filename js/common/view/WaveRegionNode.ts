@@ -11,8 +11,9 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import type TProperty from '../../../../axon/js/TProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
-import { combineOptions } from '../../../../phet-core/js/optionize.js';
+import optionize, { combineOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import { type BarrierType } from '../model/BarrierType.js';
@@ -54,14 +55,20 @@ type WaveRegionNodeSelfOptions = {
   additionalDoubleSlitOptions?: Partial<DoubleSlitNodeOptions>;
 };
 
-type WaveRegionNodeOptions = WaveRegionNodeSelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
+export type WaveRegionNodeOptions = WaveRegionNodeSelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class WaveRegionNode extends Node {
 
   public readonly waveVisualizationNode: WaveVisualizationNode;
   public readonly doubleSlitNode: DoubleSlitNode;
 
-  public constructor( model: WaveRegionModel, options: WaveRegionNodeOptions ) {
+  public constructor( model: WaveRegionModel, providedOptions: WaveRegionNodeOptions ) {
+
+    const options = optionize<
+      WaveRegionNodeOptions,
+      StrictOmit<WaveRegionNodeSelfOptions, 'additionalDoubleSlitOptions'>,
+      PickRequired<PhetioObjectOptions, 'tandem'>
+    >()( {}, providedOptions );
 
     const waveVisualizationNode = new WaveVisualizationNode( model.sceneProperty, {
       x: options.waveRegionLeft,
