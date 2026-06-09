@@ -173,7 +173,8 @@ export default class ExperimentModel implements TModel {
     this.detectorScreenScaleIndexProperty = new NumberProperty( DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, {
       range: new Range( 0, DETECTOR_SCREEN_SCALE_OPTIONS.length - 1 ),
       numberType: 'Integer',
-      tandem: tandem.createTandem( 'detectorScreenScaleIndexProperty' )
+      tandem: tandem.createTandem( 'detectorScreenScaleIndexProperty' ),
+      phetioFeatured: true
     } );
 
     this.isPlayingProperty = new BooleanProperty( true, {

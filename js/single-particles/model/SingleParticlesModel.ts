@@ -78,7 +78,8 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
     } );
 
     this.isHitsGraphVisibleProperty = new BooleanProperty( false, {
-      tandem: this.toolsTandem.createTandem( 'isHitsGraphVisibleProperty' )
+      tandem: this.toolsTandem.createTandem( 'isHitsGraphVisibleProperty' ),
+      phetioFeatured: true
     } );
 
     this.currentDetectorTool = new CurrentDetectorTool(

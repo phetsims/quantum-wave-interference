@@ -71,6 +71,7 @@ addToMapIfDefined( 'count', 'countStringProperty' );
 addToMapIfDefined( 'ruler', 'rulerStringProperty' );
 addToMapIfDefined( 'stopwatch', 'stopwatchStringProperty' );
 addToMapIfDefined( 'detector', 'detectorStringProperty' );
+addToMapIfDefined( 'detectorProbe', 'detectorProbeStringProperty' );
 addToMapIfDefined( 'tapeMeasure', 'tapeMeasureStringProperty' );
 addToMapIfDefined( 'timePlot', 'timePlotStringProperty' );
 addToMapIfDefined( 'positionPlot', 'positionPlotStringProperty' );
@@ -328,6 +329,7 @@ const QuantumWaveInterferenceFluent = {
   rulerStringProperty: _.get( QuantumWaveInterferenceStrings, 'rulerStringProperty' ),
   stopwatchStringProperty: _.get( QuantumWaveInterferenceStrings, 'stopwatchStringProperty' ),
   detectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorStringProperty' ),
+  detectorProbeStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorProbeStringProperty' ),
   tapeMeasureStringProperty: _.get( QuantumWaveInterferenceStrings, 'tapeMeasureStringProperty' ),
   timePlotStringProperty: _.get( QuantumWaveInterferenceStrings, 'timePlotStringProperty' ),
   positionPlotStringProperty: _.get( QuantumWaveInterferenceStrings, 'positionPlotStringProperty' ),

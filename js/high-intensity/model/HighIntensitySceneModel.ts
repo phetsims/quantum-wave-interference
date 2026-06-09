@@ -112,7 +112,8 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this._detectorPatternFormationFactorProperty = new NumberProperty( 0, {
       range: new Range( 0, 1 ),
       tandem: tandem.createTandem( 'detectorPatternFormationFactorProperty' ),
-      phetioReadOnly: true
+      phetioReadOnly: true,
+      phetioFeatured: true
     } );
     this.detectorPatternFormationFactorProperty = this._detectorPatternFormationFactorProperty;
 

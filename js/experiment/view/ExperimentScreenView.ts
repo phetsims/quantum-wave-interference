@@ -85,9 +85,10 @@ export default class ExperimentScreenView extends ScreenView {
     super( options );
 
     this.model = model;
+    const scenesTandem = options.tandem.createTandem( 'scenes' );
     const sceneTandems = new Map<object, Tandem>( model.scenes.map( scene => [
       scene,
-      options.tandem.createTandem( `${scene.sourceType}Scene` )
+      scenesTandem.createTandem( `${scene.sourceType}Scene` )
     ] ) );
 
     const overheadApparatusNode = new ExperimentOverheadApparatusNode( model, this.layoutBounds, options.tandem );

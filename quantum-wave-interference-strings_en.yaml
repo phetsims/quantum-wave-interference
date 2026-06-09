@@ -50,6 +50,7 @@ snapshotNumberPattern:           'Snapshot {{number}}'
 ruler:                           Ruler
 stopwatch:                       Stopwatch
 detector:                        Detector
+detectorProbe:                   Detector Probe
 tapeMeasure:                     Tape Measure
 timePlot:                        Time Plot
 positionPlot:                    Position Plot

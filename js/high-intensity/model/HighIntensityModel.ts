@@ -73,7 +73,8 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
     this.currentDetectionModeProperty = createCurrentDetectionModeProperty( this.sceneProperty, tandem );
 
     this.isIntensityGraphVisibleProperty = new BooleanProperty( false, {
-      tandem: this.toolsTandem.createTandem( 'isIntensityGraphVisibleProperty' )
+      tandem: this.toolsTandem.createTandem( 'isIntensityGraphVisibleProperty' ),
+      phetioFeatured: true
     } );
 
     this.accessibleStateStepProperty = new NumberProperty( 0, {

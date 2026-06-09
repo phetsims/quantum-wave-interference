@@ -73,6 +73,7 @@ type StringsType = {
   'rulerStringProperty': LocalizedStringProperty;
   'stopwatchStringProperty': LocalizedStringProperty;
   'detectorStringProperty': LocalizedStringProperty;
+  'detectorProbeStringProperty': LocalizedStringProperty;
   'tapeMeasureStringProperty': LocalizedStringProperty;
   'timePlotStringProperty': LocalizedStringProperty;
   'positionPlotStringProperty': LocalizedStringProperty;

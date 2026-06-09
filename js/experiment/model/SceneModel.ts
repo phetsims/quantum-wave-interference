@@ -210,7 +210,8 @@ export default class SceneModel extends PhetioObject {
     const tandem = options.tandem;
 
     this.isEmittingProperty = new BooleanProperty( false, {
-      tandem: tandem.createTandem( 'isEmittingProperty' )
+      tandem: tandem.createTandem( 'isEmittingProperty' ),
+      phetioFeatured: true
     } );
 
     // Wavelength in nm. For photons, this is directly controlled via a slider. For particles, this property is
@@ -225,18 +226,21 @@ export default class SceneModel extends PhetioObject {
     this.wavelengthProperty = new NumberProperty( defaultWavelengthNM, {
       range: QuantumWaveInterferenceConstants.createWavelengthRangeNM( options.sourceType ),
       units: nanometersUnit,
-      tandem: options.sourceType === 'photons' ? tandem.createTandem( 'wavelengthProperty' ) : Tandem.OPT_OUT
+      tandem: options.sourceType === 'photons' ? tandem.createTandem( 'wavelengthProperty' ) : Tandem.OPT_OUT,
+      phetioFeatured: true
     } );
 
     this.particleSpeedProperty = new NumberProperty( defaultParticleSpeed, {
       range: this.particleSpeedRange,
       units: metersPerSecondUnit,
-      tandem: options.sourceType === 'photons' ? Tandem.OPT_OUT : tandem.createTandem( 'particleSpeedProperty' )
+      tandem: options.sourceType === 'photons' ? Tandem.OPT_OUT : tandem.createTandem( 'particleSpeedProperty' ),
+      phetioFeatured: true
     } );
 
     this.intensityProperty = new NumberProperty( 0.5, {
       range: new Range( 0, 1 ),
-      tandem: tandem.createTandem( 'intensityProperty' )
+      tandem: tandem.createTandem( 'intensityProperty' ),
+      phetioFeatured: true
     } );
 
     // NOTE: see other duplicate in quantum-wave-interference/js/common/model/BaseSceneModel.ts. Slit separation is
@@ -244,13 +248,15 @@ export default class SceneModel extends PhetioObject {
     this.slitSeparationProperty = new NumberProperty( defaultSlitSeparation, {
       range: this.slitSeparationRange,
       units: millimetersUnit,
-      tandem: tandem.createTandem( 'slitSeparationProperty' )
+      tandem: tandem.createTandem( 'slitSeparationProperty' ),
+      phetioFeatured: true
     } );
 
     this.screenDistanceProperty = new NumberProperty( defaultScreenDistance, {
       range: this.screenDistanceRange,
       units: metersUnit,
-      tandem: tandem.createTandem( 'screenDistanceProperty' )
+      tandem: tandem.createTandem( 'screenDistanceProperty' ),
+      phetioFeatured: true
     } );
 
     this.slitSettingProperty = new StringUnionProperty<SlitConfiguration>( 'bothOpen', {
@@ -273,19 +279,22 @@ export default class SceneModel extends PhetioObject {
 
     this.totalHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'totalHitsProperty' ),
-      phetioReadOnly: true
+      phetioReadOnly: true,
+      phetioFeatured: true
     } );
 
     // NOTE: see other duplicate in quantum-wave-interference/js/common/model/BaseSceneModel.ts. Hit counters stay in
     // each scene model because their clearing and serialization paths differ by model family.
     this.leftDetectorHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'leftDetectorHitsProperty' ),
-      phetioReadOnly: true
+      phetioReadOnly: true,
+      phetioFeatured: true
     } );
 
     this.rightDetectorHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'rightDetectorHitsProperty' ),
-      phetioReadOnly: true
+      phetioReadOnly: true,
+      phetioFeatured: true
     } );
 
     this.isMaxHitsReachedProperty = new DerivedProperty(

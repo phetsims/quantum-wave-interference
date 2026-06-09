@@ -146,6 +146,9 @@
   "detector": {
     "value": "Detector"
   },
+  "detectorProbe": {
+    "value": "Detector Probe"
+  },
   "tapeMeasure": {
     "value": "Tape Measure"
   },

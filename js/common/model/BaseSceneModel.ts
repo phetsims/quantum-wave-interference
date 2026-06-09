@@ -218,16 +218,19 @@ export default abstract class BaseSceneModel extends PhetioObject {
     // each scene model because their clearing and serialization paths differ by model family.
     this.leftDetectorHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'leftDetectorHitsProperty' ),
-      phetioReadOnly: true
+      phetioReadOnly: true,
+      phetioFeatured: true
     } );
 
     this.rightDetectorHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'rightDetectorHitsProperty' ),
-      phetioReadOnly: true
+      phetioReadOnly: true,
+      phetioFeatured: true
     } );
 
     this.isEmittingProperty = new BooleanProperty( false, {
-      tandem: tandem.createTandem( 'isEmittingProperty' )
+      tandem: tandem.createTandem( 'isEmittingProperty' ),
+      phetioFeatured: true
     } );
 
     // NOTE: see other duplicate in quantum-wave-interference/js/experiment/model/SceneModel.ts. Wavelength defaults
@@ -238,13 +241,15 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.wavelengthProperty = new NumberProperty( defaultWavelengthNM, {
       range: QuantumWaveInterferenceConstants.createWavelengthRangeNM( options.sourceType ),
       units: nanometersUnit,
-      tandem: options.sourceType === 'photons' ? tandem.createTandem( 'wavelengthProperty' ) : Tandem.OPT_OUT
+      tandem: options.sourceType === 'photons' ? tandem.createTandem( 'wavelengthProperty' ) : Tandem.OPT_OUT,
+      phetioFeatured: true
     } );
 
     this.particleSpeedProperty = new NumberProperty( config.defaultParticleSpeed, {
       range: this.particleSpeedRange,
       units: metersPerSecondUnit,
-      tandem: options.sourceType === 'photons' ? Tandem.OPT_OUT : tandem.createTandem( 'particleSpeedProperty' )
+      tandem: options.sourceType === 'photons' ? Tandem.OPT_OUT : tandem.createTandem( 'particleSpeedProperty' ),
+      phetioFeatured: true
     } );
 
     this.barrierTypeProperty = new StringUnionProperty<BarrierType>( 'doubleSlit', {
@@ -257,13 +262,15 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.slitSeparationProperty = new NumberProperty( slitSeparationConfig.defaultValue, {
       range: this.slitSeparationRange,
       units: millimetersUnit,
-      tandem: tandem.createTandem( 'slitSeparationProperty' )
+      tandem: tandem.createTandem( 'slitSeparationProperty' ),
+      phetioFeatured: true
     } );
 
     this.slitPositionFractionProperty = new NumberProperty( 0.5, {
       units: null,
       range: new Range( 0.25, 0.75 ),
-      tandem: tandem.createTandem( 'slitPositionFractionProperty' )
+      tandem: tandem.createTandem( 'slitPositionFractionProperty' ),
+      phetioFeatured: true
     } );
 
     this.slitConfigurationProperty = new StringUnionProperty<SlitConfigurationWithNoBarrier>( 'bothOpen', {
@@ -273,7 +280,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.screenBrightnessProperty = new NumberProperty( QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 0.5, {
       range: new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ),
-      tandem: tandem.createTandem( 'screenBrightnessProperty' )
+      tandem: tandem.createTandem( 'screenBrightnessProperty' ),
+      phetioFeatured: true
     } );
 
     this.photonWaveDisplayModeProperty = new StringUnionProperty<PhotonWaveDisplayMode>(
@@ -294,7 +302,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.totalHitsProperty = new NumberProperty( 0, {
       tandem: tandem.createTandem( 'totalHitsProperty' ),
-      phetioReadOnly: true
+      phetioReadOnly: true,
+      phetioFeatured: true
     } );
 
     this.snapshotsProperty = new Property<Snapshot[]>( [], {

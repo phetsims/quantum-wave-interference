@@ -158,7 +158,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     this.isPacketActiveProperty = new BooleanProperty( false, {
       tandem: tandem.createTandem( 'isPacketActiveProperty' ),
-      phetioReadOnly: true
+      phetioReadOnly: true,
+      phetioFeatured: true
     } );
 
     this.isWaveVisibleProperty = this.isPacketActiveProperty;
@@ -179,24 +180,28 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     // Detector tool
     this.detectorToolPositionProperty = new Vector2Property( new Vector2( 0.5, 0.5 ), {
       tandem: tandem.createTandem( 'detectorToolPositionProperty' ),
-      units: null // The detector radius is stored as a normalized fraction of the wave-region width, not a physical length.
+      units: null, // The detector radius is stored as a normalized fraction of the wave-region width, not a physical length.
+      phetioFeatured: true
     } );
 
     this.detectorToolRadiusProperty = new NumberProperty( 0.1, {
       range: new Range( 0.03, 0.3 ),
       units: null, // The detector radius is stored as a normalized fraction of the wave-region width, not a physical length.
-      tandem: tandem.createTandem( 'detectorToolRadiusProperty' )
+      tandem: tandem.createTandem( 'detectorToolRadiusProperty' ),
+      phetioFeatured: true
     } );
 
     this.detectorToolStateProperty = new StringUnionProperty<DetectorToolState>( 'ready', {
       validValues: DetectorToolStateValues,
-      tandem: tandem.createTandem( 'detectorToolStateProperty' )
+      tandem: tandem.createTandem( 'detectorToolStateProperty' ),
+      phetioFeatured: true
     } );
 
     this.detectorToolProbabilityProperty = new NumberProperty( 0, {
       range: new Range( 0, 1 ),
       tandem: tandem.createTandem( 'detectorToolProbabilityProperty' ),
-      phetioReadOnly: true
+      phetioReadOnly: true,
+      phetioFeatured: true
     } );
 
     this.setupSlitConfigurationListeners( this.slitConfigurationProperty );
