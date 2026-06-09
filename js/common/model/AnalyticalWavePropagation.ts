@@ -12,6 +12,13 @@ import { createPolarComplex, createPolarTimesComplex, EPSILON, NEAR_APERTURE_X_F
 import { getClosestYOnSlit } from './AnalyticalSlitGeometry.js';
 import { getFresnelApertureTransfer } from './FresnelApertureTransfer.js';
 
+/**
+ * Time-derived gaussian packet state shared by direct-source and diffracted-field evaluation.
+ *
+ * centerX is the longitudinal packet center, sigmaX and sigmaY are the current spreading widths,
+ * and normalization preserves the packet's integrated intensity as those widths grow. chirpX and
+ * chirpY are quadratic phase coefficients applied to squared longitudinal and transverse offsets.
+ */
 type GaussianPacketState = {
   centerX: number;
   sigmaX: number;
@@ -168,7 +175,8 @@ function evaluateDoubleSlitSample(
   const components: FieldComponent[] = [];
   let hasReachablePath = false;
 
-  // TODO: Add documentation, see https://github.com/phetsims/quantum-wave-interference/issues/135
+  // Evaluate each open slit independently. A reachable path with no returned component contributes
+  // explicit zero amplitude so the sample remains a reached field rather than unreached background.
   for ( let i = 0; i < openSlits.length; i++ ) {
     const slit = openSlits[ i ];
     const xPastBarrier = x - barrier.barrierX;
