@@ -30,8 +30,16 @@ import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues, type PhotonWav
 const NOMINAL_DT = 1 / 60;
 const SLOW_TIME_SPEED_FACTOR = 0.15;
 
+/**
+ * Construction options for the shared detector-screen model. The tandem instruments the model's shared Properties
+ * and tools.
+ */
 type BaseScreenModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
+/**
+ * Dimensionless multipliers that convert elapsed animation time to visual simulation time for the screen's normal
+ * and fast time-speed settings. The slow multiplier is shared by both screens.
+ */
 type TimeSpeedFactors = {
   normal: number;
   fast: number;
@@ -258,6 +266,12 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
 
   protected abstract resetToolVisibility(): void;
 
+  /**
+   * Returns the fixed visual time interval used by the step-forward control, in seconds. Screen views use this value
+   * to keep their time plots synchronized with stepOnce().
+   *
+   * @returns the nominal visual time step, in seconds
+   */
   public getNominalStepDt(): number {
     return NOMINAL_DT;
   }
@@ -282,6 +296,11 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
            ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
   }
 
+  /**
+   * Advances the active scene by one nominal visual time step when the step-forward control is pressed, independent
+   * of the play state and selected time speed. The stopwatch advances by the corresponding physical time reported by
+   * the scene, in seconds, when that interval is positive.
+   */
   public stepOnce(): void {
     const scene = this.sceneProperty.value;
     scene.step( NOMINAL_DT );
@@ -292,6 +311,14 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     }
   }
 
+  /**
+   * Advances the active scene for one animation frame. joist supplies elapsed real time in seconds, which is converted
+   * to visual simulation time using the play state and selected time-speed scaling. The stopwatch advances by the
+   * corresponding physical time reported by the scene, in seconds. Neither the scene nor stopwatch advances while
+   * paused, and the stopwatch does not advance when the scene reports a nonpositive physical interval.
+   *
+   * @param dt - elapsed real time since the previous animation frame, in seconds
+   */
   public step( dt: number ): void {
     const effectiveDt = this.getEffectiveDt( dt );
     if ( effectiveDt === 0 ) {
