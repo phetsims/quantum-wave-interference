@@ -301,6 +301,8 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
    *
    * @param projections - Measurement projections to include in the returned parameters.
    * @returns Analytical-kernel parameters with the supplied projection list.
+   *
+   * TODO: Want to make projections optional in createKernelParameters? Or is this better, see https://github.com/phetsims/quantum-wave-interference/issues/135
    */
   private createKernelParametersWithProjections( projections: MeasurementProjection[] ): AnalyticalWaveParameters {
     const parameters = this.createKernelParameters();
