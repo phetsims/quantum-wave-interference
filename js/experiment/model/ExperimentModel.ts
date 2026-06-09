@@ -15,7 +15,7 @@ import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import TModel from '../../../../joist/js/TModel.js';
-import { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
@@ -30,8 +30,9 @@ import { DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, DETECTOR_SCREEN_SCALE_OPTIONS } fr
 import SceneModel from './SceneModel.js';
 
 type SelfOptions = EmptySelfOptions;
+type ParentOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
-type ExperimentModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
+export type ExperimentModelOptions = SelfOptions & ParentOptions;
 
 export default class ExperimentModel implements TModel {
 
@@ -74,8 +75,9 @@ export default class ExperimentModel implements TModel {
   public readonly rulerPositionProperty: Vector2Property;
 
   public constructor( providedOptions: ExperimentModelOptions ) {
+    const options = optionize<ExperimentModelOptions, SelfOptions, ParentOptions>()( {}, providedOptions );
 
-    const tandem = providedOptions.tandem;
+    const tandem = options.tandem;
     const scenesTandem = tandem.createTandem( 'scenes' );
 
     this.photonsScene = new SceneModel( {

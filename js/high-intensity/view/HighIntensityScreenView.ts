@@ -61,7 +61,7 @@ import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCallout
 
 type SelfOptions = EmptySelfOptions;
 
-type HighIntensityScreenViewOptions = SelfOptions & ScreenViewOptions;
+export type HighIntensityScreenViewOptions = SelfOptions & ScreenViewOptions;
 
 type SourceControlNodes = {
   sourceControlPanel: SourceControlPanel<HighIntensitySceneModel>;
@@ -240,7 +240,7 @@ export default class HighIntensityScreenView extends ScreenView {
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
 
-  public constructor( model: HighIntensityModel, providedOptions: HighIntensityScreenViewOptions ) {
+  public constructor( model: HighIntensityModel, providedOptions?: HighIntensityScreenViewOptions ) {
     const options = optionize<HighIntensityScreenViewOptions, SelfOptions, ScreenViewOptions>()( {}, providedOptions );
 
     super( options );
