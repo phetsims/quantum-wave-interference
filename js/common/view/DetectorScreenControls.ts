@@ -45,6 +45,9 @@ import SnapshotsDialog from './SnapshotsDialog.js';
 import ViewSnapshotsButton from './ViewSnapshotsButton.js';
 import WaveDisplaySection from './WaveDisplaySection.js';
 
+/**
+ * Model state and actions shared by the detector-screen controls on the High Intensity and Single Particles screens.
+ */
 export type DetectorScreenControlsModel = {
   sceneProperty: TReadOnlyProperty<{ sourceType: string }>;
   currentScreenBrightnessProperty: PhetioProperty<number>;
@@ -60,6 +63,9 @@ export type DetectorScreenControlsModel = {
   deleteSnapshot( snapshot: Snapshot ): void;
 };
 
+/**
+ * Screen-specific controls, callbacks, and snapshot display configuration supplied by each detector screen.
+ */
 export type DetectorScreenControlsOptions = {
 
   // false = detector screen, true = graph
@@ -88,6 +94,7 @@ export type DetectorScreenControlsOptions = {
   // Slit-name convention used for snapshot metadata. Defaults to top/bottom for these front-facing screens.
   slitOrientation?: 'leftRight' | 'topBottom';
 
+  // Maps stored slit configurations to localized labels in snapshot displays. Defaults are used for omitted entries.
   slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
 };
 
