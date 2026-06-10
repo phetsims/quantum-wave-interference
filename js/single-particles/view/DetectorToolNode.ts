@@ -21,6 +21,7 @@ import Shape from '../../../../kite/js/Shape.js';
 import ModelViewTransform2 from '../../../../phetcommon/js/view/ModelViewTransform2.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
+import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
@@ -128,19 +129,28 @@ export default class DetectorToolNode extends Node {
 
     // --- Control panel ---
 
-    const detectButtonTextProperty = new DerivedProperty(
-      [ currentDetectorTool.stateProperty,
-        QuantumWaveInterferenceFluent.detectStringProperty,
-        QuantumWaveInterferenceFluent.resetDetectorStringProperty ],
-      ( state, detectString, resetString ) =>
-        state === 'ready' ? detectString : resetString
-    );
+    // Both labels share an AlignGroup so the button is sized to the larger of the two strings and does not
+    // change size when the state toggles between 'Detect' and 'Reset Detector'.
+    const detectButtonTextAlignGroup = new AlignGroup();
 
-    const detectButton = new RectangularPushButton( {
-      content: new Text( detectButtonTextProperty, {
+    const detectTextBox = detectButtonTextAlignGroup.createBox(
+      new Text( QuantumWaveInterferenceFluent.detectStringProperty, {
         font: new PhetFont( 13 ),
         maxWidth: 80
-      } ),
+      } ), {
+        visibleProperty: new DerivedProperty( [ currentDetectorTool.stateProperty ], state => state === 'ready' )
+      } );
+
+    const resetTextBox = detectButtonTextAlignGroup.createBox(
+      new Text( QuantumWaveInterferenceFluent.resetDetectorStringProperty, {
+        font: new PhetFont( 13 ),
+        maxWidth: 80
+      } ), {
+        visibleProperty: new DerivedProperty( [ currentDetectorTool.stateProperty ], state => state !== 'ready' )
+      } );
+
+    const detectButton = new RectangularPushButton( {
+      content: new Node( { children: [ detectTextBox, resetTextBox ] } ),
       baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty,
       listener: () => {
         if ( currentDetectorTool.stateProperty.value === 'ready' ) {
