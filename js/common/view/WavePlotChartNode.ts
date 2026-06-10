@@ -76,9 +76,9 @@ export type WavePlotDataPoint = {
 
 export default class WavePlotChartNode extends InteractiveHighlighting( Node ) {
 
-  public readonly dataPath: Path;
+  private readonly dataPath: Path;
   public readonly chartWidth: number;
-  public readonly chartHeight: number;
+  private readonly chartHeight: number;
   private readonly baselineYProperty: TReadOnlyProperty<number>;
   private readonly halfAmplitudeHeightProperty: TReadOnlyProperty<number>;
 
@@ -372,7 +372,7 @@ export default class WavePlotChartNode extends InteractiveHighlighting( Node ) {
    * Map a data value to its chart-local y coordinate, given the current amplitude scale.
    * Callers divide their own value by whatever scale they are tracking.
    */
-  public mapValueToY( value: number, amplitudeScale: number ): number {
+  private mapValueToY( value: number, amplitudeScale: number ): number {
     return this.baselineYProperty.value - ( value / amplitudeScale ) * this.halfAmplitudeHeightProperty.value;
   }
 }

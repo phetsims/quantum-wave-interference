@@ -21,7 +21,7 @@ import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js'
 export default class ExperimentOverheadApparatusNode extends Node {
 
   public readonly overheadEmitterNode: OverheadEmitterNode;
-  public readonly maxHitsReachedPanel: OverheadEmitterNode['maxHitsReachedPanel'];
+  private readonly maxHitsReachedPanel: OverheadEmitterNode['maxHitsReachedPanel'];
 
   private readonly overheadDoubleSlitNode: OverheadDoubleSlitNode;
   private readonly overheadDetectorScreenNode: OverheadDetectorScreenNode;
@@ -115,7 +115,7 @@ export default class ExperimentOverheadApparatusNode extends Node {
     this.overheadBeamNode.updateBeam();
   }
 
-  public updateDetectorPosition(): void {
+  private updateDetectorPosition(): void {
     this.overheadDetectorScreenNode.updatePosition();
     this.overheadBeamNode.updateBeam();
   }

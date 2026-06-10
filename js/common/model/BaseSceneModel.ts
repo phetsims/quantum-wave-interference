@@ -539,7 +539,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     };
   }
 
-  protected linkSlitConfigurationToBarrierType(
+  private linkSlitConfigurationToBarrierType(
     slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>
   ): void {
 
@@ -582,7 +582,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
    * and descriptions can rebuild from an empty detector screen. Subclasses that keep additional run-specific state
    * should override this method, clear that state first, and then call super.clearScreen().
    */
-  public clearScreen(): void {
+  protected clearScreen(): void {
     if ( this.isResetting ) {
       return;
     }
@@ -594,7 +594,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.hitsChangedEmitter.emit();
   }
 
-  protected clearWaveState(): void {
+  private clearWaveState(): void {
     this.wavefrontReached = false;
     this.decoherenceEvents.length = 0;
     this.syncSolverParameters();
@@ -602,7 +602,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.syncSolverParameters();
   }
 
-  protected setupClearScreenListeners(): void {
+  private setupClearScreenListeners(): void {
     this.wavelengthProperty.lazyLink( () => this.clearScreen() );
     this.particleSpeedProperty.lazyLink( () => this.clearScreen() );
     this.barrierTypeProperty.lazyLink( () => this.clearScreen() );
@@ -630,7 +630,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.clearWaveState();
   }
 
-  public takeSnapshot( detectionMode: DetectionMode, slitSetting: SlitConfigurationWithNoBarrier, intensity: number ): void {
+  protected takeSnapshot( detectionMode: DetectionMode, slitSetting: SlitConfigurationWithNoBarrier, intensity: number ): void {
     if ( this.snapshotsProperty.value.length >= QuantumWaveInterferenceConstants.MAX_SNAPSHOTS ) {
       return;
     }
@@ -674,7 +674,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return {};
   }
 
-  public static applyBaseSceneModelState( model: BaseSceneModel, stateObject: BaseSceneModelStateObject ): void {
+  private static applyBaseSceneModelState( model: BaseSceneModel, stateObject: BaseSceneModelStateObject ): void {
     model.waveSolver.setState( stateObject.waveSolverState );
     model.hits.length = 0;
     for ( const h of stateObject.hits ) {
@@ -695,7 +695,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   /**
    * Uses reference serialization. There is one instance, and its state is applied back through applyState.
    */
-  public static readonly BaseSceneModelIO = new IOType<BaseSceneModel, BaseSceneModelStateObject>( 'BaseSceneModelIO', {
+  private static readonly BaseSceneModelIO = new IOType<BaseSceneModel, BaseSceneModelStateObject>( 'BaseSceneModelIO', {
     valueType: BaseSceneModel,
     documentation: 'Serializes the wave solver state, hit positions, and transient wave records for a scene',
     toStateObject: ( model: BaseSceneModel ) => ( {

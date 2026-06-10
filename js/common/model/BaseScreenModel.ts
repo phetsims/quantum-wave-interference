@@ -242,7 +242,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     } );
   }
 
-  public abstract takeSnapshot(): void;
+  protected abstract takeSnapshot(): void;
 
   /**
    * Deletes a snapshot from the active scene. Used by shared view code that works with the current scene through this

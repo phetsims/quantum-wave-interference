@@ -70,7 +70,7 @@ export default class SceneModel extends PhetioObject {
   /**
    * Slit width in mm for a given source type.
    */
-  public static getSlitWidth( sourceType: SourceType ): number {
+  private static getSlitWidth( sourceType: SourceType ): number {
     return SLIT_WIDTH_BY_SOURCE_TYPE[ sourceType ];
   }
 

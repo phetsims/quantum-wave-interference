@@ -300,7 +300,7 @@ export default class ExperimentScreenView extends ScreenView {
    *
    * @returns current Experiment screen accessibility state
    */
-  public getAccessibleState(): ExperimentAccessibleState {
+  private getAccessibleState(): ExperimentAccessibleState {
     const scene = this.model.sceneProperty.value;
 
     // NOTE: see other duplicate in quantum-wave-interference/js/single-particles/view/SingleParticlesScreenView.ts.

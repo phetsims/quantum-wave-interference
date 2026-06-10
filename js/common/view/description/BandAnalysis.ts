@@ -133,7 +133,7 @@ export default class BandAnalysis {
    * @param scene - scene supplying front-facing detector-screen geometry
    * @returns detailed envelope heuristic analysis, or null when the scene cannot support the front-facing heuristic
    */
-  public static analyzeEnvelopeHeuristic( scene: TheoreticalPatternScene ): EnvelopeHeuristicAnalysis | null {
+  private static analyzeEnvelopeHeuristic( scene: TheoreticalPatternScene ): EnvelopeHeuristicAnalysis | null {
     const lambda = scene.getEffectiveWavelength();
     const slitToScreenDistance = 'screenDistanceProperty' in scene ?
                                  scene.screenDistanceProperty.value :

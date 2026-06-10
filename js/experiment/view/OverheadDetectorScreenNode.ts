@@ -228,7 +228,7 @@ export default class OverheadDetectorScreenNode extends Node {
     } );
   }
 
-  public getVisibleDetectorSizeFraction(): number {
+  private getVisibleDetectorSizeFraction(): number {
     return getDetectorScreenHalfWidthForScaleIndex( this.detectorScreenScaleIndexProperty.value ) /
            this.sceneProperty.value.fullScreenHalfWidth;
   }
@@ -237,7 +237,7 @@ export default class OverheadDetectorScreenNode extends Node {
     return DETECTOR_LEFT_HEIGHT + DETECTOR_DY;
   }
 
-  public getFullParallelogramBottom(): number {
+  private getFullParallelogramBottom(): number {
     return this.parallelogramNode.centerY + this.getFullParallelogramHeight() / 2;
   }
 
@@ -256,7 +256,7 @@ export default class OverheadDetectorScreenNode extends Node {
    * active scene. Used for keeping the overhead fan-beam graphic static in width while the detector screen itself
    * moves.
    */
-  public getMaxDistanceParallelogramLeft(): number {
+  private getMaxDistanceParallelogramLeft(): number {
     if ( this.frontFacingScreenRight <= this.frontFacingScreenLeft ) {
       return this.currentScreenCenterX - DETECTOR_DX / 2;
     }

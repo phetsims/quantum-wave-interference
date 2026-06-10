@@ -137,7 +137,7 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
   // affected by the taller bounds of the callout lines that extend down to the wave region.
   public readonly emitterBottom: number;
   public readonly emitterCenterX: number;
-  public readonly maxHitsReachedPanel: MaxHitsReachedPanel;
+  private readonly maxHitsReachedPanel: MaxHitsReachedPanel;
 
   public constructor(
     model: HighIntensitySourceBeamCalloutModel<T>,

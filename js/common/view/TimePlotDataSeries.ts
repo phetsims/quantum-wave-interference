@@ -102,7 +102,7 @@ export default class TimePlotDataSeries extends PhetioObject {
    * This occurs after scene resets or solver replacement, and the time plot must restart instead
    * of connecting old samples to the rewound solver state.
    */
-  public hasSolverTimeRewound( currentSolverTime: number ): boolean {
+  private hasSolverTimeRewound( currentSolverTime: number ): boolean {
     return this.previousSolverTime !== null && currentSolverTime + TIME_EPSILON < this.previousSolverTime;
   }
 
@@ -230,7 +230,7 @@ export default class TimePlotDataSeries extends PhetioObject {
    * On the other hand, the position plot curve itself is not serialized because it is derived from current solver state
    * each frame (which is already in the PhET-iO state)
    */
-  public static readonly TimePlotDataSeriesIO = new IOType<TimePlotDataSeries, TimePlotDataSeriesStateObject>(
+  private static readonly TimePlotDataSeriesIO = new IOType<TimePlotDataSeries, TimePlotDataSeriesStateObject>(
     'TimePlotDataSeriesIO', {
       valueType: TimePlotDataSeries,
       documentation: 'Serializes the plotted samples and timing state for a time plot.',

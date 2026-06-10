@@ -324,7 +324,7 @@ export default class HighIntensityScreenView extends ScreenView {
    *
    * @returns current High Intensity accessible view state
    */
-  public getAccessibleViewState(): HighIntensityAccessibleViewState {
+  private getAccessibleViewState(): HighIntensityAccessibleViewState {
     const measurementTools = this.measurementToolsNode.getAccessibleViewState().measurementTools;
     const slitBarrier = this.doubleSlitNode.getAccessibleViewState()?.slitBarrier;
 

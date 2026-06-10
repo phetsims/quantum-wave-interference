@@ -25,7 +25,7 @@ type SingleParticlesModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class SingleParticlesModel extends BaseScreenModel<SingleParticlesSceneModel> {
 
-  public readonly photonsScene: SingleParticlesSceneModel;
+  private readonly photonsScene: SingleParticlesSceneModel;
 
   // DynamicProperties specific to this screen
   public readonly currentSlitConfigurationProperty: DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, SingleParticlesSceneModel>;

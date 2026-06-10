@@ -391,7 +391,7 @@ export default class SingleParticlesScreenView extends ScreenView {
    *
    * @returns current Single Particles accessible view state
    */
-  public getAccessibleViewState(): SingleParticlesAccessibleViewState {
+  private getAccessibleViewState(): SingleParticlesAccessibleViewState {
     const scene = this.model.sceneProperty.value;
     const measurementTools = this.measurementToolsNode.getAccessibleViewState().measurementTools;
     const slitBarrier = this.doubleSlitNode.getAccessibleViewState()?.slitBarrier;

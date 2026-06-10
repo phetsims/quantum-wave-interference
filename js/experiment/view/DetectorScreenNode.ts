@@ -335,7 +335,7 @@ export default class DetectorScreenNode extends Node {
    *
    * @returns detector-screen view state
    */
-  public getAccessibleViewState(): DetectorScreenViewStateFragment {
+  private getAccessibleViewState(): DetectorScreenViewStateFragment {
     if ( !this.visible ) {
       return {
         detectorScreen: {

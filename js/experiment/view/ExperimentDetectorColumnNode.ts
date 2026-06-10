@@ -94,7 +94,7 @@ export default class ExperimentDetectorColumnNode extends Node {
     return this.detectorScreenNodes[ 0 ].left;
   }
 
-  public get detectorScreenCenterX(): number {
+  private get detectorScreenCenterX(): number {
     return this.detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
   }
 

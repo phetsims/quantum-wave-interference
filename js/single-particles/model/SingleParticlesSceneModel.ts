@@ -287,7 +287,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   /**
    * Emits a single wave packet from the source.
    */
-  public emitPacket(): void {
+  private emitPacket(): void {
     if ( this.isMaxHitsReachedProperty.value || this.isPacketActiveProperty.value ) {
       return;
     }
@@ -571,7 +571,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
    * @returns the normalized detector probability in [ 0, 1 ], or 0 when no packet is active or the field has no total
    * probability
    */
-  public computeDetectorProbability(): number {
+  private computeDetectorProbability(): number {
     if ( !this.isPacketActiveProperty.value ) {
       return 0;
     }
