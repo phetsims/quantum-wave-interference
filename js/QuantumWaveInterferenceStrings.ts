@@ -174,8 +174,6 @@ type StringsType = {
     };
     'stopwatchCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
-      'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;
-      'accessibleContextResponseUncheckedStringProperty': LocalizedStringProperty;
     };
     'timePlotCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;

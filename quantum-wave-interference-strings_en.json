@@ -408,12 +408,6 @@
     "stopwatchCheckbox": {
       "accessibleHelpText": {
         "value": "Add stopwatch to time experiment. Once added, Start, Pause, Reset Stopwatch, and move with keyboard shortcuts."
-      },
-      "accessibleContextResponseChecked": {
-        "value": "Stopwatch added near detector screen."
-      },
-      "accessibleContextResponseUnchecked": {
-        "value": "Stopwatch removed."
       }
     },
     "timePlotCheckbox": {

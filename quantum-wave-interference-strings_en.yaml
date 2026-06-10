@@ -805,9 +805,7 @@ a11y:
   tapeMeasureCheckbox:
     accessibleHelpText: Add tape measure to measure distances on detector screen or graph. Once added, move with keyboard shortcuts.
   stopwatchCheckbox:
-    accessibleHelpText:                 Add stopwatch to time experiment. Once added, Start, Pause, Reset Stopwatch, and move with keyboard shortcuts.
-    accessibleContextResponseChecked:   Stopwatch added near detector screen.
-    accessibleContextResponseUnchecked: Stopwatch removed.
+    accessibleHelpText: Add stopwatch to time experiment. Once added, Start, Pause, Reset Stopwatch, and move with keyboard shortcuts.
   timePlotCheckbox:
     accessibleHelpText: Use added time plot to graph wave value at position over time.
   positionPlotCheckbox:
