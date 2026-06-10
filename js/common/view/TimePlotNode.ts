@@ -242,7 +242,7 @@ export default class TimePlotNode extends Node {
     const modelPosition = this.getProbeModelPosition( scene );
     const value = scene.waveSolver.evaluate( modelPosition.x, modelPosition.y, solverTime );
     const displayMode = this.activeDisplayModeProperty.value;
-    return getDisplayedWaveValue( value.real, value.imaginary, displayMode );
+    return getDisplayedWaveValue( value.real, value.imaginary, displayMode, scene.sourceType === 'photons' );
   }
 
   /**

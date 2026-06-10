@@ -5,9 +5,9 @@
  * with grid lines, a data path, axis labels, and a ShadedRectangle background. Both TimePlotNode and
  * PositionPlotNode compose this node for their chart display.
  *
- * The chart's zero baseline is placed at the bottom for unipolar display modes (magnitude,
- * time-averaged intensity) and at the vertical center for bipolar modes (real, imaginary, electric
- * field). Consumers use `mapValueToY` to convert data values to chart-local y coordinates.
+ * The chart's zero baseline is placed at the bottom for the unipolar amplitude display mode and at
+ * the vertical center for bipolar modes (real, imaginary, electric field). Consumers use
+ * `mapValueToY` to convert data values to chart-local y coordinates.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

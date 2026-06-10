@@ -9,8 +9,8 @@
  *
  * The color mapping depends on the source and wave display mode. Photon scenes use the visible color
  * for the current wavelength, while matter-particle scenes use a neutral gray base color. The active
- * display mode determines whether the sampled complex amplitudes are shown as intensity, magnitude,
- * real part, imaginary part, or electric field.
+ * display mode determines whether the sampled complex amplitudes are shown as amplitude, real part,
+ * imaginary part, or electric field.
  *
  * The renderer uses the solver's explicit FieldSample status instead of inferring status from zero
  * amplitude, so dark interference nodes are rendered as reached field rather than neutral background.
@@ -161,8 +161,8 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
         const colorPower = this.colorPowers[ gx ];
 
         const color = usesLayeredFieldSamples && solver.getLayeredFieldSampleAtGridCell ?
-                      getLayeredFieldSampleRGBA( solver.getLayeredFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale, colorPower ) :
-                      getFieldSampleRGBA( solver.getFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale, colorPower );
+                      getLayeredFieldSampleRGBA( solver.getLayeredFieldSampleAtGridCell( gx, gy ), displayMode, isPhotons, baseColor, amplitudeScale, colorPower ) :
+                      getFieldSampleRGBA( solver.getFieldSampleAtGridCell( gx, gy ), displayMode, isPhotons, baseColor, amplitudeScale, colorPower );
         data[ pixelIdx ] = color.red;
         data[ pixelIdx + 1 ] = color.green;
         data[ pixelIdx + 2 ] = color.blue;

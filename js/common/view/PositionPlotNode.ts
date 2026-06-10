@@ -336,7 +336,7 @@ export default class PositionPlotNode extends Node {
       const fraction = i / numSamples;
       const modelX = fraction * scene.regionWidth;
       const value = solver.evaluate( modelX, modelY );
-      const displayValue = getDisplayedWaveValue( value.real, value.imaginary, displayMode );
+      const displayValue = getDisplayedWaveValue( value.real, value.imaginary, displayMode, scene.sourceType === 'photons' );
       points.push( { x: modelX, value: displayValue } );
     }
 

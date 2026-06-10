@@ -131,7 +131,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly slitPositionFractionProperty: NumberProperty;
   public readonly slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>;
   public readonly screenBrightnessProperty: NumberProperty;
+  // Wave display mode for the photon scene, where 'amplitude' displays the time-averaged intensity, re^2 + im^2.
   public readonly photonWaveDisplayModeProperty: StringUnionProperty<PhotonWaveDisplayMode>;
+
+  // Wave display mode for matter-particle scenes, where 'amplitude' displays the wave function magnitude, sqrt( re^2 + im^2 ).
   public readonly matterWaveDisplayModeProperty: StringUnionProperty<MatterWaveDisplayMode>;
   public readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   public readonly waveSolver: WaveSolver;
@@ -158,7 +161,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     const options = optionize<BaseSceneModelOptions, SelfOptions, PhetioObjectOptions>()( {
       isDisposable: false,
       defaultPhotonWaveDisplayMode: 'electricField',
-      defaultMatterWaveDisplayMode: 'magnitude',
+      defaultMatterWaveDisplayMode: 'amplitude',
       slitSeparationConfig: null,
       phetioType: BaseSceneModel.BaseSceneModelIO,
       phetioDocumentation: 'Model for a single source-type scene, including wave solver state and detector screen data.',
@@ -287,12 +290,14 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.photonWaveDisplayModeProperty = new StringUnionProperty<PhotonWaveDisplayMode>(
       options.sourceType === 'photons' ? options.defaultPhotonWaveDisplayMode : 'electricField', {
         validValues: PhotonWaveDisplayModeValues,
-        tandem: tandem.createTandem( 'photonWaveDisplayModeProperty' )
+        tandem: tandem.createTandem( 'photonWaveDisplayModeProperty' ),
+        phetioDocumentation: 'How the photon wave is rendered. Note that amplitude displays the time-averaged intensity, re^2 + im^2.'
       } );
 
     this.matterWaveDisplayModeProperty = new StringUnionProperty<MatterWaveDisplayMode>( options.defaultMatterWaveDisplayMode, {
       validValues: MatterWaveDisplayModeValues,
-      tandem: tandem.createTandem( 'matterWaveDisplayModeProperty' )
+      tandem: tandem.createTandem( 'matterWaveDisplayModeProperty' ),
+      phetioDocumentation: 'How the matter wave is rendered. Note that amplitude displays the wave function magnitude, sqrt( re^2 + im^2 ).'
     } );
 
     // Since sourceType is fixed per instance, just alias the relevant property

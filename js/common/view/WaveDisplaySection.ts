@@ -68,7 +68,9 @@ export default class WaveDisplaySection extends VBox {
 
     const photonWaveDisplayItems: ComboBoxItem<PhotonWaveDisplayMode>[] = [
       { value: 'electricField', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.electricFieldStringProperty ), tandemName: 'electricFieldItem' },
-      { value: 'timeAveragedIntensity', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.amplitudeStringProperty ), tandemName: 'timeAveragedIntensityItem' }
+
+      // For photons, Amplitude displays the time-averaged intensity, re^2 + im^2.
+      { value: 'amplitude', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.amplitudeStringProperty ), tandemName: 'amplitudeItem' }
     ];
 
     const photonWaveDisplayComboBox = new ComboBox(
@@ -89,7 +91,9 @@ export default class WaveDisplaySection extends VBox {
     const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
       { value: 'realPart', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.realPartStringProperty ), tandemName: 'realPartItem' },
       { value: 'imaginaryPart', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.imaginaryPartStringProperty ), tandemName: 'imaginaryPartItem' },
-      { value: 'magnitude', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.amplitudeStringProperty ), tandemName: 'magnitudeItem' }
+
+      // For matter waves, Amplitude displays the wave function magnitude, sqrt( re^2 + im^2 ).
+      { value: 'amplitude', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.amplitudeStringProperty ), tandemName: 'amplitudeItem' }
     ];
 
     const matterWaveDisplayComboBox = new ComboBox(

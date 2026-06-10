@@ -3,9 +3,9 @@
 /**
  * Utilities for mapping wave display modes to the polarity expected by plot displays.
  *
- * Unipolar signals (magnitude, time-averaged intensity - values in [0, +infinity)) have a baseline at
- * the bottom of the chart. Bipolar signals (real part, imaginary part, electric field - values
- * in (-infinity, +infinity)) have a baseline at the vertical center.
+ * Unipolar signals (amplitude - values in [0, +infinity)) have a baseline at the bottom of the
+ * chart. Bipolar signals (real part, imaginary part, electric field - values in
+ * (-infinity, +infinity)) have a baseline at the vertical center.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -23,7 +23,7 @@ export type WaveDisplayModePolarity = 'unipolar' | 'bipolar';
  * @returns 'unipolar' for non-negative display modes, otherwise 'bipolar'
  */
 export function getDisplayModePolarity( mode: WaveDisplayMode ): WaveDisplayModePolarity {
-  return mode === 'magnitude' || mode === 'timeAveragedIntensity' ? 'unipolar' : 'bipolar';
+  return mode === 'amplitude' ? 'unipolar' : 'bipolar';
 }
 
 /**

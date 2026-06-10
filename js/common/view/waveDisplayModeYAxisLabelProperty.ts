@@ -26,10 +26,9 @@ export default function waveDisplayModeYAxisLabelProperty(
     ],
     ( mode, electricField, amplitude, realPart, imaginaryPart ) =>
       mode === 'electricField' ? electricField :
-      mode === 'magnitude' ? amplitude :
+      mode === 'amplitude' ? amplitude :
       mode === 'realPart' ? realPart :
       mode === 'imaginaryPart' ? imaginaryPart :
-      mode === 'timeAveragedIntensity' ? amplitude :
       ( () => { throw new Error( `Unrecognized displayMode: ${mode}` ); } )()
   );
 }

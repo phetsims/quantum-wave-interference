@@ -252,29 +252,7 @@ a11y:
                           { $isEmitting ->
                             [false] No beam is visible in the wave area.
                            *[true] { $waveDisplayMode ->
-                              [timeAveragedIntensity] Solid { $sourceType ->
-                                [photons] { $photonColor ->
-                                  [violet] violet
-                                  [blue] blue
-                                  [indigo] indigo
-                                  [green] green
-                                  [yellow] yellow
-                                  [orange] orange
-                                 *[red] red
-                                }
-                               *[electrons] gray
-                                [neutrons] gray
-                                [heliumAtoms] gray
-                              } wave moves toward { $slitSetting ->
-                                [noBarrier] the detector screen.
-                               *[bothOpen] slitted barrier.
-                                [leftCovered] slitted barrier.
-                                [rightCovered] slitted barrier.
-                                [leftDetector] slitted barrier.
-                                [rightDetector] slitted barrier.
-                                [bothDetectors] slitted barrier.
-                              }
-                              [magnitude] Solid { $sourceType ->
+                              [amplitude] Solid { $sourceType ->
                                 [photons] { $photonColor ->
                                   [violet] violet
                                   [blue] blue
@@ -473,21 +451,13 @@ a11y:
                           { $waveProgressStage ->
                             [sourceOff] Source is off, so no wave is traveling.
                             [travelingToSlits] { $waveDisplayMode ->
-                              [timeAveragedIntensity] Solid wave moves toward slitted barrier.
-                              [magnitude] Solid wave moves toward slitted barrier.
+                              [amplitude] Solid wave moves toward slitted barrier.
                              *[electricField] Plane wave fronts move toward slitted barrier.
                               [realPart] Plane wave fronts move toward slitted barrier.
                               [imaginaryPart] Plane wave fronts move toward slitted barrier.
                             }
                             [atSlits] { $waveDisplayMode ->
-                              [timeAveragedIntensity] { $patternKind ->
-                                [doubleSlitInterference] Solid waves emerge from each open slit and overlap.
-                                [singleSlitDiffraction] Solid wave emerges from the open slit only.
-                                [whichPathDiffraction] As detection events occur, solid waves emerge from each slit one at a time
-                                and do not interact.
-                               *[noBarrier] Solid wave moves directly toward the detector screen.
-                              }
-                              [magnitude] { $patternKind ->
+                              [amplitude] { $patternKind ->
                                 [doubleSlitInterference] Solid waves emerge from each open slit and overlap.
                                 [singleSlitDiffraction] Solid wave emerges from the open slit only.
                                 [whichPathDiffraction] As detection events occur, solid waves emerge from each slit one at a time
@@ -517,36 +487,31 @@ a11y:
                               }
                             }
                             [interferingAfterSlits] { $waveDisplayMode ->
-                              [timeAveragedIntensity] Fan-shaped ray pattern forms as overlapping solid waves add and cancel.
-                              [magnitude] Fan-shaped ray pattern forms as overlapping solid waves add and cancel.
+                              [amplitude] Fan-shaped ray pattern forms as overlapping solid waves add and cancel.
                              *[electricField] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
                               [realPart] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
                               [imaginaryPart] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
                             }
                             [diffractingAfterSlits] { $waveDisplayMode ->
-                              [timeAveragedIntensity] Solid wave spreads and moves toward detector screen.
-                              [magnitude] Solid wave spreads and moves toward detector screen.
+                              [amplitude] Solid wave spreads and moves toward detector screen.
                              *[electricField] Circular wave fronts spread and move toward detector screen.
                               [realPart] Circular wave fronts spread and move toward detector screen.
                               [imaginaryPart] Circular wave fronts spread and move toward detector screen.
                             }
                             [whichPathAfterSlits] { $waveDisplayMode ->
-                              [timeAveragedIntensity] Non-interacting solid waves spread toward detector screen one at a time.
-                              [magnitude] Non-interacting solid waves spread toward detector screen one at a time.
+                              [amplitude] Non-interacting solid waves spread toward detector screen one at a time.
                              *[electricField] Non-interacting circular wave fronts spread toward detector screen one at a time.
                               [realPart] Non-interacting circular wave fronts spread toward detector screen one at a time.
                               [imaginaryPart] Non-interacting circular wave fronts spread toward detector screen one at a time.
                             }
                             [directToScreen] { $waveDisplayMode ->
-                              [timeAveragedIntensity] Solid wave moves directly toward the detector screen.
-                              [magnitude] Solid wave moves directly toward the detector screen.
+                              [amplitude] Solid wave moves directly toward the detector screen.
                              *[electricField] Plane wave fronts move directly toward the detector screen.
                               [realPart] Plane wave fronts move directly toward the detector screen.
                               [imaginaryPart] Plane wave fronts move directly toward the detector screen.
                             }
                            *[hittingScreen] { $waveDisplayMode ->
-                              [timeAveragedIntensity] Solid wave has reached the detector screen.
-                              [magnitude] Solid wave has reached the detector screen.
+                              [amplitude] Solid wave has reached the detector screen.
                              *[electricField] Wave fronts have reached the detector screen.
                               [realPart] Wave fronts have reached the detector screen.
                               [imaginaryPart] Wave fronts have reached the detector screen.
@@ -558,10 +523,9 @@ a11y:
                            *[screen] Detector screen view is active
                           }. Wave display mode is { $waveDisplayMode ->
                             [electricField] Electric Field
-                            [timeAveragedIntensity] Amplitude
                             [realPart] Real Part
                             [imaginaryPart] Imaginary Part
-                           *[magnitude] Amplitude
+                           *[amplitude] Amplitude
                           }. Screen brightness is { $brightness } percent. Stored snapshots: { $snapshotCount }.
                           Tools shown: { $tapeMeasure ->
                             [true] tape measure
@@ -646,10 +610,9 @@ a11y:
     waveDisplayChanged:       >-
                               Wave display changed to { $waveDisplayMode ->
                                 [electricField] Electric Field.
-                                [timeAveragedIntensity] Amplitude.
                                 [realPart] Real Part.
                                 [imaginaryPart] Imaginary Part.
-                               *[magnitude] Amplitude.
+                               *[amplitude] Amplitude.
                               }
     toolChanged:              >-
                               { $tool ->
@@ -693,14 +656,7 @@ a11y:
                               { $waveProgressStage ->
                                 [sourceOff] Source is off, so no wave is traveling.
                                 [atSlits] { $waveDisplayMode ->
-                                  [timeAveragedIntensity] { $patternKind ->
-                                    [doubleSlitInterference] Solid waves emerge from each open slit and overlap.
-                                    [singleSlitDiffraction] Solid wave emerges from the open slit only.
-                                    [whichPathDiffraction] As detection events occur, solid waves emerge from each slit one at a time
-                                    and do not interact.
-                                   *[noBarrier] Solid wave moves directly toward the detector screen.
-                                  }
-                                  [magnitude] { $patternKind ->
+                                  [amplitude] { $patternKind ->
                                     [doubleSlitInterference] Solid waves emerge from each open slit and overlap.
                                     [singleSlitDiffraction] Solid wave emerges from the open slit only.
                                     [whichPathDiffraction] As detection events occur, solid waves emerge from each slit one at a time
@@ -730,36 +686,31 @@ a11y:
                                   }
                                 }
                                 [interferingAfterSlits] { $waveDisplayMode ->
-                                  [timeAveragedIntensity] Fan-shaped ray pattern forms as overlapping solid waves add and cancel.
-                                  [magnitude] Fan-shaped ray pattern forms as overlapping solid waves add and cancel.
+                                  [amplitude] Fan-shaped ray pattern forms as overlapping solid waves add and cancel.
                                  *[electricField] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
                                   [realPart] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
                                   [imaginaryPart] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
                                 }
                                 [diffractingAfterSlits] { $waveDisplayMode ->
-                                  [timeAveragedIntensity] Solid wave spreads and moves toward detector screen.
-                                  [magnitude] Solid wave spreads and moves toward detector screen.
+                                  [amplitude] Solid wave spreads and moves toward detector screen.
                                  *[electricField] Circular wave fronts spread and move toward detector screen.
                                   [realPart] Circular wave fronts spread and move toward detector screen.
                                   [imaginaryPart] Circular wave fronts spread and move toward detector screen.
                                 }
                                 [whichPathAfterSlits] { $waveDisplayMode ->
-                                  [timeAveragedIntensity] Non-interacting solid waves spread toward detector screen one at a time.
-                                  [magnitude] Non-interacting solid waves spread toward detector screen one at a time.
+                                  [amplitude] Non-interacting solid waves spread toward detector screen one at a time.
                                  *[electricField] Non-interacting circular wave fronts spread toward detector screen one at a time.
                                   [realPart] Non-interacting circular wave fronts spread toward detector screen one at a time.
                                   [imaginaryPart] Non-interacting circular wave fronts spread toward detector screen one at a time.
                                 }
                                 [directToScreen] { $waveDisplayMode ->
-                                  [timeAveragedIntensity] Solid wave moves directly toward the detector screen.
-                                  [magnitude] Solid wave moves directly toward the detector screen.
+                                  [amplitude] Solid wave moves directly toward the detector screen.
                                  *[electricField] Plane wave fronts move directly toward the detector screen.
                                   [realPart] Plane wave fronts move directly toward the detector screen.
                                   [imaginaryPart] Plane wave fronts move directly toward the detector screen.
                                 }
                                *[hittingScreen] { $waveDisplayMode ->
-                                  [timeAveragedIntensity] Solid wave reached the detector screen.
-                                  [magnitude] Solid wave reached the detector screen.
+                                  [amplitude] Solid wave reached the detector screen.
                                  *[electricField] Wave fronts reached the detector screen.
                                   [realPart] Wave fronts reached the detector screen.
                                   [imaginaryPart] Wave fronts reached the detector screen.
