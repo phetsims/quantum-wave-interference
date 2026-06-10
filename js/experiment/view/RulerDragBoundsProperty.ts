@@ -41,7 +41,7 @@ export default class RulerDragBoundsProperty {
   ) {
     this.dragBoundsProperty = new DerivedProperty(
       [ visibleBoundsProperty, sceneProperty, graphExpandedProperty ],
-      ( visibleBounds: Bounds2 ) => {
+      visibleBounds => {
         const detectorRectCenterX = detectorScreenNode.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
         const fixedLeft = detectorRectCenterX - rulerNode.width / 2 + RULER_X_OFFSET;
 
