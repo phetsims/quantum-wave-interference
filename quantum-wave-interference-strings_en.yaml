@@ -413,7 +413,7 @@ a11y:
                               [averageIntensity] { $patternFormation ->
                                 [empty] No pattern has reached the detector screen yet.
                                 [forming] { $patternKind ->
-                                  [doubleSlitInterference] Equally-spaced bright bands forming across detector screen.
+                                  [doubleSlitInterference] Evenly-spaced bright bands forming across detector screen.
                                   [singleSlitDiffraction] { $slitSetting ->
                                     [leftCovered] Wide central bright area forming on lower part of detector screen.
                                    *[rightCovered] Wide central bright area forming on upper part of detector screen.
