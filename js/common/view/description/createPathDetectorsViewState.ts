@@ -7,7 +7,7 @@
  */
 
 import { hasDetectorOnSide, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
-import { type PathDetectorsViewState } from './QWIAccessibleViewState.js';
+import { type PathDetectorsViewState } from './QuantumWaveInterferenceAccessibleViewState.js';
 
 /**
  * Groups path-detector visibility and counts by detector side. When no path detectors are present, the returned

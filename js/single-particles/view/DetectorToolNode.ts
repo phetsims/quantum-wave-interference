@@ -34,7 +34,7 @@ import Panel from '../../../../sun/js/Panel.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import { type DetectorToolViewStateFragment } from '../../common/view/description/QWIAccessibleViewState.js';
+import { type DetectorToolViewStateFragment } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import CurrentDetectorTool from '../model/CurrentDetectorTool.js';
 

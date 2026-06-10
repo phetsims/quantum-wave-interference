@@ -1,8 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * QWI-owned accessible view-state contracts for authored agent-facing snapshots. These types intentionally live in
- * the sim instead of Scenery because the snapshot shape is a semantic QWI contract, not a generic Node API.
+ * Quantum Wave Interference-owned accessible view-state contracts for authored agent-facing snapshots. These types intentionally live in
+ * the sim instead of Scenery because the snapshot shape is a semantic Quantum Wave Interference contract, not a generic Node API.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

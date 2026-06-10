@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Standalone context-response Node for High Intensity. It compares QWIAccessibleState before and after model changes
+ * Standalone context-response Node for High Intensity. It compares QuantumWaveInterferenceAccessibleState before and after model changes
  * so responses describe the meaning of the transition, not only the control value.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -10,7 +10,7 @@
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import { type HighIntensityAccessibleViewState } from './HighIntensityAccessibleViewState.js';
-import QWITransitionDescriber, { type QWIResponsePlan, type QWITransitionAction } from './QWITransitionDescriber.js';
+import QuantumWaveInterferenceTransitionDescriber, { type QuantumWaveInterferenceResponsePlan, type QuantumWaveInterferenceTransitionAction } from './QuantumWaveInterferenceTransitionDescriber.js';
 
 export default class HighIntensityAccessibleResponses extends Node {
 
@@ -28,7 +28,7 @@ export default class HighIntensityAccessibleResponses extends Node {
     this.lastContextResponse = null;
     this.isClearingFromButton = false;
 
-    const emitTransition = ( action: QWITransitionAction ) => {
+    const emitTransition = ( action: QuantumWaveInterferenceTransitionAction ) => {
       if ( this.isClearingFromButton ) {
         return;
       }
@@ -38,7 +38,7 @@ export default class HighIntensityAccessibleResponses extends Node {
 
       // Scene changes can also notify DynamicProperties such as wavelength or slit separation. If the semantic
       // source type changed, report the scene change once and silence subsequent no-op notifications.
-      const effectiveAction: QWITransitionAction = before.sourceType !== after.sourceType && action.type !== 'particleTypeChanged' ?
+      const effectiveAction: QuantumWaveInterferenceTransitionAction = before.sourceType !== after.sourceType && action.type !== 'particleTypeChanged' ?
         { type: 'particleTypeChanged' } :
                                                    action;
 
@@ -83,7 +83,7 @@ export default class HighIntensityAccessibleResponses extends Node {
         return;
       }
 
-      const responsePlan = QWITransitionDescriber.describe( effectiveAction, before, after );
+      const responsePlan = QuantumWaveInterferenceTransitionDescriber.describe( effectiveAction, before, after );
       this.previousState = after;
       this.emitResponsePlan( responsePlan, effectiveAction );
     };
@@ -158,7 +158,7 @@ export default class HighIntensityAccessibleResponses extends Node {
    * @param responsePlan - ordered responses and optional response group from the transition describer
    * @param effectiveAction - semantic action that produced this response plan
    */
-  private emitResponsePlan( responsePlan: QWIResponsePlan, effectiveAction: QWITransitionAction ): void {
+  private emitResponsePlan( responsePlan: QuantumWaveInterferenceResponsePlan, effectiveAction: QuantumWaveInterferenceTransitionAction ): void {
     responsePlan.contextResponses.forEach( ( contextResponse, index ) => {
       if ( effectiveAction.type === 'waveProgressChanged' && contextResponse === this.lastContextResponse ) {
         return;
@@ -193,7 +193,7 @@ export default class HighIntensityAccessibleResponses extends Node {
     }
 
     const after = this.getAccessibleViewState();
-    const responsePlan = QWITransitionDescriber.describe( { type: 'screenCleared' }, before, after );
+    const responsePlan = QuantumWaveInterferenceTransitionDescriber.describe( { type: 'screenCleared' }, before, after );
     this.previousState = after;
     this.emitResponsePlan( responsePlan, { type: 'screenCleared' } );
   }

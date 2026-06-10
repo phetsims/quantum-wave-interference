@@ -7,10 +7,10 @@
  */
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { type HighIntensityAccessibleViewState, type QWIValueTrend } from './HighIntensityAccessibleViewState.js';
-import { formatDetectorDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
+import { type HighIntensityAccessibleViewState, type QuantumWaveInterferenceValueTrend } from './HighIntensityAccessibleViewState.js';
+import { formatDetectorDescription, formatSourceBeamDescription, toFluentBoolean } from './QuantumWaveInterferenceAccessibleStateFormatters.js';
 
-export type QWITransitionAction =
+export type QuantumWaveInterferenceTransitionAction =
   { type: 'sourceChanged' } |
   { type: 'particleTypeChanged' } |
   { type: 'detectionModeChanged' } |
@@ -31,7 +31,7 @@ export type QWITransitionAction =
   { type: 'maxHitsReached' } |
   { type: 'reset' };
 
-export type QWIResponsePlan = {
+export type QuantumWaveInterferenceResponsePlan = {
   contextResponses: string[];
   responseGroup: string | null;
   flushBeforeResponses: boolean;
@@ -39,20 +39,20 @@ export type QWIResponsePlan = {
 
 const VALUE_TOLERANCE = 1e-8;
 
-const getTrend = ( before: number, after: number ): QWIValueTrend =>
+const getTrend = ( before: number, after: number ): QuantumWaveInterferenceValueTrend =>
   Math.abs( before - after ) < VALUE_TOLERANCE ? 'unchanged' :
   after > before ? 'increased' :
   'decreased';
 
-export default class QWITransitionDescriber {
+export default class QuantumWaveInterferenceTransitionDescriber {
 
   public static describe(
-    action: QWITransitionAction,
+    action: QuantumWaveInterferenceTransitionAction,
     before: HighIntensityAccessibleViewState,
     after: HighIntensityAccessibleViewState
-  ): QWIResponsePlan {
+  ): QuantumWaveInterferenceResponsePlan {
     let contextResponses: string[] = [];
-    let responseGroup: string | null = 'qwi-high-intensity-transition';
+    let responseGroup: string | null = 'quantum-wave-interference-high-intensity-transition';
     let flushBeforeResponses = false;
     const advancingWaveResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.format( {
       beamDescription: formatSourceBeamDescription( after )

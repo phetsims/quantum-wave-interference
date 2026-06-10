@@ -27,7 +27,7 @@ import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import createDetectorZoomLevelResponseProperty from '../../common/view/description/createDetectorZoomLevelResponseProperty.js';
-import { type DetectorScreenViewStateFragment } from '../../common/view/description/QWIAccessibleViewState.js';
+import { type DetectorScreenViewStateFragment } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import SnapshotDescriber from '../../common/view/description/SnapshotDescriber.js';
 import SnapshotButton from '../../common/view/SnapshotButton.js';
 import SnapshotIndicatorDotsNode from '../../common/view/SnapshotIndicatorDotsNode.js';

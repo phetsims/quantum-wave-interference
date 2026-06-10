@@ -32,7 +32,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
-import { type MeasurementToolsViewStateFragment } from './description/QWIAccessibleViewState.js';
+import { type MeasurementToolsViewStateFragment } from './description/QuantumWaveInterferenceAccessibleViewState.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import PositionPlotNode from './PositionPlotNode.js';
 import TimePlotNode from './TimePlotNode.js';

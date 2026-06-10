@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Shared string formatters for QWIAccessibleState. These keep dynamic state descriptions and context responses
+ * Shared string formatters for QuantumWaveInterferenceAccessibleState. These keep dynamic state descriptions and context responses
  * aligned when they describe the same semantic state.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -11,13 +11,13 @@ import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometer
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 import { getWavelengthColorZoneStringProperty } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { type HighIntensitySemanticAccessibleViewState, type QWIPatternFormation, type QWIPatternKind } from './HighIntensityAccessibleViewState.js';
+import { type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind } from './HighIntensityAccessibleViewState.js';
 
 export type FluentBoolean = 'true' | 'false';
 
 export const toFluentBoolean = ( value: boolean ): FluentBoolean => value ? 'true' : 'false';
 
-const getPatternKindKey = ( patternKind: QWIPatternKind ): QWIPatternKind => patternKind;
+const getPatternKindKey = ( patternKind: QuantumWaveInterferencePatternKind ): QuantumWaveInterferencePatternKind => patternKind;
 
 type SingleSlitLocationKey = 'leftCovered' | 'rightCovered';
 
@@ -61,7 +61,7 @@ export const formatSlitDescription = ( state: HighIntensitySemanticAccessibleVie
 
 export const formatDetectorDescription = (
   state: HighIntensitySemanticAccessibleViewState,
-  patternFormation: QWIPatternFormation = state.patternFormation
+  patternFormation: QuantumWaveInterferencePatternFormation = state.patternFormation
 ): string =>
   QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.format( {
     isEmitting: toFluentBoolean( state.isEmitting ),

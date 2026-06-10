@@ -13,11 +13,11 @@ import { type AccessibleListItem } from '../../../../../scenery-phet/js/accessib
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../../model/HighIntensitySceneModel.js';
-import { type HighIntensityAccessibleViewState, type QWIPatternFormation, type QWIWaveProgressStage } from './HighIntensityAccessibleViewState.js';
-import { formatDetectorDescription, formatSourceBeamDescription } from './QWIAccessibleStateFormatters.js';
-import QWIAccessibleStateTemplate from './QWIAccessibleStateTemplate.js';
+import { type HighIntensityAccessibleViewState, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferenceWaveProgressStage } from './HighIntensityAccessibleViewState.js';
+import { formatDetectorDescription, formatSourceBeamDescription } from './QuantumWaveInterferenceAccessibleStateFormatters.js';
+import QuantumWaveInterferenceAccessibleStateTemplate from './QuantumWaveInterferenceAccessibleStateTemplate.js';
 
-type SequenceWaveProgressStage = Exclude<QWIWaveProgressStage, 'sourceOff' | 'travelingToSlits'>;
+type SequenceWaveProgressStage = Exclude<QuantumWaveInterferenceWaveProgressStage, 'sourceOff' | 'travelingToSlits'>;
 
 type SequenceItem = {
   stringProperty: TReadOnlyProperty<string>;
@@ -25,7 +25,7 @@ type SequenceItem = {
 };
 
 const createDependencies = ( model: HighIntensityModel ): TReadOnlyProperty<unknown>[] => Array.from( new Set( [
-  ...QWIAccessibleStateTemplate.createDependencies( model ),
+  ...QuantumWaveInterferenceAccessibleStateTemplate.createDependencies( model ),
   ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.getDependentProperties(),
   ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.getDependentProperties(),
   ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.getDependentProperties()
@@ -92,7 +92,7 @@ const getAfterSlitsStage = ( state: HighIntensityAccessibleViewState ): Sequence
 
 const formatDetectorPattern = (
   state: HighIntensityAccessibleViewState,
-  patternFormation: QWIPatternFormation
+  patternFormation: QuantumWaveInterferencePatternFormation
 ): string => formatDetectorDescription( state, patternFormation );
 
 const getDetectorPatternFormationFactor = ( model: HighIntensityModel ): number =>

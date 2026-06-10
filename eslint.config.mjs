@@ -17,5 +17,21 @@ export default [
     rules: {
       'phet/require-fluent': 'error'
     }
+  },
+  {
+    files: [ '**/*.ts' ],
+    rules: {
+      'phet/additional-bad-text': [
+        'error',
+        {
+          forbiddenTextObjects: [
+
+            // Spell out the full sim name in identifiers, comments, and strings rather than abbreviating it,
+            // e.g. QuantumWaveInterferenceTransitionDescriber, not QWITransitionDescriber.
+            { id: 'Use QuantumWaveInterference, not the abbreviation QWI', regex: /qwi/i }
+          ]
+        }
+      ]
+    }
   }
 ];

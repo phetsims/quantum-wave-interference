@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Renders QWIAccessibleState as one non-interactive accessibleTemplate section for the High Intensity screen.
+ * Renders QuantumWaveInterferenceAccessibleState as one non-interactive accessibleTemplate section for the High Intensity screen.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -15,9 +15,9 @@ import { WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from '../../../common/view/Wa
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import { type HighIntensityAccessibleViewState } from './HighIntensityAccessibleViewState.js';
-import { formatDetectorDescription, formatParticleDescription, formatSlitDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
+import { formatDetectorDescription, formatParticleDescription, formatSlitDescription, formatSourceBeamDescription, toFluentBoolean } from './QuantumWaveInterferenceAccessibleStateFormatters.js';
 
-export default class QWIAccessibleStateTemplate {
+export default class QuantumWaveInterferenceAccessibleStateTemplate {
 
   /**
    * Creates the Property dependency list for derived descriptions that read the full High Intensity accessible state.

@@ -37,7 +37,7 @@ import { type BarrierType } from '../model/BarrierType.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type SlitBarrierViewStateFragment } from './description/QWIAccessibleViewState.js';
+import { type SlitBarrierViewStateFragment } from './description/QuantumWaveInterferenceAccessibleViewState.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import SlitDetectorNode from './SlitDetectorNode.js';
 

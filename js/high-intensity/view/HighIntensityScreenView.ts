@@ -57,7 +57,7 @@ import HighIntensityModel from '../model/HighIntensityModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
-import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QWIClockSpeedDescription, type QWIPatternFormation, type QWIPatternKind, type QWIWaveProgressCheckpoint, type QWIWaveProgressStage, type QWIWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferenceClockSpeedDescription, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind, type QuantumWaveInterferenceWaveProgressCheckpoint, type QuantumWaveInterferenceWaveProgressStage, type QuantumWaveInterferenceWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
 import HighIntensityExperimentSetupSequenceItems from './description/HighIntensityExperimentSetupSequenceItems.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
@@ -105,13 +105,13 @@ const WAVE_REGION_Y_OFFSET = -30;
 // mini-symbol and the top of the main wave region.
 const CALLOUT_GAP = 55;
 
-const getPatternKind = ( slitConfiguration: SlitConfigurationWithNoBarrier ): QWIPatternKind =>
+const getPatternKind = ( slitConfiguration: SlitConfigurationWithNoBarrier ): QuantumWaveInterferencePatternKind =>
   slitConfiguration === 'noBarrier' ? 'noBarrier' :
   showsDoubleSlitInterferencePattern( slitConfiguration ) ? 'doubleSlitInterference' :
   ( slitConfiguration === 'leftDetector' || slitConfiguration === 'rightDetector' || slitConfiguration === 'bothDetectors' ) ? 'whichPathDiffraction' :
   'singleSlitDiffraction';
 
-const getPatternFormation = ( scene: HighIntensitySceneModel, model: HighIntensityModel ): QWIPatternFormation => {
+const getPatternFormation = ( scene: HighIntensitySceneModel, model: HighIntensityModel ): QuantumWaveInterferencePatternFormation => {
   if ( scene.detectionModeProperty.value === 'hits' ) {
     return scene.totalHitsProperty.value > 0 ? 'collectingHits' :
            scene.isEmittingProperty.value ? 'collectingHits' :
@@ -132,7 +132,7 @@ const getPatternFormation = ( scene: HighIntensitySceneModel, model: HighIntensi
          'empty';
 };
 
-const getClockSpeedDescription = ( model: HighIntensityModel ): QWIClockSpeedDescription => {
+const getClockSpeedDescription = ( model: HighIntensityModel ): QuantumWaveInterferenceClockSpeedDescription => {
   const timeSpeed = model.timeSpeedProperty.value;
   return timeSpeed === TimeSpeed.SLOW ? 'slow' :
          timeSpeed === TimeSpeed.NORMAL ? 'normal' :
@@ -140,7 +140,7 @@ const getClockSpeedDescription = ( model: HighIntensityModel ): QWIClockSpeedDes
          ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
 };
 
-const getWaveSpeedDescription = ( scene: HighIntensitySceneModel ): QWIWaveSpeedDescription => {
+const getWaveSpeedDescription = ( scene: HighIntensitySceneModel ): QuantumWaveInterferenceWaveSpeedDescription => {
   if ( scene.sourceType === 'photons' ) {
     return 'fast';
   }
@@ -154,7 +154,7 @@ const getWaveSpeedDescription = ( scene: HighIntensitySceneModel ): QWIWaveSpeed
 
 const getWaveProgress = (
   scene: HighIntensitySceneModel,
-  patternKind: QWIPatternKind
+  patternKind: QuantumWaveInterferencePatternKind
 ): HighIntensitySemanticAccessibleViewState['waveProgress'] => {
   if ( !scene.isEmittingProperty.value ) {
     return {
@@ -182,13 +182,13 @@ const getWaveProgress = (
   const hasReachedSlits = wavefrontFraction >= slitFraction;
   const hasPassedSlits = wavefrontFraction > slitFraction + slitWindow;
   const hasReachedScreen = wavefrontFraction >= 1;
-  const checkpoint: QWIWaveProgressCheckpoint =
+  const checkpoint: QuantumWaveInterferenceWaveProgressCheckpoint =
     hasReachedScreen ? 'full' :
     wavefrontFraction >= 0.75 ? 'threeQuarters' :
     wavefrontFraction >= 0.5 ? 'half' :
     wavefrontFraction >= 0.25 ? 'quarter' :
     'none';
-  const stage: QWIWaveProgressStage =
+  const stage: QuantumWaveInterferenceWaveProgressStage =
     hasReachedScreen ? 'hittingScreen' :
     patternKind === 'noBarrier' ? 'directToScreen' :
     Math.abs( wavefrontFraction - slitFraction ) <= slitWindow ? 'atSlits' :

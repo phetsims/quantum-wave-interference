@@ -2,7 +2,7 @@
 
 /**
  * QuantumWaveInterferenceToggleNode displays the scene-specific Node that corresponds to the active scene.
- * It is a simulation-specific wrapper for QWI's common pattern of keeping parallel arrays of scene models and
+ * It is a simulation-specific wrapper for Quantum Wave Interference's common pattern of keeping parallel arrays of scene models and
  * scene-specific Nodes. Inactive scene Nodes are excluded from the scene graph, while this container keeps bounds based
  * on the maximum width and height of all scene Nodes.
  *

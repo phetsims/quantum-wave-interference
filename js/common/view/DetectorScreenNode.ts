@@ -18,7 +18,7 @@ import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
-import { type DetectorScreenViewState, type DetectorScreenViewStateFragment } from './description/QWIAccessibleViewState.js';
+import { type DetectorScreenViewState, type DetectorScreenViewStateFragment } from './description/QuantumWaveInterferenceAccessibleViewState.js';
 import DetectorScreenTextureRenderer, { type DetectorScreenSceneLike } from './DetectorScreenTextureRenderer.js';
 import SnapshotFlashController from './SnapshotFlashController.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';

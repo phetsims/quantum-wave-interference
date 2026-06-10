@@ -25,7 +25,7 @@ import createStandardToolCheckboxes from '../../common/view/createStandardToolCh
 import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
-import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorToolViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QWIAccessibleViewState.js';
+import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorToolViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
 import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';

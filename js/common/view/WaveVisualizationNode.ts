@@ -25,7 +25,7 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type WaveVisualizationViewStateFragment } from './description/QWIAccessibleViewState.js';
+import { type WaveVisualizationViewStateFragment } from './description/QuantumWaveInterferenceAccessibleViewState.js';
 import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
 
 type SelfOptions = EmptySelfOptions;

@@ -14,7 +14,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
-import { type DetectorPatternGraphViewStateFragment } from './description/QWIAccessibleViewState.js';
+import { type DetectorPatternGraphViewStateFragment } from './description/QuantumWaveInterferenceAccessibleViewState.js';
 import DetectorPatternGraphNode, { type DetectorPatternGraphSceneLike } from './DetectorPatternGraphNode.js';
 import { type DetectorPatternGraphZoomLevelOption } from './DetectorPatternGraphZoomLevelProperty.js';
 
