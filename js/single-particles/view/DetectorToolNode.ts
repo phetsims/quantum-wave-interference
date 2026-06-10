@@ -100,7 +100,9 @@ export default class DetectorToolNode extends Node {
     } );
 
     const probabilityText = new Text( '', {
-      font: LABEL_FONT,
+
+      // 20% larger than LABEL_FONT for better readability of the percentage readout
+      font: new PhetFont( 14.4 ),
       fill: 'white',
       maxWidth: 60,
       pickable: false
