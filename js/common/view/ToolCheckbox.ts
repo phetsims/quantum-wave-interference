@@ -24,19 +24,27 @@ const CHECKBOX_LABEL_SPACING = 6;
 
 export default class ToolCheckbox extends Checkbox {
 
+  /**
+   * @param property - whether the tool is visible, toggled by this checkbox
+   * @param stringProperty - the checkbox label
+   * @param tandem
+   * @param accessibleHelpText - screen reader help text describing what the tool is for
+   * @param visibleProperty - controls whether this checkbox itself is shown, e.g., a GatedVisibleProperty when the
+   *                          tool is only available in certain configurations
+   */
   public constructor(
     property: BooleanProperty,
     stringProperty: TReadOnlyProperty<string>,
     tandem: Tandem,
-    accessibleHelpText?: TReadOnlyProperty<string>
+    accessibleHelpText?: TReadOnlyProperty<string>,
+    visibleProperty?: TReadOnlyProperty<boolean>
   ) {
     const labelMaxWidth = QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH -
                           CHECKBOX_LAYOUT_BOX_WIDTH -
                           CHECKBOX_LABEL_SPACING;
     const label = new Text( stringProperty, {
       font: LABEL_FONT,
-      maxWidth: labelMaxWidth,
-      layoutOptions: { grow: 1 }
+      maxWidth: labelMaxWidth
     } );
 
     super( property, label, {
@@ -47,6 +55,7 @@ export default class ToolCheckbox extends Checkbox {
       mouseAreaXDilation: 5,
       mouseAreaYDilation: 4,
       accessibleHelpText: accessibleHelpText,
+      visibleProperty: visibleProperty,
       layoutOptions: { stretch: true },
       tandem: tandem
     } );

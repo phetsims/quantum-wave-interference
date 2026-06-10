@@ -861,6 +861,8 @@ a11y:
     accessibleHelpText: Use added time plot to graph wave value at position over time.
   positionPlotCheckbox:
     accessibleHelpText: Use added position plot to graph wave value across positions in wave area.
+  detectorCheckbox:
+    accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
   slitSeparationSlider:
     accessibleHelpText: >-
                         { $unit ->

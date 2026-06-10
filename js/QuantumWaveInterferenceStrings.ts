@@ -183,6 +183,9 @@ type StringsType = {
     'positionPlotCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
+    'detectorCheckbox': {
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'slitSeparationSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };

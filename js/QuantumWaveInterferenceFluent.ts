@@ -156,6 +156,7 @@ addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseChecked', 'a
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', 'a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty' );
 addToMapIfDefined( 'a11y_timePlotCheckbox_accessibleHelpText', 'a11y.timePlotCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_positionPlotCheckbox_accessibleHelpText', 'a11y.positionPlotCheckbox.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_detectorCheckbox_accessibleHelpText', 'a11y.detectorCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitSeparationSlider_accessibleHelpText', 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitPositionSlider_accessibleName', 'a11y.slitPositionSlider.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_slitPositionSlider_accessibleHelpText', 'a11y.slitPositionSlider.accessibleHelpTextStringProperty' );
@@ -440,6 +441,9 @@ const QuantumWaveInterferenceFluent = {
     },
     positionPlotCheckbox: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_positionPlotCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlotCheckbox.accessibleHelpTextStringProperty' ) )
+    },
+    detectorCheckbox: {
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorCheckbox.accessibleHelpTextStringProperty' ) )
     },
     slitSeparationSlider: {
       accessibleHelpText: new FluentPattern<{ unit: 'millimeters' | 'nanometers' | 'micrometers' | TReadOnlyProperty<'millimeters' | 'nanometers' | 'micrometers'> }>( fluentSupport.bundleProperty, 'a11y_slitSeparationSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' ), [{"name":"unit","variants":["millimeters","nanometers","micrometers"]}] )

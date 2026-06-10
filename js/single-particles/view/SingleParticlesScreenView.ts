@@ -7,6 +7,7 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
@@ -298,16 +299,15 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const { tapeMeasureCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
       createStandardToolCheckboxes( model, tandem );
+    // Detector checkbox is only shown when barrier is None; its checked state is preserved in the model.
+    const detectorCheckboxTandem = tandem.createTandem( 'detectorCheckbox' );
     const detectorCheckbox = new ToolCheckbox(
       model.currentDetectorTool.isVisibleProperty,
       QuantumWaveInterferenceFluent.detectorProbeStringProperty,
-      tandem.createTandem( 'detectorCheckbox' )
+      detectorCheckboxTandem,
+      QuantumWaveInterferenceFluent.a11y.detectorCheckbox.accessibleHelpTextStringProperty,
+      new GatedVisibleProperty( model.currentDetectorTool.isAvailableProperty, detectorCheckboxTandem )
     );
-
-    // Detector checkbox is only shown when barrier is None; its checked state is preserved in the model.
-    model.currentDetectorTool.isAvailableProperty.link( isAvailable => {
-      detectorCheckbox.visible = isAvailable;
-    } );
 
     const detectorScreenControls = new DetectorScreenControls( model, this, tandem, {
       screenGraphVisibleProperty: model.isHitsGraphVisibleProperty,

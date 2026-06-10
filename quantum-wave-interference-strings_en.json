@@ -426,6 +426,11 @@
         "value": "Use added position plot to graph wave value across positions in wave area."
       }
     },
+    "detectorCheckbox": {
+      "accessibleHelpText": {
+        "value": "Use added detector probe to measure probability of detecting particle in circular region of wave area."
+      }
+    },
     "slitSeparationSlider": {
       "accessibleHelpText": {
         "value": "{ $unit ->\n  [millimeters] Change distance between centers of slits in barrier in millimeters.\n  [nanometers] Change distance between centers of slits in barrier in nanometers.\n *[micrometers] Change distance between centers of slits in barrier in micrometers.\n}"
