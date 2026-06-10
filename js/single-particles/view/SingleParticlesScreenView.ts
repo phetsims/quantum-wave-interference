@@ -23,7 +23,6 @@ import createAndAddSlitConfigurationControlsRow from '../../common/view/createAn
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
-import { getWavePeakSpacingCategory } from '../../common/view/description/getWavePeakSpacingCategory.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorToolViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QWIAccessibleViewState.js';
@@ -41,7 +40,6 @@ import SourceControlPanel from '../../common/view/SourceControlPanel.js';
 import stepDetectorScreenViewNodes from '../../common/view/stepDetectorScreenViewNodes.js';
 import TimePlotNode from '../../common/view/TimePlotNode.js';
 import ToolCheckbox from '../../common/view/ToolCheckbox.js';
-import { getWavelengthColorZone } from '../../common/view/WavelengthColorUtils.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -245,27 +243,13 @@ export default class SingleParticlesScreenView extends ScreenView {
     const slitConfigurationContextResponseProperty = new DerivedProperty(
       [
         model.currentIsEmittingProperty,
-        model.currentSlitConfigurationProperty,
-        model.sceneProperty,
-        model.currentWavelengthProperty,
-        model.currentParticleSpeedProperty
+        model.currentSlitConfigurationProperty
       ],
-      ( isEmitting, slitConfiguration, scene ) => {
-        const sourceRestartedResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestarted.format( {
-          beamDescription: QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceBeam.format( {
-            isEmitting: isEmitting ? 'true' : 'false',
-            sourceType: scene.sourceType,
-            photonColor: scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : 'red',
-            wavefrontSpacing: getWavePeakSpacingCategory( scene ),
-            waveDisplayMode: 'electricField',
-            slitSetting: slitConfiguration
-          } )
-        } );
-
+      ( isEmitting, slitConfiguration ) => {
         return QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
           isEmitting: isEmitting ? 'true' : 'false',
           slitSetting: slitConfiguration,
-          sourceRestartedResponse: sourceRestartedResponse
+          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
         } );
       }
     );

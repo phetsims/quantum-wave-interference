@@ -139,6 +139,7 @@ export default class DoubleSlitNode extends Node {
     slitPositionFractionProperty: TProperty<number>,
     slitSeparationProperty: TReadOnlyProperty<number>,
     slitSeparationRangeProperty: TReadOnlyProperty<Range>,
+    currentIsEmittingProperty: TReadOnlyProperty<boolean>,
     providedOptions: DoubleSlitNodeOptions
   ) {
 
@@ -243,10 +244,11 @@ export default class DoubleSlitNode extends Node {
           value: getSlitPositionAccessibleDistance( sceneProperty.value.regionWidth, value )
         } );
       },
-      createContextResponseAlert: ( value, _newValue, valueOnStart ) =>
-        getSlitPositionContextResponse( sceneProperty.value.regionWidth, value, valueOnStart ),
+      createContextResponseAlert: ( value, _newValue, valueOnStart ) => currentIsEmittingProperty.value ? null :
+                                                                       getSlitPositionContextResponse( sceneProperty.value.regionWidth, value, valueOnStart ),
       descriptionDependencies: Array.from( new Set( [
         sceneProperty,
+        currentIsEmittingProperty,
         ...micrometersUnit.getDependentProperties(),
         ...nanometersUnit.getDependentProperties(),
         ...QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleValue.getDependentProperties()

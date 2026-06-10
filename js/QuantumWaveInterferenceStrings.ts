@@ -127,6 +127,7 @@ type StringsType = {
     'highIntensityResponses': {
       'sourceStartedStringProperty': LocalizedStringProperty;
       'sourceRestartedStringProperty': LocalizedStringProperty;
+      'advancingWaveStringProperty': LocalizedStringProperty;
       'sourceStoppedStringProperty': LocalizedStringProperty;
       'particleTypeChangedStringProperty': LocalizedStringProperty;
       'detectionModeChangedStringProperty': LocalizedStringProperty;

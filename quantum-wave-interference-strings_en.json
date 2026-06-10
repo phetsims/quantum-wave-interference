@@ -287,10 +287,13 @@
     },
     "highIntensityResponses": {
       "sourceStarted": {
-        "value": "{ $isPlaying ->\n  [false] Source started. Sim is paused.\n *[true] Source started on { $timeSpeed } speed. { $beamDescription }\n}"
+        "value": "{ $isPlaying ->\n  [false] Source started. Sim is paused.\n *[true] Source started on { $timeSpeed } speed.\n}"
       },
       "sourceRestarted": {
-        "value": "Source restarted. { $beamDescription }"
+        "value": "Source restarted."
+      },
+      "advancingWave": {
+        "value": "{ $beamDescription }"
       },
       "sourceStopped": {
         "value": "Source stopped. Wave display clears. { $detectionMode ->\n  [hits] Hits remain.\n *[averageIntensity] Intensity pattern cleared.\n}"
@@ -326,7 +329,7 @@
         "value": "{ $tool ->\n  [tapeMeasure] Tape measure\n  [stopwatch] Stopwatch\n  [timePlot] Time plot\n *[positionPlot] Position plot\n} { $isVisible ->\n  [true] shown.\n *[false] hidden.\n}"
       },
       "screenCleared": {
-        "value": "{ $isRestarting ->\n  [true] Wave area cleared. { $sourceRestartedResponse }\n *[false] Wave area cleared. Sim still paused.\n}"
+        "value": "{ $isRestarting ->\n  [true] { $sourceRestartedResponse }\n *[false] Wave area cleared. Sim still paused.\n}"
       },
       "hitStageChanged": {
         "value": "Hits pattern is now { $hitStage ->\n  [none] empty.\n  [few] showing individual scattered hits.\n  [emerging] { $patternKind ->\n    [noBarrier] showing evenly scattered hits.\n   *[doubleSlitInterference] forming faint bands.\n    [singleSlitDiffraction] showing a broad central area.\n    [whichPathDiffraction] showing a broad central area.\n  }\n  [developing] { $patternKind ->\n    [noBarrier] showing evenly scattered hits.\n   *[doubleSlitInterference] forming evenly spaced bands.\n    [singleSlitDiffraction] showing a broad central area.\n    [whichPathDiffraction] showing a broad central area.\n  }\n *[clear] { $patternKind ->\n    [noBarrier] showing evenly scattered hits.\n   *[doubleSlitInterference] showing evenly spaced bands.\n    [singleSlitDiffraction] showing a broad central area.\n    [whichPathDiffraction] showing a broad central area.\n  }\n}"

@@ -27,6 +27,7 @@ type SequenceItem = {
 const createDependencies = ( model: HighIntensityModel ): TReadOnlyProperty<unknown>[] => Array.from( new Set( [
   ...QWIAccessibleStateTemplate.createDependencies( model ),
   ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.getDependentProperties(),
+  ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.getDependentProperties(),
   ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.getDependentProperties()
 ] ) );
 
@@ -61,7 +62,11 @@ const createItem = (
 const formatSourceStarted = ( state: HighIntensityAccessibleViewState ): string =>
   QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
     isPlaying: state.isPlaying ? 'true' : 'false',
-    timeSpeed: state.clockSpeedDescription,
+    timeSpeed: state.clockSpeedDescription
+  } );
+
+const formatAdvancingWave = ( state: HighIntensityAccessibleViewState ): string =>
+  QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.format( {
     beamDescription: formatSourceBeamDescription( state )
   } );
 
@@ -110,6 +115,12 @@ export default function HighIntensityExperimentSetupSequenceItems(
       getAccessibleViewState,
       state => formatSourceStarted( state ),
       state => state.isEmitting
+    ),
+    createItem(
+      model,
+      getAccessibleViewState,
+      state => formatAdvancingWave( state ),
+      state => state.isEmitting && state.isPlaying
     ),
     createItem(
       model,

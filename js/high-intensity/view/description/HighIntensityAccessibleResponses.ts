@@ -10,7 +10,7 @@
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
 import { type HighIntensityAccessibleViewState } from './HighIntensityAccessibleViewState.js';
-import QWITransitionDescriber, { type QWITransitionAction } from './QWITransitionDescriber.js';
+import QWITransitionDescriber, { type QWIResponsePlan, type QWITransitionAction } from './QWITransitionDescriber.js';
 
 export default class HighIntensityAccessibleResponses extends Node {
 
@@ -59,6 +59,7 @@ export default class HighIntensityAccessibleResponses extends Node {
         effectiveAction.type === 'detectionModeChanged' ? before.detectionMode !== after.detectionMode :
         effectiveAction.type === 'slitConfigurationChanged' ? before.slitConfiguration !== after.slitConfiguration :
         effectiveAction.type === 'slitSeparationChanged' ? before.slitSeparationMicrometers !== after.slitSeparationMicrometers :
+        effectiveAction.type === 'slitPositionChanged' ? before.slitBarrier.slitPositionFraction !== after.slitBarrier.slitPositionFraction :
         effectiveAction.type === 'wavelengthChanged' ? before.wavelengthNM !== after.wavelengthNM ||
                                                        before.effectiveWavelengthPicometers !== after.effectiveWavelengthPicometers :
         effectiveAction.type === 'speedChanged' ? before.particleSpeedMetersPerSecond !== after.particleSpeedMetersPerSecond :
@@ -84,17 +85,7 @@ export default class HighIntensityAccessibleResponses extends Node {
 
       const responsePlan = QWITransitionDescriber.describe( effectiveAction, before, after );
       this.previousState = after;
-
-      if ( responsePlan.contextResponse ) {
-        if ( effectiveAction.type === 'waveProgressChanged' && responsePlan.contextResponse === this.lastContextResponse ) {
-          return;
-        }
-
-        this.lastContextResponse = responsePlan.contextResponse;
-        this.addAccessibleContextResponse( responsePlan.contextResponse, {
-          responseGroup: responsePlan.responseGroup
-        } );
-      }
+      this.emitResponsePlan( responsePlan, effectiveAction );
     };
 
     const updateStateSilently = () => {
@@ -106,6 +97,7 @@ export default class HighIntensityAccessibleResponses extends Node {
     model.currentDetectionModeProperty.lazyLink( () => emitTransition( { type: 'detectionModeChanged' } ) );
     model.currentSlitConfigurationProperty.lazyLink( () => emitTransition( { type: 'slitConfigurationChanged' } ) );
     model.currentSlitSeparationProperty.lazyLink( () => emitTransition( { type: 'slitSeparationChanged' } ) );
+    model.currentSlitPositionFractionProperty.lazyLink( () => emitTransition( { type: 'slitPositionChanged' } ) );
     model.currentWavelengthProperty.lazyLink( () => emitTransition( { type: 'wavelengthChanged' } ) );
     model.currentParticleSpeedProperty.lazyLink( () => emitTransition( { type: 'speedChanged' } ) );
     model.isIntensityGraphVisibleProperty.lazyLink( () => emitTransition( { type: 'displayModeChanged' } ) );
@@ -157,6 +149,38 @@ export default class HighIntensityAccessibleResponses extends Node {
     } );
   }
 
+  /**
+   * Emits the ordered context responses from a transition plan. Some transitions split source-event and wave-detail
+   * information into separate alerts, while single progress updates still use their response group to self-interrupt.
+   * Fresh source starts/restarts flush stale queued information before the first response, then queue the follow-up
+   * wave description normally.
+   *
+   * @param responsePlan - ordered responses and optional response group from the transition describer
+   * @param effectiveAction - semantic action that produced this response plan
+   */
+  private emitResponsePlan( responsePlan: QWIResponsePlan, effectiveAction: QWITransitionAction ): void {
+    responsePlan.contextResponses.forEach( ( contextResponse, index ) => {
+      if ( effectiveAction.type === 'waveProgressChanged' && contextResponse === this.lastContextResponse ) {
+        return;
+      }
+
+      this.lastContextResponse = contextResponse;
+      const flush = responsePlan.flushBeforeResponses && index === 0;
+
+      if ( responsePlan.responseGroup ) {
+        this.addAccessibleContextResponse( contextResponse, {
+          responseGroup: responsePlan.responseGroup,
+          flush: flush
+        } );
+      }
+      else {
+        this.addAccessibleContextResponse( contextResponse, {
+          flush: flush
+        } );
+      }
+    } );
+  }
+
   public clearScreenAndEmitResponse( clearScreen: () => void ): void {
     const before = this.previousState;
 
@@ -171,12 +195,6 @@ export default class HighIntensityAccessibleResponses extends Node {
     const after = this.getAccessibleViewState();
     const responsePlan = QWITransitionDescriber.describe( { type: 'screenCleared' }, before, after );
     this.previousState = after;
-
-    if ( responsePlan.contextResponse ) {
-      this.lastContextResponse = responsePlan.contextResponse;
-      this.addAccessibleContextResponse( responsePlan.contextResponse, {
-        responseGroup: responsePlan.responseGroup
-      } );
-    }
+    this.emitResponsePlan( responsePlan, { type: 'screenCleared' } );
   }
 }

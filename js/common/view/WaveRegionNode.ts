@@ -30,6 +30,9 @@ type WaveRegionModel = {
   // Active scene, including the scene-specific allowed slit separation range.
   readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene & { readonly slitSeparationRange: Range }>;
 
+  // Whether the active source is emitting.
+  readonly currentIsEmittingProperty: TReadOnlyProperty<boolean>;
+
   // Active barrier type controls whether the barrier/double slit is shown.
   readonly currentBarrierTypeProperty: TReadOnlyProperty<BarrierType>;
 
@@ -100,6 +103,7 @@ export default class WaveRegionNode extends Node {
       model.currentSlitPositionFractionProperty,
       model.currentSlitSeparationProperty,
       slitSeparationRangeProperty,
+      model.currentIsEmittingProperty,
       doubleSlitNodeOptions
     );
 

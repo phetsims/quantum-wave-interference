@@ -16,6 +16,7 @@ export type QWITransitionAction =
   { type: 'detectionModeChanged' } |
   { type: 'slitConfigurationChanged' } |
   { type: 'slitSeparationChanged' } |
+  { type: 'slitPositionChanged' } |
   { type: 'wavelengthChanged' } |
   { type: 'speedChanged' } |
   { type: 'displayModeChanged' } |
@@ -31,8 +32,9 @@ export type QWITransitionAction =
   { type: 'reset' };
 
 export type QWIResponsePlan = {
-  contextResponse: string | null;
-  responseGroup: string;
+  contextResponses: string[];
+  responseGroup: string | null;
+  flushBeforeResponses: boolean;
 };
 
 const VALUE_TOLERANCE = 1e-8;
@@ -49,119 +51,188 @@ export default class QWITransitionDescriber {
     before: HighIntensityAccessibleViewState,
     after: HighIntensityAccessibleViewState
   ): QWIResponsePlan {
-    let contextResponse: string | null = null;
-    const sourceRestartedResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestarted.format( {
+    let contextResponses: string[] = [];
+    let responseGroup: string | null = 'qwi-high-intensity-transition';
+    let flushBeforeResponses = false;
+    const advancingWaveResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.format( {
       beamDescription: formatSourceBeamDescription( after )
     } );
 
     if ( action.type === 'sourceChanged' ) {
-      contextResponse = after.isEmitting ?
-                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
-                          isPlaying: after.isPlaying ? 'true' : 'false',
-                          timeSpeed: after.clockSpeedDescription,
-                          beamDescription: formatSourceBeamDescription( after )
-                        } ) :
-                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStopped.format( {
-                          detectionMode: after.detectionMode
-                        } );
+      if ( after.isEmitting ) {
+        contextResponses = [
+          QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
+            isPlaying: after.isPlaying ? 'true' : 'false',
+            timeSpeed: after.clockSpeedDescription
+          } )
+        ];
+
+        if ( after.isPlaying ) {
+          contextResponses.push( advancingWaveResponse );
+          responseGroup = null;
+          flushBeforeResponses = true;
+        }
+      }
+      else {
+        contextResponses = [
+          QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStopped.format( {
+            detectionMode: after.detectionMode
+          } )
+        ];
+      }
     }
     else if ( action.type === 'particleTypeChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.particleTypeChanged.format( {
-        isEmitting: toFluentBoolean( after.isEmitting ),
-        sourceRestartedResponse: sourceRestartedResponse,
-        sourceType: after.sourceType
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.particleTypeChanged.format( {
+          isEmitting: toFluentBoolean( after.isEmitting ),
+          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value,
+          sourceType: after.sourceType
+        } ),
+        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
+      ];
+      responseGroup = after.isEmitting ? null : responseGroup;
+      flushBeforeResponses = after.isEmitting;
     }
     else if ( action.type === 'detectionModeChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.detectionModeChanged.format( {
-        detectionMode: after.detectionMode
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.detectionModeChanged.format( {
+          detectionMode: after.detectionMode
+        } )
+      ];
     }
     else if ( action.type === 'slitConfigurationChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
-        isEmitting: toFluentBoolean( after.isEmitting ),
-        slitSetting: after.slitConfiguration,
-        sourceRestartedResponse: sourceRestartedResponse
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
+          isEmitting: toFluentBoolean( after.isEmitting ),
+          slitSetting: after.slitConfiguration,
+          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+        } ),
+        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
+      ];
+      responseGroup = after.isEmitting ? null : responseGroup;
+      flushBeforeResponses = after.isEmitting;
     }
     else if ( action.type === 'slitSeparationChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitSeparationChanged.format( {
-        isEmitting: toFluentBoolean( after.isEmitting ),
-        sourceRestartedResponse: sourceRestartedResponse
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitSeparationChanged.format( {
+          isEmitting: toFluentBoolean( after.isEmitting ),
+          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+        } ),
+        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
+      ];
+      responseGroup = after.isEmitting ? null : responseGroup;
+      flushBeforeResponses = after.isEmitting;
+    }
+    else if ( action.type === 'slitPositionChanged' ) {
+      contextResponses = after.isEmitting ?
+                         [
+                           QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value,
+                           advancingWaveResponse
+                         ] :
+                         [];
+      responseGroup = after.isEmitting ? null : responseGroup;
+      flushBeforeResponses = after.isEmitting;
     }
     else if ( action.type === 'wavelengthChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.wavelengthChanged.format( {
-        isEmitting: toFluentBoolean( after.isEmitting ),
-        sourceRestartedResponse: sourceRestartedResponse
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.wavelengthChanged.format( {
+          isEmitting: toFluentBoolean( after.isEmitting ),
+          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+        } ),
+        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
+      ];
+      responseGroup = after.isEmitting ? null : responseGroup;
+      flushBeforeResponses = after.isEmitting;
     }
     else if ( action.type === 'speedChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.speedChanged.format( {
-        isEmitting: toFluentBoolean( after.isEmitting ),
-        sourceRestartedResponse: sourceRestartedResponse
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.speedChanged.format( {
+          isEmitting: toFluentBoolean( after.isEmitting ),
+          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+        } ),
+        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
+      ];
+      responseGroup = after.isEmitting ? null : responseGroup;
+      flushBeforeResponses = after.isEmitting;
     }
     else if ( action.type === 'displayModeChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.displayModeChanged.format( {
-        displayMode: after.displayMode
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.displayModeChanged.format( {
+          displayMode: after.displayMode
+        } )
+      ];
     }
     else if ( action.type === 'brightnessChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.brightnessChanged.format( {
-        brightnessTrend: getTrend( before.screenBrightnessPercent, after.screenBrightnessPercent )
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.brightnessChanged.format( {
+          brightnessTrend: getTrend( before.screenBrightnessPercent, after.screenBrightnessPercent )
+        } )
+      ];
     }
     else if ( action.type === 'waveDisplayChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveDisplayChanged.format( {
-        waveDisplayMode: after.waveDisplayMode
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveDisplayChanged.format( {
+          waveDisplayMode: after.waveDisplayMode
+        } )
+      ];
     }
     else if ( action.type === 'toolChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.toolChanged.format( {
-        tool: action.tool,
-        isVisible: after.measurementTools[ action.tool ].visible ? 'true' : 'false'
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.toolChanged.format( {
+          tool: action.tool,
+          isVisible: after.measurementTools[ action.tool ].visible ? 'true' : 'false'
+        } )
+      ];
     }
     else if ( action.type === 'screenCleared' ) {
       const isRestarting = after.isPlaying && after.isEmitting;
 
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.screenCleared.format( {
-        isRestarting: isRestarting ? 'true' : 'false',
-        sourceRestartedResponse: sourceRestartedResponse
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.screenCleared.format( {
+          isRestarting: isRestarting ? 'true' : 'false',
+          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+        } ),
+        ...( isRestarting ? [ advancingWaveResponse ] : [] )
+      ];
+      responseGroup = isRestarting ? null : responseGroup;
+      flushBeforeResponses = isRestarting;
     }
     else if ( action.type === 'hitStageChanged' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.hitStageChanged.format( {
-        hitStage: after.hitStage,
-        patternKind: after.patternKind
-      } );
+      contextResponses = [
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.hitStageChanged.format( {
+          hitStage: after.hitStage,
+          patternKind: after.patternKind
+        } )
+      ];
     }
     else if ( action.type === 'waveProgressChanged' ) {
       const waveProgressStage = after.waveProgress.stage;
-      contextResponse = waveProgressStage === 'travelingToSlits' ? null :
-                        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
-                          waveProgressStage: waveProgressStage,
-                          waveDisplayMode: after.waveDisplayMode,
-                          patternKind: after.patternKind
-                        } );
+      contextResponses = waveProgressStage === 'travelingToSlits' ? [] :
+                         [
+                           QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
+                             waveProgressStage: waveProgressStage,
+                             waveDisplayMode: after.waveDisplayMode,
+                             patternKind: after.patternKind
+                           } )
+                         ];
     }
     else if ( action.type === 'patternFormationStarted' ) {
-      contextResponse = formatDetectorDescription( after );
+      contextResponses = [ formatDetectorDescription( after ) ];
     }
     else if ( action.type === 'patternFormationComplete' ) {
-      contextResponse = formatDetectorDescription( after );
+      contextResponses = [ formatDetectorDescription( after ) ];
     }
     else if ( action.type === 'maxHitsReached' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.maxHitsReachedStringProperty.value;
+      contextResponses = [ QuantumWaveInterferenceFluent.a11y.highIntensityResponses.maxHitsReachedStringProperty.value ];
     }
     else if ( action.type === 'reset' ) {
-      contextResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.resetStringProperty.value;
+      contextResponses = [ QuantumWaveInterferenceFluent.a11y.highIntensityResponses.resetStringProperty.value ];
     }
 
     return {
-      contextResponse: contextResponse,
-      responseGroup: 'qwi-high-intensity-transition'
+      contextResponses: contextResponses,
+      responseGroup: responseGroup,
+      flushBeforeResponses: flushBeforeResponses
     };
   }
 }

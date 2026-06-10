@@ -580,9 +580,10 @@ a11y:
     sourceStarted:            >-
                               { $isPlaying ->
                                 [false] Source started. Sim is paused.
-                               *[true] Source started on { $timeSpeed } speed. { $beamDescription }
+                               *[true] Source started on { $timeSpeed } speed.
                               }
-    sourceRestarted:          Source restarted. { $beamDescription }
+    sourceRestarted:          Source restarted.
+    advancingWave:            '{ $beamDescription }'
     sourceStopped:            >-
                               Source stopped. Wave display clears. { $detectionMode ->
                                 [hits] Hits remain.
@@ -662,7 +663,7 @@ a11y:
                               }
     screenCleared:            >-
                               { $isRestarting ->
-                                [true] Wave area cleared. { $sourceRestartedResponse }
+                                [true] { $sourceRestartedResponse }
                                *[false] Wave area cleared. Sim still paused.
                               }
     hitStageChanged:          >-
