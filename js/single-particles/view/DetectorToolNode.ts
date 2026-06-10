@@ -7,6 +7,8 @@
  * - A curved wire connecting the circle to a control panel
  * - A control panel with a Detect/Reset button and detector size slider
  *
+ * TODO: Rename to DetectorProbeNode, see https://github.com/phetsims/quantum-wave-interference/issues/135
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
@@ -99,14 +101,16 @@ export default class DetectorToolNode extends Node {
     const probabilityText = new Text( '', {
       font: LABEL_FONT,
       fill: 'white',
-      maxWidth: 60
+      maxWidth: 60,
+      pickable: false
     } );
 
     const stateText = new RichText( '', {
       font: new PhetFont( 14 ),
       fill: 'white',
       align: 'center',
-      maxWidth: 80
+      maxWidth: 80,
+      pickable: false
     } );
 
     const circleContainer = new Node( {
