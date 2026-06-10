@@ -6,6 +6,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -13,7 +14,6 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem, ComboBoxOptions } from '../../../../sun/js/ComboBox.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import SceneModel from '../model/SceneModel.js';
 
 const COMBO_BOX_FONT = new PhetFont( 14 );
 
@@ -21,8 +21,13 @@ export type SlitSettingsComboBoxOptions = PickRequired<ComboBoxOptions, 'tandem'
 
 export default class SlitSettingsComboBox extends ComboBox<SlitConfiguration> {
 
+  /**
+   * @param slitSettingProperty - the scene's slit configuration, both displayed and set by this combo box
+   * @param comboBoxParent - parent for the combo box popup list
+   * @param providedOptions
+   */
   public constructor(
-    scene: SceneModel,
+    slitSettingProperty: PhetioProperty<SlitConfiguration>,
     comboBoxParent: Node,
     providedOptions: SlitSettingsComboBoxOptions
   ) {
@@ -86,11 +91,11 @@ export default class SlitSettingsComboBox extends ComboBox<SlitConfiguration> {
     ];
 
     const slitSettingsContextResponseProperty = QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleContextResponse.createProperty( {
-      slitSetting: scene.slitSettingProperty
+      slitSetting: slitSettingProperty
     } );
 
     super(
-      scene.slitSettingProperty,
+      slitSettingProperty,
       comboBoxItems,
       comboBoxParent,
       {

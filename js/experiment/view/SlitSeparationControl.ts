@@ -7,6 +7,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -14,9 +15,9 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import NumberControl, { NumberControlOptions } from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
+import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import SceneModel from '../model/SceneModel.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const SLIDER_TRACK_SIZE = new Dimension2( 150, 3 );
@@ -29,9 +30,19 @@ export type SlitSeparationControlOptions = SelfOptions & PickRequired<NumberCont
 
 export default class SlitSeparationControl extends NumberControl {
 
-  public constructor( scene: SceneModel, providedOptions: SlitSeparationControlOptions ) {
-    const slitSeparationRange = scene.slitSeparationRange;
-    const usesMicrometers = scene.sourceType === 'photons' || slitSeparationRange.max <= 0.1;
+  /**
+   * @param slitSeparationProperty - the scene's slit separation, in millimeters
+   * @param slitSeparationRange - the scene's physical range for slit separation, in millimeters
+   * @param sourceType - the scene's source type, which determines display units and step size
+   * @param providedOptions
+   */
+  public constructor(
+    slitSeparationProperty: NumberProperty,
+    slitSeparationRange: Range,
+    sourceType: SourceType,
+    providedOptions: SlitSeparationControlOptions
+  ) {
+    const usesMicrometers = sourceType === 'photons' || slitSeparationRange.max <= 0.1;
 
     let numberDisplayOptions;
     let ticks;
@@ -45,7 +56,7 @@ export default class SlitSeparationControl extends NumberControl {
       const mmToMicrometerDecimalPlaces = ExperimentConstants.getRangeDecimalPlaces(
         slitSeparationRange.min * 1000, slitSeparationRange.max * 1000
       );
-      delta = scene.sourceType === 'photons' ? SlitSeparationControl.getDelta( slitSeparationRange ) : 0.0001;
+      delta = sourceType === 'photons' ? SlitSeparationControl.getDelta( slitSeparationRange ) : 0.0001;
       numberDisplayOptions = {
         numberFormatter: ( valueMM: number ) => {
           const valueUM = valueMM * 1000;
@@ -110,7 +121,7 @@ export default class SlitSeparationControl extends NumberControl {
 
     super(
       QuantumWaveInterferenceFluent.slitSeparationStringProperty,
-      scene.slitSeparationProperty,
+      slitSeparationProperty,
       slitSeparationRange,
       options
     );

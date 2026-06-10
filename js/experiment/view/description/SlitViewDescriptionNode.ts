@@ -11,22 +11,29 @@
  */
 
 import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
+import { TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import { toFixed } from '../../../../../dot/js/util/toFixed.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
+import { type SlitConfiguration } from '../../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../../ExperimentConstants.js';
-import ExperimentModel from '../../model/ExperimentModel.js';
 
 export default class SlitViewDescriptionNode extends Node {
 
-  public constructor( model: ExperimentModel ) {
+  /**
+   * @param slitSettingProperty - the current scene's slit configuration
+   * @param sceneProperty - the selected scene, which determines the constant slit width to describe
+   */
+  public constructor(
+    slitSettingProperty: TReadOnlyProperty<SlitConfiguration>,
+    sceneProperty: TReadOnlyProperty<{ readonly slitWidth: number }>
+  ) {
 
-    const slitSettingProperty = model.currentSlitSettingProperty;
     const slitWidthStringProperty = DerivedProperty.deriveAny( [
-      model.sceneProperty,
+      sceneProperty,
       ...QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.getDependentProperties()
     ], () => {
-      const scene = model.sceneProperty.value;
+      const scene = sceneProperty.value;
       const slitWidthMM = scene.slitWidth;
       const { slitWidthUM, decimalPlaces } = ExperimentConstants.slitWidthMMToMicrometers( slitWidthMM );
       return QuantumWaveInterferenceFluent.a11y.slitWidthMicrometersPattern.format( {

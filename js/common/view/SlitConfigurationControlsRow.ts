@@ -62,7 +62,7 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
     } );
 
     const slitSeparationNodes: Node[] = scenes.map( scene =>
-      new SlitSeparationNumberControl( scene, sceneTandems?.get( scene ) || tandem )
+      new SlitSeparationNumberControl( scene.slitSeparationProperty, scene.slitSeparationRange, sceneTandems?.get( scene ) || tandem )
     );
 
     // Owns one scene-specific slit separation control per scene, while this container is hidden entirely when there is no barrier.

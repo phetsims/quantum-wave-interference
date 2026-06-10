@@ -65,7 +65,7 @@ export default class ExperimentScreenViewDescription extends Node {
     } );
     this.addChild( detectorScreenDescriptionNode );
 
-    const slitViewDescriptionNode = new SlitViewDescriptionNode( model );
+    const slitViewDescriptionNode = new SlitViewDescriptionNode( model.currentSlitSettingProperty, model.sceneProperty );
     this.addChild( slitViewDescriptionNode );
 
     const experimentSetupDetailsListNode = new ExperimentSetupDetailsNode( model, model.currentSlitSettingProperty, {

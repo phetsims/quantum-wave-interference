@@ -6,16 +6,19 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
+import Range from '../../../../dot/js/Range.js';
 import { equalsEpsilon } from '../../../../dot/js/util/equalsEpsilon.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import NumberControl, { NumberControlMajorTick, NumberControlOptions } from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import { showsDoubleSlitInterferencePattern } from '../../common/model/SlitConfiguration.js';
+import { type DetectionMode } from '../../common/model/DetectionMode.js';
+import { showsDoubleSlitInterferencePattern, type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import SceneModel from '../model/SceneModel.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const SLIDER_TRACK_SIZE = new Dimension2( 150, 3 );
@@ -28,18 +31,27 @@ const SCREEN_DISTANCE_RESPONSE_EPSILON = 1e-12;
 type ScreenDistancePosition = 'closest' | 'closer' | 'farther' | 'farthest';
 type ScreenDistancePatternEffect = 'doubleSlitCloser' | 'doubleSlitFarther' | 'singleSlitCloser' | 'singleSlitFarther';
 
+// The slice of SceneModel needed by this control and its context-response helpers.
+type ScreenDistanceScene = {
+  readonly screenDistanceProperty: NumberProperty;
+  readonly screenDistanceRange: Range;
+  readonly isEmittingProperty: TReadOnlyProperty<boolean>;
+  readonly detectionModeProperty: TReadOnlyProperty<DetectionMode>;
+  readonly slitSettingProperty: TReadOnlyProperty<SlitConfiguration>;
+};
+
 type SelfOptions = EmptySelfOptions;
 
 export type ScreenDistanceControlOptions = SelfOptions & PickRequired<NumberControlOptions, 'tandem'>;
 
-function getScreenDistancePosition( scene: SceneModel, value: number, valueOnStart: number ): ScreenDistancePosition {
+function getScreenDistancePosition( scene: ScreenDistanceScene, value: number, valueOnStart: number ): ScreenDistancePosition {
   return equalsEpsilon( value, scene.screenDistanceRange.min, SCREEN_DISTANCE_RESPONSE_EPSILON ) ? 'closest' :
          equalsEpsilon( value, scene.screenDistanceRange.max, SCREEN_DISTANCE_RESPONSE_EPSILON ) ? 'farthest' :
          value < valueOnStart ? 'closer' :
          'farther';
 }
 
-function getScreenDistanceContextResponse( scene: SceneModel, value: number, valueOnStart: number ): string | null {
+function getScreenDistanceContextResponse( scene: ScreenDistanceScene, value: number, valueOnStart: number ): string | null {
   if ( equalsEpsilon( value, valueOnStart, SCREEN_DISTANCE_RESPONSE_EPSILON ) ) {
     return null;
   }
@@ -72,7 +84,7 @@ function getScreenDistanceContextResponse( scene: SceneModel, value: number, val
 
 export default class ScreenDistanceControl extends NumberControl {
 
-  public constructor( scene: SceneModel, providedOptions: ScreenDistanceControlOptions ) {
+  public constructor( scene: ScreenDistanceScene, providedOptions: ScreenDistanceControlOptions ) {
     const screenDistanceRange = scene.screenDistanceRange;
 
     const options = optionize<ScreenDistanceControlOptions, SelfOptions, NumberControlOptions>()( {

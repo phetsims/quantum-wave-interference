@@ -83,7 +83,7 @@ export default class SlitControlPanel extends Panel {
     comboBoxParent: Node,
     tandem: SlitControlPanelOptions['tandem']
   ): Node {
-    const slitSeparationControl = new SlitSeparationControl( scene, {
+    const slitSeparationControl = new SlitSeparationControl( scene.slitSeparationProperty, scene.slitSeparationRange, scene.sourceType, {
       tandem: tandem.createTandem( 'slitSeparationControl' )
     } );
 
@@ -96,7 +96,7 @@ export default class SlitControlPanel extends Panel {
       maxWidth: 170
     } );
 
-    const slitSettingsComboBox = new SlitSettingsComboBox( scene, comboBoxParent, {
+    const slitSettingsComboBox = new SlitSettingsComboBox( scene.slitSettingProperty, comboBoxParent, {
       tandem: tandem.createTandem( 'slitSettingsComboBox' )
     } );
 

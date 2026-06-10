@@ -8,7 +8,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
+import Range from '../../../../dot/js/Range.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import NumberControl, { NumberControlMajorTick } from '../../../../scenery-phet/js/NumberControl.js';
 import { type NumberDisplayOptions } from '../../../../scenery-phet/js/NumberDisplay.js';
@@ -18,7 +20,6 @@ import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import type BaseSceneModel from '../model/BaseSceneModel.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
 const TITLE_FONT = new PhetFont( 14 );
@@ -36,11 +37,12 @@ const NANOMETERS_PER_MILLIMETER = 1e6;
 export default class SlitSeparationNumberControl extends NumberControl {
 
   /**
-   * @param scene - provides the slit separation Property and its physical range, in millimeters
+   * @param slitSeparationProperty - the scene's slit separation, in millimeters
+   * @param slitSeparationRange - the scene's physical range for slit separation, in millimeters
    * @param tandem - parent Tandem used to instrument this control for the scene source type
    */
-  public constructor( scene: BaseSceneModel, tandem: Tandem ) {
-    const range = scene.slitSeparationRange;
+  public constructor( slitSeparationProperty: NumberProperty, slitSeparationRange: Range, tandem: Tandem ) {
+    const range = slitSeparationRange;
     const usesNanometers = range.max <= NANOMETER_RANGE_THRESHOLD_MM;
     const usesMicrometers = !usesNanometers && range.max <= MICROMETER_RANGE_THRESHOLD_MM;
 
@@ -128,7 +130,7 @@ export default class SlitSeparationNumberControl extends NumberControl {
 
     super(
       QuantumWaveInterferenceFluent.slitSeparationStringProperty,
-      scene.slitSeparationProperty,
+      slitSeparationProperty,
       range,
       {
         delta: delta,
