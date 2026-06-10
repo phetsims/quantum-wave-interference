@@ -8,6 +8,7 @@
 
 import Color from '../../../scenery/js/util/Color.js';
 import ProfileColorProperty from '../../../scenery/js/util/ProfileColorProperty.js';
+import PhetColorScheme from '../../../scenery-phet/js/PhetColorScheme.js';
 import quantumWaveInterference from '../quantumWaveInterference.js';
 
 export default class QuantumWaveInterferenceColors {
@@ -60,6 +61,11 @@ export default class QuantumWaveInterferenceColors {
   public static readonly detectorOverlayStrokeProperty = new ProfileColorProperty(
     quantumWaveInterference, 'detectorOverlayStroke', {
       default: new Color( 180, 140, 0 )
+    } );
+
+  public static readonly detectorToolDetectedFillProperty = new ProfileColorProperty(
+    quantumWaveInterference, 'detectorToolDetectedFill', {
+      default: PhetColorScheme.GREEN_COLORBLIND.withAlpha( 0.65 )
     } );
 
   // Front-facing screen/slit stroke, shared by DetectorScreenNode and FrontFacingSlitNode

@@ -26,6 +26,7 @@ import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
+import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import RectangularPushButton from '../../../../sun/js/buttons/RectangularPushButton.js';
@@ -43,7 +44,6 @@ const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 const LABEL_FONT = new PhetFont( 12 );
 
 const CIRCLE_FILL_READY = new Color( 135, 206, 250, 0.3 );
-const CIRCLE_FILL_DETECTED = new Color( 100, 255, 100, 0.5 );
 const CIRCLE_FILL_NOT_DETECTED = new Color( 80, 80, 80, 0.5 );
 const CIRCLE_STROKE = new Color( 50, 50, 50 );
 const WIRE_STROKE = new Color( 100, 100, 100 );
@@ -82,8 +82,16 @@ export default class DetectorToolNode extends Node {
 
     this.currentDetectorTool = currentDetectorTool;
 
+    const circleFillProperty = new DerivedProperty(
+      [ currentDetectorTool.stateProperty, QuantumWaveInterferenceColors.detectorToolDetectedFillProperty ],
+      ( state, detectedFill ) =>
+        state === 'detected' ? detectedFill :
+        state === 'notDetected' ? CIRCLE_FILL_NOT_DETECTED :
+        CIRCLE_FILL_READY
+    );
+
     const circleNode = new Circle( 1, {
-      fill: CIRCLE_FILL_READY,
+      fill: circleFillProperty,
       stroke: CIRCLE_STROKE,
       lineWidth: 2,
       cursor: 'pointer'
@@ -95,20 +103,15 @@ export default class DetectorToolNode extends Node {
       maxWidth: 60
     } );
 
-    const stateText = new Text( '', {
-      font: new PhetFont( { size: 11, weight: 'bold' } ),
+    const stateText = new RichText( '', {
+      font: new PhetFont( 14 ),
       fill: 'white',
-      maxWidth: 70
-    } );
-
-    const circleLabelsNode = new VBox( {
-      children: [ probabilityText, stateText ],
-      spacing: 2,
-      align: 'center'
+      align: 'center',
+      maxWidth: 80
     } );
 
     const circleContainer = new Node( {
-      children: [ circleNode, circleLabelsNode ]
+      children: [ circleNode, probabilityText, stateText ]
     } );
 
     this.addChild( circleContainer );
@@ -197,9 +200,13 @@ export default class DetectorToolNode extends Node {
       const viewRadius = radius * WAVE_REGION_WIDTH;
 
       circleNode.radius = Math.max( viewRadius, 5 );
+      const circleLabelMaxWidth = 2 * circleNode.radius - 4;
+      probabilityText.maxWidth = circleLabelMaxWidth;
+      stateText.maxWidth = circleLabelMaxWidth;
       circleContainer.x = viewX;
       circleContainer.y = viewY;
-      circleLabelsNode.center = Vector2.ZERO;
+      probabilityText.center = Vector2.ZERO;
+      stateText.center = Vector2.ZERO;
 
       const panelCX = controlPanel.centerX;
       const panelTY = controlPanel.top;
@@ -247,12 +254,10 @@ export default class DetectorToolNode extends Node {
       if ( state === 'detected' ) {
         probabilityText.string = '';
         stateText.string = QuantumWaveInterferenceFluent.particleDetectedStringProperty.value;
-        circleNode.fill = CIRCLE_FILL_DETECTED;
       }
       else if ( state === 'notDetected' ) {
         probabilityText.string = '';
         stateText.string = QuantumWaveInterferenceFluent.notDetectedStringProperty.value;
-        circleNode.fill = CIRCLE_FILL_NOT_DETECTED;
       }
       else {
         probabilityText.string = percentUnit.getVisualSymbolPatternString( probability * 100, {
@@ -260,9 +265,9 @@ export default class DetectorToolNode extends Node {
           showTrailingZeros: true
         } );
         stateText.string = '';
-        circleNode.fill = CIRCLE_FILL_READY;
       }
-      circleLabelsNode.center = Vector2.ZERO;
+      probabilityText.center = Vector2.ZERO;
+      stateText.center = Vector2.ZERO;
     };
 
     Multilink.multilinkAny(

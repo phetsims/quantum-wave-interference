@@ -201,7 +201,7 @@
     "value": "1 fs = 10<sup>-15</sup> s"
   },
   "detectorSize": {
-    "value": "Detector Size"
+    "value": "Size"
   },
   "detect": {
     "value": "Detect"
@@ -210,10 +210,10 @@
     "value": "Reset"
   },
   "particleDetected": {
-    "value": "Particle detected"
+    "value": "Particle<br>detected"
   },
   "notDetected": {
-    "value": "Not detected"
+    "value": "No particle<br>detected"
   },
   "a11y": {
     "screenSummary": {

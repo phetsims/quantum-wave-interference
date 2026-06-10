@@ -122,9 +122,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   // Deterministic center-arrival time used as the re-emission timing reference for on-slit detection.
   private deterministicOnSlitArrivalTime: number;
 
-  // True while a completed packet is automatically turning the emitter off.
-  private isEndingPacket: boolean;
-
   private hasCreatedPacketDecoherenceEvent: boolean;
   private packetReEmission: GaussianPacketReEmission | null = null;
 
@@ -143,7 +140,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.targetDetectionTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
     this.targetOnSlitDetectionTime = Number.POSITIVE_INFINITY;
     this.deterministicOnSlitArrivalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
-    this.isEndingPacket = false;
     this.hasCreatedPacketDecoherenceEvent = false;
 
     this.autoRepeatProperty = new BooleanProperty( false, {
@@ -179,7 +175,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     } );
 
     this.detectorToolRadiusProperty = new NumberProperty( 0.1, {
-      range: new Range( 0.03, 0.3 ),
+      range: new Range( 0.06, 0.3 ),
       units: null, // The detector radius is stored as a normalized fraction of the wave-region width, not a physical length.
       tandem: tandem.createTandem( 'detectorToolRadiusProperty' ),
       phetioFeatured: true
@@ -215,14 +211,13 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   /**
    * Clears the visible Single Particles run state without resetting user controls or saved snapshots. This is called by
    * the Clear Screen button and by BaseSceneModel when wave, slit, or barrier parameters change. This cancels any active
-   * packet, resets detector-tool result/probability state, clears packet timing and on-slit re-emission state, and turns
-   * off the emitter unless auto-repeat is enabled. In auto-repeat mode, clearing cancels the current packet while leaving
-   * the source on so step() can emit the next packet. The base implementation clears detector-screen hits, detector
-   * counts, shared wave state, and emits the hit-change notification.
+   * packet, clears the current detector-tool probability without changing its measurement result, clears packet timing
+   * and on-slit re-emission state, and turns off the emitter unless auto-repeat is enabled. In auto-repeat mode, clearing
+   * cancels the current packet while leaving the source on so step() can emit the next packet. The base implementation
+   * clears detector-screen hits, detector counts, shared wave state, and emits the hit-change notification.
    */
   public override clearScreen(): void {
     this.isPacketActiveProperty.value = false;
-    this.detectorToolStateProperty.value = 'ready';
     this.detectorToolProbabilityProperty.value = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.targetOnSlitDetectionTime = Number.POSITIVE_INFINITY;
@@ -240,17 +235,13 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   /**
    * Clears transient Single Particles wave state when isEmittingProperty changes to false. This path is used when the
    * user turns off the emitter, when max hits forces the emitter off, and when a non-auto-repeat packet ends. It cancels
-   * the active packet, clears pending slit detection/re-emission state, and resets the detector-tool readout unless the
-   * call is part of the normal packet-ending flow, where the detected/notDetected result should remain visible. The base
-   * implementation then clears the shared solver/decoherence state.
+   * the active packet and clears pending slit detection/re-emission state and detector probability without changing the
+   * detector-tool measurement result. The base implementation then clears the shared solver/decoherence state.
    */
   protected override clearWaveStateWhenEmitterTurnsOff(): void {
     this.isPacketActiveProperty.value = false;
     this.packetReEmission = null;
-    if ( !this.isEndingPacket ) {
-      this.detectorToolStateProperty.value = 'ready';
-      this.detectorToolProbabilityProperty.value = 0;
-    }
+    this.detectorToolProbabilityProperty.value = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.targetOnSlitDetectionTime = Number.POSITIVE_INFINITY;
     this.deterministicOnSlitArrivalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
@@ -271,9 +262,6 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     }
     this.isPacketActiveProperty.value = true;
 
-    // A fresh packet gets a fresh detector reading; prevents the detector from staying stuck in
-    // 'detected' or 'notDetected' for subsequent packets in auto-repeat mode.
-    this.detectorToolStateProperty.value = 'ready';
     this.targetDetectionTime = this.sampleDetectionTime();
     this.deterministicOnSlitArrivalTime = this.getDeterministicSlitArrivalTime();
     this.targetOnSlitDetectionTime = this.sampleDetectionDelayToTargetX(
@@ -538,13 +526,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.isPacketActiveProperty.value = false;
 
     if ( !this.autoRepeatProperty.value ) {
-      this.isEndingPacket = true;
-      try {
-        this.isEmittingProperty.value = false;
-      }
-      finally {
-        this.isEndingPacket = false;
-      }
+      this.isEmittingProperty.value = false;
     }
   }
 
@@ -598,15 +580,22 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   }
 
   /**
-   * Performs one detector-tool measurement of the active packet using the detector tool's current position and size.
-   * This is called when the user activates the detector tool. It only acts while a packet is active and the detector
-   * tool is ready. The measurement probability comes from computeDetectorProbability(), then a random sample determines
-   * the outcome. A successful detection sets the detector tool state to detected and ends the packet. A failed detection
-   * sets the state to notDetected and applies a measurement projection that removes the detected region from the
-   * wavefunction and renormalizes the remainder for subsequent propagation.
+   * Performs one detector-tool measurement using the detector tool's current position and size. This is called when the
+   * user activates the detector tool and only acts while the detector is ready. With no active packet, the result is
+   * notDetected and the wave solver is unchanged. With an active packet, the measurement probability comes from
+   * computeDetectorProbability(), then a random sample determines the outcome. A successful detection sets the detector
+   * tool state to detected and ends the packet. A failed detection sets the state to notDetected and applies a
+   * measurement projection that removes the detected region from the wavefunction and renormalizes the remainder for
+   * subsequent propagation.
    */
   public performDetectorMeasurement(): void {
-    if ( !this.isPacketActiveProperty.value || this.detectorToolStateProperty.value !== 'ready' ) {
+    if ( this.detectorToolStateProperty.value !== 'ready' ) {
+      return;
+    }
+
+    if ( !this.isPacketActiveProperty.value ) {
+      this.detectorToolProbabilityProperty.value = 0;
+      this.detectorToolStateProperty.value = 'notDetected';
       return;
     }
 
@@ -626,7 +615,11 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     }
   }
 
+  /**
+   * Resets the detector tool measurement result and updates its probability for the current packet, if one is active.
+   */
   public resetDetectorToolState(): void {
+    this.detectorToolProbabilityProperty.value = this.computeDetectorProbability();
     this.detectorToolStateProperty.value = 'ready';
   }
 
