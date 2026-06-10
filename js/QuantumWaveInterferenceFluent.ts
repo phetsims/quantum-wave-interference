@@ -156,6 +156,16 @@ addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseChecked', 'a
 addToMapIfDefined( 'a11y_stopwatchCheckbox_accessibleContextResponseUnchecked', 'a11y.stopwatchCheckbox.accessibleContextResponseUncheckedStringProperty' );
 addToMapIfDefined( 'a11y_timePlotCheckbox_accessibleHelpText', 'a11y.timePlotCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_positionPlotCheckbox_accessibleHelpText', 'a11y.positionPlotCheckbox.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_timePlot_probe_accessibleName', 'a11y.timePlot.probe.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_timePlot_probe_accessibleHelpText', 'a11y.timePlot.probe.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_timePlot_chart_accessibleName', 'a11y.timePlot.chart.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_timePlot_chart_accessibleHelpText', 'a11y.timePlot.chart.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_timePlot_accessibleParagraph', 'a11y.timePlot.accessibleParagraphStringProperty' );
+addToMapIfDefined( 'a11y_positionPlot_accessibleName', 'a11y.positionPlot.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_positionPlot_accessibleHelpText', 'a11y.positionPlot.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_positionPlot_accessibleRegion', 'a11y.positionPlot.accessibleRegionStringProperty' );
+addToMapIfDefined( 'a11y_positionPlot_accessibleValue', 'a11y.positionPlot.accessibleValueStringProperty' );
+addToMapIfDefined( 'a11y_positionPlot_accessibleParagraph', 'a11y.positionPlot.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_detectorCheckbox_accessibleHelpText', 'a11y.detectorCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitSeparationSlider_accessibleHelpText', 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitPositionSlider_accessibleName', 'a11y.slitPositionSlider.accessibleNameStringProperty' );
@@ -441,6 +451,24 @@ const QuantumWaveInterferenceFluent = {
     },
     positionPlotCheckbox: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_positionPlotCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlotCheckbox.accessibleHelpTextStringProperty' ) )
+    },
+    timePlot: {
+      probe: {
+        accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_timePlot_probe_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.timePlot.probe.accessibleNameStringProperty' ) ),
+        accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_timePlot_probe_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.timePlot.probe.accessibleHelpTextStringProperty' ) )
+      },
+      chart: {
+        accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_timePlot_chart_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.timePlot.chart.accessibleNameStringProperty' ) ),
+        accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_timePlot_chart_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.timePlot.chart.accessibleHelpTextStringProperty' ) )
+      },
+      accessibleParagraph: new FluentPattern<{ waveDisplayMode: 'electricField' | 'realPart' | 'imaginaryPart' | 'amplitude' | TReadOnlyProperty<'electricField' | 'realPart' | 'imaginaryPart' | 'amplitude'> }>( fluentSupport.bundleProperty, 'a11y_timePlot_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.timePlot.accessibleParagraphStringProperty' ), [{"name":"waveDisplayMode","variants":["electricField","realPart","imaginaryPart","amplitude"]}] )
+    },
+    positionPlot: {
+      accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_positionPlot_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlot.accessibleNameStringProperty' ) ),
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_positionPlot_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlot.accessibleHelpTextStringProperty' ) ),
+      accessibleRegion: new FluentPattern<{ region: 'nearTop' | 'aboveCenter' | 'center' | 'belowCenter' | 'nearBottom' | TReadOnlyProperty<'nearTop' | 'aboveCenter' | 'center' | 'belowCenter' | 'nearBottom'> }>( fluentSupport.bundleProperty, 'a11y_positionPlot_accessibleRegion', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlot.accessibleRegionStringProperty' ), [{"name":"region","variants":["nearTop","aboveCenter","center","belowCenter","nearBottom"]}] ),
+      accessibleValue: new FluentPattern<{ region: FluentVariable, slitState: 'openSlit' | 'coveredSlit' | 'detectorSlit' | 'noSlit' | TReadOnlyProperty<'openSlit' | 'coveredSlit' | 'detectorSlit' | 'noSlit'> }>( fluentSupport.bundleProperty, 'a11y_positionPlot_accessibleValue', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlot.accessibleValueStringProperty' ), [{"name":"region"},{"name":"slitState","variants":["openSlit","coveredSlit","detectorSlit","noSlit"]}] ),
+      accessibleParagraph: new FluentPattern<{ waveDisplayMode: 'electricField' | 'realPart' | 'imaginaryPart' | 'amplitude' | TReadOnlyProperty<'electricField' | 'realPart' | 'imaginaryPart' | 'amplitude'> }>( fluentSupport.bundleProperty, 'a11y_positionPlot_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlot.accessibleParagraphStringProperty' ), [{"name":"waveDisplayMode","variants":["electricField","realPart","imaginaryPart","amplitude"]}] )
     },
     detectorCheckbox: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorCheckbox.accessibleHelpTextStringProperty' ) )

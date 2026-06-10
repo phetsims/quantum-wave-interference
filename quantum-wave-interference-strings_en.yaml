@@ -812,6 +812,45 @@ a11y:
     accessibleHelpText: Use added time plot to graph wave value at position over time.
   positionPlotCheckbox:
     accessibleHelpText: Use added position plot to graph wave value across positions in wave area.
+  timePlot:
+    probe:
+      accessibleName:     Time Plot Probe
+      accessibleHelpText: Move probe to choose which point of wave area is graphed over time.
+    chart:
+      accessibleName:     Time Plot Chart
+      accessibleHelpText: Move chart to a convenient position.
+    accessibleParagraph:  >-
+                          Chart shows { $waveDisplayMode ->
+                            [electricField] electric field
+                            [realPart] real part of wave function
+                            [imaginaryPart] imaginary part of wave function
+                           *[amplitude] amplitude
+                          } at probe position versus time.
+  positionPlot:
+    accessibleName:      Position Plot Probe
+    accessibleHelpText:  Move probe up or down to choose which row of wave area is graphed.
+    accessibleRegion:    >-
+                         { $region ->
+                           [nearTop] Near top
+                           [aboveCenter] Above center
+                           [center] Center
+                           [belowCenter] Below center
+                          *[nearBottom] Near bottom
+                         }
+    accessibleValue:     >-
+                         { $slitState ->
+                           [openSlit] { $region } of wave area, across open slit
+                           [coveredSlit] { $region } of wave area, across covered slit
+                           [detectorSlit] { $region } of wave area, across slit with detector
+                          *[noSlit] { $region } of wave area
+                         }
+    accessibleParagraph: >-
+                         Chart shows { $waveDisplayMode ->
+                           [electricField] electric field
+                           [realPart] real part of wave function
+                           [imaginaryPart] imaginary part of wave function
+                          *[amplitude] amplitude
+                         } versus position along selected row of wave area.
   detectorCheckbox:
     accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
   slitSeparationSlider:

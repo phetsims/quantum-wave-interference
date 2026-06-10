@@ -14,19 +14,27 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import MappedProperty from '../../../../axon/js/MappedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
+import TinyProperty from '../../../../axon/js/TinyProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../dot/js/Range.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import Shape from '../../../../kite/js/Shape.js';
+import Orientation from '../../../../phet-core/js/Orientation.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
-import Node from '../../../../scenery/js/nodes/Node.js';
+import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Color from '../../../../scenery/js/util/Color.js';
+import AccessibleSlider, { type AccessibleSliderOptions } from '../../../../sun/js/accessibility/AccessibleSlider.js';
+import ValueChangeSoundPlayer from '../../../../tambo/js/sound-generators/ValueChangeSoundPlayer.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import { getDisplaySlitLayout } from '../getDisplaySlitLayout.js';
+import { type BarrierType } from '../model/BarrierType.js';
+import { hasDetectorOnBottomSlit, hasDetectorOnTopSlit, isBottomSlitCovered, isTopSlitCovered, type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import { getDisplayedWaveValue, getMaxDisplayedWaveValue, type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import { type WaveDisplayModePolarity, waveDisplayModePolarityProperty } from '../model/WaveModeDisplayPolarity.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
@@ -66,6 +74,41 @@ const POSITION_PLOT_PANEL_RIGHT_PADDING = 12;
 // the solver visualization grid into visibly jagged chart segments.
 const POSITION_PLOT_SAMPLES_PER_PIXEL = QuantumWaveInterferenceQueryParameters.positionPlotSamplesPerPixel;
 
+// Boundaries between the qualitative row regions reported in the accessible value text, expressed as
+// row fractions (0 = top of wave region). nearTop/nearBottom hug the draggable range limits and the
+// center band is symmetric about 0.5.
+const NEAR_TOP_MAX_FRACTION = 0.18;
+const ABOVE_CENTER_MAX_FRACTION = 0.45;
+const CENTER_MAX_FRACTION = 0.55;
+const BELOW_CENTER_MAX_FRACTION = 0.82;
+
+// Keyboard steps are in row-fraction units, spanning the [MIN_Y_FRACTION, MAX_Y_FRACTION] range.
+const ROW_KEYBOARD_STEP = 0.05;
+const ROW_SHIFT_KEYBOARD_STEP = 0.01;
+const ROW_PAGE_KEYBOARD_STEP = 0.15;
+
+const rowSoundPlayer = new ValueChangeSoundPlayer( new Range( MIN_Y_FRACTION, MAX_Y_FRACTION ) );
+
+// Barrier state needed to describe whether the sampled row crosses a slit, and in what state that
+// slit is. Grouped so the shared MeasurementToolsLayerNode can pass it through in one argument.
+export type PositionPlotSlitProperties = {
+  barrierTypeProperty: TReadOnlyProperty<BarrierType>;
+  slitSeparationProperty: TReadOnlyProperty<number>;
+  slitSeparationRangeProperty: TReadOnlyProperty<Range>;
+  slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
+};
+
+// The state of the slit (if any) crossed by the sampled row, used to select the accessible value text.
+type CrossedSlitState = 'openSlit' | 'coveredSlit' | 'detectorSlit' | 'noSlit';
+
+type ApertureProbeNodeOptions = NodeOptions & AccessibleSliderOptions;
+
+class ApertureProbeNode extends AccessibleSlider( Node, 0 ) {
+  public constructor( providedOptions: ApertureProbeNodeOptions ) {
+    super( providedOptions );
+  }
+}
+
 export default class PositionPlotNode extends Node {
 
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
@@ -80,9 +123,11 @@ export default class PositionPlotNode extends Node {
   private readonly waveRegionY: number;
   private readonly waveRegionHeight: number;
   private readonly lineCenterX: number;
+  private readonly slitProperties: PositionPlotSlitProperties;
 
-  // Normalized y-position of the horizontal line [0, 1] where 0 = top and 1 = bottom of the wave region
-  private readonly lineYFractionProperty: NumberProperty;
+  // Normalized y-position of the horizontal line [0, 1] where 0 = top and 1 = bottom of the wave region.
+  // Public so the accessible view state can report the sampled row for agent-facing testing.
+  public readonly lineYFractionProperty: NumberProperty;
 
   public constructor(
     sceneProperty: TReadOnlyProperty<WaveVisualizableScene>,
@@ -90,12 +135,21 @@ export default class PositionPlotNode extends Node {
     waveRegionX: number,
     waveRegionY: number,
     visibleProperty: TReadOnlyProperty<boolean>,
+    slitProperties: PositionPlotSlitProperties,
     tandem: Tandem
   ) {
-    super( { isDisposable: false, visibleProperty: visibleProperty, tandem: tandem } );
+    super( {
+      isDisposable: false,
+      visibleProperty: visibleProperty,
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.positionPlot.accessibleParagraph.createProperty( {
+        waveDisplayMode: activeDisplayModeProperty
+      } ),
+      tandem: tandem
+    } );
 
     this.sceneProperty = sceneProperty;
     this.activeDisplayModeProperty = activeDisplayModeProperty;
+    this.slitProperties = slitProperties;
     this.plotTandem = tandem;
 
     const waveRegionWidth = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
@@ -115,7 +169,7 @@ export default class PositionPlotNode extends Node {
       displayMode => getMaxDisplayedWaveValue( displayMode )
     );
 
-    this.apertureProbeNode = PositionPlotNode.createApertureProbeNode( waveRegionX, waveRegionWidth );
+    this.apertureProbeNode = this.createApertureProbeNode( waveRegionX, waveRegionWidth );
     this.addChild( this.apertureProbeNode );
 
     const verticalDragListener = this.createVerticalDragListener();
@@ -147,6 +201,9 @@ export default class PositionPlotNode extends Node {
     this.addInputListener( {
       down: () => this.moveToFront()
     } );
+
+    // The aperture probe is the single focusable element; the chart panel and wire are visual only.
+    this.pdomOrder = [ this.apertureProbeNode ];
   }
 
   /**
@@ -165,11 +222,13 @@ export default class PositionPlotNode extends Node {
         dragStartFraction = this.lineYFractionProperty.value;
       },
       drag: ( event, listener ) => {
+        const oldFraction = this.lineYFractionProperty.value;
         this.lineYFractionProperty.value = clamp(
           dragStartFraction + ( listener.parentPoint.y - dragStartY ) / this.waveRegionHeight,
           MIN_Y_FRACTION,
           MAX_Y_FRACTION
         );
+        rowSoundPlayer.playSoundIfThresholdReached( this.lineYFractionProperty.value, oldFraction );
       },
       tandem: this.plotTandem.createTandem( 'verticalDragListener' )
     } );
@@ -235,11 +294,13 @@ export default class PositionPlotNode extends Node {
   /**
    * Creates the aperture-shaped probe that spans the wave visualization. The opaque frame shows
    * which horizontal row is selected while the transparent middle keeps the wave field visible.
+   * The probe is also the tool's single focusable element: an AccessibleSlider that moves the
+   * sampled row up and down with the keyboard and reports a qualitative, slit-aware value text.
    *
    * @param waveRegionX - left edge of the wave visualization region
    * @param waveRegionWidth - width of the wave visualization region
    */
-  private static createApertureProbeNode( waveRegionX: number, waveRegionWidth: number ): Node {
+  private createApertureProbeNode( waveRegionX: number, waveRegionWidth: number ): Node {
     const outerWidth = waveRegionWidth + 2 * POSITION_PROBE_SIDE_FRAME_WIDTH;
     const outerHeight = POSITION_PROBE_APERTURE_HEIGHT + 2 * POSITION_PROBE_FRAME_THICKNESS;
     const apertureLeft = POSITION_PROBE_SIDE_FRAME_WIDTH;
@@ -259,8 +320,45 @@ export default class PositionPlotNode extends Node {
       lineWidth: 1
     };
 
-    const apertureProbeNode = new Node( {
+    // Slider-space value increases upward (pressing Up moves the row up), while lineYFractionProperty
+    // increases downward. The range is symmetric about 0.5 (MIN + MAX = 1), so the same mirror mapping
+    // works in both directions and the inverted range equals the original range.
+    const sliderValueProperty = new MappedProperty( this.lineYFractionProperty, {
+      bidirectional: true,
+      map: ( fraction: number ) => MIN_Y_FRACTION + MAX_Y_FRACTION - fraction,
+      inverseMap: ( value: number ) => MIN_Y_FRACTION + MAX_Y_FRACTION - value
+    } );
+
+    let previousSliderValue = sliderValueProperty.value;
+
+    const apertureProbeNode = new ApertureProbeNode( {
       cursor: 'ns-resize',
+      valueProperty: sliderValueProperty,
+      enabledRangeProperty: new TinyProperty( new Range( MIN_Y_FRACTION, MAX_Y_FRACTION ) ),
+      ariaOrientation: Orientation.VERTICAL,
+      keyboardStep: ROW_KEYBOARD_STEP,
+      shiftKeyboardStep: ROW_SHIFT_KEYBOARD_STEP,
+      pageKeyboardStep: ROW_PAGE_KEYBOARD_STEP,
+      constrainValue: ( value: number ) => clamp( value, MIN_Y_FRACTION, MAX_Y_FRACTION ),
+      startDrag: () => {
+        this.moveToFront();
+        previousSliderValue = sliderValueProperty.value;
+      },
+      drag: () => {
+        rowSoundPlayer.playSoundForValueChange( sliderValueProperty.value, previousSliderValue );
+        previousSliderValue = sliderValueProperty.value;
+      },
+      accessibleName: QuantumWaveInterferenceFluent.a11y.positionPlot.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.positionPlot.accessibleHelpTextStringProperty,
+      createAriaValueText: ( value: number ) => this.createAccessibleRowValueText( value ),
+      descriptionDependencies: Array.from( new Set( [
+        this.slitProperties.barrierTypeProperty,
+        this.slitProperties.slitSeparationProperty,
+        this.slitProperties.slitSeparationRangeProperty,
+        this.slitProperties.slitConfigurationProperty,
+        ...QuantumWaveInterferenceFluent.a11y.positionPlot.accessibleValue.getDependentProperties(),
+        ...QuantumWaveInterferenceFluent.a11y.positionPlot.accessibleRegion.getDependentProperties()
+      ] ) ),
       children: [
         new Path( Shape.roundedRectangleWithRadii( 0, 0, outerWidth, POSITION_PROBE_FRAME_THICKNESS, {
           topLeft: POSITION_PROBE_CORNER_RADIUS,
@@ -294,6 +392,71 @@ export default class PositionPlotNode extends Node {
     apertureProbeNode.left = waveRegionX - POSITION_PROBE_SIDE_FRAME_WIDTH;
 
     return apertureProbeNode;
+  }
+
+  /**
+   * Creates the screen-reader value text for the aperture probe slider. The text names the
+   * qualitative vertical region of the sampled row and, when the double-slit barrier is present
+   * and the row crosses a slit, the state of that slit (open, covered, or holding a detector).
+   *
+   * @param sliderValue - slider-space value, the mirror image of the row fraction (larger = higher)
+   * @returns localized value text, e.g. "Above center of wave area, across open slit"
+   */
+  private createAccessibleRowValueText( sliderValue: number ): string {
+    const fraction = MIN_Y_FRACTION + MAX_Y_FRACTION - sliderValue;
+
+    const region = fraction <= NEAR_TOP_MAX_FRACTION ? 'nearTop' :
+                   fraction < ABOVE_CENTER_MAX_FRACTION ? 'aboveCenter' :
+                   fraction <= CENTER_MAX_FRACTION ? 'center' :
+                   fraction < BELOW_CENTER_MAX_FRACTION ? 'belowCenter' :
+                   'nearBottom';
+
+    return QuantumWaveInterferenceFluent.a11y.positionPlot.accessibleValue.format( {
+      region: QuantumWaveInterferenceFluent.a11y.positionPlot.accessibleRegion.format( { region: region } ),
+      slitState: this.getCrossedSlitState( fraction )
+    } );
+  }
+
+  /**
+   * Determines whether the sampled row crosses one of the barrier slits, and if so, in what state
+   * that slit is. Uses the same display-slit geometry as DoubleSlitNode rendering, so the reported
+   * state matches what a sighted user sees. The two slits never overlap vertically
+   * (MIN_DISPLAY_SLIT_SEPARATION > DISPLAY_SLIT_WIDTH), so at most one slit can be crossed.
+   *
+   * @param fraction - normalized row position, 0 = top of the wave region
+   * @returns state of the crossed slit, or 'noSlit' when no barrier or no slit at this row
+   */
+  private getCrossedSlitState( fraction: number ): CrossedSlitState {
+    if ( this.slitProperties.barrierTypeProperty.value !== 'doubleSlit' ) {
+      return 'noSlit';
+    }
+
+    const slitSeparationRange = this.slitProperties.slitSeparationRangeProperty.value;
+    const layout = getDisplaySlitLayout(
+      this.slitProperties.slitSeparationProperty.value,
+      slitSeparationRange.min,
+      slitSeparationRange.max,
+      this.waveRegionHeight
+    );
+
+    const rowY = fraction * this.waveRegionHeight;
+    const topSlitCenterY = this.waveRegionHeight / 2 - layout.displaySlitSeparation / 2;
+    const bottomSlitCenterY = this.waveRegionHeight / 2 + layout.displaySlitSeparation / 2;
+    const halfSlitWidth = layout.displaySlitWidth / 2;
+
+    const slitConfiguration = this.slitProperties.slitConfigurationProperty.value;
+
+    return Math.abs( rowY - topSlitCenterY ) <= halfSlitWidth ? (
+             hasDetectorOnTopSlit( slitConfiguration ) ? 'detectorSlit' :
+             isTopSlitCovered( slitConfiguration ) ? 'coveredSlit' :
+             'openSlit'
+           ) :
+           Math.abs( rowY - bottomSlitCenterY ) <= halfSlitWidth ? (
+             hasDetectorOnBottomSlit( slitConfiguration ) ? 'detectorSlit' :
+             isBottomSlitCovered( slitConfiguration ) ? 'coveredSlit' :
+             'openSlit'
+           ) :
+           'noSlit';
   }
 
   /**

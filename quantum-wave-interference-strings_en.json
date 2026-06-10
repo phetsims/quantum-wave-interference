@@ -426,6 +426,44 @@
         "value": "Use added position plot to graph wave value across positions in wave area."
       }
     },
+    "timePlot": {
+      "probe": {
+        "accessibleName": {
+          "value": "Time Plot Probe"
+        },
+        "accessibleHelpText": {
+          "value": "Move probe to choose which point of wave area is graphed over time."
+        }
+      },
+      "chart": {
+        "accessibleName": {
+          "value": "Time Plot Chart"
+        },
+        "accessibleHelpText": {
+          "value": "Move chart to a convenient position."
+        }
+      },
+      "accessibleParagraph": {
+        "value": "Chart shows { $waveDisplayMode ->\n  [electricField] electric field\n  [realPart] real part of wave function\n  [imaginaryPart] imaginary part of wave function\n *[amplitude] amplitude\n} at probe position versus time."
+      }
+    },
+    "positionPlot": {
+      "accessibleName": {
+        "value": "Position Plot Probe"
+      },
+      "accessibleHelpText": {
+        "value": "Move probe up or down to choose which row of wave area is graphed."
+      },
+      "accessibleRegion": {
+        "value": "{ $region ->\n  [nearTop] Near top\n  [aboveCenter] Above center\n  [center] Center\n  [belowCenter] Below center\n *[nearBottom] Near bottom\n}"
+      },
+      "accessibleValue": {
+        "value": "{ $slitState ->\n  [openSlit] { $region } of wave area, across open slit\n  [coveredSlit] { $region } of wave area, across covered slit\n  [detectorSlit] { $region } of wave area, across slit with detector\n *[noSlit] { $region } of wave area\n}"
+      },
+      "accessibleParagraph": {
+        "value": "Chart shows { $waveDisplayMode ->\n  [electricField] electric field\n  [realPart] real part of wave function\n  [imaginaryPart] imaginary part of wave function\n *[amplitude] amplitude\n} versus position along selected row of wave area."
+      }
+    },
     "detectorCheckbox": {
       "accessibleHelpText": {
         "value": "Use added detector probe to measure probability of detecting particle in circular region of wave area."

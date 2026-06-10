@@ -83,11 +83,20 @@ export type StopwatchViewState = {
 };
 
 export type TimePlotViewState = {
-  visible: boolean;
+  visible: false;
+} | {
+  visible: true;
+  probePosition: { x: number; y: number };
+  chartPosition: { x: number; y: number };
 };
 
 export type PositionPlotViewState = {
-  visible: boolean;
+  visible: false;
+} | {
+  visible: true;
+
+  // Normalized y-position of the sampled row, 0 = top and 1 = bottom of the wave region
+  lineYFraction: number;
 };
 
 export type MeasurementToolsViewState = {

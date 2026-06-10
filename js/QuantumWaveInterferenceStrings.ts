@@ -183,6 +183,24 @@ type StringsType = {
     'positionPlotCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
+    'timePlot': {
+      'probe': {
+        'accessibleNameStringProperty': LocalizedStringProperty;
+        'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      };
+      'chart': {
+        'accessibleNameStringProperty': LocalizedStringProperty;
+        'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      };
+      'accessibleParagraphStringProperty': LocalizedStringProperty;
+    };
+    'positionPlot': {
+      'accessibleNameStringProperty': LocalizedStringProperty;
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'accessibleRegionStringProperty': LocalizedStringProperty;
+      'accessibleValueStringProperty': LocalizedStringProperty;
+      'accessibleParagraphStringProperty': LocalizedStringProperty;
+    };
     'detectorCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };

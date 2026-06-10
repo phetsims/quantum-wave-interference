@@ -14,6 +14,7 @@ import Property from '../../../../axon/js/Property.js';
 import ReadOnlyProperty from '../../../../axon/js/ReadOnlyProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
+import Range from '../../../../dot/js/Range.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
@@ -30,6 +31,8 @@ import { picosecondsUnit } from '../../../../scenery-phet/js/units/picosecondsUn
 import { secondsUnit } from '../../../../scenery-phet/js/units/secondsUnit.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
+import { type BarrierType } from '../model/BarrierType.js';
+import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import { type MeasurementToolsViewStateFragment } from './description/QuantumWaveInterferenceAccessibleViewState.js';
@@ -39,7 +42,7 @@ import TimePlotNode from './TimePlotNode.js';
 
 // Scene state needed by the measuring tape and plot tools. The structural type keeps this shared Node
 // independent of the concrete High Intensity and Single Particles scene model classes.
-type MeasurementSceneLike = WaveVisualizableScene & { sourceType: string; regionWidth: number };
+type MeasurementSceneLike = WaveVisualizableScene & { sourceType: string; regionWidth: number; slitSeparationRange: Range };
 
 // Structural model type for the shared measurement tools parent Node. It includes only the active
 // scene, visibility Properties, and model-backed tool state needed to construct and synchronize the tools.
@@ -59,6 +62,12 @@ type MeasurementToolsModel = {
 
   // Active wave display quantity used by the time and position plots.
   readonly currentWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
+
+  // Barrier state of the active scene, used by the position plot to describe whether the sampled
+  // row crosses an open slit, a covered slit, or a slit with a detector.
+  readonly currentBarrierTypeProperty: TReadOnlyProperty<BarrierType>;
+  readonly currentSlitSeparationProperty: TReadOnlyProperty<number>;
+  readonly currentSlitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
 
   // Model-owned measuring tape endpoints so tape placement persists with scene state.
   readonly tapeMeasureBasePositionProperty: Vector2Property;
@@ -126,12 +135,23 @@ export default class MeasurementToolsLayerNode extends Node {
       tandem.createTandem( 'timePlotNode' )
     );
 
+    const slitSeparationRangeProperty = new DerivedProperty(
+      [ model.sceneProperty ],
+      scene => scene.slitSeparationRange
+    );
+
     const positionPlotNode = new PositionPlotNode(
       model.sceneProperty,
       model.currentWaveDisplayModeProperty,
       waveRegionLeft,
       waveRegionTop,
       model.isPositionPlotVisibleProperty,
+      {
+        barrierTypeProperty: model.currentBarrierTypeProperty,
+        slitSeparationProperty: model.currentSlitSeparationProperty,
+        slitSeparationRangeProperty: slitSeparationRangeProperty,
+        slitConfigurationProperty: model.currentSlitConfigurationProperty
+      },
       tandem.createTandem( 'positionPlotNode' )
     );
 
@@ -179,11 +199,24 @@ export default class MeasurementToolsLayerNode extends Node {
         } : {
           visible: false
         },
-        timePlot: {
-          visible: this.model.isTimePlotVisibleProperty.value
+        timePlot: this.model.isTimePlotVisibleProperty.value ? {
+          visible: true,
+          probePosition: {
+            x: this.timePlotNode.probePositionProperty.value.x,
+            y: this.timePlotNode.probePositionProperty.value.y
+          },
+          chartPosition: {
+            x: this.timePlotNode.getChartPosition().x,
+            y: this.timePlotNode.getChartPosition().y
+          }
+        } : {
+          visible: false
         },
-        positionPlot: {
-          visible: this.model.isPositionPlotVisibleProperty.value
+        positionPlot: this.model.isPositionPlotVisibleProperty.value ? {
+          visible: true,
+          lineYFraction: this.positionPlotNode.lineYFractionProperty.value
+        } : {
+          visible: false
         }
       }
     };

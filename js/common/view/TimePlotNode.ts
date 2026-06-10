@@ -18,10 +18,14 @@ import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Vector2Property from '../../../../dot/js/Vector2Property.js';
+import { combineOptions } from '../../../../phet-core/js/optionize.js';
+import AccessibleDraggableOptions from '../../../../scenery-phet/js/accessibility/grab-drag/AccessibleDraggableOptions.js';
 import ProbeNode from '../../../../scenery-phet/js/ProbeNode.js';
+import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
+import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboardDragListener.js';
 import WireNode from '../../../../scenery-phet/js/WireNode.js';
-import DragListener from '../../../../scenery/js/listeners/DragListener.js';
-import Node from '../../../../scenery/js/nodes/Node.js';
+import InteractiveHighlightingNode from '../../../../scenery/js/accessibility/voicing/nodes/InteractiveHighlightingNode.js';
+import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
@@ -31,7 +35,7 @@ import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import TimePlotDataSeries from './TimePlotDataSeries.js';
 import waveDisplayModeYAxisLabelProperty from './waveDisplayModeYAxisLabelProperty.js';
-import WavePlotChartNode, { MEASUREMENT_PLOT_CHART_HEIGHT, type WavePlotDataPoint } from './WavePlotChartNode.js';
+import WavePlotChartNode, { MEASUREMENT_PLOT_CHART_HEIGHT, type WavePlotChartNodeOptions, type WavePlotDataPoint } from './WavePlotChartNode.js';
 
 const PROBE_COLOR = '#808080';
 const WIRE_COLOR = new Color( PROBE_COLOR ).darkerColor( 0.7 );
@@ -46,6 +50,10 @@ const TIME_PLOT_PANEL_BOTTOM_PADDING = 8;
 const TIME_PLOT_PANEL_TOP_PADDING = 12;
 const TIME_PLOT_PANEL_RIGHT_PADDING = 12;
 
+// Keyboard drag deltas in view pixels per key press, consistent with other draggable tools in this sim.
+const PROBE_KEYBOARD_DRAG_DELTA = 8;
+const PROBE_KEYBOARD_SHIFT_DRAG_DELTA = 2;
+
 export default class TimePlotNode extends Node {
 
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
@@ -54,7 +62,9 @@ export default class TimePlotNode extends Node {
   private readonly dataSeries: TimePlotDataSeries;
   private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
   private readonly probeNode: Node;
-  private readonly probePositionProperty: Vector2Property;
+
+  // Probe center in the parent frame. Public so the accessible view state can report the sampled point.
+  public readonly probePositionProperty: Vector2Property;
   private readonly plotTandem: Tandem;
   private readonly waveRegionBounds: Bounds2;
   private readonly visibleBoundsProperty: TReadOnlyProperty<Bounds2>;
@@ -68,7 +78,14 @@ export default class TimePlotNode extends Node {
     visibleProperty: TReadOnlyProperty<boolean>,
     tandem: Tandem
   ) {
-    super( { isDisposable: false, visibleProperty: visibleProperty, tandem: tandem } );
+    super( {
+      isDisposable: false,
+      visibleProperty: visibleProperty,
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.timePlot.accessibleParagraph.createProperty( {
+        waveDisplayMode: activeDisplayModeProperty
+      } ),
+      tandem: tandem
+    } );
 
     this.sceneProperty = sceneProperty;
     this.activeDisplayModeProperty = activeDisplayModeProperty;
@@ -121,6 +138,9 @@ export default class TimePlotNode extends Node {
     // Clear the accumulated time series when display mode changes so the trace restarts in the
     // newly selected representation.
     activeDisplayModeProperty.link( () => this.clearData() );
+
+    // Probe first: it selects the sampled point, while the chart panel is only repositioned.
+    this.pdomOrder = [ this.probeNode, this.chartNode ];
   }
 
   /**
@@ -137,7 +157,10 @@ export default class TimePlotNode extends Node {
     waveRegionWidth: number,
     waveRegionHeight: number
   ): WavePlotChartNode {
-    return new WavePlotChartNode( {
+    return new WavePlotChartNode( combineOptions<WavePlotChartNodeOptions>( {
+      accessibleName: QuantumWaveInterferenceFluent.a11y.timePlot.chart.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.timePlot.chart.accessibleHelpTextStringProperty
+    }, AccessibleDraggableOptions, {
       yAxisLabelStringProperty: waveDisplayModeYAxisLabelProperty( this.activeDisplayModeProperty ),
       xAxisLabelStringProperty: QuantumWaveInterferenceFluent.timeStringProperty,
       polarityProperty: waveDisplayModePolarityProperty( this.activeDisplayModeProperty ),
@@ -152,26 +175,44 @@ export default class TimePlotNode extends Node {
       x: waveRegionX + waveRegionWidth - TIME_PLOT_CHART_WIDTH - 30,
       y: waveRegionY + waveRegionHeight - MEASUREMENT_PLOT_CHART_HEIGHT - 40,
       tandem: this.plotTandem.createTandem( 'chartNode' )
-    } );
+    } ) );
   }
 
   /**
    * Creates the draggable crosshair probe that selects the wave-region point sampled by the chart.
+   * The probe is focusable and movable with both the pointer and the keyboard.
    */
   private createCrosshairProbe(): Node {
-    const probe = new ProbeNode( {
-      color: PROBE_COLOR,
+    const probe = new InteractiveHighlightingNode( combineOptions<NodeOptions>( {
       cursor: 'pointer',
-      sensorTypeFunction: ProbeNode.crosshairs( { stroke: CROSSHAIR_STROKE_COLOR } ),
-      scale: PROBE_SCALE
-    } );
+      children: [
+        new ProbeNode( {
+          color: PROBE_COLOR,
+          sensorTypeFunction: ProbeNode.crosshairs( { stroke: CROSSHAIR_STROKE_COLOR } ),
+          scale: PROBE_SCALE
+        } )
+      ],
+      accessibleName: QuantumWaveInterferenceFluent.a11y.timePlot.probe.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.timePlot.probe.accessibleHelpTextStringProperty
+    }, AccessibleDraggableOptions ) );
 
-    probe.addInputListener( new DragListener( {
+    const dragBoundsProperty = new Property( this.waveRegionBounds );
+
+    probe.addInputListener( new SoundDragListener( {
       positionProperty: this.probePositionProperty,
-      dragBoundsProperty: new Property( this.waveRegionBounds ),
+      dragBoundsProperty: dragBoundsProperty,
       useParentOffset: true,
       start: () => this.moveToFront(),
       tandem: this.plotTandem.createTandem( 'probeDragListener' )
+    } ) );
+
+    probe.addInputListener( new SoundKeyboardDragListener( {
+      positionProperty: this.probePositionProperty,
+      dragBoundsProperty: dragBoundsProperty,
+      dragDelta: PROBE_KEYBOARD_DRAG_DELTA,
+      shiftDragDelta: PROBE_KEYBOARD_SHIFT_DRAG_DELTA,
+      start: () => this.moveToFront(),
+      tandem: this.plotTandem.createTandem( 'probeKeyboardDragListener' )
     } ) );
 
     return probe;
@@ -270,6 +311,16 @@ export default class TimePlotNode extends Node {
   private clearData(): void {
     this.dataSeries.reset();
     this.chartNode.clearDataPath();
+  }
+
+  /**
+   * Gets the chart panel's origin in this node's parent frame, for agent-facing accessible view
+   * state snapshots. Has no side effects.
+   *
+   * @returns the chart panel position
+   */
+  public getChartPosition(): Vector2 {
+    return this.chartNode.positionProperty.value;
   }
 
   public reset(): void {

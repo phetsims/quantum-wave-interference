@@ -22,7 +22,9 @@ import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import ShadedRectangle from '../../../../scenery-phet/js/ShadedRectangle.js';
-import DragListener from '../../../../scenery/js/listeners/DragListener.js';
+import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
+import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboardDragListener.js';
+import InteractiveHighlighting from '../../../../scenery/js/accessibility/voicing/InteractiveHighlighting.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
@@ -65,21 +67,23 @@ type SelfOptions = {
   panelRightPadding?: number;
 };
 
-type WavePlotChartNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
+export type WavePlotChartNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
 export type WavePlotDataPoint = {
   x: number;
   value: number;
 };
 
-export default class WavePlotChartNode extends Node {
+export default class WavePlotChartNode extends InteractiveHighlighting( Node ) {
 
   public readonly dataPath: Path;
   public readonly chartWidth: number;
   public readonly chartHeight: number;
   private readonly baselineYProperty: TReadOnlyProperty<number>;
   private readonly halfAmplitudeHeightProperty: TReadOnlyProperty<number>;
-  private readonly positionProperty: Vector2Property;
+
+  // Panel origin in the parent frame. Public so tools can report the panel position in accessible view state.
+  public readonly positionProperty: Vector2Property;
   private dataPathShape: Shape | null = null;
   private dataPathPoints: Vector2[] = [];
 
@@ -268,10 +272,18 @@ export default class WavePlotChartNode extends Node {
         }
       } );
 
-      this.addInputListener( new DragListener( {
+      this.addInputListener( new SoundDragListener( {
         positionProperty: this.positionProperty,
         dragBoundsProperty: adjustedDragBoundsProperty,
         tandem: options.tandem.createTandem( 'dragListener' )
+      } ) );
+
+      this.addInputListener( new SoundKeyboardDragListener( {
+        positionProperty: this.positionProperty,
+        dragBoundsProperty: adjustedDragBoundsProperty,
+        dragDelta: 10,
+        shiftDragDelta: 2,
+        tandem: options.tandem.createTandem( 'keyboardDragListener' )
       } ) );
     }
   }
