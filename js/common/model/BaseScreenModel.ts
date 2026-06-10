@@ -25,7 +25,7 @@ import { type BarrierType } from './BarrierType.js';
 import type BaseSceneModel from './BaseSceneModel.js';
 import type { Snapshot } from './Snapshot.js';
 import TimeSpeedProperty from './TimeSpeedProperty.js';
-import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues, type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues, type WaveDisplayMode } from './WaveDisplayMode.js';
+import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues, type PhotonWaveDisplayMode, PhotonWaveDisplayModeValues, type WaveDisplayMode, WaveDisplayModeValues } from './WaveDisplayMode.js';
 
 const NOMINAL_DT = 1 / 60;
 const SLOW_TIME_SPEED_FACTOR = 0.15;
@@ -135,7 +135,16 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     } );
 
     this.currentWaveDisplayModeProperty = new DynamicProperty<WaveDisplayMode, WaveDisplayMode, BaseSceneModel>( this.sceneProperty, {
-      derive: 'activeWaveDisplayModeProperty'
+      derive: 'activeWaveDisplayModeProperty',
+      tandem: tandem.createTandem( 'currentWaveDisplayModeProperty' ),
+      phetioFeatured: true,
+      phetioReadOnly: true,
+      phetioState: false,
+      phetioDocumentation: 'The wave display mode currently shown in the wave area, unified across photon and matter ' +
+                           'scenes. To change the mode, set currentPhotonWaveDisplayModeProperty or ' +
+                           'currentMatterWaveDisplayModeProperty.',
+      phetioValueType: StringUnionIO( WaveDisplayModeValues ),
+      validValues: WaveDisplayModeValues
     } );
 
     this.currentSlitSeparationProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {
@@ -164,7 +173,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       derive: 'photonWaveDisplayModeProperty',
       bidirectional: true,
       tandem: tandem.createTandem( 'currentPhotonWaveDisplayModeProperty' ),
-      phetioFeatured: true,
+      phetioFeatured: false,
       phetioValueType: StringUnionIO( PhotonWaveDisplayModeValues ),
       validValues: PhotonWaveDisplayModeValues
     } );
@@ -173,7 +182,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       derive: 'matterWaveDisplayModeProperty',
       bidirectional: true,
       tandem: tandem.createTandem( 'currentMatterWaveDisplayModeProperty' ),
-      phetioFeatured: true,
+      phetioFeatured: false,
       phetioValueType: StringUnionIO( MatterWaveDisplayModeValues ),
       validValues: MatterWaveDisplayModeValues
     } );

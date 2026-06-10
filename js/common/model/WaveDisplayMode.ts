@@ -19,6 +19,9 @@ export type MatterWaveDisplayMode = typeof MatterWaveDisplayModeValues[number];
 
 export type WaveDisplayMode = PhotonWaveDisplayMode | MatterWaveDisplayMode;
 
+// All wave display modes across both source types, with the shared 'amplitude' mode listed once.
+export const WaveDisplayModeValues: readonly WaveDisplayMode[] = _.uniq( [ ...PhotonWaveDisplayModeValues, ...MatterWaveDisplayModeValues ] );
+
 /**
  * Extracts a scalar displayed value from complex amplitude (re, im) based on the active wave display mode.
  *

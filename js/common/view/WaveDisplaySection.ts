@@ -81,6 +81,10 @@ export default class WaveDisplaySection extends VBox {
         accessibleName: QuantumWaveInterferenceFluent.waveDisplayStringProperty,
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.photonWaveDisplayComboBox.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( 'photonWaveDisplayComboBox' ),
+
+        // Unfeatured to match currentPhotonWaveDisplayModeProperty. Clients observe the mode through the featured
+        // currentWaveDisplayModeProperty instead.
+        phetioFeatured: false,
         xMargin: COMBO_BOX_X_MARGIN,
         yMargin: COMBO_BOX_Y_MARGIN
       }
@@ -103,6 +107,10 @@ export default class WaveDisplaySection extends VBox {
       {
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.matterWaveDisplayComboBox.accessibleHelpTextStringProperty,
         tandem: tandem.createTandem( 'matterWaveDisplayComboBox' ),
+
+        // Unfeatured to match currentMatterWaveDisplayModeProperty. Clients observe the mode through the featured
+        // currentWaveDisplayModeProperty instead.
+        phetioFeatured: false,
         xMargin: COMBO_BOX_X_MARGIN,
         yMargin: COMBO_BOX_Y_MARGIN
       }
