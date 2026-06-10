@@ -58,6 +58,17 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       beamDescription: formatSourceBeamDescription( after )
     } );
 
+    // Shared plan for changes that restart the wave: announce the change, and if the source is emitting,
+    // also announce the advancing wave, flush prior responses, and drop the response group.
+    const applySourceRestartingPlan = ( changeResponse: string ) => {
+      contextResponses = [
+        changeResponse,
+        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
+      ];
+      responseGroup = after.isEmitting ? null : responseGroup;
+      flushBeforeResponses = after.isEmitting;
+    };
+
     if ( action.type === 'sourceChanged' ) {
       if ( after.isEmitting ) {
         contextResponses = [
@@ -97,27 +108,25 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       ];
     }
     else if ( action.type === 'slitConfigurationChanged' ) {
-      contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
-          isEmitting: toFluentBoolean( after.isEmitting ),
-          slitSetting: after.slitConfiguration,
-          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
-        } ),
-        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
-      ];
-      responseGroup = after.isEmitting ? null : responseGroup;
-      flushBeforeResponses = after.isEmitting;
+      applySourceRestartingPlan( QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
+        isEmitting: toFluentBoolean( after.isEmitting ),
+        slitSetting: after.slitConfiguration,
+        sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+      } ) );
     }
-    else if ( action.type === 'slitSeparationChanged' ) {
-      contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitSeparationChanged.format( {
-          isEmitting: toFluentBoolean( after.isEmitting ),
-          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
-        } ),
-        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
-      ];
-      responseGroup = after.isEmitting ? null : responseGroup;
-      flushBeforeResponses = after.isEmitting;
+    else if ( action.type === 'slitSeparationChanged' || action.type === 'wavelengthChanged' || action.type === 'speedChanged' ) {
+
+      // These three parameter changes share the same response structure, differing only in which Fluent message
+      // announces the change.
+      const message = action.type === 'slitSeparationChanged' ? QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitSeparationChanged :
+                      action.type === 'wavelengthChanged' ? QuantumWaveInterferenceFluent.a11y.highIntensityResponses.wavelengthChanged :
+                      action.type === 'speedChanged' ? QuantumWaveInterferenceFluent.a11y.highIntensityResponses.speedChanged :
+                      ( () => { throw new Error( `Unrecognized action type: ${action}` ); } )();
+
+      applySourceRestartingPlan( message.format( {
+        isEmitting: toFluentBoolean( after.isEmitting ),
+        sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+      } ) );
     }
     else if ( action.type === 'slitPositionChanged' ) {
       contextResponses = after.isEmitting ?
@@ -126,28 +135,6 @@ export default class QuantumWaveInterferenceTransitionDescriber {
                            advancingWaveResponse
                          ] :
                          [];
-      responseGroup = after.isEmitting ? null : responseGroup;
-      flushBeforeResponses = after.isEmitting;
-    }
-    else if ( action.type === 'wavelengthChanged' ) {
-      contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.wavelengthChanged.format( {
-          isEmitting: toFluentBoolean( after.isEmitting ),
-          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
-        } ),
-        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
-      ];
-      responseGroup = after.isEmitting ? null : responseGroup;
-      flushBeforeResponses = after.isEmitting;
-    }
-    else if ( action.type === 'speedChanged' ) {
-      contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.speedChanged.format( {
-          isEmitting: toFluentBoolean( after.isEmitting ),
-          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
-        } ),
-        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
-      ];
       responseGroup = after.isEmitting ? null : responseGroup;
       flushBeforeResponses = after.isEmitting;
     }
