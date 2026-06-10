@@ -16,6 +16,7 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
+import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
@@ -258,8 +259,8 @@ export default class HighIntensityScreenView extends ScreenView {
     const detectorScreenControls = this.createAndAddDetectorScreenControls(
       model,
       () => {
-        assert && assert( accessibleResponses, 'Expected accessible responses to be initialized before clearing the screen.' );
-        accessibleResponses!.clearScreenAndEmitResponse( () => model.sceneProperty.value.clearScreen() );
+        affirm( accessibleResponses, 'Expected accessible responses to be initialized before clearing the screen.' );
+        accessibleResponses.clearScreenAndEmitResponse( () => model.sceneProperty.value.clearScreen() );
       },
       this.detectorPatternGraphLayerNode,
       this.detectorScreenNode,
@@ -323,7 +324,7 @@ export default class HighIntensityScreenView extends ScreenView {
     const measurementTools = this.measurementToolsNode.getAccessibleViewState().measurementTools;
     const slitBarrier = this.doubleSlitNode.getAccessibleViewState()?.slitBarrier;
 
-    assert && assert( slitBarrier, 'Expected High Intensity slit-barrier view state.' );
+    affirm( slitBarrier, 'Expected High Intensity slit-barrier view state.' );
 
     return Object.assign(
       this.getSemanticAccessibleViewState(),
@@ -331,7 +332,7 @@ export default class HighIntensityScreenView extends ScreenView {
       this.detectorPatternGraphLayerNode.getAccessibleViewState(),
       this.waveVisualizationNode.getAccessibleViewState(),
       {
-        slitBarrier: slitBarrier!,
+        slitBarrier: slitBarrier,
         measurementTools: measurementTools
       }
     );
@@ -392,6 +393,7 @@ export default class HighIntensityScreenView extends ScreenView {
    * Creates the source controls and scene selector on the left side of the screen.
    *
    * @param model - the screen model that owns the source and scene state
+   * @param sceneTandems
    * @param tandem - parent tandem for child instrumentation
    * @returns the source nodes and left-column measurements needed by later layout sections
    */
@@ -467,6 +469,7 @@ export default class HighIntensityScreenView extends ScreenView {
    * @param leftColumnCenterX - horizontal center for the source controls column
    * @param waveRegionLayout - coordinates for the main wave region
    * @param sourceBeamRightLimitXProperty - mutable right limit that responds to the detector-screen controls width
+   * @param sceneTandems
    * @param tandem - parent tandem for child instrumentation
    * @returns the source beam callout node, used for particle-mass annotation layout and accessible description
    */
@@ -521,6 +524,7 @@ export default class HighIntensityScreenView extends ScreenView {
    *
    * @param model - the screen model that owns wave, slit, and detector state
    * @param waveRegionLayout - coordinates for positioning the wave region and detector screen
+   * @param tandem
    * @returns the detector screen and wave visualization nodes retained by the ScreenView
    */
   private createAndAddWaveRegionNodes( model: HighIntensityModel, waveRegionLayout: WaveRegionLayout, tandem: Tandem ): WaveRegionNodes {
@@ -554,6 +558,7 @@ export default class HighIntensityScreenView extends ScreenView {
    *
    * @param model - the screen model that owns slit configuration state
    * @param waveRegionLayout - coordinates for aligning controls with the wave region
+   * @param sceneTandems
    * @param tandem - parent tandem for child instrumentation
    * @returns the row of slit controls, used by accessible description
    */
@@ -772,6 +777,7 @@ export default class HighIntensityScreenView extends ScreenView {
    * @param bottomRow - slit controls included in the slit description
    * @param doubleSlitNode - slit-position slider included in the slit description
    * @param detectorScreenControls - detector controls included in the detector-screen description
+   * @param getAccessibleViewState
    * @returns the description node used for PDOM order
    */
   private createAndAddScreenViewDescription(

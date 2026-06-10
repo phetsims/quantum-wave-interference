@@ -6,7 +6,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
@@ -19,15 +18,6 @@ import { type HighIntensityAccessibleViewState } from './HighIntensityAccessible
 import { formatDetectorDescription, formatParticleDescription, formatSlitDescription, formatSourceBeamDescription, toFluentBoolean } from './QWIAccessibleStateFormatters.js';
 
 export default class QWIAccessibleStateTemplate {
-
-  public static createCurrentDetailsTemplateProperty(
-    model: HighIntensityModel,
-    getAccessibleViewState: () => HighIntensityAccessibleViewState
-  ): TReadOnlyProperty<AccessibleTemplateValue> {
-    return DerivedProperty.deriveAny( QWIAccessibleStateTemplate.createDependencies( model ), () => {
-      return QWIAccessibleStateTemplate.createCurrentDetailsTemplate( getAccessibleViewState() );
-    } );
-  }
 
   /**
    * Creates the Property dependency list for derived descriptions that read the full High Intensity accessible state.

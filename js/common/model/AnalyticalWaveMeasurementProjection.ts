@@ -137,7 +137,7 @@ export function applyMeasurementProjections(
  *
  * At the measurement instant, the mask removes amplitude inside the detector disk with optional
  * boundary feathering. Afterward, the deficit advects with the packet and spreads as a centered
- * super-Gaussian so the visual bite fills in over time. This helper is pure.
+ * super-Gaussian so the visual bite fills in as time passes. This helper is pure.
  */
 function getMeasurementProjectionMask(
   projection: MeasurementProjection,

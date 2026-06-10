@@ -22,6 +22,7 @@ import SlitConfigurationControlsRow from './SlitConfigurationControlsRow.js';
  * @param slitConfigurationProperty - current slit configuration for the active scene
  * @param sceneProperty - active scene Property
  * @param scenes - scene models that each own a slit separation control
+ * @param sceneTandems
  * @param waveRegionLeft - left edge used to align the row with the wave region
  * @param slitControlsBottom - bottom edge used to align the row near the bottom of the screen
  * @param listParent - parent node used by the combo box popup list

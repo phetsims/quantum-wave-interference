@@ -13,7 +13,6 @@
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
-import Property from '../../../../axon/js/Property.js';
 import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
@@ -66,7 +65,6 @@ export const SCREEN_DETECTION_TIMING_PARAMETERS: ScreenDetectionTimingParameters
 
 // Display-only gain for the wave visualization on the Single Particles screen. This intentionally
 // affects canvas brightness/saturation without changing wave propagation, detector probabilities, or hits.
-const SINGLE_PARTICLES_WAVE_DISPLAY_GAIN = 1.75;
 const MICROMETER_TO_MM = 1e-3;
 const NANOMETER_TO_MM = 1e-6;
 
@@ -94,10 +92,6 @@ export type SingleParticlesSceneModelOptions = BaseSceneModelOptions;
 export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public readonly autoRepeatProperty: BooleanProperty;
-
-  // Single particles have no intensity slider, but use a display-only gain so the post-slit packet
-  // remains visible in the wave region. This does not affect detector probabilities or hit sampling.
-  public readonly waveAmplitudeScaleProperty: TReadOnlyProperty<number> = new Property<number>( SINGLE_PARTICLES_WAVE_DISPLAY_GAIN );
 
   // Whether a wave packet is currently propagating through the visualization region
   public readonly isPacketActiveProperty: BooleanProperty;

@@ -296,6 +296,8 @@ export default class ExperimentScreenView extends ScreenView {
   /**
    * Gets authored semantic state for agent-facing accessibility snapshots.
    *
+   * Called by the Description Editor
+   *
    * @returns current Experiment screen accessibility state
    */
   public getAccessibleState(): ExperimentAccessibleState {

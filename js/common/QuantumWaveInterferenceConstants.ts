@@ -113,7 +113,6 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly WAVE_REGION_WIDTH = 420;
   public static readonly WAVE_REGION_HEIGHT = 385;
   public static readonly DETECTOR_SCREEN_WIDTH = 88;
-  public static readonly DETECTOR_SCREEN_OVERLAP = 15;
 
   // Angle of the detector screen's top/bottom edges above horizontal (degrees). The left and right
   // edges are vertical; adjusting this single value changes the perspective skew.

@@ -556,7 +556,7 @@ function addComponentToGroupState( groupState: CoherenceGroupDisplayState, compo
  * Computes the visibility of one sampled field point for rendering.
  *
  * getDisplayState calls this after all coherence groups have been summarized. Explicit kernel support
- * is used when available, which lets analytical wavefront tapers control visibility directly. Otherwise
+ * is used when available, which lets analytical wavefront tapers control visibility directly. Otherwise,
  * visibility falls back to scaled component magnitude so very weak fields fade toward vacuum instead of
  * producing fully saturated dark pixels.
  *

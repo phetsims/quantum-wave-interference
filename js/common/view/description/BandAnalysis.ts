@@ -29,8 +29,7 @@ type TheoreticalPatternScene = {
   regionWidth: number;
   slitPositionFractionProperty: TReadOnlyProperty<number>;
   slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
-}
-  );
+} );
 
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
 // updates so they only fire at pedagogically meaningful thresholds.
@@ -100,9 +99,6 @@ const getEnvelopeCategory = ( envelopeScore: number ): EnvelopeCategory =>
   'clusteringIntoTwoDistinctSections';
 
 export default class BandAnalysis {
-
-  // Number of bins used when analyzing hit data
-  private static readonly ANALYSIS_BIN_COUNT = 200;
 
   /**
    * Computes band information analytically from the interference/diffraction formula. For double slit,

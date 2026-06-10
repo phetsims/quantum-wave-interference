@@ -12,6 +12,7 @@ import { type BandAnalysisResult, type HitStage } from './BandAnalysis.js';
 /**
  * Formats the accessible detector-screen description for average-intensity mode.
  * @param isDoubleSlit - whether the current slit configuration produces a double-slit interference pattern
+ * @param isNoBarrier
  * @param analysis - analyzed band/spacing data for the visible detector-screen region
  * @param spatialDescription - localized spatial description of the visible pattern
  * @returns localized accessible paragraph text
@@ -39,6 +40,7 @@ export function formatIntensityDescription(
  * @param hitStage - qualitative stage of accumulated hit formation
  * @param isDoubleSlit - whether the current slit configuration produces a double-slit interference pattern
  * @param isNoBarrier - whether no barrier is between the source and detector screen
+ * @param analysis
  * @param spatialDescription - localized spatial description of the visible pattern
  * @returns localized accessible paragraph text
  */

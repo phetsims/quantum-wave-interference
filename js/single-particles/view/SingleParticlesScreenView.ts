@@ -9,6 +9,7 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
+import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -412,7 +413,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     const slitBarrier = this.doubleSlitNode.getAccessibleViewState()?.slitBarrier;
     const slitConfiguration = this.model.currentSlitConfigurationProperty.value;
 
-    assert && assert( slitBarrier, 'Expected Single Particles slit-barrier view state.' );
+    affirm( slitBarrier, 'Expected Single Particles slit-barrier view state.' );
 
     // NOTE: see other duplicate in quantum-wave-interference/js/experiment/view/ExperimentScreenView.ts.
     // These common accessible-state fields stay inline because the screens expose different authored state shapes.
@@ -447,7 +448,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       this.detectorPatternGraphLayerNode.getAccessibleViewState(),
       this.waveVisualizationNode.getAccessibleViewState(),
       {
-        slitBarrier: slitBarrier!,
+        slitBarrier: slitBarrier,
         measurementTools: measurementTools
       },
       this.detectorToolNode.getAccessibleViewState()

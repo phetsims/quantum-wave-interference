@@ -669,10 +669,6 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return {};
   }
 
-  protected applySubclassState( stateObject: object ): void {
-    // No-op in the base class.
-  }
-
   public static applyBaseSceneModelState( model: BaseSceneModel, stateObject: BaseSceneModelStateObject ): void {
     model.waveSolver.setState( stateObject.waveSolverState );
     model.hits.length = 0;
@@ -685,6 +681,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
     model.applySubclassState( stateObject.subclassState );
     model.syncSolverParameters();
     model.hitsChangedEmitter.emit();
+  }
+
+  protected applySubclassState( stateObject: object ): void {
+    // No-op in the base class.
   }
 
   /**
