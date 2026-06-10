@@ -91,6 +91,18 @@ const SINGLE_PARTICLES_SLIT_SEPARATION_CONFIGS: Record<SourceType, SlitSeparatio
 
 export type SingleParticlesSceneModelOptions = BaseSceneModelOptions;
 
+// Serialized transient packet run state, see getSubclassState(). All fields are optional so states saved before a
+// field existed still restore with constructor defaults. targetOnSlitDetectionTime uses null to encode
+// Number.POSITIVE_INFINITY (no pending on-slit detection), since Infinity is not JSON-serializable.
+type SingleParticlesSceneModelStateObject = {
+  timeSinceLastEmission?: number;
+  targetDetectionTime?: number;
+  targetOnSlitDetectionTime?: number | null;
+  deterministicOnSlitArrivalTime?: number;
+  hasCreatedPacketDecoherenceEvent?: boolean;
+  packetReEmission?: GaussianPacketReEmission | null;
+};
+
 export default class SingleParticlesSceneModel extends BaseSceneModel {
 
   public readonly autoRepeatProperty: BooleanProperty;
@@ -654,6 +666,48 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   public resetDetectorToolState(): void {
     this.detectorToolProbabilityProperty.value = this.computeDetectorProbability();
     this.detectorToolStateProperty.value = 'ready';
+  }
+
+  /**
+   * Serializes the transient single-packet run state for PhET-iO. Without this, a restored sim recomputes the wave
+   * field with packetReEmission: null (syncSolverParameters() runs after the solver state is applied), so a packet
+   * that collapsed at a slit detector would incorrectly render as the original two-slit packet, and the packet's
+   * sampled detection times would resample differently in the restored sim.
+   *
+   * @returns the transient packet run state, with Infinity encoded as null for JSON compatibility
+   */
+  protected override getSubclassState(): SingleParticlesSceneModelStateObject {
+    return {
+      timeSinceLastEmission: this.timeSinceLastEmission,
+      targetDetectionTime: this.targetDetectionTime,
+      targetOnSlitDetectionTime: this.targetOnSlitDetectionTime === Number.POSITIVE_INFINITY ? null : this.targetOnSlitDetectionTime,
+      deterministicOnSlitArrivalTime: this.deterministicOnSlitArrivalTime,
+      hasCreatedPacketDecoherenceEvent: this.hasCreatedPacketDecoherenceEvent,
+      packetReEmission: this.packetReEmission ? _.assign( {}, this.packetReEmission ) : null
+    };
+  }
+
+  /**
+   * Restores the transient single-packet run state saved by getSubclassState(). Called by
+   * BaseSceneModel.applyBaseSceneModelState() before syncSolverParameters(), so the restored packetReEmission is
+   * pushed to the wave solver. Missing fields fall back to their constructor defaults so older saved states
+   * still restore.
+   *
+   * @param stateObject - the transient packet run state saved by getSubclassState()
+   */
+  protected override applySubclassState( stateObject: SingleParticlesSceneModelStateObject ): void {
+    this.timeSinceLastEmission = typeof stateObject.timeSinceLastEmission === 'number' ?
+                                 stateObject.timeSinceLastEmission : MIN_EMISSION_INTERVAL;
+    this.targetDetectionTime = typeof stateObject.targetDetectionTime === 'number' ?
+                               stateObject.targetDetectionTime :
+                               QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
+    this.targetOnSlitDetectionTime = typeof stateObject.targetOnSlitDetectionTime === 'number' ?
+                                     stateObject.targetOnSlitDetectionTime : Number.POSITIVE_INFINITY;
+    this.deterministicOnSlitArrivalTime = typeof stateObject.deterministicOnSlitArrivalTime === 'number' ?
+                                          stateObject.deterministicOnSlitArrivalTime :
+                                          QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
+    this.hasCreatedPacketDecoherenceEvent = stateObject.hasCreatedPacketDecoherenceEvent === true;
+    this.packetReEmission = stateObject.packetReEmission ? _.assign( {}, stateObject.packetReEmission ) : null;
   }
 
   public override reset(): void {
