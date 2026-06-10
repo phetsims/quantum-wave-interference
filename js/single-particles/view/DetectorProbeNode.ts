@@ -14,17 +14,22 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
+import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Shape from '../../../../kite/js/Shape.js';
+import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import ModelViewTransform2 from '../../../../phetcommon/js/view/ModelViewTransform2.js';
+import AccessibleDraggableOptions from '../../../../scenery-phet/js/accessibility/grab-drag/AccessibleDraggableOptions.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import SoundDragListener from '../../../../scenery-phet/js/SoundDragListener.js';
+import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboardDragListener.js';
 import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
+import InteractiveHighlightingNode from '../../../../scenery/js/accessibility/voicing/nodes/InteractiveHighlightingNode.js';
 import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
-import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
-import Node from '../../../../scenery/js/nodes/Node.js';
+import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Path from '../../../../scenery/js/nodes/Path.js';
 import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -48,6 +53,10 @@ const CIRCLE_FILL_READY = new Color( 135, 206, 250, 0.3 );
 const CIRCLE_FILL_NOT_DETECTED = new Color( 80, 80, 80, 0.5 );
 const CIRCLE_STROKE = new Color( 50, 50, 50 );
 const WIRE_STROKE = new Color( 100, 100, 100 );
+
+// Keyboard drag deltas in view pixels per key press, consistent with other draggable tools in this sim.
+const PROBE_KEYBOARD_DRAG_DELTA = 8;
+const PROBE_KEYBOARD_SHIFT_DRAG_DELTA = 2;
 
 /**
  * View/controller for the detector tool. The detector's position and radius are stored in model coordinates normalized
@@ -78,7 +87,17 @@ export default class DetectorProbeNode extends Node {
     getControlPanelCenterY: () => number,
     tandem: Tandem
   ) {
-    super( { isDisposable: false } );
+    super( {
+      isDisposable: false,
+
+      // Core description mirroring the visual readout inside the probe circle: the detection chance while ready,
+      // or the measurement result. The probability is formatted to match the visual percent readout.
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.detectorProbe.accessibleParagraph.createProperty( {
+        state: currentDetectorTool.stateProperty,
+        probability: new DerivedProperty( [ currentDetectorTool.probabilityProperty ],
+          probability => toFixed( probability * 100, 1 ) )
+      } )
+    } );
 
     this.currentDetectorTool = currentDetectorTool;
 
@@ -114,9 +133,13 @@ export default class DetectorProbeNode extends Node {
       pickable: false
     } );
 
-    const circleContainer = new Node( {
-      children: [ circleNode, probabilityText, stateText ]
-    } );
+    // The probe circle is focusable and movable with both the pointer and the keyboard, and shows an
+    // interactive highlight on pointer hover.
+    const circleContainer = new InteractiveHighlightingNode( combineOptions<NodeOptions>( {
+      children: [ circleNode, probabilityText, stateText ],
+      accessibleName: QuantumWaveInterferenceFluent.a11y.detectorProbe.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorProbe.accessibleHelpTextStringProperty
+    }, AccessibleDraggableOptions ) );
 
     this.addChild( circleContainer );
 
@@ -149,6 +172,15 @@ export default class DetectorProbeNode extends Node {
 
     const detectButton = new RectangularPushButton( {
       content: new Node( { children: [ detectTextBox, resetTextBox ] } ),
+
+      // The visual label is two stacked Text nodes, so the accessible name must be provided explicitly and
+      // track the same state.
+      accessibleName: new DerivedProperty(
+        [ currentDetectorTool.stateProperty,
+          QuantumWaveInterferenceFluent.detectStringProperty,
+          QuantumWaveInterferenceFluent.resetDetectorStringProperty ],
+        ( state, detectString, resetString ) => state === 'ready' ? detectString : resetString
+      ),
       baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty,
       listener: () => {
         if ( currentDetectorTool.stateProperty.value === 'ready' ) {
@@ -172,6 +204,9 @@ export default class DetectorProbeNode extends Node {
       {
         trackSize: new Dimension2( 80, 3 ),
         thumbSize: new Dimension2( 11, 18 ),
+
+        // The visual label is a separate Text node, so the slider needs the same string as its accessible name.
+        accessibleName: QuantumWaveInterferenceFluent.detectorSizeStringProperty,
         tandem: tandem.createTandem( 'sizeSlider' )
       }
     );
@@ -248,13 +283,26 @@ export default class DetectorProbeNode extends Node {
     const dragBoundsProperty = new DerivedProperty( [ currentDetectorTool.radiusProperty ],
       radius => SingleParticlesSceneModel.getDetectorToolCenterBounds( radius ) );
 
-    const dragListener = new DragListener( {
+    // Pointer dragging, with grab/release sound effects.
+    const dragListener = new SoundDragListener( {
       positionProperty: currentDetectorTool.positionProperty,
       transform: detectorToolModelViewTransform,
       dragBoundsProperty: dragBoundsProperty,
       tandem: tandem.createTandem( 'dragListener' )
     } );
     circleContainer.addInputListener( dragListener );
+
+    // Keyboard dragging via arrow/WASD keys, with the same grab/release sound effects. Drag deltas are in view
+    // pixels and are converted to normalized model coordinates through the transform.
+    const keyboardDragListener = new SoundKeyboardDragListener( {
+      positionProperty: currentDetectorTool.positionProperty,
+      transform: detectorToolModelViewTransform,
+      dragBoundsProperty: dragBoundsProperty,
+      dragDelta: PROBE_KEYBOARD_DRAG_DELTA,
+      shiftDragDelta: PROBE_KEYBOARD_SHIFT_DRAG_DELTA,
+      tandem: tandem.createTandem( 'keyboardDragListener' )
+    } );
+    circleContainer.addInputListener( keyboardDragListener );
 
     // --- Update probability label and circle fill ---
 
@@ -306,6 +354,9 @@ export default class DetectorProbeNode extends Node {
         this.visible = isVisible && isAvailable;
       }
     );
+
+    // Probe first: it selects the measurement region, while the panel holds its controls. The wire is visual only.
+    this.pdomOrder = [ circleContainer, controlPanel ];
   }
 
   /**

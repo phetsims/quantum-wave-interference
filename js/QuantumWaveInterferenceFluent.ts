@@ -166,6 +166,9 @@ addToMapIfDefined( 'a11y_positionPlot_accessibleHelpText', 'a11y.positionPlot.ac
 addToMapIfDefined( 'a11y_positionPlot_accessibleRegion', 'a11y.positionPlot.accessibleRegionStringProperty' );
 addToMapIfDefined( 'a11y_positionPlot_accessibleValue', 'a11y.positionPlot.accessibleValueStringProperty' );
 addToMapIfDefined( 'a11y_positionPlot_accessibleParagraph', 'a11y.positionPlot.accessibleParagraphStringProperty' );
+addToMapIfDefined( 'a11y_detectorProbe_accessibleName', 'a11y.detectorProbe.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_detectorProbe_accessibleHelpText', 'a11y.detectorProbe.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_detectorProbe_accessibleParagraph', 'a11y.detectorProbe.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_detectorCheckbox_accessibleHelpText', 'a11y.detectorCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitSeparationSlider_accessibleHelpText', 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitPositionSlider_accessibleName', 'a11y.slitPositionSlider.accessibleNameStringProperty' );
@@ -469,6 +472,11 @@ const QuantumWaveInterferenceFluent = {
       accessibleRegion: new FluentPattern<{ region: 'nearTop' | 'aboveCenter' | 'center' | 'belowCenter' | 'nearBottom' | TReadOnlyProperty<'nearTop' | 'aboveCenter' | 'center' | 'belowCenter' | 'nearBottom'> }>( fluentSupport.bundleProperty, 'a11y_positionPlot_accessibleRegion', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlot.accessibleRegionStringProperty' ), [{"name":"region","variants":["nearTop","aboveCenter","center","belowCenter","nearBottom"]}] ),
       accessibleValue: new FluentPattern<{ region: FluentVariable, slitState: 'openSlit' | 'coveredSlit' | 'detectorSlit' | 'noSlit' | TReadOnlyProperty<'openSlit' | 'coveredSlit' | 'detectorSlit' | 'noSlit'> }>( fluentSupport.bundleProperty, 'a11y_positionPlot_accessibleValue', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlot.accessibleValueStringProperty' ), [{"name":"region"},{"name":"slitState","variants":["openSlit","coveredSlit","detectorSlit","noSlit"]}] ),
       accessibleParagraph: new FluentPattern<{ waveDisplayMode: 'electricField' | 'realPart' | 'imaginaryPart' | 'amplitude' | TReadOnlyProperty<'electricField' | 'realPart' | 'imaginaryPart' | 'amplitude'> }>( fluentSupport.bundleProperty, 'a11y_positionPlot_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.positionPlot.accessibleParagraphStringProperty' ), [{"name":"waveDisplayMode","variants":["electricField","realPart","imaginaryPart","amplitude"]}] )
+    },
+    detectorProbe: {
+      accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorProbe_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorProbe.accessibleNameStringProperty' ) ),
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorProbe_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorProbe.accessibleHelpTextStringProperty' ) ),
+      accessibleParagraph: new FluentPattern<{ probability: FluentVariable, state: 'detected' | 'notDetected' | 'ready' | TReadOnlyProperty<'detected' | 'notDetected' | 'ready'> }>( fluentSupport.bundleProperty, 'a11y_detectorProbe_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorProbe.accessibleParagraphStringProperty' ), [{"name":"probability"},{"name":"state","variants":["detected","notDetected","ready"]}] )
     },
     detectorCheckbox: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorCheckbox.accessibleHelpTextStringProperty' ) )

@@ -851,6 +851,15 @@ a11y:
                            [imaginaryPart] imaginary part of wave function
                           *[amplitude] amplitude
                          } versus position along selected row of wave area.
+  detectorProbe:
+    accessibleName:      Detector Probe
+    accessibleHelpText:  Move probe to choose circular region of wave area to check for particle.
+    accessibleParagraph: >-
+                         { $state ->
+                           [detected] Particle detected in probe region.
+                           [notDetected] Particle not detected in probe region.
+                          *[ready] Chance of detecting particle in probe region is { $probability } percent.
+                         }
   detectorCheckbox:
     accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
   slitSeparationSlider:

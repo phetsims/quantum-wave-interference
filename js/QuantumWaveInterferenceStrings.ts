@@ -201,6 +201,11 @@ type StringsType = {
       'accessibleValueStringProperty': LocalizedStringProperty;
       'accessibleParagraphStringProperty': LocalizedStringProperty;
     };
+    'detectorProbe': {
+      'accessibleNameStringProperty': LocalizedStringProperty;
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'accessibleParagraphStringProperty': LocalizedStringProperty;
+    };
     'detectorCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };

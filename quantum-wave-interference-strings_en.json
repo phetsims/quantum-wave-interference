@@ -464,6 +464,17 @@
         "value": "Chart shows { $waveDisplayMode ->\n  [electricField] electric field\n  [realPart] real part of wave function\n  [imaginaryPart] imaginary part of wave function\n *[amplitude] amplitude\n} versus position along selected row of wave area."
       }
     },
+    "detectorProbe": {
+      "accessibleName": {
+        "value": "Detector Probe"
+      },
+      "accessibleHelpText": {
+        "value": "Move probe to choose circular region of wave area to check for particle."
+      },
+      "accessibleParagraph": {
+        "value": "{ $state ->\n  [detected] Particle detected in probe region.\n  [notDetected] Particle not detected in probe region.\n *[ready] Chance of detecting particle in probe region is { $probability } percent.\n}"
+      }
+    },
     "detectorCheckbox": {
       "accessibleHelpText": {
         "value": "Use added detector probe to measure probability of detecting particle in circular region of wave area."
