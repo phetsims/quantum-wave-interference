@@ -6,11 +6,12 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import Property from '../../../../axon/js/Property.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import ExperimentConstants from '../ExperimentConstants.js';
-import ExperimentModel from '../model/ExperimentModel.js';
+import SceneModel from '../model/SceneModel.js';
 import FrontFacingSlitNode from './FrontFacingSlitNode.js';
 import SlitControlPanel from './SlitControlPanel.js';
 
@@ -20,25 +21,33 @@ export default class ExperimentSlitColumnNode extends Node {
 
   private readonly frontFacingSlitNodes: FrontFacingSlitNode[];
 
+  /**
+   * @param sceneProperty - the selected scene, which determines the displayed slit view and controls
+   * @param scenes - all scenes, each getting its own slit view and controls
+   * @param comboBoxParent - parent for the slit settings combo box popup list
+   * @param sceneTandems - the parent Tandem for each scene's controls
+   * @param tandem
+   */
   public constructor(
-    model: ExperimentModel,
+    sceneProperty: Property<SceneModel>,
+    scenes: SceneModel[],
     comboBoxParent: Node,
     sceneTandems: ReadonlyMap<object, Tandem>,
     tandem: Tandem
   ) {
     super( { isDisposable: false } );
 
-    this.frontFacingSlitNodes = model.scenes.map( scene => {
+    this.frontFacingSlitNodes = scenes.map( scene => {
       const slitNode = new FrontFacingSlitNode( scene, {
         tandem: sceneTandems.get( scene )!.createTandem( 'frontFacingSlitNode' )
       } );
       slitNode.y = ExperimentConstants.FRONT_FACING_ROW_TOP;
       return slitNode;
     } );
-    const frontFacingSlitToggleNode = new QuantumWaveInterferenceToggleNode( model.sceneProperty, model.scenes, this.frontFacingSlitNodes );
+    const frontFacingSlitToggleNode = new QuantumWaveInterferenceToggleNode( sceneProperty, scenes, this.frontFacingSlitNodes );
     this.addChild( frontFacingSlitToggleNode );
 
-    this.slitControlPanel = new SlitControlPanel( model.sceneProperty, model.scenes, sceneTandems, comboBoxParent, {
+    this.slitControlPanel = new SlitControlPanel( sceneProperty, scenes, sceneTandems, comboBoxParent, {
       tandem: tandem.createTandem( 'slitControlPanel' )
     } );
     this.slitControlPanel.top = this.frontFacingSlitNodes[ 0 ].bottom + 8;
