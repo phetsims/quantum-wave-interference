@@ -133,19 +133,17 @@ export default class DetectorToolNode extends Node {
     // change size when the state toggles between 'Detect' and 'Reset Detector'.
     const detectButtonTextAlignGroup = new AlignGroup();
 
+    const textOptions = {
+      font: new PhetFont( 13 ),
+      maxWidth: 80
+    };
     const detectTextBox = detectButtonTextAlignGroup.createBox(
-      new Text( QuantumWaveInterferenceFluent.detectStringProperty, {
-        font: new PhetFont( 13 ),
-        maxWidth: 80
-      } ), {
+      new Text( QuantumWaveInterferenceFluent.detectStringProperty, textOptions ), {
         visibleProperty: new DerivedProperty( [ currentDetectorTool.stateProperty ], state => state === 'ready' )
       } );
 
     const resetTextBox = detectButtonTextAlignGroup.createBox(
-      new Text( QuantumWaveInterferenceFluent.resetDetectorStringProperty, {
-        font: new PhetFont( 13 ),
-        maxWidth: 80
-      } ), {
+      new Text( QuantumWaveInterferenceFluent.resetDetectorStringProperty, textOptions ), {
         visibleProperty: new DerivedProperty( [ currentDetectorTool.stateProperty ], state => state !== 'ready' )
       } );
 
