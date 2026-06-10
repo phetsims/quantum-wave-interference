@@ -488,9 +488,9 @@ a11y:
                             }
                             [interferingAfterSlits] { $waveDisplayMode ->
                               [amplitude] Fan-shaped ray pattern forms as overlapping solid waves add and cancel.
-                             *[electricField] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
-                              [realPart] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
-                              [imaginaryPart] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
+                             *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
+                              [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
+                              [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
                             }
                             [diffractingAfterSlits] { $waveDisplayMode ->
                               [amplitude] Solid wave spreads and moves toward detector screen.
@@ -687,9 +687,9 @@ a11y:
                                 }
                                 [interferingAfterSlits] { $waveDisplayMode ->
                                   [amplitude] Fan-shaped ray pattern forms as overlapping solid waves add and cancel.
-                                 *[electricField] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
-                                  [realPart] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
-                                  [imaginaryPart] Fan-shaped checkered pattern forms as overlapping wave fronts add and cancel.
+                                 *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
+                                  [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
+                                  [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
                                 }
                                 [diffractingAfterSlits] { $waveDisplayMode ->
                                   [amplitude] Solid wave spreads and moves toward detector screen.
