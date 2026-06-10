@@ -68,6 +68,7 @@ export const formatDetectorDescription = (
     detectionMode: state.detectionMode,
     patternFormation: patternFormation,
     patternKind: getPatternKindKey( state.patternKind ),
+    waveDisplayMode: state.waveDisplayMode,
     slitSetting: getSingleSlitLocationKey( state ),
     hitStage: state.hitStage,
     hitCount: state.totalHits,

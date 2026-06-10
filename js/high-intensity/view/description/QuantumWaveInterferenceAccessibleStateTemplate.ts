@@ -95,6 +95,7 @@ export default class QuantumWaveInterferenceAccessibleStateTemplate {
       waveDisplayMode: state.waveDisplayMode,
       patternKind: state.patternKind
     } );
+    const includeWaveProgress = !( state.patternKind === 'noBarrier' && state.waveProgress.stage === 'directToScreen' );
     const sourceDescription = formatParticleDescription( state );
     const sourceBeamDescription = formatSourceBeamDescription( state );
     const slitDescription = formatSlitDescription( state );
@@ -104,7 +105,7 @@ export default class QuantumWaveInterferenceAccessibleStateTemplate {
       <p>${overview}</p>
       <p>${sourceStatus}<br>${sourceBeamDescription}<br>${sourceDescription}</p>
       <p>${slitDescription}</p>
-      <p>${waveProgress}</p>
+      ${includeWaveProgress ? html`<p>${waveProgress}</p>` : null}
       <p>${detectorDescription}</p>
       <p>${displayTools}</p>
     `;

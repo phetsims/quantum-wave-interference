@@ -132,7 +132,7 @@ export default function HighIntensityExperimentSetupSequenceItems(
       model,
       getAccessibleViewState,
       state => formatWaveProgress( state, getAfterSlitsStage( state ) ),
-      state => state.isEmitting && ( state.patternKind === 'noBarrier' ? state.waveProgress.hasReachedScreen : state.waveProgress.hasPassedSlits )
+      state => state.isEmitting && state.patternKind !== 'noBarrier' && state.waveProgress.hasPassedSlits
     ),
     createItem(
       model,

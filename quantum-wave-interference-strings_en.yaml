@@ -266,7 +266,7 @@ a11y:
                                 [neutrons] gray
                                 [heliumAtoms] gray
                               } wave moves toward { $slitSetting ->
-                                [noBarrier] the detector screen.
+                                [noBarrier] detector screen.
                                *[bothOpen] slitted barrier.
                                 [leftCovered] slitted barrier.
                                 [rightCovered] slitted barrier.
@@ -288,7 +288,7 @@ a11y:
                                 [neutrons] Gray and black
                                 [heliumAtoms] Gray and black
                               } plane wave fronts move toward { $slitSetting ->
-                                [noBarrier] the detector screen.
+                                [noBarrier] detector screen.
                                *[bothOpen] slitted barrier.
                                 [leftCovered] slitted barrier.
                                 [rightCovered] slitted barrier.
@@ -318,7 +318,7 @@ a11y:
                                 [neutrons] Gray and black
                                 [heliumAtoms] Gray and black
                               } plane wave fronts move toward { $slitSetting ->
-                                [noBarrier] the detector screen.
+                                [noBarrier] detector screen.
                                *[bothOpen] slitted barrier.
                                 [leftCovered] slitted barrier.
                                 [rightCovered] slitted barrier.
@@ -348,7 +348,7 @@ a11y:
                                 [neutrons] Gray and black
                                 [heliumAtoms] Gray and black
                               } plane wave fronts move toward { $slitSetting ->
-                                [noBarrier] the detector screen.
+                                [noBarrier] detector screen.
                                *[bothOpen] slitted barrier.
                                 [leftCovered] slitted barrier.
                                 [rightCovered] slitted barrier.
@@ -397,7 +397,12 @@ a11y:
                                    *[rightCovered] Wide bright area forms on upper part of detector screen.
                                   }
                                   [whichPathDiffraction] Wide bright area forms on detector screen.
-                                 *[noBarrier] Solid wave forms uniform glow across detector screen.
+                                 *[noBarrier] { $waveDisplayMode ->
+                                    [amplitude] Solid wave forms uniform glow on detector screen.
+                                   *[electricField] Plane wave fronts form uniform glow on detector screen.
+                                    [realPart] Plane wave fronts form uniform glow on detector screen.
+                                    [imaginaryPart] Plane wave fronts form uniform glow on detector screen.
+                                  }
                                 }
                                 [complete] { $patternKind ->
                                   [doubleSlitInterference] Across detector screen bright bands are evenly spaced and { $bandSpacing ->
@@ -417,7 +422,7 @@ a11y:
                                   }
                                   [whichPathDiffraction] Across detector screen is a wide bright area fading toward edges,
                                   brightest part at center.
-                                 *[noBarrier] Solid wave forms uniform glow across detector screen.
+                                 *[noBarrier] Across detector screen is a uniform glow from edge to edge.
                                 }
                                 [paused] Detector pattern formation is paused.
                                 [notApplicable] Detector pattern does not apply to the current setup.
@@ -458,9 +463,9 @@ a11y:
                             }
                             [atSlits] { $waveDisplayMode ->
                               [amplitude] { $patternKind ->
-                                [doubleSlitInterference] Solid waves emerge from each open slit and overlap.
-                                [singleSlitDiffraction] Solid wave emerges from open slit only.
-                                [whichPathDiffraction] As detection events occur, solid waves emerge from both slits one at a time
+                                [doubleSlitInterference] Solid circular waves emerge from both slits and overlap.
+                                [singleSlitDiffraction] Solid circular wave emerges from open slit only.
+                                [whichPathDiffraction] As detection events occur, solid circular waves emerge from both slits one at a time
                                 and do not interact.
                                *[noBarrier] Solid wave moves directly toward the detector screen.
                               }
@@ -487,19 +492,19 @@ a11y:
                               }
                             }
                             [interferingAfterSlits] { $waveDisplayMode ->
-                              [amplitude] Fan-shaped ray pattern forms as overlapping solid waves add and cancel.
+                              [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward detector screen.
                              *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
                               [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
                               [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
                             }
                             [diffractingAfterSlits] { $waveDisplayMode ->
-                              [amplitude] Solid wave spreads and moves toward detector screen.
-                             *[electricField] Circular wave fronts spread and move toward detector screen.
-                              [realPart] Circular wave fronts spread and move toward detector screen.
-                              [imaginaryPart] Circular wave fronts spread and move toward detector screen.
+                              [amplitude] Solid circular wave spreads toward detector screen.
+                             *[electricField] Circular wave fronts spread toward detector screen.
+                              [realPart] Circular wave fronts spread toward detector screen.
+                              [imaginaryPart] Circular wave fronts spread toward detector screen.
                             }
                             [whichPathAfterSlits] { $waveDisplayMode ->
-                              [amplitude] Non-interacting solid waves spread toward detector screen.
+                              [amplitude] Non-interacting solid circular waves spread toward detector screen.
                              *[electricField] Non-interacting circular wave fronts spread toward detector screen.
                               [realPart] Non-interacting circular wave fronts spread toward detector screen.
                               [imaginaryPart] Non-interacting circular wave fronts spread toward detector screen.
@@ -657,9 +662,9 @@ a11y:
                                 [sourceOff] Source is off, so no wave is traveling.
                                 [atSlits] { $waveDisplayMode ->
                                   [amplitude] { $patternKind ->
-                                    [doubleSlitInterference] Solid waves emerge from each open slit and overlap.
-                                    [singleSlitDiffraction] Solid wave emerges from open slit only.
-                                    [whichPathDiffraction] As detection events occur, solid waves emerge from both slits one at a time
+                                    [doubleSlitInterference] Solid circular waves emerge from both slits and overlap.
+                                    [singleSlitDiffraction] Solid circular wave emerges from open slit only.
+                                    [whichPathDiffraction] As detection events occur, solid circular waves emerge from both slits one at a time
                                     and do not interact.
                                    *[noBarrier] Solid wave moves directly toward the detector screen.
                                   }
@@ -686,19 +691,19 @@ a11y:
                                   }
                                 }
                                 [interferingAfterSlits] { $waveDisplayMode ->
-                                  [amplitude] Fan-shaped ray pattern forms as overlapping solid waves add and cancel.
+                                  [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward detector screen.
                                  *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
                                   [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
                                   [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
                                 }
                                 [diffractingAfterSlits] { $waveDisplayMode ->
-                                  [amplitude] Solid wave spreads and moves toward detector screen.
-                                 *[electricField] Circular wave fronts spread and move toward detector screen.
-                                  [realPart] Circular wave fronts spread and move toward detector screen.
-                                  [imaginaryPart] Circular wave fronts spread and move toward detector screen.
+                                  [amplitude] Solid circular wave spreads toward detector screen.
+                                 *[electricField] Circular wave fronts spread toward detector screen.
+                                  [realPart] Circular wave fronts spread toward detector screen.
+                                  [imaginaryPart] Circular wave fronts spread toward detector screen.
                                 }
                                 [whichPathAfterSlits] { $waveDisplayMode ->
-                                  [amplitude] Non-interacting solid waves spread toward detector screen.
+                                  [amplitude] Non-interacting solid circular waves spread toward detector screen.
                                  *[electricField] Non-interacting circular wave fronts spread toward detector screen.
                                   [realPart] Non-interacting circular wave fronts spread toward detector screen.
                                   [imaginaryPart] Non-interacting circular wave fronts spread toward detector screen.

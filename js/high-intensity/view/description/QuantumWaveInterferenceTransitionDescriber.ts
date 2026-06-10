@@ -190,7 +190,7 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     }
     else if ( action.type === 'waveProgressChanged' ) {
       const waveProgressStage = after.waveProgress.stage;
-      contextResponses = waveProgressStage === 'travelingToSlits' ? [] :
+      contextResponses = ( waveProgressStage === 'travelingToSlits' || waveProgressStage === 'directToScreen' ) ? [] :
                          [
                            QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
                              waveProgressStage: waveProgressStage,
