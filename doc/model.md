@@ -140,7 +140,7 @@ Other High Intensity controls:
 | Barrier | Choose no barrier or double slit. |
 | Slit configuration | Open both slits, cover either slit, or add which-path detectors. |
 | Detector screen | Show a smooth average intensity pattern or accumulated hits. |
-| Wave display | Photons can show electric field or time-averaged intensity. Matter particles can show magnitude, real part, or imaginary part. |
+| Wave display | Photons can show amplitude or electric field. Matter particles can show amplitude, real part, or imaginary part. Amplitude is the complex magnitude sqrt( re^2 + im^2 ) for all source types. |
 | Screen brightness | Changes visual brightness without changing the probability pattern. |
 | Time speed | Slow, Normal, and Fast change how quickly the model advances. |
 

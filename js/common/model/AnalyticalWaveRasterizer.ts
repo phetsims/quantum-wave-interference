@@ -68,8 +68,6 @@ type NonFieldSample = { kind: 'unreached' | 'absorbed' | 'blocked' };
  *
  * @param sample - Analytical field sample to convert.
  * @param displayMode - Wave display mode controlling how field values map to brightness.
- * @param isPhoton - Whether the sampled wave is a photon wave, which renders 'amplitude' as
- * time-averaged intensity rather than wave function magnitude.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
  * @param colorPower - Spatial contrast boost applied before color clamping.
@@ -78,7 +76,6 @@ type NonFieldSample = { kind: 'unreached' | 'absorbed' | 'blocked' };
 export function getFieldSampleRGBA(
   sample: FieldSample,
   displayMode: WaveDisplayMode,
-  isPhoton: boolean,
   baseColor: RGBColor,
   amplitudeScale: number,
   colorPower = WAVE_VISUALIZATION_COLOR_POWER
@@ -89,7 +86,7 @@ export function getFieldSampleRGBA(
 
   const groupStates = getCoherenceGroupDisplayStates( sample );
   const displayState = getDisplayState( groupStates, amplitudeScale );
-  return getDisplayStateRGBA( displayState, displayMode, isPhoton, baseColor, amplitudeScale, colorPower );
+  return getDisplayStateRGBA( displayState, displayMode, baseColor, amplitudeScale, colorPower );
 }
 
 /**
@@ -105,8 +102,6 @@ export function getFieldSampleRGBA(
  *
  * @param sample - Layered analytical field sample to convert.
  * @param displayMode - Wave display mode controlling how layer values map to brightness.
- * @param isPhoton - Whether the sampled wave is a photon wave, which renders 'amplitude' as
- * time-averaged intensity rather than wave function magnitude.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
  * @param colorPower - Spatial contrast boost applied before color clamping.
@@ -115,7 +110,6 @@ export function getFieldSampleRGBA(
 export function getLayeredFieldSampleRGBA(
   sample: LayeredFieldSample,
   displayMode: WaveDisplayMode,
-  isPhoton: boolean,
   baseColor: RGBColor,
   amplitudeScale: number,
   colorPower = WAVE_VISUALIZATION_COLOR_POWER
@@ -134,7 +128,7 @@ export function getLayeredFieldSampleRGBA(
   let alpha = 0;
 
   for ( let i = 0; i < layers.length; i++ ) {
-    const color = getFieldLayerRGBA( layers[ i ], displayMode, isPhoton, baseColor, amplitudeScale, colorPower );
+    const color = getFieldLayerRGBA( layers[ i ], displayMode, baseColor, amplitudeScale, colorPower );
     const sourceAlpha = color.alpha / 255;
     const destinationAlpha = alpha / 255;
     const outputAlpha = sourceAlpha + destinationAlpha * ( 1 - sourceAlpha );
@@ -181,8 +175,6 @@ function getNonFieldSampleRGBA( sample: NonFieldSample ): RGBAColor {
  *
  * @param layer - Render-layer description from the analytical kernel.
  * @param displayMode - Wave display mode controlling how field values map to brightness.
- * @param isPhoton - Whether the sampled wave is a photon wave, which renders 'amplitude' as
- * time-averaged intensity rather than wave function magnitude.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
  * @param colorPower - Spatial contrast boost applied before color clamping.
@@ -191,7 +183,6 @@ function getNonFieldSampleRGBA( sample: NonFieldSample ): RGBAColor {
 function getFieldLayerRGBA(
   layer: FieldLayer,
   displayMode: WaveDisplayMode,
-  isPhoton: boolean,
   baseColor: RGBColor,
   amplitudeScale: number,
   colorPower: number
@@ -202,7 +193,7 @@ function getFieldLayerRGBA(
   };
   const groupStates = getCoherenceGroupDisplayStates( layerSample );
   const displayState = getDisplayState( groupStates, amplitudeScale );
-  return getDisplayStateTransparentRGBA( displayState, displayMode, isPhoton, baseColor, amplitudeScale, layer.alpha, colorPower );
+  return getDisplayStateTransparentRGBA( displayState, displayMode, baseColor, amplitudeScale, layer.alpha, colorPower );
 }
 
 /**
@@ -214,8 +205,6 @@ function getFieldLayerRGBA(
  *
  * @param displayState - Reduced field state for one sampled cell.
  * @param displayMode - Wave display mode controlling how field values map to brightness.
- * @param isPhoton - Whether the sampled wave is a photon wave, which renders 'amplitude' as
- * time-averaged intensity rather than wave function magnitude.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
  * @param colorPower - Spatial contrast boost applied before color clamping.
@@ -224,7 +213,6 @@ function getFieldLayerRGBA(
 function getDisplayStateRGBA(
   displayState: FieldDisplayState,
   displayMode: WaveDisplayMode,
-  isPhoton: boolean,
   baseColor: RGBColor,
   amplitudeScale: number,
   colorPower: number
@@ -232,7 +220,6 @@ function getDisplayStateRGBA(
   const intensity = getDisplayModeIntensity(
     displayState,
     displayMode,
-    isPhoton,
     amplitudeScale,
     colorPower,
     displayState.visibility,
@@ -266,8 +253,6 @@ function getDisplayStateRGBA(
  *
  * @param displayState - Reduced field state for one sampled layer.
  * @param displayMode - Wave display mode controlling how field values map to brightness.
- * @param isPhoton - Whether the sampled wave is a photon wave, which renders 'amplitude' as
- * time-averaged intensity rather than wave function magnitude.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
  * @param layerAlpha - Layer-specific transparency multiplier from the analytical kernel.
@@ -277,13 +262,12 @@ function getDisplayStateRGBA(
 function getDisplayStateTransparentRGBA(
   displayState: FieldDisplayState,
   displayMode: WaveDisplayMode,
-  isPhoton: boolean,
   baseColor: RGBColor,
   amplitudeScale: number,
   layerAlpha: number,
   colorPower: number
 ): RGBAColor {
-  const intensity = getDisplayModeIntensity( displayState, displayMode, isPhoton, amplitudeScale, colorPower, 1, 1 );
+  const intensity = getDisplayModeIntensity( displayState, displayMode, amplitudeScale, colorPower, 1, 1 );
 
   // Unlike getDisplayStateRGBA, this does not preblend with UNREACHED_VACUUM. The field color stays
   // chromatic while alpha carries visibility and particle-chain taper strength.
@@ -297,16 +281,14 @@ function getDisplayStateTransparentRGBA(
 
 /**
  * Computes the display-mode-specific color intensity after amplitude scaling and spatial color boost.
- * Amplitude modes treat colorPower and an amplitude-only multiplier as an amplitude gain; phase modes apply colorPower
- * to the signed displayed value.
+ * The amplitude mode squares the scaled amplitude for visual contrast, while plots and other quantitative displays
+ * continue to use amplitude itself. Phase modes apply colorPower to the signed displayed value.
  *
  * @param displayState - Reduced field state for one sampled cell or layer.
  * @param displayMode - Wave display mode controlling how field values map to brightness.
- * @param isPhoton - Whether the sampled wave is a photon wave, which renders 'amplitude' as
- * time-averaged intensity rather than wave function magnitude.
  * @param amplitudeScale - Scene-level amplitude scale.
- * @param colorPower - Spatial contrast boost. Amplitude modes treat it as amplitude gain; phase modes
- * scale the signed displayed value.
+ * @param colorPower - Spatial contrast boost. Amplitude mode applies it before squaring; phase modes scale the signed
+ * displayed value.
  * @param minimumIntensityVisibility - Visibility multiplier for the low-end field display cutoff.
  * @param phaseVisibility - Visibility multiplier for bipolar phase display modes.
  * @returns Color intensity in the range [0, 1].
@@ -314,7 +296,6 @@ function getDisplayStateTransparentRGBA(
 function getDisplayModeIntensity(
   displayState: FieldDisplayState,
   displayMode: WaveDisplayMode,
-  isPhoton: boolean,
   amplitudeScale: number,
   colorPower: number,
   minimumIntensityVisibility: number,
@@ -323,16 +304,13 @@ function getDisplayModeIntensity(
   const boostedAmplitudeScale = amplitudeScale * colorPower * WAVE_VISUALIZATION_AMPLITUDE_COLOR_POWER_MULTIPLIER;
   const real = displayState.real * amplitudeScale;
   const imaginary = displayState.imaginary * amplitudeScale;
+  const scaledAmplitude = displayMode === 'amplitude' ?
+                          Math.sqrt( displayState.intensity ) * boostedAmplitudeScale :
+                          0;
 
-  return displayMode === 'amplitude' && isPhoton ? clamp(
-                                                   FIELD_DISPLAY_CUTOFF * minimumIntensityVisibility +
-                                                   ( 1 - FIELD_DISPLAY_CUTOFF ) * displayState.intensity * boostedAmplitudeScale * boostedAmplitudeScale,
-                                                   0,
-                                                   1
-                                                 ) :
-         displayMode === 'amplitude' ? clamp(
+  return displayMode === 'amplitude' ? clamp(
                                        FIELD_DISPLAY_CUTOFF * minimumIntensityVisibility +
-                                       ( 1 - FIELD_DISPLAY_CUTOFF ) * Math.sqrt( displayState.intensity ) * boostedAmplitudeScale,
+                                       ( 1 - FIELD_DISPLAY_CUTOFF ) * scaledAmplitude * scaledAmplitude,
                                        0,
                                        1
                                      ) :

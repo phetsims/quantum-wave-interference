@@ -13,7 +13,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import MappedProperty from '../../../../axon/js/MappedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import TinyProperty from '../../../../axon/js/TinyProperty.js';
@@ -35,7 +34,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import { getDisplaySlitLayout } from '../getDisplaySlitLayout.js';
 import { type BarrierType } from '../model/BarrierType.js';
 import { hasDetectorOnBottomSlit, hasDetectorOnTopSlit, isBottomSlitCovered, isTopSlitCovered, type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
-import { getDisplayedWaveValue, getMaxDisplayedWaveValue, type WaveDisplayMode } from '../model/WaveDisplayMode.js';
+import { getDisplayedWaveValue, type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import { type WaveDisplayModePolarity, waveDisplayModePolarityProperty } from '../model/WaveModeDisplayPolarity.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
@@ -164,10 +163,7 @@ export default class PositionPlotNode extends Node {
 
     const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( activeDisplayModeProperty );
     const polarityProperty = waveDisplayModePolarityProperty( activeDisplayModeProperty );
-    this.maxDisplayValueProperty = new DerivedProperty(
-      [ activeDisplayModeProperty ],
-      displayMode => getMaxDisplayedWaveValue( displayMode )
-    );
+    this.maxDisplayValueProperty = new TinyProperty( 1 );
 
     this.apertureProbeNode = this.createApertureProbeNode( waveRegionX, waveRegionWidth );
     this.addChild( this.apertureProbeNode );
@@ -499,7 +495,7 @@ export default class PositionPlotNode extends Node {
       const fraction = i / numSamples;
       const modelX = fraction * scene.regionWidth;
       const value = solver.evaluate( modelX, modelY );
-      const displayValue = getDisplayedWaveValue( value.real, value.imaginary, displayMode, scene.sourceType === 'photons' );
+      const displayValue = getDisplayedWaveValue( value.real, value.imaginary, displayMode );
       points.push( { x: modelX, value: displayValue } );
     }
 

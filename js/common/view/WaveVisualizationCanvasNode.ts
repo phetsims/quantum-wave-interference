@@ -161,8 +161,8 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
         const colorPower = this.colorPowers[ gx ];
 
         const color = usesLayeredFieldSamples && solver.getLayeredFieldSampleAtGridCell ?
-                      getLayeredFieldSampleRGBA( solver.getLayeredFieldSampleAtGridCell( gx, gy ), displayMode, isPhotons, baseColor, amplitudeScale, colorPower ) :
-                      getFieldSampleRGBA( solver.getFieldSampleAtGridCell( gx, gy ), displayMode, isPhotons, baseColor, amplitudeScale, colorPower );
+                      getLayeredFieldSampleRGBA( solver.getLayeredFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale, colorPower ) :
+                      getFieldSampleRGBA( solver.getFieldSampleAtGridCell( gx, gy ), displayMode, baseColor, amplitudeScale, colorPower );
         data[ pixelIdx ] = color.red;
         data[ pixelIdx + 1 ] = color.green;
         data[ pixelIdx + 2 ] = color.blue;

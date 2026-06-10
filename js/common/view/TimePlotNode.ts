@@ -13,6 +13,7 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import TinyProperty from '../../../../axon/js/TinyProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
@@ -29,7 +30,7 @@ import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Color from '../../../../scenery/js/util/Color.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import { getDisplayedWaveValue, getMaxDisplayedWaveValue, type WaveDisplayMode } from '../model/WaveDisplayMode.js';
+import { getDisplayedWaveValue, type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import { waveDisplayModePolarityProperty } from '../model/WaveModeDisplayPolarity.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
@@ -105,10 +106,7 @@ export default class TimePlotNode extends Node {
     );
     this.visibleBoundsProperty = visibleBoundsProperty;
 
-    this.maxDisplayValueProperty = new DerivedProperty(
-      [ activeDisplayModeProperty ],
-      displayMode => getMaxDisplayedWaveValue( displayMode )
-    );
+    this.maxDisplayValueProperty = new TinyProperty( 1 );
 
     this.chartNode = this.createChartNode( waveRegionX, waveRegionY, waveRegionWidth, waveRegionHeight );
     this.addChild( this.chartNode );
@@ -283,7 +281,7 @@ export default class TimePlotNode extends Node {
     const modelPosition = this.getProbeModelPosition( scene );
     const value = scene.waveSolver.evaluate( modelPosition.x, modelPosition.y, solverTime );
     const displayMode = this.activeDisplayModeProperty.value;
-    return getDisplayedWaveValue( value.real, value.imaginary, displayMode, scene.sourceType === 'photons' );
+    return getDisplayedWaveValue( value.real, value.imaginary, displayMode );
   }
 
   /**
