@@ -227,6 +227,10 @@ export default class HighIntensityScreenView extends ScreenView {
     this.model = model;
 
     const tandem = options.tandem;
+
+    // NOTE: see other duplicate in quantum-wave-interference/js/single-particles/view/SingleParticlesScreenView.ts.
+    // This constructor setup intentionally parallels SingleParticlesScreenView while keeping screen-specific
+    // controls and tandems explicit.
     const sceneTandems = new Map<object, Tandem>( model.scenes.map( scene => [
       scene,
       tandem.createTandem( `${scene.sourceType}Scene` )
