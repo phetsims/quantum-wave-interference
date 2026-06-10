@@ -12,7 +12,6 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
-import Property from '../../../../axon/js/Property.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -38,6 +37,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import { type DetectorToolViewStateFragment } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import CurrentDetectorTool from '../model/CurrentDetectorTool.js';
+import SingleParticlesSceneModel from '../model/SingleParticlesSceneModel.js';
 
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -47,7 +47,6 @@ const CIRCLE_FILL_READY = new Color( 135, 206, 250, 0.3 );
 const CIRCLE_FILL_NOT_DETECTED = new Color( 80, 80, 80, 0.5 );
 const CIRCLE_STROKE = new Color( 50, 50, 50 );
 const WIRE_STROKE = new Color( 100, 100, 100 );
-const DETECTOR_TOOL_DRAG_BOUNDS = new Bounds2( 0.05, 0.05, 0.95, 0.95 );
 
 /**
  * View/controller for the detector tool. The detector's position and radius are stored in model coordinates normalized
@@ -232,10 +231,15 @@ export default class DetectorToolNode extends Node {
       new Bounds2( 0, 0, 1, 1 ),
       new Bounds2( waveRegionLeft, waveRegionTop, waveRegionLeft + WAVE_REGION_WIDTH, waveRegionTop + WAVE_REGION_HEIGHT )
     );
+    // All parts of the detector circle must stay inside the wave region, so the draggable center bounds
+    // shrink as the radius grows. Tracks the active scene's radius through the DynamicProperty.
+    const dragBoundsProperty = new DerivedProperty( [ currentDetectorTool.radiusProperty ],
+      radius => SingleParticlesSceneModel.getDetectorToolCenterBounds( radius ) );
+
     const dragListener = new DragListener( {
       positionProperty: currentDetectorTool.positionProperty,
       transform: detectorToolModelViewTransform,
-      dragBoundsProperty: new Property( DETECTOR_TOOL_DRAG_BOUNDS ),
+      dragBoundsProperty: dragBoundsProperty,
       tandem: tandem.createTandem( 'dragListener' )
     } );
     circleContainer.addInputListener( dragListener );

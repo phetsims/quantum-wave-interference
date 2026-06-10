@@ -15,6 +15,7 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import Bounds2 from '../../../../dot/js/Bounds2.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
@@ -29,6 +30,7 @@ import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type S
 import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCDF.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
+import isSettingPhetioStateProperty from '../../../../tandem/js/isSettingPhetioStateProperty.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 
@@ -197,15 +199,32 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.setupSlitConfigurationListeners( this.slitConfigurationProperty );
     this.stopEmitterWhenMaxHitsReached();
 
-    // step() only recomputes probability while the sim is playing; also recompute when the detector
-    // is moved or resized so the value reflects the current state while paused or mid-drag.
-    const updateDetectorProbability = () => {
-      if ( this.isPacketActiveProperty.value && this.detectorToolStateProperty.value === 'ready' ) {
+    // Keep the entire detector circle inside the wave region: growing the radius pushes the center inward.
+    // Registered before the geometry handler below so that handler always reads an already-clamped position.
+    // Not guarded during PhET-iO state restore — notifications are deferred until all values are applied,
+    // so clamping a valid saved state is a no-op (closestPointTo returns the same object when contained).
+    this.detectorToolRadiusProperty.lazyLink( radius => {
+      const centerBounds = SingleParticlesSceneModel.getDetectorToolCenterBounds( radius );
+      this.detectorToolPositionProperty.value = centerBounds.closestPointTo( this.detectorToolPositionProperty.value );
+    } );
+
+    // Moving or resizing the detector invalidates a completed measurement, so auto-reset to 'ready'.
+    // While ready, recompute the probability so the readout tracks the tool while paused or mid-drag
+    // (step() only recomputes while the sim is playing). Skipped during PhET-iO state restore so a
+    // saved 'detected'/'notDetected' result is not clobbered by position/radius notifications.
+    const handleDetectorToolGeometryChange = () => {
+      if ( isSettingPhetioStateProperty.value ) {
+        return;
+      }
+      if ( this.detectorToolStateProperty.value !== 'ready' ) {
+        this.resetDetectorToolState();
+      }
+      else if ( this.isPacketActiveProperty.value ) {
         this.detectorToolProbabilityProperty.value = this.computeDetectorProbability();
       }
     };
-    this.detectorToolPositionProperty.lazyLink( updateDetectorProbability );
-    this.detectorToolRadiusProperty.lazyLink( updateDetectorProbability );
+    this.detectorToolPositionProperty.lazyLink( handleDetectorToolGeometryChange );
+    this.detectorToolRadiusProperty.lazyLink( handleDetectorToolGeometryChange );
   }
 
   /**
@@ -613,6 +632,20 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
         this.detectorToolRadiusProperty.value
       );
     }
+  }
+
+  /**
+   * Bounds for the detector tool's center, in normalized wave-region coordinates, such that the entire
+   * detector circle stays inside the wave region. The radius is stored as a fraction of the wave-region
+   * width, so its vertical half-extent in normalized y is radius * width / height.
+   *
+   * @param radius - detector tool radius, as a normalized fraction of the wave-region width
+   * @returns allowed bounds for the detector tool's center
+   */
+  public static getDetectorToolCenterBounds( radius: number ): Bounds2 {
+    const verticalHalfExtent = radius * QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH /
+                               QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
+    return new Bounds2( radius, verticalHalfExtent, 1 - radius, 1 - verticalHalfExtent );
   }
 
   /**
