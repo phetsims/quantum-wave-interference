@@ -46,12 +46,12 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   /**
    * Effective physical wavelength in meters. Scene models update this from the selected particle or light source.
    */
-  protected wavelength = QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9;
+  private wavelength = QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9;
 
   /**
    * Effective physical propagation speed in meters per second.
    */
-  protected waveSpeed = QuantumWaveInterferenceConstants.SPEED_OF_LIGHT;
+  private waveSpeed = QuantumWaveInterferenceConstants.SPEED_OF_LIGHT;
 
   /**
    * Ratio between the current physical speed and the screen's default speed, used to scale display-time propagation.
@@ -61,57 +61,57 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   /**
    * Number of wavelengths shown across the solver region in display coordinates.
    */
-  protected displayWavelengths = DISPLAY_WAVELENGTHS;
+  private displayWavelengths = DISPLAY_WAVELENGTHS;
 
   /**
    * Active barrier configuration for kernel sampling.
    */
-  protected barrierType: BarrierType = 'none';
+  private barrierType: BarrierType = 'none';
 
   /**
    * Physical center-to-center slit separation in meters.
    */
-  protected slitSeparation = 0.25e-3;
+  private slitSeparation = 0.25e-3;
 
   /**
    * Minimum physical center-to-center slit separation in meters, used for display-coordinate scaling.
    */
-  protected slitSeparationMin = 0.25e-3;
+  private slitSeparationMin = 0.25e-3;
 
   /**
    * Maximum physical center-to-center slit separation in meters, used for display-coordinate scaling.
    */
-  protected slitSeparationMax = 3e-3;
+  private slitSeparationMax = 3e-3;
 
   /**
    * Physical slit aperture width in meters.
    */
-  protected slitWidth = 0.02e-3;
+  private slitWidth = 0.02e-3;
 
   /**
    * Horizontal barrier position as a fraction of regionWidth.
    */
-  protected barrierFractionX = 0.5;
+  private barrierFractionX = 0.5;
 
   /**
    * Whether the upper slit aperture passes the field.
    */
-  protected isTopSlitOpen = true;
+  private isTopSlitOpen = true;
 
   /**
    * Whether the lower slit aperture passes the field.
    */
-  protected isBottomSlitOpen = true;
+  private isBottomSlitOpen = true;
 
   /**
    * Whether the upper slit is treated as decohered from coherent open slits.
    */
-  protected isTopSlitDecoherent = false;
+  private isTopSlitDecoherent = false;
 
   /**
    * Whether the lower slit is treated as decohered from coherent open slits.
    */
-  protected isBottomSlitDecoherent = false;
+  private isBottomSlitDecoherent = false;
 
   /**
    * Whether the source is currently emitting into the solver region.
@@ -136,17 +136,17 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   /**
    * Cached complex amplitude grid stored as interleaved real and imaginary components.
    */
-  protected readonly amplitudeField: Float64Array;
+  private readonly amplitudeField: Float64Array;
 
   /**
    * Cached model-facing field samples for each grid cell at the current solver time.
    */
-  protected readonly fieldSamples: FieldSample[];
+  private readonly fieldSamples: FieldSample[];
 
   /**
    * Cached renderer-facing layered field samples for each grid cell when a subclass supports layered samples.
    */
-  protected readonly layeredFieldSamples: LayeredFieldSample[];
+  private readonly layeredFieldSamples: LayeredFieldSample[];
 
   /**
    * Cached normalized detector probability distribution at the detector edge.
@@ -621,7 +621,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
    *
    * @returns Display-coordinate slit separation and aperture width.
    */
-  protected getDisplaySlitGeometry(): { displaySlitSeparation: number; displaySlitWidth: number } {
+  private getDisplaySlitGeometry(): { displaySlitSeparation: number; displaySlitWidth: number } {
     return getDisplaySlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
   }
 

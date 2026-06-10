@@ -49,9 +49,9 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly SPEED_OF_LIGHT = 3e8; // m/s
 
   // Particle masses in kg
-  public static readonly ELECTRON_MASS = 9.109e-31;
-  public static readonly NEUTRON_MASS = 1.675e-27;
-  public static readonly HELIUM_ATOM_MASS = 6.646e-27;
+  private static readonly ELECTRON_MASS = 9.109e-31;
+  private static readonly NEUTRON_MASS = 1.675e-27;
+  private static readonly HELIUM_ATOM_MASS = 6.646e-27;
 
   // Use a function here so we can map SourceType => particle mass
   public static getParticleMass( sourceType: SourceType ): number {
@@ -116,7 +116,7 @@ export default class QuantumWaveInterferenceConstants {
 
   // Angle of the detector screen's top/bottom edges above horizontal (degrees). The left and right
   // edges are vertical; adjusting this single value changes the perspective skew.
-  public static readonly DETECTOR_SCREEN_ANGLE_DEGREES = 20;
+  private static readonly DETECTOR_SCREEN_ANGLE_DEGREES = 20;
   public static readonly DETECTOR_SCREEN_SKEW = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH *
                                                 Math.tan( QuantumWaveInterferenceConstants.DETECTOR_SCREEN_ANGLE_DEGREES * Math.PI / 180 );
 

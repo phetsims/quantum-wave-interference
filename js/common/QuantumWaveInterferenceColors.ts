@@ -34,7 +34,7 @@ export default class QuantumWaveInterferenceColors {
     } );
 
   // Shared neutral bluish-gray background used by the wave region and detector screen.
-  public static readonly waveAndDetectorBackgroundColorProperty = new ProfileColorProperty(
+  private static readonly waveAndDetectorBackgroundColorProperty = new ProfileColorProperty(
     quantumWaveInterference, 'waveAndDetectorBackgroundColor', {
       default: new Color( 64, 78, 96 )
     } );

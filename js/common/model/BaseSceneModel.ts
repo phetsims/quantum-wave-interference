@@ -115,13 +115,13 @@ export type BaseSceneModelStateObject = {
 export default abstract class BaseSceneModel extends PhetioObject {
 
   public readonly sourceType: SourceType;
-  protected readonly particleMass: number;
+  private readonly particleMass: number;
   public readonly slitWidth: number;
   public readonly particleSpeedRange: Range;
   public readonly slitSeparationRange: Range;
   public readonly regionWidth: number;
   public readonly regionHeight: number;
-  protected readonly defaultWaveSpeed: number;
+  private readonly defaultWaveSpeed: number;
 
   public readonly isEmittingProperty: BooleanProperty;
   public readonly wavelengthProperty: NumberProperty;
@@ -335,7 +335,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
            QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( this.particleMass * velocity );
   }
 
-  public getEffectiveWaveSpeed(): number {
+  private getEffectiveWaveSpeed(): number {
     return this.sourceType === 'photons' ? QuantumWaveInterferenceConstants.SPEED_OF_LIGHT : this.particleSpeedProperty.value;
   }
 
@@ -352,19 +352,19 @@ export default abstract class BaseSceneModel extends PhetioObject {
            0;
   }
 
-  protected isTopSlitOpen(): boolean {
+  private isTopSlitOpen(): boolean {
     return !isTopSlitCovered( this.slitConfigurationProperty.value );
   }
 
-  protected isBottomSlitOpen(): boolean {
+  private isBottomSlitOpen(): boolean {
     return !isBottomSlitCovered( this.slitConfigurationProperty.value );
   }
 
-  protected isTopSlitDecoherent(): boolean {
+  private isTopSlitDecoherent(): boolean {
     return hasDetectorOnTopSlit( this.slitConfigurationProperty.value );
   }
 
-  protected isBottomSlitDecoherent(): boolean {
+  private isBottomSlitDecoherent(): boolean {
     return hasDetectorOnBottomSlit( this.slitConfigurationProperty.value );
   }
 
