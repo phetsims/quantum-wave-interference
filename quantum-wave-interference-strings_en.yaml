@@ -393,8 +393,8 @@ a11y:
                                 [forming] { $patternKind ->
                                   [doubleSlitInterference] Evenly-spaced bright bands form on detector screen.
                                   [singleSlitDiffraction] { $slitSetting ->
-                                    [leftCovered] Wide central bright area forming on lower part of detector screen.
-                                   *[rightCovered] Wide central bright area forming on upper part of detector screen.
+                                    [leftCovered] Wide bright area forms on lower part of detector screen.
+                                   *[rightCovered] Wide bright area forms on upper part of detector screen.
                                   }
                                   [whichPathDiffraction] Wide central bright area forming on detector screen.
                                  *[noBarrier] Solid wave forms uniform glow across detector screen.
@@ -410,10 +410,10 @@ a11y:
                                    *[extremelyCloseTogether] extremely close together
                                   }, brightest band at center.
                                   [singleSlitDiffraction] { $slitSetting ->
-                                    [leftCovered] Wide central bright area, brightest at center and fading toward the edges,
-                                    forms a stable pattern on lower part of detector screen.
-                                   *[rightCovered] Wide central bright area, brightest at center and fading toward the edges,
-                                    forms a stable pattern on upper part of detector screen.
+                                    [leftCovered] Across lower part of detector screen is a wide bright area fading toward edges,
+                                    brightest part at center.
+                                   *[rightCovered] Across upper part of detector screen is a wide bright area fading toward edges,
+                                    brightest part at center.
                                   }
                                   [whichPathDiffraction] Wide central bright area, brightest at center and fading toward the edges,
                                   forms a stable pattern on detector screen.
@@ -459,28 +459,28 @@ a11y:
                             [atSlits] { $waveDisplayMode ->
                               [amplitude] { $patternKind ->
                                 [doubleSlitInterference] Solid waves emerge from each open slit and overlap.
-                                [singleSlitDiffraction] Solid wave emerges from the open slit only.
+                                [singleSlitDiffraction] Solid wave emerges from open slit only.
                                 [whichPathDiffraction] As detection events occur, solid waves emerge from each slit one at a time
                                 and do not interact.
                                *[noBarrier] Solid wave moves directly toward the detector screen.
                               }
                              *[electricField] { $patternKind ->
                                 [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
-                                [singleSlitDiffraction] Circular wave fronts emerge from the open slit only.
+                                [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
                                 [whichPathDiffraction] As detection events occur, circular wave fronts emerge from each slit
                                 one at a time and do not interact.
                                *[noBarrier] Plane wave fronts move directly toward the detector screen.
                               }
                               [realPart] { $patternKind ->
                                 [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
-                                [singleSlitDiffraction] Circular wave fronts emerge from the open slit only.
+                                [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
                                 [whichPathDiffraction] As detection events occur, circular wave fronts emerge from each slit
                                 one at a time and do not interact.
                                *[noBarrier] Plane wave fronts move directly toward the detector screen.
                               }
                               [imaginaryPart] { $patternKind ->
                                 [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
-                                [singleSlitDiffraction] Circular wave fronts emerge from the open slit only.
+                                [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
                                 [whichPathDiffraction] As detection events occur, circular wave fronts emerge from each slit
                                 one at a time and do not interact.
                                *[noBarrier] Plane wave fronts move directly toward the detector screen.
@@ -658,28 +658,28 @@ a11y:
                                 [atSlits] { $waveDisplayMode ->
                                   [amplitude] { $patternKind ->
                                     [doubleSlitInterference] Solid waves emerge from each open slit and overlap.
-                                    [singleSlitDiffraction] Solid wave emerges from the open slit only.
+                                    [singleSlitDiffraction] Solid wave emerges from open slit only.
                                     [whichPathDiffraction] As detection events occur, solid waves emerge from each slit one at a time
                                     and do not interact.
                                    *[noBarrier] Solid wave moves directly toward the detector screen.
                                   }
                                  *[electricField] { $patternKind ->
                                     [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
-                                    [singleSlitDiffraction] Circular wave fronts emerge from the open slit only.
+                                    [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
                                     [whichPathDiffraction] As detection events occur, circular wave fronts emerge from each slit
                                     one at a time and do not interact.
                                    *[noBarrier] Plane wave fronts move directly toward the detector screen.
                                   }
                                   [realPart] { $patternKind ->
                                     [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
-                                    [singleSlitDiffraction] Circular wave fronts emerge from the open slit only.
+                                    [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
                                     [whichPathDiffraction] As detection events occur, circular wave fronts emerge from each slit
                                     one at a time and do not interact.
                                    *[noBarrier] Plane wave fronts move directly toward the detector screen.
                                   }
                                   [imaginaryPart] { $patternKind ->
                                     [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
-                                    [singleSlitDiffraction] Circular wave fronts emerge from the open slit only.
+                                    [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
                                     [whichPathDiffraction] As detection events occur, circular wave fronts emerge from each slit
                                     one at a time and do not interact.
                                    *[noBarrier] Plane wave fronts move directly toward the detector screen.
