@@ -29,18 +29,46 @@ import type WaveSolver from './WaveSolver.js';
 // A base or abstract base class is a better fit if the visualization contract starts requiring shared behavior or
 // invariants. This type is preferable while the shared view code only needs a small read-only slice of scene state.
 type WaveVisualizableScene = {
+
+  /** Identifies whether the scene visualizes photons or a type of matter particle. */
   readonly sourceType: SourceType;
+
+  /** Horizontal extent of the modeled wave region, in meters. */
   readonly regionWidth: number;
+
+  /** Vertical extent of the modeled wave region, in meters. */
   readonly regionHeight: number;
+
+  /**
+   * Configured source wavelength, in nanometers. Matter-particle scenes use getEffectiveWavelength for de Broglie
+   * wavelength.
+   */
   readonly wavelengthProperty: TReadOnlyProperty<number>;
+
+  /** Solver that provides the complex wave-field samples rendered by the visualization. */
   readonly waveSolver: WaveSolver;
+
+  /** Selects whether the wave region contains a double-slit barrier or no barrier. */
   readonly barrierTypeProperty: TReadOnlyProperty<BarrierType>;
+
+  /** Normalized horizontal barrier position, where model x = value * regionWidth. */
   readonly slitPositionFractionProperty: TReadOnlyProperty<number>;
+
+  /** Selects which scalar representation of the complex wave field is rendered. */
   readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
+
+  /** Whether the wave field is currently rendered; false suppresses wave-field painting. */
   readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
+
+  /**
+   * Gets the physical wavelength used by propagation, interference, and scale calculations. For photons this converts
+   * wavelengthProperty from nanometers; for matter particles it is the de Broglie wavelength derived by the scene.
+   *
+   * @returns effective wavelength in meters
+   */
   getEffectiveWavelength(): number;
 
-  // Optional display-only gain for wave-field rendering. Scenes that omit this render with unity gain.
+  /** Optional dimensionless display-only gain for wave-field rendering. Scenes that omit this render with unity gain. */
   readonly waveAmplitudeScaleProperty?: TReadOnlyProperty<number>;
 };
 
