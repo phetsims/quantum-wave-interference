@@ -590,14 +590,14 @@ a11y:
                                *[averageIntensity] Intensity pattern cleared.
                               }
     particleTypeChanged:      >-
-                              { $isEmitting ->
-                                [true] { $sourceRestartedResponse }
-                               *[false] Now experimenting with { $sourceType ->
-                                  [photons] photons
-                                  [electrons] electrons
-                                  [neutrons] neutrons
-                                 *[heliumAtoms] helium atoms
-                                }. Source, slits, and screen settings updated.
+                              { $sourceType ->
+                                [photons] Photon
+                                [electrons] Electron
+                                [neutrons] Neutron
+                               *[heliumAtoms] Helium atom
+                              } experiment { $isEmitting ->
+                                [true] in progress.
+                               *[false] ready to start.
                               }
     detectionModeChanged:     >-
                               { $detectionMode ->

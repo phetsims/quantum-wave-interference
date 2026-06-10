@@ -299,7 +299,7 @@
         "value": "Source stopped. Wave display clears. { $detectionMode ->\n  [hits] Hits remain.\n *[averageIntensity] Intensity pattern cleared.\n}"
       },
       "particleTypeChanged": {
-        "value": "{ $isEmitting ->\n  [true] { $sourceRestartedResponse }\n *[false] Now experimenting with { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }. Source, slits, and screen settings updated.\n}"
+        "value": "{ $sourceType ->\n  [photons] Photon\n  [electrons] Electron\n  [neutrons] Neutron\n *[heliumAtoms] Helium atom\n} experiment { $isEmitting ->\n  [true] in progress.\n *[false] ready to start.\n}"
       },
       "detectionModeChanged": {
         "value": "{ $detectionMode ->\n  [averageIntensity] Average Intensity selected. The predicted pattern is shown continuously.\n *[hits] Hits selected. Individual particle impacts build the pattern statistically.\n}"

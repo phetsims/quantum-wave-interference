@@ -85,13 +85,9 @@ export default class QWITransitionDescriber {
       contextResponses = [
         QuantumWaveInterferenceFluent.a11y.highIntensityResponses.particleTypeChanged.format( {
           isEmitting: toFluentBoolean( after.isEmitting ),
-          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value,
           sourceType: after.sourceType
-        } ),
-        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
+        } )
       ];
-      responseGroup = after.isEmitting ? null : responseGroup;
-      flushBeforeResponses = after.isEmitting;
     }
     else if ( action.type === 'detectionModeChanged' ) {
       contextResponses = [
