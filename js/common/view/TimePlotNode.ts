@@ -64,7 +64,8 @@ export default class TimePlotNode extends Node {
   private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
   private readonly probeNode: Node;
 
-  // Probe center in the parent frame. Public so the accessible view state can report the sampled point.
+  // Position of the probe's crosshair (sensor center) in the parent frame, which is the exact point
+  // sampled for the time plot. Public so the accessible view state can report the sampled point.
   public readonly probePositionProperty: Vector2Property;
   private readonly plotTandem: Tandem;
   private readonly waveRegionBounds: Bounds2;
@@ -121,7 +122,10 @@ export default class TimePlotNode extends Node {
     this.probeNode = this.createCrosshairProbe();
 
     this.probePositionProperty.link( position => {
-      this.probeNode.center = position;
+
+      // ProbeNode's origin is the center of its sensor (the crosshair), so use translation rather than
+      // center — the handle extends below the sensor, which would otherwise shift the crosshair upward.
+      this.probeNode.translation = position;
     } );
 
     this.addChild( this.createWireNode() );
