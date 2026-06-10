@@ -1,13 +1,11 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * DetectorToolNode is the detector tool for the Single Particles screen. It consists of:
+ * DetectorProbeNode is the detector probe for the Single Particles screen. It consists of:
  * - A draggable circular detector overlaid on the wave visualization region
  * - A probability percentage label inside the circle
  * - A curved wire connecting the circle to a control panel
  * - A control panel with a Detect/Reset button and detector size slider
- *
- * TODO: Rename to DetectorProbeNode, see https://github.com/phetsims/quantum-wave-interference/issues/135
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -57,10 +55,10 @@ const WIRE_STROKE = new Color( 100, 100, 100 );
  * wave-region width. This node maps those values into view coordinates, updates the tool labels and measurement-state
  * colors, and routes the dashed wire to the external control panel.
  *
- * The detector tool Properties are exposed by CurrentDetectorTool as DynamicProperties, so one DetectorToolNode can stay
+ * The detector tool Properties are exposed by CurrentDetectorTool as DynamicProperties, so one DetectorProbeNode can stay
  * connected while the active Single Particles scene changes.
  */
-export default class DetectorToolNode extends Node {
+export default class DetectorProbeNode extends Node {
 
   private readonly currentDetectorTool: CurrentDetectorTool;
 

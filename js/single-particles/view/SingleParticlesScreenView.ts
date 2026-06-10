@@ -45,7 +45,7 @@ import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
-import DetectorToolNode from './DetectorToolNode.js';
+import DetectorProbeNode from './DetectorProbeNode.js';
 import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 
 type SelfOptions = EmptySelfOptions;
@@ -100,7 +100,7 @@ export default class SingleParticlesScreenView extends ScreenView {
   private readonly detectorScreenNode: DetectorScreenNode;
   private readonly detectorPatternGraphLayerNode: DetectorPatternGraphLayerNode;
   private readonly doubleSlitNode: DoubleSlitNode;
-  private readonly detectorToolNode: DetectorToolNode;
+  private readonly detectorProbeNode: DetectorProbeNode;
   private readonly measurementToolsNode: MeasurementToolsLayerNode;
   private readonly timePlotNode: TimePlotNode;
   private readonly positionPlotNode: PositionPlotNode;
@@ -283,17 +283,17 @@ export default class SingleParticlesScreenView extends ScreenView {
     );
     this.addChild( this.detectorPatternGraphLayerNode );
 
-    // Detector tool (draggable circle + panel, Single Particles only)
-    const detectorToolNode = new DetectorToolNode(
+    // Detector probe (draggable circle + panel, Single Particles only)
+    const detectorProbeNode = new DetectorProbeNode(
       model.currentDetectorTool,
       waveRegionLeft,
       waveRegionTop,
       () => bottomRow.getSlitSeparationControlCenterX(),
       () => bottomRow.getSlitSeparationControlCenterY(),
-      tandem.createTandem( 'detectorToolNode' )
+      tandem.createTandem( 'detectorProbeNode' )
     );
-    this.detectorToolNode = detectorToolNode;
-    this.addChild( detectorToolNode );
+    this.detectorProbeNode = detectorProbeNode;
+    this.addChild( detectorProbeNode );
 
     // --- Detector screen controls ---
 
@@ -375,7 +375,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       screenViewDescription.sourceHeadingNode,
       screenViewDescription.slitsHeadingNode,
       this.detectorPatternGraphLayerNode,
-      detectorToolNode,
+      detectorProbeNode,
       measurementToolsNode
     ];
 
@@ -435,7 +435,7 @@ export default class SingleParticlesScreenView extends ScreenView {
         slitBarrier: slitBarrier,
         measurementTools: measurementTools
       },
-      this.detectorToolNode.getAccessibleViewState()
+      this.detectorProbeNode.getAccessibleViewState()
     );
   }
 
