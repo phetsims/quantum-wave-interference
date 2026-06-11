@@ -238,10 +238,16 @@ export default class TimePlotDataSeries extends PhetioObject {
   /**
    * IOType for the stored time-plot samples and the timing bookkeeping that maps solver time to
    * chart time. Reference serialization is used because the data series instance persists for the
-   * life of the owning TimePlotNode.
+   * life of the owning TimePlotNode. The dataPoints array is a composite container whose
+   * TimePlotDataPointIO children use data-type serialization, so each point is deserialized as a
+   * new value. During state restoration, applyState replaces the points on the existing series
+   * instance and restores elapsedTime, previousSolverTime, and nextSampleSolverTime.
    *
    * On the other hand, the position plot curve itself is not serialized because it is derived from current solver state
    * each frame (which is already in the PhET-iO state)
+   *
+   * See https://github.com/phetsims/phet-io/blob/main/doc/phet-io-instrumentation-technical-guide.md#serialization
+   * for more information about serialization types.
    */
   private static readonly TimePlotDataSeriesIO = new IOType<TimePlotDataSeries, TimePlotDataSeriesStateObject>(
     'TimePlotDataSeriesIO', {
