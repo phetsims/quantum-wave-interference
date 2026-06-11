@@ -18,8 +18,10 @@ import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from './model/HighIntensityModel.js';
 import HighIntensityScreenView from './view/HighIntensityScreenView.js';
 
+// No screen-specific options; this alias exists to follow the standard optionize pattern.
 type SelfOptions = EmptySelfOptions;
 
+// tandem is required so the screen and its model/view subtrees are properly instrumented for PhET-iO.
 type HighIntensityScreenOptions = SelfOptions & PickRequired<ScreenOptions, 'tandem'>;
 
 export default class HighIntensityScreen extends Screen<HighIntensityModel, HighIntensityScreenView> {

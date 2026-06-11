@@ -15,6 +15,11 @@ import { getDisplaySlitLayout } from '../../getDisplaySlitLayout.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import type { Snapshot } from '../../model/Snapshot.js';
 
+// Structural interface satisfied by both the Experiment screen scene (which exposes
+// screenDistanceProperty/slitSettingProperty) and the High Intensity / Single Particles
+// scenes (which derive screen distance from regionWidth × slitPositionFractionProperty).
+// All length quantities are in mm unless otherwise noted. The two discriminated branches
+// reflect the two concrete model types; callers must narrow via 'screenDistanceProperty' in scene.
 type TheoreticalPatternScene = {
   getEffectiveWavelength(): number;
   slitWidth: number;
@@ -34,16 +39,49 @@ type TheoreticalPatternScene = {
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
 // updates so they only fire at pedagogically meaningful thresholds.
 export type HitStage = 'none' | 'few' | 'emerging' | 'developing' | 'clear';
+
+// Seven-point qualitative scale for the spacing between adjacent double-slit bright bands,
+// expressed as a fraction of the total detector-screen width. Used by describers to select
+// the appropriate Fluent string for screen-reader output.
 export type BandSpacingCategory = 'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether';
+
+// Three-point qualitative scale describing how the single-slit diffraction envelope shapes
+// the double-slit interference pattern. 'brightestAtCenter' means the envelope is broad
+// and all fringes appear roughly equal; the clustering variants indicate the envelope
+// minima have moved inward enough to visibly group fringes into two dimmer side lobes.
 export type EnvelopeCategory = 'brightestAtCenter' | 'clusteringIntoTwoFaintSections' | 'clusteringIntoTwoDistinctSections';
+
+// Intermediate quantities produced by analyzeEnvelopeHeuristic. Exposed as a type so
+// callers (e.g. High Intensity state logging) can inspect individual values for debugging
+// without re-running the heuristic.
 export type EnvelopeHeuristicAnalysis = {
   category: EnvelopeCategory;
+
+  // Composite heuristic score driving the category thresholds (dimensionless). Higher
+  // values indicate the envelope is more strongly grouping fringes into side lobes.
   score: number;
+
+  // Dimensionless Fresnel-like separation: d_display² / (λ · L), where d_display is the
+  // display-coordinate slit separation, λ is the effective wavelength (m), and L is the
+  // slit-to-screen distance (m). Captures the ratio of geometric slit spacing to the
+  // diffraction scale.
   fresnelSeparation: number;
+
+  // Dimensionless ratio d_display / L. Measures how oblique the geometry is; large values
+  // push the single-slit envelope minima toward the central fringe region.
   geometryRatio: number;
+
+  // Smooth-step gate in [0, 1] applied to fresnelSeparation to suppress the envelope
+  // effect at small geometryRatio values where the paraxial approximation holds well.
   geometryGate: number;
+
+  // Slit-to-screen distance in meters.
   slitToScreenDistance: number;
+
+  // Effective slit separation in display-model coordinates (same units as regionHeight).
   displaySlitSeparation: number;
+
+  // Effective wavelength in meters used for this computation.
   effectiveWavelength: number;
 };
 

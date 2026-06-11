@@ -14,6 +14,10 @@ export const MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL = 1;
 export const DEFAULT_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL = 4;
 export const MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL = 6;
 
+/**
+ * Caller-facing zoom level specification. Use a specific integer in [MIN, MAX] (i.e. 1–6), 'default' to select
+ * DEFAULT_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL (4), or 'max' to select MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL (6).
+ */
 export type DetectorPatternGraphZoomLevelOption = number | 'default' | 'max';
 
 /**

@@ -63,6 +63,21 @@ export type DetectorScreenHitRenderCache = {
   hitSpriteParams: DetectorScreenHitSpriteParams | null;
 };
 
+/**
+ * Snapshot of the visual state fields that determine whether the cached texture must be fully invalidated and
+ * repainted. Callers compare successive snapshots with detectorScreenTextureRenderParametersChanged; any field change
+ * forces a full-canvas clear and hit-cache reset before the next render.
+ *
+ * - brightness: user-controlled detector-screen brightness slider value.
+ * - wavelength: source wavelength in nm, used to select the scene color palette for hit dots and intensity bands.
+ * - effectiveWavelength: wavelength used for the analytical fringe-pattern computation. May be undefined when the
+ *   source has not yet emitted; may differ from wavelength during warm-up ramping in High Intensity mode.
+ * - detectionMode: 'hits' or 'averageIntensity', selects which rendering path to use.
+ * - intensity: user-controlled display gain for average-intensity rendering (High Intensity screen only; 1 elsewhere).
+ * - isEmitting: whether the source is actively emitting; average-intensity mode renders a blank canvas when false.
+ * - rampFactor: pattern-formation exposure factor in [0, 1] used by High Intensity average-intensity mode as the
+ *   interference pattern builds up. Absent or 1 means fully formed.
+ */
 export type DetectorScreenTextureRenderParameters = {
   brightness: number;
   wavelength: number;

@@ -27,7 +27,11 @@ import type { Snapshot } from '../model/Snapshot.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
+// Whether the two slits are arranged left-right (Experiment screen, overhead view) or top-bottom (High Intensity /
+// Single Particles screens, front-facing view). Controls which localized slit-name strings are used.
 type SlitOrientation = 'leftRight' | 'topBottom';
+
+// Maps every slit configuration (including noBarrier) to its localized display-name Property for a given orientation.
 type SlitSettingDisplayMap = Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>;
 
 export type SnapshotMetadataPropertiesOptions = {
@@ -128,18 +132,44 @@ const createSlitSettingDisplayMap = (
 };
 
 export default class SnapshotMetadataProperties {
+
+  // Formatted heading shown at the top of the snapshot card, e.g. "Snapshot 1 – Photons".
   public readonly headingProperty: TReadOnlyProperty<string>;
+
+  // Visual label row showing photon wavelength (nm) for photons, or particle speed (m/s or km/s) for matter particles.
   public readonly wavelengthOrSpeedProperty: TReadOnlyProperty<string>;
+
+  // Screen-reader version of wavelengthOrSpeedProperty using fully spelled-out unit strings.
   public readonly wavelengthOrSpeedAccessibleProperty: TReadOnlyProperty<string>;
+
+  // Visual label row for slit separation, displayed in micrometers (< 0.1 mm) or millimeters.
   public readonly slitSeparationProperty: TReadOnlyProperty<string>;
+
+  // Screen-reader version of slitSeparationProperty using fully spelled-out unit strings.
   public readonly slitSeparationAccessibleProperty: TReadOnlyProperty<string>;
+
+  // Visual label row for the distance from source to screen, in meters. Null when showScreenDistance is false.
   public readonly screenDistanceProperty: TReadOnlyProperty<string> | null;
+
+  // Screen-reader version of screenDistanceProperty. Null when showScreenDistance is false.
   public readonly screenDistanceAccessibleProperty: TReadOnlyProperty<string> | null;
+
+  // Visual label row for the current slit configuration, e.g. "Slits: Both Open".
   public readonly slitSettingProperty: TReadOnlyProperty<string>;
+
+  // Visual label row for screen brightness as a percentage of the maximum.
   public readonly screenBrightnessProperty: TReadOnlyProperty<string>;
+
+  // Screen-reader version of screenBrightnessProperty using fully spelled-out unit strings.
   public readonly screenBrightnessAccessibleProperty: TReadOnlyProperty<string>;
+
+  // Accessible name for the delete-snapshot button, includes the snapshot title for screen-reader context.
   public readonly trashButtonAccessibleNameProperty: TReadOnlyProperty<string>;
+
+  // PDOM list-item string for the detection mode row (Intensity vs. Hits), used inside the accessible metadata list.
   public readonly detectionModeListItemProperty: TReadOnlyProperty<string>;
+
+  // PDOM list-item string for the slit setting row, used inside the accessible metadata list.
   public readonly slitSettingListItemProperty: TReadOnlyProperty<string>;
 
   /**

@@ -29,8 +29,15 @@ const TIME_PLOT_DATA_POINT_SCHEMA = {
   value: NumberIO
 };
 
+/**
+ * A single sample in the time plot: elapsed plot time (x, seconds) and the measured wave quantity (y).
+ */
 export type TimePlotDataPoint = CoreRecord<typeof TIME_PLOT_DATA_POINT_SCHEMA>;
 
+/**
+ * PhET-iO serialized state for TimePlotDataSeries. Captures the full sample buffer and all timing
+ * bookkeeping so a restored series can continue plotting without a discontinuity.
+ */
 type TimePlotDataSeriesStateObject = {
   dataPoints: TimePlotDataPoint[];
   elapsedTime: number;
@@ -38,9 +45,15 @@ type TimePlotDataSeriesStateObject = {
   nextSampleSolverTime: number | null;
 };
 
+/**
+ * Callback that reads the wave quantity to be plotted at a given solver time. Passed to
+ * stepAtSolverTime() so the data series stays decoupled from the specific wave model.
+ */
 type TimePlotSampleFunction = ( solverTime: number ) => number;
 
 type SelfOptions = {
+
+  // Called after PhET-iO state is applied so the owning TimePlotNode can redraw from the restored samples.
   stateAppliedListener?: () => void;
 };
 

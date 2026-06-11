@@ -18,6 +18,7 @@ import { type SourceType } from '../model/SourceType.js';
 
 const MASS_LABEL_FONT = new PhetFont( 13 );
 
+// Minimal structural interface: only the sourceType property is needed to select the correct mass label string.
 type SceneLike = { sourceType: SourceType };
 
 export default class ParticleMassAnnotationNode extends RichText {

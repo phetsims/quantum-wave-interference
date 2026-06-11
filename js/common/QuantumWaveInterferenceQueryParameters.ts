@@ -12,7 +12,7 @@ import QuantumWaveInterferenceConstants from './QuantumWaveInterferenceConstants
 const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
 
   // Internal performance tuning knob for the analytical wave visualization grid. For example,
-  // ?waveSolverGridSize=100 reduces the default 200x200 solver grid to 100x100.
+  // ?waveSolverGridSize=100 reduces the default 120x120 solver grid to 100x100.
   waveSolverGridSize: {
     type: 'number',
     defaultValue: 120,
@@ -42,9 +42,9 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
     isValidValue: value => value > 0 && value <= 1
   },
 
-  // Internal performance tuning knob for the shared detector screen texture. The default 2 preserves
-  // the current supersampled rendering. For example, ?detectorScreenTextureScale=1 renders 1/4 as
-  // many texture pixels, and ?detectorScreenTextureScale=0.5 renders 1/16 as many.
+  // Internal performance tuning knob for the shared detector screen texture. The default 1 renders
+  // one texture pixel per screen pixel. For example, ?detectorScreenTextureScale=2 renders 4x as
+  // many texture pixels for supersampled quality, and ?detectorScreenTextureScale=0.5 renders 1/4 as many.
   detectorScreenTextureScale: {
     type: 'number',
     defaultValue: 1,

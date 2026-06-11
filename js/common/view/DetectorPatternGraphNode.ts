@@ -32,6 +32,23 @@ const AXIS_LABEL_TOP_MARGIN = 4;
 
 export type { DetectorPatternGraphSceneLike };
 
+/**
+ * Options for DetectorPatternGraphNode.
+ *
+ * detectionModeProperty — omit on screens that have only one detection mode (e.g. Single Particles, which is always
+ *   "hits"). When provided, the graph switches between the histogram and intensity-curve representations as the
+ *   mode changes, and each mode retains its own zoom level across mode transitions.
+ *
+ * axisLabelStringProperty — string displayed below the chart as the horizontal-axis label; typically the screen-
+ *   specific label supplied by the caller (e.g. "Hits" or "Average Intensity").
+ *
+ * initialZoomLevel — starting zoom level applied uniformly when detectionModeProperty is absent, or as a fallback
+ *   when initialZoomLevels does not specify a level for a particular mode. Accepts a numeric level, 'default', or
+ *   'max'. Defaults to 'default'.
+ *
+ * initialZoomLevels — per-mode initial zoom overrides; takes precedence over initialZoomLevel for each mode that
+ *   has an entry. Used by the High Intensity screen to open averageIntensity at zoom 3 and hits at max zoom.
+ */
 type SelfOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   axisLabelStringProperty: TReadOnlyProperty<string>;
@@ -39,8 +56,16 @@ type SelfOptions = {
   initialZoomLevels?: Partial<Record<DetectionMode, DetectorPatternGraphZoomLevelOption>>;
 };
 
+/**
+ * Public options type for DetectorPatternGraphNode. Callers must supply a tandem for PhET-iO instrumentation of the
+ * internal zoom-level Property.
+ */
 export type DetectorPatternGraphNodeOptions = SelfOptions & WithRequired<NodeOptions, 'tandem'>;
 
+/**
+ * Returns the resolved integer zoom level for the given detection mode, preferring a per-mode initialZoomLevels
+ * entry and falling back to the global initialZoomLevel option.
+ */
 const getModeZoomLevel = (
   detectionMode: DetectionMode,
   options: Pick<SelfOptions, 'initialZoomLevel' | 'initialZoomLevels'>

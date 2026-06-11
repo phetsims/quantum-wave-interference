@@ -25,32 +25,59 @@ import QuantumWaveInterferenceConstants from '../../QuantumWaveInterferenceConst
 import { getWavelengthColorZone, getWavelengthColorZoneStringProperty, WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from '../WavelengthColorUtils.js';
 import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryContent.js';
 
+// Minimal { min, max } range shape used to avoid a hard dependency on dot/Range in the structural types below.
 type RangeLike = {
   min: number;
   max: number;
 };
 
+/**
+ * Structural subset of a scene model that carries the source-type identity and the physical ranges needed
+ * to choose appropriate display units. particleSpeedRange is in m/s; slitSeparationRange is in mm.
+ */
 type SetupDetailsScene = {
   sourceType: SourceType;
-  particleSpeedRange: RangeLike;
-  slitSeparationRange: RangeLike;
+  particleSpeedRange: RangeLike; // m/s — used to decide between m/s and km/s display units
+  slitSeparationRange: RangeLike; // mm — used to decide between μm and nm display units
 };
 
+/**
+ * Structural model contract required by ExperimentSetupDetailsNode. Satisfied by BaseScreenModel and its
+ * subclasses, but intentionally narrow so unrelated screens can provide their own lightweight implementation.
+ * currentWavelengthProperty is in nm; currentParticleSpeedProperty is in m/s; currentSlitSeparationProperty is in mm.
+ */
 type SetupDetailsModel = {
   sceneProperty: TReadOnlyProperty<SetupDetailsScene>;
   currentIsEmittingProperty: TReadOnlyProperty<boolean>;
-  currentWavelengthProperty: TReadOnlyProperty<number>;
-  currentParticleSpeedProperty: TReadOnlyProperty<number>;
-  currentSlitSeparationProperty: TReadOnlyProperty<number>;
+  currentWavelengthProperty: TReadOnlyProperty<number>; // nm — photon scenes only
+  currentParticleSpeedProperty: TReadOnlyProperty<number>; // m/s — matter-wave scenes only
+  currentSlitSeparationProperty: TReadOnlyProperty<number>; // mm
 };
 
+/**
+ * Options that control which list items are rendered and supply optional model properties for items that are not
+ * always present. All fields are optional; defaults produce the full canonical Experiment-screen description.
+ */
 type SetupDetailsOptions = {
+  // When provided, adds a "detection mode" list item (wave vs. particle display). Ignored when includeDetectionMode is false.
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
+
+  // When provided, appends a "screen distance" list item. Value is in meters.
   screenDistanceProperty?: TReadOnlyProperty<number>;
+
+  // Orientation of the slits used to choose the correct directional string (default: 'leftRight').
   slitOrientation?: SlitOrientation;
+
+  // Extra caller-supplied list items appended after the standard items.
   additionalListItems?: AccessibleListItem[];
+
+  // Set to false to suppress the "Current experimental details" leading paragraph (default: true).
   includeLeadingParagraph?: boolean;
+
+  // Set to false to omit the source-emitter (on/off) list item (default: true).
   includeSourceEmitter?: boolean;
+
+  // Set to false to omit the detection-mode list item even when detectionModeProperty is supplied (default: true).
   includeDetectionMode?: boolean;
 };
 

@@ -24,6 +24,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 
 type SelfOptions = EmptySelfOptions;
 
+/** Options for SingleParticleEmitterNode. A tandem is required for PhET-iO instrumentation of the emit button. */
 export type SingleParticleEmitterNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
 const EMITTER_SCALE = 1.24;
@@ -33,6 +34,10 @@ const BUTTON_RADIUS = 23 * EMITTER_SCALE;
 const BUTTON_CENTER_X_FRACTION = 0.32;
 const BUTTON_CENTER_Y_FRACTION = 0.5;
 
+/**
+ * Minimal scene contract required by this node. Only sourceType is needed to drive the accessible name and help text
+ * of the emit button; using a structural type keeps this view decoupled from any concrete scene model class.
+ */
 type SceneLike = { sourceType: SourceType };
 
 export default class SingleParticleEmitterNode extends Node {

@@ -6,8 +6,8 @@
  * PositionPlotNode compose this node for their chart display.
  *
  * The chart's zero baseline is placed at the bottom for the unipolar amplitude display mode and at
- * the vertical center for bipolar modes (real, imaginary, electric field). Consumers use
- * `mapValueToY` to convert data values to chart-local y coordinates.
+ * the vertical center for bipolar modes (real, imaginary, electric field). Callers push data via
+ * `setDataPathFromPoints`, passing raw model values and an amplitude scale.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -34,6 +34,9 @@ import { type WaveDisplayModePolarity } from '../model/WaveModeDisplayPolarity.j
 
 const CHART_WIDTH = 150;
 const CHART_HEIGHT = 110;
+
+// Chart height used by the measurement-tool plots (TimePlotNode, PositionPlotNode). Taller than
+// the default CHART_HEIGHT so the wave detail is easier to read at the measurement-tool scale.
 export const MEASUREMENT_PLOT_CHART_HEIGHT = 135;
 const LABEL_FONT = new PhetFont( 11 );
 const GRID_LINE_COLOR = '#bbbdbf';
@@ -67,8 +70,17 @@ type SelfOptions = {
   panelRightPadding?: number;
 };
 
+/**
+ * Options for WavePlotChartNode. Extend NodeOptions and require a tandem for PhET-iO. Callers can
+ * override chart dimensions, padding, axis labels, polarity, and draggability.
+ */
 export type WavePlotChartNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
+/**
+ * A single sample for the wave plot. `x` is the model-space horizontal coordinate (e.g., time in
+ * seconds for a time plot, or position in meters for a position plot). `value` is the wave
+ * amplitude at that coordinate in model units (e.g., electric-field magnitude, real part, etc.).
+ */
 export type WavePlotDataPoint = {
   x: number;
   value: number;
@@ -369,8 +381,9 @@ export default class WavePlotChartNode extends InteractiveHighlighting( Node ) {
   }
 
   /**
-   * Map a data value to its chart-local y coordinate, given the current amplitude scale.
-   * Callers divide their own value by whatever scale they are tracking.
+   * Maps a model-space data value to a chart-local y coordinate. The value is normalized by
+   * amplitudeScale and then scaled to the chart's half-amplitude height, measured downward from the
+   * current baseline (bottom of the chart for unipolar, vertical center for bipolar).
    */
   private mapValueToY( value: number, amplitudeScale: number ): number {
     return this.baselineYProperty.value - ( value / amplitudeScale ) * this.halfAmplitudeHeightProperty.value;

@@ -22,8 +22,18 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
   private readonly leftHeight: number;
   private readonly detectorScreenScaleIndexProperty: TReadOnlyProperty<number>;
 
+  // The active scene model whose detector data is rendered. Null until the first updatePattern() call.
   private sceneModel: SceneModel | null = null;
 
+  /**
+   * @param dx - horizontal width of the parallelogram in local (view) coordinates; the right edge is dx pixels to the
+   *   right of the left edge
+   * @param dy - vertical skew offset of the right edge in local coordinates; positive means the right edge sits lower
+   *   than the left edge, producing the overhead perspective slant
+   * @param leftHeight - height of the left (vertical) edge in local coordinates
+   * @param detectorScreenScaleIndexProperty - zoom level index for the detector screen; triggers a repaint whenever
+   *   the scale changes
+   */
   public constructor(
     dx: number,
     dy: number,

@@ -37,9 +37,18 @@ const PANEL_MIN_HEIGHT = 270;
 
 type SelfOptions = EmptySelfOptions;
 
+// tandem is required so each scene's child controls are properly instrumented for PhET-iO.
 type SlitControlPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tandem'>;
 
 export default class SlitControlPanel extends Panel {
+
+  /**
+   * @param sceneProperty - the currently selected scene; drives which scene's controls are visible
+   * @param scenes - all scenes; must be the complete set so a control node is created for every scene
+   * @param sceneTandems - maps each SceneModel to its PhET-iO Tandem; must contain an entry for every element of scenes
+   * @param comboBoxParent - scene graph ancestor used as the popup parent for the slit settings ComboBox list
+   * @param providedOptions
+   */
   public constructor(
     sceneProperty: Property<SceneModel>,
     scenes: SceneModel[],

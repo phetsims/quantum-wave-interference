@@ -241,6 +241,15 @@ export default class TimePlotNode extends Node {
     } );
   }
 
+  /**
+   * Called each animation frame by the screen view with the model's effective dt (already scaled for
+   * pause/speed and clamped). Skips sampling when the node is invisible or dt is non-positive.
+   * When visible, delegates to TimePlotDataSeries to advance by fixed solver-time intervals so the
+   * trace density is independent of browser frame timing, then redraws the chart only if new
+   * samples were recorded.
+   *
+   * @param dt - effective simulation time step in seconds
+   */
   public step( dt: number ): void {
     if ( !this.visible || dt <= 0 ) {
       return;
@@ -325,6 +334,11 @@ export default class TimePlotNode extends Node {
     return this.chartNode.positionProperty.value;
   }
 
+  /**
+   * Resets all mutable state: clears accumulated time-series samples, restores the probe to its
+   * initial position, and restores the chart panel to its initial position. Called by the screen
+   * view's reset-all handler.
+   */
   public reset(): void {
     this.clearData();
     this.probePositionProperty.reset();

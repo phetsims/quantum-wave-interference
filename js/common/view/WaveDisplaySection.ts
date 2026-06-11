@@ -36,6 +36,11 @@ const COMBO_BOX_ARROW_AREA_WIDTH = COMBO_BOX_ITEM_HEIGHT + 2 * COMBO_BOX_Y_MARGI
 const COMBO_BOX_CHROME_WIDTH = 2 * COMBO_BOX_X_MARGIN + COMBO_BOX_LINE_WIDTH + COMBO_BOX_ARROW_AREA_WIDTH;
 const COMBO_BOX_ITEM_TEXT_MAX_WIDTH = QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH - COMBO_BOX_CHROME_WIDTH;
 
+/**
+ * Model interface required by WaveDisplaySection. Callers (e.g. DetectorScreenControls) pass in a slice of the
+ * screen model that satisfies this shape. sceneProperty determines which combo box is visible (photon vs matter),
+ * and the two mode properties back the respective combo box selections and are wired through to PhET-iO.
+ */
 type WaveDisplayModel = {
   sceneProperty: TReadOnlyProperty<{ sourceType: string }>;
   currentPhotonWaveDisplayModeProperty: PhetioProperty<PhotonWaveDisplayMode>;

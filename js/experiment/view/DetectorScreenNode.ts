@@ -62,9 +62,14 @@ const SPAN_TICK_LENGTH = 8;
 const SPAN_ARROW_Y = -10;
 
 type SelfOptions = {
+
+  // Called immediately after a snapshot is taken and the visual flash animation has been started.
+  // Use this to trigger any additional side-effects in the parent view (e.g., a coordinated flash
+  // on the overhead apparatus). Defaults to a no-op.
   onSnapshotCaptured?: () => void;
 };
 
+// Options for DetectorScreenNode. A tandem is required for PhET-iO instrumentation of the snapshot buttons.
 type DetectorScreenNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
 
 export default class DetectorScreenNode extends Node {
@@ -73,6 +78,7 @@ export default class DetectorScreenNode extends Node {
   private readonly screenCanvasNode: DetectorScreenCanvasNode;
   private readonly screenBackgroundRect: Rectangle;
 
+  // Public so that ExperimentDetectorColumnNode can collect them for PDOM ordering (pdomOrder / focus management).
   public readonly snapshotButton: SnapshotButton;
   public readonly viewSnapshotsButton: ViewSnapshotsButton;
   private readonly snapshotButtonGroup: VBox;

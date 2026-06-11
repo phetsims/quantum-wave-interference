@@ -14,8 +14,16 @@ import QuantumWaveInterferenceTransitionDescriber, { type QuantumWaveInterferenc
 
 export default class HighIntensityAccessibleResponses extends Node {
 
+  // Snapshot of accessible view state taken after the last emitted response, used as the "before" baseline when
+  // computing the next transition description.
   private previousState: HighIntensityAccessibleViewState;
+
+  // The most-recently emitted context-response string. Used to suppress duplicate wave-progress alerts when the
+  // stage description has not actually changed between successive step callbacks.
   private lastContextResponse: string | null;
+
+  // Set to true while the clear-screen button callback is executing so that property-change listeners fired during
+  // clearScreen() are silenced; the single 'screenCleared' response is emitted explicitly afterward.
   private isClearingFromButton: boolean;
 
   public constructor(
@@ -177,6 +185,16 @@ export default class HighIntensityAccessibleResponses extends Node {
     } );
   }
 
+  /**
+   * Executes the provided clearScreen callback while suppressing the property-driven transition listeners, then
+   * snapshots the post-clear state and emits exactly one 'screenCleared' accessible context response. Callers pass
+   * the actual clear operation as a callback so that this class owns the before/after state diff and deduplication
+   * logic rather than the caller.
+   *
+   * Called by HighIntensityScreenView when the user activates the detector-screen clear button.
+   *
+   * @param clearScreen - zero-argument callback that performs the model clear (e.g. scene.clearScreen())
+   */
   public clearScreenAndEmitResponse( clearScreen: () => void ): void {
     const before = this.previousState;
 

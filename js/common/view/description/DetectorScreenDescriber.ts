@@ -21,8 +21,13 @@ import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier
 import BandAnalysis from './BandAnalysis.js';
 import { formatIntensityDescription, formatLiveHitsDescription } from './DetectorScreenDescriptionFormatter.js';
 
-// NOTE: see other duplicate in DetectorPatternGraphDescriber.ts. Graph and detector-screen describers read the same
-// physics state, but their scene types stay separate because their wording and screen-distance inputs diverge.
+/**
+ * Physics-state interface required by DetectorScreenDescriber. The two union branches reflect the two scene
+ * archetypes in the sim: the Experiment screen (which carries an explicit screen-distance and slit-setting) and
+ * the High-Intensity / Single-Particles screens (which carry a fixed region width and slit-configuration).
+ * NOTE: see parallel type in DetectorPatternGraphDescriber.ts — the types stay separate because their
+ * wording and screen-distance inputs diverge even though the physics state is shared.
+ */
 export type DetectorScreenDescriberScene = {
   hitsChangedEmitter: { addListener( listener: () => void ): void; removeListener( listener: () => void ): void };
   totalHitsProperty: TReadOnlyProperty<number>;
@@ -64,8 +69,22 @@ function hasPopulatedAverageIntensityScreen( scene: DetectorScreenDescriberScene
 
 export default class DetectorScreenDescriber {
 
+  /**
+   * The current accessible description of the detector screen. Callers typically assign this to an
+   * `accessibleParagraph` on a PDOM Node so screen readers announce it whenever it changes. The value
+   * is recomputed eagerly on construction and thereafter on every qualifying state change.
+   */
   public readonly descriptionProperty: TReadOnlyProperty<string>;
 
+  /**
+   * @param sceneProperty - the currently active scene whose physics state drives the description
+   * @param isRulerVisibleProperty - controls whether spatial descriptions include ruler-based distance language
+   * @param detectorScreenHalfWidthProperty - half the physical width of the detector screen in model units,
+   *   used to convert band positions to fractions. When omitted, the half-width is inferred from the scene:
+   *   0.5 for Experiment-screen scenes (screenDistanceProperty branch) or regionWidth/2 for the other branch.
+   * @param updateTriggerProperty - an optional extra Property whose changes force a full description refresh,
+   *   used when the caller knows of an external display change (e.g. scale index) not captured by scene properties
+   */
   public constructor(
     sceneProperty: TReadOnlyProperty<DetectorScreenDescriberScene>,
     isRulerVisibleProperty: TReadOnlyProperty<boolean>,

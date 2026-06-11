@@ -53,7 +53,11 @@ export default class QuantumWaveInterferenceConstants {
   private static readonly NEUTRON_MASS = 1.675e-27;
   private static readonly HELIUM_ATOM_MASS = 6.646e-27;
 
-  // Use a function here so we can map SourceType => particle mass
+  /**
+   * Returns the rest mass of the particle for the given source type, in kilograms.
+   * Photons have zero rest mass and return 0 as a sentinel; callers that use the mass
+   * in de Broglie wavelength calculations should guard against this case.
+   */
   public static getParticleMass( sourceType: SourceType ): number {
     return sourceType === 'photons' ? 0 :
            sourceType === 'electrons' ? QuantumWaveInterferenceConstants.ELECTRON_MASS :
@@ -142,6 +146,12 @@ export default class QuantumWaveInterferenceConstants {
   // Shared top edge for the source control panels on screens that visually align with the Experiment screen.
   public static readonly SOURCE_CONTROL_PANEL_TOP = 178;
 
+  /**
+   * Returns the wavelength range (in nanometers) for the given source type.
+   * Photons use the full visible-light range [380, 780] nm. All other particle types
+   * return [0, 0] because their de Broglie wavelength is computed from momentum rather
+   * than being a user-controlled input, so no wavelength picker is shown for them.
+   */
   public static createWavelengthRangeNM( sourceType: SourceType ): Range {
     const range = WAVELENGTH_RANGE_NM_BY_SOURCE_TYPE[ sourceType ];
     return new Range( range[ 0 ], range[ 1 ] );
@@ -160,6 +170,15 @@ export default class QuantumWaveInterferenceConstants {
     );
   }
 
+  /**
+   * Returns the number of decimal places needed to faithfully display both endpoints of a numeric range.
+   * Used by number controls and labels to choose a consistent decimal-place count so neither endpoint
+   * appears rounded.
+   *
+   * @param min - lower bound of the range (same units as max)
+   * @param max - upper bound of the range (same units as min)
+   * @returns decimal places required to represent the more precise endpoint
+   */
   public static getRangeDecimalPlaces( min: number, max: number ): number {
     return Math.max( numberOfDecimalPlaces( min ), numberOfDecimalPlaces( max ) );
   }

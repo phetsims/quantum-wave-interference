@@ -35,6 +35,9 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 
 export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as const;
+
+// 'ready' — waiting for a measurement; 'detected' — the particle was found in the detector circle;
+// 'notDetected' — measurement was performed and the particle was not found.
 export type DetectorToolState = typeof DetectorToolStateValues[number];
 
 const MIN_EMISSION_INTERVAL = 0.3;
@@ -89,6 +92,8 @@ const SINGLE_PARTICLES_SLIT_SEPARATION_CONFIGS: Record<SourceType, SlitSeparatio
   }
 };
 
+// Options for SingleParticlesSceneModel — same shape as BaseSceneModelOptions; exported so callers can type
+// their providedOptions without importing the base type directly.
 export type SingleParticlesSceneModelOptions = BaseSceneModelOptions;
 
 // Serialized transient packet run state, see getSubclassState(). All fields are optional so states saved before a
@@ -280,6 +285,10 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     super.clearWaveStateWhenEmitterTurnsOff();
   }
 
+  /**
+   * Saves a snapshot of the current hit pattern for display in the snapshot overlay. Called by
+   * SingleParticlesModel when the user presses the snapshot button.
+   */
   public takeSingleParticlesSnapshot(): void {
     this.takeSnapshot( 'hits', this.slitConfigurationProperty.value, 1 );
   }
@@ -332,6 +341,17 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     return this.sampleDetectionDelayToTargetX( this.regionWidth, 0 );
   }
 
+  /**
+   * Samples a detection time (in seconds) for the wave packet to travel from sourceX to targetX. The packet
+   * starts at a negative sigma offset to the left of sourceX, so the effective travel distance is longer than
+   * targetX − sourceX. The sampled weight picks a point along the packet's longitudinal probability envelope
+   * (via sampleScreenDetectionWeight), which is then converted to a center-arrival time using the inverse
+   * normal CDF scaled by sigmaX0.
+   *
+   * @param targetX - x-coordinate of the detector plane, in display units (mm)
+   * @param sourceX - x-coordinate of the re-emission origin; 0 for primary source emission
+   * @returns sampled time delay in seconds from emission until detection
+   */
   private sampleDetectionDelayToTargetX( targetX: number, sourceX: number ): number {
     const propagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
     if ( propagationSpeed <= 0 ) {
@@ -508,6 +528,16 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.syncSolverParameters();
   }
 
+  /**
+   * Builds the GaussianPacketReEmission descriptor that tells the wave solver to render the post-collapse
+   * packet as a Gaussian emitted from the selected slit. The re-emitted packet is centered on the slit gap,
+   * its width matches the display slit width, and its timeAdvance is set so its envelope looks naturally
+   * propagated from the slit rather than starting at zero amplitude. Called by startPacketReEmission().
+   *
+   * @param selectedSlit - which slit the on-slit detector clicked, determining the re-emitted packet's y-center
+   * @param eventTime - solver time at which the collapse interaction occurred
+   * @returns the GaussianPacketReEmission descriptor for the wave solver
+   */
   private createPacketReEmission( selectedSlit: 'topSlit' | 'bottomSlit', eventTime: number ): GaussianPacketReEmission {
     const { displaySlitSeparation, displaySlitWidth } = getDisplaySlitLayout(
       this.slitSeparationProperty.value * 1e-3,
@@ -526,6 +556,16 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     };
   }
 
+  /**
+   * Computes how many seconds to advance the re-emitted packet's internal time so it visually appears to
+   * have already propagated from the slit. The base advance is derived from
+   * WAVE_PACKET_RE_EMISSION_TIME_ADVANCE_SIGMAS scaled by the packet width and propagation speed. An extra
+   * correction term accounts for the actual on-slit arrival time differing from the deterministic center
+   * time: a late collapse delays the advance, an early one extends it.
+   *
+   * @param eventTime - solver time when the on-slit detector interaction occurred
+   * @returns the time advance in seconds (clamped to ≥ 0) to pass in GaussianPacketReEmission.timeAdvance
+   */
   private getPacketReEmissionTimeAdvance( eventTime: number ): number {
     const propagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
     if ( propagationSpeed <= 0 ) {
@@ -710,6 +750,11 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.packetReEmission = stateObject.packetReEmission ? _.assign( {}, stateObject.packetReEmission ) : null;
   }
 
+  /**
+   * Resets all Single Particles scene state to its initial values, including user controls (autoRepeat, detector tool
+   * position/radius/state/probability) and transient packet run state. Calls super.reset() which resets base scene
+   * state (hits, emitter, slit configuration, snapshots, etc.), then re-syncs the solver parameters.
+   */
   public override reset(): void {
     super.reset();
     this.autoRepeatProperty.reset();

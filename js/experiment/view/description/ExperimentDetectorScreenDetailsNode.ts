@@ -14,6 +14,8 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
 import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import ExperimentModel from '../../model/ExperimentModel.js';
 
+// String-literal union used as a boolean selector in Fluent message patterns, which expect string values rather than
+// native booleans for variant selection.
 type FluentBoolean = 'true' | 'false';
 
 function toFluentBoolean( value: boolean ): FluentBoolean {

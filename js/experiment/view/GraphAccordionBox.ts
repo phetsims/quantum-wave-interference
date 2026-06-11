@@ -54,14 +54,28 @@ const HISTOGRAM_BINS = 100;
 // Grid line styling
 const graphGridLineColorProperty = QuantumWaveInterferenceColors.graphGridLineColorProperty;
 
+/**
+ * Options specific to GraphAccordionBox. All three properties are shared across all scene instances so that
+ * global UI state (accordion expansion, ruler visibility, detector zoom) remains consistent when switching scenes.
+ */
 type SelfOptions = {
   // Shared expandedProperty so that switching scenes preserves the accordion box open/closed state,
   // per the design requirement that scene changes should not affect the graph accordion box state.
   expandedProperty: Property<boolean>;
+
+  // Whether the detector ruler is currently visible. Forwarded to GraphDescriber to include ruler context
+  // in the accessible description of the graph.
   isRulerVisibleProperty: TReadOnlyProperty<boolean>;
+
+  // Index into the DetectorScreenScale table that controls the horizontal zoom of the front-facing detector screen.
+  // The graph mirrors this zoom so the x-axis range always matches the visible detector region.
   detectorScreenScaleIndexProperty: TReadOnlyProperty<number>;
 };
 
+/**
+ * Public options for constructing a GraphAccordionBox. Requires a tandem for PhET-iO instrumentation
+ * of the accordion box and zoom-level property.
+ */
 type GraphAccordionBoxOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
 
 export default class GraphAccordionBox extends Node {
@@ -474,6 +488,9 @@ export default class GraphAccordionBox extends Node {
     }
   }
 
+  /**
+   * Resets the zoom level to its default value. Called when the sim is reset.
+   */
   public reset(): void {
     this.zoomLevelProperty.reset();
   }

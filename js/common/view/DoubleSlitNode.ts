@@ -63,6 +63,11 @@ const slitPositionSoundPlayer = new ValueChangeSoundPlayer( SLIT_POSITION_FRACTI
 
 type AccessibleArrowNodeOptions = ArrowNodeOptions & AccessibleSliderOptions;
 
+/**
+ * A double-headed ArrowNode that also participates in the PDOM as a slider, enabling keyboard adjustment of
+ * the slit-to-screen distance. Combines ArrowNode's visual representation with AccessibleSlider's keyboard
+ * and screen-reader behavior at mixin index 4.
+ */
 class AccessibleArrowNode extends AccessibleSlider( ArrowNode, 4 ) {
   public constructor(
     tailX: number,
@@ -75,11 +80,27 @@ class AccessibleArrowNode extends AccessibleSlider( ArrowNode, 4 ) {
   }
 }
 
+/**
+ * Computes the physical slit-to-screen distance from the current slit position.
+ * The result is in the unit system returned by getMeasuringTapeUnits (either nm or µm depending on regionWidth).
+ *
+ * @param regionWidth - wave-region width in model units, used to select nm vs µm display units
+ * @param slitPositionFraction - fraction of wave-region width where the barrier sits (0 = left, 1 = right)
+ * @returns distance from barrier to right edge of wave region, in the scene's measuring-tape units
+ */
 function getSlitToScreenDistance( regionWidth: number, slitPositionFraction: number ): number {
   const measuringTapeUnits = getMeasuringTapeUnits( regionWidth );
   return ( 1 - slitPositionFraction ) * WAVE_REGION_WIDTH * measuringTapeUnits.multiplier;
 }
 
+/**
+ * Returns a localized, formatted string describing the slit-to-screen distance for use in PDOM aria-valuetext.
+ * Includes trailing zeros and shows integers as integers so the value is unambiguous to screen-reader users.
+ *
+ * @param regionWidth - wave-region width in model units, forwarded to getMeasuringTapeUnits
+ * @param slitPositionFraction - fraction of wave-region width where the barrier sits
+ * @returns accessible distance string, e.g. "3.50 µm"
+ */
 function getSlitPositionAccessibleDistance( regionWidth: number, slitPositionFraction: number ): string {
   const measuringTapeUnits = getMeasuringTapeUnits( regionWidth );
   return measuringTapeUnits.unit.getAccessibleString( getSlitToScreenDistance( regionWidth, slitPositionFraction ), {
@@ -89,6 +110,17 @@ function getSlitPositionAccessibleDistance( regionWidth: number, slitPositionFra
   } );
 }
 
+/**
+ * Returns a localized context-response string describing the direction of barrier movement after a drag gesture,
+ * or null when the distance has not meaningfully changed (within SLIT_POSITION_RESPONSE_EPSILON) or when the
+ * source is currently emitting (context responses are suppressed during emission).
+ * Used as the createContextResponseAlert callback on the accessible arrow slider.
+ *
+ * @param regionWidth - wave-region width in model units
+ * @param slitPositionFraction - fraction at the end of the drag
+ * @param slitPositionFractionOnStart - fraction at the start of the drag
+ * @returns localized direction string ("closer", "farther", "closest", "farthest"), or null if no response needed
+ */
 function getSlitPositionContextResponse(
   regionWidth: number,
   slitPositionFraction: number,
@@ -112,6 +144,10 @@ function getSlitPositionContextResponse(
   } );
 }
 
+/**
+ * DoubleSlitNode-specific options. Required properties drive slit-cover overlays; optional detector properties
+ * enable the yellow detector-indicator overlay on each slit (default to false/0 when absent).
+ */
 type SelfOptions = {
   isTopSlitCoveredProperty: TReadOnlyProperty<boolean>;
   isBottomSlitCoveredProperty: TReadOnlyProperty<boolean>;
@@ -121,6 +157,7 @@ type SelfOptions = {
   bottomDetectorCountProperty?: TReadOnlyProperty<number>;
 };
 
+/** Options for DoubleSlitNode. Callers may pass additionalDoubleSlitOptions via WaveRegionNode to inject detector state. */
 export type DoubleSlitNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
 export default class DoubleSlitNode extends Node {

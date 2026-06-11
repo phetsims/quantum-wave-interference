@@ -24,8 +24,12 @@ const SLIDER_TRACK_SIZE = new Dimension2( 150, 3 );
 const NUMBER_CONTROL_Y_SPACING = 8;
 const ARROW_BUTTONS_X_SPACING = 6;
 
+// SlitSeparationControl adds no options beyond what NumberControl provides.
 type SelfOptions = EmptySelfOptions;
 
+/**
+ * Options for SlitSeparationControl. Callers must supply a tandem; all other NumberControl options are optional.
+ */
 export type SlitSeparationControlOptions = SelfOptions & PickRequired<NumberControlOptions, 'tandem'>;
 
 export default class SlitSeparationControl extends NumberControl {

@@ -90,7 +90,10 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
       accessibleContextResponse: accessibleContextResponseProperty,
       accessibleContextResponseOptions: {
 
-        // TODO: Document the reason for alertWhenNotDisplayed: true, see https://github.com/phetsims/quantum-wave-interference/issues/135
+        // The context response (announcing the snapshot count) must be delivered even when this button is not
+        // displayed. When the dialog opens, the DetectorScreenNode (and thus this button) can become invisible or
+        // detached from the display. Setting alertWhenNotDisplayed routes the response through the global
+        // description queue so it is still spoken by the screen reader.
         alertWhenNotDisplayed: true
       },
       soundPlayer: nullSoundPlayer,

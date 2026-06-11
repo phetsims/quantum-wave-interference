@@ -17,6 +17,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 
 const COMBO_BOX_FONT = new PhetFont( 14 );
 
+// Options for SlitSettingsComboBox. The tandem is required for PhET-iO instrumentation of the combo box and its items.
 export type SlitSettingsComboBoxOptions = PickRequired<ComboBoxOptions, 'tandem'>;
 
 export default class SlitSettingsComboBox extends ComboBox<SlitConfiguration> {

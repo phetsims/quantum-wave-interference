@@ -92,10 +92,18 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
     slitSeparationContainer.localBoundsProperty.link( updateLayout );
   }
 
+  /**
+   * Returns the vertical center of the active slit-separation control in the row's parent coordinate frame.
+   * Used by callers (e.g. DetectorProbeNode) to position nearby tools adjacent to the control.
+   */
   public getSlitSeparationControlCenterY(): number {
     return this.y + this.slitSeparationContainer.centerY;
   }
 
+  /**
+   * Returns the horizontal center of the active slit-separation control in the row's parent coordinate frame.
+   * Used by callers (e.g. DetectorProbeNode) to position nearby tools adjacent to the control.
+   */
   public getSlitSeparationControlCenterX(): number {
     return this.x + this.slitSeparationContainer.centerX;
   }

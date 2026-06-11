@@ -235,8 +235,20 @@ type WaveSolver = {
    */
   getFieldSampleAtGridCell( gridX: number, gridY: number ): FieldSample;
 
+  /**
+   * Returns true when the solver supports independent renderer layers. The view calls this before
+   * getLayeredFieldSampleAtGridCell to decide whether to use layered compositing. Solvers that do not
+   * override this method are treated as non-layered and only getFieldSampleAtGridCell is used. Both
+   * optional methods must be implemented together — a solver must not implement one without the other.
+   */
   usesLayeredFieldSamples?(): boolean;
 
+  /**
+   * Returns the layered field sample for a solver grid cell at the current solver time. Only called by the
+   * view when usesLayeredFieldSamples() returns true. gridX and gridY are integer cell indices within the
+   * solver visualization grid (0..gridWidth-1 and 0..gridHeight-1 respectively). Solvers that do not use
+   * layered compositing need not implement this method.
+   */
   getLayeredFieldSampleAtGridCell?( gridX: number, gridY: number ): LayeredFieldSample;
 
   /**

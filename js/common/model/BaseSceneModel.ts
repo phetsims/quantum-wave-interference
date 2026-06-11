@@ -54,6 +54,8 @@ export const HIT_VERTICAL_EXTENT = 1;
 // Preserve the former default visual slit spacing when converting the control range to physical units.
 const DEFAULT_SLIT_SEPARATION_FRACTION = 9 / 19;
 
+// Per-source-type physical constants used to initialize scene properties. All values are in SI units:
+// particleMass in kg, particleSpeedRange and defaultParticleSpeed in m/s.
 type SourceTypeConfig = {
   particleMass: number;
   particleSpeedRange: [ number, number ];
@@ -90,20 +92,31 @@ function getDefaultEffectiveWavelength( sourceType: SourceType ): number {
          QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( config.particleMass * config.defaultParticleSpeed );
 }
 
+// Constructor options that are specific to BaseSceneModel before merging with PhetioObjectOptions.
 type SelfOptions = {
   sourceType: SourceType;
   defaultPhotonWaveDisplayMode?: PhotonWaveDisplayMode;
   defaultMatterWaveDisplayMode?: MatterWaveDisplayMode;
+
+  // Override the auto-computed slit-separation range and default. Pass a function when the desired
+  // range depends on the scene's regionHeight (computed in the constructor). Pass null to use the
+  // default range derived from the display-pixel slit layout constants.
   slitSeparationConfig?: SlitSeparationConfig | ( ( regionHeight: number ) => SlitSeparationConfig ) | null;
 };
 
+// Public options type for constructing a BaseSceneModel subclass. Requires a tandem for PhET-iO instrumentation.
 export type BaseSceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
 
+// Physical slit-separation range and default for a scene, in millimeters. Passed via BaseSceneModelOptions and also
+// exported so subclass scene model files (HighIntensitySceneModel, SingleParticlesSceneModel) can build per-source-type
+// lookup tables keyed on SourceType.
 export type SlitSeparationConfig = {
   range: Range;
   defaultValue: number;
 };
 
+// PhET-iO state object shape for BaseSceneModel. Serialized and restored by BaseSceneModelIO.
+// subclassState is an opaque object delegated to applySubclassState() on the concrete subclass.
 export type BaseSceneModelStateObject = {
   waveSolverState: WaveSolverState;
   hits: Array<{ x: number; y: number }>;
@@ -326,6 +339,11 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   }
 
+  /**
+   * Returns the effective wavelength in meters for the current source type and particle speed. For photons this is
+   * the user-controlled wavelength (wavelengthProperty, stored in nm) converted to meters. For matter particles it
+   * is the de Broglie wavelength h/(mv). Returns 0 when the particle speed is zero.
+   */
   public getEffectiveWavelength(): number {
     if ( this.sourceType === 'photons' ) {
       return this.wavelengthProperty.value * 1e-9;
@@ -339,6 +357,16 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return this.sourceType === 'photons' ? QuantumWaveInterferenceConstants.SPEED_OF_LIGHT : this.particleSpeedProperty.value;
   }
 
+  /**
+   * Converts a visual (display-coordinate) time step to the corresponding physical time step in seconds. The wave
+   * solver animates in display units where the display propagation speed may differ from the actual particle/photon
+   * speed; this method rescales visual time by the ratio of the two speeds so the stopwatch advances at the correct
+   * physical rate. Returns 0 when either speed is non-positive or non-finite (e.g., photon speed at zero wavelength
+   * or an uninitialised solver). Called by BaseScreenModel.step() and stepOnce() to advance the stopwatch.
+   *
+   * @param visualDt - display-coordinate time step, in display-time seconds
+   * @returns physical time step in seconds, or 0 if the conversion is not valid
+   */
   public getPhysicalDt( visualDt: number ): number {
     const displayPropagationSpeed = this.waveSolver.getDisplayPropagationSpeed();
     const effectiveWaveSpeed = this.getEffectiveWaveSpeed();
@@ -410,6 +438,11 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   private wavefrontReached = false;
 
+  /**
+   * Returns whether significant wave amplitude has arrived at the detector screen. Once true the result is
+   * permanently cached in wavefrontReached so subsequent calls are O(1). Used by subclasses to gate hit generation
+   * and by renderers to decide whether to show the interference pattern.
+   */
   public hasWavefrontReachedScreen(): boolean {
     if ( this.wavefrontReached ) {
       return true;
@@ -422,6 +455,16 @@ export default abstract class BaseSceneModel extends PhetioObject {
     return false;
   }
 
+  /**
+   * Samples a normalized detector-screen vertical position in [-1, 1] from the current probability distribution,
+   * applying sub-bin uniform jitter to avoid discrete banding in hit patterns. When the distribution sums to zero
+   * (no wave present yet) the result is uniformly random over the full span. Callers may pass a pre-fetched
+   * distribution to avoid a redundant getDetectorProbabilityDistribution() call; otherwise the method fetches it
+   * from the wave solver.
+   *
+   * @param distribution - optional pre-fetched probability distribution; fetched from the solver if omitted
+   * @returns normalized vertical position in [-1, 1] where -1 is one edge and 1 is the opposite edge of the screen
+   */
   protected generateHitPosition( distribution?: Float64Array ): number {
     if ( !distribution ) {
       distribution = this.waveSolver.getDetectorProbabilityDistribution();
@@ -557,6 +600,12 @@ export default abstract class BaseSceneModel extends PhetioObject {
     } );
   }
 
+  /**
+   * Wires the bidirectional sync between the provided slitConfigurationProperty and barrierTypeProperty, does an
+   * initial solver-parameter sync, installs the clear-screen listeners for all base scene properties, and
+   * registers a lazy-link that clears the screen whenever the slit configuration changes. Subclass constructors
+   * call this once after all properties have been created.
+   */
   protected setupSlitConfigurationListeners( slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier> ): void {
     this.linkSlitConfigurationToBarrierType( slitConfigurationProperty );
     this.syncSolverParameters();
@@ -564,6 +613,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
     slitConfigurationProperty.lazyLink( () => this.clearScreen() );
   }
 
+  /**
+   * Registers a one-time lazy-link so that the emitter is turned off automatically when the subclass's
+   * isMaxHitsReachedProperty becomes true. Subclass constructors call this after the property is created.
+   */
   protected stopEmitterWhenMaxHitsReached(): void {
     this.isMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
       if ( isMaxHitsReached ) {
@@ -630,6 +683,17 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.clearWaveState();
   }
 
+  /**
+   * Captures an immutable snapshot of the current detector-screen state and appends it to snapshotsProperty. A
+   * snapshot freezes the current hit positions, detection mode, source type, wavelength, slit geometry, intensity
+   * distribution, and other display parameters so it can be rendered independently alongside the live scene. No-ops
+   * when the maximum snapshot count has already been reached. Called by subclass takeSnapshot() overrides (e.g.,
+   * HighIntensitySceneModel, SingleParticlesSceneModel) which supply the appropriate detection mode and intensity.
+   *
+   * @param detectionMode - whether the snapshot records averaged intensity or individual particle hits
+   * @param slitSetting - current slit configuration at the moment of capture
+   * @param intensity - normalized display intensity value stored with the snapshot
+   */
   protected takeSnapshot( detectionMode: DetectionMode, slitSetting: SlitConfigurationWithNoBarrier, intensity: number ): void {
     if ( this.snapshotsProperty.value.length >= QuantumWaveInterferenceConstants.MAX_SNAPSHOTS ) {
       return;
@@ -670,10 +734,21 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   public abstract step( dt: number ): void;
 
+  /**
+   * Returns an opaque serializable object containing any subclass-specific state that should be persisted in the
+   * PhET-iO state. The base-class implementation returns an empty object; subclasses override this to include their
+   * additional state. Called by BaseSceneModelIO.toStateObject().
+   */
   protected getSubclassState(): object {
     return {};
   }
 
+  /**
+   * Restores a BaseSceneModel to the provided PhET-iO state. Called from the BaseSceneModelIO applyState hook.
+   * Replaces the wave solver state, clears and repopulates hit positions, restores the wavefront flag and
+   * decoherence events, delegates subclass-specific state to applySubclassState(), then re-syncs solver parameters
+   * and emits hitsChangedEmitter so all renderers and descriptions see the restored data.
+   */
   private static applyBaseSceneModelState( model: BaseSceneModel, stateObject: BaseSceneModelStateObject ): void {
     model.waveSolver.setState( stateObject.waveSolverState );
     model.hits.length = 0;
@@ -688,6 +763,11 @@ export default abstract class BaseSceneModel extends PhetioObject {
     model.hitsChangedEmitter.emit();
   }
 
+  /**
+   * Restores subclass-specific PhET-iO state from the object returned by getSubclassState(). Called by
+   * applyBaseSceneModelState() after the base-class state has been restored. The base-class implementation is a
+   * no-op; subclasses override this to restore their additional state.
+   */
   protected applySubclassState( stateObject: object ): void {
     // No-op in the base class.
   }

@@ -20,6 +20,8 @@ import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js'
 
 export default class ExperimentOverheadApparatusNode extends Node {
 
+  // Exposed so ExperimentScreenView can read emitter sub-node positions (e.g. laserPointerNode.left for sourceControlPanel
+  // alignment) and pass the node itself to ExperimentScreenViewDescription for accessibility wiring.
   public readonly overheadEmitterNode: OverheadEmitterNode;
   private readonly maxHitsReachedPanel: OverheadEmitterNode['maxHitsReachedPanel'];
 
@@ -99,17 +101,34 @@ export default class ExperimentOverheadApparatusNode extends Node {
     model.sceneProperty.link( this.alignOverheadElements );
   }
 
+  /**
+   * Positions the overhead emitter so its horizontal center aligns with emitterCenterX, then re-runs the overhead
+   * element alignment (slit centerline, max-hits panel, beam geometry). Called by ExperimentScreenView whenever the
+   * source-control panel width changes so the emitter stays centred under it.
+   */
   public setEmitterCenterX( emitterCenterX: number ): void {
     this.overheadEmitterNode.setEmitterCenterX( emitterCenterX );
     this.alignOverheadElements();
   }
 
+  /**
+   * Positions the overhead slit parallelogram so its horizontal center is at slitCenterX, updates the which-path
+   * detector layout, then repositions the overhead detector screen and recomputes beam geometry. Called once during
+   * ExperimentScreenView construction after column positions are resolved.
+   */
   public setSlitCenterX( slitCenterX: number ): void {
     this.overheadDoubleSlitNode.setParallelogramCenterX( slitCenterX );
     this.whichPathDetectorNode.updateLayout();
     this.updateDetectorPosition();
   }
 
+  /**
+   * Sets the x-coordinate range of the front-facing detector screen in the overhead view so the overhead detector
+   * screen can mirror that position, then recomputes the beam geometry. Called once during ExperimentScreenView
+   * construction after the detector column node has been laid out.
+   * @param left - scene x-coordinate of the left edge of the front-facing detector screen
+   * @param right - scene x-coordinate of the right edge of the front-facing detector screen
+   */
   public setFrontFacingScreenBounds( left: number, right: number ): void {
     this.overheadDetectorScreenNode.setFrontFacingScreenBounds( left, right );
     this.overheadBeamNode.updateBeam();
@@ -120,6 +139,10 @@ export default class ExperimentOverheadApparatusNode extends Node {
     this.overheadBeamNode.updateBeam();
   }
 
+  /**
+   * Triggers the visual flash on the overhead detector screen to indicate a snapshot has been captured.
+   * Called by ExperimentScreenView via the ExperimentDetectorColumnNode's onSnapshotCaptured callback.
+   */
   public startSnapshotFlash(): void {
     this.overheadDetectorScreenNode.startSnapshotFlash();
   }

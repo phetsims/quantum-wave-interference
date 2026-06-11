@@ -59,10 +59,14 @@ const SLIT_WIDTH_BY_SOURCE_TYPE: Record<SourceType, number> = {
   heliumAtoms: 0.00006 // 0.06 μm
 };
 
+// Options specific to SceneModel, beyond those inherited from PhetioObject.
 type SelfOptions = {
+
+  // Identifies which quantum particle type this scene represents; controls default slit geometry and wavelength behavior.
   sourceType: SourceType;
 };
 
+// Public options for constructing a SceneModel. Requires a tandem for PhET-iO instrumentation.
 export type SceneModelOptions = SelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class SceneModel extends PhetioObject {
@@ -478,6 +482,15 @@ export default class SceneModel extends PhetioObject {
     return 0;
   }
 
+  /**
+   * Advances the scene by one simulation frame. Called by ExperimentModel.step on the active scene each tick.
+   * In 'hits' detection mode with the emitter on, accumulates fractional hits from intensity × MAX_EMISSION_RATE × dt,
+   * generates whole-number hits via rejection sampling against the interference pattern, and emits hitsChangedEmitter.
+   * Stops the emitter automatically when the hit cap is reached. No-ops when emitting is off, mode is not 'hits',
+   * the cap is already reached, or dt > 0.5 s (background-tab guard).
+   *
+   * @param dt - elapsed time in seconds
+   */
   public step( dt: number ): void {
     if (
       !this.isEmittingProperty.value ||
@@ -598,6 +611,8 @@ export default class SceneModel extends PhetioObject {
   }
 }
 
+// State object shape for SceneModelIO serialization. Captures the live detector hits array and the fractional hit
+// accumulator, which are not covered by the individually instrumented Properties.
 type SceneModelStateObject = {
   hits: Vector2StateObject[];
   hitAccumulator: number;

@@ -70,6 +70,18 @@ export type DetectorScreenSceneLike = {
   detectorPatternFormationFactorProperty?: TReadOnlyProperty<number>;
 };
 
+/**
+ * Per-scene rendering state owned by DetectorScreenTextureRenderer. One cache is created lazily per
+ * DetectorScreenSceneLike instance and stored in a WeakMap so it is garbage-collected with the scene.
+ *
+ * - canvas/context: the supersampled offscreen canvas written to and returned by getTexture.
+ * - dirty: set to true by scene property listeners whenever any render parameter changes; cleared after renderTexture.
+ * - lastRenderParameters: snapshot of the parameters used for the most recent render; used to detect full-repaint
+ *   vs. incremental-append scenarios.
+ * - hitRenderCache: sprite and incremental bookkeeping for hit-mode rendering (see renderDetectorScreenTexture.ts).
+ * - intensityCanvas/Context/ImageData: single-pixel-wide scratch buffers for average-intensity column rendering,
+ *   allocated lazily and reused across frames to minimize GC pressure.
+ */
 type TextureCache = {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
@@ -107,6 +119,12 @@ export default class DetectorScreenTextureRenderer {
     this.hitSpriteSize = this.hitSpriteCenter * 2;
   }
 
+  /**
+   * Returns the supersampled offscreen canvas for the given scene, re-rendering it first if dirty.
+   * Called every animation frame by DetectorScreenNode; the returned canvas is drawn into the WebGL/Canvas
+   * scene graph via drawImage. In average-intensity mode the texture is always re-rendered because the
+   * solver distribution changes every frame; in hit mode rendering is incremental.
+   */
   public getTexture( scene: DetectorScreenSceneLike ): HTMLCanvasElement {
     let cache = this.cacheMap.get( scene );
     if ( !cache ) {
@@ -124,6 +142,11 @@ export default class DetectorScreenTextureRenderer {
     return cache.canvas;
   }
 
+  /**
+   * Allocates a fresh TextureCache for a scene and attaches markDirty listeners to every scene property that
+   * can change the rendered output. The listeners are never explicitly removed; they are released when the scene
+   * (and therefore the WeakMap entry) is garbage-collected. Throws if the browser cannot provide a 2D context.
+   */
   private createCache( scene: DetectorScreenSceneLike ): TextureCache {
     const canvas = document.createElement( 'canvas' );
     canvas.width = this.textureWidth;
@@ -164,6 +187,11 @@ export default class DetectorScreenTextureRenderer {
     return cache;
   }
 
+  /**
+   * Dispatches to paintHits or paintIntensity based on the current detection mode. When render parameters have
+   * changed since the last frame (wavelength, brightness, mode, etc.) the hit render cache is reset and the canvas
+   * is cleared so the next paint starts from scratch rather than compositing over stale content.
+   */
   private renderTexture( cache: TextureCache, scene: DetectorScreenSceneLike ): void {
     const context = cache.context;
     const currentBrightness = scene.screenBrightnessProperty.value;
@@ -205,6 +233,12 @@ export default class DetectorScreenTextureRenderer {
     cache.dirty = false;
   }
 
+  /**
+   * Incrementally stamps hit-dot sprites onto the cache canvas. Only the hits added since the last frame are
+   * drawn when the hit list has grown monotonically; a full repaint is triggered when hits were cleared or when
+   * the window of rendered hits (capped at MAX_RENDERED_HITS) needs to shift. Normalized hit coordinates use
+   * hit.y → horizontal screen position and hit.x → vertical, matching the detector-screen face orientation.
+   */
   private paintHits(
     cache: TextureCache,
     context: CanvasRenderingContext2D,
@@ -251,6 +285,12 @@ export default class DetectorScreenTextureRenderer {
     cache.hitRenderCache.lastRenderedHitCount = hitCount;
   }
 
+  /**
+   * Renders the average-intensity distribution from the wave solver into the cache canvas. A single-pixel-wide
+   * scratch canvas is populated via ImageData for performance, then stretched across the full texture width with
+   * image smoothing enabled. The exposureFactor ramps both brightness and contrast so the pattern appears to form
+   * progressively rather than snapping to full contrast the moment the first average is available.
+   */
   private paintIntensity(
     cache: TextureCache,
     scene: DetectorScreenSceneLike,
@@ -366,6 +406,11 @@ export default class DetectorScreenTextureRenderer {
     context.fill();
   }
 
+  /**
+   * Returns a cached hit-dot sprite canvas for the given visual parameters. If the parameters match the cached
+   * sprite it is returned immediately; otherwise a new sprite is rendered (outer glow circle + solid core circle)
+   * and stored in the cache for reuse across all hits in the current frame.
+   */
   private getHitSprite(
     cache: DetectorScreenHitRenderCache,
     rgb: { r: number; g: number; b: number },

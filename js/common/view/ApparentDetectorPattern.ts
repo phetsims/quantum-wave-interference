@@ -18,6 +18,11 @@ const FULLY_UNRESOLVED_SAMPLES_PER_FRINGE = 2;
 // Above this many samples per bright-fringe spacing, keep the exact analytical pattern.
 const FULLY_RESOLVED_SAMPLES_PER_FRINGE = 4;
 
+/**
+ * Extends the base analytical options with the rendered sample width so the view layer can decide whether double-slit
+ * fringes are spatially resolved on screen. Used exclusively by the two detector-screen rendering paths
+ * (renderDetectorScreenTexture and SnapshotCanvasNode).
+ */
 export type ApparentAnalyticalDetectorPatternOptions = AnalyticalDetectorPatternOptions & {
 
   // Physical width, in meters, represented by the rendered sample.
@@ -38,6 +43,12 @@ function smootherStep( t: number ): number {
 
 /**
  * View-only detector intensity with bright-biased filtering for unresolved double-slit fringes.
+ *
+ * Returns a normalized intensity in [0, 1]. For single-slit or no-barrier configurations, or when
+ * sampleWidthOnScreen ≤ 0, the exact Fraunhofer formula is returned unchanged. For double-slit
+ * configurations, the return value blends from the exact fringe intensity (when fringes are fully
+ * resolved) to the single-slit diffraction envelope (when fringes are finer than the sample footprint),
+ * preventing unresolved bright/dark bands from averaging to a misleadingly gray screen.
  */
 export function getApparentAnalyticalDetectorIntensity( options: ApparentAnalyticalDetectorPatternOptions ): number {
   const exactIntensity = getExactAnalyticalDetectorIntensity( options );

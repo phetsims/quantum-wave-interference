@@ -56,6 +56,10 @@ export type RGBAColor = RGBColor & {
   alpha: number;
 };
 
+/**
+ * Non-field kernel statuses that map to fixed vacuum colors. getNonFieldSampleRGBA uses this type to
+ * share the same grayscale status treatment between the legacy and layered rendering paths.
+ */
 type NonFieldSample = { kind: 'unreached' | 'absorbed' | 'blocked' };
 
 /**

@@ -26,8 +26,14 @@ type DetectorPatternGraphLayerNodeOptions = {
   // "Count" (hits mode). Omit on screens that are always in hits mode.
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
 
-  // Initial and reset zoom level for the graph.
+  // Initial and reset zoom level for the graph. Used as the fallback when initialZoomLevels does not
+  // supply an entry for the active detection mode, or when there is no detection-mode switching at all.
   initialZoomLevel?: DetectorPatternGraphZoomLevelOption;
+
+  // Per-detection-mode initial and reset zoom overrides. When a detection mode is active, its entry
+  // here takes precedence over initialZoomLevel. Modes absent from this map fall back to initialZoomLevel.
+  // Use this when different modes (e.g. averageIntensity vs. hits) warrant different default zoom levels,
+  // as on the High Intensity screen where averageIntensity starts at level 3 and hits starts at max.
   initialZoomLevels?: Partial<Record<DetectionMode, DetectorPatternGraphZoomLevelOption>>;
 };
 

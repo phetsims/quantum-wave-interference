@@ -50,6 +50,11 @@ const EMITTER_HIGHLIGHT_COLOR_STOP = 0.3;
 const GLASS_HIGHLIGHT_DIAMETER_RATIO = 0.5;
 const GLASS_HIGHLIGHT_OFFSET = -0.4;
 
+/**
+ * Color palette used to paint a particle emitter body and its glass-lens highlight.
+ * Each SourceType (except photons) has its own entry in PARTICLE_EMITTER_PALETTES so that
+ * the emitter appearance updates when the active scene changes.
+ */
 type ParticleEmitterPalette = {
   topColor: string;
   bottomColor: string;
@@ -106,8 +111,17 @@ function createGlassGradient( glassNode: ShadedSphereNode, palette: ParticleEmit
 
 export default class OverheadEmitterNode extends Node {
 
+  // Shown when the active scene uses photons. Exposed so callers can read its position for
+  // layout (e.g. aligning the SourceControlPanel) and include it in the PDOM order.
   public readonly laserPointerNode: LaserPointerNode;
+
+  // Shown when the active scene uses particles (electrons, neutrons, or helium atoms).
+  // Exposed for PDOM order and position queries by parent nodes.
   public readonly particleEmitterNode: LaserPointerNode;
+
+  // Overlay panel that appears when the maximum particle-hit count is reached.
+  // Exposed so parent nodes (e.g. ExperimentOverheadApparatusNode) can reposition it
+  // after layout changes and include it in the PDOM order.
   public readonly maxHitsReachedPanel: MaxHitsReachedPanel;
   private emitterCenterX: number | null = null;
   private readonly updateEmitterLayout: () => void;
@@ -302,6 +316,12 @@ export default class OverheadEmitterNode extends Node {
     model.sceneProperty.link( this.updateEmitterLayout );
   }
 
+  /**
+   * Pins the horizontal center of both emitters (and the labels above/below them) to the given
+   * x-coordinate in this node's parent coordinate frame.  Called by ExperimentScreenView (via
+   * ExperimentOverheadApparatusNode) to keep the emitter centred under the SourceControlPanel.
+   * Immediately triggers a full layout update so positions take effect before the next frame.
+   */
   public setEmitterCenterX( emitterCenterX: number ): void {
     this.emitterCenterX = emitterCenterX;
     this.updateEmitterLayout();

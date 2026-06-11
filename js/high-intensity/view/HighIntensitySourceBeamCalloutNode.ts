@@ -78,6 +78,10 @@ const RIGHT_BEAM_FADE_WIDTH_SCALE = 0.25;
 const CALLOUT_LINE_WIDTH = 0.75;
 const CALLOUT_LINE_START_Y_OFFSET = 1;
 
+/**
+ * Three-stop gradient palette applied to a matter-particle LaserPointerNode body so each particle type
+ * (electrons, neutrons, helium) gets a visually distinct emitter color instead of the default photon yellow.
+ */
 type ParticleEmitterPalette = {
   topColor: string;
   bottomColor: string;
@@ -102,11 +106,20 @@ const PARTICLE_EMITTER_PALETTES: Record<Exclude<SourceType, 'photons'>, Particle
   }
 };
 
+/**
+ * Minimal structural interface that a scene object must satisfy to be rendered by
+ * HighIntensitySourceBeamCalloutNode. Using a structural type keeps the node decoupled from concrete model classes.
+ */
 type SourceBeamCalloutSceneLike = {
   sourceType: SourceType;
   slitSeparationRange: Range;
 };
 
+/**
+ * Model-side contract consumed by HighIntensitySourceBeamCalloutNode. All properties are read-only from the node's
+ * perspective except currentIsEmittingProperty, which the emitter button toggles directly. The Properties with a
+ * "current" prefix reflect the active scene and are expected to switch atomically when sceneProperty changes.
+ */
 type HighIntensitySourceBeamCalloutModel<T extends SourceBeamCalloutSceneLike> = {
 
   // Active source scene and the full scene list used to swap emitter artwork.
@@ -123,6 +136,12 @@ type HighIntensitySourceBeamCalloutModel<T extends SourceBeamCalloutSceneLike> =
   readonly currentIsMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
 };
 
+/**
+ * Static layout descriptor passed from HighIntensityScreenView into HighIntensitySourceBeamCalloutNode. All values
+ * are in the parent coordinate frame and are fixed at construction time — there is no dynamic relayout. The wave
+ * region coordinates are used to anchor the callout lines that form the zoom-in frustum from the mini symbol to the
+ * main wave area.
+ */
 export type HighIntensitySourceBeamCalloutLayout = {
   emitterCenterX: number;      // horizontal center of the emitter body + nozzle assembly
   centerY: number;             // vertical center of emitter + mini symbol + beam
@@ -136,6 +155,9 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
   // Bottom y of the emitter body, so callers can stack controls below it without being
   // affected by the taller bounds of the callout lines that extend down to the wave region.
   public readonly emitterBottom: number;
+
+  // Horizontal center of the emitter assembly in the parent coordinate frame, mirroring layout.emitterCenterX.
+  // Exposed so that HighIntensityScreenView can align annotations (e.g., particle-mass label) with the emitter.
   public readonly emitterCenterX: number;
   private readonly maxHitsReachedPanel: MaxHitsReachedPanel;
 

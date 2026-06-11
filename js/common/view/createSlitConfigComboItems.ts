@@ -17,11 +17,23 @@ import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.
 const COMBO_BOX_FONT = new PhetFont( 14 );
 const MAX_WIDTH = 120;
 
+/**
+ * Tandem names for the covered/closed combo items, which differ between the High Intensity and Single Particles
+ * screens for PhET-iO API compatibility. Pass the appropriate variant from each screen's view.
+ */
 export type SlitConfigComboItemTandems = {
   topCoveredTandemName: 'topCoveredItem' | 'topClosedItem';
   bottomCoveredTandemName: 'bottomCoveredItem' | 'bottomClosedItem';
 };
 
+/**
+ * Builds the slit-configuration ComboBoxItem array for the High Intensity and Single Particles screen views.
+ * Callers supply screen-specific tandem names via `tandems` so that the covered/closed items are instrumented
+ * under the correct PhET-iO API names for each screen.
+ *
+ * @param tandems - screen-specific tandem names for the covered/closed items
+ * @returns ordered ComboBoxItem array covering all SlitConfigurationWithNoBarrier values
+ */
 export default function createSlitConfigComboItems(
   tandems: SlitConfigComboItemTandems
 ): ComboBoxItem<SlitConfigurationWithNoBarrier>[] {

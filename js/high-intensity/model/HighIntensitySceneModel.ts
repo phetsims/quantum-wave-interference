@@ -64,8 +64,13 @@ const HIGH_INTENSITY_SLIT_SEPARATION_CONFIGS: Record<SourceType, SlitSeparationC
   }
 };
 
+// Options type alias — no additional options beyond the base; exposed so callers (e.g. HighIntensityModel) can
+// type their providedOptions without importing BaseSceneModelOptions directly.
 export type HighIntensitySceneModelOptions = BaseSceneModelOptions;
 
+// Subclass-specific PhET-iO state persisted alongside the base-class state. hitAccumulator retains the fractional
+// hit count carried between frames, and nextDecoherenceEventTime is the scheduled model-time for the next
+// slit-detector event (null when no event is pending or the emitter is off).
 type HighIntensitySceneModelStateObject = {
   hitAccumulator?: number;
   nextDecoherenceEventTime?: number | null;
@@ -73,6 +78,9 @@ type HighIntensitySceneModelStateObject = {
 
 export default class HighIntensitySceneModel extends BaseSceneModel {
 
+  // Controls how the detector screen and chart display accumulated data. 'averageIntensity' shows the
+  // continuous wave-interference pattern; 'hits' accumulates individual particle dots. Linked by the view
+  // (HighIntensityScreenView, ScreenSettingsPanel) and proxied through HighIntensityModel.currentDetectionModeProperty.
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
 
   // True when Hits mode has reached the hit cap
@@ -141,6 +149,11 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     super.clearWaveStateWhenEmitterTurnsOff();
   }
 
+  /**
+   * Captures a snapshot of the current detector-screen state into the scene's snapshot history, using the current
+   * detection mode and slit configuration at full intensity (1.0). Called by HighIntensityModel when the user
+   * triggers a snapshot (e.g. via the snapshot button).
+   */
   public takeHighIntensitySnapshot(): void {
     this.takeSnapshot( this.detectionModeProperty.value, this.slitConfigurationProperty.value, 1 );
   }
@@ -292,6 +305,18 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }
   }
 
+  /**
+   * Advances the eased detector-pattern formation factor toward 1. The factor drives the opacity/exposure of the
+   * detector-screen texture and the chart pattern overlay in the view, so the pattern appears to "develop" gradually
+   * after the wavefront reaches the screen rather than snapping in immediately.
+   *
+   * Uses an eased exponential approach: the stored value is linearized by un-applying the ease power, stepped with
+   * a standard RC-filter decay toward 1, then re-eased. Once the factor exceeds
+   * DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD it is clamped to 1 to avoid an infinite asymptote.
+   * No-ops when the emitter is off, dt ≤ 0, or the pattern is already fully formed.
+   *
+   * @param dt - elapsed model time for this frame, in seconds
+   */
   private stepDetectorPatternFormation( dt: number ): void {
     if (
       !this.isEmittingProperty.value ||
@@ -319,10 +344,18 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
       nextFormationFactor >= DETECTOR_PATTERN_FORMATION_SNAP_TO_COMPLETE_THRESHOLD ? 1 : nextFormationFactor;
   }
 
+  /**
+   * Resets the detector-pattern formation factor to 0 so the pattern overlay re-develops from scratch on the next
+   * emission. Called by clearScreen() and clearWaveStateWhenEmitterTurnsOff().
+   */
   private resetDetectorPatternFormation(): void {
     this._detectorPatternFormationFactorProperty.value = 0;
   }
 
+  /**
+   * Converts a per-second event rate into the model-time interval between successive events, in seconds.
+   * @param rate - events per model second (must be positive)
+   */
   private getIntervalForRate( rate: number ): number {
     return 1 / rate;
   }

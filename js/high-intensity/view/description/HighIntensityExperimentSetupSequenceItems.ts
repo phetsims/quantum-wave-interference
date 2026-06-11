@@ -17,13 +17,22 @@ import { type HighIntensityAccessibleViewState, type QuantumWaveInterferencePatt
 import { formatDetectorDescription, formatSourceBeamDescription } from './QuantumWaveInterferenceAccessibleStateFormatters.js';
 import QuantumWaveInterferenceAccessibleStateTemplate from './QuantumWaveInterferenceAccessibleStateTemplate.js';
 
+// Wave-progress stages that can appear in the sequence list — excludes 'sourceOff' (source not yet started) and
+// 'travelingToSlits' (intermediate stage before slit arrival, not represented as a distinct list item).
 type SequenceWaveProgressStage = Exclude<QuantumWaveInterferenceWaveProgressStage, 'sourceOff' | 'travelingToSlits'>;
 
+// Shape of each milestone item in the sequence list: a reactive string and a reactive visibility flag, both driven
+// by DerivedProperty so they update automatically when model state or locale changes.
 type SequenceItem = {
   stringProperty: TReadOnlyProperty<string>;
   visibleProperty: TReadOnlyProperty<boolean>;
 };
 
+/**
+ * Returns the deduplicated set of Properties that must trigger recomputation of any sequence item string or
+ * visibility. Merges the shared template dependencies with the locale-sensitive Fluent string dependencies so
+ * that every DerivedProperty built from this list stays reactive to both model state and locale changes.
+ */
 function createDependencies( model: HighIntensityModel ): TReadOnlyProperty<unknown>[] {
   return Array.from( new Set( [
     ...QuantumWaveInterferenceAccessibleStateTemplate.createDependencies( model ),

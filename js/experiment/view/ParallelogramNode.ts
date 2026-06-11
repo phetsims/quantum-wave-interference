@@ -26,6 +26,11 @@ export function getParallelogramCorners( dx: number, dy: number, leftHeight: num
   ];
 }
 
+/**
+ * Unrounded parallelogram geometry used where sharp corners are required: clip areas, dynamically updated Path
+ * shapes (e.g. slit markers), and overlay flash nodes. Prefer ParallelogramNode for visually rendered elements
+ * that should have rounded corners.
+ */
 export class ParallelogramShape extends Shape {
 
   /**

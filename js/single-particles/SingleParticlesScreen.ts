@@ -18,8 +18,10 @@ import QuantumWaveInterferenceFluent from '../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from './model/SingleParticlesModel.js';
 import SingleParticlesScreenView from './view/SingleParticlesScreenView.js';
 
+// No screen-specific options; this alias exists to follow the standard optionize pattern.
 type SelfOptions = EmptySelfOptions;
 
+// tandem is required so the screen and its model/view subtrees are properly instrumented for PhET-iO.
 type SingleParticlesScreenOptions = SelfOptions & PickRequired<ScreenOptions, 'tandem'>;
 
 export default class SingleParticlesScreen extends Screen<SingleParticlesModel, SingleParticlesScreenView> {

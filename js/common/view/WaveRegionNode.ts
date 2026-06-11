@@ -27,7 +27,7 @@ import WaveVisualizationNode from './WaveVisualizationNode.js';
 // slit state needed to render the wave visualization and double slit.
 type WaveRegionModel = {
 
-  // Active scene, including the scene-specific allowed slit separation range.
+  // Active scene, including the scene-specific allowed slit separation range (in millimeters).
   readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene & { readonly slitSeparationRange: Range }>;
 
   // Whether the active source is emitting.
@@ -39,7 +39,7 @@ type WaveRegionModel = {
   // Fractional x-position of the slit assembly within the wave region.
   readonly currentSlitPositionFractionProperty: TProperty<number>;
 
-  // Current physical separation between the two slits.
+  // Current physical separation between the two slits, in millimeters.
   readonly currentSlitSeparationProperty: TReadOnlyProperty<number>;
 
   // Current slit coverage/detector/no-barrier setting, used here to cover the top or bottom slit.
@@ -58,11 +58,18 @@ type WaveRegionNodeSelfOptions = {
   additionalDoubleSlitOptions?: Partial<DoubleSlitNodeOptions>;
 };
 
+/**
+ * Options for WaveRegionNode. Screen views pass screen-specific layout coordinates and optional DoubleSlitNode
+ * overrides (e.g., detector overlays on the High Intensity screen) via this type.
+ */
 export type WaveRegionNodeOptions = WaveRegionNodeSelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class WaveRegionNode extends Node {
 
+  // Retained by screen views for accessibility state queries (getAccessibleViewState) and PDOM ordering.
   public readonly waveVisualizationNode: WaveVisualizationNode;
+
+  // Retained by screen views to wire up slit-position slider layout, accessibility descriptions, and PDOM ordering.
   public readonly doubleSlitNode: DoubleSlitNode;
 
   public constructor( model: WaveRegionModel, providedOptions: WaveRegionNodeOptions ) {

@@ -55,10 +55,6 @@ export default class ExperimentConstants {
   }
 
   /**
-   * Converts a slit width from millimeters to micrometers and returns the value along with an appropriate number of
-   * decimal places: 0 for >=1, 1 for >=0.1, 2 otherwise.
-   */
-  /**
    * Creates a min/max numeric tick pair for an experiment NumberControl, with consistent decimal places.
    * Pass a scale factor (e.g. 1000 for mm-to-μm) to convert the labeled value while leaving the
    * tick `value` in model units.
@@ -83,6 +79,11 @@ export default class ExperimentConstants {
     return [ tick( min, minLabel ), tick( max, maxLabel ) ];
   }
 
+  /**
+   * Converts a slit width from millimeters to micrometers and returns the value along with an appropriate number of
+   * decimal places for display: 0 for >=1 μm, 1 for >=0.1 μm, 2 otherwise.
+   * Called by FrontFacingSlitNode and SlitViewDescriptionNode to format the slit width label consistently.
+   */
   public static slitWidthMMToMicrometers( slitWidthMM: number ): { slitWidthUM: number; decimalPlaces: number } {
     const slitWidthUM = slitWidthMM * 1000;
     const decimalPlaces = slitWidthUM >= 1 ? 0 :

@@ -29,6 +29,8 @@ const DETECTOR_COUNT_TEXT_MAX_WIDTH = 40;
 const DETECTOR_FLASH_OPACITY = 0.85;
 const DETECTOR_FLASH_DURATION = 0.18;
 
+// Selects whether the detector count panel is rendered above or below the slit overlay. The top slit uses 'above'
+// and the bottom slit uses 'below' so the panels do not overlap the barrier or each other.
 export type SlitDetectorCountPanelPlacement = 'above' | 'below';
 
 export default class SlitDetectorNode extends Node {

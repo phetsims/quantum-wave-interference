@@ -76,6 +76,8 @@ type MeasurementToolsModel = {
 
 export default class MeasurementToolsLayerNode extends Node {
 
+  // Exposed publicly so callers (HighIntensityScreenView, SingleParticlesScreenView) can drive the
+  // simulation loop: step() on each frame and reset() on a sim reset. Also read for accessibility snapshots.
   public readonly timePlotNode: TimePlotNode;
   public readonly positionPlotNode: PositionPlotNode;
   private readonly stopwatchNode: StopwatchNode;
@@ -223,9 +225,19 @@ export default class MeasurementToolsLayerNode extends Node {
   }
 }
 
+// Describes one row of the adaptive-unit lookup table used by createPhysicalStopwatchFormatter.
+// The stopwatch time value (in seconds) is compared against threshold to select the appropriate
+// unit: the first entry whose threshold exceeds the current time wins.
 type StopwatchTimeUnit = {
+
+  // Upper bound (exclusive, in seconds) below which this unit is selected.
   threshold: number;
+
+  // Factor applied to the raw seconds value to obtain a display value in the chosen unit
+  // (e.g., 1e15 converts seconds to femtoseconds).
   multiplier: number;
+
+  // The PhetUnit that supplies the localized symbol and accessible string for this time range.
   unit: PhetUnit<ReadOnlyProperty<string>>;
 };
 
@@ -262,6 +274,14 @@ const STOPWATCH_TIME_UNITS: StopwatchTimeUnit[] = [
   }
 ];
 
+/**
+ * Creates the number formatter used by the stopwatch display. The formatter selects the most
+ * readable physical time unit (femtoseconds through seconds) by scanning STOPWATCH_TIME_UNITS for
+ * the first entry whose threshold exceeds the raw seconds value, scales the value with the
+ * corresponding multiplier, then chooses 0–2 decimal places based on the magnitude of the scaled
+ * value (2 places below 10, 1 below 100, 0 otherwise). Returns a DualString with separate visual
+ * (HTML-styled rich text) and accessible (plain-text) representations.
+ */
 function createPhysicalStopwatchFormatter(): ( time: number ) => DualString {
   return ( time: number ) => {
     const timeUnit = STOPWATCH_TIME_UNITS.find( unit => time < unit.threshold )!;

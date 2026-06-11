@@ -13,6 +13,10 @@ import QuantumWaveInterferenceConstants from '../../QuantumWaveInterferenceConst
 import { type SourceType } from '../../model/SourceType.js';
 import { type BandSpacingCategory } from './BandAnalysis.js';
 
+/**
+ * Qualitative category describing the separation between adjacent wave peaks — aliased from BandSpacingCategory so
+ * callers in the accessibility layer can reference wave-peak spacing independently of the band-analysis subsystem.
+ */
 export type WavePeakSpacingCategory = BandSpacingCategory;
 
 const CLOSE_TO_FAR_CATEGORIES: WavePeakSpacingCategory[] = [
@@ -35,6 +39,11 @@ const FAR_TO_CLOSE_CATEGORIES: WavePeakSpacingCategory[] = [
   'extremelyCloseTogether'
 ];
 
+/**
+ * Minimal scene contract required by getWavePeakSpacingCategory. The caller provides the active source type,
+ * the wavelength (nm, used for photons) or particle speed (m/s, used for electrons/neutrons/atoms) and
+ * its slider range, which together determine which of the seven spacing categories applies.
+ */
 type WavePeakSpacingScene = {
   sourceType: SourceType;
   wavelengthProperty: TReadOnlyProperty<number>;

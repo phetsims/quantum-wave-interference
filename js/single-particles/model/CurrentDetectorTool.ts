@@ -25,8 +25,17 @@ export default class CurrentDetectorTool {
   public readonly radiusProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
   public readonly stateProperty: DynamicProperty<DetectorToolState, DetectorToolState, SingleParticlesSceneModel>;
   public readonly probabilityProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
+
+  // True only when the slit configuration is 'noBarrier'; the detector tool is hidden and disabled for all other
+  // barrier configurations. Consumed by the view to gate both checkbox visibility and probe interactivity.
   public readonly isAvailableProperty: TReadOnlyProperty<boolean>;
+
+  // PhET-iO-instrumented user preference controlling whether the detector tool is shown. The view combines this with
+  // isAvailableProperty so the tool is visible only when both are true.
   public readonly isVisibleProperty: BooleanProperty;
+
+  // Shared radius range for the detector tool, captured from the initial scene. All scenes must expose the same range
+  // as an invariant; the range is used directly by DetectorProbeNode to configure its drag bounds.
   public readonly radiusRange: Range;
 
   private readonly sceneProperty: Property<SingleParticlesSceneModel>;

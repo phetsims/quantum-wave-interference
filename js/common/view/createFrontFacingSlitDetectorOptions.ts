@@ -11,6 +11,7 @@ import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js
 import { createSlitDetectorProperties, type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import { type DoubleSlitNodeOptions } from './DoubleSlitNode.js';
 
+// The subset of DoubleSlitNodeOptions that wires up slit-detector visibility and hit counts for front-facing wave-region views.
 type FrontFacingSlitDetectorOptions = Pick<DoubleSlitNodeOptions,
   'isTopSlitDetectorProperty' |
   'isBottomSlitDetectorProperty' |

@@ -25,6 +25,9 @@ import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
 
 type SelfOptions = EmptySelfOptions;
 
+/**
+ * Options for DetectorScreenNode. Currently no custom options beyond the base NodeOptions.
+ */
 export type DetectorScreenNodeOptions = SelfOptions & NodeOptions;
 
 const SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;
@@ -94,10 +97,17 @@ export default class DetectorScreenNode extends Node {
     this.snapshotFlashController = new SnapshotFlashController( this.snapshotFlashRect );
   }
 
+  /**
+   * Triggers the brief white flash animation overlaid on the detector screen when a snapshot is captured.
+   * Called by screen views in response to the onSnapshotCaptured callback.
+   */
   public startSnapshotFlash(): void {
     this.snapshotFlashController.start();
   }
 
+  /**
+   * Cancels any in-progress snapshot flash animation, e.g. on reset.
+   */
   public clearFlash(): void {
     this.snapshotFlashController.clear();
   }
@@ -136,6 +146,10 @@ export default class DetectorScreenNode extends Node {
     };
   }
 
+  /**
+   * Called once per animation frame by stepDetectorScreenViewNodes to invalidate the canvas and trigger a repaint.
+   * This keeps the detector screen current with any hit-dot or intensity-band changes accumulated during the model step.
+   */
   public step(): void {
     this.canvasNode.invalidatePaint();
   }

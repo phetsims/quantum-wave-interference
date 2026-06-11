@@ -6,6 +6,11 @@
  * @author Matthew Blackman (PhET Interactive Simulations)
  */
 
+/**
+ * Ordered zoom levels for the horizontal detector-screen axis. Each entry gives the visible min/max bounds in
+ * millimeters. Index 0 is the widest extent (full detector view); higher indices are progressively more zoomed in.
+ * Used as the valid range for detectorScreenScaleIndexProperty and to position the detector ruler.
+ */
 export const DETECTOR_SCREEN_SCALE_OPTIONS = [
   { minMM: -20, maxMM: 20 },
   { minMM: -15, maxMM: 15 },
@@ -13,6 +18,10 @@ export const DETECTOR_SCREEN_SCALE_OPTIONS = [
   { minMM: -5, maxMM: 5 }
 ] as const;
 
+/**
+ * Default scale index for detectorScreenScaleIndexProperty — index 0, the widest zoom level,
+ * showing the full detector extent (±20 mm).
+ */
 export const DEFAULT_DETECTOR_SCREEN_SCALE_INDEX = 0;
 
 /**

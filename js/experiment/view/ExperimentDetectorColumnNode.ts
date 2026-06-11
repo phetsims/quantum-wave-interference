@@ -20,9 +20,19 @@ import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 
 export default class ExperimentDetectorColumnNode extends Node {
 
+  // One DetectorScreenNode per scene; only the active scene's node is visible via QuantumWaveInterferenceToggleNode.
   public readonly detectorScreenNodes: DetectorScreenNode[];
+
+  // One GraphAccordionBox per scene; shares graphExpandedProperty so the collapsed/expanded state
+  // persists when switching scenes.
   public readonly graphAccordionBoxes: GraphAccordionBox[];
+
+  // Shared expanded/collapsed state for all graph accordion boxes. Passed to DetectorRulerNode so
+  // the ruler can respond to graph visibility changes.
   public readonly graphExpandedProperty: BooleanProperty;
+
+  // Detection-mode, brightness, and emit controls displayed below the detector screen.
+  // Exposed so ExperimentScreenViewDescription can place it in the PDOM order.
   public readonly screenSettingsPanel: ScreenSettingsPanel;
 
   public constructor(
@@ -90,6 +100,10 @@ export default class ExperimentDetectorColumnNode extends Node {
     } );
   }
 
+  /**
+   * The left edge of the detector screen in the parent coordinate frame, used by ExperimentScreenView
+   * to align the middle slit column and to set front-facing screen bounds on the overhead apparatus.
+   */
   public get detectorScreenLeft(): number {
     return this.detectorScreenNodes[ 0 ].left;
   }
@@ -98,14 +112,27 @@ export default class ExperimentDetectorColumnNode extends Node {
     return this.detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
   }
 
+  /**
+   * The right edge of the detector screen in the parent coordinate frame, used by ExperimentScreenView
+   * to set front-facing screen bounds on the overhead apparatus.
+   */
   public get detectorScreenRight(): number {
     return this.detectorScreenNodes[ 0 ].x + ExperimentConstants.DETECTOR_SCREEN_WIDTH;
   }
 
+  /**
+   * The left edge of the bottom controls (graph accordion box) in the parent coordinate frame.
+   * ExperimentScreenView aligns the ruler checkbox to this edge so bottom-row controls line up
+   * with the graph.
+   */
   public get bottomControlsLeft(): number {
     return this.graphAccordionBoxes[ 0 ].left;
   }
 
+  /**
+   * Returns the snapshot and view-snapshots buttons for every detector screen node (all scenes).
+   * Called by ExperimentScreenViewDescription to place these buttons in the PDOM accessibility order.
+   */
   public getDetectorScreenButtonNodes(): Node[] {
     return this.detectorScreenNodes.flatMap( detectorScreen => [
       detectorScreen.snapshotButton,
@@ -113,6 +140,10 @@ export default class ExperimentDetectorColumnNode extends Node {
     ] );
   }
 
+  /**
+   * Resets view state: collapses all graph accordion boxes and resets each box's internal state
+   * (e.g., zoom level). Called by ExperimentScreenView's ResetAllButton listener.
+   */
   public reset(): void {
     this.graphExpandedProperty.reset();
     this.graphAccordionBoxes.forEach( box => box.reset() );

@@ -9,6 +9,10 @@
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 
+/**
+ * All valid slit configurations for the Experiment screen, which always has a barrier present.
+ * Used as the validValues for the Experiment SceneModel's slitConfigurationProperty.
+ */
 export const SlitConfigurationValues = [
   'bothOpen',
   'leftCovered',
@@ -18,19 +22,39 @@ export const SlitConfigurationValues = [
   'bothDetectors'
 ] as const;
 
+/**
+ * Union type for all slit configurations available on the Experiment screen (barrier always present).
+ * Use SlitConfigurationWithNoBarrier when no-barrier state is also possible.
+ */
 export type SlitConfiguration = typeof SlitConfigurationValues[number];
 
-// The Experiment screen uses SlitConfiguration because it always has a barrier. High Intensity,
-// Single Particles, and snapshots also support a no-barrier state.
+/**
+ * Extends SlitConfigurationValues with 'noBarrier' for screens (High Intensity, Single Particles)
+ * and snapshots that allow the barrier to be removed entirely. The Experiment screen always has a
+ * barrier, so it uses SlitConfigurationValues instead. Used as validValues and for
+ * PhET-iO StringUnionIO serialization on those screens.
+ */
 export const SlitConfigurationWithNoBarrierValues = [
   ...SlitConfigurationValues,
   'noBarrier'
 ] as const;
 
+/**
+ * Union type covering all slit configurations including the no-barrier state.
+ * Most shared model and view utilities accept this broader type so they work across all screens.
+ */
 export type SlitConfigurationWithNoBarrier = typeof SlitConfigurationWithNoBarrierValues[number];
 
+/**
+ * The two physical detector sides, named from the overhead view used in the Experiment screen.
+ * 'left' maps to the top slit in front-facing wave-region views; 'right' maps to the bottom slit.
+ */
 export const DetectorSideValues = [ 'left', 'right' ] as const;
 
+/**
+ * Identifies a physical detector side using the Experiment screen's overhead left/right orientation.
+ * In front-facing wave-region views the left side corresponds to the top slit and right to the bottom.
+ */
 export type DetectorSide = typeof DetectorSideValues[number];
 
 /**

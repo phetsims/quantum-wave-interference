@@ -78,6 +78,8 @@ const SOURCE_TYPE_CONTEXT_RESPONSE_PROPERTIES = {
   heliumAtoms: QuantumWaveInterferenceFluent.a11y.sceneRadioButtonGroup.heliumAtomsRadioButton.accessibleContextResponseStringProperty
 } as const;
 
+// Minimum structural contract required of each scene model. The sourceType drives icon selection, label lookup,
+// tandem naming, and default accessible context response for every button in the group.
 type HasSourceType = { readonly sourceType: SourceType };
 
 type SceneRadioButtonGroupOptions<T> = {

@@ -14,6 +14,12 @@ import { type DetectionMode } from '../../model/DetectionMode.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import BandAnalysis from './BandAnalysis.js';
 
+/**
+ * Contract for a scene whose detector-pattern graph can be described accessibly. Implemented by the High Intensity
+ * and Single Particles scene models. Fields supply the physics state (hits, wavelength, slit geometry, speed) needed
+ * to generate qualitative band-pattern descriptions. See DetectorScreenDescriberScene for the parallel contract that
+ * drives the detector-screen text; the two stay separate because their wording and spatial inputs diverge.
+ */
 // NOTE: see other duplicate in DetectorScreenDescriber.ts. Graph and detector-screen describers read the same
 // physics state, but their scene types stay separate because their wording and screen-distance inputs diverge.
 export type DetectorPatternGraphDescriberScene = {
@@ -37,6 +43,12 @@ function getDetectionMode( scene: DetectorPatternGraphDescriberScene ): Detectio
 
 export default class DetectorPatternGraphDescriber {
 
+  /**
+   * Reactive string description of the current detector-pattern graph state. Updates whenever the qualitative hit
+   * stage crosses a pedagogical threshold (none → few → emerging → developing → clear), whenever the scene switches,
+   * or whenever any physics parameter that changes the spatial description changes (wavelength, slit separation, etc.).
+   * Callers should bind this to an accessibleParagraph on a PDOM Node so screen readers receive the updated text.
+   */
   public readonly descriptionProperty: TReadOnlyProperty<string>;
 
   public constructor(

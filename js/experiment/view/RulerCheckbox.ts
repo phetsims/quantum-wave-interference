@@ -15,6 +15,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 
 const LABEL_FONT = new PhetFont( 14 );
 
+// tandem is required for PhET-iO instrumentation of the checkbox.
 export type RulerCheckboxOptions = PickRequired<CheckboxOptions, 'tandem'>;
 
 export default class RulerCheckbox extends Checkbox {

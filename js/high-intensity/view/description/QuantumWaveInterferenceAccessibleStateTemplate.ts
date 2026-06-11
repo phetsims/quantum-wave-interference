@@ -1,7 +1,10 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Renders QuantumWaveInterferenceAccessibleState as one non-interactive accessibleTemplate section for the High Intensity screen.
+ * Centralizes the complete set of Property dependencies required when deriving High Intensity accessible state
+ * descriptions. Callers (e.g., HighIntensityExperimentSetupSequenceItems) invoke createDependencies() to obtain the
+ * deduplicated list of model, locale, and localized-unit Properties whose changes must trigger recomputation of any
+ * description that samples getAccessibleViewState().
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

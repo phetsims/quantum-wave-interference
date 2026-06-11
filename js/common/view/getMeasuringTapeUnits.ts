@@ -16,13 +16,28 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 
 const WAVE_REGION_VIEW_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 
+// Extends MeasuringTapeUnits with a typed unit reference so callers can access the Unit (e.g. for
+// PhET-iO or unit-conversion logic) without re-deriving it from the name string.
 type QuantumWaveInterferenceMeasuringTapeUnits = MeasuringTapeUnits & { unit: Unit };
 
+// StringProperties for the visual unit symbols (nm and μm) used as DerivedProperty dependencies in
+// MeasurementToolsLayerNode so that the measuring tape label updates on locale changes.
 export const MEASURING_TAPE_UNIT_VISUAL_SYMBOL_PROPERTIES = [
   nanometersUnit.getVisualSymbolStringProperty(),
   micrometersUnit.getVisualSymbolStringProperty()
 ] as const;
 
+/**
+ * Returns MeasuringTapeUnits suitable for the given scene's physical region width. The multiplier
+ * maps view pixels to physical units: pixels × multiplier = value in the chosen unit.
+ *
+ * Threshold: regionWidth < 1e-6 m (i.e. sub-micrometre, typical of matter-wave scenes) → nanometres;
+ * otherwise (photon scenes, μm-scale) → micrometres.
+ *
+ * @param regionWidth - physical width of the simulation region in metres
+ * @returns MeasuringTapeUnits whose multiplier converts view-pixel distances to the selected unit,
+ *          plus a typed Unit reference for downstream use
+ */
 export default function getMeasuringTapeUnits( regionWidth: number ): QuantumWaveInterferenceMeasuringTapeUnits {
   const useNanometers = regionWidth < 1e-6;
   const unit = useNanometers ? nanometersUnit : micrometersUnit;

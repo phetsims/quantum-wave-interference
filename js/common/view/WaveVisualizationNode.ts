@@ -31,6 +31,7 @@ import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
 
 type SelfOptions = EmptySelfOptions;
 
+// No custom options beyond the base NodeOptions.
 type WaveVisualizationNodeOptions = SelfOptions & NodeOptions;
 
 const SCALE_MARGIN = 8;
@@ -199,6 +200,10 @@ export default class WaveVisualizationNode extends Node {
     this.addChild( timeLabel );
   }
 
+  /**
+   * Called each animation frame by stepDetectorScreenViewNodes to mark the wave canvas dirty so it repaints
+   * with the latest simulation state.
+   */
   public step(): void {
     this.waveCanvas.invalidatePaint();
   }

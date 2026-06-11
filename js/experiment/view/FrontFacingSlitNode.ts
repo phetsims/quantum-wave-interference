@@ -71,6 +71,10 @@ const DETECTOR_OVERLAY_FILL_ALPHA = 0.3;
 const DETECTOR_OVERLAY_STROKE_WIDTH = 2;
 
 
+/**
+ * The constituent scenery nodes that make up a horizontal span annotation (double-headed arrow + endpoint tick marks +
+ * label). Returned by createSpanNode so the caller can reposition each part independently as the slit geometry changes.
+ */
 type SpanNodeParts = {
   arrow: ArrowNode;
   leftTick: Line;
@@ -109,6 +113,7 @@ const createSpanNode = (
 
 type SelfOptions = EmptySelfOptions;
 
+// tandem is required so the node is registered in the PhET-iO tandem tree.
 type FrontFacingSlitNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
 
 export default class FrontFacingSlitNode extends Node {

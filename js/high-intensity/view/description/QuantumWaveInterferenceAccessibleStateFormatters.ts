@@ -15,8 +15,17 @@ import { getWavelengthColorZoneStringProperty } from '../../../common/view/Wavel
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind } from './HighIntensityAccessibleViewState.js';
 
+/**
+ * String-literal union used as a Fluent-compatible boolean selector. Fluent message variants are keyed on
+ * the literal strings 'true' and 'false' rather than JS booleans, so model boolean values must be mapped
+ * through toFluentBoolean before being passed to a Fluent format call.
+ */
 export type FluentBoolean = 'true' | 'false';
 
+/**
+ * Converts a JS boolean to the Fluent-compatible string literal required by Fluent message selectors.
+ * Use this whenever a boolean model value must be passed as a Fluent message argument.
+ */
 export function toFluentBoolean( value: boolean ): FluentBoolean {
   return value ? 'true' : 'false';
 }
@@ -32,6 +41,11 @@ function getSingleSlitLocationKey( state: HighIntensitySemanticAccessibleViewSta
          'rightCovered';
 }
 
+/**
+ * Formats a localized string describing the current beam/source state (emission status, source type, wavelength color,
+ * wavefront spacing, display mode, and slit configuration). Used in both transition context responses and
+ * experiment-setup sequence items on the High Intensity and Single Particles screens.
+ */
 export function formatSourceBeamDescription( state: HighIntensitySemanticAccessibleViewState ): string {
   return QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceBeam.format( {
     isEmitting: toFluentBoolean( state.isEmitting ),
@@ -43,6 +57,12 @@ export function formatSourceBeamDescription( state: HighIntensitySemanticAccessi
   } );
 }
 
+/**
+ * Formats a localized string describing the current particle type and its key physical properties.
+ * For photons, reports wavelength (nm) and visible color; for other particles (electrons, neutrons, helium atoms),
+ * reports speed (m/s) and de Broglie wavelength (pm). Intended for screen-detail descriptions that convey
+ * the current source properties to screen-reader users.
+ */
 export function formatParticleDescription( state: HighIntensitySemanticAccessibleViewState ): string {
   if ( state.sourceType === 'photons' ) {
     return QuantumWaveInterferenceFluent.a11y.highIntensityState.photonDetail.format( {
@@ -70,6 +90,11 @@ export function formatParticleDescription( state: HighIntensitySemanticAccessibl
   } );
 }
 
+/**
+ * Formats a localized string describing the current slit configuration (open/closed/covered arrangement)
+ * and slit separation. For photons, separation is reported in micrometers; for other particles, in nanometers.
+ * Returns an empty string for the separation component when no slit separation is applicable.
+ */
 export function formatSlitDescription( state: HighIntensitySemanticAccessibleViewState ): string {
   return QuantumWaveInterferenceFluent.a11y.highIntensityState.slits.format( {
     slitSetting: state.slitConfiguration,
@@ -80,6 +105,17 @@ export function formatSlitDescription( state: HighIntensitySemanticAccessibleVie
   } );
 }
 
+/**
+ * Formats a localized string describing the current detector/pattern state, including emission status,
+ * detection mode, pattern formation stage, pattern kind, display mode, slit location, hit stage, total
+ * hit count, and band spacing. Used as a context response in transition descriptions and as a sequence-item
+ * string in experiment-setup sequences.
+ *
+ * @param state - the current semantic accessible view state
+ * @param patternFormation - override for the pattern-formation value; defaults to state.patternFormation.
+ *   Pass an explicit value when the caller needs to describe a specific formation stage (e.g., a sequence
+ *   item that fires at a known milestone) rather than the live state value.
+ */
 export const formatDetectorDescription = (
   state: HighIntensitySemanticAccessibleViewState,
   patternFormation: QuantumWaveInterferencePatternFormation = state.patternFormation

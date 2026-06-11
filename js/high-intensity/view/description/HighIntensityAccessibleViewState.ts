@@ -17,17 +17,56 @@ import { type WavePeakSpacingCategory } from '../../../common/view/description/g
 import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import { type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 
+// The type of interference/diffraction pattern produced by the current slit configuration.
+// 'noBarrier' means the barrier is absent and particles travel directly to the screen.
 export type QuantumWaveInterferencePatternKind = 'doubleSlitInterference' | 'singleSlitDiffraction' | 'whichPathDiffraction' | 'noBarrier';
+
+// Whether the detector output is shown as a visual brightness pattern on the screen ('screen') or as a bar graph ('graph').
 export type QuantumWaveInterferenceDisplayMode = 'screen' | 'graph';
+
+// Lifecycle stage of the interference/diffraction pattern on the detector screen.
+// 'empty' — no hits or waves yet; 'forming' — pattern is accumulating but not saturated;
+// 'complete' — formation factor has reached the completion threshold; 'collectingHits' — particle-detection
+// mode is active and hits are being recorded; 'paused' — simulation is paused mid-formation;
+// 'notApplicable' — pattern formation is not meaningful in the current configuration.
 export type QuantumWaveInterferencePatternFormation = 'empty' | 'forming' | 'complete' | 'collectingHits' | 'paused' | 'notApplicable';
+
+// Coarse spatial stage of the leading wavefront, used to drive screen-reader narration of wave propagation.
+// Ordered roughly from source to screen: 'sourceOff' — emitter is inactive; 'travelingToSlits' — wavefront
+// is between the source and the barrier; 'atSlits' — wavefront is at or immediately past the barrier;
+// 'interferingAfterSlits' / 'diffractingAfterSlits' / 'whichPathAfterSlits' — post-barrier propagation
+// styled by pattern kind; 'directToScreen' — no barrier present; 'hittingScreen' — wavefront has reached the detector.
 export type QuantumWaveInterferenceWaveProgressStage = 'sourceOff' | 'travelingToSlits' | 'atSlits' | 'interferingAfterSlits' | 'diffractingAfterSlits' | 'whichPathAfterSlits' | 'directToScreen' | 'hittingScreen';
+
+// Discretized distance milestone of the wavefront across the simulation region (0 %, 25 %, 50 %, 75 %, 100 %).
+// Used to fire screen-reader alerts at meaningful spatial thresholds without flooding with continuous updates.
 export type QuantumWaveInterferenceWaveProgressCheckpoint = 'none' | 'quarter' | 'half' | 'threeQuarters' | 'full';
+
+// Categorical description of the spacing between successive wave-peak crests, re-exported under the
+// screen-state namespace for use in accessible view-state snapshots.
 export type QuantumWaveInterferenceWavefrontSpacing = WavePeakSpacingCategory;
+
+// Categorical speed of the particle/wave through the simulation region, derived from the particle's
+// physical speed (e.g., electron vs. neutron vs. photon scenarios). Distinct from clock speed.
 export type QuantumWaveInterferenceWaveSpeedDescription = 'slow' | 'medium' | 'fast';
+
+// Categorical speed of the simulation clock (TimeSpeed enum), used for screen-reader narration.
+// 'normal' corresponds to TimeSpeed.NORMAL; differs from WaveSpeedDescription which reflects physics.
 export type QuantumWaveInterferenceClockSpeedDescription = 'slow' | 'normal' | 'fast';
+// Categorical description of the spacing between bright bands in the interference/diffraction pattern,
+// re-exported under the screen-state namespace for use in accessible view-state snapshots.
 export type QuantumWaveInterferenceBandSpacingDescription = BandSpacingCategory;
+
+// Direction of change for a numeric quantity between two successive accessible view-state snapshots,
+// used by QuantumWaveInterferenceTransitionDescriber to produce change-alert text.
 export type QuantumWaveInterferenceValueTrend = 'increased' | 'decreased' | 'unchanged';
 
+/**
+ * Screen-reader-relevant semantic snapshot of the High Intensity screen. Contains the distilled meaning of the
+ * current experiment state — not raw model values and not final localized strings. Consumed by formatters in
+ * QuantumWaveInterferenceAccessibleStateFormatters and by HighIntensityAccessibleResponses to produce
+ * accessible descriptions and alerts. Produced by HighIntensityScreenView.getSemanticAccessibleViewState().
+ */
 export type HighIntensitySemanticAccessibleViewState = {
   sourceType: SourceType;
   isPlaying: boolean;
@@ -65,6 +104,12 @@ export type HighIntensitySemanticAccessibleViewState = {
   numberOfSnapshots: number;
 };
 
+/**
+ * Full accessible view-state snapshot for the High Intensity screen. Extends the semantic state with the
+ * view-level sub-states for each major UI region (detector screen, pattern graph, wave visualization, slit
+ * barrier, and measurement tools). Returned by HighIntensityScreenView.getAccessibleViewState() and passed
+ * to HighIntensityAccessibleResponses and sequence-item helpers that need the complete picture.
+ */
 export type HighIntensityAccessibleViewState = HighIntensitySemanticAccessibleViewState & {
   detectorScreen: DetectorScreenViewState;
   detectorPatternGraph: DetectorPatternGraphViewState;

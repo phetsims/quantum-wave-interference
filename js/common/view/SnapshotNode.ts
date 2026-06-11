@@ -32,8 +32,16 @@ const METADATA_WIDTH = 165;
 const PARAM_FONT = new PhetFont( 12 );
 const TITLE_FONT = new PhetFont( { size: 16, weight: 'bold' } );
 
+/**
+ * Options for SnapshotNode. Extends SnapshotMetadataPropertiesOptions with the snapshot collection source,
+ * deletion callback, and optional PDOM description and coordinate/zoom hooks.
+ */
 export type SnapshotNodeOptions = SnapshotMetadataPropertiesOptions & {
+
+  // The ordered list of all snapshots in the owning scene. This node observes it to derive the snapshot at its slot.
   snapshotsProperty: TReadOnlyProperty<Snapshot[]>;
+
+  // Called when the user presses the trash button; should remove the given snapshot from snapshotsProperty.
   deleteSnapshot: ( snapshot: Snapshot ) => void;
 
   // When provided, the full PDOM structure (section, heading, description paragraph, metadata list) is created.
@@ -51,6 +59,11 @@ export type SnapshotNodeOptions = SnapshotMetadataPropertiesOptions & {
 export default class SnapshotNode extends Node {
   private readonly detectorSnapshotSlot: Node;
 
+  /**
+   * @param index - zero-based slot in the snapshotsProperty array that this node represents; the node is visible
+   *   only when a snapshot exists at this position
+   * @param options
+   */
   public constructor( index: number, options: SnapshotNodeOptions ) {
 
     const snapshotProperty: TReadOnlyProperty<Snapshot | null> = new DerivedProperty(

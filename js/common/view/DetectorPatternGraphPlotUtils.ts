@@ -39,18 +39,34 @@ const INTENSITY_SAMPLE_SCALE = QuantumWaveInterferenceQueryParameters.sidewaysGr
 const NUM_HORIZONTAL_GRID_DIVISIONS = 10;
 const NUM_VERTICAL_GRID_DIVISIONS = 4;
 
+// Discriminates between the raw hit-count histogram (particle/photon detection events) and the
+// theoretical average-intensity curve computed from the wave solver.
 type GraphStyle = 'histogram' | 'intensityCurve';
 
+// Fill and stroke paints bundled together so callers can apply both in one step.
 type GraphPaint = {
   fill: TPaint;
   stroke: TPaint;
 };
 
+// The two Shapes that together render the theoretical intensity curve: a closed polygon for the
+// translucent fill and an open polyline for the opaque stroke drawn on top.
 export type IntensityCurveShapes = {
   fillShape: Shape;
   strokeShape: Shape;
 };
 
+/**
+ * Structural interface describing the scene data consumed by the detector pattern graph and texture renderer.
+ * Any scene model that satisfies this shape — e.g. HighIntensitySceneModel — can be passed to the graph
+ * utilities without a hard dependency on a concrete class.
+ *
+ * Optional properties are absent on scenes that do not support the corresponding feature:
+ *   - intensityProperty: source brightness in [0,1]; defaults to 1 when absent (single-particle scenes).
+ *   - detectorPatternFormationFactorProperty: fraction in [0,1] representing how fully the interference
+ *     pattern has been established; only High Intensity scenes animate this from 0 to 1 as photons
+ *     accumulate. Defaults to 1 (fully formed) when absent.
+ */
 export type DetectorPatternGraphSceneLike = {
   hits: Vector2[];
   sourceType: SourceType;

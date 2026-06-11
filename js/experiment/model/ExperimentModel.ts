@@ -30,8 +30,11 @@ import { DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, DETECTOR_SCREEN_SCALE_OPTIONS } fr
 import SceneModel from './SceneModel.js';
 
 type SelfOptions = EmptySelfOptions;
+
+// tandem is required so every scene model and shared property can be instrumented for PhET-iO.
 type ParentOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
+// Options for ExperimentModel — callers must supply a tandem; no additional options are defined.
 export type ExperimentModelOptions = SelfOptions & ParentOptions;
 
 export default class ExperimentModel implements TModel {
@@ -48,7 +51,12 @@ export default class ExperimentModel implements TModel {
 
   // DynamicProperties that follow fields of the active scene.
   // Centralized here so view code can share a single instance instead of re-deriving the same wrapper in each view
-  // component.
+  // component. Units match the underlying SceneModel fields:
+  //   currentWavelengthProperty      — nm (photon scenes only; matter-wave scenes derive wavelength from speed)
+  //   currentParticleSpeedProperty   — m/s (matter-wave scenes only; photons always travel at c)
+  //   currentSlitSeparationProperty  — mm (center-to-center distance between the two slits)
+  //   currentScreenDistanceProperty  — m (distance from the double slit to the detector screen)
+  //   currentScreenBrightnessProperty — 0..SCREEN_BRIGHTNESS_MAX (dimensionless brightness level)
   public readonly currentSlitSettingProperty: DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>;
   public readonly currentDetectionModeProperty: DynamicProperty<DetectionMode, DetectionMode, SceneModel>;
   public readonly currentIsEmittingProperty: DynamicProperty<boolean, boolean, SceneModel>;

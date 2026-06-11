@@ -35,6 +35,11 @@ type SelfOptions = EmptySelfOptions;
 
 type ExperimentScreenViewOptions = SelfOptions & Pick<ScreenViewOptions, 'tandem'>;
 
+/**
+ * A point-in-time snapshot of the Experiment screen's full semantic state, returned by getAccessibleState() and
+ * consumed by the interact-daemon (agent-facing accessibility layer) to answer questions about the current
+ * simulation state. All physical quantities use the units indicated by their field names (nm, mm, m, etc.).
+ */
 type ExperimentAccessibleState = {
   sourceType: string;
   isPlaying: boolean;

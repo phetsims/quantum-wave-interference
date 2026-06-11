@@ -242,6 +242,11 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     } );
   }
 
+  /**
+   * Captures a snapshot of the active scene's current interference pattern. Called by the view when the snapshot
+   * button is pressed. Subclasses delegate to the appropriate scene-model snapshot method (e.g.
+   * takeHighIntensitySnapshot or takeSingleParticlesSnapshot) so each screen can store the data it needs.
+   */
   protected abstract takeSnapshot(): void;
 
   /**
@@ -273,6 +278,11 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     this.sceneProperty.reset();
   }
 
+  /**
+   * Resets visibility Properties for screen-specific tools (e.g., intensity graph, hits graph, detector). Called
+   * during reset() after the shared tool Properties have already been reset, giving subclasses the opportunity to
+   * reset any additional tool visibility state they own.
+   */
   protected abstract resetToolVisibility(): void;
 
   /**

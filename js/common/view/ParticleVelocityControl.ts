@@ -21,6 +21,10 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import { type SourceType } from '../model/SourceType.js';
 import { SOURCE_CONTROL_SLIDER_TRACK_HEIGHT, SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SOURCE_CONTROL_TICK_LABEL_FONT, SOURCE_CONTROL_TITLE_FONT } from './SourceControlPanelConstants.js';
 
+/**
+ * Minimal scene contract required by ParticleVelocityControl. All speed values are in meters per second;
+ * the control automatically switches to a km/s display when the range maximum reaches 10 000 m/s (electrons).
+ */
 type ParticleSpeedScene = {
   readonly sourceType: SourceType;
   readonly particleSpeedProperty: NumberProperty;

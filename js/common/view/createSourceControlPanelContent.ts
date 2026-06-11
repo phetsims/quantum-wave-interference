@@ -21,11 +21,14 @@ import { SOURCE_CONTROL_ROW_VERTICAL_MARGIN, SOURCE_CONTROL_SECTION_SPACING } fr
 import SourceControlScene from './SourceControlScene.js';
 import SourceIntensityControl from './SourceIntensityControl.js';
 
+// The top source-specific control (wavelength or velocity) and an optional bottom intensity control for one scene.
 type SceneControlContent = {
   topControl: Node;
   bottomControl: Node | null;
 };
 
+// Return value of createSourceControlPanelContent: a toggle node that swaps between scenes and the per-scene AlignBoxes
+// that SourceControlPanel can use to register scene-specific layout.
 type SourceControlPanelContent = {
   contentNode: Node;
   sceneNodes: Node[];
@@ -33,6 +36,16 @@ type SourceControlPanelContent = {
 
 /**
  * Creates all source-control nodes, sized to the largest scene so switching source types does not shift layout.
+ *
+ * @param sceneProperty - the currently active scene; drives which scene node is visible inside contentNode
+ * @param scenes - all scenes to build controls for; one AlignBox per scene is returned in sceneNodes
+ * @param tandem - fallback tandem used when sceneTandems is null or has no entry for a scene
+ * @param sceneTandems - optional per-scene tandem overrides; when provided, each scene looks up its own tandem so
+ *   PhET-iO instruments each scene's controls under a distinct path; falls back to tandem when null or missing
+ * @param photonIntensityLabelStringProperty - label for the intensity slider shown in photon scenes
+ * @param particleIntensityLabelStringProperty - label for the emission-rate slider shown in particle scenes
+ * @returns contentNode — a QuantumWaveInterferenceToggleNode that shows only the active scene's controls;
+ *   sceneNodes — the per-scene AlignBoxes, one per entry in scenes, in the same order
  */
 export default function createSourceControlPanelContent<T extends SourceControlScene>(
   sceneProperty: Property<T>,

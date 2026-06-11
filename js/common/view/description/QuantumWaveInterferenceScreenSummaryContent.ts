@@ -15,26 +15,54 @@ import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
 
+// Fluent select expressions require string keys, so boolean model values are converted to this type before use.
 type FluentBoolean = 'true' | 'false';
+
+/**
+ * The axis along which the two slits are arranged on screen. 'leftRight' means the slits are positioned side by side
+ * on a horizontal axis (used in the Experiment screen); 'topBottom' means the slits are stacked on a vertical axis
+ * (used in High Intensity and Single Particles screens). This value drives Fluent select expressions that produce
+ * screen-reader descriptions of slit positions.
+ */
 export type SlitOrientation = 'leftRight' | 'topBottom';
 
 function toFluentBoolean( value: boolean ): FluentBoolean {
   return value ? 'true' : 'false';
 }
 
+/**
+ * The subset of the screen model required to drive the screen summary. Callers pass their full model and TypeScript
+ * structural typing ensures all required properties are present.
+ */
 type ScreenSummaryModel = {
   sceneProperty: TReadOnlyProperty<{ sourceType: SourceType }>;
   currentIsEmittingProperty: TReadOnlyProperty<boolean>;
   isPlayingProperty: TReadOnlyProperty<boolean>;
+
+  // True when the detector screen has accumulated the maximum allowed number of particle hits.
   currentIsMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
   currentTotalHitsProperty: TReadOnlyProperty<number>;
 };
 
+/**
+ * Per-screen customisation of the shared screen summary. Screens that deviate from defaults (e.g. a different
+ * play-area description or a custom current-details section) pass overrides here; all fields are optional except
+ * detectionMode, which varies by screen.
+ */
 type ScreenSummaryOptions = {
+  // Whether the detector screen shows average intensity or discrete particle hits.
   detectionMode: DetectionMode | TReadOnlyProperty<DetectionMode>;
+
+  // Defaults to 'leftRight'. Pass 'topBottom' for screens where slits are arranged on the vertical axis.
   slitOrientation?: SlitOrientation;
+
+  // Override the default Fluent play-area description string.
   playAreaContent?: SectionContent;
+
+  // Override the default derivation that infers whether a pattern is visible on the detector screen.
   detectorScreenHasPatternProperty?: TReadOnlyProperty<boolean>;
+
+  // Override the default Fluent current-details section entirely (e.g. to supply a custom describer node).
   currentDetailsContent?: SectionContent;
 };
 

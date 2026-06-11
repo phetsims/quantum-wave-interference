@@ -25,6 +25,18 @@ const MEASUREMENT_BITE_MAX_SPREAD_TIME = 1.1;
 const MEASUREMENT_BITE_EDGE_DEFICIT = 0.02;
 const MEASUREMENT_BITE_MAX_SUPER_GAUSSIAN_EXPONENT = 24;
 
+/**
+ * Shape parameters for the time-evolved super-Gaussian deficit that represents a spreading
+ * failed-measurement bite. Returned by getMeasurementProjectionSpread and consumed directly
+ * by getMeasurementProjectionMask to evaluate `deficitStrength * exp( -0.5*(r/falloffScale)^exponent )`.
+ *
+ * - falloffScale: effective width of the super-Gaussian, scaled so the deficit equals
+ *   MEASUREMENT_BITE_EDGE_DEFICIT at the original detector radius.
+ * - deficitStrength: peak height of the deficit (0–1); decays as the bite spreads so the
+ *   removed amplitude fills back in everywhere at once rather than leaving a permanent ring.
+ * - exponent: super-Gaussian order; starts near MEASUREMENT_BITE_MAX_SUPER_GAUSSIAN_EXPONENT
+ *   for a disk-like bite and relaxes toward 2 (normal Gaussian) as the deficit expands.
+ */
 type MeasurementProjectionSpread = {
   falloffScale: number;
   deficitStrength: number;

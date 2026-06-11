@@ -61,7 +61,12 @@ function createVisibleRegionShape( dx: number, dy: number, leftHeight: number, v
 
 export default class OverheadDetectorScreenNode extends Node {
 
+  // The filled parallelogram shape representing the detector screen in overhead perspective. Exposed so callers
+  // (e.g. OverheadBeamNode) can read its layout bounds and centerY to align the fan beam and shadow geometry.
   public readonly parallelogramNode: Path;
+
+  // The interference-pattern overlay rendered in the overhead parallelogram coordinate system. Exposed so callers
+  // (e.g. OverheadBeamNode) can call updatePattern() when scene or wavelength properties change.
   public readonly overheadPatternNode: OverheadDetectorPatternNode;
   private readonly visibleRegionNode: Path;
   private readonly snapshotFlashNode: Path;
@@ -233,6 +238,12 @@ export default class OverheadDetectorScreenNode extends Node {
            this.sceneProperty.value.fullScreenHalfWidth;
   }
 
+  /**
+   * Returns the total skewed height of the detector parallelogram — the left-edge height plus the vertical offset
+   * introduced by the overhead perspective skew. Used by OverheadBeamNode to compute the fan-beam half-height at the
+   * far (right) edge of the beam, so the fan scales proportionally with the full parallelogram regardless of the
+   * current detector zoom level.
+   */
   public getFullParallelogramHeight(): number {
     return DETECTOR_LEFT_HEIGHT + DETECTOR_DY;
   }

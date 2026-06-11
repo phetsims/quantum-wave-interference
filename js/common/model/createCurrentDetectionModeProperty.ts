@@ -13,6 +13,10 @@ import Tandem from '../../../../tandem/js/Tandem.js';
 import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';
 
+/**
+ * Structural contract for scene objects whose detection mode is tracked by the DynamicProperty created here.
+ * Any scene passed to createCurrentDetectionModeProperty must satisfy this shape.
+ */
 type SceneWithDetectionMode = {
   detectionModeProperty: TProperty<DetectionMode>;
 };

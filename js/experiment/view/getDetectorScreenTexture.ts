@@ -23,6 +23,11 @@ const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 // front-facing zoom so the cropped visible region is still downsampled by this factor at every zoom level.
 const SUPERSAMPLE = QuantumWaveInterferenceQueryParameters.experimentDetectorTextureScale;
 
+/**
+ * Per-scene mutable state for the detector-screen texture. A single instance lives in sceneTextureMap for as long as
+ * its SceneModel is reachable. Callers receive a reference to canvas directly and must treat it as read-only; the
+ * cache owns the canvas and may resize or repaint it at any time.
+ */
 type SceneTextureCache = {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
@@ -48,6 +53,11 @@ const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
 
+/**
+ * Returns the pixel-per-model-unit scale factor for the backing texture at the current zoom level.
+ * The scale grows as the user zooms in (smaller visible fraction), so the cropped visible region is always
+ * downsampled by the SUPERSAMPLE factor regardless of zoom level.
+ */
 function getTextureRenderScale(
   sceneModel: SceneModel,
   detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
@@ -61,6 +71,11 @@ function resetCacheRenderingState( cache: SceneTextureCache ): void {
   resetDetectorScreenHitRenderCache( cache.hitRenderCache );
 }
 
+/**
+ * Resizes the backing canvas when the render scale has changed (e.g., after a zoom-level change). Resizing
+ * clears the canvas context, so the hit render cache is reset and the dirty flag is set to trigger a full repaint.
+ * A no-op when the scale is unchanged.
+ */
 function updateCacheTextureSize(
   cache: SceneTextureCache,
   sceneModel: SceneModel,
@@ -83,6 +98,11 @@ function updateCacheTextureSize(
   cache.dirty = true;
 }
 
+/**
+ * Paints the current detector-screen state onto the cache canvas. If rendering parameters (brightness, wavelength,
+ * detection mode, etc.) have changed since the last paint, the canvas is cleared and all hits are repainted from
+ * scratch; otherwise only newly accumulated hits are blitted incrementally. Clears the dirty flag on completion.
+ */
 function renderSceneTexture(
   cache: SceneTextureCache,
   sceneModel: SceneModel,
@@ -138,6 +158,12 @@ function renderSceneTexture(
   cache.dirty = false;
 }
 
+/**
+ * Creates and initializes a SceneTextureCache for the given scene. Allocates the backing canvas at the current
+ * render scale, then attaches listeners on sceneModel that mark the cache dirty whenever any rendering input
+ * changes. These listeners are never removed because the cache lifetime matches the scene lifetime (both are
+ * released together when the WeakMap entry is collected).
+ */
 function createSceneTextureCache(
   sceneModel: SceneModel,
   detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
@@ -186,6 +212,12 @@ function createSceneTextureCache(
 
 /**
  * Gets the shared full detector-screen texture for the specified scene, rendering it lazily on demand.
+ *
+ * The returned canvas is mutable and shared — callers must not resize or paint onto it. Its pixel dimensions
+ * change with the zoom level (detectorScreenScaleIndexProperty) so that the cropped visible region is always
+ * downsampled by the SUPERSAMPLE factor. Callers that draw the canvas into another context (e.g. via drawImage)
+ * should re-request the texture each frame because the canvas reference itself is stable but its contents and
+ * size can change between calls.
  */
 function getDetectorScreenTexture(
   sceneModel: SceneModel,

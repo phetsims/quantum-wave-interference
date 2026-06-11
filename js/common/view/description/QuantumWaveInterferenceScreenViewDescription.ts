@@ -20,12 +20,20 @@ import DetectorScreenDescriber, { type DetectorScreenDescriberScene } from './De
 import ExperimentSetupDetailsNode from './ExperimentSetupDetailsNode.js';
 import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryContent.js';
 
+/**
+ * Scene requirements for the shared description node — extends the detector describers' scene contracts
+ * with the source-type identity and the speed/separation ranges needed by ExperimentSetupDetailsNode.
+ */
 type SharedDescriptionScene = DetectorScreenDescriberScene & DetectorPatternGraphDescriberScene & {
   sourceType: SourceType;
   particleSpeedRange: { min: number; max: number };
   slitSeparationRange: { min: number; max: number };
 };
 
+/**
+ * Minimal model surface consumed by this description node. Both the High Intensity and Single Particles
+ * screen models satisfy this shape, allowing the shared node to be constructed from either.
+ */
 type SharedDescriptionModel = {
   sceneProperty: TReadOnlyProperty<SharedDescriptionScene>;
   currentIsEmittingProperty: TReadOnlyProperty<boolean>;
@@ -34,6 +42,22 @@ type SharedDescriptionModel = {
   currentSlitSeparationProperty: TReadOnlyProperty<number>;
 };
 
+/**
+ * Options for QuantumWaveInterferenceScreenViewDescription.
+ *
+ * - detectionModeProperty: when provided, gates detector-screen description text on the active detection mode.
+ * - detectorScreenUpdateTriggerProperty: an arbitrary property whose changes trigger a refresh of the
+ *   detector-screen accessible paragraph (e.g. the model's accessible-state step counter).
+ * - screenGraphVisibleProperty: when provided, the raw detector-screen paragraph is hidden while the graph
+ *   is visible and a separate graph-description node is shown instead.
+ * - slitOrientation: axis along which the slits are arranged; defaults to the describer's own default.
+ * - includeExperimentSetupDetails: set to false to suppress the detector-screen, graph, and
+ *   ExperimentSetupDetailsNode children (used when that content lives elsewhere in the PDOM).
+ * - experimentSetupAdditionalListItems: extra accessible list items appended to ExperimentSetupDetailsNode.
+ * - sourceNodes: scenery nodes placed under the "Source" PDOM heading in pdomOrder.
+ * - slitNodes: scenery nodes placed under the "Slits" PDOM heading in pdomOrder.
+ * - detectorScreenControlNodes: scenery nodes placed under the "Detector Screen" PDOM heading in pdomOrder.
+ */
 type SharedDescriptionOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   detectorScreenUpdateTriggerProperty?: TReadOnlyProperty<unknown>;

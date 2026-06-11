@@ -40,6 +40,9 @@ const PARTICLE_SLIT_VISUAL_SCALE = 0.4;
 
 export default class OverheadDoubleSlitNode extends Node {
 
+  // The full-size invisible parallelogram that defines the layout/beam geometry anchor for sibling nodes (e.g.,
+  // OverheadBeamNode uses its bounds for beam clipping, and WhichPathDetectorIndicatorNode uses its centerY for
+  // detector vertical alignment). The visible rounded-rectangle background is a smaller child.
   public readonly parallelogramNode: Path;
   private readonly reducedBackgroundNode: Path;
   private readonly doubleSlitLabel: Text;
@@ -207,6 +210,14 @@ export default class OverheadDoubleSlitNode extends Node {
     this.layoutLabel();
   }
 
+  /**
+   * Returns the point (in this node's parent coordinates) where the connector wire from a which-path detector panel
+   * should terminate at the detector overlay on the slit. For the left detector the anchor sits on the left edge of
+   * the left-slit overlay; for the right detector it sits on the right edge of the right-slit overlay. In both cases
+   * the point is vertically centered on the overlay, accounting for the parallelogram skew.
+   *
+   * @param isLeftDetector - true for the left slit detector, false for the right slit detector
+   */
   public getDetectorAnchorPoint( isLeftDetector: boolean ): Vector2 {
     return isLeftDetector ? new Vector2(
       this.parallelogramNode.x + this.leftSlitDetectorOverlay.x - DETECTOR_OVERLAY_STROKE_WIDTH / 2,

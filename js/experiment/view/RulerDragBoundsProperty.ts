@@ -67,6 +67,11 @@ export default class RulerDragBoundsProperty {
     this.rulerNode = rulerNode;
   }
 
+  /**
+   * Installs a persistent listener on dragBoundsProperty that clamps rulerPositionProperty whenever the drag bounds
+   * change (e.g. on window resize or graph accordion expand/collapse). The listener fires only for the scene this
+   * instance belongs to, so ruler positions in inactive scenes are left untouched. Call once during construction.
+   */
   public constrainRulerPositionProperty( rulerPositionProperty: Property<Vector2> ): void {
     this.dragBoundsProperty.link( dragBounds => {
       if ( dragBounds && this.sceneProperty.value === this.scene ) {
@@ -75,6 +80,11 @@ export default class RulerDragBoundsProperty {
     } );
   }
 
+  /**
+   * Returns the position that places the ruler centered on the detector screen, clamped to the current drag bounds.
+   * Used to reset the ruler to a sensible default position when it is first shown or when the scene is re-entered.
+   * Asserts that dragBoundsProperty has a non-null value at call time.
+   */
   public getCenteredRulerPosition(): Vector2 {
     const centeredTop = this.detectorScreenNode.centerY - this.rulerNode.height / 2;
     const detectorRectCenterX = this.detectorScreenNode.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;

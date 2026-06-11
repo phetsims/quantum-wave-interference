@@ -34,12 +34,25 @@ import SourceControlScene from './SourceControlScene.js';
 
 export type { default as SourceControlScene } from './SourceControlScene.js';
 
+/**
+ * Options specific to SourceControlPanel that are not forwarded from PanelOptions.
+ *
+ * The two label overrides let each screen supply its own localized string for the intensity/emission-rate slider.
+ * Defaults are the shared sim strings; screens that display different terminology (e.g., "Emission Rate" vs
+ * "Source Intensity") pass a replacement here.
+ *
+ * additionalContent, when provided, is placed below the source controls inside the panel (e.g., the Auto-Repeat
+ * checkbox in the Single Particles screen). Null means no extra content.
+ */
 type SelfOptions = {
   photonIntensityLabelStringProperty?: TReadOnlyProperty<string>;
   particleIntensityLabelStringProperty?: TReadOnlyProperty<string>;
   additionalContent?: Node | null;
 };
 
+/**
+ * Public options for SourceControlPanel. Callers must supply a tandem; all other options have defaults.
+ */
 export type SourceControlPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tandem'>;
 
 export default class SourceControlPanel<T extends SourceControlScene> extends Panel {

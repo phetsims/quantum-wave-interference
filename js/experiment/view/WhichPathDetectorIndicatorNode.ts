@@ -40,7 +40,14 @@ const DETECTOR_SIDE_LAYOUT = {
   }
 } as const;
 
+/**
+ * One side-specific detector panel (left or right) with its label, hit-count readout, and a curved wire that connects
+ * to the slit detector anchor on the double-slit node.
+ */
 class DetectorPanelNode extends Node {
+
+  // Sets this node's visibility, position, and wire shape based on the current slit configuration, detection mode,
+  // and doubleSlitNode geometry. Also clears the wire and hides the panel when no detector is active on this side.
   private readonly updateIndicator: () => void;
 
   public constructor(
@@ -150,6 +157,11 @@ class DetectorPanelNode extends Node {
     model.sceneProperty.link( this.updateIndicator );
   }
 
+  /**
+   * Repositions this panel and redraws its wire to the slit detector anchor. Must be called by the parent whenever
+   * doubleSlitNode geometry changes (slit separation, slit centerX, scene alignment), because that geometry is not
+   * observable through this node's own Property links.
+   */
   public updateLayout(): void {
     this.updateIndicator();
   }
@@ -171,6 +183,13 @@ export default class WhichPathDetectorIndicatorNode extends Node {
     this.detectorPanelNodes = detectorPanelNodes;
   }
 
+  /**
+   * Delegates to each DetectorPanelNode to reposition its panel and redraw its wire. Must be called by the parent
+   * whenever doubleSlitNode geometry changes (slit separation, slit centerX, scene alignment), since each panel's
+   * wire anchor and position depend on external geometry not observable through the panels' own Property links.
+   * Called from ExperimentOverheadApparatusNode on scene changes, slit separation changes, emitter alignment, and
+   * initial slit center placement.
+   */
   public updateLayout(): void {
     this.detectorPanelNodes.forEach( detectorPanelNode => detectorPanelNode.updateLayout() );
   }

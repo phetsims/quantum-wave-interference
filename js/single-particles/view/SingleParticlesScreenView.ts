@@ -64,6 +64,13 @@ const WAVE_REGION_Y_OFFSET = -30;
 const EMITTER_WAVE_REGION_OVERLAP = 2;
 const MAX_HITS_REACHED_PANEL_SPACING = 10;
 
+/**
+ * Complete agent-facing accessibility snapshot for the Single Particles screen. Returned by getAccessibleViewState()
+ * and consumed by screen-reader agents to describe the full simulation state in a single structured object.
+ * Notable units: wavelengthNM is in nanometres, particleSpeedMetersPerSecond and effectiveWavelengthMeters are in SI,
+ * slitSeparationMM is in millimetres, and screenBrightnessPercent is a 0–100 integer.
+ * detectionMode is always 'hits' on this screen (no wave-intensity mode).
+ */
 type SingleParticlesAccessibleViewState = {
   sourceType: string;
   isPlaying: boolean;

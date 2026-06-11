@@ -9,6 +9,7 @@
 
 import Shape from '../../../../kite/js/Shape.js';
 
+// A 2D point in the coordinate frame of the scenery scene graph, used to specify polygon corner positions.
 export type Vertex = { x: number; y: number };
 
 export default class RoundedPolygonShape extends Shape {

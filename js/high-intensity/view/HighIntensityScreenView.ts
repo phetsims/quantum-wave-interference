@@ -63,8 +63,14 @@ import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCallout
 
 type SelfOptions = EmptySelfOptions;
 
+/**
+ * Options for HighIntensityScreenView. Currently adds no screen-specific options beyond ScreenViewOptions;
+ * exported so that HighIntensityScreen can pass a typed options object when constructing the view.
+ */
 export type HighIntensityScreenViewOptions = SelfOptions & ScreenViewOptions;
 
+// Return-value struct for createAndAddSourceControls, bundling the constructed nodes and their
+// measured layout values so downstream setup steps can position relative to the left column.
 type SourceControlNodes = {
   sourceControlPanel: SourceControlPanel<HighIntensitySceneModel>;
   sceneRadioButtonGroup: SceneRadioButtonGroup<HighIntensitySceneModel>;
@@ -73,6 +79,8 @@ type SourceControlNodes = {
   leftColumnCenterX: number;
 };
 
+// Precomputed pixel coordinates for the central wave region, shared across the source beam callout,
+// wave area, slit controls, graph layer, and measurement tools.
 type WaveRegionLayout = {
   waveRegionLeft: number;
   waveRegionTop: number;
@@ -80,12 +88,16 @@ type WaveRegionLayout = {
   slitControlsBottom: number;
 };
 
+// Return-value struct for createAndAddWaveRegionNodes, giving callers typed access to the three
+// nodes that are retained as instance fields or forwarded to other setup methods.
 type WaveRegionNodes = {
   detectorScreenNode: DetectorScreenNode;
   doubleSlitNode: DoubleSlitNode;
   waveVisualizationNode: WaveVisualizationNode;
 };
 
+// Return-value struct for createAndAddMeasurementTools, giving callers typed access to the layer
+// and the two plot nodes that are retained as instance fields.
 type MeasurementToolNodes = {
   measurementToolsNode: MeasurementToolsLayerNode;
   timePlotNode: TimePlotNode;
@@ -112,6 +124,14 @@ function getPatternKind( slitConfiguration: SlitConfigurationWithNoBarrier ): Qu
          'singleSlitDiffraction';
 }
 
+/**
+ * Derives the current detector-pattern formation stage from the scene and model state.
+ *
+ * In 'hits' detection mode the stage is always 'collectingHits' once any hits have registered or the emitter is on,
+ * regardless of simulation play/pause. In 'averageIntensity' mode the stage tracks the detectorPatternFormationFactor:
+ * 'empty' when nothing is emitting, 'paused' when paused mid-formation, 'forming' while the pattern is building,
+ * and 'complete' once the factor reaches DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD.
+ */
 function getPatternFormation( scene: HighIntensitySceneModel, model: HighIntensityModel ): QuantumWaveInterferencePatternFormation {
   if ( scene.detectionModeProperty.value === 'hits' ) {
     return scene.totalHitsProperty.value > 0 ? 'collectingHits' :
@@ -153,6 +173,19 @@ function getWaveSpeedDescription( scene: HighIntensitySceneModel ): QuantumWaveI
          'medium';
 }
 
+/**
+ * Computes the current wavefront propagation state for accessibility descriptions.
+ *
+ * When the emitter is off, all progress fields are reset to their initial values. When emitting, the wavefront
+ * position is estimated from the solver's display propagation speed and the elapsed time since the source turned on.
+ * That position drives the boolean milestone flags (hasReachedSlits, hasPassedSlits, hasReachedScreen), a
+ * coarse checkpoint bucket (none/quarter/half/threeQuarters/full), and a semantic stage label that reflects the
+ * pattern kind (e.g. 'interferingAfterSlits' for double-slit, 'whichPathAfterSlits' for which-path detectors).
+ *
+ * @param scene - the active scene whose wave solver, slit geometry, and emission state are read
+ * @param patternKind - the current pattern kind, used to select the correct post-slit stage label
+ * @returns the complete wave-progress snapshot for the current simulation frame
+ */
 const getWaveProgress = (
   scene: HighIntensitySceneModel,
   patternKind: QuantumWaveInterferencePatternKind
@@ -782,7 +815,7 @@ export default class HighIntensityScreenView extends ScreenView {
    * @param bottomRow - slit controls included in the slit description
    * @param doubleSlitNode - slit-position slider included in the slit description
    * @param detectorScreenControls - detector controls included in the detector-screen description
-   * @param getAccessibleViewState
+   * @param getAccessibleViewState - factory that snapshots the current accessible view state for dynamic descriptions
    * @returns the description node used for PDOM order
    */
   private createAndAddScreenViewDescription(

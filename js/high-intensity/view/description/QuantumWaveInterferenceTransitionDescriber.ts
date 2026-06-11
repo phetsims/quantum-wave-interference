@@ -10,6 +10,13 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
 import { type HighIntensityAccessibleViewState, type QuantumWaveInterferenceValueTrend } from './HighIntensityAccessibleViewState.js';
 import { formatDetectorDescription, formatSourceBeamDescription, toFluentBoolean } from './QuantumWaveInterferenceAccessibleStateFormatters.js';
 
+/**
+ * Discriminated union identifying which High Intensity model property changed.
+ * Passed to QuantumWaveInterferenceTransitionDescriber.describe() together with the before/after
+ * accessible view state snapshots so the describer can produce a semantically appropriate response.
+ * The 'toolChanged' variant carries the specific tool name so the describer knows which tool's
+ * visibility to inspect.
+ */
 export type QuantumWaveInterferenceTransitionAction =
   { type: 'sourceChanged' } |
   { type: 'particleTypeChanged' } |
@@ -31,6 +38,18 @@ export type QuantumWaveInterferenceTransitionAction =
   { type: 'maxHitsReached' } |
   { type: 'reset' };
 
+/**
+ * Ordered response instructions produced by QuantumWaveInterferenceTransitionDescriber.describe().
+ * Consumed by HighIntensityAccessibleResponses.emitResponsePlan(), which iterates contextResponses
+ * in order and applies the grouping and flush semantics:
+ *
+ * - contextResponses: localized strings to announce in sequence; may be empty (no audible response).
+ * - responseGroup: when non-null, responses share this group key so a new alert self-interrupts the
+ *   previous one from the same group (used for incremental parameter changes). Null for source-start/
+ *   source-restart transitions that should never be interrupted.
+ * - flushBeforeResponses: when true, the speech queue is flushed before the first response is queued,
+ *   discarding stale alerts from prior interactions.
+ */
 export type QuantumWaveInterferenceResponsePlan = {
   contextResponses: string[];
   responseGroup: string | null;
@@ -47,6 +66,24 @@ function getTrend( before: number, after: number ): QuantumWaveInterferenceValue
 
 export default class QuantumWaveInterferenceTransitionDescriber {
 
+  /**
+   * Maps a semantic transition action and the before/after accessible view state snapshots to an ordered
+   * response plan for the High Intensity screen.
+   *
+   * The method selects the appropriate Fluent message(s) for the action type, decides whether the responses
+   * should interrupt prior speech (flushBeforeResponses=true) and whether they belong to a self-interrupting
+   * response group. Source-start and source-restart transitions set flushBeforeResponses=true and clear the
+   * response group so they always interrupt stale queued alerts. Parameter changes that restart the wave
+   * (slit configuration, slit separation, wavelength, speed) use applySourceRestartingPlan() to mirror this
+   * behavior when the source is emitting.
+   *
+   * Called by HighIntensityAccessibleResponses whenever a meaningful model transition is detected.
+   *
+   * @param action - which model property changed (see QuantumWaveInterferenceTransitionAction)
+   * @param before - accessible view state snapshot taken before the change
+   * @param after - accessible view state snapshot taken after the change
+   * @returns ordered response plan ready for emission via HighIntensityAccessibleResponses.emitResponsePlan()
+   */
   public static describe(
     action: QuantumWaveInterferenceTransitionAction,
     before: HighIntensityAccessibleViewState,

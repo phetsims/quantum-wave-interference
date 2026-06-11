@@ -17,6 +17,7 @@ import SlitControlPanel from './SlitControlPanel.js';
 
 export default class ExperimentSlitColumnNode extends Node {
 
+  // Public so the parent ScreenView can adjust its vertical position and pass it to the PDOM description layer.
   public readonly slitControlPanel: SlitControlPanel;
 
   private readonly frontFacingSlitNodes: FrontFacingSlitNode[];
@@ -58,6 +59,11 @@ export default class ExperimentSlitColumnNode extends Node {
     frontFacingSlitToggleNode.moveToFront();
   }
 
+  /**
+   * Centers the slit column on the given x coordinate. Repositions every front-facing slit node and the slit
+   * control panel so the entire column shares the same horizontal midpoint. Called once during layout in
+   * ExperimentScreenView after the left- and right-column bounds are known.
+   */
   public setColumnCenterX( centerX: number ): void {
     this.frontFacingSlitNodes.forEach( slitNode => {
       slitNode.setViewCenterX( centerX );

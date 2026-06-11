@@ -18,18 +18,24 @@ import { type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValu
 import CurrentDetectorTool from './CurrentDetectorTool.js';
 import SingleParticlesSceneModel from './SingleParticlesSceneModel.js';
 
+// Single Particles uses slower continuous-wave motion than High Intensity so individual packet travel is visible at
+// normal speed. The fast factor is much larger (8×) to let users skip ahead without losing packet-scale detail.
 const NORMAL_TIME_SPEED_FACTOR = 0.7;
 const FAST_TIME_SPEED_FACTOR = 8;
 
+// Only the tandem is required; all other PhetioObjectOptions use defaults supplied by BaseScreenModel.
 type SingleParticlesModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class SingleParticlesModel extends BaseScreenModel<SingleParticlesSceneModel> {
 
   private readonly photonsScene: SingleParticlesSceneModel;
 
-  // DynamicProperties specific to this screen
+  // Bidirectional DynamicProperties that proxy the active scene's corresponding Properties. Writing through these
+  // propagates to the currently selected scene; reading always reflects the active scene's value.
   public readonly currentSlitConfigurationProperty: DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, SingleParticlesSceneModel>;
   public readonly currentAutoRepeatProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
+
+  // Read-only proxy: true while the active scene has a particle packet in flight.
   public readonly currentIsPacketActiveProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
   public readonly currentDetectorTool: CurrentDetectorTool;
 
@@ -90,10 +96,18 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
 
   }
 
+  /**
+   * Delegates snapshot capture to the active scene's single-particles snapshot method, which records the current
+   * hit-pattern data. Called by the view's snapshot button handler.
+   */
   public override takeSnapshot(): void {
     this.sceneProperty.value.takeSingleParticlesSnapshot();
   }
 
+  /**
+   * Resets the hits-graph visibility and detector tool visibility. Called during reset() after shared tool Properties
+   * have been reset.
+   */
   protected override resetToolVisibility(): void {
     this.isHitsGraphVisibleProperty.reset();
     this.currentDetectorTool.isVisibleProperty.reset();

@@ -16,6 +16,9 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../model/DetectorScreenScale.js';
 
+// Preferred scale bar width in mm. When the visible detector width is at least this value, the scale bar spans
+// exactly this distance. If the screen is zoomed in so its full visible width is narrower than this threshold,
+// the scale bar falls back to one quarter of the visible width so it always fits legibly on screen.
 const TARGET_SCALE_WIDTH_MM = 5;
 const SPAN_TICK_LENGTH = 8;
 const DEFAULT_SPAN_ARROW_Y = -10;
@@ -36,6 +39,12 @@ function getScaleLabelDecimalPlaces( valueMM: number ): number {
 
 export default class DetectorScreenScaleIndicatorNode extends Node {
 
+  /**
+   * @param detectorScreenScaleIndexProperty - index into DETECTOR_SCREEN_SCALE_OPTIONS; controls the visible mm range
+   * @param detectorScreenWidth - width of the detector screen canvas in view (pixel) coordinates; used to convert
+   *   physical mm distances to pixel lengths for the span arrow
+   * @param spanArrowY - vertical position of the span arrow in the local coordinate frame (view pixels, negative is up)
+   */
   public constructor(
     detectorScreenScaleIndexProperty: TReadOnlyProperty<number>,
     detectorScreenWidth: number,

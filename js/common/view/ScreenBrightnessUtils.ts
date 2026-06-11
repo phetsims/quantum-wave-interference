@@ -14,6 +14,10 @@ import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 
+/**
+ * Integer (0–255) red/green/blue color triple, used throughout the detector-screen rendering pipeline
+ * to pass colors without allocating Color objects on the hot path.
+ */
 export type RGB = { r: number; g: number; b: number };
 
 // Below this intensity threshold, a band is considered perceptually invisible and is rendered as the background color.
@@ -214,7 +218,9 @@ export function sampleSmoothedIntensityDistribution(
 }
 
 /**
- * Interpolates between two RGB colors and returns integer RGB components.
+ * Interpolates between two RGB colors and returns integer (0–255) RGB components.
+ * If `result` is provided it is mutated in place and returned, avoiding allocation on the N² rendering hot path.
+ * Values below PERCEPTUAL_VISIBILITY_THRESHOLD are clamped to startRGB rather than interpolated.
  */
 export function getInterpolatedRGB(
   startRGB: RGB,
