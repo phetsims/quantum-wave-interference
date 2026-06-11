@@ -220,11 +220,15 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
    * and packet re-emission state.
    *
    * @param includeDecoherenceEvents - Whether decoherence events should be included in the parameters.
+   * @param projections - Measurement projections to include, or the solver's active projections by default.
    * @returns Parameters to pass to the analytical wave kernel.
    */
-  protected override createKernelParameters( includeDecoherenceEvents = true ): AnalyticalWaveParameters {
+  protected override createKernelParameters(
+    includeDecoherenceEvents = true,
+    projections: MeasurementProjection[] = this.measurementProjections
+  ): AnalyticalWaveParameters {
     const parameters = super.createKernelParameters( includeDecoherenceEvents );
-    parameters.projections = this.measurementProjections;
+    parameters.projections = projections;
     parameters.packetReEmission = this.packetReEmission;
 
     return parameters;
@@ -279,8 +283,8 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
       return;
     }
 
-    const unprojectedParameters = this.createKernelParametersWithProjections( [] );
-    const projectedParameters = this.createKernelParametersWithProjections( this.measurementProjections );
+    const unprojectedParameters = this.createKernelParameters( true, [] );
+    const projectedParameters = this.createKernelParameters();
     let unprojectedTotal = 0;
     let projectedTotal = 0;
 
@@ -296,20 +300,6 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
     lastActiveProjection.renormScale = projectedTotal > EPSILON && unprojectedTotal > EPSILON ?
                                        Math.sqrt( unprojectedTotal / projectedTotal ) :
                                        1;
-  }
-
-  /**
-   * Creates kernel parameters that use a caller-provided projection list instead of the solver's active projections.
-   *
-   * @param projections - Measurement projections to include in the returned parameters.
-   * @returns Analytical-kernel parameters with the supplied projection list.
-   *
-   * TODO: Want to make projections optional in createKernelParameters? Or is this better, see https://github.com/phetsims/quantum-wave-interference/issues/135
-   */
-  private createKernelParametersWithProjections( projections: MeasurementProjection[] ): AnalyticalWaveParameters {
-    const parameters = this.createKernelParameters();
-    parameters.projections = projections;
-    return parameters;
   }
 
   /**
