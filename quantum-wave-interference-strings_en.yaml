@@ -80,9 +80,10 @@ a11y:
     playArea:                >-
                              A highly configurable three-part experimental setup includes a particle source emitter,
                              double-slit barrier, and detector screen. When experiment is running, particles pass through
-                             available slits in barrier to land on detector screen and build patterns. You can choose and
-                             adjust source particles, configure slits in barrier, observe and take snapshots of resulting
-                             patterns on detector screen.
+                             available slits in barrier to land on detector screen and form patterns. You can choose and
+                             adjust source particles, configure slitted barrier, and observe and take snapshots of
+                             resulting patterns on detector screen. Additionally, a graph of detector screen data can be
+                             shown.
     playAreaHighIntensity:   >-
                              A zoomed-in wave area shows a particle source, double-slit barrier, and detector screen.
                              When the source is on, waves travel through available slits and build a pattern on the

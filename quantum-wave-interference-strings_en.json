@@ -218,7 +218,7 @@
   "a11y": {
     "screenSummary": {
       "playArea": {
-        "value": "A highly configurable three-part experimental setup includes a particle source emitter, double-slit barrier, and detector screen. When experiment is running, particles pass through available slits in barrier to land on detector screen and build patterns. You can choose and adjust source particles, configure slits in barrier, observe and take snapshots of resulting patterns on detector screen."
+        "value": "A highly configurable three-part experimental setup includes a particle source emitter, double-slit barrier, and detector screen. When experiment is running, particles pass through available slits in barrier to land on detector screen and form patterns. You can choose and adjust source particles, configure slitted barrier, and observe and take snapshots of resulting patterns on detector screen. Additionally, a graph of detector screen data can be shown."
       },
       "playAreaHighIntensity": {
         "value": "A zoomed-in wave area shows a particle source, double-slit barrier, and detector screen. When the source is on, waves travel through available slits and build a pattern on the detector screen. You can change particle type, slit configuration, wave display, detector view, and measurement tools."
