@@ -24,6 +24,7 @@ const LABEL_FONT = new PhetFont( 14 );
 export default class BrightnessControl extends VBox {
 
   public constructor( screenBrightnessProperty: PhetioProperty<number>, tandem: Tandem ) {
+    const brightnessControlTandem = tandem.createTandem( 'brightnessControl' );
     const brightnessLabel = new Text( QuantumWaveInterferenceFluent.screenBrightnessStringProperty, {
       font: LABEL_FONT,
       maxWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH
@@ -41,7 +42,8 @@ export default class BrightnessControl extends VBox {
       accessibleName: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleHelpTextStringProperty,
       layoutOptions: { stretch: true },
-      tandem: tandem.createTandem( 'brightnessSlider' )
+      tandem: brightnessControlTandem.createTandem( 'slider' ),
+      phetioVisiblePropertyInstrumented: false
     } );
 
     super( {
@@ -49,7 +51,9 @@ export default class BrightnessControl extends VBox {
       stretch: true,
       align: 'center',
       layoutOptions: { stretch: true },
-      children: [ brightnessLabel, brightnessSlider ]
+      children: [ brightnessLabel, brightnessSlider ],
+      tandem: brightnessControlTandem,
+      visiblePropertyOptions: { phetioFeatured: true }
     } );
   }
 }

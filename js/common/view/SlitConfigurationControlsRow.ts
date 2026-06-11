@@ -40,13 +40,15 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
     tandem: Tandem,
     accessibleContextResponse?: TAlertable
   ) {
+    const slitConfigurationControlTandem = tandem.createTandem( 'slitConfigurationControl' );
     const slitConfigTitle = new Text( QuantumWaveInterferenceFluent.slitConfigurationStringProperty, {
       font: TITLE_FONT,
       maxWidth: 150
     } );
 
     const slitConfigurationComboBox = new ComboBox( slitConfigurationProperty, slitConfigItems, listParent, {
-      tandem: tandem.createTandem( 'slitConfigurationComboBox' ),
+      tandem: slitConfigurationControlTandem.createTandem( 'comboBox' ),
+      phetioVisiblePropertyInstrumented: false,
       xMargin: 10,
       yMargin: 6,
       listPosition: 'above',
@@ -58,7 +60,9 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
     const slitConfigSection = new VBox( {
       spacing: 6,
       align: 'left',
-      children: [ slitConfigTitle, slitConfigurationComboBox ]
+      children: [ slitConfigTitle, slitConfigurationComboBox ],
+      tandem: slitConfigurationControlTandem,
+      visiblePropertyOptions: { phetioFeatured: true }
     } );
 
     const slitSeparationNodes: Node[] = scenes.map( scene =>

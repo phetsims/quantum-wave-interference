@@ -102,9 +102,20 @@ export default class SceneRadioButtonGroup<T extends HasSourceType> extends Rect
    */
   public constructor( sceneProperty: Property<T>, scenes: T[], tandem: Tandem, options?: SceneRadioButtonGroupOptions<T> ) {
 
+    const labels: AlignBox[] = [];
     const items: RectangularRadioButtonGroupItem<T>[] = scenes.map( scene => {
       const sourceType = scene.sourceType;
       const stringProperty = SOURCE_TYPE_STRING_PROPERTIES[ sourceType ];
+      const label = new AlignBox( new Text( stringProperty, {
+        font: LABEL_FONT,
+        maxWidth: LABEL_WIDTH
+      } ), {
+        xAlign: 'center',
+        yAlign: 'center',
+        preferredWidth: LABEL_WIDTH,
+        preferredHeight: LABEL_HEIGHT
+      } );
+      labels.push( label );
 
       return {
         value: scene,
@@ -123,15 +134,7 @@ export default class SceneRadioButtonGroup<T extends HasSourceType> extends Rect
 
           return iconSlotNode;
         },
-        label: new AlignBox( new Text( stringProperty, {
-          font: LABEL_FONT,
-          maxWidth: LABEL_WIDTH
-        } ), {
-          xAlign: 'center',
-          yAlign: 'center',
-          preferredWidth: LABEL_WIDTH,
-          preferredHeight: LABEL_HEIGHT
-        } ),
+        label: label,
         tandemName: `${sourceType}RadioButton`,
         options: {
           accessibleContextResponse: options?.createAccessibleContextResponse ?
@@ -178,6 +181,10 @@ export default class SceneRadioButtonGroup<T extends HasSourceType> extends Rect
     scenes.forEach( ( scene, index ) => {
       const radioButton = this.getButtonForValue( scene );
       const layoutNode = this.children[ index ];
+
+      // The label is outside the radio button, so it must explicitly follow the button's PhET-iO visibility.
+      labels[ index ].visibleProperty = radioButton.visibleProperty;
+
       const pointerBounds = layoutNode.localBounds.dilatedXY(
         GRID_HORIZONTAL_SPACING / 2,
         GRID_VERTICAL_SPACING / 2

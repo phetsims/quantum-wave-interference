@@ -8,6 +8,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
@@ -96,6 +98,7 @@ export default class ScreenSettingsPanel extends Panel {
     } );
 
     // Screen brightness slider
+    const brightnessControlTandem = options.tandem.createTandem( 'brightnessControl' );
     const brightnessLabel = new Text( QuantumWaveInterferenceFluent.screenBrightnessStringProperty, {
       font: TITLE_FONT,
       maxWidth: 140
@@ -118,11 +121,14 @@ export default class ScreenSettingsPanel extends Panel {
       ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleHelpTextStringProperty,
-      tandem: options.tandem.createTandem( 'brightnessSlider' )
+      tandem: brightnessControlTandem.createTandem( 'slider' ),
+      phetioVisiblePropertyInstrumented: false
     } );
     const brightnessControl = new VBox( {
       spacing: 2,
-      children: [ brightnessLabel, brightnessSlider ]
+      children: [ brightnessLabel, brightnessSlider ],
+      tandem: brightnessControlTandem,
+      visiblePropertyOptions: { phetioFeatured: true }
     } );
 
     const content = new HBox( {
@@ -130,6 +136,16 @@ export default class ScreenSettingsPanel extends Panel {
       align: 'center',
       children: [ detectionModeRadioButtonGroup, brightnessControl ]
     } );
+
+    const visibleProperty = new BooleanProperty( true, {
+      tandem: options.tandem.createTandem( 'visibleProperty' ),
+      phetioDocumentation: 'Controls whether the screen settings panel is allowed to be visible. ' +
+                           'The panel is automatically hidden when all of its controls are hidden.'
+    } );
+    options.visibleProperty = DerivedProperty.and( [
+      visibleProperty,
+      DerivedProperty.or( [ detectionModeRadioButtonGroup.visibleProperty, brightnessControl.visibleProperty ] )
+    ] );
 
     super( content, options );
   }

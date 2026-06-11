@@ -11,7 +11,10 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
@@ -38,6 +41,11 @@ type SelfOptions = EmptySelfOptions;
 
 // tandem is required so each scene's child controls are properly instrumented for PhET-iO.
 type SlitControlPanelOptions = SelfOptions & PickRequired<PanelOptions, 'tandem'>;
+
+type SceneContent = {
+  node: Node;
+  hasVisibleContentProperty: TReadOnlyProperty<boolean>;
+};
 
 export default class SlitControlPanel extends Panel {
 
@@ -69,19 +77,30 @@ export default class SlitControlPanel extends Panel {
     );
 
     // Create the content for each scene (different NumberControl ranges per scene), swap visibility.
-    const sceneNodes: Node[] = [];
-
-    for ( const scene of scenes ) {
-      const sceneContent = SlitControlPanel.createSceneContent( scene, comboBoxParent, sceneTandems.get( scene )! );
-      sceneNodes.push( sceneContent );
-    }
+    const sceneContents = scenes.map( scene =>
+      SlitControlPanel.createSceneContent( scene, comboBoxParent, sceneTandems.get( scene )! )
+    );
 
     const contentNode = new ToggleNode( sceneProperty, scenes.map( ( scene, index ) => ( {
       value: scene,
-      createNode: () => sceneNodes[ index ]
+      createNode: () => sceneContents[ index ].node
     } ) ), {
       unselectedChildrenSceneGraphStrategy: 'excluded'
     } );
+
+    const hasVisibleContentProperty = DerivedProperty.deriveAny(
+      [ sceneProperty, ...sceneContents.map( sceneContent => sceneContent.hasVisibleContentProperty ) ],
+      () => {
+        const sceneIndex = scenes.indexOf( sceneProperty.value );
+        return sceneContents[ sceneIndex ].hasVisibleContentProperty.value;
+      }
+    );
+    const visibleProperty = new BooleanProperty( true, {
+      tandem: options.tandem.createTandem( 'visibleProperty' ),
+      phetioDocumentation: 'Controls whether the slit control panel is allowed to be visible. ' +
+                           'The panel is automatically hidden when all controls for the active scene are hidden.'
+    } );
+    options.visibleProperty = DerivedProperty.and( [ visibleProperty, hasVisibleContentProperty ] );
 
     super( contentNode, options );
   }
@@ -93,7 +112,7 @@ export default class SlitControlPanel extends Panel {
     scene: SceneModel,
     comboBoxParent: Node,
     tandem: SlitControlPanelOptions['tandem']
-  ): Node {
+  ): SceneContent {
     const slitSeparationControl = new SlitSeparationControl( scene.slitSeparationProperty, scene.slitSeparationRange, scene.sourceType, {
       tandem: tandem.createTandem( 'slitSeparationControl' )
     } );
@@ -118,11 +137,18 @@ export default class SlitControlPanel extends Panel {
       visibleProperty: slitSettingsComboBox.visibleProperty
     } );
 
-    return new VBox( {
-      spacing: PANEL_CONTENT_SPACING,
-      align: 'center',
-      children: [ slitSeparationControl, screenDistanceControl, slitSettingsSection ]
-    } );
+    return {
+      node: new VBox( {
+        spacing: PANEL_CONTENT_SPACING,
+        align: 'center',
+        children: [ slitSeparationControl, screenDistanceControl, slitSettingsSection ]
+      } ),
+      hasVisibleContentProperty: DerivedProperty.or( [
+        slitSeparationControl.visibleProperty,
+        screenDistanceControl.visibleProperty,
+        slitSettingsComboBox.visibleProperty
+      ] )
+    };
   }
 
 }

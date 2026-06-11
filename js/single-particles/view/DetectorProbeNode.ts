@@ -220,7 +220,8 @@ export default class DetectorProbeNode extends Node {
     const sizeControl = new VBox( {
       children: [ sizeLabel, sizeSlider ],
       spacing: 4,
-      align: 'center'
+      align: 'center',
+      visibleProperty: sizeSlider.visibleProperty
     } );
 
     const panelContent = new HBox( {
@@ -234,7 +235,8 @@ export default class DetectorProbeNode extends Node {
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
       xMargin: 10,
       yMargin: 8,
-      cornerRadius: 6
+      cornerRadius: 6,
+      visibleProperty: DerivedProperty.or( [ detectButton.visibleProperty, sizeControl.visibleProperty ] )
     } );
     this.addChild( controlPanel );
 

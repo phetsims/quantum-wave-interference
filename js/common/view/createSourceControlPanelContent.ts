@@ -8,6 +8,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
@@ -31,6 +32,7 @@ type SceneControlContent = {
 // Return value of createSourceControlPanelContent: a toggle node that swaps between scenes.
 type SourceControlPanelContent = {
   contentNode: Node;
+  hasVisibleContentProperty: TReadOnlyProperty<boolean>;
 };
 
 /**
@@ -43,7 +45,8 @@ type SourceControlPanelContent = {
  *   PhET-iO instruments each scene's controls under a distinct path; falls back to tandem when null or missing
  * @param photonIntensityLabelStringProperty - label for the intensity slider shown in photon scenes
  * @param particleIntensityLabelStringProperty - label for the emission-rate slider shown in particle scenes
- * @returns contentNode - a ToggleNode that shows only the active scene's controls
+ * @returns contentNode - a ToggleNode that shows only the active scene's controls;
+ *          hasVisibleContentProperty - whether the active scene has at least one visible source control
  */
 export default function createSourceControlPanelContent<T extends SourceControlScene>(
   sceneProperty: Property<T>,
@@ -72,8 +75,12 @@ export default function createSourceControlPanelContent<T extends SourceControlS
   );
 
   const maxSceneWidth = Math.max( ...sceneContentNodes.map( sceneContent => sceneContent.width ) );
+  const sceneHasVisibleContentProperties = sceneControlContents.map( sceneControls => DerivedProperty.or( [
+    sceneControls.topControl.visibleProperty,
+    ...( sceneControls.bottomControl ? [ sceneControls.bottomControl.visibleProperty ] : [] )
+  ] ) );
 
-  // Preserve width-only bounds when all controls are hidden so the Panel still renders its horizontal margins.
+  // Preserve width-only bounds so the panel width remains stable while at least one control is visible.
   const sceneNodes = sceneContentNodes.map( sceneContent => {
     const widthStrut = new HStrut( maxSceneWidth );
     sceneContent.centerX = widthStrut.centerX;
@@ -83,13 +90,24 @@ export default function createSourceControlPanelContent<T extends SourceControlS
     } );
   } );
 
+  const contentNode = new ToggleNode( sceneProperty, scenes.map( ( scene, index ) => ( {
+    value: scene,
+    createNode: () => sceneNodes[ index ]
+  } ) ), {
+    unselectedChildrenSceneGraphStrategy: 'excluded'
+  } );
+
+  const hasVisibleContentProperty = DerivedProperty.deriveAny(
+    [ sceneProperty, ...sceneHasVisibleContentProperties ],
+    () => {
+      const sceneIndex = scenes.indexOf( sceneProperty.value );
+      return sceneHasVisibleContentProperties[ sceneIndex ].value;
+    }
+  );
+
   return {
-    contentNode: new ToggleNode( sceneProperty, scenes.map( ( scene, index ) => ( {
-      value: scene,
-      createNode: () => sceneNodes[ index ]
-    } ) ), {
-      unselectedChildrenSceneGraphStrategy: 'excluded'
-    } )
+    contentNode: contentNode,
+    hasVisibleContentProperty: hasVisibleContentProperty
   };
 }
 

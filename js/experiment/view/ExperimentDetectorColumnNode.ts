@@ -95,6 +95,7 @@ export default class ExperimentDetectorColumnNode extends Node {
       this.layoutScreenSettingsPanel();
       this.layoutGraphAccordionBoxes();
     } );
+    this.screenSettingsPanel.visibleProperty.link( () => this.layoutGraphAccordionBoxes() );
     this.graphAccordionBoxes.forEach( graphBox => {
       graphBox.localBoundsProperty.link( () => this.layoutGraphAccordionBoxes() );
     } );
@@ -157,7 +158,9 @@ export default class ExperimentDetectorColumnNode extends Node {
   private layoutGraphAccordionBoxes(): void {
     this.graphAccordionBoxes.forEach( graphBox => {
       graphBox.x = this.detectorScreenCenterX - graphBox.getChartAreaLocalBounds().centerX;
-      graphBox.top = this.screenSettingsPanel.bottom + 8;
+      graphBox.top = ( this.screenSettingsPanel.visible ?
+                       this.screenSettingsPanel.bottom :
+                       this.detectorScreenNodes[ 0 ].bottom ) + 8;
     } );
   }
 }

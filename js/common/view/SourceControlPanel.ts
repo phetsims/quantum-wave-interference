@@ -18,6 +18,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import optionize from '../../../../phet-core/js/optionize.js';
@@ -95,6 +97,19 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
                            children: [ sourceContent.contentNode, options.additionalContent ]
                          } ) :
                          sourceContent.contentNode;
+
+    const visibleProperty = new BooleanProperty( true, {
+      tandem: options.tandem.createTandem( 'visibleProperty' ),
+      phetioDocumentation: 'Controls whether the source control panel is allowed to be visible. ' +
+                           'The panel is automatically hidden when all controls for the active scene are hidden.'
+    } );
+    const hasVisibleContentProperty = options.additionalContent ?
+                                      DerivedProperty.or( [
+                                        sourceContent.hasVisibleContentProperty,
+                                        options.additionalContent.visibleProperty
+                                      ] ) :
+                                      sourceContent.hasVisibleContentProperty;
+    options.visibleProperty = DerivedProperty.and( [ visibleProperty, hasVisibleContentProperty ] );
 
     super( panelContent, options );
   }

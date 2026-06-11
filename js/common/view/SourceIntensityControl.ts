@@ -47,6 +47,7 @@ export default class SourceIntensityControl extends VBox {
     intensityLabelStringProperty: TReadOnlyProperty<string>,
     tandem: Tandem
   ) {
+    const intensityControlTandem = tandem.createTandem( 'intensityControl' );
     const intensitySlider = new HSlider( intensityProperty, intensityProperty.range, {
       trackSize: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SOURCE_CONTROL_SLIDER_TRACK_HEIGHT ),
       thumbSize: new Dimension2( 13, 22 ),
@@ -63,7 +64,8 @@ export default class SourceIntensityControl extends VBox {
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleHelpText.createProperty( {
         sourceType: sourceType
       } ),
-      tandem: tandem.createTandem( 'intensitySlider' )
+      tandem: intensityControlTandem.createTandem( 'slider' ),
+      phetioVisiblePropertyInstrumented: false
     } );
 
     intensitySlider.addMajorTick( 0, new Text( '0', { font: SOURCE_CONTROL_TICK_LABEL_FONT } ) );
@@ -90,7 +92,8 @@ export default class SourceIntensityControl extends VBox {
                SOURCE_CONTROL_PHOTON_INTENSITY_LABEL_SPACING :
                SOURCE_CONTROL_PARTICLE_INTENSITY_LABEL_SPACING,
       children: [ intensityLabel, intensitySlider ],
-      visibleProperty: intensitySlider.visibleProperty
+      tandem: intensityControlTandem,
+      visiblePropertyOptions: { phetioFeatured: true }
     } );
   }
 }

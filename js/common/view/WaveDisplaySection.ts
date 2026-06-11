@@ -19,6 +19,7 @@ import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import ComboBox, { ComboBoxItem } from '../../../../sun/js/ComboBox.js';
+import ToggleNode from '../../../../sun/js/ToggleNode.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../model/WaveDisplayMode.js';
@@ -55,17 +56,6 @@ export default class WaveDisplaySection extends VBox {
       scene => scene.sourceType === 'photons'
     );
 
-    const waveDisplayTitleProperty = new DerivedProperty(
-      [ isPhotonsProperty, QuantumWaveInterferenceFluent.waveDisplayStringProperty, QuantumWaveInterferenceFluent.waveFunctionDisplayStringProperty ],
-      ( isPhotons, waveDisplay, waveFunctionDisplay ) =>
-        isPhotons ? waveDisplay : waveFunctionDisplay
-    );
-
-    const waveDisplayTitle = new Text( waveDisplayTitleProperty, {
-      font: TITLE_FONT,
-      maxWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH
-    } );
-
     const createComboBoxText = ( stringProperty: TReadOnlyProperty<string> ) => new Text( stringProperty, {
       font: COMBO_BOX_FONT,
       maxWidth: COMBO_BOX_ITEM_TEXT_MAX_WIDTH
@@ -78,6 +68,7 @@ export default class WaveDisplaySection extends VBox {
       { value: 'amplitude', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.amplitudeStringProperty ), tandemName: 'amplitudeItem' }
     ];
 
+    const photonWaveDisplayControlTandem = tandem.createTandem( 'photonWaveDisplayControl' );
     const photonWaveDisplayComboBox = new ComboBox(
       model.currentPhotonWaveDisplayModeProperty,
       photonWaveDisplayItems,
@@ -85,7 +76,8 @@ export default class WaveDisplaySection extends VBox {
       {
         accessibleName: QuantumWaveInterferenceFluent.waveDisplayStringProperty,
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.photonWaveDisplayComboBox.accessibleHelpTextStringProperty,
-        tandem: tandem.createTandem( 'photonWaveDisplayComboBox' ),
+        tandem: photonWaveDisplayControlTandem.createTandem( 'comboBox' ),
+        phetioVisiblePropertyInstrumented: false,
 
         // Unfeatured to match currentPhotonWaveDisplayModeProperty. Clients observe the mode through the featured
         // currentWaveDisplayModeProperty instead.
@@ -97,6 +89,20 @@ export default class WaveDisplaySection extends VBox {
     affirm( photonWaveDisplayComboBox.width <= QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH + 1e-6,
       `photonWaveDisplayComboBox.width=${photonWaveDisplayComboBox.width} exceeds RIGHT_PANEL_WIDTH=${QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH}` );
 
+    const photonWaveDisplayControl = new VBox( {
+      spacing: 6,
+      align: 'center',
+      children: [
+        new Text( QuantumWaveInterferenceFluent.waveDisplayStringProperty, {
+          font: TITLE_FONT,
+          maxWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH
+        } ),
+        photonWaveDisplayComboBox
+      ],
+      tandem: photonWaveDisplayControlTandem,
+      visiblePropertyOptions: { phetioFeatured: true }
+    } );
+
     const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
       { value: 'realPart', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.realPartStringProperty ), tandemName: 'realPartItem' },
       { value: 'imaginaryPart', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.imaginaryPartStringProperty ), tandemName: 'imaginaryPartItem' },
@@ -105,13 +111,15 @@ export default class WaveDisplaySection extends VBox {
       { value: 'amplitude', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.amplitudeStringProperty ), tandemName: 'amplitudeItem' }
     ];
 
+    const matterWaveDisplayControlTandem = tandem.createTandem( 'matterWaveDisplayControl' );
     const matterWaveDisplayComboBox = new ComboBox(
       model.currentMatterWaveDisplayModeProperty,
       matterWaveDisplayItems,
       listParent,
       {
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.matterWaveDisplayComboBox.accessibleHelpTextStringProperty,
-        tandem: tandem.createTandem( 'matterWaveDisplayComboBox' ),
+        tandem: matterWaveDisplayControlTandem.createTandem( 'comboBox' ),
+        phetioVisiblePropertyInstrumented: false,
 
         // Unfeatured to match currentMatterWaveDisplayModeProperty. Clients observe the mode through the featured
         // currentWaveDisplayModeProperty instead.
@@ -123,29 +131,51 @@ export default class WaveDisplaySection extends VBox {
     affirm( matterWaveDisplayComboBox.width <= QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH + 1e-6,
       `matterWaveDisplayComboBox.width=${matterWaveDisplayComboBox.width} exceeds RIGHT_PANEL_WIDTH=${QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH}` );
 
-    // Center both alternate combo boxes in the same dynamic bounds so the visible one lines up with the time controls.
-    const comboBoxAlignGroup = new AlignGroup( { matchVertical: false } );
-    const photonWaveDisplayComboBoxBox = comboBoxAlignGroup.createBox( photonWaveDisplayComboBox, {
-      xAlign: 'center'
-    } );
-    const matterWaveDisplayComboBoxBox = comboBoxAlignGroup.createBox( matterWaveDisplayComboBox, {
-      xAlign: 'center'
+    const matterWaveDisplayControl = new VBox( {
+      spacing: 6,
+      align: 'center',
+      children: [
+        new Text( QuantumWaveInterferenceFluent.waveFunctionDisplayStringProperty, {
+          font: TITLE_FONT,
+          maxWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_WIDTH
+        } ),
+        matterWaveDisplayComboBox
+      ],
+      tandem: matterWaveDisplayControlTandem,
+      visiblePropertyOptions: { phetioFeatured: true }
     } );
 
-    isPhotonsProperty.link( isPhotons => {
-      photonWaveDisplayComboBox.visible = isPhotons;
-      matterWaveDisplayComboBox.visible = !isPhotons;
+    // Match the alternate controls' widths while allowing the selected control to collapse when hidden by a client.
+    const controlAlignGroup = new AlignGroup( { matchVertical: false } );
+    const photonWaveDisplayControlBox = controlAlignGroup.createBox( photonWaveDisplayControl, {
+      xAlign: 'center',
+      visibleProperty: photonWaveDisplayControl.visibleProperty
+    } );
+    const matterWaveDisplayControlBox = controlAlignGroup.createBox( matterWaveDisplayControl, {
+      xAlign: 'center',
+      visibleProperty: matterWaveDisplayControl.visibleProperty
     } );
 
-    const comboBoxContainer = new Node( {
-      children: [ photonWaveDisplayComboBoxBox, matterWaveDisplayComboBoxBox ],
-      excludeInvisibleChildrenFromBounds: false
+    // ToggleNode controls these wrappers, leaving each control's client-controlled visibleProperty untouched.
+    const photonWaveDisplaySceneNode = new Node( {
+      children: [ photonWaveDisplayControlBox ],
+      excludeInvisibleChildrenFromBounds: true
+    } );
+    const matterWaveDisplaySceneNode = new Node( {
+      children: [ matterWaveDisplayControlBox ],
+      excludeInvisibleChildrenFromBounds: true
+    } );
+
+    const controlToggleNode = new ToggleNode( isPhotonsProperty, [
+      { value: true, createNode: () => photonWaveDisplaySceneNode },
+      { value: false, createNode: () => matterWaveDisplaySceneNode }
+    ], {
+      unselectedChildrenSceneGraphStrategy: 'excluded'
     } );
 
     super( {
-      spacing: 6,
       align: 'center',
-      children: [ waveDisplayTitle, comboBoxContainer ]
+      children: [ controlToggleNode ]
     } );
   }
 }

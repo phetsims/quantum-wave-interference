@@ -14,6 +14,7 @@
  */
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
@@ -210,32 +211,43 @@ export default class DetectorScreenControls extends VBox {
 
     const indicatorDots = new SnapshotIndicatorDotsNode( model.currentNumberOfSnapshotsProperty );
 
+    const detectorScreenVisibleProperty = DerivedProperty.not( options.screenGraphVisibleProperty );
     const snapshotButtonWithDots = new VBox( {
       spacing: 4,
-      children: [ indicatorDots, snapshotButton ]
+      children: [ indicatorDots, snapshotButton ],
+      visibleProperty: DerivedProperty.and( [ detectorScreenVisibleProperty, snapshotButton.visibleProperty ] )
+    } );
+    const viewSnapshotsButtonWrapper = new Node( {
+      children: [ viewSnapshotsButton ],
+      visibleProperty: DerivedProperty.and( [ detectorScreenVisibleProperty, viewSnapshotsButton.visibleProperty ] )
     } );
 
     const screenButtonsRow = new HBox( {
       align: 'bottom',
       justify: 'spaceEvenly',
       layoutOptions: { stretch: true },
-      children: [ snapshotButtonWithDots, viewSnapshotsButton ]
+      children: [ snapshotButtonWithDots, viewSnapshotsButtonWrapper ],
+      visibleProperty: DerivedProperty.or( [
+        snapshotButtonWithDots.visibleProperty,
+        viewSnapshotsButtonWrapper.visibleProperty
+      ] )
     } );
 
     const brightnessControl = new BrightnessControl( model.currentScreenBrightnessProperty, tandem );
-
-    options.screenGraphVisibleProperty.link( isGraphVisible => {
-      brightnessControl.visible = !isGraphVisible;
-      snapshotButtonWithDots.visible = !isGraphVisible;
-      viewSnapshotsButton.visible = !isGraphVisible;
+    const brightnessControlWrapper = new Node( {
+      children: [ brightnessControl ],
+      visibleProperty: DerivedProperty.and( [ detectorScreenVisibleProperty, brightnessControl.visibleProperty ] )
     } );
 
     const screenControlsChildren: Node[] = [
       screenGraphSwitch,
       ...options.additionalScreenControlChildren,
-      brightnessControl,
+      brightnessControlWrapper,
       screenButtonsRow
     ];
+    const hasVisibleScreenControlsProperty = DerivedProperty.or(
+      screenControlsChildren.map( child => child.visibleProperty )
+    );
 
     const screenControlsPanel = new Panel( new VBox( {
       spacing: 12,
@@ -247,11 +259,15 @@ export default class DetectorScreenControls extends VBox {
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
       xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
-      minWidth: rightPanelWidth
+      minWidth: rightPanelWidth,
+      visibleProperty: hasVisibleScreenControlsProperty
     } );
 
     // --- Tools panel ---
 
+    const hasVisibleToolsProperty = DerivedProperty.or(
+      options.toolCheckboxes.map( checkbox => checkbox.visibleProperty )
+    );
     const toolsPanel = new Panel( new VBox( {
       spacing: 8,
       stretch: true,
@@ -261,16 +277,19 @@ export default class DetectorScreenControls extends VBox {
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
       xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
-      minWidth: rightPanelWidth
+      minWidth: rightPanelWidth,
+      visibleProperty: hasVisibleToolsProperty
     } );
 
     // Keep right-panel backgrounds width-matched when localization makes either panel wider.
     const rightPanelAlignGroup = new AlignGroup( { matchVertical: false } );
     const screenControlsPanelBox = rightPanelAlignGroup.createBox( screenControlsPanel, {
-      xAlign: 'stretch'
+      xAlign: 'stretch',
+      visibleProperty: screenControlsPanel.visibleProperty
     } );
     const toolsPanelBox = rightPanelAlignGroup.createBox( toolsPanel, {
-      xAlign: 'stretch'
+      xAlign: 'stretch',
+      visibleProperty: toolsPanel.visibleProperty
     } );
 
     // --- Wave display combo box ---
