@@ -87,6 +87,10 @@ export type HighIntensitySemanticAccessibleViewState = {
   slitSeparationMM: number | null;
   slitSeparationMicrometers: number | null;
   bandSpacingDescription: QuantumWaveInterferenceBandSpacingDescription;
+
+  // Localized description of the current graph/histogram pattern, produced by DetectorPatternGraphDescriber. Used
+  // when a response must describe the graph surface instead of the detector screen (graph view is active).
+  graphPatternDescription: string;
   hitStage: HitStage;
   totalHits: number;
   patternFormation: QuantumWaveInterferencePatternFormation;

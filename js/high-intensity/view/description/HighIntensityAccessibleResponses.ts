@@ -163,8 +163,15 @@ export default class HighIntensityAccessibleResponses extends Node {
    * @param effectiveAction - semantic action that produced this response plan
    */
   private emitResponsePlan( responsePlan: QuantumWaveInterferenceResponsePlan, effectiveAction: QuantumWaveInterferenceTransitionAction ): void {
+
+    // Progress and pattern-formation updates can repeat the same text (e.g. the graph pattern description is
+    // identical at formation start and completion), so duplicates of the previous response are dropped.
+    const isDeduplicatedAction = effectiveAction.type === 'waveProgressChanged' ||
+                                 effectiveAction.type === 'patternFormationStarted' ||
+                                 effectiveAction.type === 'patternFormationComplete';
+
     responsePlan.contextResponses.forEach( ( contextResponse, index ) => {
-      if ( effectiveAction.type === 'waveProgressChanged' && contextResponse === this.lastContextResponse ) {
+      if ( isDeduplicatedAction && contextResponse === this.lastContextResponse ) {
         return;
       }
 

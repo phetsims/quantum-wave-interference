@@ -237,11 +237,16 @@ export default class QuantumWaveInterferenceTransitionDescriber {
                            } )
                          ];
     }
-    else if ( action.type === 'patternFormationStarted' ) {
-      contextResponses = [ formatDetectorDescription( after ) ];
-    }
-    else if ( action.type === 'patternFormationComplete' ) {
-      contextResponses = [ formatDetectorDescription( after ) ];
+    else if ( action.type === 'patternFormationStarted' || action.type === 'patternFormationComplete' ) {
+
+      // While the graph view is active in intensity mode, there is no detector screen to describe, so announce the
+      // graph's own pattern description instead. Hits-mode text tracks the hit count and never mentions the screen,
+      // so it is used regardless of the active view.
+      contextResponses = [
+        after.displayMode === 'graph' && after.detectionMode === 'averageIntensity' ?
+        after.graphPatternDescription :
+        formatDetectorDescription( after )
+      ];
     }
     else if ( action.type === 'maxHitsReached' ) {
       contextResponses = [ QuantumWaveInterferenceFluent.a11y.highIntensityResponses.maxHitsReachedStringProperty.value ];

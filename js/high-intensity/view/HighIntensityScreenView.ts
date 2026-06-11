@@ -235,6 +235,10 @@ const getWaveProgress = (
 export default class HighIntensityScreenView extends ScreenView {
 
   private readonly model: HighIntensityModel;
+
+  // Produces the current graph/histogram pattern description, used both as the graph bullet in the
+  // "Graph and Experiment Details" list and as the graph-surface substitute in pattern-formation responses.
+  private readonly detectorPatternGraphDescriber: DetectorPatternGraphDescriber;
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
   private readonly detectorPatternGraphLayerNode: DetectorPatternGraphLayerNode;
@@ -300,6 +304,10 @@ export default class HighIntensityScreenView extends ScreenView {
     this.measurementToolsNode = measurementToolNodes.measurementToolsNode;
     this.timePlotNode = measurementToolNodes.timePlotNode;
     this.positionPlotNode = measurementToolNodes.positionPlotNode;
+
+    // Created before HighIntensityAccessibleResponses because the responses node snapshots getAccessibleViewState()
+    // in its constructor, and the semantic state includes this describer's current graph pattern description.
+    this.detectorPatternGraphDescriber = new DetectorPatternGraphDescriber( model.sceneProperty, new BooleanProperty( false ) );
 
     const getAccessibleViewState = () => this.getAccessibleViewState();
     accessibleResponses = new HighIntensityAccessibleResponses( model, getAccessibleViewState );
@@ -404,6 +412,7 @@ export default class HighIntensityScreenView extends ScreenView {
       slitSeparationMM: slitConfiguration === 'noBarrier' ? null : scene.slitSeparationProperty.value,
       slitSeparationMicrometers: slitConfiguration === 'noBarrier' ? null : Number( toFixed( scene.slitSeparationProperty.value * 1000, 2 ) ),
       bandSpacingDescription: bandAnalysis.spacingCategory,
+      graphPatternDescription: this.detectorPatternGraphDescriber.descriptionProperty.value,
       hitStage: hitStage,
       totalHits: scene.totalHitsProperty.value,
       patternFormation: getPatternFormation( scene, this.model ),
@@ -842,19 +851,21 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     );
 
-    // While the graph view is active, the graph's own pattern description is the final bullet. It hides when it
-    // would only repeat the leading paragraph's "Graph is empty." (intensity mode with the source off).
-    const graphDescriber = new DetectorPatternGraphDescriber( model.sceneProperty, new BooleanProperty( false ) );
+    // While the graph view is active, the graph's own pattern description is the final bullet. In intensity mode
+    // the describer reports the theoretical trace as soon as the source is on, so the bullet waits for the
+    // 'pattern' status (wavefront has reached the screen) before showing; this also suppresses the redundant
+    // "Graph is empty. Source is off." text. In hits mode the describer tracks the actual hit count, so it shows
+    // whenever the graph is visible.
     const graphDetailItem: AccessibleListItem = {
-      stringProperty: graphDescriber.descriptionProperty,
+      stringProperty: this.detectorPatternGraphDescriber.descriptionProperty,
       visibleProperty: DerivedProperty.deriveAny(
         [
           model.isIntensityGraphVisibleProperty,
-          graphDescriber.descriptionProperty,
-          QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty
+          model.currentDetectionModeProperty,
+          detectorScreenStatusProperty
         ],
         () => model.isIntensityGraphVisibleProperty.value &&
-              graphDescriber.descriptionProperty.value !== QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty.value
+              ( model.currentDetectionModeProperty.value === 'hits' || detectorScreenStatusProperty.value === 'pattern' )
       )
     };
 

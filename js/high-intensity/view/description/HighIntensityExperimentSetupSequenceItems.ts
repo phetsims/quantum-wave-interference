@@ -145,7 +145,11 @@ export default function HighIntensityExperimentSetupSequenceItems(
       model,
       getAccessibleViewState,
       state => formatDetectorPattern( state, 'complete' ),
+
+      // Only while the detector screen itself is shown — in graph view the graph's own pattern description
+      // bullet covers the result, and there is no detector screen to describe.
       state => state.isEmitting &&
+               state.displayMode === 'screen' &&
                state.detectionMode === 'averageIntensity' &&
                getDetectorPatternFormationFactor( model ) >= DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD
     )
