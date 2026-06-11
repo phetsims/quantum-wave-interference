@@ -693,7 +693,18 @@ export default abstract class BaseSceneModel extends PhetioObject {
   }
 
   /**
-   * Uses reference serialization. There is one instance, and its state is applied back through applyState.
+   * BaseSceneModelIO uses reference-type serialization: each scene model exists for the lifetime of the simulation, so
+   * deserialization restores state on the existing model through applyState rather than creating a new instance with
+   * fromStateObject.
+   *
+   * The nested state fields use data-type serialization. waveSolverState and subclassState are serialized as object
+   * literals, while hits and decoherenceEvents are arrays of object literals. applyState passes waveSolverState to the
+   * existing WaveSolver, clears and reconstructs hits as Vector2 instances, restores wavefrontReached, clears and copies
+   * the decoherence events, and delegates subclassState to applySubclassState. It then synchronizes solver parameters
+   * and emits hitsChangedEmitter so consumers observe the restored state.
+   *
+   * See https://github.com/phetsims/phet-io/blob/main/doc/phet-io-instrumentation-technical-guide.md#serialization
+   * for details about PhET-iO serialization strategies.
    */
   private static readonly BaseSceneModelIO = new IOType<BaseSceneModel, BaseSceneModelStateObject>( 'BaseSceneModelIO', {
     valueType: BaseSceneModel,
