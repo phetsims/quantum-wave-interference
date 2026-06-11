@@ -45,7 +45,6 @@ import ToolCheckbox from '../../common/view/ToolCheckbox.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import { toFluentBoolean } from '../../high-intensity/view/description/QuantumWaveInterferenceAccessibleStateFormatters.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import SingleParticlesAccessibleResponses from './description/SingleParticlesAccessibleResponses.js';
 import DetectorProbeNode from './DetectorProbeNode.js';
@@ -364,16 +363,24 @@ export default class SingleParticlesScreenView extends ScreenView {
     // Pattern-state summary mirroring the Experiment screen's "Detector Screen and Experiment Details" structure:
     // a leading paragraph summarizing the detector screen, with one bullet for the current status. The packet is
     // transient, so milestone descriptions do not accumulate as on the High Intensity screen — the single bullet
-    // describes the in-flight packet (moving packet, at slits, interfering), the hits pattern once particles have
-    // landed, or a prompt to fire a particle while the screen is empty.
-    const detectorScreenIsEmptyProperty = model.currentTotalHitsProperty.derived( totalHits => totalHits === 0 );
+    // describes the in-flight packet (moving packet, at slits, interfering) or the hits pattern once particles have
+    // landed. While a packet is propagating but the screen is still empty, the status is 'emptyWavePropagating' so
+    // the paragraph does not claim the experiment is "ready".
+    const detectorScreenStatusProperty = new DerivedProperty(
+      [ model.currentTotalHitsProperty, model.currentIsEmittingProperty ],
+      ( totalHits, isEmitting ) =>
+        totalHits > 0 ? 'pattern' as const :
+        isEmitting ? 'emptyWavePropagating' as const :
+        'empty' as const
+    );
+
     const detectorScreenDetailsNode = new Node( {
       visibleProperty: DerivedProperty.not( model.isHitsGraphVisibleProperty ),
       accessibleTemplate: AccessibleList.createTemplateProperty( {
         leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
           detectionMode: 'hits',
           sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
-          detectorScreenIsEmpty: detectorScreenIsEmptyProperty.derived( toFluentBoolean )
+          detectorScreenStatus: detectorScreenStatusProperty
         } ),
         listItems: [ accessibleResponses.packetStatusItem ]
       } )

@@ -60,7 +60,6 @@ import HighIntensityModel from '../model/HighIntensityModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
-import { toFluentBoolean } from './description/QuantumWaveInterferenceAccessibleStateFormatters.js';
 import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind, type QuantumWaveInterferenceWaveProgressCheckpoint, type QuantumWaveInterferenceWaveProgressStage, type QuantumWaveInterferenceWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
 import HighIntensityExperimentSetupSequenceItems from './description/HighIntensityExperimentSetupSequenceItems.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
@@ -820,9 +819,10 @@ export default class HighIntensityScreenView extends ScreenView {
 
     // Pattern-state summary mirroring the Experiment screen's "Detector Screen and Experiment Details" structure:
     // a leading paragraph summarizing the detector screen, with the accumulating source/wave/detector milestone
-    // items as its bullets. NOTE: the empty-screen logic parallels detectorScreenHasPatternProperty in the
-    // screen-summary content created by the constructor.
-    const detectorScreenIsEmptyProperty = DerivedProperty.deriveAny(
+    // items as its bullets. While waves are propagating but the screen is still empty, the status is
+    // 'emptyWavePropagating' so the paragraph does not claim the experiment is "ready". NOTE: the empty-screen
+    // logic parallels detectorScreenHasPatternProperty in the screen-summary content created by the constructor.
+    const detectorScreenStatusProperty = DerivedProperty.deriveAny(
       [
         model.sceneProperty,
         model.currentIsEmittingProperty,
@@ -830,9 +830,14 @@ export default class HighIntensityScreenView extends ScreenView {
         model.currentTotalHitsProperty,
         model.accessibleStateStepProperty
       ],
-      () => model.currentDetectionModeProperty.value === 'averageIntensity' ?
-            !( model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() ) :
-            model.currentTotalHitsProperty.value === 0
+      () => {
+        const isEmpty = model.currentDetectionModeProperty.value === 'averageIntensity' ?
+                        !( model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() ) :
+                        model.currentTotalHitsProperty.value === 0;
+        return !isEmpty ? 'pattern' as const :
+               model.currentIsEmittingProperty.value ? 'emptyWavePropagating' as const :
+               'empty' as const;
+      }
     );
 
     const detectorScreenDetailsNode = new Node( {
@@ -841,7 +846,7 @@ export default class HighIntensityScreenView extends ScreenView {
         leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
           detectionMode: model.currentDetectionModeProperty,
           sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
-          detectorScreenIsEmpty: detectorScreenIsEmptyProperty.derived( toFluentBoolean )
+          detectorScreenStatus: detectorScreenStatusProperty
         } ),
         listItems: HighIntensityExperimentSetupSequenceItems( model, getAccessibleViewState )
       } )

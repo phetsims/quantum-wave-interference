@@ -14,14 +14,6 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
 import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import ExperimentModel from '../../model/ExperimentModel.js';
 
-// String-literal union used as a boolean selector in Fluent message patterns, which expect string values rather than
-// native booleans for variant selection.
-type FluentBoolean = 'true' | 'false';
-
-function toFluentBoolean( value: boolean ): FluentBoolean {
-  return value ? 'true' : 'false';
-}
-
 export default class ExperimentDetectorScreenDetailsNode extends Node {
 
   public constructor( model: ExperimentModel ) {
@@ -58,7 +50,9 @@ export default class ExperimentDetectorScreenDetailsNode extends Node {
       QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
         detectionMode: model.currentDetectionModeProperty,
         sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
-        detectorScreenIsEmpty: detectorScreenIsEmptyProperty.derived( toFluentBoolean )
+
+        // The Experiment screen shows its pattern in steady state, so the wave-propagating status does not apply.
+        detectorScreenStatus: detectorScreenIsEmptyProperty.derived( isEmpty => isEmpty ? 'empty' as const : 'pattern' as const )
       } );
 
     super( {

@@ -222,15 +222,18 @@ a11y:
   detectorScreenHeading:       Detector Screen Controls
   experimentDetectorScreenDetails:
     detectorScreenAndExperimentDetailsHeading: Detector Screen and Experiment Details
+    # detectorScreenStatus 'emptyWavePropagating' means the screen is still empty but waves are traveling in the
+    # wave area, so the "experiment ready" invitation would be wrong.
     leadingParagraph:          >-
-                               { $detectorScreenIsEmpty ->
-                                 [true] Detector screen is empty. { $sourceType ->
+                               { $detectorScreenStatus ->
+                                 [empty] Detector screen is empty. { $sourceType ->
                                    [photons] Photon
                                    [electrons] Electron
                                    [neutrons] Neutron
                                   *[heliumAtoms] Helium atom
                                  } experiment ready.
-                                *[false] Detector screen shows { $detectionMode ->
+                                 [emptyWavePropagating] Detector screen is empty.
+                                *[pattern] Detector screen shows { $detectionMode ->
                                    [averageIntensity] an intensity pattern
                                   *[hits] a hits pattern
                                  } of a { $sourceType ->
