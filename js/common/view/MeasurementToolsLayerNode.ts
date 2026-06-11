@@ -36,7 +36,7 @@ import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import { type MeasurementToolsViewStateFragment } from './description/QuantumWaveInterferenceAccessibleViewState.js';
-import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
+import getMeasuringTapeUnits, { MEASURING_TAPE_UNIT_VISUAL_SYMBOL_PROPERTIES } from './getMeasuringTapeUnits.js';
 import PositionPlotNode from './PositionPlotNode.js';
 import TimePlotNode from './TimePlotNode.js';
 
@@ -110,7 +110,7 @@ export default class MeasurementToolsLayerNode extends Node {
     } );
 
     const measuringTapeUnitsProperty = new DerivedProperty(
-      [ model.sceneProperty ],
+      [ model.sceneProperty, ...MEASURING_TAPE_UNIT_VISUAL_SYMBOL_PROPERTIES ],
       scene => getMeasuringTapeUnits( scene.regionWidth )
     );
 

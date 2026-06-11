@@ -14,7 +14,6 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
-import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Shape from '../../../../kite/js/Shape.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
@@ -94,8 +93,15 @@ export default class DetectorProbeNode extends Node {
       // or the measurement result. The probability is formatted to match the visual percent readout.
       accessibleParagraph: QuantumWaveInterferenceFluent.a11y.detectorProbe.accessibleParagraph.createProperty( {
         state: currentDetectorTool.stateProperty,
-        probability: new DerivedProperty( [ currentDetectorTool.probabilityProperty ],
-          probability => toFixed( probability * 100, 1 ) )
+        probability: percentUnit.getAccessibleStringProperty(
+          new DerivedProperty( [ currentDetectorTool.probabilityProperty ], probability => probability * 100 ),
+          {
+            numberFormatOptions: {
+              decimalPlaces: 1,
+              showTrailingZeros: true
+            }
+          }
+        )
       } )
     } );
 

@@ -385,14 +385,13 @@ a11y:
                               }
                             }
                           }
-    photonDetail:         'Photon wavelength is { $wavelength } nanometers, in the { $color } zone.'
+    photonDetail:         'Photon wavelength is { $wavelength }, in the { $color } zone.'
     particleDetail:       >-
                           { $sourceType ->
                             [electrons] Electron
                             [neutrons] Neutron
                            *[heliumAtoms] Helium atom
-                          } speed is { $speed } meters per second. Effective matter wavelength is about
-                          { $wavelength } picometers.
+                          } speed is { $speed }. Effective matter wavelength is about { $wavelength }.
     slits:                >-
                           { $slitSetting ->
                             [bothOpen] Both slits are open. Slit separation is { $separation }.
@@ -880,17 +879,12 @@ a11y:
                          { $state ->
                            [detected] Particle detected in probe region.
                            [notDetected] Particle not detected in probe region.
-                          *[ready] Chance of detecting particle in probe region is { $probability } percent.
+                          *[ready] Chance of detecting particle in probe region is { $probability }.
                          }
   detectorCheckbox:
     accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
   slitSeparationSlider:
-    accessibleHelpText: >-
-                        { $unit ->
-                          [millimeters] Change distance between centers of slits in barrier in millimeters.
-                          [nanometers] Change distance between centers of slits in barrier in nanometers.
-                         *[micrometers] Change distance between centers of slits in barrier in micrometers.
-                        }
+    accessibleHelpText: Change distance between centers of slits in barrier.
   slitPositionSlider:
     accessibleName:     Barrier-Screen Distance
     accessibleHelpText: >-

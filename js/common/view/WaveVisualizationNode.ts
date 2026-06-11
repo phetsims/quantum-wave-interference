@@ -13,16 +13,17 @@ import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import { femtosecondsUnit } from '../../../../scenery-phet/js/units/femtosecondsUnit.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
+import { secondsUnit } from '../../../../scenery-phet/js/units/secondsUnit.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type WaveVisualizationViewStateFragment } from './description/QuantumWaveInterferenceAccessibleViewState.js';
@@ -172,12 +173,27 @@ export default class WaveVisualizationNode extends Node {
       }
     );
 
-    // Timescale label in the bottom-left corner (e.g., "1 fs = 10⁻¹⁵ s")
-    const timeLabel = new RichText( QuantumWaveInterferenceFluent.timeScaleLabelStringProperty, {
+    // Timescale label in the bottom-left corner (e.g., "1 fs = 1 × 10⁻¹⁵ s")
+    const timeLabel = new RichText( '', {
       font: scaleFont,
       fill: scaleLabelColor,
       maxWidth: 120
     } );
+
+    Multilink.multilinkAny(
+      Array.from( new Set( [
+        ...femtosecondsUnit.getDependentProperties(),
+        ...secondsUnit.getDependentProperties()
+      ] ) ),
+      () => {
+        const femtosecondsString = femtosecondsUnit.getVisualSymbolPatternString( 1 );
+        const secondsString = secondsUnit.getVisualSymbolPatternString( 1e-15, {
+          useScientificNotation: true
+        } );
+        timeLabel.string = `${femtosecondsString} = ${secondsString}`;
+      }
+    );
+
     timeLabel.left = SCALE_MARGIN;
     timeLabel.bottom = height - SCALE_MARGIN;
     this.addChild( timeLabel );

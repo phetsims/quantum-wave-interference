@@ -8,7 +8,9 @@
  */
 
 import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
+import { metersPerSecondUnit } from '../../../../../scenery-phet/js/units/metersPerSecondUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
+import { picometersUnit } from '../../../../../scenery-phet/js/units/picometersUnit.js';
 import { getWavelengthColorZoneStringProperty } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind } from './HighIntensityAccessibleViewState.js';
@@ -44,15 +46,27 @@ export function formatSourceBeamDescription( state: HighIntensitySemanticAccessi
 export function formatParticleDescription( state: HighIntensitySemanticAccessibleViewState ): string {
   if ( state.sourceType === 'photons' ) {
     return QuantumWaveInterferenceFluent.a11y.highIntensityState.photonDetail.format( {
-      wavelength: state.wavelengthNM,
+      wavelength: nanometersUnit.getAccessibleString( state.wavelengthNM, {
+        decimalPlaces: 0,
+        showTrailingZeros: false,
+        showIntegersAsIntegers: true
+      } ),
       color: getWavelengthColorZoneStringProperty( state.wavelengthColorZone! ).value
     } );
   }
 
   return QuantumWaveInterferenceFluent.a11y.highIntensityState.particleDetail.format( {
     sourceType: state.sourceType,
-    speed: state.particleSpeedMetersPerSecond,
-    wavelength: state.effectiveWavelengthPicometers
+    speed: metersPerSecondUnit.getAccessibleString( state.particleSpeedMetersPerSecond, {
+      decimalPlaces: 0,
+      showTrailingZeros: false,
+      showIntegersAsIntegers: true
+    } ),
+    wavelength: picometersUnit.getAccessibleString( state.effectiveWavelengthPicometers, {
+      decimalPlaces: 2,
+      showTrailingZeros: false,
+      showIntegersAsIntegers: true
+    } )
   } );
 }
 

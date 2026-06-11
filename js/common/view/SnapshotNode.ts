@@ -61,10 +61,14 @@ export default class SnapshotNode extends Node {
     const {
       headingProperty,
       wavelengthOrSpeedProperty,
+      wavelengthOrSpeedAccessibleProperty,
       slitSeparationProperty,
+      slitSeparationAccessibleProperty,
       screenDistanceProperty,
+      screenDistanceAccessibleProperty,
       slitSettingProperty,
       screenBrightnessProperty,
+      screenBrightnessAccessibleProperty,
       trashButtonAccessibleNameProperty,
       detectionModeListItemProperty,
       slitSettingListItemProperty
@@ -213,16 +217,16 @@ export default class SnapshotNode extends Node {
 
       const metadataListChildren: Node[] = [
         new Node( { tagName: 'li', innerContent: detectionModeListItemProperty } ),
-        new Node( { tagName: 'li', innerContent: wavelengthOrSpeedProperty } ),
-        new Node( { tagName: 'li', innerContent: slitSeparationProperty } )
+        new Node( { tagName: 'li', innerContent: wavelengthOrSpeedAccessibleProperty } ),
+        new Node( { tagName: 'li', innerContent: slitSeparationAccessibleProperty } )
       ];
 
-      if ( screenDistanceProperty ) {
-        metadataListChildren.push( new Node( { tagName: 'li', innerContent: screenDistanceProperty } ) );
+      if ( screenDistanceAccessibleProperty ) {
+        metadataListChildren.push( new Node( { tagName: 'li', innerContent: screenDistanceAccessibleProperty } ) );
       }
 
       metadataListChildren.push( new Node( { tagName: 'li', innerContent: slitSettingListItemProperty } ) );
-      metadataListChildren.push( new Node( { tagName: 'li', innerContent: screenBrightnessProperty } ) );
+      metadataListChildren.push( new Node( { tagName: 'li', innerContent: screenBrightnessAccessibleProperty } ) );
 
       const metadataListNode = new Node( {
         tagName: 'ul',

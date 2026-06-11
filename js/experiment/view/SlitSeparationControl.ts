@@ -104,9 +104,7 @@ export default class SlitSeparationControl extends NumberControl {
       numberDisplayOptions: numberDisplayOptions,
       // NOTE: see other duplicate in quantum-wave-interference/js/common/view/SlitSeparationNumberControl.ts. Control
       // layout stays local because the shared and Experiment sliders have different ranges, widths, and tandems.
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSeparationSlider.accessibleHelpText.createProperty( {
-        unit: usesMicrometers ? 'micrometers' : 'millimeters'
-      } ),
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSeparationSlider.accessibleHelpTextStringProperty,
       sliderOptions: {
         trackSize: SLIDER_TRACK_SIZE,
         thumbSize: new Dimension2( 13, 22 ),

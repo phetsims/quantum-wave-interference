@@ -18,11 +18,18 @@ const WAVE_REGION_VIEW_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDT
 
 type QuantumWaveInterferenceMeasuringTapeUnits = MeasuringTapeUnits & { unit: Unit };
 
+export const MEASURING_TAPE_UNIT_VISUAL_SYMBOL_PROPERTIES = [
+  nanometersUnit.getVisualSymbolStringProperty(),
+  micrometersUnit.getVisualSymbolStringProperty()
+] as const;
+
 export default function getMeasuringTapeUnits( regionWidth: number ): QuantumWaveInterferenceMeasuringTapeUnits {
   const useNanometers = regionWidth < 1e-6;
+  const unit = useNanometers ? nanometersUnit : micrometersUnit;
+
   return {
-    name: useNanometers ? 'nm' : 'μm',
+    name: unit.getVisualSymbolString(),
     multiplier: regionWidth / WAVE_REGION_VIEW_WIDTH * ( useNanometers ? 1e9 : 1e6 ),
-    unit: useNanometers ? nanometersUnit : micrometersUnit
+    unit: unit
   };
 }

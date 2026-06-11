@@ -12,6 +12,7 @@
 
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
@@ -40,9 +41,9 @@ import SceneModel from '../model/SceneModel.js';
 import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import DetectorScreenScaleIndicatorNode from './DetectorScreenScaleIndicatorNode.js';
 
-function formatExperimentSlitSeparation( slitSepMM: number ): string {
+function formatExperimentSlitSeparation( slitSepMM: number ): DualString {
   const slitSepUM = slitSepMM * 1000;
-  return micrometersUnit.getVisualSymbolPatternString( slitSepUM, {
+  return micrometersUnit.getDualString( slitSepUM, {
     decimalPlaces: ExperimentConstants.getDecimalPlacesForValue( slitSepUM ),
     showTrailingZeros: true
   } );

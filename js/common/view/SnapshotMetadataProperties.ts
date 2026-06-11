@@ -9,6 +9,7 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
@@ -37,8 +38,8 @@ export type SnapshotMetadataPropertiesOptions = {
   // Optional display-name map for slit configurations. Defaults are used for omitted entries.
   slitSettingDisplayMap?: Partial<SlitSettingDisplayMap>;
 
-  // Formats the slit separation value (in mm) for display. Default uses micrometers if < 0.1 mm, else millimeters.
-  formatSlitSeparation?: ( slitSepMM: number ) => string;
+  // Formats the visual and accessible slit separation value (in mm). Uses micrometers if < 0.1 mm, else millimeters.
+  formatSlitSeparation?: ( slitSepMM: number ) => DualString;
 
   // When true, a screen distance row is included in the metadata labels.
   showScreenDistance?: boolean;
@@ -75,13 +76,13 @@ const SLIT_SETTING_DISPLAY_MAPS: Record<SlitOrientation, SlitSettingDisplayMap> 
   }
 };
 
-function DEFAULT_FORMAT_SLIT_SEPARATION( slitSepMM: number ): string {
+function DEFAULT_FORMAT_SLIT_SEPARATION( slitSepMM: number ): DualString {
   return slitSepMM < 0.1 ?
-         micrometersUnit.getVisualSymbolPatternString( slitSepMM * 1000, {
+         micrometersUnit.getDualString( slitSepMM * 1000, {
            decimalPlaces: 1,
            showTrailingZeros: true
          } ) :
-         millimetersUnit.getVisualSymbolPatternString( slitSepMM, {
+         millimetersUnit.getDualString( slitSepMM, {
            decimalPlaces: 2,
            showTrailingZeros: true
          } );
@@ -129,10 +130,14 @@ const createSlitSettingDisplayMap = (
 export default class SnapshotMetadataProperties {
   public readonly headingProperty: TReadOnlyProperty<string>;
   public readonly wavelengthOrSpeedProperty: TReadOnlyProperty<string>;
+  public readonly wavelengthOrSpeedAccessibleProperty: TReadOnlyProperty<string>;
   public readonly slitSeparationProperty: TReadOnlyProperty<string>;
+  public readonly slitSeparationAccessibleProperty: TReadOnlyProperty<string>;
   public readonly screenDistanceProperty: TReadOnlyProperty<string> | null;
+  public readonly screenDistanceAccessibleProperty: TReadOnlyProperty<string> | null;
   public readonly slitSettingProperty: TReadOnlyProperty<string>;
   public readonly screenBrightnessProperty: TReadOnlyProperty<string>;
+  public readonly screenBrightnessAccessibleProperty: TReadOnlyProperty<string>;
   public readonly trashButtonAccessibleNameProperty: TReadOnlyProperty<string>;
   public readonly detectionModeListItemProperty: TReadOnlyProperty<string>;
   public readonly slitSettingListItemProperty: TReadOnlyProperty<string>;
@@ -196,7 +201,21 @@ export default class SnapshotMetadataProperties {
       ] ) ),
       () => ifSnapshot( snapshot => formatLabelValue(
         QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
-        formatSlitSeparation( snapshot.slitSeparation )
+        formatSlitSeparation( snapshot.slitSeparation ).visualString
+      ), '' )( snapshotProperty.value )
+    );
+
+    this.slitSeparationAccessibleProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+        QuantumWaveInterferenceFluent.slitSeparationStringProperty,
+        ...micrometersUnit.getDependentProperties(),
+        ...millimetersUnit.getDependentProperties()
+      ] ) ),
+      () => ifSnapshot( snapshot => formatLabelValue(
+        QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
+        formatSlitSeparation( snapshot.slitSeparation ).accessibleString
       ), '' )( snapshotProperty.value )
     );
 
@@ -240,6 +259,46 @@ export default class SnapshotMetadataProperties {
       }, '' )( snapshotProperty.value )
     );
 
+    this.wavelengthOrSpeedAccessibleProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+        SceneryPhetFluent.wavelengthStringProperty,
+        QuantumWaveInterferenceFluent.particleSpeedStringProperty,
+        ...nanometersUnit.getDependentProperties(),
+        ...kilometersPerSecondUnit.getDependentProperties(),
+        ...metersPerSecondUnit.getDependentProperties()
+      ] ) ),
+      () => ifSnapshot( snapshot => {
+        if ( snapshot.sourceType === 'photons' ) {
+          const wavelengthValue = nanometersUnit.getAccessibleString( roundSymmetric( snapshot.wavelength ), {
+            decimalPlaces: 0,
+            showTrailingZeros: false,
+            showIntegersAsIntegers: true
+          } );
+          return formatLabelValue( SceneryPhetFluent.wavelengthStringProperty.value, wavelengthValue );
+        }
+
+        const sourceType = snapshot.sourceType;
+        const particleMass = QuantumWaveInterferenceConstants.getParticleMass( sourceType );
+        const speed = snapshot.effectiveWavelength === 0 ? 0 :
+                      QuantumWaveInterferenceConstants.PLANCK_CONSTANT /
+                      ( particleMass * snapshot.effectiveWavelength );
+        const speedValue = speed >= 10000
+                           ? kilometersPerSecondUnit.getAccessibleString( roundSymmetric( speed / 1000 ), {
+            decimalPlaces: 0,
+            showTrailingZeros: false,
+            showIntegersAsIntegers: true
+          } )
+                           : metersPerSecondUnit.getAccessibleString( roundSymmetric( speed ), {
+            decimalPlaces: 0,
+            showTrailingZeros: false,
+            showIntegersAsIntegers: true
+          } );
+        return formatLabelValue( QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, speedValue );
+      }, '' )( snapshotProperty.value )
+    );
+
     this.slitSettingProperty = new DerivedProperty(
       [
         snapshotProperty,
@@ -272,6 +331,26 @@ export default class SnapshotMetadataProperties {
       }, '' )( snapshotProperty.value )
     );
 
+    this.screenBrightnessAccessibleProperty = DerivedProperty.deriveAny(
+      [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+        QuantumWaveInterferenceFluent.screenBrightnessStringProperty,
+        ...percentUnit.getDependentProperties()
+      ],
+      () => ifSnapshot( snapshot => {
+        const percentValue = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100;
+        return formatLabelValue(
+          QuantumWaveInterferenceFluent.screenBrightnessStringProperty.value,
+          percentUnit.getAccessibleString( percentValue, {
+            decimalPlaces: 0,
+            showTrailingZeros: false,
+            showIntegersAsIntegers: true
+          } )
+        );
+      }, '' )( snapshotProperty.value )
+    );
+
     this.screenDistanceProperty = options.showScreenDistance ?
                                   DerivedProperty.deriveAny(
                                     [
@@ -293,6 +372,28 @@ export default class SnapshotMetadataProperties {
                                     }, '' )( snapshotProperty.value )
                                   ) :
                                   null;
+
+    this.screenDistanceAccessibleProperty = options.showScreenDistance ?
+                                            DerivedProperty.deriveAny(
+                                              [
+                                                snapshotProperty,
+                                                QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+                                                QuantumWaveInterferenceFluent.screenDistanceStringProperty,
+                                                ...metersUnit.getDependentProperties()
+                                              ],
+                                              () => ifSnapshot( snapshot => {
+                                                const screenDistanceValue = metersUnit.getAccessibleString(
+                                                  snapshot.screenDistance, {
+                                                    decimalPlaces: 2,
+                                                    showTrailingZeros: true
+                                                  } );
+                                                return formatLabelValue(
+                                                  QuantumWaveInterferenceFluent.screenDistanceStringProperty.value,
+                                                  screenDistanceValue
+                                                );
+                                              }, '' )( snapshotProperty.value )
+                                            ) :
+                                            null;
 
     this.trashButtonAccessibleNameProperty = DerivedProperty.deriveAny(
       [

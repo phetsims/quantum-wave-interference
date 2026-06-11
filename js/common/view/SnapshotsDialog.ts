@@ -9,6 +9,7 @@
  */
 
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
+import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
@@ -39,8 +40,8 @@ type SnapshotsDialogOptions = {
   // Optional display-name map for slit configurations. Defaults in SnapshotNode are used for omitted entries.
   slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
 
-  // Formats slit separation in millimeters for the snapshot details row.
-  formatSlitSeparation?: ( slitSepMM: number ) => string;
+  // Formats visual and accessible slit separation in millimeters for the snapshot details row.
+  formatSlitSeparation?: ( slitSepMM: number ) => DualString;
 
   // Whether snapshots should include the screen-distance details row.
   showScreenDistance?: boolean;

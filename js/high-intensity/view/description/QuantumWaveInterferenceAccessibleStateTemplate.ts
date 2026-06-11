@@ -8,7 +8,9 @@
 
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
+import { metersPerSecondUnit } from '../../../../../scenery-phet/js/units/metersPerSecondUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
+import { picometersUnit } from '../../../../../scenery-phet/js/units/picometersUnit.js';
 import { WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import HighIntensityModel from '../../model/HighIntensityModel.js';
@@ -59,7 +61,9 @@ export default class QuantumWaveInterferenceAccessibleStateTemplate {
       ...QuantumWaveInterferenceFluent.a11y.highIntensityState.displayTools.getDependentProperties(),
       ...WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES,
       ...micrometersUnit.getDependentProperties(),
-      ...nanometersUnit.getDependentProperties()
+      ...metersPerSecondUnit.getDependentProperties(),
+      ...nanometersUnit.getDependentProperties(),
+      ...picometersUnit.getDependentProperties()
     ] ) );
   }
 }
