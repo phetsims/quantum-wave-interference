@@ -54,6 +54,9 @@ type SharedDescriptionModel = {
  * - includeExperimentSetupDetails: set to false to suppress the detector-screen, graph, and
  *   ExperimentSetupDetailsNode children (used when that content lives elsewhere in the PDOM).
  * - experimentSetupAdditionalListItems: extra accessible list items appended to ExperimentSetupDetailsNode.
+ * - experimentSetupAdditionalNodes: extra scenery nodes placed after ExperimentSetupDetailsNode under the
+ *   "Experiment Setup" PDOM heading, as siblings of the "Current experimental details" list. Callers must add
+ *   these nodes to the scene graph themselves.
  * - sourceNodes: scenery nodes placed under the "Source" PDOM heading in pdomOrder.
  * - slitNodes: scenery nodes placed under the "Slits" PDOM heading in pdomOrder.
  * - detectorScreenControlNodes: scenery nodes placed under the "Detector Screen" PDOM heading in pdomOrder.
@@ -65,6 +68,7 @@ type SharedDescriptionOptions = {
   slitOrientation?: SlitOrientation;
   includeExperimentSetupDetails?: boolean;
   experimentSetupAdditionalListItems?: AccessibleListItem[];
+  experimentSetupAdditionalNodes?: Node[];
   sourceNodes: Node[];
   slitNodes: Node[];
   detectorScreenControlNodes: Node[];
@@ -150,7 +154,8 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
     this.experimentSetupHeadingNode.pdomOrder = [
       ...( detectorScreenDescriptionNode ? [ detectorScreenDescriptionNode ] : [] ),
       ...( graphDescriptionNode ? [ graphDescriptionNode ] : [] ),
-      ...( experimentSetupDetailsNode ? [ experimentSetupDetailsNode ] : [] )
+      ...( experimentSetupDetailsNode ? [ experimentSetupDetailsNode ] : [] ),
+      ...( providedOptions.experimentSetupAdditionalNodes || [] )
     ];
 
     this.sourceHeadingNode.pdomOrder = providedOptions.sourceNodes;

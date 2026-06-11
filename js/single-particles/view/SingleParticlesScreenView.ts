@@ -14,6 +14,7 @@ import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
+import AccessibleList from '../../../../scenery-phet/js/accessibility/AccessibleList.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -45,6 +46,7 @@ import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
+import SingleParticlesAccessibleResponses from './description/SingleParticlesAccessibleResponses.js';
 import DetectorProbeNode from './DetectorProbeNode.js';
 import SingleParticleEmitterNode from './SingleParticleEmitterNode.js';
 
@@ -199,16 +201,10 @@ export default class SingleParticlesScreenView extends ScreenView {
       maxHitsReachedPanel.visible = isMaxHitsReached;
     } );
 
-    const maxHitsReachedResponseNode = new Node();
-    this.addChild( maxHitsReachedResponseNode );
-    model.currentIsMaxHitsReachedProperty.lazyLink( isMaxHitsReached => {
-      if ( isMaxHitsReached ) {
-        maxHitsReachedResponseNode.addAccessibleContextResponse(
-          QuantumWaveInterferenceFluent.a11y.detectorScreen.maxHitsReached.accessibleContextResponseStringProperty,
-          { responseGroup: 'quantum-wave-interference-single-particles-max-hits-reached' }
-        );
-      }
-    } );
+    // Narrates source start/stop, per-packet wave progress, hits, and max hits, and provides the PDOM state items
+    // for the current packet status.
+    const accessibleResponses = new SingleParticlesAccessibleResponses( model );
+    this.addChild( accessibleResponses );
 
     const waveRegionNode = new WaveRegionNode( model, {
       tandem: tandem.createTandem( 'waveRegionNode' ),
@@ -364,12 +360,27 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.timePlotNode = measurementToolsNode.timePlotNode;
     this.positionPlotNode = measurementToolsNode.positionPlotNode;
 
+    // The packet is transient, so milestone descriptions do not accumulate as on the High Intensity screen. Instead,
+    // this "What's happening at the moment" list holds a single bullet describing only the current status of the
+    // in-flight packet (moving packet, at slits, interfering), or a prompt to fire a particle when none is active.
+    // It is placed as a sibling of the "Current experimental details" list in the Experiment Setup section.
+    const whatsHappeningNode = new Node( {
+      accessibleTemplate: AccessibleList.createTemplateProperty( {
+        leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.whatsHappeningLeadingParagraphStringProperty,
+        listItems: [ accessibleResponses.packetStatusItem ]
+      } )
+    } );
+    this.addChild( whatsHappeningNode );
+
     const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
       model,
       model.currentSlitConfigurationProperty,
       {
         screenGraphVisibleProperty: model.isHitsGraphVisibleProperty,
         slitOrientation: 'topBottom',
+        detectorScreenUpdateTriggerProperty: model.accessibleStateStepProperty,
+        experimentSetupAdditionalListItems: [ accessibleResponses.sourceStartedItem ],
+        experimentSetupAdditionalNodes: [ whatsHappeningNode ],
         sourceNodes: [ emitterNode, maxHitsReachedPanel, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow, waveRegionNode.doubleSlitNode ],
         detectorScreenControlNodes: [ detectorScreenControls ]

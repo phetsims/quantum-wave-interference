@@ -259,6 +259,88 @@ a11y:
                                  *[false] Total hits is { $hitCount }.
                                 }
     empty:                      Detector screen is empty.
+  # Shared fragments composed into the source beam/packet descriptions on the High Intensity and Single Particles
+  # screens. Each fragment resolves its { $variable } placeholders from the referencing message's format() arguments.
+  sourceWaveFragments:
+    lowercaseColor:           >-
+                              { $sourceType ->
+                                [photons] { $photonColor ->
+                                  [violet] violet
+                                  [blue] blue
+                                  [indigo] indigo
+                                  [green] green
+                                  [yellow] yellow
+                                  [orange] orange
+                                 *[red] red
+                                }
+                               *[electrons] gray
+                                [neutrons] gray
+                                [heliumAtoms] gray
+                              }
+    capitalizedColorAndBlack: >-
+                              { $sourceType ->
+                                [photons] { $photonColor ->
+                                  [violet] Violet
+                                  [blue] Blue
+                                  [indigo] Indigo
+                                  [green] Green
+                                  [yellow] Yellow
+                                  [orange] Orange
+                                 *[red] Red
+                                } and black
+                               *[electrons] Gray and black
+                                [neutrons] Gray and black
+                                [heliumAtoms] Gray and black
+                              }
+    slitTarget:               >-
+                              { $slitSetting ->
+                                [noBarrier] detector screen.
+                               *[bothOpen] slitted barrier.
+                                [leftCovered] slitted barrier.
+                                [rightCovered] slitted barrier.
+                                [leftDetector] slitted barrier.
+                                [rightDetector] slitted barrier.
+                                [bothDetectors] slitted barrier.
+                              }
+    wavePeakSpacing:          >-
+                              { $wavefrontSpacing ->
+                                [extremelyFarApart] Wave peaks, extremely far apart.
+                                [veryFarApart] Wave peaks, very far apart.
+                                [farApart] Wave peaks, far apart.
+                                [somewhatCloseTogether] Wave peaks, somewhat close together.
+                                [closeTogether] Wave peaks, close together.
+                                [veryCloseTogether] Wave peaks, very close together.
+                               *[extremelyCloseTogether] Wave peaks, extremely close together.
+                              }
+  # Leading paragraph for the "What's happening at the moment" list, a sibling of the "Current experimental
+  # details:" list in the Experiment Setup section. On High Intensity it holds the accumulating wave-progress
+  # milestones; on Single Particles it holds the single current-packet-status bullet.
+  whatsHappeningLeadingParagraph: What's happening at the moment
+  singleParticlesState:
+    # Shown as the what's-happening bullet when no packet is in flight, inviting the user to start the experiment.
+    firePrompt:               >-
+                              { $sourceType ->
+                                [photons] Fire a photon to begin.
+                                [electrons] Fire an electron to begin.
+                                [neutrons] Fire a neutron to begin.
+                               *[heliumAtoms] Fire a helium atom to begin.
+                              }
+    # Single Particles counterpart to highIntensityState.sourceBeam: a single emitted wave packet rendered as a round
+    # packet of waves, rather than a continuous beam of plane wave fronts.
+    sourcePacket:             >-
+                              { $waveDisplayMode ->
+                                [amplitude] Round packet of solid { a11y.sourceWaveFragments.lowercaseColor } wave
+                                moves toward { a11y.sourceWaveFragments.slitTarget }
+                               *[electricField] Round packet of { a11y.sourceWaveFragments.lowercaseColor } and black
+                                waves moves toward { a11y.sourceWaveFragments.slitTarget }
+                                { a11y.sourceWaveFragments.wavePeakSpacing }
+                                [realPart] Round packet of { a11y.sourceWaveFragments.lowercaseColor } and black
+                                waves moves toward { a11y.sourceWaveFragments.slitTarget }
+                                { a11y.sourceWaveFragments.wavePeakSpacing }
+                                [imaginaryPart] Round packet of { a11y.sourceWaveFragments.lowercaseColor } and black
+                                waves moves toward { a11y.sourceWaveFragments.slitTarget }
+                                { a11y.sourceWaveFragments.wavePeakSpacing }
+                              }
   highIntensityState:
     overview:             >-
                           Currently, { $isPlaying ->
@@ -291,118 +373,17 @@ a11y:
                           { $isEmitting ->
                             [false] No beam is visible in the wave area.
                            *[true] { $waveDisplayMode ->
-                              [amplitude] Solid { $sourceType ->
-                                [photons] { $photonColor ->
-                                  [violet] violet
-                                  [blue] blue
-                                  [indigo] indigo
-                                  [green] green
-                                  [yellow] yellow
-                                  [orange] orange
-                                 *[red] red
-                                }
-                               *[electrons] gray
-                                [neutrons] gray
-                                [heliumAtoms] gray
-                              } wave moves toward { $slitSetting ->
-                                [noBarrier] detector screen.
-                               *[bothOpen] slitted barrier.
-                                [leftCovered] slitted barrier.
-                                [rightCovered] slitted barrier.
-                                [leftDetector] slitted barrier.
-                                [rightDetector] slitted barrier.
-                                [bothDetectors] slitted barrier.
-                              }
-                             *[electricField] { $sourceType ->
-                                [photons] { $photonColor ->
-                                  [violet] Violet
-                                  [blue] Blue
-                                  [indigo] Indigo
-                                  [green] Green
-                                  [yellow] Yellow
-                                  [orange] Orange
-                                 *[red] Red
-                                } and black
-                               *[electrons] Gray and black
-                                [neutrons] Gray and black
-                                [heliumAtoms] Gray and black
-                              } plane wave fronts move toward { $slitSetting ->
-                                [noBarrier] detector screen.
-                               *[bothOpen] slitted barrier.
-                                [leftCovered] slitted barrier.
-                                [rightCovered] slitted barrier.
-                                [leftDetector] slitted barrier.
-                                [rightDetector] slitted barrier.
-                                [bothDetectors] slitted barrier.
-                              } { $wavefrontSpacing ->
-                                [extremelyFarApart] Wave peaks, extremely far apart.
-                                [veryFarApart] Wave peaks, very far apart.
-                                [farApart] Wave peaks, far apart.
-                                [somewhatCloseTogether] Wave peaks, somewhat close together.
-                                [closeTogether] Wave peaks, close together.
-                                [veryCloseTogether] Wave peaks, very close together.
-                               *[extremelyCloseTogether] Wave peaks, extremely close together.
-                              }
-                              [realPart] { $sourceType ->
-                                [photons] { $photonColor ->
-                                  [violet] Violet
-                                  [blue] Blue
-                                  [indigo] Indigo
-                                  [green] Green
-                                  [yellow] Yellow
-                                  [orange] Orange
-                                 *[red] Red
-                                } and black
-                               *[electrons] Gray and black
-                                [neutrons] Gray and black
-                                [heliumAtoms] Gray and black
-                              } plane wave fronts move toward { $slitSetting ->
-                                [noBarrier] detector screen.
-                               *[bothOpen] slitted barrier.
-                                [leftCovered] slitted barrier.
-                                [rightCovered] slitted barrier.
-                                [leftDetector] slitted barrier.
-                                [rightDetector] slitted barrier.
-                                [bothDetectors] slitted barrier.
-                              } { $wavefrontSpacing ->
-                                [extremelyFarApart] Wave peaks, extremely far apart.
-                                [veryFarApart] Wave peaks, very far apart.
-                                [farApart] Wave peaks, far apart.
-                                [somewhatCloseTogether] Wave peaks, somewhat close together.
-                                [closeTogether] Wave peaks, close together.
-                                [veryCloseTogether] Wave peaks, very close together.
-                               *[extremelyCloseTogether] Wave peaks, extremely close together.
-                              }
-                              [imaginaryPart] { $sourceType ->
-                                [photons] { $photonColor ->
-                                  [violet] Violet
-                                  [blue] Blue
-                                  [indigo] Indigo
-                                  [green] Green
-                                  [yellow] Yellow
-                                  [orange] Orange
-                                 *[red] Red
-                                } and black
-                               *[electrons] Gray and black
-                                [neutrons] Gray and black
-                                [heliumAtoms] Gray and black
-                              } plane wave fronts move toward { $slitSetting ->
-                                [noBarrier] detector screen.
-                               *[bothOpen] slitted barrier.
-                                [leftCovered] slitted barrier.
-                                [rightCovered] slitted barrier.
-                                [leftDetector] slitted barrier.
-                                [rightDetector] slitted barrier.
-                                [bothDetectors] slitted barrier.
-                              } { $wavefrontSpacing ->
-                                [extremelyFarApart] Wave peaks, extremely far apart.
-                                [veryFarApart] Wave peaks, very far apart.
-                                [farApart] Wave peaks, far apart.
-                                [somewhatCloseTogether] Wave peaks, somewhat close together.
-                                [closeTogether] Wave peaks, close together.
-                                [veryCloseTogether] Wave peaks, very close together.
-                               *[extremelyCloseTogether] Wave peaks, extremely close together.
-                              }
+                              [amplitude] Solid { a11y.sourceWaveFragments.lowercaseColor } wave moves toward
+                              { a11y.sourceWaveFragments.slitTarget }
+                             *[electricField] { a11y.sourceWaveFragments.capitalizedColorAndBlack } plane wave fronts
+                              move toward { a11y.sourceWaveFragments.slitTarget }
+                              { a11y.sourceWaveFragments.wavePeakSpacing }
+                              [realPart] { a11y.sourceWaveFragments.capitalizedColorAndBlack } plane wave fronts
+                              move toward { a11y.sourceWaveFragments.slitTarget }
+                              { a11y.sourceWaveFragments.wavePeakSpacing }
+                              [imaginaryPart] { a11y.sourceWaveFragments.capitalizedColorAndBlack } plane wave fronts
+                              move toward { a11y.sourceWaveFragments.slitTarget }
+                              { a11y.sourceWaveFragments.wavePeakSpacing }
                             }
                           }
     photonDetail:         'Photon wavelength is { $wavelength }, in the { $color } zone.'

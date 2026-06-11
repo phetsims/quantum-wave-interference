@@ -13,13 +13,14 @@ import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitC
 import { type SourceType } from '../../../common/model/SourceType.js';
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
 import { type BandSpacingCategory, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import { type QuantumWaveInterferenceClockSpeedDescription } from '../../../common/view/description/getClockSpeedDescription.js';
+import { type QuantumWaveInterferencePatternKind } from '../../../common/view/description/getPatternKind.js';
 import { type WavePeakSpacingCategory } from '../../../common/view/description/getWavePeakSpacingCategory.js';
 import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import { type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 
-// The type of interference/diffraction pattern produced by the current slit configuration.
-// 'noBarrier' means the barrier is absent and particles travel directly to the screen.
-export type QuantumWaveInterferencePatternKind = 'doubleSlitInterference' | 'singleSlitDiffraction' | 'whichPathDiffraction' | 'noBarrier';
+// Re-exported from their shared common-code locations so existing High Intensity imports keep working.
+export type { QuantumWaveInterferenceClockSpeedDescription, QuantumWaveInterferencePatternKind };
 
 // Whether the detector output is shown as a visual brightness pattern on the screen ('screen') or as a bar graph ('graph').
 export type QuantumWaveInterferenceDisplayMode = 'screen' | 'graph';
@@ -50,9 +51,6 @@ export type QuantumWaveInterferenceWavefrontSpacing = WavePeakSpacingCategory;
 // physical speed (e.g., electron vs. neutron vs. photon scenarios). Distinct from clock speed.
 export type QuantumWaveInterferenceWaveSpeedDescription = 'slow' | 'medium' | 'fast';
 
-// Categorical speed of the simulation clock (TimeSpeed enum), used for screen-reader narration.
-// 'normal' corresponds to TimeSpeed.NORMAL; differs from WaveSpeedDescription which reflects physics.
-export type QuantumWaveInterferenceClockSpeedDescription = 'slow' | 'normal' | 'fast';
 // Categorical description of the spacing between bright bands in the interference/diffraction pattern,
 // re-exported under the screen-state namespace for use in accessible view-state snapshots.
 export type QuantumWaveInterferenceBandSpacingDescription = BandSpacingCategory;

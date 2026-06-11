@@ -123,6 +123,17 @@ type StringsType = {
       'totalHitsStringProperty': LocalizedStringProperty;
       'emptyStringProperty': LocalizedStringProperty;
     };
+    'sourceWaveFragments': {
+      'lowercaseColorStringProperty': LocalizedStringProperty;
+      'capitalizedColorAndBlackStringProperty': LocalizedStringProperty;
+      'slitTargetStringProperty': LocalizedStringProperty;
+      'wavePeakSpacingStringProperty': LocalizedStringProperty;
+    };
+    'whatsHappeningLeadingParagraphStringProperty': LocalizedStringProperty;
+    'singleParticlesState': {
+      'firePromptStringProperty': LocalizedStringProperty;
+      'sourcePacketStringProperty': LocalizedStringProperty;
+    };
     'highIntensityState': {
       'overviewStringProperty': LocalizedStringProperty;
       'sourceStatusStringProperty': LocalizedStringProperty;

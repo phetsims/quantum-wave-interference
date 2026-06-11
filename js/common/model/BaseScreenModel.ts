@@ -9,6 +9,7 @@
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
@@ -29,6 +30,12 @@ import { type MatterWaveDisplayMode, MatterWaveDisplayModeValues, type PhotonWav
 
 const NOMINAL_DT = 1 / 60;
 const SLOW_TIME_SPEED_FACTOR = 0.15;
+
+// Number of model step calls between accessible-state ticks while the source is emitting. The tick is exposed through
+// accessibleStateStepProperty so accessible descriptions can periodically recompute semantic state for continuous
+// changes such as wavefront travel and pattern formation, without announcing on every animation frame. This is a view
+// update cadence for accessibility content, not a physical time interval.
+const ACCESSIBLE_STATE_STEP_INTERVAL = 10;
 
 /**
  * Construction options for the shared detector-screen model. The tandem instruments the model's shared Properties
@@ -83,6 +90,10 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   public readonly tapeMeasureBasePositionProperty: Vector2Property;
   public readonly tapeMeasureTipPositionProperty: Vector2Property;
   public readonly stopwatch: Stopwatch;
+
+  // Monotonically increasing signal for accessible state consumers that need updates during continuous emission.
+  public readonly accessibleStateStepProperty: NumberProperty;
+  private accessibleStateStepFrameCount = 0;
 
   protected readonly toolsTandem;
   private readonly normalTimeSpeedFactor: number;
@@ -240,6 +251,12 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
         range: Stopwatch.ZERO_TO_ALMOST_SIXTY
       }
     } );
+
+    this.accessibleStateStepProperty = new NumberProperty( 0, {
+      numberType: 'Integer',
+      phetioReadOnly: true,
+      tandem: tandem.createTandem( 'accessibleStateStepProperty' )
+    } );
   }
 
   /**
@@ -274,6 +291,9 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     this.tapeMeasureBasePositionProperty.reset();
     this.tapeMeasureTipPositionProperty.reset();
     this.stopwatch.reset();
+
+    this.accessibleStateStepFrameCount = 0;
+    this.accessibleStateStepProperty.reset();
 
     this.sceneProperty.reset();
   }
@@ -318,7 +338,8 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   /**
    * Advances the active scene by one nominal visual time step when the step-forward control is pressed, independent
    * of the play state and selected time speed. The stopwatch advances by the corresponding physical time reported by
-   * the scene, in seconds, when that interval is positive.
+   * the scene, in seconds, when that interval is positive. Also ticks the accessible-state counter when the source
+   * is currently emitting so that describers refresh semantic state after a manual step.
    */
   public stepOnce(): void {
     const scene = this.sceneProperty.value;
@@ -328,13 +349,32 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     if ( physicalDt > 0 ) {
       this.stopwatch.step( physicalDt );
     }
+
+    if ( this.currentIsEmittingProperty.value ) {
+      this.stepAccessibleState();
+    }
+  }
+
+  /**
+   * Increments accessibleStateStepProperty every ACCESSIBLE_STATE_STEP_INTERVAL calls so that accessibility
+   * describers can recompute semantic state without reacting to every animation frame. The frame counter resets
+   * to zero each time the threshold is crossed.
+   */
+  private stepAccessibleState(): void {
+    this.accessibleStateStepFrameCount++;
+    if ( this.accessibleStateStepFrameCount >= ACCESSIBLE_STATE_STEP_INTERVAL ) {
+      this.accessibleStateStepFrameCount = 0;
+      this.accessibleStateStepProperty.value++;
+    }
   }
 
   /**
    * Advances the active scene for one animation frame. joist supplies elapsed real time in seconds, which is converted
    * to visual simulation time using the play state and selected time-speed scaling. The stopwatch advances by the
    * corresponding physical time reported by the scene, in seconds. Neither the scene nor stopwatch advances while
-   * paused, and the stopwatch does not advance when the scene reports a nonpositive physical interval.
+   * paused, and the stopwatch does not advance when the scene reports a nonpositive physical interval. While the
+   * source is emitting, the accessible-state counter ticks so describers periodically refresh semantic state during
+   * continuous wave or particle emission.
    *
    * @param dt - elapsed real time since the previous animation frame, in seconds
    */
@@ -350,6 +390,10 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     const physicalDt = scene.getPhysicalDt( effectiveDt );
     if ( physicalDt > 0 ) {
       this.stopwatch.step( physicalDt );
+    }
+
+    if ( this.currentIsEmittingProperty.value ) {
+      this.stepAccessibleState();
     }
   }
 }

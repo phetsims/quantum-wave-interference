@@ -1,8 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Creates Screen 2 Experimental Setup list items for the reached source, wave, and detector sequence. These are
- * persistent PDOM state counterparts to the High Intensity context responses.
+ * Creates Screen 2 list items for the reached source, wave, and detector sequence, shown as the accumulating
+ * bullets of the "What's happening at the moment" list. These are persistent PDOM state counterparts to the
+ * High Intensity context responses.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -113,11 +114,11 @@ function getDetectorPatternFormationFactor( model: HighIntensityModel ): number 
 }
 
 /**
- * Creates additional Experimental Setup list items for High Intensity source/wave/detector milestones.
+ * Creates the High Intensity source/wave/detector milestone list items.
  *
  * @param model - High Intensity model that owns the accessible state dependencies
  * @param getAccessibleViewState - returns the current High Intensity accessible view state
- * @returns list items to append to the shared Experimental Setup details list
+ * @returns list items for the "What's happening at the moment" list
  */
 export default function HighIntensityExperimentSetupSequenceItems(
   model: HighIntensityModel,

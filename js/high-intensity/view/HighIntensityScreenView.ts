@@ -18,21 +18,24 @@ import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
+import AccessibleList from '../../../../scenery-phet/js/accessibility/AccessibleList.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
+import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import AquaRadioButtonGroup, { AquaRadioButtonGroupItem } from '../../../../sun/js/AquaRadioButtonGroup.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
-import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
+import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import createAndAddSlitConfigurationControlsRow from '../../common/view/createAndAddSlitConfigurationControlsRow.js';
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import BandAnalysis from '../../common/view/description/BandAnalysis.js';
 import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
+import { getClockSpeedDescription } from '../../common/view/description/getClockSpeedDescription.js';
+import { getPatternKind } from '../../common/view/description/getPatternKind.js';
 import { getWavePeakSpacingCategory } from '../../common/view/description/getWavePeakSpacingCategory.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
@@ -57,7 +60,7 @@ import HighIntensityModel from '../model/HighIntensityModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
-import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferenceClockSpeedDescription, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind, type QuantumWaveInterferenceWaveProgressCheckpoint, type QuantumWaveInterferenceWaveProgressStage, type QuantumWaveInterferenceWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
+import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind, type QuantumWaveInterferenceWaveProgressCheckpoint, type QuantumWaveInterferenceWaveProgressStage, type QuantumWaveInterferenceWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
 import HighIntensityExperimentSetupSequenceItems from './description/HighIntensityExperimentSetupSequenceItems.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
 
@@ -117,13 +120,6 @@ const WAVE_REGION_Y_OFFSET = -30;
 // mini-symbol and the top of the main wave region.
 const CALLOUT_GAP = 55;
 
-function getPatternKind( slitConfiguration: SlitConfigurationWithNoBarrier ): QuantumWaveInterferencePatternKind {
-  return slitConfiguration === 'noBarrier' ? 'noBarrier' :
-         showsDoubleSlitInterferencePattern( slitConfiguration ) ? 'doubleSlitInterference' :
-         ( slitConfiguration === 'leftDetector' || slitConfiguration === 'rightDetector' || slitConfiguration === 'bothDetectors' ) ? 'whichPathDiffraction' :
-         'singleSlitDiffraction';
-}
-
 /**
  * Derives the current detector-pattern formation stage from the scene and model state.
  *
@@ -151,14 +147,6 @@ function getPatternFormation( scene: HighIntensitySceneModel, model: HighIntensi
   return formationFactor >= DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD ? 'complete' :
          formationFactor > 0 ? 'forming' :
          'empty';
-}
-
-function getClockSpeedDescription( model: HighIntensityModel ): QuantumWaveInterferenceClockSpeedDescription {
-  const timeSpeed = model.timeSpeedProperty.value;
-  return timeSpeed === TimeSpeed.SLOW ? 'slow' :
-         timeSpeed === TimeSpeed.NORMAL ? 'normal' :
-         timeSpeed === TimeSpeed.FAST ? 'fast' :
-         ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
 }
 
 function getWaveSpeedDescription( scene: HighIntensitySceneModel ): QuantumWaveInterferenceWaveSpeedDescription {
@@ -395,7 +383,7 @@ export default class HighIntensityScreenView extends ScreenView {
     return {
       sourceType: scene.sourceType,
       isPlaying: this.model.isPlayingProperty.value,
-      clockSpeedDescription: getClockSpeedDescription( this.model ),
+      clockSpeedDescription: getClockSpeedDescription( this.model.timeSpeedProperty.value ),
       isEmitting: scene.isEmittingProperty.value,
       isEmitterEnabled: scene.isEmitterEnabledProperty.value,
       isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
@@ -828,6 +816,17 @@ export default class HighIntensityScreenView extends ScreenView {
     detectorScreenControls: DetectorScreenControls,
     getAccessibleViewState: () => HighIntensityAccessibleViewState
   ): QuantumWaveInterferenceScreenViewDescription {
+
+    // The accumulating source/wave/detector milestone items live in their own "What's happening at the moment"
+    // list, a sibling of the "Current experimental details" list in the Experiment Setup section.
+    const whatsHappeningNode = new Node( {
+      accessibleTemplate: AccessibleList.createTemplateProperty( {
+        leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.whatsHappeningLeadingParagraphStringProperty,
+        listItems: HighIntensityExperimentSetupSequenceItems( model, getAccessibleViewState )
+      } )
+    } );
+    this.addChild( whatsHappeningNode );
+
     const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
       model,
       model.currentSlitConfigurationProperty, {
@@ -835,7 +834,7 @@ export default class HighIntensityScreenView extends ScreenView {
         detectorScreenUpdateTriggerProperty: model.accessibleStateStepProperty,
         screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,
         slitOrientation: 'topBottom',
-        experimentSetupAdditionalListItems: HighIntensityExperimentSetupSequenceItems( model, getAccessibleViewState ),
+        experimentSetupAdditionalNodes: [ whatsHappeningNode ],
         sourceNodes: [ sourceBeamCalloutNode, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow, doubleSlitNode ],
         detectorScreenControlNodes: [ detectorScreenControls ]
