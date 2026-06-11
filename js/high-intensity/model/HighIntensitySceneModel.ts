@@ -179,7 +179,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
    */
   private accumulateHits( dt: number ): void {
     // rate is the detector-screen hit creation rate in hits per model second for the current scene.
-    const rate = this.getDetectorScreenHitRate();
+    const rate = DETECTOR_SCREEN_HIT_RATE;
 
     // rate * dt converts the continuous hit rate into the expected number of hits for this frame. The accumulator
     // preserves fractional hits across frames so non-integer per-frame rates still produce the correct average rate.
@@ -218,7 +218,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   /**
    * Advances the continuous high-intensity slit-detector/decoherence scheduler. When an emitted wavefront reaches the
    * double-slit barrier and one or more slit detectors are present, this creates model-time detector records at
-   * getSlitDetectorEventRate(). Those records are stored as decoherence events so the analytical solver can render the
+   * SLIT_DETECTOR_EVENT_RATE. Those records are stored as decoherence events so the analytical solver can render the
    * selected slit bands and attenuate the opposite slit contribution. Creating an event also increments the appropriate
    * slit detector hit count through addDecoherenceEvent().
    *
@@ -239,7 +239,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }
 
     const slitConfig = this.slitConfigurationProperty.value;
-    const detectorEventRate = this.getSlitDetectorEventRate();
+    const detectorEventRate = SLIT_DETECTOR_EVENT_RATE;
     if ( !hasAnyDetector( slitConfig ) || detectorEventRate <= 0 ) {
       this.nextDecoherenceEventTime = null;
       return;
@@ -321,16 +321,6 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   private resetDetectorPatternFormation(): void {
     this._detectorPatternFormationFactorProperty.value = 0;
-  }
-
-  // TODO: Inline this one, see https://github.com/phetsims/quantum-wave-interference/issues/135
-  private getDetectorScreenHitRate(): number {
-    return DETECTOR_SCREEN_HIT_RATE;
-  }
-
-  // TODO: Inline this one, see https://github.com/phetsims/quantum-wave-interference/issues/135
-  private getSlitDetectorEventRate(): number {
-    return SLIT_DETECTOR_EVENT_RATE;
   }
 
   private getIntervalForRate( rate: number ): number {
