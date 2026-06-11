@@ -48,7 +48,7 @@ import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInte
 import WaveVisualizationCanvasNode from '../../common/view/WaveVisualizationCanvasNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
-const EMITTER_SCALE = 1.5;
+const EMITTER_SCALE = 1.725;
 
 const EMITTER_BODY_WIDTH = 70 * EMITTER_SCALE;
 const EMITTER_BODY_HEIGHT = 32 * EMITTER_SCALE;
@@ -57,14 +57,16 @@ const EMITTER_NOZZLE_HEIGHT = 26 * EMITTER_SCALE;
 const EMITTER_BUTTON_RADIUS = 12 * EMITTER_SCALE;
 const MAX_HITS_REACHED_PANEL_EMITTER_GAP = 10 * EMITTER_SCALE;
 
-const MINI_SYMBOL_SCALE = 0.5;
+const MINI_SYMBOL_SCALE = 0.72;
 const MINI_SYMBOL_SQUARE_SIZE = 22 * MINI_SYMBOL_SCALE;
 const MINI_SYMBOL_DETECTOR_WIDTH = 8 * MINI_SYMBOL_SCALE;
 const MINI_SYMBOL_SKEW = 3 * MINI_SYMBOL_SCALE;
+const MINI_SYMBOL_STROKE_WIDTH = 1 * MINI_SYMBOL_SCALE;
+const MINI_SYMBOL_DETECTOR_OVERLAP = 4 * MINI_SYMBOL_SCALE;
 const MINI_BARRIER_FILL = '#939393';
-const MINI_BARRIER_EDGE_INSET = 0.5;
+const MINI_BARRIER_EDGE_INSET = 1 * MINI_SYMBOL_SCALE;
 const MINI_BARRIER_WIDTH = Math.max(
-  1,
+  2 * MINI_SYMBOL_SCALE,
   12 / QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH * MINI_SYMBOL_SQUARE_SIZE
 );
 
@@ -75,8 +77,8 @@ const HIGH_OPACITY_BEAM_ALPHA_SCALE = 0.6;
 const DIM_RIGHT_BEAM_ALPHA_SCALE = 0.3;
 const RIGHT_BEAM_FADE_WIDTH_SCALE = 0.25;
 
-const CALLOUT_LINE_WIDTH = 0.75;
-const CALLOUT_LINE_START_Y_OFFSET = 1;
+const CALLOUT_LINE_WIDTH = 1.5 * MINI_SYMBOL_SCALE;
+const CALLOUT_LINE_START_Y_OFFSET = 2 * MINI_SYMBOL_SCALE;
 
 /**
  * Three-stop gradient palette applied to a matter-particle LaserPointerNode body so each particle type
@@ -191,10 +193,9 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
     const miniSquare = new Rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE, {
       fill: WaveVisualizationCanvasNode.BACKGROUND_COLOR,
       stroke: 'white',
-      lineWidth: 0.5
+      lineWidth: MINI_SYMBOL_STROKE_WIDTH
     } );
 
-    const miniDetectorOverlap = 2;
     const miniDetectorShape = new Shape()
       .moveTo( 0, MINI_SYMBOL_SKEW )
       .lineTo( MINI_SYMBOL_DETECTOR_WIDTH, 0 )
@@ -204,7 +205,7 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
     const miniDetector = new Path( miniDetectorShape, {
       fill: WaveVisualizationCanvasNode.BACKGROUND_COLOR
     } );
-    miniDetector.left = miniSquare.right - miniDetectorOverlap;
+    miniDetector.left = miniSquare.right - MINI_SYMBOL_DETECTOR_OVERLAP;
     miniDetector.centerY = miniSquare.centerY;
 
     const miniTopBarrier = new Rectangle( 0, 0, MINI_BARRIER_WIDTH, 0, {
