@@ -84,12 +84,15 @@ export default class DetectorScreenDescriber {
    *   0.5 for Experiment-screen scenes (screenDistanceProperty branch) or regionWidth/2 for the other branch.
    * @param updateTriggerProperty - an optional extra Property whose changes force a full description refresh,
    *   used when the caller knows of an external display change (e.g. scale index) not captured by scene properties
+   * @param useSharedDetectorPatternDescription - whether the double-slit average-intensity branch should reuse the
+   *   shared detector-pattern wording from Screen 2 instead of the legacy detector-screen paragraph wording
    */
   public constructor(
     sceneProperty: TReadOnlyProperty<DetectorScreenDescriberScene>,
     isRulerVisibleProperty: TReadOnlyProperty<boolean>,
     detectorScreenHalfWidthProperty?: TReadOnlyProperty<number>,
-    updateTriggerProperty?: TReadOnlyProperty<unknown>
+    updateTriggerProperty?: TReadOnlyProperty<unknown>,
+    useSharedDetectorPatternDescription = false
   ) {
 
     const descriptionProperty = new Property<string>( '' );
@@ -122,7 +125,13 @@ export default class DetectorScreenDescriber {
                                    BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, isRulerVisible, false ) :
                                    BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
 
-        descriptionProperty.value = formatIntensityDescription( isDoubleSlit, slitSetting === 'noBarrier', analysis, spatialDescription );
+        descriptionProperty.value = formatIntensityDescription(
+          isDoubleSlit,
+          slitSetting === 'noBarrier',
+          analysis,
+          spatialDescription,
+          useSharedDetectorPatternDescription
+        );
         return;
       }
 

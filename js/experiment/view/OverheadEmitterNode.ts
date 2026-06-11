@@ -195,7 +195,6 @@ export default class OverheadEmitterNode extends Node {
 
     const isEmittingProperty = model.currentIsEmittingProperty;
     const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
-    const isPlayingStringProperty = model.isPlayingProperty.derived( isPlaying => isPlaying ? 'true' : 'false' );
 
     const isMaxHitsReachedProperty = model.currentIsMaxHitsReachedProperty;
 
@@ -216,10 +215,6 @@ export default class OverheadEmitterNode extends Node {
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpText.createProperty( {
         isEmitting: isEmittingStringProperty,
         sourceType: sourceTypeProperty
-      } ),
-      accessibleContextResponseOn: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleContextResponseOn.createProperty( {
-        detectionMode: model.currentDetectionModeProperty,
-        isPlaying: isPlayingStringProperty
       } ),
       accessibleContextResponseOff: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleContextResponseOffStringProperty
     };

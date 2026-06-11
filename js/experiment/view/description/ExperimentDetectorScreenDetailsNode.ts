@@ -28,7 +28,9 @@ export default class ExperimentDetectorScreenDetailsNode extends Node {
     const detectorScreenDescriber = new DetectorScreenDescriber(
       model.sceneProperty,
       model.isRulerVisibleProperty,
-      model.detectorScreenScaleIndexProperty.derived( getDetectorScreenHalfWidthForScaleIndex )
+      model.detectorScreenScaleIndexProperty.derived( getDetectorScreenHalfWidthForScaleIndex ),
+      undefined,
+      true
     );
 
     const detectorScreenIsEmptyProperty = new DerivedProperty(

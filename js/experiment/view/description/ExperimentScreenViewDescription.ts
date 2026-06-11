@@ -7,16 +7,40 @@
  */
 
 import Node from '../../../../../scenery/js/nodes/Node.js';
+import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
 import ExperimentSetupDetailsNode from '../../../common/view/description/ExperimentSetupDetailsNode.js';
+import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
+import { formatCompleteIntensityDetectorPatternDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import type SceneRadioButtonGroup from '../../../common/view/SceneRadioButtonGroup.js';
 import type SourceControlPanel from '../../../common/view/SourceControlPanel.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../../model/ExperimentModel.js';
+import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import type SceneModel from '../../model/SceneModel.js';
 import type OverheadEmitterNode from '../OverheadEmitterNode.js';
 import type ScreenSettingsPanel from '../ScreenSettingsPanel.js';
 import type SlitControlPanel from '../SlitControlPanel.js';
 import ExperimentDetectorScreenDetailsNode from './ExperimentDetectorScreenDetailsNode.js';
+
+type ClockSpeedDescription = 'slow' | 'normal' | 'fast';
+
+function getClockSpeedDescription( model: ExperimentModel ): ClockSpeedDescription {
+  const timeSpeed = model.timeSpeedProperty.value;
+  return timeSpeed === TimeSpeed.SLOW ? 'slow' :
+         timeSpeed === TimeSpeed.NORMAL ? 'normal' :
+         timeSpeed === TimeSpeed.FAST ? 'fast' :
+         ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
+}
+
+function formatExperimentDetectorPatternResponse( model: ExperimentModel ): string {
+  const scene = model.sceneProperty.value;
+  const analysis = BandAnalysis.analyzeTheoreticalPattern(
+    scene,
+    getDetectorScreenHalfWidthForScaleIndex( model.detectorScreenScaleIndexProperty.value )
+  );
+
+  return formatCompleteIntensityDetectorPatternDescription( model.currentSlitSettingProperty.value, analysis );
+}
 
 export default class ExperimentScreenViewDescription extends Node {
 
@@ -36,6 +60,34 @@ export default class ExperimentScreenViewDescription extends Node {
   ) {
 
     super();
+
+    const sourceStartedResponseNode = new Node();
+    this.addChild( sourceStartedResponseNode );
+    model.currentIsEmittingProperty.lazyLink( isEmitting => {
+      if ( !isEmitting ) {
+        return;
+      }
+
+      sourceStartedResponseNode.addAccessibleContextResponse(
+        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
+          isPlaying: model.isPlayingProperty.value ? 'true' : 'false',
+          timeSpeed: getClockSpeedDescription( model )
+        } ),
+        { flush: true }
+      );
+
+      if ( !model.isPlayingProperty.value ) {
+        return;
+      }
+
+      sourceStartedResponseNode.addAccessibleContextResponse(
+        model.currentDetectionModeProperty.value === 'averageIntensity' ?
+        formatExperimentDetectorPatternResponse( model ) :
+        QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponse.format( {
+          isEmitting: 'true'
+        } )
+      );
+    } );
 
     const maxHitsReachedResponseNode = new Node();
     this.addChild( maxHitsReachedResponseNode );

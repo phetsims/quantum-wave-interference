@@ -8,6 +8,93 @@
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type BandAnalysisResult, type HitStage } from './BandAnalysis.js';
+import { type DetectionMode } from '../../model/DetectionMode.js';
+import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
+import { type WaveDisplayMode } from '../../model/WaveDisplayMode.js';
+
+export type QuantumWaveInterferencePatternKind = 'doubleSlitInterference' | 'singleSlitDiffraction' | 'whichPathDiffraction' | 'noBarrier';
+export type QuantumWaveInterferencePatternFormation = 'empty' | 'forming' | 'complete' | 'collectingHits' | 'paused' | 'notApplicable';
+
+type SingleSlitLocationKey = 'leftCovered' | 'rightCovered';
+
+/**
+ * Gets the detector-pattern kind used by shared accessible detector-pattern strings.
+ * @param slitConfiguration - current slit configuration
+ * @returns pattern kind for accessible detector-pattern descriptions
+ */
+export function getPatternKind( slitConfiguration: SlitConfigurationWithNoBarrier ): QuantumWaveInterferencePatternKind {
+  return slitConfiguration === 'bothOpen' ? 'doubleSlitInterference' :
+         ( slitConfiguration === 'leftCovered' || slitConfiguration === 'rightCovered' ) ? 'singleSlitDiffraction' :
+         slitConfiguration === 'noBarrier' ? 'noBarrier' :
+         'whichPathDiffraction';
+}
+
+function getSingleSlitLocationKey( slitConfiguration: SlitConfigurationWithNoBarrier ): SingleSlitLocationKey {
+  return slitConfiguration === 'leftCovered' ? 'leftCovered' :
+         'rightCovered';
+}
+
+/**
+ * Formats the shared detector-pattern description used by Screen 2 context responses and by Screen 1 when it needs
+ * the same dynamic wave-pattern wording.
+ * @param isEmitting - whether the source is emitting
+ * @param detectionMode - current detector mode
+ * @param patternFormation - current pattern formation stage
+ * @param patternKind - kind of detector pattern produced by the current setup
+ * @param waveDisplayMode - current wave display mode; defaults to electric field for callers where the selected
+ *   branch does not use wave display mode
+ * @param slitSetting - current slit setting, used by single-slit branches
+ * @param hitStage - current hit accumulation stage
+ * @param hitCount - current hit count
+ * @param bandSpacing - qualitative spacing between bright bands
+ * @returns localized detector-pattern description
+ */
+export function formatDetectorPatternDescription(
+  isEmitting: boolean,
+  detectionMode: DetectionMode,
+  patternFormation: QuantumWaveInterferencePatternFormation,
+  patternKind: QuantumWaveInterferencePatternKind,
+  waveDisplayMode: WaveDisplayMode = 'electricField',
+  slitSetting: SingleSlitLocationKey = 'rightCovered',
+  hitStage: HitStage = 'clear',
+  hitCount = 0,
+  bandSpacing: BandAnalysisResult[ 'spacingCategory' ] = 'somewhatCloseTogether'
+): string {
+  return QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.format( {
+    isEmitting: isEmitting ? 'true' : 'false',
+    detectionMode: detectionMode,
+    patternFormation: patternFormation,
+    patternKind: patternKind,
+    waveDisplayMode: waveDisplayMode,
+    slitSetting: slitSetting,
+    hitStage: hitStage,
+    hitCount: hitCount,
+    bandSpacing: bandSpacing
+  } );
+}
+
+/**
+ * Formats the completed average-intensity detector pattern from the shared Screen 2 detector-pattern string.
+ * @param slitConfiguration - current slit configuration
+ * @param analysis - analyzed band/spacing data for the visible detector-screen region
+ * @returns localized completed detector-pattern description
+ */
+export function formatCompleteIntensityDetectorPatternDescription(
+  slitConfiguration: SlitConfigurationWithNoBarrier,
+  analysis: BandAnalysisResult
+): string {
+  return formatDetectorPatternDescription(
+    true,
+    'averageIntensity',
+    'complete',
+    getPatternKind( slitConfiguration ),
+    'electricField',
+    getSingleSlitLocationKey( slitConfiguration ),
+    'clear',
+    0,
+    analysis.spacingCategory
+  );
+}
 
 /**
  * Formats the accessible detector-screen description for average-intensity mode.
@@ -21,9 +108,12 @@ export function formatIntensityDescription(
   isDoubleSlit: boolean,
   isNoBarrier: boolean,
   analysis: BandAnalysisResult,
-  spatialDescription: string
+  spatialDescription: string,
+  useSharedDetectorPatternDescription = false
 ): string {
-  return isDoubleSlit ?
+  return isDoubleSlit && useSharedDetectorPatternDescription ?
+         formatCompleteIntensityDetectorPatternDescription( 'bothOpen', analysis ) :
+         isDoubleSlit ?
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
            spacing: analysis.spacingCategory,
            envelope: analysis.envelopeCategory

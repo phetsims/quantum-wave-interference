@@ -11,6 +11,7 @@ import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometer
 import { metersPerSecondUnit } from '../../../../../scenery-phet/js/units/metersPerSecondUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 import { picometersUnit } from '../../../../../scenery-phet/js/units/picometersUnit.js';
+import { formatDetectorPatternDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import { getWavelengthColorZoneStringProperty } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind } from './HighIntensityAccessibleViewState.js';
@@ -120,14 +121,14 @@ export const formatDetectorDescription = (
   state: HighIntensitySemanticAccessibleViewState,
   patternFormation: QuantumWaveInterferencePatternFormation = state.patternFormation
 ): string =>
-  QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.format( {
-    isEmitting: toFluentBoolean( state.isEmitting ),
-    detectionMode: state.detectionMode,
-    patternFormation: patternFormation,
-    patternKind: getPatternKindKey( state.patternKind ),
-    waveDisplayMode: state.waveDisplayMode,
-    slitSetting: getSingleSlitLocationKey( state ),
-    hitStage: state.hitStage,
-    hitCount: state.totalHits,
-    bandSpacing: state.bandSpacingDescription
-  } );
+  formatDetectorPatternDescription(
+    state.isEmitting,
+    state.detectionMode,
+    patternFormation,
+    getPatternKindKey( state.patternKind ),
+    state.waveDisplayMode,
+    getSingleSlitLocationKey( state ),
+    state.hitStage,
+    state.totalHits,
+    state.bandSpacingDescription
+  );
