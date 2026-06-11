@@ -288,8 +288,7 @@ export default class ExperimentScreenView extends ScreenView {
     this.addChild( experimentScreenViewDescription );
 
     this.pdomPlayAreaNode.pdomOrder = [
-      experimentScreenViewDescription.detectorScreenPatternHeadingNode,
-      experimentScreenViewDescription.experimentalDetailsHeadingNode,
+      experimentScreenViewDescription.detectorScreenAndExperimentDetailsHeadingNode,
       experimentScreenViewDescription.sourceHeadingNode,
       experimentScreenViewDescription.slitsHeadingNode,
       experimentScreenViewDescription.detectorScreenHeadingNode,

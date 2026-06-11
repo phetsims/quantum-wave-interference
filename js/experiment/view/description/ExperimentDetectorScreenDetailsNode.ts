@@ -31,46 +31,41 @@ export default class ExperimentDetectorScreenDetailsNode extends Node {
       model.detectorScreenScaleIndexProperty.derived( getDetectorScreenHalfWidthForScaleIndex )
     );
 
-    const isEmittingStringProperty = model.currentIsEmittingProperty.derived( toFluentBoolean );
-    const isMaxHitsReachedStringProperty = model.currentIsMaxHitsReachedProperty.derived( toFluentBoolean );
-
-    const sourceStateStringProperty =
-      QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.sourceState.createProperty( {
-        isEmitting: isEmittingStringProperty
-      } );
-
-    const totalHitsStringProperty =
-      QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.totalHits.createProperty( {
-        hitCount: model.currentTotalHitsProperty,
-        isMaxHitsReached: isMaxHitsReachedStringProperty
-      } );
-
-    const totalHitsVisibleProperty = model.currentDetectionModeProperty.derived( detectionMode => detectionMode === 'hits' );
-
-    const patternDescriptionStringProperty = new DerivedProperty(
+    const detectorScreenIsEmptyProperty = new DerivedProperty(
       [
         detectorScreenDescriber.descriptionProperty,
         model.currentDetectionModeProperty,
         model.currentTotalHitsProperty,
-        QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty,
+        QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty
+      ],
+      ( detectorScreenDescription, detectionMode, totalHits, intensityOffDescription ) =>
+        detectionMode === 'hits' && totalHits === 0 || detectorScreenDescription === intensityOffDescription
+    );
+
+    const patternDescriptionStringProperty = new DerivedProperty(
+      [
+        detectorScreenDescriber.descriptionProperty,
+        detectorScreenIsEmptyProperty,
         QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.emptyStringProperty
       ],
-      ( detectorScreenDescription, detectionMode, totalHits, intensityOffDescription, emptyDescription ) =>
-        detectionMode === 'hits' && totalHits === 0 || detectorScreenDescription === intensityOffDescription ?
-        emptyDescription :
-        detectorScreenDescription
+      ( detectorScreenDescription, detectorScreenIsEmpty, emptyDescription ) =>
+        detectorScreenIsEmpty ? emptyDescription : detectorScreenDescription
     );
+
+    const leadingParagraphStringProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
+        detectionMode: model.currentDetectionModeProperty,
+        sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
+        detectorScreenIsEmpty: detectorScreenIsEmptyProperty.derived( toFluentBoolean )
+      } );
 
     super( {
       accessibleTemplate: AccessibleList.createTemplateProperty( {
-        listItems: [
-          sourceStateStringProperty,
-          {
-            stringProperty: totalHitsStringProperty,
-            visibleProperty: totalHitsVisibleProperty
-          },
-          patternDescriptionStringProperty
-        ]
+        leadingParagraphStringProperty: leadingParagraphStringProperty,
+        listItems: [ {
+          stringProperty: patternDescriptionStringProperty,
+          visibleProperty: DerivedProperty.not( detectorScreenIsEmptyProperty )
+        } ]
       } )
     } );
   }

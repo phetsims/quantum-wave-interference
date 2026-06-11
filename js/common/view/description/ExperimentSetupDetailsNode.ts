@@ -74,6 +74,9 @@ type SetupDetailsOptions = {
   // Set to false to suppress the "Current experimental details" leading paragraph (default: true).
   includeLeadingParagraph?: boolean;
 
+  // Optional leading paragraph string to use before the list items.
+  leadingParagraphStringProperty?: TReadOnlyProperty<string>;
+
   // Set to false to omit the source-emitter (on/off) list item (default: true).
   includeSourceEmitter?: boolean;
 
@@ -263,6 +266,7 @@ export default class ExperimentSetupDetailsNode extends Node {
       accessibleTemplate: AccessibleList.createTemplateProperty( {
         leadingParagraphStringProperty: providedOptions.includeLeadingParagraph === false ?
                                         null :
+                                        providedOptions.leadingParagraphStringProperty ||
                                         QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.leadingParagraphStringProperty,
         listItems: listItems
       } )

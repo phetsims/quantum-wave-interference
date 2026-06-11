@@ -20,8 +20,7 @@ import ExperimentDetectorScreenDetailsNode from './ExperimentDetectorScreenDetai
 
 export default class ExperimentScreenViewDescription extends Node {
 
-  public readonly detectorScreenPatternHeadingNode: Node;
-  public readonly experimentalDetailsHeadingNode: Node;
+  public readonly detectorScreenAndExperimentDetailsHeadingNode: Node;
   public readonly sourceHeadingNode: Node;
   public readonly slitsHeadingNode: Node;
   public readonly detectorScreenHeadingNode: Node;
@@ -56,7 +55,8 @@ export default class ExperimentScreenViewDescription extends Node {
 
     const experimentSetupDetailsListNode = new ExperimentSetupDetailsNode( model, model.currentSlitSettingProperty, {
       screenDistanceProperty: model.currentScreenDistanceProperty,
-      includeLeadingParagraph: false,
+      leadingParagraphStringProperty:
+        QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.experimentDetailsLeadingParagraphStringProperty,
       includeSourceEmitter: false,
       includeDetectionMode: false
     } );
@@ -66,17 +66,11 @@ export default class ExperimentScreenViewDescription extends Node {
     // quantum-wave-interference/js/common/view/description/QuantumWaveInterferenceScreenViewDescription.ts.
     // Heading nodes for PDOM navigation. Each groups related controls under a heading so screen reader users can jump
     // between major sections with heading shortcuts.
-    this.detectorScreenPatternHeadingNode = new Node( {
-      accessibleHeading: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.heading.createProperty( {
-        detectionMode: model.currentDetectionModeProperty
-      } )
+    this.detectorScreenAndExperimentDetailsHeadingNode = new Node( {
+      accessibleHeading:
+        QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.detectorScreenAndExperimentDetailsHeadingStringProperty
     } );
-    this.addChild( this.detectorScreenPatternHeadingNode );
-
-    this.experimentalDetailsHeadingNode = new Node( {
-      accessibleHeading: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.experimentalDetailsHeadingStringProperty
-    } );
-    this.addChild( this.experimentalDetailsHeadingNode );
+    this.addChild( this.detectorScreenAndExperimentDetailsHeadingNode );
 
     this.sourceHeadingNode = new Node( {
       accessibleHeading: QuantumWaveInterferenceFluent.a11y.sourceHeadingStringProperty
@@ -94,9 +88,10 @@ export default class ExperimentScreenViewDescription extends Node {
     this.addChild( this.detectorScreenHeadingNode );
 
     // Play Area focus order, organized under headings for screen reader navigation.
-    this.detectorScreenPatternHeadingNode.pdomOrder = [ detectorScreenDetailsNode ];
-
-    this.experimentalDetailsHeadingNode.pdomOrder = [ experimentSetupDetailsListNode ];
+    this.detectorScreenAndExperimentDetailsHeadingNode.pdomOrder = [
+      detectorScreenDetailsNode,
+      experimentSetupDetailsListNode
+    ];
 
     this.sourceHeadingNode.pdomOrder = [
       overheadEmitterNode.laserPointerNode,

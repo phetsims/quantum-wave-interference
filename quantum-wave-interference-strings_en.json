@@ -257,6 +257,15 @@
       "value": "Detector Screen Controls"
     },
     "experimentDetectorScreenDetails": {
+      "detectorScreenAndExperimentDetailsHeading": {
+        "value": "Detector Screen and Experiment Details"
+      },
+      "leadingParagraph": {
+        "value": "{ $detectorScreenIsEmpty ->\n  [true] Detector screen is empty. { $sourceType ->\n    [photons] Photon\n    [electrons] Electron\n    [neutrons] Neutron\n   *[heliumAtoms] Helium atom\n  } experiment ready.\n *[false] Detector screen shows { $detectionMode ->\n    [averageIntensity] an intensity pattern\n   *[hits] a hits pattern\n  } of a { $sourceType ->\n    [photons] photon\n    [electrons] electron\n    [neutrons] neutron\n   *[heliumAtoms] helium atom\n  } experiment.\n}"
+      },
+      "experimentDetailsLeadingParagraph": {
+        "value": "Experiment details include:"
+      },
       "heading": {
         "value": "Detector Screen, { $detectionMode ->\n  [averageIntensity] Intensity Pattern\n *[hits] Hits Pattern\n}"
       },

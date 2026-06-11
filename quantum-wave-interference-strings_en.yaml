@@ -222,6 +222,26 @@ a11y:
   slitsHeading:                Slits and Screen Configuration
   detectorScreenHeading:       Detector Screen Controls
   experimentDetectorScreenDetails:
+    detectorScreenAndExperimentDetailsHeading: Detector Screen and Experiment Details
+    leadingParagraph:          >-
+                               { $detectorScreenIsEmpty ->
+                                 [true] Detector screen is empty. { $sourceType ->
+                                   [photons] Photon
+                                   [electrons] Electron
+                                   [neutrons] Neutron
+                                  *[heliumAtoms] Helium atom
+                                 } experiment ready.
+                                *[false] Detector screen shows { $detectionMode ->
+                                   [averageIntensity] an intensity pattern
+                                  *[hits] a hits pattern
+                                 } of a { $sourceType ->
+                                   [photons] photon
+                                   [electrons] electron
+                                   [neutrons] neutron
+                                  *[heliumAtoms] helium atom
+                                 } experiment.
+                               }
+    experimentDetailsLeadingParagraph: 'Experiment details include:'
     heading:                    >-
                                 Detector Screen, { $detectionMode ->
                                   [averageIntensity] Intensity Pattern
