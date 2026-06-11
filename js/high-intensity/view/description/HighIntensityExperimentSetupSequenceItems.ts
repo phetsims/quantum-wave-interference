@@ -126,23 +126,20 @@ export default function HighIntensityExperimentSetupSequenceItems(
     createItem(
       model,
       getAccessibleViewState,
-      state => formatWaveProgress( state, 'atSlits' ),
-      state => state.isEmitting && state.patternKind !== 'noBarrier' && state.waveProgress.hasReachedSlits
-    ),
-    createItem(
-      model,
-      getAccessibleViewState,
       state => formatWaveProgress( state, getAfterSlitsStage( state ) ),
       state => state.isEmitting && state.patternKind !== 'noBarrier' && state.waveProgress.hasPassedSlits
     ),
+
+    // The at-slits and intensity-pattern-forming milestones are spoken as context responses only; the persistent
+    // state keeps just the ongoing wave behavior and the final pattern. In hits mode the accumulating hit count is
+    // the ongoing state, so it remains a list item.
     createItem(
       model,
       getAccessibleViewState,
-      state => formatDetectorPattern( state, state.detectionMode === 'averageIntensity' ? 'forming' : 'collectingHits' ),
+      state => formatDetectorPattern( state, 'collectingHits' ),
       state => state.isEmitting &&
-               ( state.detectionMode === 'averageIntensity' ?
-                 getDetectorPatternFormationFactor( model ) > 0 :
-                 state.patternFormation === 'collectingHits' )
+               state.detectionMode === 'hits' &&
+               state.patternFormation === 'collectingHits'
     ),
     createItem(
       model,
