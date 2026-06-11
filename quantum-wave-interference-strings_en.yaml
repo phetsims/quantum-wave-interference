@@ -1217,10 +1217,10 @@ a11y:
         select_style:
           bands: >-
                  { $count } bands centered at 0 millimeters, spaced roughly { $spacing }
-                 millimeters apart.
+                 apart.
           peaks: >-
                  { $count } peaks centered at 0 millimeters, spaced roughly { $spacing }
-                 millimeters apart.
+                 apart.
       noRulerDoubleSlit:
         select_style:
           bands: >-
@@ -1230,9 +1230,9 @@ a11y:
       rulerDoubleSlitArrangement:
         select_style:
           bands: >-
-                 Bands centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.
+                 Bands centered at 0 millimeters, spaced roughly { $spacing } apart.
           peaks: >-
-                 Peaks centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.
+                 Peaks centered at 0 millimeters, spaced roughly { $spacing } apart.
       noRulerDoubleSlitArrangement:
         select_style:
           bands: >-
@@ -1242,9 +1242,9 @@ a11y:
       rulerSingleSlit:
         select_style:
           bands: >-
-                 The central band spans roughly { $centralWidth } millimeters, centered at 0.
+                 The central band spans roughly { $centralWidth }, centered at 0.
           peaks: >-
-                 The central peak spans roughly { $centralWidth } millimeters, centered at 0.
+                 The central peak spans roughly { $centralWidth }, centered at 0.
       noRulerSingleSlit:
         select_style:
           bands: >-

@@ -798,19 +798,19 @@
       },
       "spatialDescription": {
         "rulerDoubleSlit": {
-          "value": "{ $style ->\n  [bands] { $count } bands centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.\n  *[peaks] { $count } peaks centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.\n}"
+          "value": "{ $style ->\n  [bands] { $count } bands centered at 0 millimeters, spaced roughly { $spacing } apart.\n  *[peaks] { $count } peaks centered at 0 millimeters, spaced roughly { $spacing } apart.\n}"
         },
         "noRulerDoubleSlit": {
           "value": "{ $style ->\n  [bands] { $count } bands centered on the screen, spread symmetrically to either side.\n  *[peaks] { $count } peaks centered on the graph, spread symmetrically to either side.\n}"
         },
         "rulerDoubleSlitArrangement": {
-          "value": "{ $style ->\n  [bands] Bands centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.\n  *[peaks] Peaks centered at 0 millimeters, spaced roughly { $spacing } millimeters apart.\n}"
+          "value": "{ $style ->\n  [bands] Bands centered at 0 millimeters, spaced roughly { $spacing } apart.\n  *[peaks] Peaks centered at 0 millimeters, spaced roughly { $spacing } apart.\n}"
         },
         "noRulerDoubleSlitArrangement": {
           "value": "{ $style ->\n  [bands] Bands are centered on screen and spread symmetrically to either side.\n  *[peaks] Peaks are centered on graph and spread symmetrically to either side.\n}"
         },
         "rulerSingleSlit": {
-          "value": "{ $style ->\n  [bands] The central band spans roughly { $centralWidth } millimeters, centered at 0.\n  *[peaks] The central peak spans roughly { $centralWidth } millimeters, centered at 0.\n}"
+          "value": "{ $style ->\n  [bands] The central band spans roughly { $centralWidth }, centered at 0.\n  *[peaks] The central peak spans roughly { $centralWidth }, centered at 0.\n}"
         },
         "noRulerSingleSlit": {
           "value": "{ $style ->\n  [bands] A broad central band centered on the screen, tapering toward the edges.\n  *[peaks] A broad central peak, tapering toward the edges.\n}"

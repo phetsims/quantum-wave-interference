@@ -9,7 +9,7 @@
  */
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import { clamp } from '../../../../../dot/js/util/clamp.js';
-import { toFixed } from '../../../../../dot/js/util/toFixed.js';
+import { millimetersUnit } from '../../../../../scenery-phet/js/units/millimetersUnit.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { getDisplaySlitLayout } from '../../getDisplaySlitLayout.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
@@ -360,11 +360,15 @@ export default class BandAnalysis {
                QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerDoubleSlit.format( {
                  style: style,
                  count: analysis.bandCount,
-                 spacing: toFixed( analysis.averageSpacingMM, 1 )
+                 spacing: millimetersUnit.getAccessibleString( analysis.averageSpacingMM, {
+                   decimalPlaces: 1
+                 } )
                } ) :
                QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerDoubleSlitArrangement.format( {
                  style: style,
-                 spacing: toFixed( analysis.averageSpacingMM, 1 )
+                 spacing: millimetersUnit.getAccessibleString( analysis.averageSpacingMM, {
+                   decimalPlaces: 1
+                 } )
                } );
       }
       else {
@@ -382,7 +386,9 @@ export default class BandAnalysis {
       if ( hasRulerMeasurement ) {
         return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerSingleSlit.format( {
           style: style,
-          centralWidth: toFixed( analysis.centralWidthMM, 1 )
+          centralWidth: millimetersUnit.getAccessibleString( analysis.centralWidthMM, {
+            decimalPlaces: 1
+          } )
         } );
       }
       else {
