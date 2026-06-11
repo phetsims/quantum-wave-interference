@@ -10,6 +10,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
@@ -18,7 +19,7 @@ import { toFixed } from '../../../../dot/js/util/toFixed.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
-import AccessibleList from '../../../../scenery-phet/js/accessibility/AccessibleList.js';
+import AccessibleList, { type AccessibleListItem } from '../../../../scenery-phet/js/accessibility/AccessibleList.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
@@ -34,6 +35,7 @@ import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontF
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import BandAnalysis from '../../common/view/description/BandAnalysis.js';
 import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
+import DetectorPatternGraphDescriber from '../../common/view/description/DetectorPatternGraphDescriber.js';
 import { getClockSpeedDescription } from '../../common/view/description/getClockSpeedDescription.js';
 import { getPatternKind } from '../../common/view/description/getPatternKind.js';
 import { getWavePeakSpacingCategory } from '../../common/view/description/getWavePeakSpacingCategory.js';
@@ -840,15 +842,34 @@ export default class HighIntensityScreenView extends ScreenView {
       }
     );
 
+    // While the graph view is active, the graph's own pattern description is the final bullet. It hides when it
+    // would only repeat the leading paragraph's "Graph is empty." (intensity mode with the source off).
+    const graphDescriber = new DetectorPatternGraphDescriber( model.sceneProperty, new BooleanProperty( false ) );
+    const graphDetailItem: AccessibleListItem = {
+      stringProperty: graphDescriber.descriptionProperty,
+      visibleProperty: DerivedProperty.deriveAny(
+        [
+          model.isIntensityGraphVisibleProperty,
+          graphDescriber.descriptionProperty,
+          QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty
+        ],
+        () => model.isIntensityGraphVisibleProperty.value &&
+              graphDescriber.descriptionProperty.value !== QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty.value
+      )
+    };
+
     const detectorScreenDetailsNode = new Node( {
-      visibleProperty: DerivedProperty.not( model.isIntensityGraphVisibleProperty ),
       accessibleTemplate: AccessibleList.createTemplateProperty( {
         leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
           detectionMode: model.currentDetectionModeProperty,
           sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
+          surface: model.isIntensityGraphVisibleProperty.derived( isGraphVisible => isGraphVisible ? 'graph' as const : 'detectorScreen' as const ),
           detectorScreenStatus: detectorScreenStatusProperty
         } ),
-        listItems: HighIntensityExperimentSetupSequenceItems( model, getAccessibleViewState )
+        listItems: [
+          ...HighIntensityExperimentSetupSequenceItems( model, getAccessibleViewState ),
+          graphDetailItem
+        ]
       } )
     } );
     this.addChild( detectorScreenDetailsNode );

@@ -50,6 +50,7 @@ export default class ExperimentDetectorScreenDetailsNode extends Node {
       QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
         detectionMode: model.currentDetectionModeProperty,
         sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
+        surface: 'detectorScreen',
 
         // The Experiment screen shows its pattern in steady state, so the wave-propagating status does not apply.
         detectorScreenStatus: detectorScreenIsEmptyProperty.derived( isEmpty => isEmpty ? 'empty' as const : 'pattern' as const )

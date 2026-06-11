@@ -257,8 +257,14 @@
       "detectorScreenAndExperimentDetailsHeading": {
         "value": "Detector Screen and Experiment Details"
       },
+      "graphAndExperimentDetailsHeading": {
+        "value": "Graph and Experiment Details"
+      },
+      "displaySurface": {
+        "value": "{ $surface ->\n  [graph] Graph\n *[detectorScreen] Detector screen\n}"
+      },
       "leadingParagraph": {
-        "value": "{ $detectorScreenStatus ->\n  [empty] Detector screen is empty. { $sourceType ->\n    [photons] Photon\n    [electrons] Electron\n    [neutrons] Neutron\n   *[heliumAtoms] Helium atom\n  } experiment ready.\n  [emptyWavePropagating] Detector screen is empty.\n *[pattern] Detector screen shows { $detectionMode ->\n    [averageIntensity] an intensity pattern\n   *[hits] a hits pattern\n  } of a { $sourceType ->\n    [photons] photon\n    [electrons] electron\n    [neutrons] neutron\n   *[heliumAtoms] helium atom\n  } experiment.\n}"
+        "value": "{ $detectorScreenStatus ->\n  [empty] { a11y_experimentDetectorScreenDetails_displaySurface } is empty. { $sourceType ->\n    [photons] Photon\n    [electrons] Electron\n    [neutrons] Neutron\n   *[heliumAtoms] Helium atom\n  } experiment ready.\n  [emptyWavePropagating] { a11y_experimentDetectorScreenDetails_displaySurface } is empty.\n *[pattern] { a11y_experimentDetectorScreenDetails_displaySurface } shows { $detectionMode ->\n    [averageIntensity] an intensity pattern\n   *[hits] a hits pattern\n  } of a { $sourceType ->\n    [photons] photon\n    [electrons] electron\n    [neutrons] neutron\n   *[heliumAtoms] helium atom\n  } experiment.\n}"
       },
       "experimentDetailsLeadingParagraph": {
         "value": "Experiment details include:"
@@ -711,7 +717,7 @@
       },
       "accessibleParagraph": {
         "intensityOff": {
-          "value": "The graph is empty. The source is off."
+          "value": "Graph is empty. Source is off."
         },
         "intensity": {
           "value": "The graph traces intensity versus position with a tall central peak and smaller peaks on either side. { $spatialDescription }"

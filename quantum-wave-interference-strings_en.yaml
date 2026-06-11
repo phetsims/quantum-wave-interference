@@ -222,18 +222,26 @@ a11y:
   detectorScreenHeading:       Detector Screen Controls
   experimentDetectorScreenDetails:
     detectorScreenAndExperimentDetailsHeading: Detector Screen and Experiment Details
+    # Heading variant used on the High Intensity and Single Particles screens while the graph view is active.
+    graphAndExperimentDetailsHeading:          Graph and Experiment Details
+    # The sentence subject — detector screen or graph — selected by which view is active.
+    displaySurface:            >-
+                               { $surface ->
+                                 [graph] Graph
+                                *[detectorScreen] Detector screen
+                               }
     # detectorScreenStatus 'emptyWavePropagating' means the screen is still empty but waves are traveling in the
     # wave area, so the "experiment ready" invitation would be wrong.
     leadingParagraph:          >-
                                { $detectorScreenStatus ->
-                                 [empty] Detector screen is empty. { $sourceType ->
+                                 [empty] { a11y.experimentDetectorScreenDetails.displaySurface } is empty. { $sourceType ->
                                    [photons] Photon
                                    [electrons] Electron
                                    [neutrons] Neutron
                                   *[heliumAtoms] Helium atom
                                  } experiment ready.
-                                 [emptyWavePropagating] Detector screen is empty.
-                                *[pattern] Detector screen shows { $detectionMode ->
+                                 [emptyWavePropagating] { a11y.experimentDetectorScreenDetails.displaySurface } is empty.
+                                *[pattern] { a11y.experimentDetectorScreenDetails.displaySurface } shows { $detectionMode ->
                                    [averageIntensity] an intensity pattern
                                   *[hits] a hits pattern
                                  } of a { $sourceType ->
@@ -1072,7 +1080,7 @@ a11y:
                                          *[hits] Hits histogram hidden.
                                         }
     accessibleParagraph:
-      intensityOff:           The graph is empty. The source is off.
+      intensityOff:           Graph is empty. Source is off.
       intensity:              >-
                               The graph traces intensity versus position with a tall central peak and smaller
                               peaks on either side.

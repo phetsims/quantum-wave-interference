@@ -114,6 +114,8 @@ type StringsType = {
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;
     'experimentDetectorScreenDetails': {
       'detectorScreenAndExperimentDetailsHeadingStringProperty': LocalizedStringProperty;
+      'graphAndExperimentDetailsHeadingStringProperty': LocalizedStringProperty;
+      'displaySurfaceStringProperty': LocalizedStringProperty;
       'leadingParagraphStringProperty': LocalizedStringProperty;
       'experimentDetailsLeadingParagraphStringProperty': LocalizedStringProperty;
       'headingStringProperty': LocalizedStringProperty;

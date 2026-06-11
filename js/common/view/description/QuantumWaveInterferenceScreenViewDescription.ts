@@ -6,14 +6,14 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import BooleanProperty from '../../../../../axon/js/BooleanProperty.js';
+import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
-import DetectorPatternGraphDescriber, { type DetectorPatternGraphDescriberScene } from './DetectorPatternGraphDescriber.js';
+import { type DetectorPatternGraphDescriberScene } from './DetectorPatternGraphDescriber.js';
 import { type DetectorScreenDescriberScene } from './DetectorScreenDescriber.js';
 import ExperimentSetupDetailsNode from './ExperimentSetupDetailsNode.js';
 import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryContent.js';
@@ -44,7 +44,8 @@ type SharedDescriptionModel = {
  * Options for QuantumWaveInterferenceScreenViewDescription.
  *
  * - detectionModeProperty: when provided, adds a detection-mode item to ExperimentSetupDetailsNode.
- * - screenGraphVisibleProperty: when provided, a graph-description node is shown while the graph is visible.
+ * - screenGraphVisibleProperty: when provided, the section heading switches from "Detector Screen and Experiment
+ *   Details" to "Graph and Experiment Details" while the graph is visible.
  * - slitOrientation: axis along which the slits are arranged; defaults to the describer's own default.
  * - includeExperimentSetupDetails: set to false to suppress the graph and ExperimentSetupDetailsNode children
  *   (used when that content lives elsewhere in the PDOM).
@@ -84,18 +85,8 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
     const includeExperimentSetupDetails = providedOptions.includeExperimentSetupDetails !== false;
 
-    let graphDescriptionNode: Node | null = null;
     let experimentSetupDetailsNode: Node | null = null;
     if ( includeExperimentSetupDetails ) {
-      if ( providedOptions.screenGraphVisibleProperty ) {
-        const graphDescriber = new DetectorPatternGraphDescriber( model.sceneProperty, new BooleanProperty( false ) );
-        graphDescriptionNode = new Node( {
-          accessibleParagraph: graphDescriber.descriptionProperty,
-          visibleProperty: providedOptions.screenGraphVisibleProperty
-        } );
-        this.addChild( graphDescriptionNode );
-      }
-
       experimentSetupDetailsNode = new ExperimentSetupDetailsNode( model, slitSettingProperty, {
         detectionModeProperty: providedOptions.detectionModeProperty,
         slitOrientation: providedOptions.slitOrientation
@@ -103,10 +94,23 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
       this.addChild( experimentSetupDetailsNode );
     }
 
+    // The heading follows the active view: "Detector Screen and Experiment Details" while the detector screen is
+    // shown, "Graph and Experiment Details" while the graph is shown.
+    const headingStringProperty = providedOptions.screenGraphVisibleProperty ?
+                                  new DerivedProperty(
+                                    [
+                                      providedOptions.screenGraphVisibleProperty,
+                                      QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.detectorScreenAndExperimentDetailsHeadingStringProperty,
+                                      QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.graphAndExperimentDetailsHeadingStringProperty
+                                    ],
+                                    ( isGraphVisible, detectorScreenHeading, graphHeading ) => isGraphVisible ? graphHeading : detectorScreenHeading
+                                  ) :
+                                  QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.detectorScreenAndExperimentDetailsHeadingStringProperty;
+
     // NOTE: see other duplicate in quantum-wave-interference/js/experiment/view/description/ExperimentScreenViewDescription.ts.
     // These heading nodes stay parallel because this shared description owns different optional content and pdomOrder.
     this.detectorScreenAndExperimentDetailsHeadingNode = new Node( includeExperimentSetupDetails ? {
-      accessibleHeading: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.detectorScreenAndExperimentDetailsHeadingStringProperty
+      accessibleHeading: headingStringProperty
     } : {} );
     this.addChild( this.detectorScreenAndExperimentDetailsHeadingNode );
 
@@ -127,7 +131,6 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
     this.detectorScreenAndExperimentDetailsHeadingNode.pdomOrder = [
       ...( providedOptions.detectorScreenDetailsNodes || [] ),
-      ...( graphDescriptionNode ? [ graphDescriptionNode ] : [] ),
       ...( experimentSetupDetailsNode ? [ experimentSetupDetailsNode ] : [] )
     ];
 

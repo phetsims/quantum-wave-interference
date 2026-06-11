@@ -6,6 +6,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
@@ -14,7 +15,7 @@ import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import AccessibleList from '../../../../scenery-phet/js/accessibility/AccessibleList.js';
+import AccessibleList, { type AccessibleListItem } from '../../../../scenery-phet/js/accessibility/AccessibleList.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -25,6 +26,7 @@ import createAndAddSlitConfigurationControlsRow from '../../common/view/createAn
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
+import DetectorPatternGraphDescriber from '../../common/view/description/DetectorPatternGraphDescriber.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
 import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorToolViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
@@ -374,15 +376,22 @@ export default class SingleParticlesScreenView extends ScreenView {
         'empty' as const
     );
 
+    // While the graph view is active, the histogram's own description is the final bullet.
+    const graphDescriber = new DetectorPatternGraphDescriber( model.sceneProperty, new BooleanProperty( false ) );
+    const graphDetailItem: AccessibleListItem = {
+      stringProperty: graphDescriber.descriptionProperty,
+      visibleProperty: model.isHitsGraphVisibleProperty
+    };
+
     const detectorScreenDetailsNode = new Node( {
-      visibleProperty: DerivedProperty.not( model.isHitsGraphVisibleProperty ),
       accessibleTemplate: AccessibleList.createTemplateProperty( {
         leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
           detectionMode: 'hits',
           sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
+          surface: model.isHitsGraphVisibleProperty.derived( isGraphVisible => isGraphVisible ? 'graph' as const : 'detectorScreen' as const ),
           detectorScreenStatus: detectorScreenStatusProperty
         } ),
-        listItems: [ accessibleResponses.packetStatusItem ]
+        listItems: [ accessibleResponses.packetStatusItem, graphDetailItem ]
       } )
     } );
     this.addChild( detectorScreenDetailsNode );
