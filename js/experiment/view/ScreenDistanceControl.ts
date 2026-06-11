@@ -1,7 +1,14 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * ScreenDistanceControl is the NumberControl for the experiment screen's screen distance.
+ * ScreenDistanceControl provides the experiment screen's NumberControl for changing the distance from the slits to the
+ * detector screen. SlitControlPanel creates one control for each scene because scenes can have different physical
+ * ranges.
+ *
+ * When an interaction ends, the control provides a context response that describes both the screen's relative position
+ * and the resulting experiment state. The response distinguishes no emission, particle-hit detection, and visible
+ * single- or double-slit interference patterns so screen-reader users receive the effect that is otherwise shown
+ * visually.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -48,6 +55,9 @@ type ScreenDistanceScene = {
   readonly slitSettingProperty: TReadOnlyProperty<SlitConfiguration>;
 };
 
+/**
+ * ScreenDistanceControl adds no options beyond the required NumberControl options.
+ */
 type SelfOptions = EmptySelfOptions;
 
 /**
@@ -112,6 +122,10 @@ function getScreenDistanceContextResponse( scene: ScreenDistanceScene, value: nu
   } );
 }
 
+/**
+ * NumberControl that updates a scene's screen distance and reports the resulting pattern change when an interaction
+ * completes.
+ */
 export default class ScreenDistanceControl extends NumberControl {
 
   public constructor( scene: ScreenDistanceScene, providedOptions: ScreenDistanceControlOptions ) {
