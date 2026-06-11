@@ -43,7 +43,13 @@ const SNAPSHOT_SCHEMA = {
   effectiveWavelength: NumberIO, // m
   slitSetting: StringUnionIO( SlitConfigurationWithNoBarrierValues ),
   isEmitting: BooleanIO,
+
+  // Detector-screen display brightness at capture time; this changes rendering gain without changing the physical
+  // source strength or detector probability distribution.
   brightness: NumberIO,
+
+  // Physical source/emission intensity at capture time; this scales the detector signal independently of the
+  // screen-brightness display control. Screens without an adjustable source intensity store 1.
   intensity: NumberIO,
   slitWidth: NumberIO, // mm
 
@@ -56,6 +62,11 @@ const SNAPSHOT_SCHEMA = {
   intensityDistribution: ArrayIO( NumberIO )
 };
 
+/**
+ * A captured-value record of the detector screen and the model/display metadata needed to reproduce it later.
+ * Its fields are defined by SNAPSHOT_SCHEMA for PhET-iO serialization; consumers should treat each record and its
+ * copied arrays as immutable so the snapshot remains independent of subsequent scene changes.
+ */
 export type Snapshot = CoreRecord<typeof SNAPSHOT_SCHEMA>;
 
 export const SnapshotIO = new SchemaOrientedIOType<Snapshot, typeof SNAPSHOT_SCHEMA>( 'SnapshotIO', {
