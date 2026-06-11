@@ -13,7 +13,7 @@ import Range from '../../../../dot/js/Range.js';
 import { equalsEpsilon } from '../../../../dot/js/util/equalsEpsilon.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
-import NumberControl, { NumberControlMajorTick, NumberControlOptions } from '../../../../scenery-phet/js/NumberControl.js';
+import NumberControl, { NumberControlOptions } from '../../../../scenery-phet/js/NumberControl.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
@@ -135,7 +135,9 @@ export default class ScreenDistanceControl extends NumberControl {
         trackSize: SLIDER_TRACK_SIZE,
         thumbSize: new Dimension2( 13, 22 ),
         majorTickLength: 12,
-        majorTicks: ScreenDistanceControl.createNumericTicks( screenDistanceRange.min, screenDistanceRange.max ),
+        majorTicks: ExperimentConstants.createMinMaxTicks( screenDistanceRange.min, screenDistanceRange.max, {
+          decimalPlaces: SCREEN_DISTANCE_DECIMAL_PLACES
+        } ),
         createContextResponseAlert: ( value, _newValue, valueOnStart ) =>
           getScreenDistanceContextResponse( scene, value, valueOnStart )
       },
@@ -153,8 +155,4 @@ export default class ScreenDistanceControl extends NumberControl {
     );
   }
 
-  // TODO: Inline this one, see https://github.com/phetsims/quantum-wave-interference/issues/135
-  private static createNumericTicks( min: number, max: number ): NumberControlMajorTick[] {
-    return ExperimentConstants.createMinMaxTicks( min, max, { decimalPlaces: SCREEN_DISTANCE_DECIMAL_PLACES } );
-  }
 }
