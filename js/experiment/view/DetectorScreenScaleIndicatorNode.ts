@@ -24,7 +24,7 @@ const DEFAULT_SPAN_ARROW_Y = -10;
  * Returns the number of decimal places to show in a millimeter scale label,
  * based on the magnitude of the value (0 for integers >=1, 1 for >=0.1, 2 otherwise).
  */
-const getScaleLabelDecimalPlaces = ( valueMM: number ): number => {
+function getScaleLabelDecimalPlaces( valueMM: number ): number {
   if ( valueMM >= 1 ) {
     return Number.isInteger( valueMM ) ? 0 : 1;
   }
@@ -32,7 +32,7 @@ const getScaleLabelDecimalPlaces = ( valueMM: number ): number => {
     return 1;
   }
   return 2;
-};
+}
 
 export default class DetectorScreenScaleIndicatorNode extends Node {
 

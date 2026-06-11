@@ -42,10 +42,10 @@ type WavePeakSpacingScene = {
   particleSpeedRange: Range;
 };
 
-const getRangeFraction = ( value: number, min: number, max: number ): number => {
+function getRangeFraction( value: number, min: number, max: number ): number {
   const rangeLength = max - min;
   return rangeLength > 0 ? clamp( ( value - min ) / rangeLength, 0, 1 ) : 0;
-};
+}
 
 const getEvenlySpacedCategory = (
   fraction: number,
@@ -63,7 +63,7 @@ const getEvenlySpacedCategory = (
  * @param scene - source scene with the wavelength or particle-speed control range
  * @returns qualitative category for adjacent wave-peak distance
  */
-export const getWavePeakSpacingCategory = ( scene: WavePeakSpacingScene ): WavePeakSpacingCategory => {
+export function getWavePeakSpacingCategory( scene: WavePeakSpacingScene ): WavePeakSpacingCategory {
   if ( scene.sourceType === 'photons' ) {
     const wavelengthFraction = getRangeFraction(
       scene.wavelengthProperty.value,
@@ -79,4 +79,4 @@ export const getWavePeakSpacingCategory = ( scene: WavePeakSpacingScene ): WaveP
     scene.particleSpeedRange.max
   );
   return getEvenlySpacedCategory( speedFraction, FAR_TO_CLOSE_CATEGORIES );
-};
+}

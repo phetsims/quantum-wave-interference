@@ -262,7 +262,7 @@ const STOPWATCH_TIME_UNITS: StopwatchTimeUnit[] = [
   }
 ];
 
-const createPhysicalStopwatchFormatter = (): ( time: number ) => DualString => {
+function createPhysicalStopwatchFormatter(): ( time: number ) => DualString {
   return ( time: number ) => {
     const timeUnit = STOPWATCH_TIME_UNITS.find( unit => time < unit.threshold )!;
     const scaledTime = Math.max( 0, time * timeUnit.multiplier );
@@ -285,4 +285,4 @@ const createPhysicalStopwatchFormatter = (): ( time: number ) => DualString => {
       } )
     };
   };
-};
+}

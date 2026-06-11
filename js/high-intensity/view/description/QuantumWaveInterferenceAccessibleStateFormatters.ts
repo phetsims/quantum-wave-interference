@@ -15,18 +15,23 @@ import { type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterfer
 
 export type FluentBoolean = 'true' | 'false';
 
-export const toFluentBoolean = ( value: boolean ): FluentBoolean => value ? 'true' : 'false';
+export function toFluentBoolean( value: boolean ): FluentBoolean {
+  return value ? 'true' : 'false';
+}
 
-const getPatternKindKey = ( patternKind: QuantumWaveInterferencePatternKind ): QuantumWaveInterferencePatternKind => patternKind;
+function getPatternKindKey( patternKind: QuantumWaveInterferencePatternKind ): QuantumWaveInterferencePatternKind {
+  return patternKind;
+}
 
 type SingleSlitLocationKey = 'leftCovered' | 'rightCovered';
 
-const getSingleSlitLocationKey = ( state: HighIntensitySemanticAccessibleViewState ): SingleSlitLocationKey =>
-  state.slitConfiguration === 'leftCovered' ? 'leftCovered' :
-  'rightCovered';
+function getSingleSlitLocationKey( state: HighIntensitySemanticAccessibleViewState ): SingleSlitLocationKey {
+  return state.slitConfiguration === 'leftCovered' ? 'leftCovered' :
+         'rightCovered';
+}
 
-export const formatSourceBeamDescription = ( state: HighIntensitySemanticAccessibleViewState ): string =>
-  QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceBeam.format( {
+export function formatSourceBeamDescription( state: HighIntensitySemanticAccessibleViewState ): string {
+  return QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceBeam.format( {
     isEmitting: toFluentBoolean( state.isEmitting ),
     sourceType: state.sourceType,
     photonColor: state.wavelengthColorZone || 'red',
@@ -34,8 +39,9 @@ export const formatSourceBeamDescription = ( state: HighIntensitySemanticAccessi
     waveDisplayMode: state.waveDisplayMode,
     slitSetting: state.slitConfiguration
   } );
+}
 
-export const formatParticleDescription = ( state: HighIntensitySemanticAccessibleViewState ): string => {
+export function formatParticleDescription( state: HighIntensitySemanticAccessibleViewState ): string {
   if ( state.sourceType === 'photons' ) {
     return QuantumWaveInterferenceFluent.a11y.highIntensityState.photonDetail.format( {
       wavelength: state.wavelengthNM,
@@ -48,16 +54,17 @@ export const formatParticleDescription = ( state: HighIntensitySemanticAccessibl
     speed: state.particleSpeedMetersPerSecond,
     wavelength: state.effectiveWavelengthPicometers
   } );
-};
+}
 
-export const formatSlitDescription = ( state: HighIntensitySemanticAccessibleViewState ): string =>
-  QuantumWaveInterferenceFluent.a11y.highIntensityState.slits.format( {
+export function formatSlitDescription( state: HighIntensitySemanticAccessibleViewState ): string {
+  return QuantumWaveInterferenceFluent.a11y.highIntensityState.slits.format( {
     slitSetting: state.slitConfiguration,
     separation: state.slitSeparationMM === null ? '' :
                 state.sourceType === 'photons' ?
                 micrometersUnit.getAccessibleString( state.slitSeparationMM * 1000, { decimalPlaces: 2 } ) :
                 nanometersUnit.getAccessibleString( state.slitSeparationMM * 1e6, { decimalPlaces: 2 } )
   } );
+}
 
 export const formatDetectorDescription = (
   state: HighIntensitySemanticAccessibleViewState,

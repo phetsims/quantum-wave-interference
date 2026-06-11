@@ -86,13 +86,14 @@ const PARTICLE_EMITTER_PALETTES: Record<Exclude<SourceType, 'photons'>, Particle
   }
 };
 
-const createEmitterGradient = ( height: number, palette: ParticleEmitterPalette ): LinearGradient =>
-  new LinearGradient( 0, 0, 0, height )
+function createEmitterGradient( height: number, palette: ParticleEmitterPalette ): LinearGradient {
+  return new LinearGradient( 0, 0, 0, height )
     .addColorStop( 0, palette.topColor )
     .addColorStop( EMITTER_HIGHLIGHT_COLOR_STOP, palette.highlightColor )
     .addColorStop( 1, palette.bottomColor );
+}
 
-const createGlassGradient = ( glassNode: ShadedSphereNode, palette: ParticleEmitterPalette ): RadialGradient => {
+function createGlassGradient( glassNode: ShadedSphereNode, palette: ParticleEmitterPalette ): RadialGradient {
   const radius = glassNode.radius;
   const highlightX = radius * GLASS_HIGHLIGHT_OFFSET;
   const highlightY = radius * GLASS_HIGHLIGHT_OFFSET;
@@ -101,7 +102,7 @@ const createGlassGradient = ( glassNode: ShadedSphereNode, palette: ParticleEmit
     .addColorStop( 0, palette.glassHighlightColor )
     .addColorStop( GLASS_HIGHLIGHT_DIAMETER_RATIO, palette.glassMainColor )
     .addColorStop( 1, palette.glassShadowColor );
-};
+}
 
 export default class OverheadEmitterNode extends Node {
 

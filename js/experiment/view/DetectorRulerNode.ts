@@ -37,7 +37,7 @@ const RULER_HEIGHT = 40;
 const RULER_KEYBOARD_DRAG_DELTA = 5;
 const RULER_KEYBOARD_SHIFT_DRAG_DELTA = 1;
 
-const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number ): number => {
+function getRulerLabelDecimalPlaces( halfDetectorWidthMM: number ): number {
   if ( halfDetectorWidthMM >= 10 ) {
     return 0;
   }
@@ -45,7 +45,7 @@ const getRulerLabelDecimalPlaces = ( halfDetectorWidthMM: number ): number => {
     return 1;
   }
   return 2;
-};
+}
 
 export default class DetectorRulerNode extends InteractiveHighlightingNode {
   private readonly rulerPositionProperty: Property<Vector2>;

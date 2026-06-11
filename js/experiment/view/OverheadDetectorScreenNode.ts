@@ -42,7 +42,7 @@ export const DETECTOR_LEFT_HEIGHT = 48 * OVERHEAD_SCALE;
 
 // Shape of the centered visible region when the detector screen is horizontally zoomed. The shape is drawn in the
 // same skewed coordinate system as the full detector parallelogram.
-const createVisibleRegionShape = ( dx: number, dy: number, leftHeight: number, visibleFraction: number ): Shape => {
+function createVisibleRegionShape( dx: number, dy: number, leftHeight: number, visibleFraction: number ): Shape {
   const visibleWidth = dx * visibleFraction;
   const visibleHeight = leftHeight * visibleFraction;
   const left = ( dx - visibleWidth ) / 2;
@@ -57,7 +57,7 @@ const createVisibleRegionShape = ( dx: number, dy: number, leftHeight: number, v
     .lineTo( right, bottom + slope * right )
     .lineTo( right, top + slope * right )
     .close();
-};
+}
 
 export default class OverheadDetectorScreenNode extends Node {
 

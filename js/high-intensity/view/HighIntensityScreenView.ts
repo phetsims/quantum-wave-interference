@@ -105,13 +105,14 @@ const WAVE_REGION_Y_OFFSET = -30;
 // mini-symbol and the top of the main wave region.
 const CALLOUT_GAP = 55;
 
-const getPatternKind = ( slitConfiguration: SlitConfigurationWithNoBarrier ): QuantumWaveInterferencePatternKind =>
-  slitConfiguration === 'noBarrier' ? 'noBarrier' :
-  showsDoubleSlitInterferencePattern( slitConfiguration ) ? 'doubleSlitInterference' :
-  ( slitConfiguration === 'leftDetector' || slitConfiguration === 'rightDetector' || slitConfiguration === 'bothDetectors' ) ? 'whichPathDiffraction' :
-  'singleSlitDiffraction';
+function getPatternKind( slitConfiguration: SlitConfigurationWithNoBarrier ): QuantumWaveInterferencePatternKind {
+  return slitConfiguration === 'noBarrier' ? 'noBarrier' :
+         showsDoubleSlitInterferencePattern( slitConfiguration ) ? 'doubleSlitInterference' :
+         ( slitConfiguration === 'leftDetector' || slitConfiguration === 'rightDetector' || slitConfiguration === 'bothDetectors' ) ? 'whichPathDiffraction' :
+         'singleSlitDiffraction';
+}
 
-const getPatternFormation = ( scene: HighIntensitySceneModel, model: HighIntensityModel ): QuantumWaveInterferencePatternFormation => {
+function getPatternFormation( scene: HighIntensitySceneModel, model: HighIntensityModel ): QuantumWaveInterferencePatternFormation {
   if ( scene.detectionModeProperty.value === 'hits' ) {
     return scene.totalHitsProperty.value > 0 ? 'collectingHits' :
            scene.isEmittingProperty.value ? 'collectingHits' :
@@ -130,17 +131,17 @@ const getPatternFormation = ( scene: HighIntensitySceneModel, model: HighIntensi
   return formationFactor >= DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD ? 'complete' :
          formationFactor > 0 ? 'forming' :
          'empty';
-};
+}
 
-const getClockSpeedDescription = ( model: HighIntensityModel ): QuantumWaveInterferenceClockSpeedDescription => {
+function getClockSpeedDescription( model: HighIntensityModel ): QuantumWaveInterferenceClockSpeedDescription {
   const timeSpeed = model.timeSpeedProperty.value;
   return timeSpeed === TimeSpeed.SLOW ? 'slow' :
          timeSpeed === TimeSpeed.NORMAL ? 'normal' :
          timeSpeed === TimeSpeed.FAST ? 'fast' :
          ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
-};
+}
 
-const getWaveSpeedDescription = ( scene: HighIntensitySceneModel ): QuantumWaveInterferenceWaveSpeedDescription => {
+function getWaveSpeedDescription( scene: HighIntensitySceneModel ): QuantumWaveInterferenceWaveSpeedDescription {
   if ( scene.sourceType === 'photons' ) {
     return 'fast';
   }
@@ -150,7 +151,7 @@ const getWaveSpeedDescription = ( scene: HighIntensitySceneModel ): QuantumWaveI
   return speedFraction <= 1 / 3 ? 'slow' :
          speedFraction >= 2 / 3 ? 'fast' :
          'medium';
-};
+}
 
 const getWaveProgress = (
   scene: HighIntensitySceneModel,

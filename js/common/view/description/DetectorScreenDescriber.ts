@@ -46,17 +46,21 @@ export type DetectorScreenDescriberScene = {
 }
   );
 
-const getDetectionMode = ( scene: DetectorScreenDescriberScene ): DetectionMode =>
-  scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
+function getDetectionMode( scene: DetectorScreenDescriberScene ): DetectionMode {
+  return scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
+}
 
-const getSlitSetting = ( scene: DetectorScreenDescriberScene ): SlitConfigurationWithNoBarrier =>
-  'slitSettingProperty' in scene ? scene.slitSettingProperty.value : scene.slitConfigurationProperty.value;
+function getSlitSetting( scene: DetectorScreenDescriberScene ): SlitConfigurationWithNoBarrier {
+  return 'slitSettingProperty' in scene ? scene.slitSettingProperty.value : scene.slitConfigurationProperty.value;
+}
 
-const getDetectorScreenHalfWidth = ( scene: DetectorScreenDescriberScene, detectorScreenHalfWidthProperty?: TReadOnlyProperty<number> ): number =>
-  detectorScreenHalfWidthProperty ? detectorScreenHalfWidthProperty.value : 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2;
+function getDetectorScreenHalfWidth( scene: DetectorScreenDescriberScene, detectorScreenHalfWidthProperty?: TReadOnlyProperty<number> ): number {
+  return detectorScreenHalfWidthProperty ? detectorScreenHalfWidthProperty.value : 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2;
+}
 
-const hasPopulatedAverageIntensityScreen = ( scene: DetectorScreenDescriberScene ): boolean =>
-  scene.hasWavefrontReachedScreen ? scene.hasWavefrontReachedScreen() : scene.isEmittingProperty.value;
+function hasPopulatedAverageIntensityScreen( scene: DetectorScreenDescriberScene ): boolean {
+  return scene.hasWavefrontReachedScreen ? scene.hasWavefrontReachedScreen() : scene.isEmittingProperty.value;
+}
 
 export default class DetectorScreenDescriber {
 

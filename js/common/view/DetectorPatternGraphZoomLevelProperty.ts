@@ -19,10 +19,11 @@ export type DetectorPatternGraphZoomLevelOption = number | 'default' | 'max';
 /**
  * Converts the caller-facing zoom option into the integer zoom level used by the graph controls.
  */
-export const getDetectorPatternGraphZoomLevel = ( zoomLevel: DetectorPatternGraphZoomLevelOption | undefined ): number =>
-  zoomLevel === 'max' ? MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL :
-  typeof zoomLevel === 'number' ? zoomLevel :
-  DEFAULT_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL;
+export function getDetectorPatternGraphZoomLevel( zoomLevel: DetectorPatternGraphZoomLevelOption | undefined ): number {
+  return zoomLevel === 'max' ? MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL :
+         typeof zoomLevel === 'number' ? zoomLevel :
+         DEFAULT_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL;
+}
 
 export default class DetectorPatternGraphZoomLevelProperty extends NumberProperty {
 

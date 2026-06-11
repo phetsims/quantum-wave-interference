@@ -64,7 +64,7 @@ export type DetectorPatternGraphSceneLike = {
 /**
  * Creates the plotting background, including the horizontal and vertical grid lines.
  */
-export const createDetectorPatternGraphChartBackground = (): Rectangle => {
+export function createDetectorPatternGraphChartBackground(): Rectangle {
   const chartBackground = new Rectangle( 0, 0, DETECTOR_PATTERN_GRAPH_WIDTH, DETECTOR_PATTERN_GRAPH_HEIGHT, {
     fill: 'white',
     stroke: 'black',
@@ -94,34 +94,36 @@ export const createDetectorPatternGraphChartBackground = (): Rectangle => {
   }
 
   return chartBackground;
-};
+}
 
 /**
  * Creates the non-pickable border drawn above the clipped graph data.
  */
-export const createDetectorPatternGraphChartBorder = (): Rectangle => new Rectangle( 0, 0, DETECTOR_PATTERN_GRAPH_WIDTH, DETECTOR_PATTERN_GRAPH_HEIGHT, {
-  fill: null,
-  stroke: 'black',
-  lineWidth: 1,
-  pickable: false
-} );
+export function createDetectorPatternGraphChartBorder(): Rectangle {
+  return new Rectangle( 0, 0, DETECTOR_PATTERN_GRAPH_WIDTH, DETECTOR_PATTERN_GRAPH_HEIGHT, {
+    fill: null,
+    stroke: 'black',
+    lineWidth: 1,
+    pickable: false
+  } );
+}
 
 /**
  * Creates the filled data path shared by the histogram and the average-intensity curve.
  */
-export const createClippedDetectorPatternGraphDataPath = ( chartBackground: Rectangle ): Path => {
+export function createClippedDetectorPatternGraphDataPath( chartBackground: Rectangle ): Path {
   const dataPath = new Path( null, {
     clipArea: Shape.rectangle( 0, 0, DETECTOR_PATTERN_GRAPH_WIDTH, DETECTOR_PATTERN_GRAPH_HEIGHT )
   } );
   dataPath.computeShapeBounds = () => chartBackground.bounds;
 
   return dataPath;
-};
+}
 
 /**
  * Creates the stroke-only path that traces the average-intensity curve.
  */
-export const createClippedDetectorPatternGraphStrokePath = ( chartBackground: Rectangle ): Path => {
+export function createClippedDetectorPatternGraphStrokePath( chartBackground: Rectangle ): Path {
   const strokePath = new Path( null, {
     clipArea: Shape.rectangle( 0, 0, DETECTOR_PATTERN_GRAPH_WIDTH, DETECTOR_PATTERN_GRAPH_HEIGHT ),
     fill: null,
@@ -130,7 +132,7 @@ export const createClippedDetectorPatternGraphStrokePath = ( chartBackground: Re
   strokePath.computeShapeBounds = () => chartBackground.bounds;
 
   return strokePath;
-};
+}
 
 /**
  * Creates the accessible zoom controls for the graph's horizontal data scale.
@@ -164,7 +166,7 @@ export const createDetectorPatternGraphZoomButtonGroup = (
   } );
 };
 
-const createHistogramBins = ( hits: Vector2[] ): number[] => {
+function createHistogramBins( hits: Vector2[] ): number[] {
   const bins = new Array<number>( HISTOGRAM_BINS ).fill( 0 );
   for ( let i = 0; i < hits.length; i++ ) {
     const rawBinIndex = Math.floor( ( hits[ i ].x + 1 ) / 2 * HISTOGRAM_BINS );
@@ -173,12 +175,12 @@ const createHistogramBins = ( hits: Vector2[] ): number[] => {
   }
 
   return bins;
-};
+}
 
 /**
  * Creates a detector-pattern histogram shape from normalized detector hit positions.
  */
-export const createDetectorPatternHistogramShape = ( hits: Vector2[], zoomLevel: number, maxZoomLevel: number ): Shape => {
+export function createDetectorPatternHistogramShape( hits: Vector2[], zoomLevel: number, maxZoomLevel: number ): Shape {
   const bins = createHistogramBins( hits );
   const zoomStepsFromMax = maxZoomLevel - zoomLevel;
   const zoomScale = Math.pow( 2, -zoomStepsFromMax );
@@ -199,12 +201,12 @@ export const createDetectorPatternHistogramShape = ( hits: Vector2[], zoomLevel:
   }
 
   return shape;
-};
+}
 
 /**
  * Creates the filled and stroked shapes for the theoretical average-intensity curve.
  */
-export const createIntensityCurveShapes = ( scene: DetectorPatternGraphSceneLike, zoomLevel: number ): IntensityCurveShapes => {
+export function createIntensityCurveShapes( scene: DetectorPatternGraphSceneLike, zoomLevel: number ): IntensityCurveShapes {
   const zoomScale = linear(
     MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
     MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL,
@@ -251,12 +253,12 @@ export const createIntensityCurveShapes = ( scene: DetectorPatternGraphSceneLike
     fillShape: fillShape,
     strokeShape: strokeShape
   };
-};
+}
 
 /**
  * Selects source-appropriate graph paint. Photons use wavelength-derived colors; particles use profile colors.
  */
-export const getDetectorPatternGraphPaint = ( scene: DetectorPatternGraphSceneLike, graphStyle: GraphStyle ): GraphPaint => {
+export function getDetectorPatternGraphPaint( scene: DetectorPatternGraphSceneLike, graphStyle: GraphStyle ): GraphPaint {
   const fillAlpha = graphStyle === 'histogram' ? 0.7 :
                     graphStyle === 'intensityCurve' ? 0.3 :
                     ( () => { throw new Error( `Unrecognized graphStyle: ${graphStyle}` ); } )();
@@ -275,4 +277,4 @@ export const getDetectorPatternGraphPaint = ( scene: DetectorPatternGraphSceneLi
       stroke: QuantumWaveInterferenceColors.particleHistogramStrokeProperty
     };
   }
-};
+}

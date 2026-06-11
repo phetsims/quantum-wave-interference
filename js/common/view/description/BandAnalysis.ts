@@ -75,12 +75,12 @@ const ENVELOPE_GEOMETRY_GATE_END = 1.25;
 const FAINT_SECTIONS_ENVELOPE_SCORE = 1.5;
 const DISTINCT_SECTIONS_ENVELOPE_SCORE = 6;
 
-const smoothStep = ( edge0: number, edge1: number, value: number ): number => {
+function smoothStep( edge0: number, edge1: number, value: number ): number {
   const t = clamp( ( value - edge0 ) / ( edge1 - edge0 ), 0, 1 );
   return t * t * ( 3 - 2 * t );
-};
+}
 
-const getSpacingCategory = ( averageSpacingMM: number, screenWidthMM: number ): BandSpacingCategory => {
+function getSpacingCategory( averageSpacingMM: number, screenWidthMM: number ): BandSpacingCategory {
   const spacingFraction = screenWidthMM > 0 ? averageSpacingMM / screenWidthMM : 0;
 
   // Keep the default double-slit photon pattern in the middle of this seven-point scale.
@@ -91,12 +91,13 @@ const getSpacingCategory = ( averageSpacingMM: number, screenWidthMM: number ): 
          spacingFraction >= 0.05 ? 'closeTogether' :
          spacingFraction >= 0.03 ? 'veryCloseTogether' :
          'extremelyCloseTogether';
-};
+}
 
-const getEnvelopeCategory = ( envelopeScore: number ): EnvelopeCategory =>
-  envelopeScore < FAINT_SECTIONS_ENVELOPE_SCORE ? 'brightestAtCenter' :
-  envelopeScore < DISTINCT_SECTIONS_ENVELOPE_SCORE ? 'clusteringIntoTwoFaintSections' :
-  'clusteringIntoTwoDistinctSections';
+function getEnvelopeCategory( envelopeScore: number ): EnvelopeCategory {
+  return envelopeScore < FAINT_SECTIONS_ENVELOPE_SCORE ? 'brightestAtCenter' :
+         envelopeScore < DISTINCT_SECTIONS_ENVELOPE_SCORE ? 'clusteringIntoTwoFaintSections' :
+         'clusteringIntoTwoDistinctSections';
+}
 
 export default class BandAnalysis {
 

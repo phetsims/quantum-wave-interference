@@ -75,7 +75,7 @@ const SLIT_SETTING_DISPLAY_MAPS: Record<SlitOrientation, SlitSettingDisplayMap> 
   }
 };
 
-const DEFAULT_FORMAT_SLIT_SEPARATION = ( slitSepMM: number ): string => {
+function DEFAULT_FORMAT_SLIT_SEPARATION( slitSepMM: number ): string {
   return slitSepMM < 0.1 ?
          micrometersUnit.getVisualSymbolPatternString( slitSepMM * 1000, {
            decimalPlaces: 1,
@@ -85,7 +85,7 @@ const DEFAULT_FORMAT_SLIT_SEPARATION = ( slitSepMM: number ): string => {
            decimalPlaces: 2,
            showTrailingZeros: true
          } );
-};
+}
 
 const SOURCE_TYPE_DISPLAY_DEPENDENCIES = [
   SOURCE_TYPE_DISPLAY_MAP.photons,
@@ -94,13 +94,16 @@ const SOURCE_TYPE_DISPLAY_DEPENDENCIES = [
   SOURCE_TYPE_DISPLAY_MAP.heliumAtoms
 ] as const;
 
-const ifSnapshot = <T>( compute: ( snapshot: Snapshot ) => T, empty: T ): ( snapshot: Snapshot | null ) => T =>
-  snapshot => snapshot ? compute( snapshot ) : empty;
+function ifSnapshot<T>( compute: ( snapshot: Snapshot ) => T, empty: T ): ( snapshot: Snapshot | null ) => T {
+  return snapshot => snapshot ? compute( snapshot ) : empty;
+}
 
-const formatLabelValue = ( label: string, value: string ): string => StringUtils.fillIn(
-  QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
-  { label: label, value: value }
-);
+function formatLabelValue( label: string, value: string ): string {
+  return StringUtils.fillIn(
+    QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
+    { label: label, value: value }
+  );
+}
 
 const createSlitSettingDisplayMap = (
   slitOrientation: SlitOrientation,

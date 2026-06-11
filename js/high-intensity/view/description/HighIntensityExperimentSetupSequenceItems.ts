@@ -24,12 +24,14 @@ type SequenceItem = {
   visibleProperty: TReadOnlyProperty<boolean>;
 };
 
-const createDependencies = ( model: HighIntensityModel ): TReadOnlyProperty<unknown>[] => Array.from( new Set( [
-  ...QuantumWaveInterferenceAccessibleStateTemplate.createDependencies( model ),
-  ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.getDependentProperties(),
-  ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.getDependentProperties(),
-  ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.getDependentProperties()
-] ) );
+function createDependencies( model: HighIntensityModel ): TReadOnlyProperty<unknown>[] {
+  return Array.from( new Set( [
+    ...QuantumWaveInterferenceAccessibleStateTemplate.createDependencies( model ),
+    ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.getDependentProperties(),
+    ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.getDependentProperties(),
+    ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.getDependentProperties()
+  ] ) );
+}
 
 const createSequenceStringProperty = (
   model: HighIntensityModel,
@@ -59,16 +61,18 @@ const createItem = (
   visibleProperty: createSequenceVisibleProperty( model, getAccessibleViewState, isVisible )
 } );
 
-const formatSourceStarted = ( state: HighIntensityAccessibleViewState ): string =>
-  QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
+function formatSourceStarted( state: HighIntensityAccessibleViewState ): string {
+  return QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
     isPlaying: state.isPlaying ? 'true' : 'false',
     timeSpeed: state.clockSpeedDescription
   } );
+}
 
-const formatAdvancingWave = ( state: HighIntensityAccessibleViewState ): string =>
-  QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.format( {
+function formatAdvancingWave( state: HighIntensityAccessibleViewState ): string {
+  return QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.format( {
     beamDescription: formatSourceBeamDescription( state )
   } );
+}
 
 const formatWaveProgress = (
   state: HighIntensityAccessibleViewState,
@@ -80,7 +84,7 @@ const formatWaveProgress = (
     patternKind: state.patternKind
   } );
 
-const getAfterSlitsStage = ( state: HighIntensityAccessibleViewState ): SequenceWaveProgressStage => {
+function getAfterSlitsStage( state: HighIntensityAccessibleViewState ): SequenceWaveProgressStage {
   const patternKind = state.patternKind;
 
   return patternKind === 'doubleSlitInterference' ? 'interferingAfterSlits' :
@@ -88,15 +92,16 @@ const getAfterSlitsStage = ( state: HighIntensityAccessibleViewState ): Sequence
          patternKind === 'whichPathDiffraction' ? 'whichPathAfterSlits' :
          patternKind === 'noBarrier' ? 'directToScreen' :
          ( () => { throw new Error( `Unrecognized patternKind: ${patternKind}` ); } )();
-};
+}
 
 const formatDetectorPattern = (
   state: HighIntensityAccessibleViewState,
   patternFormation: QuantumWaveInterferencePatternFormation
 ): string => formatDetectorDescription( state, patternFormation );
 
-const getDetectorPatternFormationFactor = ( model: HighIntensityModel ): number =>
-  model.sceneProperty.value.detectorPatternFormationFactorProperty.value;
+function getDetectorPatternFormationFactor( model: HighIntensityModel ): number {
+  return model.sceneProperty.value.detectorPatternFormationFactorProperty.value;
+}
 
 /**
  * Creates additional Experimental Setup list items for High Intensity source/wave/detector milestones.

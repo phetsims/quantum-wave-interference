@@ -40,13 +40,13 @@ import SceneModel from '../model/SceneModel.js';
 import DetectorScreenCanvasNode from './DetectorScreenCanvasNode.js';
 import DetectorScreenScaleIndicatorNode from './DetectorScreenScaleIndicatorNode.js';
 
-const formatExperimentSlitSeparation = ( slitSepMM: number ): string => {
+function formatExperimentSlitSeparation( slitSepMM: number ): string {
   const slitSepUM = slitSepMM * 1000;
   return micrometersUnit.getVisualSymbolPatternString( slitSepUM, {
     decimalPlaces: ExperimentConstants.getDecimalPlacesForValue( slitSepUM ),
     showTrailingZeros: true
   } );
-};
+}
 
 // Dimensions of the front-facing detector screen display, sourced from shared layout constants.
 const SCREEN_WIDTH = ExperimentConstants.DETECTOR_SCREEN_WIDTH;

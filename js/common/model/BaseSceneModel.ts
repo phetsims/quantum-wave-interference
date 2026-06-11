@@ -83,12 +83,12 @@ const SOURCE_TYPE_CONFIG: Record<SourceType, SourceTypeConfig> = {
   }
 };
 
-const getDefaultEffectiveWavelength = ( sourceType: SourceType ): number => {
+function getDefaultEffectiveWavelength( sourceType: SourceType ): number {
   const config = SOURCE_TYPE_CONFIG[ sourceType ];
   return sourceType === 'photons' ?
          QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9 :
          QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( config.particleMass * config.defaultParticleSpeed );
-};
+}
 
 type SelfOptions = {
   sourceType: SourceType;

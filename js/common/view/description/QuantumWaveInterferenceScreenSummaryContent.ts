@@ -18,7 +18,9 @@ import { type SourceType } from '../../model/SourceType.js';
 type FluentBoolean = 'true' | 'false';
 export type SlitOrientation = 'leftRight' | 'topBottom';
 
-const toFluentBoolean = ( value: boolean ): FluentBoolean => value ? 'true' : 'false';
+function toFluentBoolean( value: boolean ): FluentBoolean {
+  return value ? 'true' : 'false';
+}
 
 type ScreenSummaryModel = {
   sceneProperty: TReadOnlyProperty<{ sourceType: SourceType }>;

@@ -43,7 +43,7 @@ const MAX_BAR_PX = 100;
 /**
  * Finds a "nice" round physical distance (in meters) whose scale bar is close to the target pixel width.
  */
-const computeNiceScale = ( regionWidthMeters: number, regionWidthPixels: number ): { distanceMeters: number; barPixels: number } => {
+function computeNiceScale( regionWidthMeters: number, regionWidthPixels: number ): { distanceMeters: number; barPixels: number } {
   const metersPerPixel = regionWidthMeters / regionWidthPixels;
   const targetMeters = TARGET_BAR_PX * metersPerPixel;
 
@@ -74,12 +74,12 @@ const computeNiceScale = ( regionWidthMeters: number, regionWidthPixels: number 
   }
 
   return { distanceMeters: bestDistance, barPixels: bestPixels };
-};
+}
 
 /**
  * Formats a distance in meters into a human-readable string with appropriate units.
  */
-const formatDistance = ( meters: number ): string => {
+function formatDistance( meters: number ): string {
   if ( meters >= 1e-3 ) {
     const mm = meters * 1e3;
     return millimetersUnit.getVisualSymbolPatternString( mm >= 10 ? roundSymmetric( mm ) : parseFloat( mm.toPrecision( 2 ) ) );
@@ -92,7 +92,7 @@ const formatDistance = ( meters: number ): string => {
     const nm = meters * 1e9;
     return nanometersUnit.getVisualSymbolPatternString( nm >= 10 ? roundSymmetric( nm ) : parseFloat( nm.toPrecision( 2 ) ) );
   }
-};
+}
 
 export default class WaveVisualizationNode extends Node {
 

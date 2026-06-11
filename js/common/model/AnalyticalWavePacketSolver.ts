@@ -23,14 +23,16 @@ const EPSILON = 1e-12;
 // remain local and do not attenuate the wave packet outside the detector footprint.
 const MEASUREMENT_BITE_EDGE_FEATHER_PIXELS = 5;
 
-const copyPacketReEmission = ( reEmission: GaussianPacketReEmission ): GaussianPacketReEmission => ( {
-  selectedSlit: reEmission.selectedSlit,
-  eventTime: reEmission.eventTime,
-  timeAdvance: reEmission.timeAdvance,
-  sourceX: reEmission.sourceX,
-  centerY: reEmission.centerY,
-  width: reEmission.width
-} );
+function copyPacketReEmission( reEmission: GaussianPacketReEmission ): GaussianPacketReEmission {
+  return {
+    selectedSlit: reEmission.selectedSlit,
+    eventTime: reEmission.eventTime,
+    timeAdvance: reEmission.timeAdvance,
+    sourceX: reEmission.sourceX,
+    centerY: reEmission.centerY,
+    width: reEmission.width
+  };
+}
 
 export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver {
 

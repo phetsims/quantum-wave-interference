@@ -344,7 +344,9 @@ function getPhaseDisplayIntensity( value: number ): number {
  * @param t - Interpolation fraction.
  * @returns Interpolated scalar value.
  */
-const blend = ( a: number, b: number, t: number ): number => a + ( b - a ) * t;
+function blend( a: number, b: number, t: number ): number {
+  return a + ( b - a ) * t;
+}
 
 /**
  * Per-coherence-group rendering summary. Store real/imaginary components directly so rasterization

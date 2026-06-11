@@ -39,10 +39,11 @@ export type QuantumWaveInterferenceResponsePlan = {
 
 const VALUE_TOLERANCE = 1e-8;
 
-const getTrend = ( before: number, after: number ): QuantumWaveInterferenceValueTrend =>
-  Math.abs( before - after ) < VALUE_TOLERANCE ? 'unchanged' :
-  after > before ? 'increased' :
-  'decreased';
+function getTrend( before: number, after: number ): QuantumWaveInterferenceValueTrend {
+  return Math.abs( before - after ) < VALUE_TOLERANCE ? 'unchanged' :
+         after > before ? 'increased' :
+         'decreased';
+}
 
 export default class QuantumWaveInterferenceTransitionDescriber {
 

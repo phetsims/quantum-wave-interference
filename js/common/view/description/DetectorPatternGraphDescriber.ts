@@ -31,8 +31,9 @@ export type DetectorPatternGraphDescriberScene = {
   slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
 };
 
-const getDetectionMode = ( scene: DetectorPatternGraphDescriberScene ): DetectionMode =>
-  scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
+function getDetectionMode( scene: DetectorPatternGraphDescriberScene ): DetectionMode {
+  return scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
+}
 
 export default class DetectorPatternGraphDescriber {
 
