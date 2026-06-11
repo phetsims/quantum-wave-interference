@@ -14,6 +14,7 @@
  */
 
 import MappedProperty from '../../../../axon/js/MappedProperty.js';
+import Multilink from '../../../../axon/js/Multilink.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import TinyProperty from '../../../../axon/js/TinyProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
@@ -21,6 +22,7 @@ import Range from '../../../../dot/js/Range.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import Shape from '../../../../kite/js/Shape.js';
 import Orientation from '../../../../phet-core/js/Orientation.js';
+import HighlightPath from '../../../../scenery/js/accessibility/HighlightPath.js';
 import DragListener from '../../../../scenery/js/listeners/DragListener.js';
 import Line from '../../../../scenery/js/nodes/Line.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
@@ -114,7 +116,8 @@ export default class PositionPlotNode extends Node {
   private readonly activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;
   private readonly chartNode: WavePlotChartNode;
   private readonly maxDisplayValueProperty: TReadOnlyProperty<number>;
-  private readonly apertureProbeNode: Node;
+  private readonly apertureProbeNode: ApertureProbeNode;
+  private readonly interactionHighlight: HighlightPath;
   private readonly wireRectangle: Rectangle;
   private readonly wireLeftEdgeLine: Line;
   private readonly wireRightEdgeLine: Line;
@@ -172,7 +175,6 @@ export default class PositionPlotNode extends Node {
     this.apertureProbeNode.addInputListener( verticalDragListener );
 
     this.chartNode = this.createChartNode( waveRegionX, waveRegionWidth, yAxisLabelStringProperty, polarityProperty );
-    this.chartNode.addInputListener( verticalDragListener );
     this.addChild( this.chartNode );
 
     this.wireRectangle = new Rectangle( 0, 0, 0, 0, {
@@ -187,12 +189,22 @@ export default class PositionPlotNode extends Node {
       lineWidth: WIRE_EDGE_LINE_WIDTH
     } );
     const wireNode = new Node( {
-      children: [ this.wireRectangle, this.wireLeftEdgeLine, this.wireRightEdgeLine ]
+      children: [ this.wireRectangle, this.wireLeftEdgeLine, this.wireRightEdgeLine ],
+      pickable: false
     } );
     this.addChild( wireNode );
     wireNode.moveToBack();
 
     this.lineYFractionProperty.link( () => this.updateProbeChartAndWireLayout() );
+
+    this.interactionHighlight = new HighlightPath( null );
+    this.apertureProbeNode.setFocusHighlight( this.interactionHighlight );
+    this.apertureProbeNode.setInteractiveHighlight( this.interactionHighlight );
+
+    Multilink.multilink(
+      [ this.apertureProbeNode.boundsProperty, this.chartNode.boundsProperty ],
+      () => this.updateInteractionBounds()
+    );
 
     this.addInputListener( {
       down: () => this.moveToFront()
@@ -261,6 +273,7 @@ export default class PositionPlotNode extends Node {
       panelRightPadding: POSITION_PLOT_PANEL_RIGHT_PADDING,
       x: waveRegionX,
       y: this.waveRegionY + this.waveRegionHeight + 30,
+      pickable: false,
       tandem: this.plotTandem.createTandem( 'chartNode' )
     } );
   }
@@ -288,6 +301,20 @@ export default class PositionPlotNode extends Node {
   }
 
   /**
+   * Synchronizes the pointer areas and highlights with the rectangular union of the aperture probe
+   * and chart panel. The bounds are converted from their shared parent frame into the aperture
+   * probe's local frame because it is the tool's single interactive and focusable Node.
+   */
+  private updateInteractionBounds(): void {
+    const parentInteractionBounds = this.apertureProbeNode.bounds.union( this.chartNode.bounds );
+    const localInteractionBounds = this.apertureProbeNode.parentToLocalBounds( parentInteractionBounds );
+
+    this.apertureProbeNode.mouseArea = localInteractionBounds;
+    this.apertureProbeNode.touchArea = localInteractionBounds;
+    this.interactionHighlight.setShape( Shape.bounds( localInteractionBounds ) );
+  }
+
+  /**
    * Creates the aperture-shaped probe that spans the wave visualization. The opaque frame shows
    * which horizontal row is selected while the transparent middle keeps the wave field visible.
    * The probe is also the tool's single focusable element: an AccessibleSlider that moves the
@@ -296,7 +323,7 @@ export default class PositionPlotNode extends Node {
    * @param waveRegionX - left edge of the wave visualization region
    * @param waveRegionWidth - width of the wave visualization region
    */
-  private createApertureProbeNode( waveRegionX: number, waveRegionWidth: number ): Node {
+  private createApertureProbeNode( waveRegionX: number, waveRegionWidth: number ): ApertureProbeNode {
     const outerWidth = waveRegionWidth + 2 * POSITION_PROBE_SIDE_FRAME_WIDTH;
     const outerHeight = POSITION_PROBE_APERTURE_HEIGHT + 2 * POSITION_PROBE_FRAME_THICKNESS;
     const apertureLeft = POSITION_PROBE_SIDE_FRAME_WIDTH;
