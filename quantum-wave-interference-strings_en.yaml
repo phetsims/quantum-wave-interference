@@ -217,7 +217,6 @@ a11y:
                              }
   snapshotNode:
     deleteSnapshotAccessibleName: 'Delete { $snapshotTitle }'
-  experimentSetupHeading:      Experiment Setup
   sourceHeading:               Source Controls
   slitsHeading:                Slits and Screen Configuration
   detectorScreenHeading:       Detector Screen Controls
@@ -312,19 +311,7 @@ a11y:
                                 [veryCloseTogether] Wave peaks, very close together.
                                *[extremelyCloseTogether] Wave peaks, extremely close together.
                               }
-  # Leading paragraph for the "What's happening at the moment" list, a sibling of the "Current experimental
-  # details:" list in the Experiment Setup section. On High Intensity it holds the accumulating wave-progress
-  # milestones; on Single Particles it holds the single current-packet-status bullet.
-  whatsHappeningLeadingParagraph: What's happening at the moment
   singleParticlesState:
-    # Shown as the what's-happening bullet when no packet is in flight, inviting the user to start the experiment.
-    firePrompt:               >-
-                              { $sourceType ->
-                                [photons] Fire a photon to begin.
-                                [electrons] Fire an electron to begin.
-                                [neutrons] Fire a neutron to begin.
-                               *[heliumAtoms] Fire a helium atom to begin.
-                              }
     # Single Particles counterpart to highIntensityState.sourceBeam: a single emitted wave packet rendered as a round
     # packet of waves, rather than a continuous beam of plane wave fronts.
     sourcePacket:             >-

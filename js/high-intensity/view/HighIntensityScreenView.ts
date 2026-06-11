@@ -60,6 +60,7 @@ import HighIntensityModel from '../model/HighIntensityModel.js';
 import type HighIntensitySceneModel from '../model/HighIntensitySceneModel.js';
 import { DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD } from '../model/HighIntensitySceneModel.js';
 import HighIntensityAccessibleResponses from './description/HighIntensityAccessibleResponses.js';
+import { toFluentBoolean } from './description/QuantumWaveInterferenceAccessibleStateFormatters.js';
 import { type HighIntensityAccessibleViewState, type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind, type QuantumWaveInterferenceWaveProgressCheckpoint, type QuantumWaveInterferenceWaveProgressStage, type QuantumWaveInterferenceWaveSpeedDescription } from './description/HighIntensityAccessibleViewState.js';
 import HighIntensityExperimentSetupSequenceItems from './description/HighIntensityExperimentSetupSequenceItems.js';
 import HighIntensitySourceBeamCalloutNode from './HighIntensitySourceBeamCalloutNode.js';
@@ -817,24 +818,43 @@ export default class HighIntensityScreenView extends ScreenView {
     getAccessibleViewState: () => HighIntensityAccessibleViewState
   ): QuantumWaveInterferenceScreenViewDescription {
 
-    // The accumulating source/wave/detector milestone items live in their own "What's happening at the moment"
-    // list, a sibling of the "Current experimental details" list in the Experiment Setup section.
-    const whatsHappeningNode = new Node( {
+    // Pattern-state summary mirroring the Experiment screen's "Detector Screen and Experiment Details" structure:
+    // a leading paragraph summarizing the detector screen, with the accumulating source/wave/detector milestone
+    // items as its bullets. NOTE: the empty-screen logic parallels detectorScreenHasPatternProperty in the
+    // screen-summary content created by the constructor.
+    const detectorScreenIsEmptyProperty = DerivedProperty.deriveAny(
+      [
+        model.sceneProperty,
+        model.currentIsEmittingProperty,
+        model.currentDetectionModeProperty,
+        model.currentTotalHitsProperty,
+        model.accessibleStateStepProperty
+      ],
+      () => model.currentDetectionModeProperty.value === 'averageIntensity' ?
+            !( model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() ) :
+            model.currentTotalHitsProperty.value === 0
+    );
+
+    const detectorScreenDetailsNode = new Node( {
+      visibleProperty: DerivedProperty.not( model.isIntensityGraphVisibleProperty ),
       accessibleTemplate: AccessibleList.createTemplateProperty( {
-        leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.whatsHappeningLeadingParagraphStringProperty,
+        leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
+          detectionMode: model.currentDetectionModeProperty,
+          sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
+          detectorScreenIsEmpty: detectorScreenIsEmptyProperty.derived( toFluentBoolean )
+        } ),
         listItems: HighIntensityExperimentSetupSequenceItems( model, getAccessibleViewState )
       } )
     } );
-    this.addChild( whatsHappeningNode );
+    this.addChild( detectorScreenDetailsNode );
 
     const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
       model,
       model.currentSlitConfigurationProperty, {
         detectionModeProperty: model.currentDetectionModeProperty,
-        detectorScreenUpdateTriggerProperty: model.accessibleStateStepProperty,
         screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,
         slitOrientation: 'topBottom',
-        experimentSetupAdditionalNodes: [ whatsHappeningNode ],
+        detectorScreenDetailsNodes: [ detectorScreenDetailsNode ],
         sourceNodes: [ sourceBeamCalloutNode, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow, doubleSlitNode ],
         detectorScreenControlNodes: [ detectorScreenControls ]
@@ -858,7 +878,7 @@ export default class HighIntensityScreenView extends ScreenView {
     detectorScreenControls: DetectorScreenControls
   ): void {
     this.pdomPlayAreaNode.pdomOrder = [
-      screenViewDescription.experimentSetupHeadingNode,
+      screenViewDescription.detectorScreenAndExperimentDetailsHeadingNode,
       screenViewDescription.sourceHeadingNode,
       screenViewDescription.slitsHeadingNode,
       this.detectorPatternGraphLayerNode,

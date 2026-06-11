@@ -102,7 +102,6 @@ addToMapIfDefined( 'a11y_screenSummary_maxHitsReachedHint', 'a11y.screenSummary.
 addToMapIfDefined( 'a11y_screenSummary_currentDetails', 'a11y.screenSummary.currentDetailsStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_interactionHint', 'a11y.screenSummary.interactionHintStringProperty' );
 addToMapIfDefined( 'a11y_snapshotNode_deleteSnapshotAccessibleName', 'a11y.snapshotNode.deleteSnapshotAccessibleNameStringProperty' );
-addToMapIfDefined( 'a11y_experimentSetupHeading', 'a11y.experimentSetupHeadingStringProperty' );
 addToMapIfDefined( 'a11y_sourceHeading', 'a11y.sourceHeadingStringProperty' );
 addToMapIfDefined( 'a11y_slitsHeading', 'a11y.slitsHeadingStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenHeading', 'a11y.detectorScreenHeadingStringProperty' );
@@ -118,8 +117,6 @@ addToMapIfDefined( 'a11y_sourceWaveFragments_lowercaseColor', 'a11y.sourceWaveFr
 addToMapIfDefined( 'a11y_sourceWaveFragments_capitalizedColorAndBlack', 'a11y.sourceWaveFragments.capitalizedColorAndBlackStringProperty' );
 addToMapIfDefined( 'a11y_sourceWaveFragments_slitTarget', 'a11y.sourceWaveFragments.slitTargetStringProperty' );
 addToMapIfDefined( 'a11y_sourceWaveFragments_wavePeakSpacing', 'a11y.sourceWaveFragments.wavePeakSpacingStringProperty' );
-addToMapIfDefined( 'a11y_whatsHappeningLeadingParagraph', 'a11y.whatsHappeningLeadingParagraphStringProperty' );
-addToMapIfDefined( 'a11y_singleParticlesState_firePrompt', 'a11y.singleParticlesState.firePromptStringProperty' );
 addToMapIfDefined( 'a11y_singleParticlesState_sourcePacket', 'a11y.singleParticlesState.sourcePacketStringProperty' );
 addToMapIfDefined( 'a11y_highIntensityState_overview', 'a11y.highIntensityState.overviewStringProperty' );
 addToMapIfDefined( 'a11y_highIntensityState_sourceStatus', 'a11y.highIntensityState.sourceStatusStringProperty' );
@@ -394,7 +391,6 @@ const QuantumWaveInterferenceFluent = {
     snapshotNode: {
       deleteSnapshotAccessibleName: new FluentPattern<{ snapshotTitle: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_snapshotNode_deleteSnapshotAccessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotNode.deleteSnapshotAccessibleNameStringProperty' ), [{"name":"snapshotTitle"}] )
     },
-    experimentSetupHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_experimentSetupHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupHeadingStringProperty' ) ),
     sourceHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sourceHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceHeadingStringProperty' ) ),
     slitsHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitsHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.slitsHeadingStringProperty' ) ),
     detectorScreenHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreenHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreenHeadingStringProperty' ) ),
@@ -416,15 +412,9 @@ const QuantumWaveInterferenceFluent = {
       slitTarget: new FluentPattern<{ slitSetting: 'noBarrier' | 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors' | TReadOnlyProperty<'noBarrier' | 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors'> }>( fluentSupport.bundleProperty, 'a11y_sourceWaveFragments_slitTarget', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceWaveFragments.slitTargetStringProperty' ), [{"name":"slitSetting","variants":["noBarrier","bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","bothDetectors"]}] ),
       wavePeakSpacing: new FluentPattern<{ wavefrontSpacing: 'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether' | TReadOnlyProperty<'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether'> }>( fluentSupport.bundleProperty, 'a11y_sourceWaveFragments_wavePeakSpacing', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceWaveFragments.wavePeakSpacingStringProperty' ), [{"name":"wavefrontSpacing","variants":["extremelyFarApart","veryFarApart","farApart","somewhatCloseTogether","closeTogether","veryCloseTogether","extremelyCloseTogether"]}] )
     },
-    _comment_2: new FluentComment( {"comment":"Leading paragraph for the \"What's happening at the moment\" list, a sibling of the \"Current experimental","associatedKey":"whatsHappeningLeadingParagraph"} ),
-    _comment_3: new FluentComment( {"comment":"details:\" list in the Experiment Setup section. On High Intensity it holds the accumulating wave-progress","associatedKey":"whatsHappeningLeadingParagraph"} ),
-    _comment_4: new FluentComment( {"comment":"milestones; on Single Particles it holds the single current-packet-status bullet.","associatedKey":"whatsHappeningLeadingParagraph"} ),
-    whatsHappeningLeadingParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_whatsHappeningLeadingParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.whatsHappeningLeadingParagraphStringProperty' ) ),
     singleParticlesState: {
-      _comment_0: new FluentComment( {"comment":"Shown as the what's-happening bullet when no packet is in flight, inviting the user to start the experiment.","associatedKey":"firePrompt"} ),
-      firePrompt: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_singleParticlesState_firePrompt', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesState.firePromptStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
-      _comment_1: new FluentComment( {"comment":"Single Particles counterpart to highIntensityState.sourceBeam: a single emitted wave packet rendered as a round","associatedKey":"sourcePacket"} ),
-      _comment_2: new FluentComment( {"comment":"packet of waves, rather than a continuous beam of plane wave fronts.","associatedKey":"sourcePacket"} ),
+      _comment_0: new FluentComment( {"comment":"Single Particles counterpart to highIntensityState.sourceBeam: a single emitted wave packet rendered as a round","associatedKey":"sourcePacket"} ),
+      _comment_1: new FluentComment( {"comment":"packet of waves, rather than a continuous beam of plane wave fronts.","associatedKey":"sourcePacket"} ),
       sourcePacket: new FluentPattern<{ photonColor: 'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red' | TReadOnlyProperty<'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red'>, slitSetting: 'noBarrier' | 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors' | TReadOnlyProperty<'noBarrier' | 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'>, waveDisplayMode: 'amplitude' | 'electricField' | 'realPart' | 'imaginaryPart' | TReadOnlyProperty<'amplitude' | 'electricField' | 'realPart' | 'imaginaryPart'>, wavefrontSpacing: 'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether' | TReadOnlyProperty<'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether'> }>( fluentSupport.bundleProperty, 'a11y_singleParticlesState_sourcePacket', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesState.sourcePacketStringProperty' ), [{"name":"photonColor","variants":["violet","blue","indigo","green","yellow","orange","red"]},{"name":"slitSetting","variants":["noBarrier","bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","bothDetectors"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]},{"name":"waveDisplayMode","variants":["amplitude","electricField","realPart","imaginaryPart"]},{"name":"wavefrontSpacing","variants":["extremelyFarApart","veryFarApart","farApart","somewhatCloseTogether","closeTogether","veryCloseTogether","extremelyCloseTogether"]}] )
     },
     highIntensityState: {

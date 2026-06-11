@@ -109,7 +109,6 @@ type StringsType = {
     'snapshotNode': {
       'deleteSnapshotAccessibleNameStringProperty': LocalizedStringProperty;
     };
-    'experimentSetupHeadingStringProperty': LocalizedStringProperty;
     'sourceHeadingStringProperty': LocalizedStringProperty;
     'slitsHeadingStringProperty': LocalizedStringProperty;
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;
@@ -129,9 +128,7 @@ type StringsType = {
       'slitTargetStringProperty': LocalizedStringProperty;
       'wavePeakSpacingStringProperty': LocalizedStringProperty;
     };
-    'whatsHappeningLeadingParagraphStringProperty': LocalizedStringProperty;
     'singleParticlesState': {
-      'firePromptStringProperty': LocalizedStringProperty;
       'sourcePacketStringProperty': LocalizedStringProperty;
     };
     'highIntensityState': {

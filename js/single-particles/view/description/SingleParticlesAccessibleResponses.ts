@@ -8,9 +8,8 @@
  *
  * Unlike the High Intensity screen, the wave on this screen is transient: each packet ends when it is detected, so
  * milestone descriptions do not accumulate in the PDOM state description. Instead, this class exposes
- * sourceStartedItem for the Experimental Setup details list, and packetStatusItem, the single bullet of the
- * "What's happening at the moment" list, which describes only the current packet status (or prompts the user to
- * fire a particle when the source is off).
+ * packetStatusItem, the single bullet of the "Detector Screen and Experiment Details" list, which describes only
+ * the current packet status or the accumulated hits pattern, and hides while the detector screen is empty.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -167,14 +166,10 @@ export default class SingleParticlesAccessibleResponses extends Node {
   // detection in single-shot mode stays silent: the hit response already describes how the packet ended.
   private lastTransitionWasHit = false;
 
-  // PDOM state counterpart of the source-start context response, visible while the source is on. Appended to the
-  // Experimental Setup details list by SingleParticlesScreenView.
-  public readonly sourceStartedItem: AccessibleListItem;
-
   // PDOM state item describing the current stage of the in-flight packet (moving packet, at slits, interfering, or
-  // reaching the screen), or a prompt to fire a particle when the source is off. Because the packet is transient,
-  // this single item replaces the accumulating milestone list used on the High Intensity screen; it is the only
-  // bullet in the "What's happening at the moment" list.
+  // reaching the screen), or the accumulated hits pattern when idle; hidden while the detector screen is empty.
+  // Because the packet is transient, this single item replaces the accumulating milestone list used on the
+  // High Intensity screen; it is the only bullet in the "Detector Screen and Experiment Details" list.
   public readonly packetStatusItem: AccessibleListItem;
 
   public constructor( private readonly model: SingleParticlesModel ) {
@@ -203,24 +198,26 @@ export default class SingleParticlesAccessibleResponses extends Node {
     const dependencies = this.createDependencies();
     const getState = () => this.getResponseState();
 
-    this.sourceStartedItem = {
-      stringProperty: DerivedProperty.deriveAny( dependencies, () => formatSourceStarted( getState() ) ),
-      visibleProperty: DerivedProperty.deriveAny( dependencies, () => getState().isEmitting )
-    };
-
     this.packetStatusItem = {
       stringProperty: DerivedProperty.deriveAny( dependencies, () => {
         const state = getState();
         const stage = state.waveProgressStage;
 
-        // With the source off, prompt the user to start the experiment. While the packet is between the source and
+        // With the source off, describe the accumulated hits pattern. While the packet is between the source and
         // the barrier (or there is no barrier, or the next auto-repeat packet is about to fire), describe the moving
         // packet itself; after that, describe its interaction with the slits and detector screen.
         return !state.isEmitting ?
-               QuantumWaveInterferenceFluent.a11y.singleParticlesState.firePrompt.format( { sourceType: state.scene.sourceType } ) :
+               formatHitDescription( state ) :
                ( stage === 'sourceOff' || stage === 'travelingToSlits' || stage === 'directToScreen' ) ?
                formatPacketBeamDescription( state ) :
                formatWaveProgress( state, stage );
+      } ),
+
+      // With the source off and no hits yet, the leading paragraph ("Detector screen is empty. Photon experiment
+      // ready.") already describes the situation, so the bullet hides — mirroring the Experiment screen.
+      visibleProperty: DerivedProperty.deriveAny( dependencies, () => {
+        const state = getState();
+        return state.isEmitting || state.totalHits > 0;
       } )
     };
   }
@@ -244,9 +241,8 @@ export default class SingleParticlesAccessibleResponses extends Node {
       this.model.currentWaveDisplayModeProperty,
       this.model.currentTotalHitsProperty,
       this.model.accessibleStateStepProperty,
-      ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.getDependentProperties(),
       ...QuantumWaveInterferenceFluent.a11y.singleParticlesState.sourcePacket.getDependentProperties(),
-      ...QuantumWaveInterferenceFluent.a11y.singleParticlesState.firePrompt.getDependentProperties(),
+      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.getDependentProperties(),
       ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.getDependentProperties()
     ] ) );
   }

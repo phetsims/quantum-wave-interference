@@ -244,9 +244,6 @@
         "value": "Delete { $snapshotTitle }"
       }
     },
-    "experimentSetupHeading": {
-      "value": "Experiment Setup"
-    },
     "sourceHeading": {
       "value": "Source Controls"
     },
@@ -296,13 +293,7 @@
         "value": "{ $wavefrontSpacing ->\n  [extremelyFarApart] Wave peaks, extremely far apart.\n  [veryFarApart] Wave peaks, very far apart.\n  [farApart] Wave peaks, far apart.\n  [somewhatCloseTogether] Wave peaks, somewhat close together.\n  [closeTogether] Wave peaks, close together.\n  [veryCloseTogether] Wave peaks, very close together.\n *[extremelyCloseTogether] Wave peaks, extremely close together.\n}"
       }
     },
-    "whatsHappeningLeadingParagraph": {
-      "value": "What's happening at the moment"
-    },
     "singleParticlesState": {
-      "firePrompt": {
-        "value": "{ $sourceType ->\n  [photons] Fire a photon to begin.\n  [electrons] Fire an electron to begin.\n  [neutrons] Fire a neutron to begin.\n *[heliumAtoms] Fire a helium atom to begin.\n}"
-      },
       "sourcePacket": {
         "value": "{ $waveDisplayMode ->\n  [amplitude] Round packet of solid { a11y_sourceWaveFragments_lowercaseColor } wave\n  moves toward { a11y_sourceWaveFragments_slitTarget }\n *[electricField] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n  [realPart] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n  [imaginaryPart] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n}"
       }

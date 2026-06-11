@@ -45,6 +45,7 @@ import ToolCheckbox from '../../common/view/ToolCheckbox.js';
 import WaveRegionNode from '../../common/view/WaveRegionNode.js';
 import WaveVisualizationNode from '../../common/view/WaveVisualizationNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import { toFluentBoolean } from '../../high-intensity/view/description/QuantumWaveInterferenceAccessibleStateFormatters.js';
 import SingleParticlesModel from '../model/SingleParticlesModel.js';
 import SingleParticlesAccessibleResponses from './description/SingleParticlesAccessibleResponses.js';
 import DetectorProbeNode from './DetectorProbeNode.js';
@@ -360,17 +361,24 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.timePlotNode = measurementToolsNode.timePlotNode;
     this.positionPlotNode = measurementToolsNode.positionPlotNode;
 
-    // The packet is transient, so milestone descriptions do not accumulate as on the High Intensity screen. Instead,
-    // this "What's happening at the moment" list holds a single bullet describing only the current status of the
-    // in-flight packet (moving packet, at slits, interfering), or a prompt to fire a particle when none is active.
-    // It is placed as a sibling of the "Current experimental details" list in the Experiment Setup section.
-    const whatsHappeningNode = new Node( {
+    // Pattern-state summary mirroring the Experiment screen's "Detector Screen and Experiment Details" structure:
+    // a leading paragraph summarizing the detector screen, with one bullet for the current status. The packet is
+    // transient, so milestone descriptions do not accumulate as on the High Intensity screen — the single bullet
+    // describes the in-flight packet (moving packet, at slits, interfering), the hits pattern once particles have
+    // landed, or a prompt to fire a particle while the screen is empty.
+    const detectorScreenIsEmptyProperty = model.currentTotalHitsProperty.derived( totalHits => totalHits === 0 );
+    const detectorScreenDetailsNode = new Node( {
+      visibleProperty: DerivedProperty.not( model.isHitsGraphVisibleProperty ),
       accessibleTemplate: AccessibleList.createTemplateProperty( {
-        leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.whatsHappeningLeadingParagraphStringProperty,
+        leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
+          detectionMode: 'hits',
+          sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
+          detectorScreenIsEmpty: detectorScreenIsEmptyProperty.derived( toFluentBoolean )
+        } ),
         listItems: [ accessibleResponses.packetStatusItem ]
       } )
     } );
-    this.addChild( whatsHappeningNode );
+    this.addChild( detectorScreenDetailsNode );
 
     const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
       model,
@@ -378,9 +386,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       {
         screenGraphVisibleProperty: model.isHitsGraphVisibleProperty,
         slitOrientation: 'topBottom',
-        detectorScreenUpdateTriggerProperty: model.accessibleStateStepProperty,
-        experimentSetupAdditionalListItems: [ accessibleResponses.sourceStartedItem ],
-        experimentSetupAdditionalNodes: [ whatsHappeningNode ],
+        detectorScreenDetailsNodes: [ detectorScreenDetailsNode ],
         sourceNodes: [ emitterNode, maxHitsReachedPanel, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow, waveRegionNode.doubleSlitNode ],
         detectorScreenControlNodes: [ detectorScreenControls ]
@@ -389,7 +395,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( screenViewDescription );
 
     this.pdomPlayAreaNode.pdomOrder = [
-      screenViewDescription.experimentSetupHeadingNode,
+      screenViewDescription.detectorScreenAndExperimentDetailsHeadingNode,
       screenViewDescription.sourceHeadingNode,
       screenViewDescription.slitsHeadingNode,
       this.detectorPatternGraphLayerNode,

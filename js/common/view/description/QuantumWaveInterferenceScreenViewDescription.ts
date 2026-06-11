@@ -7,16 +7,14 @@
  */
 
 import BooleanProperty from '../../../../../axon/js/BooleanProperty.js';
-import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
-import { type AccessibleListItem } from '../../../../../scenery-phet/js/accessibility/AccessibleList.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
 import DetectorPatternGraphDescriber, { type DetectorPatternGraphDescriberScene } from './DetectorPatternGraphDescriber.js';
-import DetectorScreenDescriber, { type DetectorScreenDescriberScene } from './DetectorScreenDescriber.js';
+import { type DetectorScreenDescriberScene } from './DetectorScreenDescriber.js';
 import ExperimentSetupDetailsNode from './ExperimentSetupDetailsNode.js';
 import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryContent.js';
 
@@ -45,17 +43,14 @@ type SharedDescriptionModel = {
 /**
  * Options for QuantumWaveInterferenceScreenViewDescription.
  *
- * - detectionModeProperty: when provided, gates detector-screen description text on the active detection mode.
- * - detectorScreenUpdateTriggerProperty: an arbitrary property whose changes trigger a refresh of the
- *   detector-screen accessible paragraph (e.g. the model's accessible-state step counter).
- * - screenGraphVisibleProperty: when provided, the raw detector-screen paragraph is hidden while the graph
- *   is visible and a separate graph-description node is shown instead.
+ * - detectionModeProperty: when provided, adds a detection-mode item to ExperimentSetupDetailsNode.
+ * - screenGraphVisibleProperty: when provided, a graph-description node is shown while the graph is visible.
  * - slitOrientation: axis along which the slits are arranged; defaults to the describer's own default.
- * - includeExperimentSetupDetails: set to false to suppress the detector-screen, graph, and
- *   ExperimentSetupDetailsNode children (used when that content lives elsewhere in the PDOM).
- * - experimentSetupAdditionalListItems: extra accessible list items appended to ExperimentSetupDetailsNode.
- * - experimentSetupAdditionalNodes: extra scenery nodes placed after ExperimentSetupDetailsNode under the
- *   "Experiment Setup" PDOM heading, as siblings of the "Current experimental details" list. Callers must add
+ * - includeExperimentSetupDetails: set to false to suppress the graph and ExperimentSetupDetailsNode children
+ *   (used when that content lives elsewhere in the PDOM).
+ * - detectorScreenDetailsNodes: scenery nodes placed first under the "Detector Screen and Experiment Details"
+ *   PDOM heading, before the "Current experimental details" list. Each screen supplies its own list describing
+ *   the detector-screen pattern and wave progress, mirroring the Experiment screen's structure. Callers must add
  *   these nodes to the scene graph themselves.
  * - sourceNodes: scenery nodes placed under the "Source" PDOM heading in pdomOrder.
  * - slitNodes: scenery nodes placed under the "Slits" PDOM heading in pdomOrder.
@@ -63,12 +58,10 @@ type SharedDescriptionModel = {
  */
 type SharedDescriptionOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
-  detectorScreenUpdateTriggerProperty?: TReadOnlyProperty<unknown>;
   screenGraphVisibleProperty?: TReadOnlyProperty<boolean>;
   slitOrientation?: SlitOrientation;
   includeExperimentSetupDetails?: boolean;
-  experimentSetupAdditionalListItems?: AccessibleListItem[];
-  experimentSetupAdditionalNodes?: Node[];
+  detectorScreenDetailsNodes?: Node[];
   sourceNodes: Node[];
   slitNodes: Node[];
   detectorScreenControlNodes: Node[];
@@ -76,7 +69,7 @@ type SharedDescriptionOptions = {
 
 export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
-  public readonly experimentSetupHeadingNode: Node;
+  public readonly detectorScreenAndExperimentDetailsHeadingNode: Node;
   public readonly sourceHeadingNode: Node;
   public readonly slitsHeadingNode: Node;
   public readonly detectorScreenHeadingNode: Node;
@@ -91,27 +84,9 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
     const includeExperimentSetupDetails = providedOptions.includeExperimentSetupDetails !== false;
 
-    let detectorScreenDescriptionNode: Node | null = null;
     let graphDescriptionNode: Node | null = null;
     let experimentSetupDetailsNode: Node | null = null;
     if ( includeExperimentSetupDetails ) {
-      const detectorScreenDescriber = new DetectorScreenDescriber(
-        model.sceneProperty,
-        new BooleanProperty( false ),
-        model.sceneProperty.derived( scene => 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2 ),
-        providedOptions.detectorScreenUpdateTriggerProperty
-      );
-
-      const detectorScreenDescriptionNodeOptions = providedOptions.screenGraphVisibleProperty ? {
-        accessibleParagraph: detectorScreenDescriber.descriptionProperty,
-        visibleProperty: DerivedProperty.not( providedOptions.screenGraphVisibleProperty )
-      } : {
-        accessibleParagraph: detectorScreenDescriber.descriptionProperty
-      };
-
-      detectorScreenDescriptionNode = new Node( detectorScreenDescriptionNodeOptions );
-      this.addChild( detectorScreenDescriptionNode );
-
       if ( providedOptions.screenGraphVisibleProperty ) {
         const graphDescriber = new DetectorPatternGraphDescriber( model.sceneProperty, new BooleanProperty( false ) );
         graphDescriptionNode = new Node( {
@@ -123,18 +98,17 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
       experimentSetupDetailsNode = new ExperimentSetupDetailsNode( model, slitSettingProperty, {
         detectionModeProperty: providedOptions.detectionModeProperty,
-        slitOrientation: providedOptions.slitOrientation,
-        additionalListItems: providedOptions.experimentSetupAdditionalListItems
+        slitOrientation: providedOptions.slitOrientation
       } );
       this.addChild( experimentSetupDetailsNode );
     }
 
     // NOTE: see other duplicate in quantum-wave-interference/js/experiment/view/description/ExperimentScreenViewDescription.ts.
     // These heading nodes stay parallel because this shared description owns different optional content and pdomOrder.
-    this.experimentSetupHeadingNode = new Node( includeExperimentSetupDetails ? {
-      accessibleHeading: QuantumWaveInterferenceFluent.a11y.experimentSetupHeadingStringProperty
+    this.detectorScreenAndExperimentDetailsHeadingNode = new Node( includeExperimentSetupDetails ? {
+      accessibleHeading: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.detectorScreenAndExperimentDetailsHeadingStringProperty
     } : {} );
-    this.addChild( this.experimentSetupHeadingNode );
+    this.addChild( this.detectorScreenAndExperimentDetailsHeadingNode );
 
     this.sourceHeadingNode = new Node( {
       accessibleHeading: QuantumWaveInterferenceFluent.a11y.sourceHeadingStringProperty
@@ -151,11 +125,10 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
     } );
     this.addChild( this.detectorScreenHeadingNode );
 
-    this.experimentSetupHeadingNode.pdomOrder = [
-      ...( detectorScreenDescriptionNode ? [ detectorScreenDescriptionNode ] : [] ),
+    this.detectorScreenAndExperimentDetailsHeadingNode.pdomOrder = [
+      ...( providedOptions.detectorScreenDetailsNodes || [] ),
       ...( graphDescriptionNode ? [ graphDescriptionNode ] : [] ),
-      ...( experimentSetupDetailsNode ? [ experimentSetupDetailsNode ] : [] ),
-      ...( providedOptions.experimentSetupAdditionalNodes || [] )
+      ...( experimentSetupDetailsNode ? [ experimentSetupDetailsNode ] : [] )
     ];
 
     this.sourceHeadingNode.pdomOrder = providedOptions.sourceNodes;
