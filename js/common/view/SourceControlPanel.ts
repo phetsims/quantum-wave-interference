@@ -8,9 +8,9 @@
  * - ParticleVelocityControl for electron, neutron, and helium-atom speed.
  * - SourceIntensityControl for optional source intensity/emission rate.
  *
- * The panel creates one complete control subtree per scene, aligns all subtrees to the same size, then toggles
- * visibility as sceneProperty changes. Keeping each subtree alive preserves control state and prevents layout shifts
- * when the source type changes.
+ * The panel creates one complete control subtree per scene, aligns all subtrees to the same width, then toggles
+ * visibility as sceneProperty changes. Keeping each subtree alive preserves control state, while the panel height
+ * follows the visible controls in the active scene.
  *
  * Generic over any scene type that has the required source properties, so the Experiment, High Intensity, and Single
  * Particles screens can share the same controls while supplying different scene models.

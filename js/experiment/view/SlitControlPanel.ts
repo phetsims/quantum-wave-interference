@@ -19,9 +19,9 @@ import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
+import ToggleNode from '../../../../sun/js/ToggleNode.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
-import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
@@ -33,7 +33,6 @@ const SLIT_SETTINGS_TITLE_FONT = new PhetFont( 14 );
 const PANEL_CONTENT_SPACING = 20;
 const SLIT_SETTINGS_SECTION_SPACING = 6;
 const PANEL_WIDTH = ExperimentConstants.FRONT_FACING_SLIT_VIEW_WIDTH + 20;
-const PANEL_MIN_HEIGHT = 270;
 
 type SelfOptions = EmptySelfOptions;
 
@@ -64,8 +63,7 @@ export default class SlitControlPanel extends Panel {
         fill: QuantumWaveInterferenceColors.panelFillProperty,
         stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
         minWidth: PANEL_WIDTH,
-        maxWidth: PANEL_WIDTH,
-        minHeight: PANEL_MIN_HEIGHT
+        maxWidth: PANEL_WIDTH
       },
       providedOptions
     );
@@ -78,8 +76,12 @@ export default class SlitControlPanel extends Panel {
       sceneNodes.push( sceneContent );
     }
 
-    // Keep all scene content in bounds, preventing layout shifts when switching scenes.
-    const contentNode = new QuantumWaveInterferenceToggleNode( sceneProperty, scenes, sceneNodes );
+    const contentNode = new ToggleNode( sceneProperty, scenes.map( ( scene, index ) => ( {
+      value: scene,
+      createNode: () => sceneNodes[ index ]
+    } ) ), {
+      unselectedChildrenSceneGraphStrategy: 'excluded'
+    } );
 
     super( contentNode, options );
   }
@@ -112,7 +114,8 @@ export default class SlitControlPanel extends Panel {
     const slitSettingsSection = new VBox( {
       spacing: SLIT_SETTINGS_SECTION_SPACING,
       align: 'center',
-      children: [ slitSettingsLabel, slitSettingsComboBox ]
+      children: [ slitSettingsLabel, slitSettingsComboBox ],
+      visibleProperty: slitSettingsComboBox.visibleProperty
     } );
 
     return new VBox( {

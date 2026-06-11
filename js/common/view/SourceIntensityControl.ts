@@ -89,7 +89,8 @@ export default class SourceIntensityControl extends VBox {
       spacing: sourceType === 'photons' ?
                SOURCE_CONTROL_PHOTON_INTENSITY_LABEL_SPACING :
                SOURCE_CONTROL_PARTICLE_INTENSITY_LABEL_SPACING,
-      children: [ intensityLabel, intensitySlider ]
+      children: [ intensityLabel, intensitySlider ],
+      visibleProperty: intensitySlider.visibleProperty
     } );
   }
 }

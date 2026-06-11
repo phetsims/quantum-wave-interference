@@ -17,6 +17,7 @@ import EraserButton from '../../../../scenery-phet/js/buttons/EraserButton.js';
 import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
@@ -237,11 +238,18 @@ export default class ExperimentScreenView extends ScreenView {
     timeControlNode.centerY = resetAllButton.centerY;
     rulerCheckbox.centerY = resetAllButton.centerY;
 
-    // Preserve the slit control panel position from when two tool checkboxes were centered in this row.
-    const previousToolCheckboxGroupBottom =
-      resetAllButton.centerY + rulerCheckbox.height + TOOL_CHECKBOX_SPACING / 2;
-    slitColumnNode.slitControlPanel.bottom =
-      previousToolCheckboxGroupBottom + SLIT_CONTROL_PANEL_BOTTOM_MARGIN;
+    // Preserve the slit control panel position from when two tool checkboxes were centered in this row. Reapply this
+    // bottom anchor whenever panel contents are hidden or shown through PhET-iO.
+    ManualConstraint.create(
+      this,
+      [ slitColumnNode.slitControlPanel, resetAllButton, rulerCheckbox ],
+      ( slitControlPanelProxy, resetAllButtonProxy, rulerCheckboxProxy ) => {
+        const previousToolCheckboxGroupBottom =
+          resetAllButtonProxy.centerY + rulerCheckboxProxy.height + TOOL_CHECKBOX_SPACING / 2;
+        slitControlPanelProxy.bottom =
+          previousToolCheckboxGroupBottom + SLIT_CONTROL_PANEL_BOTTOM_MARGIN;
+      }
+    );
 
     // Draggable ruler. The ruler's horizontal scale is calibrated to the active detector screen: its full width maps to
     // the scene's full detector width in mm.

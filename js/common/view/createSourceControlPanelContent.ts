@@ -3,20 +3,21 @@
 /**
  * Creates the swappable source-control content used by SourceControlPanel.
  * Each scene gets its own aligned content node so source-type changes can toggle visibility without reconstructing
- * controls or changing the panel bounds.
+ * controls. Widths remain aligned across scenes, while heights follow the visible controls in the active scene.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
+import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
+import HStrut from '../../../../scenery/js/nodes/HStrut.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
+import ToggleNode from '../../../../sun/js/ToggleNode.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import ParticleVelocityControl from './ParticleVelocityControl.js';
 import PhotonWavelengthControl from './PhotonWavelengthControl.js';
-import QuantumWaveInterferenceToggleNode from './QuantumWaveInterferenceToggleNode.js';
 import { SOURCE_CONTROL_ROW_VERTICAL_MARGIN, SOURCE_CONTROL_SECTION_SPACING } from './SourceControlPanelConstants.js';
 import SourceControlScene from './SourceControlScene.js';
 import SourceIntensityControl from './SourceIntensityControl.js';
@@ -27,25 +28,22 @@ type SceneControlContent = {
   bottomControl: Node | null;
 };
 
-// Return value of createSourceControlPanelContent: a toggle node that swaps between scenes and the per-scene AlignBoxes
-// that SourceControlPanel can use to register scene-specific layout.
+// Return value of createSourceControlPanelContent: a toggle node that swaps between scenes.
 type SourceControlPanelContent = {
   contentNode: Node;
-  sceneNodes: Node[];
 };
 
 /**
- * Creates all source-control nodes, sized to the largest scene so switching source types does not shift layout.
+ * Creates all source-control nodes with consistent widths and content-driven heights.
  *
  * @param sceneProperty - the currently active scene; drives which scene node is visible inside contentNode
- * @param scenes - all scenes to build controls for; one AlignBox per scene is returned in sceneNodes
+ * @param scenes - all scenes to build controls for
  * @param tandem - fallback tandem used when sceneTandems is null or has no entry for a scene
  * @param sceneTandems - optional per-scene tandem overrides; when provided, each scene looks up its own tandem so
  *   PhET-iO instruments each scene's controls under a distinct path; falls back to tandem when null or missing
  * @param photonIntensityLabelStringProperty - label for the intensity slider shown in photon scenes
  * @param particleIntensityLabelStringProperty - label for the emission-rate slider shown in particle scenes
- * @returns contentNode — a QuantumWaveInterferenceToggleNode that shows only the active scene's controls;
- *   sceneNodes — the per-scene AlignBoxes, one per entry in scenes, in the same order
+ * @returns contentNode - a ToggleNode that shows only the active scene's controls
  */
 export default function createSourceControlPanelContent<T extends SourceControlScene>(
   sceneProperty: Property<T>,
@@ -61,33 +59,37 @@ export default function createSourceControlPanelContent<T extends SourceControlS
     scene.sourceType === 'photons' ? photonIntensityLabelStringProperty : particleIntensityLabelStringProperty
   ) );
 
-  const maxTopControlWidth = Math.max( ...sceneControlContents.map( content => content.topControl.width ) );
-  const maxTopControlHeight = Math.max( ...sceneControlContents.map( content => content.topControl.height ) );
-
-  const bottomControls = sceneControlContents
-    .map( content => content.bottomControl )
-    .filter( control => control !== null );
-  const maxBottomControlWidth = bottomControls.length > 0 ? Math.max( ...bottomControls.map( n => n.width ) ) : 0;
-  const maxBottomControlHeight = bottomControls.length > 0 ? Math.max( ...bottomControls.map( n => n.height ) ) : 0;
+  const topControlAlignGroup = new AlignGroup( { matchVertical: false } );
+  const bottomControlAlignGroup = new AlignGroup( { matchVertical: false } );
 
   const sceneContentNodes = sceneControlContents.map( sceneControls =>
-    createAlignedSceneContent( sceneControls.topControl, sceneControls.bottomControl, maxTopControlWidth,
-      maxTopControlHeight, maxBottomControlWidth, maxBottomControlHeight )
+    createAlignedSceneContent(
+      sceneControls.topControl,
+      sceneControls.bottomControl,
+      topControlAlignGroup,
+      bottomControlAlignGroup
+    )
   );
 
-  const maxSceneWidth = Math.max( ...sceneContentNodes.map( node => node.width ) );
-  const maxSceneHeight = Math.max( ...sceneContentNodes.map( node => node.height ) );
+  const maxSceneWidth = Math.max( ...sceneContentNodes.map( sceneContent => sceneContent.width ) );
 
-  const sceneNodes = sceneContentNodes.map( ( sceneContent, index ) => new AlignBox( sceneContent, {
-    xAlign: 'center',
-    yAlign: 'center',
-    preferredWidth: maxSceneWidth,
-    preferredHeight: maxSceneHeight
-  } ) );
+  // Preserve width-only bounds when all controls are hidden so the Panel still renders its horizontal margins.
+  const sceneNodes = sceneContentNodes.map( sceneContent => {
+    const widthStrut = new HStrut( maxSceneWidth );
+    sceneContent.centerX = widthStrut.centerX;
+
+    return new Node( {
+      children: [ widthStrut, sceneContent ]
+    } );
+  } );
 
   return {
-    contentNode: new QuantumWaveInterferenceToggleNode( sceneProperty, scenes, sceneNodes ),
-    sceneNodes: sceneNodes
+    contentNode: new ToggleNode( sceneProperty, scenes.map( ( scene, index ) => ( {
+      value: scene,
+      createNode: () => sceneNodes[ index ]
+    } ) ), {
+      unselectedChildrenSceneGraphStrategy: 'excluded'
+    } )
   };
 }
 
@@ -112,32 +114,32 @@ function createSceneControlContent(
 }
 
 /**
- * Wraps a scene's controls in fixed-size rows so every scene occupies the same panel space.
+ * Wraps a scene's controls in equal-width rows that collapse when their controls are hidden.
+ *
+ * @param topControl - wavelength or velocity control for the scene
+ * @param bottomControl - optional intensity or emission-rate control for the scene
+ * @param topControlAlignGroup - width-only alignment group shared by all top controls
+ * @param bottomControlAlignGroup - width-only alignment group shared by all bottom controls
+ * @returns vertically arranged controls for one scene
  */
 function createAlignedSceneContent(
   topControl: Node,
   bottomControl: Node | null,
-  topControlWidth: number,
-  topControlHeight: number,
-  bottomControlWidth: number,
-  bottomControlHeight: number
-): Node {
-  const topControlRow = new AlignBox( topControl, {
+  topControlAlignGroup: AlignGroup,
+  bottomControlAlignGroup: AlignGroup
+): VBox {
+  const topControlRow = topControlAlignGroup.createBox( topControl, {
     xAlign: 'center',
-    yAlign: 'center',
-    preferredWidth: topControlWidth,
-    preferredHeight: topControlHeight,
-    yMargin: SOURCE_CONTROL_ROW_VERTICAL_MARGIN
+    yMargin: SOURCE_CONTROL_ROW_VERTICAL_MARGIN,
+    visibleProperty: topControl.visibleProperty
   } );
 
   const children: Node[] = [ topControlRow ];
   if ( bottomControl ) {
-    children.push( new AlignBox( bottomControl, {
+    children.push( bottomControlAlignGroup.createBox( bottomControl, {
       xAlign: 'center',
-      yAlign: 'center',
-      preferredWidth: bottomControlWidth,
-      preferredHeight: bottomControlHeight,
-      yMargin: SOURCE_CONTROL_ROW_VERTICAL_MARGIN
+      yMargin: SOURCE_CONTROL_ROW_VERTICAL_MARGIN,
+      visibleProperty: bottomControl.visibleProperty
     } ) );
   }
 
