@@ -28,7 +28,15 @@ const SCREEN_DISTANCE_DECIMAL_PLACES = 2;
 const SCREEN_DISTANCE_DELTA = 0.01;
 const SCREEN_DISTANCE_RESPONSE_EPSILON = 1e-12;
 
+/**
+ * Describes whether the screen is at a range endpoint or moved closer/farther relative to the value at interaction
+ * start.
+ */
 type ScreenDistancePosition = 'closest' | 'closer' | 'farther' | 'farthest';
+
+/**
+ * Describes how moving the screen changes the visible single- or double-slit interference pattern.
+ */
 type ScreenDistancePatternEffect = 'doubleSlitCloser' | 'doubleSlitFarther' | 'singleSlitCloser' | 'singleSlitFarther';
 
 // The slice of SceneModel needed by this control and its context-response helpers.
@@ -42,8 +50,20 @@ type ScreenDistanceScene = {
 
 type SelfOptions = EmptySelfOptions;
 
+/**
+ * Options for ScreenDistanceControl. A tandem is required for PhET-iO instrumentation.
+ */
 export type ScreenDistanceControlOptions = SelfOptions & PickRequired<NumberControlOptions, 'tandem'>;
 
+/**
+ * Classifies the screen distance for an accessibility response. Range endpoints are recognized within
+ * SCREEN_DISTANCE_RESPONSE_EPSILON; other values are classified relative to the value at interaction start.
+ *
+ * @param scene - supplies the allowed screen-distance range
+ * @param value - current screen distance
+ * @param valueOnStart - screen distance when the interaction started
+ * @returns the endpoint or relative movement classification
+ */
 function getScreenDistancePosition( scene: ScreenDistanceScene, value: number, valueOnStart: number ): ScreenDistancePosition {
   return equalsEpsilon( value, scene.screenDistanceRange.min, SCREEN_DISTANCE_RESPONSE_EPSILON ) ? 'closest' :
          equalsEpsilon( value, scene.screenDistanceRange.max, SCREEN_DISTANCE_RESPONSE_EPSILON ) ? 'farthest' :
@@ -51,6 +71,16 @@ function getScreenDistancePosition( scene: ScreenDistanceScene, value: number, v
          'farther';
 }
 
+/**
+ * Creates the context response for a completed screen-distance interaction, based on whether a pattern is visible and
+ * how moving the screen affects it. Returns null when the final value equals the interaction-start value within
+ * SCREEN_DISTANCE_RESPONSE_EPSILON, so no unchanged-value response is announced.
+ *
+ * @param scene - supplies the screen-distance range and current experiment state
+ * @param value - final screen distance
+ * @param valueOnStart - screen distance when the interaction started
+ * @returns a localized accessibility response, or null when the distance did not meaningfully change
+ */
 function getScreenDistanceContextResponse( scene: ScreenDistanceScene, value: number, valueOnStart: number ): string | null {
   if ( equalsEpsilon( value, valueOnStart, SCREEN_DISTANCE_RESPONSE_EPSILON ) ) {
     return null;
@@ -123,6 +153,7 @@ export default class ScreenDistanceControl extends NumberControl {
     );
   }
 
+  // TODO: Inline this one, see https://github.com/phetsims/quantum-wave-interference/issues/135
   private static createNumericTicks( min: number, max: number ): NumberControlMajorTick[] {
     return ExperimentConstants.createMinMaxTicks( min, max, { decimalPlaces: SCREEN_DISTANCE_DECIMAL_PLACES } );
   }
