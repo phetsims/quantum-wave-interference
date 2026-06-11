@@ -1216,11 +1216,9 @@ a11y:
       rulerDoubleSlit:
         select_style:
           bands: >-
-                 { $count } bands centered at 0 millimeters, spaced roughly { $spacing }
-                 apart.
+                 { $count } bands centered at 0 millimeters, spaced roughly { $spacing } apart.
           peaks: >-
-                 { $count } peaks centered at 0 millimeters, spaced roughly { $spacing }
-                 apart.
+                 { $count } peaks centered at 0 millimeters, spaced roughly { $spacing } apart.
       noRulerDoubleSlit:
         select_style:
           bands: >-
