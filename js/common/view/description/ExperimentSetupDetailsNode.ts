@@ -49,6 +49,9 @@ type SetupDetailsOptions = {
   screenDistanceProperty?: TReadOnlyProperty<number>;
   slitOrientation?: SlitOrientation;
   additionalListItems?: AccessibleListItem[];
+  includeLeadingParagraph?: boolean;
+  includeSourceEmitter?: boolean;
+  includeDetectionMode?: boolean;
 };
 
 const NANOMETER_RANGE_THRESHOLD_MM = 0.0001;
@@ -181,11 +184,10 @@ export default class ExperimentSetupDetailsNode extends Node {
         distance: slitSeparationStringProperty
       } );
 
-    const listItems: ( TReadOnlyProperty<string> | AccessibleListItem )[] = [
-      sourceEmitterDescriptionStringProperty
-    ];
+    const listItems: ( TReadOnlyProperty<string> | AccessibleListItem )[] =
+      providedOptions.includeSourceEmitter === false ? [] : [ sourceEmitterDescriptionStringProperty ];
 
-    if ( providedOptions.detectionModeProperty ) {
+    if ( providedOptions.detectionModeProperty && providedOptions.includeDetectionMode !== false ) {
       listItems.push(
         QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.detectionMode.createProperty( {
           detectionMode: providedOptions.detectionModeProperty
@@ -232,7 +234,9 @@ export default class ExperimentSetupDetailsNode extends Node {
 
     super( {
       accessibleTemplate: AccessibleList.createTemplateProperty( {
-        leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.leadingParagraphStringProperty,
+        leadingParagraphStringProperty: providedOptions.includeLeadingParagraph === false ?
+                                        null :
+                                        QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.leadingParagraphStringProperty,
         listItems: listItems
       } )
     } );

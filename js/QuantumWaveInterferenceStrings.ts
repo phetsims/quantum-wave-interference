@@ -113,6 +113,13 @@ type StringsType = {
     'sourceHeadingStringProperty': LocalizedStringProperty;
     'slitsHeadingStringProperty': LocalizedStringProperty;
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;
+    'experimentDetectorScreenDetails': {
+      'headingStringProperty': LocalizedStringProperty;
+      'experimentalDetailsHeadingStringProperty': LocalizedStringProperty;
+      'sourceStateStringProperty': LocalizedStringProperty;
+      'totalHitsStringProperty': LocalizedStringProperty;
+      'emptyStringProperty': LocalizedStringProperty;
+    };
     'highIntensityState': {
       'overviewStringProperty': LocalizedStringProperty;
       'sourceStatusStringProperty': LocalizedStringProperty;

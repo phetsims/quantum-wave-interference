@@ -256,6 +256,23 @@
     "detectorScreenHeading": {
       "value": "Detector Screen Controls"
     },
+    "experimentDetectorScreenDetails": {
+      "heading": {
+        "value": "Detector Screen, { $detectionMode ->\n  [averageIntensity] Intensity Pattern\n *[hits] Hits Pattern\n}"
+      },
+      "experimentalDetailsHeading": {
+        "value": "Experimental Details"
+      },
+      "sourceState": {
+        "value": "Source is { $isEmitting ->\n  [true] on.\n *[false] off.\n}"
+      },
+      "totalHits": {
+        "value": "{ $isMaxHitsReached ->\n  [true] Total hits is { $hitCount }. Maximum hits reached.\n *[false] Total hits is { $hitCount }.\n}"
+      },
+      "empty": {
+        "value": "Detector screen is empty."
+      }
+    },
     "highIntensityState": {
       "overview": {
         "value": "Currently, { $isPlaying ->\n  [false] sim is paused.\n *[true] sim is running.\n} { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} { $isEmitting ->\n  [true] are being emitted\n *[false] are not being emitted\n}. { $displayMode ->\n  [graph] The graph is shown\n *[screen] The detector screen is shown\n} in { $detectionMode ->\n  [averageIntensity] Average Intensity mode.\n *[hits] Hits mode.\n}"
@@ -364,10 +381,10 @@
         "value": "{ $slitSetting ->\n  [bothOpen] Both slits open in barrier.\n  [leftCovered] { $slitOrientation ->\n    [topBottom] Top slit covered in barrier.\n   *[leftRight] Left slit covered in barrier.\n  }\n  [rightCovered] { $slitOrientation ->\n    [topBottom] Bottom slit covered in barrier.\n   *[leftRight] Right slit covered in barrier.\n  }\n  [leftDetector] { $slitOrientation ->\n    [topBottom] Detector on top slit in barrier.\n   *[leftRight] Detector on left slit in barrier.\n  }\n  [rightDetector] { $slitOrientation ->\n    [topBottom] Detector on bottom slit in barrier.\n   *[leftRight] Detector on right slit in barrier.\n  }\n  [noBarrier] No barrier between source and screen.\n *[bothDetectors] Detectors on both slits in barrier.\n}"
       },
       "slitSeparation": {
-        "value": "Slit Separation distance is { $distance }."
+        "value": "Slit separation distance is { $distance }."
       },
       "screenDistance": {
-        "value": "Distance from double-slit barrier to detector screen is { $distance }."
+        "value": "Barrier-screen distance is { $distance }."
       }
     },
     "particleMass": {
