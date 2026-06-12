@@ -332,7 +332,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.snapshotsProperty = new Property<Snapshot[]>( [], {
       tandem: tandem.createTandem( 'snapshotsProperty' ),
       phetioValueType: ArrayIO( SnapshotIO ),
-      phetioReadOnly: true
+      phetioReadOnly: true,
+      phetioDocumentation: 'The array of detector screen snapshots captured in this scene.'
     } );
 
     this.numberOfSnapshotsProperty = new DerivedProperty(
