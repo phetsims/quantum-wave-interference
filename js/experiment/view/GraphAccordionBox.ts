@@ -16,7 +16,6 @@ import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import { linear } from '../../../../dot/js/util/linear.js';
 import Shape from '../../../../kite/js/Shape.js';
-import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
@@ -87,16 +86,13 @@ export default class GraphAccordionBox extends Node {
   private readonly zoomButtonGroup: PlusMinusZoomButtonGroup;
 
   public constructor( sceneModel: SceneModel, providedOptions: GraphAccordionBoxOptions ) {
-    const options = optionize<GraphAccordionBoxOptions, SelfOptions, NodeOptions>()(
-      {
-        isDisposable: false
-      },
-      providedOptions
-    );
 
-    super( options );
+    // This wrapper Node is intentionally NOT instrumented: providedOptions.tandem instruments the child AccordionBox
+    // directly (see below), so the PhET-iO tree has a single graphAccordionBox element rather than a redundant
+    // graphAccordionBox.accordionBox nesting.
+    super( { isDisposable: false } );
 
-    this.detectorScreenScaleIndexProperty = options.detectorScreenScaleIndexProperty;
+    this.detectorScreenScaleIndexProperty = providedOptions.detectorScreenScaleIndexProperty;
 
     this.zoomLevelProperty = new DetectorPatternGraphZoomLevelProperty(
       'default',
@@ -205,8 +201,8 @@ export default class GraphAccordionBox extends Node {
 
     const graphDescriber = new GraphDescriber(
       sceneModel,
-      options.isRulerVisibleProperty,
-      options.detectorScreenScaleIndexProperty
+      providedOptions.isRulerVisibleProperty,
+      providedOptions.detectorScreenScaleIndexProperty
     );
     const graphDescriptionNode = new Node( {
       accessibleParagraph: graphDescriber.descriptionProperty
@@ -291,7 +287,7 @@ export default class GraphAccordionBox extends Node {
       accessibleContextResponseCollapsed: graphCollapsedContextResponseProperty,
       titleNode: titleText,
       titleAlignX: 'left',
-      expandedProperty: options.expandedProperty,
+      expandedProperty: providedOptions.expandedProperty,
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.graphAccordionBoxStrokeProperty,
       cornerRadius: 5,
@@ -306,7 +302,10 @@ export default class GraphAccordionBox extends Node {
       titleBarOptions: {
         fill: QuantumWaveInterferenceColors.panelFillProperty
       },
-      tandem: providedOptions.tandem.createTandem( 'accordionBox' )
+
+      // The AccordionBox takes the graphAccordionBox tandem itself, so its visibleProperty and expandCollapseButton
+      // sit alongside the zoomButtonGroup and zoomLevelProperty created above, with no intermediate element.
+      tandem: providedOptions.tandem
     } );
     this.addChild( this.accordionBox );
 
@@ -333,7 +332,7 @@ export default class GraphAccordionBox extends Node {
     sceneModel.screenDistanceProperty.link( () => updateGraph() );
     sceneModel.slitSettingProperty.link( () => updateGraph() );
     sceneModel.intensityProperty.link( () => updateGraph() );
-    options.detectorScreenScaleIndexProperty.link( () => updateGraph() );
+    providedOptions.detectorScreenScaleIndexProperty.link( () => updateGraph() );
 
     // For photons, wavelength changes affect the intensity curve
     if ( sceneModel.sourceType === 'photons' ) {
