@@ -20,7 +20,6 @@ import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
@@ -254,27 +253,21 @@ export default class ExperimentScreenView extends ScreenView {
 
     // Draggable ruler. The ruler's horizontal scale is calibrated to the active detector screen: its full width maps to
     // the scene's full detector width in mm.
-    const rulerNodes = model.scenes.map( ( scene, index ) => {
-      const rulerNode = new DetectorRulerNode(
-        scene,
-        model.sceneProperty,
-        model.isRulerVisibleProperty,
-        model.detectorScreenScaleIndexProperty,
-        model.rulerPositionProperty,
-        this.visibleBoundsProperty,
-        this.detectorColumnNode.graphExpandedProperty,
-        this.detectorColumnNode.detectorScreenNodes[ index ],
-        this.detectorColumnNode.graphAccordionBoxes[ index ],
-        this,
-        sceneTandems.get( scene )!.createTandem( 'rulerNode' )
-      );
-      return rulerNode;
-    } );
-    this.addChild( new QuantumWaveInterferenceToggleNode( model.sceneProperty, model.scenes, rulerNodes ) );
-    this.centerRulerOnDetectorScreen = () => {
-      const activeSceneIndex = model.scenes.indexOf( model.sceneProperty.value );
-      rulerNodes[ activeSceneIndex ].centerRulerOnDetectorScreen();
-    };
+    const rulerNode = new DetectorRulerNode(
+      model.sceneProperty,
+      model.scenes,
+      model.isRulerVisibleProperty,
+      model.detectorScreenScaleIndexProperty,
+      model.rulerPositionProperty,
+      this.visibleBoundsProperty,
+      this.detectorColumnNode.graphExpandedProperty,
+      this.detectorColumnNode.detectorScreenNodes,
+      this.detectorColumnNode.graphAccordionBoxes,
+      this,
+      options.tandem.createTandem( 'rulerNode' )
+    );
+    this.addChild( rulerNode );
+    this.centerRulerOnDetectorScreen = () => rulerNode.centerRulerOnDetectorScreen();
     this.centerRulerOnDetectorScreen();
 
     const experimentScreenViewDescription = new ExperimentScreenViewDescription(
@@ -294,7 +287,7 @@ export default class ExperimentScreenView extends ScreenView {
       experimentScreenViewDescription.slitsHeadingNode,
       experimentScreenViewDescription.detectorScreenHeadingNode,
       ...this.detectorColumnNode.graphAccordionBoxes,
-      ...rulerNodes
+      rulerNode
     ];
 
     // Control Area focus order. The ruler remains in the Play Area, while its visibility checkbox stays in the

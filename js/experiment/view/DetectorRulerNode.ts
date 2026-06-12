@@ -53,15 +53,15 @@ export default class DetectorRulerNode extends InteractiveHighlightingNode {
   private readonly rulerTandem: Tandem;
 
   public constructor(
-    scene: SceneModel,
     sceneProperty: TReadOnlyProperty<SceneModel>,
+    scenes: SceneModel[],
     isRulerVisibleProperty: TReadOnlyProperty<boolean>,
     detectorScreenScaleIndexProperty: TReadOnlyProperty<number>,
     rulerPositionProperty: Property<Vector2>,
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
     graphExpandedProperty: TReadOnlyProperty<boolean>,
-    detectorScreenNode: DetectorScreenNode,
-    graphAccordionBox: GraphAccordionBox,
+    detectorScreenNodes: DetectorScreenNode[],
+    graphAccordionBoxes: GraphAccordionBox[],
     localRootNode: Node,
     tandem: Tandem
   ) {
@@ -129,11 +129,11 @@ export default class DetectorRulerNode extends InteractiveHighlightingNode {
 
     this.rulerDragBoundsProperty = new RulerDragBoundsProperty(
       visibleBoundsProperty,
-      scene,
       sceneProperty,
+      scenes,
       graphExpandedProperty,
-      detectorScreenNode,
-      graphAccordionBox,
+      detectorScreenNodes,
+      graphAccordionBoxes,
       this,
       localRootNode
     );

@@ -23,25 +23,28 @@ const RULER_X_OFFSET = 0.5;
 export default class RulerDragBoundsProperty {
   public readonly dragBoundsProperty: TReadOnlyProperty<Bounds2 | null>;
 
-  private readonly scene: SceneModel;
   private readonly sceneProperty: TReadOnlyProperty<SceneModel>;
-  private readonly detectorScreenNode: DetectorScreenNode;
-  private readonly graphAccordionBox: GraphAccordionBox;
+  private readonly scenes: SceneModel[];
+  private readonly detectorScreenNodes: DetectorScreenNode[];
   private readonly rulerNode: Node;
 
   public constructor(
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
-    scene: SceneModel,
     sceneProperty: TReadOnlyProperty<SceneModel>,
+    scenes: SceneModel[],
     graphExpandedProperty: TReadOnlyProperty<boolean>,
-    detectorScreenNode: DetectorScreenNode,
-    graphAccordionBox: GraphAccordionBox,
+    detectorScreenNodes: DetectorScreenNode[],
+    graphAccordionBoxes: GraphAccordionBox[],
     rulerNode: Node,
     localRootNode: Node
   ) {
     this.dragBoundsProperty = new DerivedProperty(
       [ visibleBoundsProperty, sceneProperty, graphExpandedProperty ],
-      visibleBounds => {
+      ( visibleBounds, scene ) => {
+        const activeSceneIndex = scenes.indexOf( scene );
+        affirm( activeSceneIndex >= 0, 'Active scene should be in the scenes array' );
+        const detectorScreenNode = detectorScreenNodes[ activeSceneIndex ];
+        const graphAccordionBox = graphAccordionBoxes[ activeSceneIndex ];
         const detectorRectCenterX = detectorScreenNode.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
         const fixedLeft = detectorRectCenterX - rulerNode.width / 2 + RULER_X_OFFSET;
 
@@ -60,21 +63,19 @@ export default class RulerDragBoundsProperty {
       }
     );
 
-    this.scene = scene;
     this.sceneProperty = sceneProperty;
-    this.detectorScreenNode = detectorScreenNode;
-    this.graphAccordionBox = graphAccordionBox;
+    this.scenes = scenes;
+    this.detectorScreenNodes = detectorScreenNodes;
     this.rulerNode = rulerNode;
   }
 
   /**
    * Installs a persistent listener on dragBoundsProperty that clamps rulerPositionProperty whenever the drag bounds
-   * change (e.g. on window resize or graph accordion expand/collapse). The listener fires only for the scene this
-   * instance belongs to, so ruler positions in inactive scenes are left untouched. Call once during construction.
+   * change (e.g. on window resize, scene change, or graph accordion expand/collapse). Call once during construction.
    */
   public constrainRulerPositionProperty( rulerPositionProperty: Property<Vector2> ): void {
     this.dragBoundsProperty.link( dragBounds => {
-      if ( dragBounds && this.sceneProperty.value === this.scene ) {
+      if ( dragBounds ) {
         rulerPositionProperty.value = dragBounds.closestPointTo( rulerPositionProperty.value );
       }
     } );
@@ -86,8 +87,11 @@ export default class RulerDragBoundsProperty {
    * Asserts that dragBoundsProperty has a non-null value at call time.
    */
   public getCenteredRulerPosition(): Vector2 {
-    const centeredTop = this.detectorScreenNode.centerY - this.rulerNode.height / 2;
-    const detectorRectCenterX = this.detectorScreenNode.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
+    const activeSceneIndex = this.scenes.indexOf( this.sceneProperty.value );
+    affirm( activeSceneIndex >= 0, 'Active scene should be in the scenes array' );
+    const detectorScreenNode = this.detectorScreenNodes[ activeSceneIndex ];
+    const centeredTop = detectorScreenNode.centerY - this.rulerNode.height / 2;
+    const detectorRectCenterX = detectorScreenNode.x + ExperimentConstants.DETECTOR_SCREEN_WIDTH / 2;
     const centeredLeft = detectorRectCenterX - this.rulerNode.width / 2 + RULER_X_OFFSET;
 
     const dragBounds = this.dragBoundsProperty.value;
