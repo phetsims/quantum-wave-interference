@@ -10,6 +10,7 @@
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
+import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import TrashButton from '../../../../scenery-phet/js/buttons/TrashButton.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
@@ -17,7 +18,7 @@ import Node from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
-import Tandem from '../../../../tandem/js/Tandem.js';
+import { type PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type { Snapshot } from '../model/Snapshot.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
@@ -54,7 +55,10 @@ export type SnapshotNodeOptions = SnapshotMetadataPropertiesOptions & {
   // Optional Experiment detector zoom. When supplied, all snapshots are cropped to the centered visible detector span.
   detectorScreenScaleIndexProperty?: TReadOnlyProperty<number>;
   getVisibleScreenHalfWidth?: () => number;
-};
+} &
+
+  // Tandem for this snapshot slot. The node itself and its trash button are instrumented under it.
+  PickRequired<PhetioObjectOptions, 'tandem'>;
 
 export default class SnapshotNode extends Node {
   private readonly detectorSnapshotSlot: Node;
@@ -170,7 +174,8 @@ export default class SnapshotNode extends Node {
       },
       touchAreaXDilation: 8,
       touchAreaYDilation: 8,
-      tandem: Tandem.OPT_OUT
+      tandem: options.tandem.createTandem( 'trashButton' ),
+      phetioFeatured: true
     } );
 
     const metadataContent = new VBox( {
@@ -252,7 +257,10 @@ export default class SnapshotNode extends Node {
     const superOptions: Record<string, unknown> = {
       isDisposable: false,
       children: nodeChildren,
-      visibleProperty: new DerivedProperty( [ snapshotProperty ], snapshot => snapshot !== null )
+      visibleProperty: new DerivedProperty( [ snapshotProperty ], snapshot => snapshot !== null ),
+      tandem: options.tandem,
+      phetioDocumentation: 'Displays the snapshot at one slot in the snapshots dialog. The number in the tandem name ' +
+                           'matches the snapshot number displayed in the user interface.'
     };
 
     if ( options.getDescription ) {

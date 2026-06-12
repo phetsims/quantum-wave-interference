@@ -91,7 +91,10 @@ export default class SnapshotsDialog extends Dialog {
         getDescription: providedOptions?.getDescription,
         useFrontFacingHitCoordinates: providedOptions?.useFrontFacingHitCoordinates,
         detectorScreenScaleIndexProperty: detectorScreenScaleIndexProperty,
-        getVisibleScreenHalfWidth: providedOptions?.getVisibleScreenHalfWidth
+        getVisibleScreenHalfWidth: providedOptions?.getVisibleScreenHalfWidth,
+
+        // 1-based so the tandem name matches the snapshot number displayed in the user interface.
+        tandem: tandem.createTandem( `snapshotNode${i + 1}` )
       } ) );
     }
 
@@ -123,7 +126,8 @@ export default class SnapshotsDialog extends Dialog {
           accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
           accessibleContextResponse: zoomLevelResponseProperty
         },
-        tandem: tandem.createTandem( 'zoomButtonGroup' )
+        tandem: tandem.createTandem( 'zoomButtonGroup' ),
+        phetioFeatured: true
       } );
       snapshotNodes[ 0 ].addSnapshotOverlayChild( zoomButtonGroup, true );
       snapshotNodes[ 0 ].addSnapshotOverlayChild( providedOptions.createScaleIndicatorNode() );
