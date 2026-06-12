@@ -107,6 +107,10 @@ export default class WavePlotChartNode extends InteractiveHighlighting( Node ) {
     const options = optionize<WavePlotChartNodeOptions, SelfOptions, NodeOptions>()( {
       isDisposable: false,
       cursor: 'pointer', // can be overridden by clients
+
+      // Visibility is controlled by the parent measurement tool (e.g., the tool checkbox), and there is no
+      // reason to hide the chart independently, so its visibleProperty is not instrumented for PhET-iO.
+      phetioVisiblePropertyInstrumented: false,
       isDraggable: true,
       dragBoundsProperty: null,
       chartWidth: CHART_WIDTH,
