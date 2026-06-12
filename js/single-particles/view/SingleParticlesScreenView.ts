@@ -142,6 +142,7 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     // This top-level layout intentionally parallels HighIntensityScreenView while keeping screen-specific
     // controls and tandems explicit.
+    const sourceControlPanelTandem = tandem.createTandem( 'sourceControlPanel' );
     const autoRepeatCheckbox = new Checkbox(
       model.currentAutoRepeatProperty,
       new Text( QuantumWaveInterferenceFluent.autoRepeatStringProperty, { font: LABEL_FONT, maxWidth: 120 } ),
@@ -153,12 +154,14 @@ export default class SingleParticlesScreenView extends ScreenView {
         mouseAreaXDilation: 5,
         mouseAreaYDilation: 4,
         layoutOptions: { stretch: true },
-        tandem: tandem.createTandem( 'autoRepeatCheckbox' )
+
+        // Nested under the panel that contains this checkbox in the view.
+        tandem: sourceControlPanelTandem.createTandem( 'autoRepeatCheckbox' )
       }
     );
 
     const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, sceneTandems, {
-      tandem: tandem.createTandem( 'sourceControlPanel' ),
+      tandem: sourceControlPanelTandem,
       additionalContent: autoRepeatCheckbox
     } );
 
