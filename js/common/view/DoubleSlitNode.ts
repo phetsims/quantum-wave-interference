@@ -13,6 +13,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import Multilink from '../../../../axon/js/Multilink.js';
 import TinyProperty from '../../../../axon/js/TinyProperty.js';
 import TProperty from '../../../../axon/js/TProperty.js';
@@ -190,6 +191,20 @@ export default class DoubleSlitNode extends Node {
 
     super( options );
 
+    // PhET-iO clients can set this to false to lock the barrier position.
+    const isInteractiveProperty = new BooleanProperty( true, {
+      tandem: options.tandem.createTandem( 'isInteractiveProperty' ),
+      phetioFeatured: true,
+      phetioDocumentation: 'When false, the double slit cannot be moved by the user: the drag arrow is hidden ' +
+                           'and mouse, touch, and keyboard interaction are disabled. The barrier remains visible.'
+    } );
+
+    // Block mouse/touch input while locked, and cancel any drag that is already in progress.
+    isInteractiveProperty.link( isInteractive => {
+      this.pickable = isInteractive ? null : false;
+      !isInteractive && this.interruptSubtreeInput();
+    } );
+
     this.barrierTypeProperty = barrierTypeProperty;
     this.slitPositionFractionProperty = slitPositionFractionProperty;
     this.slitSeparationProperty = slitSeparationProperty;
@@ -322,13 +337,15 @@ export default class DoubleSlitNode extends Node {
     Multilink.multilink(
       [ barrierTypeProperty, slitPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
         options.isTopSlitCoveredProperty, options.isBottomSlitCoveredProperty,
-        options.topDetectorCountProperty, options.bottomDetectorCountProperty ],
+        options.topDetectorCountProperty, options.bottomDetectorCountProperty, isInteractiveProperty ],
       ( barrierType, slitPositionFraction, slitSeparation, slitSeparationRange,
         isTopCovered, isBottomCovered ) => {
 
         const isDoubleSlit = barrierType === 'doubleSlit';
         barrierContainer.visible = isDoubleSlit;
-        arrowNode.visible = isDoubleSlit;
+
+        // Hiding the arrow also removes its slider from the PDOM, so keyboard interaction is disabled while locked.
+        arrowNode.visible = isDoubleSlit && isInteractiveProperty.value;
         arrowNode.enabled = isDoubleSlit;
 
         if ( !isDoubleSlit ) {
