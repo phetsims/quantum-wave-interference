@@ -82,7 +82,16 @@ export default class SingleParticleEmitterNode extends Node {
         sourceType: sourceTypeProperty
       } ),
       tandem: providedOptions.tandem.createTandem( 'emitButton' ),
-      enabledProperty: isEmitterEnabledProperty
+
+      // The sim enables/disables the button based on the model state, so clients may not control it.
+      enabledPropertyOptions: { phetioReadOnly: true }
+    } );
+
+    // Drive the button's own instrumented enabledProperty from the model, rather than passing
+    // isEmitterEnabledProperty as the button's enabledProperty, so that emitButton.enabledProperty
+    // appears in the PhET-iO tree with phetioReadOnly: true (matching the emitters on other screens).
+    isEmitterEnabledProperty.link( isEnabled => {
+      emitButton.enabled = isEnabled;
     } );
 
     emitButton.centerX = imageNode.width * BUTTON_CENTER_X_FRACTION;

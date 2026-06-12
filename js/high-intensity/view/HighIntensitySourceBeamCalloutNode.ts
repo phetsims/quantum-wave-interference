@@ -303,7 +303,10 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
           accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpText.createProperty( {
             isEmitting: isEmittingStringProperty,
             sourceType: sourceTypeProperty
-          } )
+          } ),
+
+          // The sim enables/disables the button based on the max-hits state, so clients may not control it.
+          enabledPropertyOptions: { phetioReadOnly: true }
         },
         // The sim shows exactly one emitter, for the active scene, so clients may not control visibility.
         visiblePropertyOptions: { phetioReadOnly: true },
