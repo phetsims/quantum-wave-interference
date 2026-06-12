@@ -2,8 +2,7 @@
 
 /**
  * Snapshot captures the state of the detector screen at a point in time.
- * It stores a copy of the hits array and the detection mode, along with metadata needed to render the snapshot in the
- * dialog.
+ * It stores mode-specific detector data and metadata needed to render the snapshot in the dialog.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -24,7 +23,7 @@ const SNAPSHOT_SCHEMA = {
   // The current ordinal label for this snapshot in the dialog, not a persistent unique ID.
   snapshotNumber: NumberIO,
 
-  // Copy of the hits at the time of capture
+  // Copy of the hits at the time of capture for hits-mode snapshots; empty for average-intensity snapshots
   hits: ArrayIO( Vector2.Vector2IO ),
 
   // The detection mode at the time of capture

@@ -317,6 +317,7 @@ export default class SceneModel extends PhetioObject {
     this.snapshotsProperty = new Property<Snapshot[]>( [], {
       tandem: tandem.createTandem( 'snapshotsProperty' ),
       phetioValueType: ArrayIO( SnapshotIO ),
+      phetioReadOnly: true,
       phetioDocumentation: 'The array of detector screen snapshots captured in this scene.'
     } );
 
@@ -400,7 +401,8 @@ export default class SceneModel extends PhetioObject {
   }
 
   /**
-   * Takes a snapshot of the current detector screen state. Maximum of 4 snapshots per scene.
+   * Takes a snapshot of the current detector screen state. Hit positions are copied only for hits-mode snapshots.
+   * Maximum of 4 snapshots per scene.
    */
   public takeSnapshot(): void {
     if ( this.snapshotsProperty.value.length >= QuantumWaveInterferenceConstants.MAX_SNAPSHOTS ) {
@@ -409,7 +411,7 @@ export default class SceneModel extends PhetioObject {
 
     const snapshot: Snapshot = {
       snapshotNumber: this.snapshotsProperty.value.length + 1,
-      hits: [ ...this.hits ],
+      hits: this.detectionModeProperty.value === 'hits' ? [ ...this.hits ] : [],
       detectionMode: this.detectionModeProperty.value,
       sourceType: this.sourceType,
       wavelength: this.wavelengthProperty.value,

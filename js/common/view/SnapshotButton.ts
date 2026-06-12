@@ -79,6 +79,7 @@ export default class SnapshotButton extends RectangularPushButton {
       accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.takeSnapshot.accessibleNameStringProperty,
       accessibleHelpText: accessibleHelpTextProperty,
       accessibleContextResponse: accessibleContextResponseProperty,
+      phetioVisiblePropertyInstrumented: false,
 
       // Superseded by the sound effect above
       soundPlayer: nullSoundPlayer,

@@ -96,6 +96,7 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
         // description queue so it is still spoken by the screen reader.
         alertWhenNotDisplayed: true
       },
+      phetioVisiblePropertyInstrumented: false,
       soundPlayer: nullSoundPlayer,
       tandem: tandem
     } );

@@ -201,11 +201,12 @@ export default class DetectorScreenControls extends VBox {
       }
     );
 
+    const snapshotControlsTandem = screenControlsPanelTandem.createTandem( 'snapshotControls' );
     const snapshotButton = new SnapshotButton(
       model.currentNumberOfSnapshotsProperty,
       () => model.takeSnapshot(),
       () => { options.onSnapshotCaptured?.(); },
-      screenControlsPanelTandem.createTandem( 'snapshotButton' )
+      snapshotControlsTandem.createTandem( 'snapshotButton' )
     );
 
     const viewSnapshotsButton = new ViewSnapshotsButton(
@@ -214,7 +215,7 @@ export default class DetectorScreenControls extends VBox {
       snapshotsDialog,
       snapshotButton.width,
       snapshotButton.height,
-      screenControlsPanelTandem.createTandem( 'viewSnapshotsButton' )
+      snapshotControlsTandem.createTandem( 'viewSnapshotsButton' )
     );
 
     const indicatorDots = new SnapshotIndicatorDotsNode( model.currentNumberOfSnapshotsProperty );
@@ -222,23 +223,16 @@ export default class DetectorScreenControls extends VBox {
     const detectorScreenVisibleProperty = DerivedProperty.not( options.screenGraphVisibleProperty );
     const snapshotButtonWithDots = new VBox( {
       spacing: 4,
-      children: [ indicatorDots, snapshotButton ],
-      visibleProperty: DerivedProperty.and( [ detectorScreenVisibleProperty, snapshotButton.visibleProperty ] )
-    } );
-    const viewSnapshotsButtonWrapper = new Node( {
-      children: [ viewSnapshotsButton ],
-      visibleProperty: DerivedProperty.and( [ detectorScreenVisibleProperty, viewSnapshotsButton.visibleProperty ] )
+      children: [ indicatorDots, snapshotButton ]
     } );
 
-    const screenButtonsRow = new HBox( {
+    const snapshotControls = new HBox( {
       align: 'bottom',
       justify: 'spaceEvenly',
       layoutOptions: { stretch: true },
-      children: [ snapshotButtonWithDots, viewSnapshotsButtonWrapper ],
-      visibleProperty: DerivedProperty.or( [
-        snapshotButtonWithDots.visibleProperty,
-        viewSnapshotsButtonWrapper.visibleProperty
-      ] )
+      children: [ snapshotButtonWithDots, viewSnapshotsButton ],
+      tandem: snapshotControlsTandem,
+      visiblePropertyOptions: { phetioFeatured: true }
     } );
 
     const brightnessControl = new BrightnessControl( model.currentScreenBrightnessProperty, screenControlsPanelTandem );
@@ -260,10 +254,10 @@ export default class DetectorScreenControls extends VBox {
         visibleProperty: child.visibleProperty
       } ) ),
       brightnessControlWrapper,
-      new AlignBox( screenButtonsRow, {
+      new AlignBox( snapshotControls, {
         preferredWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH,
         xAlign: 'stretch',
-        visibleProperty: screenButtonsRow.visibleProperty
+        visibleProperty: DerivedProperty.and( [ detectorScreenVisibleProperty, snapshotControls.visibleProperty ] )
       } )
     ];
 

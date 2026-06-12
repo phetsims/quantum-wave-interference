@@ -270,6 +270,8 @@ export default class DetectorScreenNode extends Node {
       }
     );
 
+    const snapshotControlsTandem = providedOptions.tandem.createTandem( 'snapshotControls' );
+
     // Camera button to take a snapshot
     this.snapshotButton = new SnapshotButton(
       sceneModel.numberOfSnapshotsProperty,
@@ -278,7 +280,7 @@ export default class DetectorScreenNode extends Node {
         startSnapshotFlash();
         options.onSnapshotCaptured();
       },
-      providedOptions.tandem.createTandem( 'snapshotButton' )
+      snapshotControlsTandem.createTandem( 'snapshotButton' )
     );
 
     // Match detector-side action button dimensions to the camera button without scaling icons.
@@ -292,7 +294,7 @@ export default class DetectorScreenNode extends Node {
       snapshotsDialog,
       detectorActionButtonMinWidth,
       detectorActionButtonMinHeight,
-      providedOptions.tandem.createTandem( 'viewSnapshotsButton' )
+      snapshotControlsTandem.createTandem( 'viewSnapshotsButton' )
     );
 
     const indicatorDotsBox = new SnapshotIndicatorDotsNode( sceneModel.numberOfSnapshotsProperty );
@@ -320,7 +322,9 @@ export default class DetectorScreenNode extends Node {
     this.snapshotButtonGroup = new VBox( {
       spacing: 4,
       align: 'left',
-      children: [ indicatorDotsBox, this.snapshotButton, this.viewSnapshotsButton ]
+      children: [ indicatorDotsBox, this.snapshotButton, this.viewSnapshotsButton ],
+      tandem: snapshotControlsTandem,
+      visiblePropertyOptions: { phetioFeatured: true }
     } );
 
     // Align the snapshot buttons with a reduced horizontal gap from the detector screen.

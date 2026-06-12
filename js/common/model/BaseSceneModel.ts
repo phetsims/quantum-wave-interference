@@ -329,7 +329,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.snapshotsProperty = new Property<Snapshot[]>( [], {
       tandem: tandem.createTandem( 'snapshotsProperty' ),
-      phetioValueType: ArrayIO( SnapshotIO )
+      phetioValueType: ArrayIO( SnapshotIO ),
+      phetioReadOnly: true
     } );
 
     this.numberOfSnapshotsProperty = new DerivedProperty(
@@ -688,10 +689,11 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
   /**
    * Captures an immutable snapshot of the current detector-screen state and appends it to snapshotsProperty. A
-   * snapshot freezes the current hit positions, detection mode, source type, wavelength, slit geometry, intensity
-   * distribution, and other display parameters so it can be rendered independently alongside the live scene. No-ops
-   * when the maximum snapshot count has already been reached. Called by subclass takeSnapshot() overrides (e.g.,
-   * HighIntensitySceneModel, SingleParticlesSceneModel) which supply the appropriate detection mode and intensity.
+   * snapshot freezes the current detection mode, source type, wavelength, slit geometry, intensity distribution, and
+   * other display parameters so it can be rendered independently alongside the live scene. Hit positions are copied
+   * only for hits-mode snapshots. No-ops when the maximum snapshot count has already been reached. Called by subclass
+   * takeSnapshot() overrides (e.g., HighIntensitySceneModel, SingleParticlesSceneModel) which supply the appropriate
+   * detection mode and intensity.
    *
    * @param detectionMode - whether the snapshot records averaged intensity or individual particle hits
    * @param slitSetting - current slit configuration at the moment of capture
@@ -710,7 +712,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     const snapshot: Snapshot = {
       snapshotNumber: this.snapshotsProperty.value.length + 1,
-      hits: [ ...this.hits ],
+      hits: detectionMode === 'hits' ? [ ...this.hits ] : [],
       detectionMode: detectionMode,
       sourceType: this.sourceType,
       wavelength: this.wavelengthProperty.value,
