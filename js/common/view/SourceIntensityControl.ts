@@ -1,8 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SourceIntensityControl creates the optional source-intensity slider. Some screens use source scenes with fixed
- * intensity and therefore do not create this control.
+ * SourceIntensityControl creates the optional source-intensity or emission-rate slider. Some screens use source scenes
+ * with fixed source strength and therefore do not create this control.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -42,13 +42,13 @@ function getIntensityContextResponse( sourceType: SourceType, value: number, val
 export default class SourceIntensityControl extends VBox {
 
   public constructor(
-    intensityProperty: NumberProperty,
+    sourceStrengthProperty: NumberProperty,
     sourceType: SourceType,
     intensityLabelStringProperty: TReadOnlyProperty<string>,
     tandem: Tandem
   ) {
     const intensityControlTandem = tandem.createTandem( 'intensityControl' );
-    const intensitySlider = new HSlider( intensityProperty, intensityProperty.range, {
+    const intensitySlider = new HSlider( sourceStrengthProperty, sourceStrengthProperty.range, {
       trackSize: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SOURCE_CONTROL_SLIDER_TRACK_HEIGHT ),
       thumbSize: new Dimension2( 13, 22 ),
       majorTickLength: 12,
@@ -59,7 +59,7 @@ export default class SourceIntensityControl extends VBox {
         showIntegersAsIntegers: true
       } ),
       createContextResponseAlert: ( value, _newValue, valueOnStart ) =>
-        getIntensityContextResponse( sourceType, value, valueOnStart, intensityProperty.range ),
+        getIntensityContextResponse( sourceType, value, valueOnStart, sourceStrengthProperty.range ),
       accessibleName: intensityLabelStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleHelpText.createProperty( {
         sourceType: sourceType

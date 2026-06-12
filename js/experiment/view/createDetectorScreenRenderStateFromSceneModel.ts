@@ -28,7 +28,7 @@ export default function createDetectorScreenRenderStateFromSceneModel( sceneMode
     fullScreenHalfWidth: sceneModel.fullScreenHalfWidth,
     isEmitting: sceneModel.isEmittingProperty.value,
     brightness: sceneModel.screenBrightnessProperty.value,
-    intensity: sceneModel.intensityProperty.value,
+    intensity: sceneModel.sourceStrengthProperty.value,
     slitSetting: sceneModel.slitSettingProperty.value,
     hits: sceneModel.hits
   };

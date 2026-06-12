@@ -91,8 +91,14 @@ export default class SceneModel extends PhetioObject {
   // Particle speed in m/s. Matter-particle scenes instrument this direct control; photons always travel at c.
   public readonly particleSpeedProperty: NumberProperty;
 
-  // Intensity: 0 to 1 (controls beam opacity and emission rate)
+  // Normalized photon source intensity. Only instrumented for the photon scene.
   public readonly intensityProperty: NumberProperty;
+
+  // Normalized matter-particle emission rate. Only instrumented for matter scenes.
+  public readonly emissionRateProperty: NumberProperty;
+
+  // Alias to the source-strength Property applicable to this scene, used by shared model and view code.
+  public readonly sourceStrengthProperty: NumberProperty;
 
   // Slit separation in mm (center-to-center distance between the two slits)
   public readonly slitSeparationProperty: NumberProperty;
@@ -246,9 +252,25 @@ export default class SceneModel extends PhetioObject {
 
     this.intensityProperty = new NumberProperty( 0.5, {
       range: new Range( 0, 1 ),
-      tandem: tandem.createTandem( 'intensityProperty' ),
-      phetioFeatured: true
+      tandem: options.sourceType === 'photons' ? tandem.createTandem( 'intensityProperty' ) : Tandem.OPT_OUT,
+      phetioFeatured: true,
+      phetioDocumentation: 'The normalized photon source intensity, from 0 to 1. It scales beam opacity and ' +
+                           'detector-pattern brightness. The photon detection-event rate is this value multiplied ' +
+                           `by the maximum rate of ${MAX_EMISSION_RATE} events per simulation-time second.`
     } );
+
+    this.emissionRateProperty = new NumberProperty( 0.5, {
+      range: new Range( 0, 1 ),
+      tandem: options.sourceType === 'photons' ? Tandem.OPT_OUT : tandem.createTandem( 'emissionRateProperty' ),
+      phetioFeatured: true,
+      phetioDocumentation: 'The normalized matter-particle emission rate, from 0 to 1. It scales beam opacity and ' +
+                           'detector-pattern brightness. The particle detection-event rate is this value multiplied ' +
+                           `by the maximum rate of ${MAX_EMISSION_RATE} events per simulation-time second.`
+    } );
+
+    this.sourceStrengthProperty = options.sourceType === 'photons' ?
+                                  this.intensityProperty :
+                                  this.emissionRateProperty;
 
     // NOTE: see other duplicate in quantum-wave-interference/js/common/model/BaseSceneModel.ts. Slit separation is
     // initialized locally because each model family owns its own range/default calculation.
@@ -425,7 +447,7 @@ export default class SceneModel extends PhetioObject {
       slitSetting: this.slitSettingProperty.value,
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
-      intensity: this.intensityProperty.value,
+      intensity: this.sourceStrengthProperty.value,
       slitWidth: this.slitWidth,
 
       // Experiment screen renders its own intensity snapshots from closed-form Fraunhofer formulas via
@@ -452,6 +474,7 @@ export default class SceneModel extends PhetioObject {
     this.wavelengthProperty.reset();
     this.particleSpeedProperty.reset();
     this.intensityProperty.reset();
+    this.emissionRateProperty.reset();
     this.slitSeparationProperty.reset();
     this.screenDistanceProperty.reset();
     this.slitSettingProperty.reset();
@@ -494,10 +517,10 @@ export default class SceneModel extends PhetioObject {
 
   /**
    * Advances the scene by one simulation frame. Called by ExperimentModel.step on the active scene each tick.
-   * In 'hits' detection mode with the emitter on, accumulates fractional hits from intensity × MAX_EMISSION_RATE × dt,
-   * generates whole-number hits via rejection sampling against the interference pattern, and emits hitsChangedEmitter.
-   * Stops the emitter automatically when the hit cap is reached. No-ops when emitting is off, mode is not 'hits',
-   * the cap is already reached, or dt > 0.5 s (background-tab guard).
+   * In 'hits' detection mode with the emitter on, accumulates fractional hits from the normalized source strength
+   * multiplied by MAX_EMISSION_RATE and dt, generates whole-number hits via rejection sampling against the interference
+   * pattern, and emits hitsChangedEmitter. Stops the emitter automatically when the hit cap is reached. No-ops when
+   * emitting is off, mode is not 'hits', the cap is already reached, or dt > 0.5 s (background-tab guard).
    *
    * @param dt - elapsed time in seconds
    */
@@ -515,8 +538,8 @@ export default class SceneModel extends PhetioObject {
       return;
     }
 
-    // Compute number of hits to generate this frame based on intensity and emission rate
-    const rate = MAX_EMISSION_RATE * this.intensityProperty.value;
+    // Compute the number of hits to generate from photon intensity or matter-particle emission rate.
+    const rate = MAX_EMISSION_RATE * this.sourceStrengthProperty.value;
     this.hitAccumulator += rate * dt;
     const numHits = Math.floor( this.hitAccumulator );
     this.hitAccumulator -= numHits;

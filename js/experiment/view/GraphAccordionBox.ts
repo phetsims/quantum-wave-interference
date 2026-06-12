@@ -331,7 +331,7 @@ export default class GraphAccordionBox extends Node {
     sceneModel.slitSeparationProperty.link( () => updateGraph() );
     sceneModel.screenDistanceProperty.link( () => updateGraph() );
     sceneModel.slitSettingProperty.link( () => updateGraph() );
-    sceneModel.intensityProperty.link( () => updateGraph() );
+    sceneModel.sourceStrengthProperty.link( () => updateGraph() );
     providedOptions.detectorScreenScaleIndexProperty.link( () => updateGraph() );
 
     // For photons, wavelength changes affect the intensity curve
@@ -367,7 +367,7 @@ export default class GraphAccordionBox extends Node {
       2.0,
       this.zoomLevelProperty.value
     );
-    const sourceIntensity = sceneModel.intensityProperty.value;
+    const sourceIntensity = sceneModel.sourceStrengthProperty.value;
     const screenHalfWidth = getDetectorScreenHalfWidthForScaleIndex( this.detectorScreenScaleIndexProperty.value );
 
     const numSamples = CHART_WIDTH * INTENSITY_CURVE_SAMPLES_PER_PIXEL;

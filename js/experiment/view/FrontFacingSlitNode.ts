@@ -187,7 +187,7 @@ export default class FrontFacingSlitNode extends Node {
     // Update beam overlay visibility, color, and slit glow based on emitter state
     const updateBeamOverlay = () => {
       const isEmitting = sceneModel.isEmittingProperty.value;
-      const intensity = sceneModel.intensityProperty.value;
+      const intensity = sceneModel.sourceStrengthProperty.value;
 
       if ( !isEmitting ) {
         beamOverlay.visible = false;
@@ -214,7 +214,7 @@ export default class FrontFacingSlitNode extends Node {
     };
 
     sceneModel.isEmittingProperty.link( updateBeamOverlay );
-    sceneModel.intensityProperty.link( updateBeamOverlay );
+    sceneModel.sourceStrengthProperty.link( updateBeamOverlay );
     sceneModel.wavelengthProperty.link( updateBeamOverlay );
 
     // Format slit width label in μm for all scenes. Slit width is constant per scene; the label is a DerivedProperty

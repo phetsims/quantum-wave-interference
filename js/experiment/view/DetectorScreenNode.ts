@@ -254,7 +254,7 @@ export default class DetectorScreenNode extends Node {
     QuantumWaveInterferenceFluent.hitsCountPatternStringProperty.lazyLink( updateDisplay );
     sceneModel.isEmittingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.screenBrightnessProperty.link( () => this.screenCanvasNode.invalidatePaint() );
-    sceneModel.intensityProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.sourceStrengthProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     detectorScreenScaleIndexProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
     // These Properties affect the detector texture directly. In Hits mode, geometry changes clear the screen through

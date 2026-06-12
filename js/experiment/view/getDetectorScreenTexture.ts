@@ -200,7 +200,7 @@ function createSceneTextureCache(
   sceneModel.isEmittingProperty.link( markDirty );
   sceneModel.detectionModeProperty.link( markDirty );
   sceneModel.screenBrightnessProperty.link( markDirty );
-  sceneModel.intensityProperty.link( markDirty );
+  sceneModel.sourceStrengthProperty.link( markDirty );
   sceneModel.wavelengthProperty.link( markDirty );
   sceneModel.particleSpeedProperty.link( markDirty );
   sceneModel.slitSeparationProperty.link( markDirty );
