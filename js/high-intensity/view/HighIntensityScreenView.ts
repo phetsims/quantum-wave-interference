@@ -530,7 +530,10 @@ export default class HighIntensityScreenView extends ScreenView {
         waveRegionTop: waveRegionLayout.waveRegionTop
       },
       sceneTandems,
-      tandem.createTandem( 'topRowNode' )
+
+      // The view tandem itself: the callout node only instruments maxHitsReachedPanel with it, which belongs at
+      // view.maxHitsReachedPanel to match the other screens.
+      tandem
     );
     this.addChild( sourceBeamCalloutNode );
 
