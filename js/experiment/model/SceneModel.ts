@@ -158,7 +158,8 @@ export default class SceneModel extends PhetioObject {
       isDisposable: false,
       phetioType: SceneModel.SceneModelIO,
       phetioDocumentation: 'Model for a single source-type scene, including detector screen data.',
-      phetioState: true // provides its own state in the IOType
+      phetioState: true, // provides its own state in the IOType
+      phetioFeatured: true
     }, providedOptions );
 
     super( options );
