@@ -268,9 +268,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
+    // Not instrumented: this is kept in sync with slitConfigurationProperty (see linkSlitConfigurationToBarrierType),
+    // so it is fully recoverable from slitConfigurationProperty and would be redundant in the PhET-iO API and state.
     this.barrierTypeProperty = new StringUnionProperty<BarrierType>( 'doubleSlit', {
-      validValues: BarrierTypeValues,
-      tandem: tandem.createTandem( 'barrierTypeProperty' )
+      validValues: BarrierTypeValues
     } );
 
     // NOTE: see other duplicate in quantum-wave-interference/js/experiment/model/SceneModel.ts. Slit separation is
