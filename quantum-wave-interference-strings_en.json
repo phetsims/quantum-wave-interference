@@ -344,7 +344,7 @@
         "value": "{ $beamDescription }"
       },
       "sourceStopped": {
-        "value": "Source stopped. Wave display clears. { $detectionMode ->\n  [hits] Hits remain.\n *[averageIntensity] Intensity pattern cleared.\n}"
+        "value": "{ $hasHitsData ->\n  [true] Source off. Hits data remain.\n *[false] Source off.\n}"
       },
       "particleTypeChanged": {
         "value": "{ $sourceType ->\n  [photons] Photon\n  [electrons] Electron\n  [neutrons] Neutron\n *[heliumAtoms] Helium atom\n} experiment { $isEmitting ->\n  [true] in progress.\n *[false] ready to start.\n}"

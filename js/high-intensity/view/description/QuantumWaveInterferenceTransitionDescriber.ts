@@ -8,6 +8,7 @@
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type HighIntensityAccessibleViewState, type QuantumWaveInterferenceValueTrend } from './HighIntensityAccessibleViewState.js';
+import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import { formatDetectorDescription, formatSourceBeamDescription, toFluentBoolean } from './QuantumWaveInterferenceAccessibleStateFormatters.js';
 
 /**
@@ -124,9 +125,7 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       }
       else {
         contextResponses = [
-          QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStopped.format( {
-            detectionMode: after.detectionMode
-          } )
+          formatSourceStoppedResponse( after.detectionMode, after.totalHits )
         ];
       }
     }

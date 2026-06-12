@@ -11,6 +11,7 @@ import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
 import ExperimentSetupDetailsNode from '../../../common/view/description/ExperimentSetupDetailsNode.js';
 import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
 import { formatCompleteIntensityDetectorPatternDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
+import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import type SceneRadioButtonGroup from '../../../common/view/SceneRadioButtonGroup.js';
 import type SourceControlPanel from '../../../common/view/SourceControlPanel.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
@@ -65,6 +66,10 @@ export default class ExperimentScreenViewDescription extends Node {
     this.addChild( sourceStartedResponseNode );
     model.currentIsEmittingProperty.lazyLink( isEmitting => {
       if ( !isEmitting ) {
+        sourceStartedResponseNode.addAccessibleContextResponse(
+          formatSourceStoppedResponse( model.currentDetectionModeProperty.value, model.currentTotalHitsProperty.value ),
+          { flush: true }
+        );
         return;
       }
 

@@ -215,8 +215,7 @@ export default class OverheadEmitterNode extends Node {
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpText.createProperty( {
         isEmitting: isEmittingStringProperty,
         sourceType: sourceTypeProperty
-      } ),
-      accessibleContextResponseOff: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleContextResponseOffStringProperty
+      } )
     };
 
     this.laserPointerNode = new LaserPointerNode( isEmittingProperty, {

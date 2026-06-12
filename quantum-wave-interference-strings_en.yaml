@@ -571,9 +571,9 @@ a11y:
     sourceRestarted:          Source restarted.
     advancingWave:            '{ $beamDescription }'
     sourceStopped:            >-
-                              Source stopped. Wave display clears. { $detectionMode ->
-                                [hits] Hits remain.
-                               *[averageIntensity] Intensity pattern cleared.
+                              { $hasHitsData ->
+                                [true] Source off. Hits data remain.
+                               *[false] Source off.
                               }
     particleTypeChanged:      >-
                               { $sourceType ->

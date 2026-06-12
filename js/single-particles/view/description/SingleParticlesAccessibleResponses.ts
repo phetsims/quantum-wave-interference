@@ -24,6 +24,7 @@ import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitC
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
 import QuantumWaveInterferenceConstants from '../../../common/QuantumWaveInterferenceConstants.js';
 import BandAnalysis, { type BandSpacingCategory, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import { getClockSpeedDescription, type QuantumWaveInterferenceClockSpeedDescription } from '../../../common/view/description/getClockSpeedDescription.js';
 import { getPatternKind, type QuantumWaveInterferencePatternKind } from '../../../common/view/description/getPatternKind.js';
 import { getWavePeakSpacingCategory, type WavePeakSpacingCategory } from '../../../common/view/description/getWavePeakSpacingCategory.js';
@@ -316,9 +317,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
                                  before.detectorToolState === after.detectorToolState &&
                                  after.totalHits >= before.totalHits;
       if ( isExplicitUserStop ) {
-        this.addAccessibleContextResponse(
-          QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStopped.format( { detectionMode: 'hits' } )
-        );
+        this.addAccessibleContextResponse( formatSourceStoppedResponse( 'hits', after.totalHits ) );
       }
       this.lastTransitionWasHit = false;
     }
