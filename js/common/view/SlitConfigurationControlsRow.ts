@@ -54,7 +54,8 @@ export default class SlitConfigurationControlsRow<T extends string> extends Node
       listPosition: 'above',
       accessibleName: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleHelpTextStringProperty,
-      accessibleContextResponse: accessibleContextResponse
+      accessibleContextResponse: accessibleContextResponse,
+      maxWidth: 150
     } );
 
     const slitConfigSection = new VBox( {
