@@ -24,6 +24,7 @@ import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
+import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
@@ -72,6 +73,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
         yMargin: 10,
         fill: QuantumWaveInterferenceColors.panelFillProperty,
         stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
+        align: 'center',
         minWidth: 160,
         photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.sourceIntensityStringProperty,
         particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty,
@@ -92,9 +94,15 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
     const panelContent = options.additionalContent ?
                          new VBox( {
                            spacing: SOURCE_CONTROL_SECTION_SPACING,
-                           align: 'left',
-                           stretch: true,
-                           children: [ sourceContent.contentNode, options.additionalContent ]
+                           align: 'center',
+                           children: [
+                             sourceContent.contentNode,
+                             new AlignBox( options.additionalContent, {
+                               preferredWidth: sourceContent.contentNode.width,
+                               xAlign: 'center',
+                               visibleProperty: options.additionalContent.visibleProperty
+                             } )
+                           ]
                          } ) :
                          sourceContent.contentNode;
 

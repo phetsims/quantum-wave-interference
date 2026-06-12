@@ -25,6 +25,7 @@ import SoundKeyboardDragListener from '../../../../scenery-phet/js/SoundKeyboard
 import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import InteractiveHighlightingNode from '../../../../scenery/js/accessibility/voicing/nodes/InteractiveHighlightingNode.js';
 import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
+import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Circle from '../../../../scenery/js/nodes/Circle.js';
@@ -229,13 +230,18 @@ export default class DetectorProbeNode extends Node {
       spacing: 15,
       align: 'center'
     } );
+    const alignedPanelContent = new AlignBox( panelContent, {
+      preferredWidth: panelContent.width,
+      xAlign: 'center'
+    } );
 
-    const controlPanel = new Panel( panelContent, {
+    const controlPanel = new Panel( alignedPanelContent, {
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
       xMargin: 10,
       yMargin: 8,
       cornerRadius: 6,
+      align: 'center',
       visibleProperty: DerivedProperty.or( [ detectButton.visibleProperty, sizeControl.visibleProperty ] )
     } );
     this.addChild( controlPanel );

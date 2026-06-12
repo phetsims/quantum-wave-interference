@@ -12,8 +12,8 @@ import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
+import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
-import HStrut from '../../../../scenery/js/nodes/HStrut.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import ToggleNode from '../../../../sun/js/ToggleNode.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
@@ -80,15 +80,11 @@ export default function createSourceControlPanelContent<T extends SourceControlS
     ...( sceneControls.bottomControl ? [ sceneControls.bottomControl.visibleProperty ] : [] )
   ] ) );
 
-  // Preserve width-only bounds so the panel width remains stable while at least one control is visible.
-  const sceneNodes = sceneContentNodes.map( sceneContent => {
-    const widthStrut = new HStrut( maxSceneWidth );
-    sceneContent.centerX = widthStrut.centerX;
-
-    return new Node( {
-      children: [ widthStrut, sceneContent ]
-    } );
-  } );
+  // Preserve the maximum scene width and dynamically center content as individual controls are hidden or restored.
+  const sceneNodes = sceneContentNodes.map( sceneContent => new AlignBox( sceneContent, {
+    preferredWidth: maxSceneWidth,
+    xAlign: 'center'
+  } ) );
 
   const contentNode = new ToggleNode( sceneProperty, scenes.map( ( scene, index ) => ( {
     value: scene,

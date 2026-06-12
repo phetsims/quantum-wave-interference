@@ -70,6 +70,7 @@ export default class SlitControlPanel extends Panel {
         yMargin: 8,
         fill: QuantumWaveInterferenceColors.panelFillProperty,
         stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
+        align: 'center',
         minWidth: PANEL_WIDTH,
         maxWidth: PANEL_WIDTH
       },

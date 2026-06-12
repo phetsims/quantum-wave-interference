@@ -18,6 +18,7 @@ import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
+import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -27,6 +28,7 @@ import Panel, { PanelOptions } from '../../../../sun/js/Panel.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import ExperimentConstants from '../ExperimentConstants.js';
 
 const TITLE_FONT = new PhetFont( 14 );
 const LABEL_FONT = new PhetFont( 14 );
@@ -48,7 +50,8 @@ export default class ScreenSettingsPanel extends Panel {
       xMargin: 0,
       yMargin: 6,
       fill: null,
-      stroke: null
+      stroke: null,
+      align: 'center'
     }, providedOptions );
 
     const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
@@ -136,6 +139,10 @@ export default class ScreenSettingsPanel extends Panel {
       align: 'center',
       children: [ detectionModeRadioButtonGroup, brightnessControl ]
     } );
+    const alignedContent = new AlignBox( content, {
+      preferredWidth: ExperimentConstants.DETECTOR_SCREEN_WIDTH,
+      xAlign: 'center'
+    } );
 
     const visibleProperty = new BooleanProperty( true, {
       tandem: options.tandem.createTandem( 'visibleProperty' ),
@@ -147,6 +154,6 @@ export default class ScreenSettingsPanel extends Panel {
       DerivedProperty.or( [ detectionModeRadioButtonGroup.visibleProperty, brightnessControl.visibleProperty ] )
     ] );
 
-    super( content, options );
+    super( alignedContent, options );
   }
 }

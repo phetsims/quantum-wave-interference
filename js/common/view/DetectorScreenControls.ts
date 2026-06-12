@@ -26,6 +26,7 @@ import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
+import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
@@ -241,22 +242,35 @@ export default class DetectorScreenControls extends VBox {
     } );
 
     const brightnessControl = new BrightnessControl( model.currentScreenBrightnessProperty, screenControlsPanelTandem );
-    const brightnessControlWrapper = new Node( {
-      children: [ brightnessControl ],
+    const brightnessControlWrapper = new AlignBox( brightnessControl, {
+      preferredWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH,
+      xAlign: 'center',
       visibleProperty: DerivedProperty.and( [ detectorScreenVisibleProperty, brightnessControl.visibleProperty ] )
     } );
 
     const screenControlsChildren: Node[] = [
-      screenGraphSwitch,
-      ...options.additionalScreenControlChildren,
+      new AlignBox( screenGraphSwitch, {
+        preferredWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH,
+        xAlign: 'center',
+        visibleProperty: screenGraphSwitch.visibleProperty
+      } ),
+      ...options.additionalScreenControlChildren.map( child => new AlignBox( child, {
+        preferredWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH,
+        xAlign: 'center',
+        visibleProperty: child.visibleProperty
+      } ) ),
       brightnessControlWrapper,
-      screenButtonsRow
+      new AlignBox( screenButtonsRow, {
+        preferredWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH,
+        xAlign: 'stretch',
+        visibleProperty: screenButtonsRow.visibleProperty
+      } )
     ];
 
     const screenControlsPanel = new Panel( new VBox( {
       spacing: 12,
       stretch: true,
-      align: 'left',
+      align: 'center',
       children: screenControlsChildren
     } ), {
       fill: QuantumWaveInterferenceColors.panelFillProperty,
@@ -264,6 +278,7 @@ export default class DetectorScreenControls extends VBox {
       xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
       minWidth: rightPanelWidth,
+      align: 'center',
       tandem: screenControlsPanelTandem,
       visiblePropertyOptions: {
         phetioFeatured: true
@@ -271,16 +286,22 @@ export default class DetectorScreenControls extends VBox {
     } );
 
     // --- Tools panel ---
+    const toolCheckboxBoxes = options.toolCheckboxes.map( checkbox => new AlignBox( checkbox, {
+      preferredWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH,
+      xAlign: 'center',
+      visibleProperty: checkbox.visibleProperty
+    } ) );
     const toolsPanel = new Panel( new VBox( {
       spacing: 8,
-      stretch: true,
-      children: options.toolCheckboxes
+      align: 'center',
+      children: toolCheckboxBoxes
     } ), {
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
       xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
       minWidth: rightPanelWidth,
+      align: 'center',
       tandem: toolsPanelTandem,
       visiblePropertyOptions: {
         phetioFeatured: true
