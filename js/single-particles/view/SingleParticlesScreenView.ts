@@ -153,7 +153,6 @@ export default class SingleParticlesScreenView extends ScreenView {
         touchAreaYDilation: 4,
         mouseAreaXDilation: 5,
         mouseAreaYDilation: 4,
-        layoutOptions: { stretch: true },
 
         // Nested under the panel that contains this checkbox in the view.
         tandem: sourceControlPanelTandem.createTandem( 'autoRepeatCheckbox' )

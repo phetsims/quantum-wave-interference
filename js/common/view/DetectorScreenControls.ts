@@ -229,7 +229,6 @@ export default class DetectorScreenControls extends VBox {
     const snapshotControls = new HBox( {
       align: 'bottom',
       justify: 'spaceEvenly',
-      layoutOptions: { stretch: true },
       children: [ snapshotButtonWithDots, viewSnapshotsButton ],
       tandem: snapshotControlsTandem,
       visiblePropertyOptions: { phetioFeatured: true }
@@ -263,7 +262,6 @@ export default class DetectorScreenControls extends VBox {
 
     const screenControlsPanel = new Panel( new VBox( {
       spacing: 12,
-      stretch: true,
       align: 'center',
       children: screenControlsChildren
     } ), {
@@ -280,22 +278,21 @@ export default class DetectorScreenControls extends VBox {
     } );
 
     // --- Tools panel ---
-    const toolCheckboxBoxes = options.toolCheckboxes.map( checkbox => new AlignBox( checkbox, {
-      preferredWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH,
-      xAlign: 'center',
-      visibleProperty: checkbox.visibleProperty
-    } ) );
+
+    // Checkboxes are left-aligned at the panel's left margin (Panel's default align:'left'), with their boxes
+    // lined up vertically. The VBox stretches each checkbox to the full panel content width for generous
+    // pointer areas.
     const toolsPanel = new Panel( new VBox( {
       spacing: 8,
-      align: 'center',
-      children: toolCheckboxBoxes
+      align: 'left',
+      stretch: true,
+      children: options.toolCheckboxes
     } ), {
       fill: QuantumWaveInterferenceColors.panelFillProperty,
       stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
       xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
       minWidth: rightPanelWidth,
-      align: 'center',
       tandem: toolsPanelTandem,
       visiblePropertyOptions: {
         phetioFeatured: true

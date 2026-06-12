@@ -56,7 +56,6 @@ export default class ToolCheckbox extends Checkbox {
       mouseAreaYDilation: 4,
       accessibleHelpText: accessibleHelpText,
       visibleProperty: visibleProperty,
-      layoutOptions: { stretch: true },
       tandem: tandem
     } );
   }
