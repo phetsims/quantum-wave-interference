@@ -31,6 +31,7 @@ import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
+import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import { getExactAnalyticalDetectorIntensity } from '../../common/model/AnalyticalDetectorPattern.js';
@@ -304,8 +305,12 @@ export default class SceneModel extends PhetioObject {
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.detectionModeProperty, this.totalHitsProperty ],
       ( detectionMode, totalHits ) =>
-        detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceQueryParameters.maxHits
-    );
+        detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceQueryParameters.maxHits, {
+        tandem: tandem.createTandem( 'isMaxHitsReachedProperty' ),
+        phetioValueType: BooleanIO,
+        phetioFeatured: true,
+        phetioDocumentation: 'Whether the detector screen has reached the maximum number of hits, which turns off the source.'
+      } );
 
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMaxHitsReached => !isMaxHitsReached );
 

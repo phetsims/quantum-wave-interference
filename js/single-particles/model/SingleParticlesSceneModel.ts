@@ -31,6 +31,7 @@ import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCD
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import isSettingPhetioStateProperty from '../../../../tandem/js/isSettingPhetioStateProperty.js';
+import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 
@@ -175,8 +176,12 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.totalHitsProperty ],
-      totalHits => totalHits >= QuantumWaveInterferenceQueryParameters.maxHits
-    );
+      totalHits => totalHits >= QuantumWaveInterferenceQueryParameters.maxHits, {
+        tandem: tandem.createTandem( 'isMaxHitsReachedProperty' ),
+        phetioValueType: BooleanIO,
+        phetioFeatured: true,
+        phetioDocumentation: 'Whether the detector screen has reached the maximum number of hits, which turns off the source.'
+      } );
 
     this.isEmitterEnabledProperty = new DerivedProperty(
       [ this.isMaxHitsReachedProperty, this.isPacketActiveProperty, this.autoRepeatProperty ],

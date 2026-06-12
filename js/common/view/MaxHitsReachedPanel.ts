@@ -30,6 +30,9 @@ export default class MaxHitsReachedPanel extends Panel {
       visible: false,
       pickable: false,
       accessibleParagraph: QuantumWaveInterferenceFluent.maximumHitsReachedStringProperty,
+
+      // Visibility tracks the model's isMaxHitsReachedProperty, so clients may not control it.
+      visiblePropertyOptions: { phetioReadOnly: true },
       tandem: tandem
     } );
   }

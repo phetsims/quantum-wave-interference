@@ -23,6 +23,7 @@ import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type S
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
+import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 
 // Detector-screen hit dots created per model second in Hits mode.
@@ -126,8 +127,12 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this.detectorPatternFormationFactorProperty = this._detectorPatternFormationFactorProperty;
 
     this.isMaxHitsReachedProperty = new DerivedProperty( [ this.detectionModeProperty, this.totalHitsProperty ],
-      ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceQueryParameters.maxHits
-    );
+      ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceQueryParameters.maxHits, {
+        tandem: tandem.createTandem( 'isMaxHitsReachedProperty' ),
+        phetioValueType: BooleanIO,
+        phetioFeatured: true,
+        phetioDocumentation: 'Whether the detector screen has reached the maximum number of hits, which turns off the source.'
+      } );
 
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMax => !isMax );
 
