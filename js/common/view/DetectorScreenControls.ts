@@ -264,7 +264,10 @@ export default class DetectorScreenControls extends VBox {
       xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
       minWidth: rightPanelWidth,
-      tandem: screenControlsPanelTandem
+      tandem: screenControlsPanelTandem,
+      visiblePropertyOptions: {
+        phetioFeatured: true
+      }
     } );
 
     // --- Tools panel ---
@@ -278,7 +281,10 @@ export default class DetectorScreenControls extends VBox {
       xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
       minWidth: rightPanelWidth,
-      tandem: toolsPanelTandem
+      tandem: toolsPanelTandem,
+      visiblePropertyOptions: {
+        phetioFeatured: true
+      }
     } );
 
     // Keep right-panel backgrounds width-matched when localization makes either panel wider.
