@@ -259,10 +259,12 @@ export default class HighIntensityScreenView extends ScreenView {
     // NOTE: see other duplicate in quantum-wave-interference/js/single-particles/view/SingleParticlesScreenView.ts.
     // This constructor setup intentionally parallels SingleParticlesScreenView while keeping screen-specific
     // controls and tandems explicit.
+    const scenesTandem = tandem.createTandem( 'scenes' );
     const sceneTandems = new Map<object, Tandem>( model.scenes.map( scene => [
       scene,
-      tandem.createTandem( `${scene.sourceType}Scene` )
+      scenesTandem.createTandem( `${scene.sourceType}Scene` )
     ] ) );
+    const toolNodesTandem = tandem.createTandem( 'toolNodes' );
     let accessibleResponses: HighIntensityAccessibleResponses | null = null;
 
     // Keep this top-level sequence aligned with the visual layers: source controls, wave region,
@@ -300,7 +302,7 @@ export default class HighIntensityScreenView extends ScreenView {
       tandem
     );
 
-    const measurementToolNodes = this.createAndAddMeasurementTools( model, waveRegionLayout, tandem );
+    const measurementToolNodes = this.createAndAddMeasurementTools( model, waveRegionLayout, toolNodesTandem );
     this.measurementToolsNode = measurementToolNodes.measurementToolsNode;
     this.timePlotNode = measurementToolNodes.timePlotNode;
     this.positionPlotNode = measurementToolNodes.positionPlotNode;

@@ -134,10 +134,12 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.model = model;
 
     const tandem = options.tandem;
+    const scenesTandem = tandem.createTandem( 'scenes' );
     const sceneTandems = new Map<object, Tandem>( model.scenes.map( scene => [
       scene,
-      tandem.createTandem( `${scene.sourceType}Scene` )
+      scenesTandem.createTandem( `${scene.sourceType}Scene` )
     ] ) );
+    const toolNodesTandem = tandem.createTandem( 'toolNodes' );
 
     // This top-level layout intentionally parallels HighIntensityScreenView while keeping screen-specific
     // controls and tandems explicit.
@@ -296,7 +298,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       waveRegionTop,
       () => bottomRow.getSlitSeparationControlCenterX(),
       () => bottomRow.getSlitSeparationControlCenterY(),
-      tandem.createTandem( 'detectorProbeNode' )
+      toolNodesTandem.createTandem( 'detectorProbeNode' )
     );
     this.detectorProbeNode = detectorProbeNode;
     this.addChild( detectorProbeNode );
@@ -361,7 +363,13 @@ export default class SingleParticlesScreenView extends ScreenView {
       detectorScreenControls.positionWaveDisplayAndTimeControlsGroup( rightPanelCenterX, this.layoutBounds.maxX - X_MARGIN, this.layoutBounds.maxY - Y_MARGIN );
     } );
 
-    const measurementToolsNode = new MeasurementToolsLayerNode( model, this.visibleBoundsProperty, waveRegionLeft, waveRegionTop, tandem );
+    const measurementToolsNode = new MeasurementToolsLayerNode(
+      model,
+      this.visibleBoundsProperty,
+      waveRegionLeft,
+      waveRegionTop,
+      toolNodesTandem
+    );
     this.measurementToolsNode = measurementToolsNode;
     this.addChild( measurementToolsNode );
     this.timePlotNode = measurementToolsNode.timePlotNode;
