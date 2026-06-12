@@ -18,6 +18,7 @@ import TModel from '../../../../joist/js/TModel.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
@@ -179,7 +180,8 @@ export default class ExperimentModel implements TModel {
       phetioDocumentation: 'The detector screen brightness for the current source scene.',
       phetioReadOnly: true,
       phetioState: false,
-      phetioValueType: NumberIO
+      phetioValueType: NumberIO,
+      units: percentUnit
     } );
 
     this.currentSnapshotsProperty = new DynamicProperty<Snapshot[], Snapshot[], SceneModel>( this.sceneProperty, {
