@@ -56,7 +56,7 @@ type MeasurementToolsModel = {
 
   // Tool visibility toggles controlled by the Tools panel.
   readonly isStopwatchVisibleProperty: BooleanProperty;
-  readonly isTapeMeasureVisibleProperty: BooleanProperty;
+  readonly isMeasuringTapeVisibleProperty: BooleanProperty;
   readonly isTimePlotVisibleProperty: BooleanProperty;
   readonly isPositionPlotVisibleProperty: BooleanProperty;
 
@@ -70,8 +70,8 @@ type MeasurementToolsModel = {
   readonly currentSlitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
 
   // Model-owned measuring tape endpoints so tape placement persists with scene state.
-  readonly tapeMeasureBasePositionProperty: Vector2Property;
-  readonly tapeMeasureTipPositionProperty: Vector2Property;
+  readonly measuringTapeBasePositionProperty: Vector2Property;
+  readonly measuringTapeTipPositionProperty: Vector2Property;
 };
 
 export default class MeasurementToolsLayerNode extends Node {
@@ -119,13 +119,13 @@ export default class MeasurementToolsLayerNode extends Node {
     const measuringTapeNode = new MeasuringTapeNode( measuringTapeUnitsProperty, {
       textBackgroundColor: 'rgba( 255, 255, 255, 0.6 )',
       textColor: 'black',
-      basePositionProperty: model.tapeMeasureBasePositionProperty,
-      tipPositionProperty: model.tapeMeasureTipPositionProperty,
+      basePositionProperty: model.measuringTapeBasePositionProperty,
+      tipPositionProperty: model.measuringTapeTipPositionProperty,
       significantFigures: 2,
       tandem: tandem.createTandem( 'measuringTapeNode' )
     } );
     visibleBoundsProperty.link( visibleBounds => measuringTapeNode.setDragBounds( visibleBounds.eroded( 20 ) ) );
-    model.isTapeMeasureVisibleProperty.linkAttribute( measuringTapeNode, 'visible' );
+    model.isMeasuringTapeVisibleProperty.linkAttribute( measuringTapeNode, 'visible' );
 
     const timePlotNode = new TimePlotNode(
       model.sceneProperty,
@@ -177,14 +177,14 @@ export default class MeasurementToolsLayerNode extends Node {
    * @returns measurement-tool view state
    */
   public getAccessibleViewState(): MeasurementToolsViewStateFragment {
-    const basePosition = this.model.tapeMeasureBasePositionProperty.value;
-    const tipPosition = this.model.tapeMeasureTipPositionProperty.value;
-    const isTapeMeasureVisible = this.measuringTapeNode.visible;
+    const basePosition = this.model.measuringTapeBasePositionProperty.value;
+    const tipPosition = this.model.measuringTapeTipPositionProperty.value;
+    const isMeasuringTapeVisible = this.measuringTapeNode.visible;
     const isStopwatchVisible = this.stopwatchNode.visible;
 
     return {
       measurementTools: {
-        tapeMeasure: isTapeMeasureVisible ? {
+        measuringTape: isMeasuringTapeVisible ? {
           visible: true,
           basePosition: {
             x: basePosition.x,

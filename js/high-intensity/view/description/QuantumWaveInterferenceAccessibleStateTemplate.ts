@@ -47,7 +47,7 @@ export default class QuantumWaveInterferenceAccessibleStateTemplate {
       model.currentTotalHitsProperty,
       model.currentNumberOfSnapshotsProperty,
       model.accessibleStateStepProperty,
-      model.isTapeMeasureVisibleProperty,
+      model.isMeasuringTapeVisibleProperty,
       model.isStopwatchVisibleProperty,
       model.isTimePlotVisibleProperty,
       model.isPositionPlotVisibleProperty,

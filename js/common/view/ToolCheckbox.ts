@@ -2,7 +2,7 @@
 
 /**
  * ToolCheckbox creates a tool visibility checkbox, used by both the High Intensity
- * and Single Particles screen views for tool panels (tape measure, stopwatch, time plot, etc.).
+ * and Single Particles screen views for tool panels (measuring tape, stopwatch, time plot, etc.).
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

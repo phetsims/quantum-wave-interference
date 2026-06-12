@@ -728,14 +728,14 @@ export default class HighIntensityScreenView extends ScreenView {
     const toolsPanelTandem = tandem.createTandem( 'toolsPanel' );
 
     const detectionModeRadioButtonGroupBox = this.createDetectionModeRadioButtonGroupBox( model, screenControlsPanelTandem );
-    const { tapeMeasureCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
+    const { measuringTapeCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
       createStandardToolCheckboxes( model, toolsPanelTandem );
 
     const detectorScreenControls = new DetectorScreenControls( model, this, tandem, {
       screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,
       additionalScreenControlChildren: [ detectionModeRadioButtonGroupBox ],
       toolCheckboxes: [
-        tapeMeasureCheckbox,
+        measuringTapeCheckbox,
         stopwatchCheckbox,
         timePlotCheckbox,
         positionPlotCheckbox

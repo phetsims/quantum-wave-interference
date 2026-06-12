@@ -104,7 +104,7 @@ node turing/js/interact.ts a11yTrace tab "Screen, Switch to Graph" + press Space
 Tool visibility:
 
 ```bash
-node turing/js/interact.ts a11yTrace tab "Tape Measure" + press Space + wait 300 --json
+node turing/js/interact.ts a11yTrace tab "Measuring Tape" + press Space + wait 300 --json
 ```
 
 For detection mode, tab to whichever radio button is currently selected, such as `Intensity` or `Hits`, then use arrow

@@ -81,14 +81,14 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   public readonly timeSpeedProperty: TimeSpeedProperty;
 
   // Tool visibility (shared across both screens)
-  public readonly isTapeMeasureVisibleProperty: BooleanProperty;
+  public readonly isMeasuringTapeVisibleProperty: BooleanProperty;
   public readonly isStopwatchVisibleProperty: BooleanProperty;
   public readonly isTimePlotVisibleProperty: BooleanProperty;
   public readonly isPositionPlotVisibleProperty: BooleanProperty;
 
   // Tool positions
-  public readonly tapeMeasureBasePositionProperty: Vector2Property;
-  public readonly tapeMeasureTipPositionProperty: Vector2Property;
+  public readonly measuringTapeBasePositionProperty: Vector2Property;
+  public readonly measuringTapeTipPositionProperty: Vector2Property;
   public readonly stopwatch: Stopwatch;
 
   // Monotonically increasing signal for accessible state consumers that need updates during continuous emission.
@@ -219,8 +219,8 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
 
     this.toolsTandem = tandem.createTandem( 'tools' );
 
-    this.isTapeMeasureVisibleProperty = new BooleanProperty( false, {
-      tandem: this.toolsTandem.createTandem( 'isTapeMeasureVisibleProperty' ),
+    this.isMeasuringTapeVisibleProperty = new BooleanProperty( false, {
+      tandem: this.toolsTandem.createTandem( 'isMeasuringTapeVisibleProperty' ),
       phetioFeatured: true
     } );
 
@@ -239,12 +239,12 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       phetioFeatured: true
     } );
 
-    this.tapeMeasureBasePositionProperty = new Vector2Property( new Vector2( 300, 300 ), {
-      tandem: this.toolsTandem.createTandem( 'tapeMeasureBasePositionProperty' )
+    this.measuringTapeBasePositionProperty = new Vector2Property( new Vector2( 300, 300 ), {
+      tandem: this.toolsTandem.createTandem( 'measuringTapeBasePositionProperty' )
     } );
 
-    this.tapeMeasureTipPositionProperty = new Vector2Property( new Vector2( 370, 300 ), {
-      tandem: this.toolsTandem.createTandem( 'tapeMeasureTipPositionProperty' )
+    this.measuringTapeTipPositionProperty = new Vector2Property( new Vector2( 370, 300 ), {
+      tandem: this.toolsTandem.createTandem( 'measuringTapeTipPositionProperty' )
     } );
 
     this.stopwatch = new Stopwatch( {
@@ -286,13 +286,13 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     this.timeSpeedProperty.reset();
 
     this.resetToolVisibility();
-    this.isTapeMeasureVisibleProperty.reset();
+    this.isMeasuringTapeVisibleProperty.reset();
     this.isStopwatchVisibleProperty.reset();
     this.isTimePlotVisibleProperty.reset();
     this.isPositionPlotVisibleProperty.reset();
 
-    this.tapeMeasureBasePositionProperty.reset();
-    this.tapeMeasureTipPositionProperty.reset();
+    this.measuringTapeBasePositionProperty.reset();
+    this.measuringTapeTipPositionProperty.reset();
     this.stopwatch.reset();
 
     this.accessibleStateStepFrameCount = 0;

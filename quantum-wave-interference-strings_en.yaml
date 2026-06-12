@@ -51,7 +51,7 @@ ruler:                           Ruler
 stopwatch:                       Stopwatch
 detector:                        Detector
 detectorProbe:                   Detector Probe
-tapeMeasure:                     Tape Measure
+measuringTape:                   Measuring Tape
 timePlot:                        Time Plot
 positionPlot:                    Position Plot
 time:                            Time
@@ -549,9 +549,9 @@ a11y:
                             [imaginaryPart] Imaginary Part
                            *[amplitude] Amplitude
                           }. Screen brightness is { $brightness } percent. Stored snapshots: { $snapshotCount }.
-                          Tools shown: { $tapeMeasure ->
-                            [true] tape measure
-                           *[false] no tape measure
+                          Tools shown: { $measuringTape ->
+                            [true] measuring tape
+                           *[false] no measuring tape
                           }, { $stopwatch ->
                             [true] stopwatch
                            *[false] no stopwatch
@@ -638,7 +638,7 @@ a11y:
                               }
     toolChanged:              >-
                               { $tool ->
-                                [tapeMeasure] Tape measure
+                                [measuringTape] Measuring tape
                                 [stopwatch] Stopwatch
                                 [timePlot] Time plot
                                *[positionPlot] Position plot
@@ -824,8 +824,8 @@ a11y:
     accessibleHelpText:                 Add ruler to measure distances on detector screen or graph. Once added, move ruler up or down with keyboard shortcuts.
     accessibleContextResponseChecked:   Ruler added near detector screen.
     accessibleContextResponseUnchecked: Ruler removed.
-  tapeMeasureCheckbox:
-    accessibleHelpText: Add tape measure to measure distances on detector screen or graph. Once added, move with keyboard shortcuts.
+  measuringTapeCheckbox:
+    accessibleHelpText: Add measuring tape to measure distances on detector screen or graph. Once added, move with keyboard shortcuts.
   stopwatchCheckbox:
     accessibleHelpText: Add stopwatch to time experiment. Once added, Start, Pause, Reset Stopwatch, and move with keyboard shortcuts.
   timePlotCheckbox:

@@ -103,7 +103,7 @@ export type WaveVisualizationViewStateFragment = {
  * Snapshot of the tape-measure tool. basePosition and tipPosition are in view coordinates (pixels from the top-left
  * of the ScreenView); agents compute the distance by differencing the two points.
  */
-export type TapeMeasureViewState = {
+export type MeasuringTapeViewState = {
   visible: false;
 } | {
   visible: true;
@@ -151,7 +151,7 @@ export type PositionPlotViewState = {
  * the per-tool discriminated union carries the visibility flag.
  */
 export type MeasurementToolsViewState = {
-  tapeMeasure: TapeMeasureViewState;
+  measuringTape: MeasuringTapeViewState;
   stopwatch: StopwatchViewState;
   timePlot: TimePlotViewState;
   positionPlot: PositionPlotViewState;

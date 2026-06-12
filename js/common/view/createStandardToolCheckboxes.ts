@@ -13,7 +13,7 @@ import BaseScreenModel from '../model/BaseScreenModel.js';
 import ToolCheckbox from './ToolCheckbox.js';
 
 /**
- * Creates the four measurement-tool visibility checkboxes (tape measure, stopwatch, time plot, position plot)
+ * Creates the four measurement-tool visibility checkboxes (measuring tape, stopwatch, time plot, position plot)
  * shared by the High Intensity and Single Particles screen views. Each checkbox is bound to the corresponding
  * Boolean Property on the model and is individually instrumented under the provided tandem. Callers destructure
  * the returned object to pass the checkboxes into their control panels.
@@ -26,17 +26,17 @@ export default function createStandardToolCheckboxes<T extends BaseSceneModel>(
   model: BaseScreenModel<T>,
   tandem: Tandem
 ): {
-  tapeMeasureCheckbox: ToolCheckbox;
+  measuringTapeCheckbox: ToolCheckbox;
   stopwatchCheckbox: ToolCheckbox;
   timePlotCheckbox: ToolCheckbox;
   positionPlotCheckbox: ToolCheckbox;
 } {
   return {
-    tapeMeasureCheckbox: new ToolCheckbox(
-      model.isTapeMeasureVisibleProperty,
-      QuantumWaveInterferenceFluent.tapeMeasureStringProperty,
-      tandem.createTandem( 'tapeMeasureCheckbox' ),
-      QuantumWaveInterferenceFluent.a11y.tapeMeasureCheckbox.accessibleHelpTextStringProperty
+    measuringTapeCheckbox: new ToolCheckbox(
+      model.isMeasuringTapeVisibleProperty,
+      QuantumWaveInterferenceFluent.measuringTapeStringProperty,
+      tandem.createTandem( 'measuringTapeCheckbox' ),
+      QuantumWaveInterferenceFluent.a11y.measuringTapeCheckbox.accessibleHelpTextStringProperty
     ),
     stopwatchCheckbox: new ToolCheckbox(
       model.isStopwatchVisibleProperty,

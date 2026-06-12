@@ -30,7 +30,7 @@ export type QuantumWaveInterferenceTransitionAction =
   { type: 'displayModeChanged' } |
   { type: 'brightnessChanged' } |
   { type: 'waveDisplayChanged' } |
-  { type: 'toolChanged'; tool: 'tapeMeasure' | 'stopwatch' | 'timePlot' | 'positionPlot' } |
+  { type: 'toolChanged'; tool: 'measuringTape' | 'stopwatch' | 'timePlot' | 'positionPlot' } |
   { type: 'screenCleared' } |
   { type: 'hitStageChanged' } |
   { type: 'waveProgressChanged' } |

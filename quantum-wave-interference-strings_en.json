@@ -149,8 +149,8 @@
   "detectorProbe": {
     "value": "Detector Probe"
   },
-  "tapeMeasure": {
-    "value": "Tape Measure"
+  "measuringTape": {
+    "value": "Measuring Tape"
   },
   "timePlot": {
     "value": "Time Plot"
@@ -330,7 +330,7 @@
         "value": "{ $waveProgressStage ->\n  [sourceOff] Source is off, so no wave is traveling.\n  [travelingToSlits] { $waveDisplayMode ->\n    [amplitude] Solid wave moves toward slitted barrier.\n   *[electricField] Plane wave fronts move toward slitted barrier.\n    [realPart] Plane wave fronts move toward slitted barrier.\n    [imaginaryPart] Plane wave fronts move toward slitted barrier.\n  }\n  [atSlits] { $waveDisplayMode ->\n    [amplitude] { $patternKind ->\n      [doubleSlitInterference] Solid circular waves emerge from both slits and overlap.\n      [singleSlitDiffraction] Solid circular wave emerges from open slit only.\n      [whichPathDiffraction] As detection events occur, solid circular waves emerge from both slits one at a time\n      and do not interact.\n     *[noBarrier] Solid wave moves directly toward the detector screen.\n    }\n   *[electricField] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the detector screen.\n    }\n    [realPart] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the detector screen.\n    }\n    [imaginaryPart] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the detector screen.\n    }\n  }\n  [interferingAfterSlits] { $waveDisplayMode ->\n    [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward detector screen.\n   *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.\n    [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.\n    [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.\n  }\n  [diffractingAfterSlits] { $waveDisplayMode ->\n    [amplitude] Solid circular wave spreads toward detector screen.\n   *[electricField] Circular wave fronts spread toward detector screen.\n    [realPart] Circular wave fronts spread toward detector screen.\n    [imaginaryPart] Circular wave fronts spread toward detector screen.\n  }\n  [whichPathAfterSlits] { $waveDisplayMode ->\n    [amplitude] Non-interacting solid circular waves spread toward detector screen.\n   *[electricField] Non-interacting circular wave fronts spread toward detector screen.\n    [realPart] Non-interacting circular wave fronts spread toward detector screen.\n    [imaginaryPart] Non-interacting circular wave fronts spread toward detector screen.\n  }\n  [directToScreen] { $waveDisplayMode ->\n    [amplitude] Solid wave moves directly toward the detector screen.\n   *[electricField] Plane wave fronts move directly toward the detector screen.\n    [realPart] Plane wave fronts move directly toward the detector screen.\n    [imaginaryPart] Plane wave fronts move directly toward the detector screen.\n  }\n *[hittingScreen] { $waveDisplayMode ->\n    [amplitude] Solid wave has reached the detector screen.\n   *[electricField] Wave fronts have reached the detector screen.\n    [realPart] Wave fronts have reached the detector screen.\n    [imaginaryPart] Wave fronts have reached the detector screen.\n  }\n}"
       },
       "displayTools": {
-        "value": "{ $displayMode ->\n  [graph] Graph view is active\n *[screen] Detector screen view is active\n}. Wave display mode is { $waveDisplayMode ->\n  [electricField] Electric Field\n  [realPart] Real Part\n  [imaginaryPart] Imaginary Part\n *[amplitude] Amplitude\n}. Screen brightness is { $brightness } percent. Stored snapshots: { $snapshotCount }. Tools shown: { $tapeMeasure ->\n  [true] tape measure\n *[false] no tape measure\n}, { $stopwatch ->\n  [true] stopwatch\n *[false] no stopwatch\n}, { $timePlot ->\n  [true] time plot\n *[false] no time plot\n}, { $positionPlot ->\n  [true] position plot.\n *[false] no position plot.\n}"
+        "value": "{ $displayMode ->\n  [graph] Graph view is active\n *[screen] Detector screen view is active\n}. Wave display mode is { $waveDisplayMode ->\n  [electricField] Electric Field\n  [realPart] Real Part\n  [imaginaryPart] Imaginary Part\n *[amplitude] Amplitude\n}. Screen brightness is { $brightness } percent. Stored snapshots: { $snapshotCount }. Tools shown: { $measuringTape ->\n  [true] measuring tape\n *[false] no measuring tape\n}, { $stopwatch ->\n  [true] stopwatch\n *[false] no stopwatch\n}, { $timePlot ->\n  [true] time plot\n *[false] no time plot\n}, { $positionPlot ->\n  [true] position plot.\n *[false] no position plot.\n}"
       }
     },
     "highIntensityResponses": {
@@ -374,7 +374,7 @@
         "value": "Wave display changed to { $waveDisplayMode ->\n  [electricField] Electric Field.\n  [realPart] Real Part.\n  [imaginaryPart] Imaginary Part.\n *[amplitude] Amplitude.\n}"
       },
       "toolChanged": {
-        "value": "{ $tool ->\n  [tapeMeasure] Tape measure\n  [stopwatch] Stopwatch\n  [timePlot] Time plot\n *[positionPlot] Position plot\n} { $isVisible ->\n  [true] shown.\n *[false] hidden.\n}"
+        "value": "{ $tool ->\n  [measuringTape] Measuring tape\n  [stopwatch] Stopwatch\n  [timePlot] Time plot\n *[positionPlot] Position plot\n} { $isVisible ->\n  [true] shown.\n *[false] hidden.\n}"
       },
       "screenCleared": {
         "value": "{ $isRestarting ->\n  [true] { $sourceRestartedResponse }\n *[false] Wave area cleared. Sim still paused.\n}"
@@ -448,9 +448,9 @@
         "value": "Ruler removed."
       }
     },
-    "tapeMeasureCheckbox": {
+    "measuringTapeCheckbox": {
       "accessibleHelpText": {
-        "value": "Add tape measure to measure distances on detector screen or graph. Once added, move with keyboard shortcuts."
+        "value": "Add measuring tape to measure distances on detector screen or graph. Once added, move with keyboard shortcuts."
       }
     },
     "stopwatchCheckbox": {

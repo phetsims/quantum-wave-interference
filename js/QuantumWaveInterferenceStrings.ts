@@ -74,7 +74,7 @@ type StringsType = {
   'stopwatchStringProperty': LocalizedStringProperty;
   'detectorStringProperty': LocalizedStringProperty;
   'detectorProbeStringProperty': LocalizedStringProperty;
-  'tapeMeasureStringProperty': LocalizedStringProperty;
+  'measuringTapeStringProperty': LocalizedStringProperty;
   'timePlotStringProperty': LocalizedStringProperty;
   'positionPlotStringProperty': LocalizedStringProperty;
   'timeStringProperty': LocalizedStringProperty;
@@ -189,7 +189,7 @@ type StringsType = {
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseUncheckedStringProperty': LocalizedStringProperty;
     };
-    'tapeMeasureCheckbox': {
+    'measuringTapeCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
     'stopwatchCheckbox': {

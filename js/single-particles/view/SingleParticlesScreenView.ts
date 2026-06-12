@@ -309,7 +309,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     // so these injected checkboxes nest under the panel in the PhET-iO tree.
     const toolsPanelTandem = tandem.createTandem( 'toolsPanel' );
 
-    const { tapeMeasureCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
+    const { measuringTapeCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
       createStandardToolCheckboxes( model, toolsPanelTandem );
     // Detector checkbox is only shown when barrier is None; its checked state is preserved in the model.
     const detectorCheckboxTandem = toolsPanelTandem.createTandem( 'detectorCheckbox' );
@@ -325,7 +325,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       screenGraphVisibleProperty: model.isHitsGraphVisibleProperty,
       additionalScreenControlChildren: [],
       toolCheckboxes: [
-        tapeMeasureCheckbox,
+        measuringTapeCheckbox,
         stopwatchCheckbox,
         timePlotCheckbox,
         positionPlotCheckbox,

@@ -114,7 +114,7 @@ detector rendering used by Experiment.
 | `DetectorScreenControls` | Screen/graph switch, brightness, snapshots, tools, wave display, time controls, reset. |
 | `SourceControlPanel` | Source controls for wavelength, speed, and optional intensity/emission-rate. |
 | `SceneRadioButtonGroup` | Source-type scene selector. |
-| `MeasurementToolsLayerNode` | Tape measure, stopwatch, time plot, and position plot. |
+| `MeasurementToolsLayerNode` | Measuring tape, stopwatch, time plot, and position plot. |
 | `SnapshotNode`, `SnapshotCanvasNode`, `SnapshotsDialog` | Saved detector-screen snapshots. |
 | `SnapshotFlashController` | Shared short flash used after capturing a snapshot. |
 
