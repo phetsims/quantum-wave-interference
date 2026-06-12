@@ -4,6 +4,10 @@
  * WaveRegionNode creates the wave visualization region, double slit node, and derived slit
  * separation range property shared by the High Intensity and Single Particles screen views.
  *
+ * This Node is a plain layout container and is not instrumented for PhET-iO. Its double slit child is
+ * instrumented directly under the provided (screen view) tandem as 'barrierNode', so that hiding or
+ * restructuring this container has no PhET-iO consequences.
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
@@ -60,7 +64,9 @@ type WaveRegionNodeSelfOptions = {
 
 /**
  * Options for WaveRegionNode. Screen views pass screen-specific layout coordinates and optional DoubleSlitNode
- * overrides (e.g., detector overlays on the High Intensity screen) via this type.
+ * overrides (e.g., detector overlays on the High Intensity screen) via this type. The tandem is the parent
+ * (screen view) tandem under which the 'barrierNode' child is instrumented; WaveRegionNode itself is not
+ * instrumented.
  */
 export type WaveRegionNodeOptions = WaveRegionNodeSelfOptions & PickRequired<PhetioObjectOptions, 'tandem'>;
 
@@ -70,6 +76,7 @@ export default class WaveRegionNode extends Node {
   public readonly waveVisualizationNode: WaveVisualizationNode;
 
   // Retained by screen views to wire up slit-position slider layout, accessibility descriptions, and PDOM ordering.
+  // Instrumented for PhET-iO as 'barrierNode', since the node represents the entire barrier, not just the slits.
   public readonly doubleSlitNode: DoubleSlitNode;
 
   public constructor( model: WaveRegionModel, providedOptions: WaveRegionNodeOptions ) {
@@ -99,7 +106,7 @@ export default class WaveRegionNode extends Node {
         [ model.currentSlitConfigurationProperty ],
         slitConfig => isBottomSlitCovered( slitConfig )
       ),
-      tandem: options.tandem.createTandem( 'doubleSlitNode' ),
+      tandem: options.tandem.createTandem( 'barrierNode' ),
       x: options.waveRegionLeft,
       y: options.waveRegionTop
     }, options.additionalDoubleSlitOptions );
@@ -115,7 +122,6 @@ export default class WaveRegionNode extends Node {
     );
 
     super( {
-      tandem: options.tandem,
       children: [ waveVisualizationNode, doubleSlitNode ]
     } );
 

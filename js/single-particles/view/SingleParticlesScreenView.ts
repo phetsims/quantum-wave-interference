@@ -212,7 +212,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.addChild( accessibleResponses );
 
     const waveRegionNode = new WaveRegionNode( model, {
-      tandem: tandem.createTandem( 'waveRegionNode' ),
+      tandem: tandem,
       waveRegionLeft: waveRegionLeft,
       waveRegionTop: waveRegionTop,
       additionalDoubleSlitOptions: createFrontFacingSlitDetectorOptions(

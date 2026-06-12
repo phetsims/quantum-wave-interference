@@ -571,7 +571,7 @@ export default class HighIntensityScreenView extends ScreenView {
    */
   private createAndAddWaveRegionNodes( model: HighIntensityModel, waveRegionLayout: WaveRegionLayout, tandem: Tandem ): WaveRegionNodes {
     const waveRegionNode = new WaveRegionNode( model, {
-      tandem: tandem.createTandem( 'waveRegionNode' ),
+      tandem: tandem,
       waveRegionLeft: waveRegionLayout.waveRegionLeft,
       waveRegionTop: waveRegionLayout.waveRegionTop,
       additionalDoubleSlitOptions: createFrontFacingSlitDetectorOptions(

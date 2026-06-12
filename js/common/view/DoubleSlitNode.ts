@@ -186,7 +186,11 @@ export default class DoubleSlitNode extends Node {
       isTopSlitDetectorProperty: new TinyProperty( false ),
       isBottomSlitDetectorProperty: new TinyProperty( false ),
       topDetectorCountProperty: new TinyProperty( 0 ),
-      bottomDetectorCountProperty: new TinyProperty( 0 )
+      bottomDetectorCountProperty: new TinyProperty( 0 ),
+
+      // This Node's visibleProperty only controls whether the barrier rectangles are painted; the presence of a
+      // barrier is model state (currentBarrierTypeProperty), so the view visibleProperty is not instrumented.
+      phetioVisiblePropertyInstrumented: false
     }, providedOptions );
 
     super( options );
