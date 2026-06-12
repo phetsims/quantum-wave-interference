@@ -719,9 +719,14 @@ export default class HighIntensityScreenView extends ScreenView {
     sourceBeamRightLimitXProperty: NumberProperty,
     tandem: Tandem
   ): DetectorScreenControls {
-    const detectionModeRadioButtonGroupBox = this.createDetectionModeRadioButtonGroupBox( model, tandem );
+    // Same tandems as the panels created inside DetectorScreenControls (Tandem.createTandem memoizes children),
+    // so these injected controls nest under their panels in the PhET-iO tree.
+    const screenControlsPanelTandem = tandem.createTandem( 'screenControlsPanel' );
+    const toolsPanelTandem = tandem.createTandem( 'toolsPanel' );
+
+    const detectionModeRadioButtonGroupBox = this.createDetectionModeRadioButtonGroupBox( model, screenControlsPanelTandem );
     const { tapeMeasureCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
-      createStandardToolCheckboxes( model, tandem );
+      createStandardToolCheckboxes( model, toolsPanelTandem );
 
     const detectorScreenControls = new DetectorScreenControls( model, this, tandem, {
       screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,

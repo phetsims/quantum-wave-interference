@@ -73,11 +73,13 @@ export type DetectorScreenControlsOptions = {
   screenGraphVisibleProperty: BooleanProperty;
 
   // Extra children placed between the screen/graph switch and the brightness control in the screen controls panel.
-  // For example, High Intensity puts its detection mode radio buttons here.
+  // For example, High Intensity puts its detection mode radio buttons here. Instrument these under
+  // tandem.createTandem( 'screenControlsPanel' ) so they nest under the panel in the PhET-iO tree.
   additionalScreenControlChildren: Node[];
 
   // The full set of tool checkboxes for the tools panel. Each screen provides its own list because
   // the first and last items differ (intensityGraph vs hitsGraph, optional detector checkbox).
+  // Instrument these under tandem.createTandem( 'toolsPanel' ) so they nest under the panel in the PhET-iO tree.
   toolCheckboxes: Node[];
 
   // Callback for the erase button
@@ -143,7 +145,12 @@ export default class DetectorScreenControls extends VBox {
 
     // --- Screen controls panel ---
 
-    const screenGraphSwitchTandem = tandem.createTandem( 'screenGraphSwitch' );
+    // Panel tandems group each panel's controls in the PhET-iO tree. The screen views create the same tandems
+    // (Tandem.createTandem memoizes children) to nest the injected controls under the panels.
+    const screenControlsPanelTandem = tandem.createTandem( 'screenControlsPanel' );
+    const toolsPanelTandem = tandem.createTandem( 'toolsPanel' );
+
+    const screenGraphSwitchTandem = screenControlsPanelTandem.createTandem( 'screenGraphSwitch' );
     const screenGraphSwitch = new ABSwitch<boolean>(
       options.screenGraphVisibleProperty,
       false,
@@ -197,7 +204,7 @@ export default class DetectorScreenControls extends VBox {
       model.currentNumberOfSnapshotsProperty,
       () => model.takeSnapshot(),
       () => { options.onSnapshotCaptured?.(); },
-      tandem.createTandem( 'snapshotButton' )
+      screenControlsPanelTandem.createTandem( 'snapshotButton' )
     );
 
     const viewSnapshotsButton = new ViewSnapshotsButton(
@@ -206,7 +213,7 @@ export default class DetectorScreenControls extends VBox {
       snapshotsDialog,
       snapshotButton.width,
       snapshotButton.height,
-      tandem.createTandem( 'viewSnapshotsButton' )
+      screenControlsPanelTandem.createTandem( 'viewSnapshotsButton' )
     );
 
     const indicatorDots = new SnapshotIndicatorDotsNode( model.currentNumberOfSnapshotsProperty );
@@ -233,7 +240,7 @@ export default class DetectorScreenControls extends VBox {
       ] )
     } );
 
-    const brightnessControl = new BrightnessControl( model.currentScreenBrightnessProperty, tandem );
+    const brightnessControl = new BrightnessControl( model.currentScreenBrightnessProperty, screenControlsPanelTandem );
     const brightnessControlWrapper = new Node( {
       children: [ brightnessControl ],
       visibleProperty: DerivedProperty.and( [ detectorScreenVisibleProperty, brightnessControl.visibleProperty ] )
@@ -245,9 +252,6 @@ export default class DetectorScreenControls extends VBox {
       brightnessControlWrapper,
       screenButtonsRow
     ];
-    const hasVisibleScreenControlsProperty = DerivedProperty.or(
-      screenControlsChildren.map( child => child.visibleProperty )
-    );
 
     const screenControlsPanel = new Panel( new VBox( {
       spacing: 12,
@@ -260,14 +264,10 @@ export default class DetectorScreenControls extends VBox {
       xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
       minWidth: rightPanelWidth,
-      visibleProperty: hasVisibleScreenControlsProperty
+      tandem: screenControlsPanelTandem
     } );
 
     // --- Tools panel ---
-
-    const hasVisibleToolsProperty = DerivedProperty.or(
-      options.toolCheckboxes.map( checkbox => checkbox.visibleProperty )
-    );
     const toolsPanel = new Panel( new VBox( {
       spacing: 8,
       stretch: true,
@@ -278,7 +278,7 @@ export default class DetectorScreenControls extends VBox {
       xMargin: QuantumWaveInterferenceConstants.RIGHT_PANEL_X_MARGIN,
       yMargin: 10,
       minWidth: rightPanelWidth,
-      visibleProperty: hasVisibleToolsProperty
+      tandem: toolsPanelTandem
     } );
 
     // Keep right-panel backgrounds width-matched when localization makes either panel wider.
