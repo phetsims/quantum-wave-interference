@@ -210,23 +210,31 @@ export default class WavePlotChartNode extends InteractiveHighlighting( Node ) {
       font: LABEL_FONT,
       rotation: -Math.PI / 2,
       fill: options.axisLabelFill,
-      maxWidth: this.chartHeight - 10
+      maxWidth: this.chartHeight * 0.75
     } );
 
     const xAxisLabel = new Text( options.xAxisLabelStringProperty, {
       font: LABEL_FONT,
       fill: options.axisLabelFill,
-      maxWidth: this.chartWidth - 10
+      maxWidth: this.chartWidth * 0.75
     } );
 
     const chartPanel = new Node( { children: [ chartArea ] } );
 
-    yAxisLabel.right = -options.panelLeftPadding;
-    yAxisLabel.centerY = this.chartHeight / 2;
+    // The y-axis label string is dynamic (depends on display mode and locale), so re-assert its
+    // position whenever its bounds change to keep it centered along (and inset from) the chart.
+    yAxisLabel.localBoundsProperty.link( () => {
+      yAxisLabel.right = -options.panelLeftPadding;
+      yAxisLabel.centerY = this.chartHeight / 2;
+    } );
     chartPanel.addChild( yAxisLabel );
 
-    xAxisLabel.centerX = this.chartWidth / 2;
-    xAxisLabel.top = this.chartHeight + 3;
+    // The x-axis label string is dynamic (locale), so re-assert its position whenever its bounds
+    // change to keep it horizontally centered under the chart.
+    xAxisLabel.localBoundsProperty.link( () => {
+      xAxisLabel.centerX = this.chartWidth / 2;
+      xAxisLabel.top = this.chartHeight + 3;
+    } );
     chartPanel.addChild( xAxisLabel );
 
     // Fixed bounds: the rotated y-axis label's width is constant (≈ font height), and
