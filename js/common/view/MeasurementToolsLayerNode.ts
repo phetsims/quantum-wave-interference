@@ -166,6 +166,9 @@ export default class MeasurementToolsLayerNode extends Node {
     this.measuringTapeNode = measuringTapeNode;
     this.timePlotNode = timePlotNode;
     this.positionPlotNode = positionPlotNode;
+
+    // Tools move to the front when used, so specify a stable keyboard traversal order independent of child order.
+    this.pdomOrder = [ measuringTapeNode, stopwatchNode, timePlotNode, positionPlotNode ];
   }
 
   /**
