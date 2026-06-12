@@ -22,7 +22,7 @@ const DETECTOR_PATTERN_GRAPH_LEFT_GAP = 2;
 
 type DetectorPatternGraphLayerNodeOptions = {
 
-  // Provide to make the graph adapt its axis label between "Intensity" (averageIntensity mode) and
+  // Provide to make the graph adapt its axis label between "Intensity" (intensity mode) and
   // "Count" (hits mode). Omit on screens that are always in hits mode.
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
 
@@ -32,8 +32,8 @@ type DetectorPatternGraphLayerNodeOptions = {
 
   // Per-detection-mode initial and reset zoom overrides. When a detection mode is active, its entry
   // here takes precedence over initialZoomLevel. Modes absent from this map fall back to initialZoomLevel.
-  // Use this when different modes (e.g. averageIntensity vs. hits) warrant different default zoom levels,
-  // as on the High Intensity screen where averageIntensity starts at level 3 and hits starts at max.
+  // Use this when different modes (e.g. intensity vs. hits) warrant different default zoom levels,
+  // as on the High Intensity screen where intensity starts at level 3 and hits starts at max.
   initialZoomLevels?: Partial<Record<DetectionMode, DetectorPatternGraphZoomLevelOption>>;
 };
 

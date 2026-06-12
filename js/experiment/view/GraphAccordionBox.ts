@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * GraphAccordionBox shows a graph below the front-facing detector screen. In Average Intensity mode,
+ * GraphAccordionBox shows a graph below the front-facing detector screen. In Intensity mode,
  * it displays a smooth intensity curve vs horizontal position. In Hits mode,
  * it displays a histogram of hit counts binned into 100 bins.
  * A vertical PlusMinusZoomButtonGroup to the right controls the y-axis zoom level.
@@ -344,7 +344,7 @@ export default class GraphAccordionBox extends Node {
   }
 
   /**
-   * Paints the intensity curve as a filled area chart for Average Intensity mode.
+   * Paints the intensity curve as a filled area chart for Intensity mode.
    * Uses the theoretical interference pattern (via sceneModel.getIntensityAtPosition) to produce the smooth,
    * clean curve shown in the design mockup (IntensityGraph.svg). The theoretical curve provides immediate,
    * accurate feedback when students change wavelength, slit geometry, or other parameters,

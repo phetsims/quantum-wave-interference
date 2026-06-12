@@ -71,7 +71,7 @@ export type LegacyWaveSolverMeasurementProjectionState = {
 
 /**
  * Serializable state for the High Intensity continuous-wave solver. It preserves the solver clock and detector-screen
- * averaging data so PhET-iO state restore can resume the current wavefront and average-intensity pattern.
+ * averaging data so PhET-iO state restore can resume the current wavefront and intensity pattern.
  */
 export type AnalyticalWaveSolverState = {
 

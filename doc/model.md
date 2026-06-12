@@ -110,7 +110,7 @@ The Experiment screen predicts the detector pattern from standard double-slit an
 | One slit covered | The interference fringes disappear, leaving a single-slit diffraction pattern from the open slit. |
 | Which-path detector active | The coherent double-slit fringes disappear because path information is available. |
 
-Students can view the detector screen as a smooth average intensity pattern or as individual hits. In Hits mode,
+Students can view the detector screen as a smooth intensity pattern or as individual hits. In Hits mode,
 individual dots are sampled from the same probability pattern that underlies the smooth view. At full source intensity,
 the Experiment screen attempts up to 100 hits per second. Each source type can accumulate up to 25,000 hits; after that,
 the source turns off until the detector screen is cleared.
@@ -139,7 +139,7 @@ Other High Intensity controls:
 |---------|----------|
 | Barrier | Choose no barrier or double slit. |
 | Slit configuration | Open both slits, cover either slit, or add which-path detectors. |
-| Detector screen | Show a smooth average intensity pattern or accumulated hits. |
+| Detector screen | Show a smooth intensity pattern or accumulated hits. |
 | Wave display | Photons can show amplitude or electric field. Matter particles can show amplitude, real part, or imaginary part. Amplitude is the complex magnitude sqrt( re^2 + im^2 ) for all source types. |
 | Screen brightness | Changes visual brightness without changing the probability pattern. |
 | Time speed | Slow, Normal, and Fast change how quickly the model advances. |
@@ -152,7 +152,7 @@ form.
 
 | Behavior | Meaning |
 |----------|---------|
-| Average intensity | The screen averages the wave intensity over time, so a stable pattern emerges gradually. |
+| Intensity | The screen averages the wave intensity over time, so a stable pattern emerges gradually. |
 | Hits | Hits are sampled from the detector probability pattern after the wave reaches the detector. |
 | Hit rate | The screen can add 40 detector hits per model second. |
 | Slit detector events | When which-path detectors are present, detector clicks are sampled after the wave reaches the slits. |
@@ -236,7 +236,7 @@ Slow is useful for observing wave motion and packet behavior.
 Reset All restores the screen's sources, controls, tools, and detector data to their initial states.
 
 Each source type can save up to four detector-screen snapshots. Snapshots let students compare patterns from different
-settings, such as one slit versus two slits, different slit separations, or average intensity versus hits.
+settings, such as one slit versus two slits, different slit separations, or intensity versus hits.
 
 ## Modeling Assumptions
 

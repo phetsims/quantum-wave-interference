@@ -23,7 +23,7 @@ const SNAPSHOT_SCHEMA = {
   // The current ordinal label for this snapshot in the dialog, not a persistent unique ID.
   snapshotNumber: NumberIO,
 
-  // Copy of the hits at the time of capture for hits-mode snapshots; empty for average-intensity snapshots
+  // Copy of the hits at the time of capture for hits-mode snapshots; empty for intensity snapshots
   hits: ArrayIO( Vector2.Vector2IO ),
 
   // The detection mode at the time of capture
@@ -53,7 +53,7 @@ const SNAPSHOT_SCHEMA = {
   slitWidth: NumberIO, // mm
 
   // 1D probability distribution along the detector screen at capture time. Populated only for snapshots
-  // taken in averageIntensity mode from solver-driven scenes (High Intensity screen); empty otherwise.
+  // taken in intensity mode from solver-driven scenes (High Intensity screen); empty otherwise.
   // It is unused by the Experiment screen because Experiment snapshots are rendered analytically from metadata.
   // Consumers that render an intensity-mode snapshot should prefer this captured distribution so the
   // snapshot image matches the live detector screen; if empty, callers must fall back to a closed-form

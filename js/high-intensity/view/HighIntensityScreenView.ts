@@ -126,7 +126,7 @@ const CALLOUT_GAP = 55;
  * Derives the current detector-pattern formation stage from the scene and model state.
  *
  * In 'hits' detection mode the stage is always 'collectingHits' once any hits have registered or the emitter is on,
- * regardless of simulation play/pause. In 'averageIntensity' mode the stage tracks the detectorPatternFormationFactor:
+ * regardless of simulation play/pause. In 'intensity' mode the stage tracks the detectorPatternFormationFactor:
  * 'empty' when nothing is emitting, 'paused' when paused mid-formation, 'forming' while the pattern is building,
  * and 'complete' once the factor reaches DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD.
  */
@@ -341,7 +341,7 @@ export default class HighIntensityScreenView extends ScreenView {
             model.currentTotalHitsProperty,
             model.accessibleStateStepProperty
           ],
-          () => model.currentDetectionModeProperty.value === 'averageIntensity' ?
+          () => model.currentDetectionModeProperty.value === 'intensity' ?
                 model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() :
                 model.currentTotalHitsProperty.value > 0
         )
@@ -648,7 +648,7 @@ export default class HighIntensityScreenView extends ScreenView {
       tandem.createTandem( 'sidewaysGraphNode' ), {
         detectionModeProperty: model.currentDetectionModeProperty,
         initialZoomLevels: {
-          averageIntensity: 3,
+          intensity: 3,
           hits: 'max'
         }
       }
@@ -667,9 +667,9 @@ export default class HighIntensityScreenView extends ScreenView {
    */
   private createDetectionModeRadioButtonGroupBox( model: HighIntensityModel, tandem: Tandem ): AlignBox {
     const detectionModeItems: AquaRadioButtonGroupItem<DetectionMode>[] = [ {
-      value: 'averageIntensity',
+      value: 'intensity',
       createNode: () => new Text( QuantumWaveInterferenceFluent.intensityStringProperty, { font: LABEL_FONT, maxWidth: 130 } ),
-      tandemName: 'averageIntensityRadioButton'
+      tandemName: 'intensityRadioButton'
     }, {
       value: 'hits',
       createNode: () => new Text( QuantumWaveInterferenceFluent.hitsStringProperty, { font: LABEL_FONT, maxWidth: 130 } ),
@@ -850,7 +850,7 @@ export default class HighIntensityScreenView extends ScreenView {
         model.accessibleStateStepProperty
       ],
       () => {
-        const isEmpty = model.currentDetectionModeProperty.value === 'averageIntensity' ?
+        const isEmpty = model.currentDetectionModeProperty.value === 'intensity' ?
                         !( model.currentIsEmittingProperty.value && model.sceneProperty.value.hasWavefrontReachedScreen() ) :
                         model.currentTotalHitsProperty.value === 0;
         return !isEmpty ? 'pattern' as const :

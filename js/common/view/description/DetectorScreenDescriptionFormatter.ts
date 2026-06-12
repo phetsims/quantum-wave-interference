@@ -74,7 +74,7 @@ export function formatDetectorPatternDescription(
 }
 
 /**
- * Formats the completed average-intensity detector pattern from the shared Screen 2 detector-pattern string.
+ * Formats the completed intensity detector pattern from the shared Screen 2 detector-pattern string.
  * @param slitConfiguration - current slit configuration
  * @param analysis - analyzed band/spacing data for the visible detector-screen region
  * @returns localized completed detector-pattern description
@@ -85,7 +85,7 @@ export function formatCompleteIntensityDetectorPatternDescription(
 ): string {
   return formatDetectorPatternDescription(
     true,
-    'averageIntensity',
+    'intensity',
     'complete',
     getPatternKind( slitConfiguration ),
     'electricField',
@@ -97,7 +97,7 @@ export function formatCompleteIntensityDetectorPatternDescription(
 }
 
 /**
- * Formats the accessible detector-screen description for average-intensity mode.
+ * Formats the accessible detector-screen description for intensity mode.
  * @param isDoubleSlit - whether the current slit configuration produces a double-slit interference pattern
  * @param isNoBarrier
  * @param analysis - analyzed band/spacing data for the visible detector-screen region

@@ -50,7 +50,7 @@ type ScreenSummaryModel = {
  * detectionMode, which varies by screen.
  */
 type ScreenSummaryOptions = {
-  // Whether the detector screen shows average intensity or discrete particle hits.
+  // Whether the detector screen shows intensity or discrete particle hits.
   detectionMode: DetectionMode | TReadOnlyProperty<DetectionMode>;
 
   // Defaults to 'leftRight'. Pass 'topBottom' for screens where slits are arranged on the vertical axis.

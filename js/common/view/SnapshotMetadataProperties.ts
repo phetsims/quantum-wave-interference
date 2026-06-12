@@ -448,7 +448,7 @@ export default class SnapshotMetadataProperties {
       ],
       ifSnapshot( snapshot => formatLabelValue(
         QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty.value,
-        snapshot.detectionMode === 'averageIntensity'
+        snapshot.detectionMode === 'intensity'
         ? QuantumWaveInterferenceFluent.intensityStringProperty.value
         : QuantumWaveInterferenceFluent.hitsStringProperty.value
       ), '' )

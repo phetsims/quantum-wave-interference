@@ -28,13 +28,13 @@ export const PERCEPTUAL_VISIBILITY_THRESHOLD = 0.004;
 export const BASE_HIT_CORE_RADIUS = 2.0;
 export const BASE_HIT_GLOW_RADIUS = 3.4;
 
-// Brightness multiplier range for intensity (Average Intensity) display mode.
+// Brightness multiplier range for intensity (Intensity) display mode.
 // The slider maps from a dim baseline (1.2x) up to a bright maximum (6.0x).
 export const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
 export const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
 export const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
 
-// High Intensity Average Intensity mode uses a dimmer display range than the Experiment screen so bright fringes
+// Intensity mode on the High Intensity screen uses a dimmer display range than the Experiment screen so bright fringes
 // do not saturate across a wide region.
 export const HIGH_INTENSITY_INTENSITY_DISPLAY_GAIN_MIN = 0.48;
 export const HIGH_INTENSITY_INTENSITY_DISPLAY_GAIN_MAX = 2.88;
@@ -127,7 +127,8 @@ export function getIntensityDisplayGain( brightness: number, intensity: number )
 }
 
 /**
- * Computes the High Intensity Average Intensity display gain from normalized screen brightness and source intensity.
+ * Computes the Intensity-mode display gain for the High Intensity screen from normalized screen brightness and source
+ * intensity.
  */
 export function getHighIntensityIntensityDisplayGain( brightness: number, intensity: number ): number {
   const clampedBrightness = clamp( brightness, 0, 1 );

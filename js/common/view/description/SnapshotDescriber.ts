@@ -19,7 +19,7 @@ export default class SnapshotDescriber {
    * Returns a localized accessible-paragraph string describing a detector-screen snapshot.
    *
    * The description follows the same qualitative band-analysis structure used for the live detector screen.
-   * For 'averageIntensity' mode it describes the intensity pattern (or reports "off" when the source is not
+   * For 'intensity' mode it describes the intensity pattern (or reports "off" when the source is not
    * emitting); for particle-detection modes it describes the hit count and spatial arrangement.
    *
    * @param snapshot - the snapshot whose data drives the description
@@ -31,7 +31,7 @@ export default class SnapshotDescriber {
   public static getDescription( snapshot: Snapshot, screenHalfWidth = snapshot.screenHalfWidth ): string {
     const isDoubleSlit = showsDoubleSlitInterferencePattern( snapshot.slitSetting );
 
-    if ( snapshot.detectionMode === 'averageIntensity' ) {
+    if ( snapshot.detectionMode === 'intensity' ) {
       if ( !snapshot.isEmitting ) {
         return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty.value;
       }

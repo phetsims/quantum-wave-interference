@@ -40,14 +40,14 @@ export type { DetectorPatternGraphSceneLike };
  *   mode changes, and each mode retains its own zoom level across mode transitions.
  *
  * axisLabelStringProperty — string displayed below the chart as the horizontal-axis label; typically the screen-
- *   specific label supplied by the caller (e.g. "Hits" or "Average Intensity").
+ *   specific label supplied by the caller (e.g. "Hits" or "Intensity").
  *
  * initialZoomLevel — starting zoom level applied uniformly when detectionModeProperty is absent, or as a fallback
  *   when initialZoomLevels does not specify a level for a particular mode. Accepts a numeric level, 'default', or
  *   'max'. Defaults to 'default'.
  *
  * initialZoomLevels — per-mode initial zoom overrides; takes precedence over initialZoomLevel for each mode that
- *   has an entry. Used by the High Intensity screen to open averageIntensity at zoom 3 and hits at max zoom.
+ *   has an entry. Used by the High Intensity screen to open intensity at zoom 3 and hits at max zoom.
  */
 type SelfOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
@@ -104,11 +104,11 @@ export default class DetectorPatternGraphNode extends Node {
     );
 
     this.defaultZoomLevelsByDetectionMode = options.detectionModeProperty ? {
-      averageIntensity: getModeZoomLevel( 'averageIntensity', options ),
+      intensity: getModeZoomLevel( 'intensity', options ),
       hits: getModeZoomLevel( 'hits', options )
     } : null;
     this.zoomLevelsByDetectionMode = this.defaultZoomLevelsByDetectionMode ? {
-      averageIntensity: this.defaultZoomLevelsByDetectionMode.averageIntensity,
+      intensity: this.defaultZoomLevelsByDetectionMode.intensity,
       hits: this.defaultZoomLevelsByDetectionMode.hits
     } : null;
 
@@ -220,7 +220,7 @@ export default class DetectorPatternGraphNode extends Node {
   }
 
   /**
-   * Paints the average-intensity mode curve. The wave solver supplies probability samples along the detector-screen
+   * Paints the intensity mode curve. The wave solver supplies probability samples along the detector-screen
    * axis; this method turns those samples into a filled detector-pattern curve plus a visible stroke path.
    */
   private paintIntensityCurve( scene: DetectorPatternGraphSceneLike ): void {
@@ -250,7 +250,7 @@ export default class DetectorPatternGraphNode extends Node {
    */
   public reset(): void {
     if ( this.defaultZoomLevelsByDetectionMode && this.zoomLevelsByDetectionMode && this.activeDetectionMode ) {
-      this.zoomLevelsByDetectionMode.averageIntensity = this.defaultZoomLevelsByDetectionMode.averageIntensity;
+      this.zoomLevelsByDetectionMode.intensity = this.defaultZoomLevelsByDetectionMode.intensity;
       this.zoomLevelsByDetectionMode.hits = this.defaultZoomLevelsByDetectionMode.hits;
       this.zoomLevelProperty.value = this.zoomLevelsByDetectionMode[ this.activeDetectionMode ];
     }

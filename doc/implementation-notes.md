@@ -160,7 +160,8 @@ screen model's `takeSnapshot()`, and the eye button opens `SnapshotsDialog`.
 
 Important implementation details:
 
-* `BaseSceneModel.takeSnapshot()` captures the analytical detector distribution for High Intensity Average Intensity
+* `BaseSceneModel.takeSnapshot()` captures the analytical detector distribution for the High Intensity screen's
+  Intensity mode
   snapshots.
 * `Experiment SceneModel.takeSnapshot()` stores metadata and hits, then Experiment renders intensity snapshots from
   the closed-form detector formula.

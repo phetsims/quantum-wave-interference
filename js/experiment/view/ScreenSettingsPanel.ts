@@ -59,12 +59,12 @@ export default class ScreenSettingsPanel extends Panel {
     // Radio buttons for Intensity vs Hits
     const radioButtonItems: AquaRadioButtonGroupItem<DetectionMode>[] = [
       {
-        value: 'averageIntensity',
+        value: 'intensity',
         createNode: () => new Text( QuantumWaveInterferenceFluent.intensityStringProperty, {
           font: LABEL_FONT,
           maxWidth: 130
         } ),
-        tandemName: 'averageIntensityRadioButton',
+        tandemName: 'intensityRadioButton',
         options: {
           accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponse.createProperty( {
             isEmitting: isEmittingStringProperty

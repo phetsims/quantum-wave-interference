@@ -2,7 +2,7 @@
 
 /**
  * DetectorScreenNode is the front-facing view of the detector screen.
- * It displays either individual hit dots (in Hits mode) or an intensity glow pattern (in Average Intensity mode) on a
+ * It displays either individual hit dots (in Hits mode) or an intensity glow pattern (in Intensity mode) on a
  * black rounded rectangle. Hit rendering uses CanvasNode for efficient drawing of potentially thousands of dots.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -240,7 +240,7 @@ export default class DetectorScreenNode extends Node {
     detectorScreenScaleIndexProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
     // These Properties affect the detector texture directly. In Hits mode, geometry changes clear the screen through
-    // SceneModel, but Average Intensity mode must also repaint when the theoretical pattern changes.
+    // SceneModel, but Intensity mode must also repaint when the theoretical pattern changes.
     sceneModel.wavelengthProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.particleSpeedProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.slitSeparationProperty.link( () => this.screenCanvasNode.invalidatePaint() );

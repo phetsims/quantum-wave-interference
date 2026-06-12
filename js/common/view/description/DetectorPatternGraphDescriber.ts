@@ -72,7 +72,7 @@ export default class DetectorPatternGraphDescriber {
       const slitSetting = scene.slitConfigurationProperty.value;
       const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
 
-      if ( detectionMode === 'averageIntensity' ) {
+      if ( detectionMode === 'intensity' ) {
         if ( !scene.isEmittingProperty.value ) {
           descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty.value;
           return;

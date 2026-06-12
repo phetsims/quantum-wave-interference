@@ -22,7 +22,7 @@
  * detected hits to an existing canvas. When no cache is provided, this function still works by repainting the requested
  * hit range into the supplied context.
  *
- * Average Intensity mode is intentionally analytical. Experiment snapshots do not store a solver intensity
+ * Intensity mode is intentionally analytical. Experiment snapshots do not store a solver intensity
  * distribution, so the renderer recomputes the apparent detector pattern from the frozen slit/source/screen parameters.
  * The optional intensitySampleWidthOnScreen parameter is important for previews: it tells the analytical sampler the
  * physical width represented by each visible sample, which keeps dense fringes from aliasing when rendering at high
@@ -72,10 +72,10 @@ export type DetectorScreenHitRenderCache = {
  * - wavelength: source wavelength in nm, used to select the scene color palette for hit dots and intensity bands.
  * - effectiveWavelength: wavelength used for the analytical fringe-pattern computation. May be undefined when the
  *   source has not yet emitted; may differ from wavelength during warm-up ramping in High Intensity mode.
- * - detectionMode: 'hits' or 'averageIntensity', selects which rendering path to use.
- * - intensity: user-controlled display gain for average-intensity rendering (High Intensity screen only; 1 elsewhere).
- * - isEmitting: whether the source is actively emitting; average-intensity mode renders a blank canvas when false.
- * - rampFactor: pattern-formation exposure factor in [0, 1] used by High Intensity average-intensity mode as the
+ * - detectionMode: 'hits' or 'intensity', selects which rendering path to use.
+ * - intensity: user-controlled display gain for intensity rendering (High Intensity screen only; 1 elsewhere).
+ * - isEmitting: whether the source is actively emitting; intensity mode renders a blank canvas when false.
+ * - rampFactor: pattern-formation exposure factor in [0, 1] used by Intensity mode on the High Intensity screen as the
  *   interference pattern builds up. Absent or 1 means fully formed.
  */
 export type DetectorScreenTextureRenderParameters = {
@@ -219,7 +219,7 @@ function fillCircle(
 
 /**
  * Converts a particle/source color and intensity scale into an rgb(...) fill style. Very dim values are skipped so
- * Average Intensity mode does not spend time painting visually-black pixels.
+ * Intensity mode does not spend time painting visually-black pixels.
  */
 function getScaledRGBFillStyle( rgb: { r: number; g: number; b: number }, scale: number ): string | null {
   if ( scale < PERCEPTUAL_VISIBILITY_THRESHOLD ) {
@@ -392,7 +392,7 @@ function paintHits(
 }
 
 /**
- * Paints the analytical Average Intensity detector pattern.
+ * Paints the analytical Intensity detector pattern.
  *
  * Each output x-column samples the apparent intensity over a physical detector width. That width is normally one output
  * pixel in detector coordinates, but snapshot previews can pass a coarser sample width to match the display resolution
@@ -447,7 +447,7 @@ function paintIntensity(
 }
 
 /**
- * Renders either hits mode or Average Intensity mode into the supplied canvas context.
+ * Renders either hits mode or Intensity mode into the supplied canvas context.
  */
 export default function renderDetectorScreenTexture(
   context: CanvasRenderingContext2D,

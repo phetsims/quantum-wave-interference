@@ -706,7 +706,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     // Capture the solver's detector-screen probability distribution so an intensity-mode snapshot renders
     // the same pattern the user was looking at; for hits-mode there is no distribution to render.
-    const intensityDistribution = detectionMode === 'averageIntensity'
+    const intensityDistribution = detectionMode === 'intensity'
                                   ? Array.from( this.waveSolver.getDetectorProbabilityDistribution() )
                                   : [];
 

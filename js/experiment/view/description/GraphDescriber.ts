@@ -47,7 +47,7 @@ export default class GraphDescriber {
       // NOTE: see other duplicate in
       // quantum-wave-interference/js/common/view/description/DetectorPatternGraphDescriber.ts. Experiment graph
       // descriptions use a detector-screen scale Property instead of the shared scene region width.
-      if ( detectionMode === 'averageIntensity' ) {
+      if ( detectionMode === 'intensity' ) {
         if ( !sceneModel.isEmittingProperty.value ) {
           descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.accessibleParagraph.intensityOffStringProperty.value;
           return;

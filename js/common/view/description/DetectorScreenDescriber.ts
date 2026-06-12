@@ -63,7 +63,7 @@ function getDetectorScreenHalfWidth( scene: DetectorScreenDescriberScene, detect
   return detectorScreenHalfWidthProperty ? detectorScreenHalfWidthProperty.value : 'screenDistanceProperty' in scene ? 0.5 : scene.regionWidth / 2;
 }
 
-function hasPopulatedAverageIntensityScreen( scene: DetectorScreenDescriberScene ): boolean {
+function hasPopulatedIntensityScreen( scene: DetectorScreenDescriberScene ): boolean {
   return scene.hasWavefrontReachedScreen ? scene.hasWavefrontReachedScreen() : scene.isEmittingProperty.value;
 }
 
@@ -84,7 +84,7 @@ export default class DetectorScreenDescriber {
    *   0.5 for Experiment-screen scenes (screenDistanceProperty branch) or regionWidth/2 for the other branch.
    * @param updateTriggerProperty - an optional extra Property whose changes force a full description refresh,
    *   used when the caller knows of an external display change (e.g. scale index) not captured by scene properties
-   * @param useSharedDetectorPatternDescription - whether the double-slit average-intensity branch should reuse the
+   * @param useSharedDetectorPatternDescription - whether the double-slit intensity branch should reuse the
    *   shared detector-pattern wording from Screen 2 instead of the legacy detector-screen paragraph wording
    */
   public constructor(
@@ -111,8 +111,8 @@ export default class DetectorScreenDescriber {
       const slitSetting = getSlitSetting( scene );
       const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
 
-      if ( detectionMode === 'averageIntensity' ) {
-        if ( !scene.isEmittingProperty.value || !hasPopulatedAverageIntensityScreen( scene ) ) {
+      if ( detectionMode === 'intensity' ) {
+        if ( !scene.isEmittingProperty.value || !hasPopulatedIntensityScreen( scene ) ) {
           descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty.value;
           return;
         }

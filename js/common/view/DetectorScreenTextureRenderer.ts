@@ -57,16 +57,16 @@ export type DetectorScreenSceneLike = {
   // per-scene texture cache.
   hitsChangedEmitter: TEmitter;
 
-  // Provides the detector probability distribution for average-intensity rendering.
+  // Provides the detector probability distribution for intensity rendering.
   waveSolver: WaveSolver;
 
-  // Optional because Single Particles always renders hits. High Intensity switches between hits and average intensity.
+  // Optional because Single Particles always renders hits. High Intensity switches between hits and intensity.
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
 
-  // Optional High Intensity display gain for average-intensity rendering. Single Particles does not expose this slider.
+  // Optional High Intensity display gain for intensity rendering. Single Particles does not expose this slider.
   intensityProperty?: TReadOnlyProperty<number>;
 
-  // Optional exposure ramp for High Intensity average-intensity patterns as the detector pattern forms.
+  // Optional exposure ramp for intensity patterns on the High Intensity screen as the detector pattern forms.
   detectorPatternFormationFactorProperty?: TReadOnlyProperty<number>;
 };
 
@@ -79,7 +79,7 @@ export type DetectorScreenSceneLike = {
  * - lastRenderParameters: snapshot of the parameters used for the most recent render; used to detect full-repaint
  *   vs. incremental-append scenarios.
  * - hitRenderCache: sprite and incremental bookkeeping for hit-mode rendering (see renderDetectorScreenTexture.ts).
- * - intensityCanvas/Context/ImageData: single-pixel-wide scratch buffers for average-intensity column rendering,
+ * - intensityCanvas/Context/ImageData: single-pixel-wide scratch buffers for intensity column rendering,
  *   allocated lazily and reused across frames to minimize GC pressure.
  */
 type TextureCache = {
@@ -122,7 +122,7 @@ export default class DetectorScreenTextureRenderer {
   /**
    * Returns the supersampled offscreen canvas for the given scene, re-rendering it first if dirty.
    * Called every animation frame by DetectorScreenNode; the returned canvas is drawn into the WebGL/Canvas
-   * scene graph via drawImage. In average-intensity mode the texture is always re-rendered because the
+   * scene graph via drawImage. In intensity mode the texture is always re-rendered because the
    * solver distribution changes every frame; in hit mode rendering is incremental.
    */
   public getTexture( scene: DetectorScreenSceneLike ): HTMLCanvasElement {
@@ -135,7 +135,7 @@ export default class DetectorScreenTextureRenderer {
     // In intensity mode, the solver distribution updates every frame, so always re-render
     const detectionMode = scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
     const lastRampFactor = cache.lastRenderParameters?.rampFactor ?? 1;
-    if ( cache.dirty || detectionMode === 'averageIntensity' || lastRampFactor < 1 ) {
+    if ( cache.dirty || detectionMode === 'intensity' || lastRampFactor < 1 ) {
       this.renderTexture( cache, scene );
     }
 
@@ -199,7 +199,7 @@ export default class DetectorScreenTextureRenderer {
     const currentDetectionMode = scene.detectionModeProperty ? scene.detectionModeProperty.value : 'hits';
     const currentIntensity = scene.intensityProperty ? scene.intensityProperty.value : 1;
     const currentIsEmitting = scene.isEmittingProperty.value;
-    const rampFactor = currentDetectionMode === 'averageIntensity' ?
+    const rampFactor = currentDetectionMode === 'intensity' ?
                        scene.detectorPatternFormationFactorProperty?.value ?? 1 :
                        1;
     const currentRenderParameters: DetectorScreenTextureRenderParameters = {
@@ -286,7 +286,7 @@ export default class DetectorScreenTextureRenderer {
   }
 
   /**
-   * Renders the average-intensity distribution from the wave solver into the cache canvas. A single-pixel-wide
+   * Renders the intensity distribution from the wave solver into the cache canvas. A single-pixel-wide
    * scratch canvas is populated via ImageData for performance, then stretched across the full texture width with
    * image smoothing enabled. The exposureFactor ramps both brightness and contrast so the pattern appears to form
    * progressively rather than snapping to full contrast the moment the first average is available.
@@ -306,7 +306,7 @@ export default class DetectorScreenTextureRenderer {
     for ( let i = 0; i < distributionLength; i++ ) {
       totalIntensity += distribution[ i ];
     }
-    const averageIntensity = distributionLength > 0 ? totalIntensity / distributionLength : 0;
+    const meanIntensity = distributionLength > 0 ? totalIntensity / distributionLength : 0;
     let intensityCanvas = cache.intensityCanvas;
     let intensityContext = cache.intensityContext;
     let imageData = cache.intensityImageData;
@@ -365,7 +365,7 @@ export default class DetectorScreenTextureRenderer {
 
       // Simulate detector exposure: brightness and contrast both ramp up so the normalized intensity
       // pattern does not appear fully formed as soon as the first average is available.
-      const exposedIntensity = ( averageIntensity + ( patternIntensity - averageIntensity ) * exposureFactor ) *
+      const exposedIntensity = ( meanIntensity + ( patternIntensity - meanIntensity ) * exposureFactor ) *
                                exposureFactor;
       const colorFraction = exposedIntensity * displayGain;
 

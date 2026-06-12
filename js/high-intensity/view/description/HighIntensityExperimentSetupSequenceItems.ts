@@ -150,7 +150,7 @@ export default function HighIntensityExperimentSetupSequenceItems(
       // bullet covers the result, and there is no detector screen to describe.
       state => state.isEmitting &&
                state.displayMode === 'screen' &&
-               state.detectionMode === 'averageIntensity' &&
+               state.detectionMode === 'intensity' &&
                getDetectorPatternFormationFactor( model ) >= DETECTOR_PATTERN_FORMATION_COMPLETE_THRESHOLD
     )
   ];

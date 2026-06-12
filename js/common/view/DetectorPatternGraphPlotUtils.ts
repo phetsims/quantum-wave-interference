@@ -40,7 +40,7 @@ const NUM_HORIZONTAL_GRID_DIVISIONS = 10;
 const NUM_VERTICAL_GRID_DIVISIONS = 4;
 
 // Discriminates between the raw hit-count histogram (particle/photon detection events) and the
-// theoretical average-intensity curve computed from the wave solver.
+// theoretical intensity curve computed from the wave solver.
 type GraphStyle = 'histogram' | 'intensityCurve';
 
 // Fill and stroke paints bundled together so callers can apply both in one step.
@@ -125,7 +125,7 @@ export function createDetectorPatternGraphChartBorder(): Rectangle {
 }
 
 /**
- * Creates the filled data path shared by the histogram and the average-intensity curve.
+ * Creates the filled data path shared by the histogram and the intensity curve.
  */
 export function createClippedDetectorPatternGraphDataPath( chartBackground: Rectangle ): Path {
   const dataPath = new Path( null, {
@@ -137,7 +137,7 @@ export function createClippedDetectorPatternGraphDataPath( chartBackground: Rect
 }
 
 /**
- * Creates the stroke-only path that traces the average-intensity curve.
+ * Creates the stroke-only path that traces the intensity curve.
  */
 export function createClippedDetectorPatternGraphStrokePath( chartBackground: Rectangle ): Path {
   const strokePath = new Path( null, {
@@ -220,7 +220,7 @@ export function createDetectorPatternHistogramShape( hits: Vector2[], zoomLevel:
 }
 
 /**
- * Creates the filled and stroked shapes for the theoretical average-intensity curve.
+ * Creates the filled and stroked shapes for the theoretical intensity curve.
  */
 export function createIntensityCurveShapes( scene: DetectorPatternGraphSceneLike, zoomLevel: number ): IntensityCurveShapes {
   const zoomScale = linear(

@@ -8,7 +8,7 @@
 
 // The canonical runtime values array, used as validValues for StringUnionProperty<DetectionMode>
 // and as the type argument for StringUnionIO in PhET-iO serialization.
-export const DetectionModeValues = [ 'averageIntensity', 'hits' ] as const;
+export const DetectionModeValues = [ 'intensity', 'hits' ] as const;
 
-// Whether the detector screen shows a continuous average-intensity pattern or discrete particle hit dots.
+// Whether the detector screen shows a continuous intensity pattern or discrete particle hit dots.
 export type DetectionMode = typeof DetectionModeValues[number];

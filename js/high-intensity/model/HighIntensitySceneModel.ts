@@ -79,7 +79,7 @@ type HighIntensitySceneModelStateObject = {
 
 export default class HighIntensitySceneModel extends BaseSceneModel {
 
-  // Controls how the detector screen and chart display accumulated data. 'averageIntensity' shows the
+  // Controls how the detector screen and chart display accumulated data. 'intensity' shows the
   // continuous wave-interference pattern; 'hits' accumulates individual particle dots. Linked by the view
   // (HighIntensityScreenView, ScreenSettingsPanel) and proxied through HighIntensityModel.currentDetectionModeProperty.
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
@@ -111,7 +111,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
     const tandem = providedOptions.tandem;
 
-    this.detectionModeProperty = new StringUnionProperty<DetectionMode>( 'averageIntensity', {
+    this.detectionModeProperty = new StringUnionProperty<DetectionMode>( 'intensity', {
       validValues: DetectionModeValues,
       tandem: tandem.createTandem( 'detectionModeProperty' )
     } );

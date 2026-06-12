@@ -134,7 +134,7 @@ a11y:
                                      [noBarrier] no barrier
                                     *[bothDetectors] detectors on both slits
                                    }. { $detectionMode ->
-                                     [averageIntensity] { $hasHits ->
+                                     [intensity] { $hasHits ->
                                        [true] Detector screen shows intensity pattern.
                                       *[false] Detector screen is empty.
                                      }
@@ -144,7 +144,7 @@ a11y:
                                      }
                                    }
                                   *[false] Source is off. { $detectionMode ->
-                                     [averageIntensity] Detector screen is empty.
+                                     [intensity] Detector screen is empty.
                                     *[hits] { $hasHits ->
                                        [false] Detector screen is empty.
                                       *[true] Detector screen shows hits pattern.
@@ -186,7 +186,7 @@ a11y:
                                      [noBarrier] no barrier
                                     *[bothDetectors] detectors on both slits
                                    }. { $detectionMode ->
-                                     [averageIntensity] { $hasHits ->
+                                     [intensity] { $hasHits ->
                                        [true] Detector screen shows intensity pattern.
                                       *[false] Detector screen is empty.
                                      }
@@ -196,7 +196,7 @@ a11y:
                                      }
                                    }
                                   *[false] source is off. { $detectionMode ->
-                                     [averageIntensity] Detector screen is empty.
+                                     [intensity] Detector screen is empty.
                                     *[hits] { $hasHits ->
                                        [false] Detector screen is empty.
                                       *[true] Detector screen shows hits pattern.
@@ -242,7 +242,7 @@ a11y:
                                  } experiment ready.
                                  [emptyWavePropagating] { a11y.experimentDetectorScreenDetails.displaySurface } is empty.
                                 *[pattern] { a11y.experimentDetectorScreenDetails.displaySurface } shows { $detectionMode ->
-                                   [averageIntensity] an intensity pattern
+                                   [intensity] an intensity pattern
                                   *[hits] a hits pattern
                                  } of a { $sourceType ->
                                    [photons] photon
@@ -254,7 +254,7 @@ a11y:
     experimentDetailsLeadingParagraph: 'Experiment details include:'
     heading:                    >-
                                 Detector Screen, { $detectionMode ->
-                                  [averageIntensity] Intensity Pattern
+                                  [intensity] Intensity Pattern
                                  *[hits] Hits Pattern
                                 }
     experimentalDetailsHeading: Experimental Details
@@ -356,7 +356,7 @@ a11y:
                             [graph] The graph is shown
                            *[screen] The detector screen is shown
                           } in { $detectionMode ->
-                            [averageIntensity] Average Intensity mode.
+                            [intensity] Intensity mode.
                            *[hits] Hits mode.
                           }
     sourceStatus:         >-
@@ -405,7 +405,7 @@ a11y:
                           { $isEmitting ->
                             [false] Source is off, so there is no pattern on the detector.
                            *[true] { $detectionMode ->
-                              [averageIntensity] { $patternFormation ->
+                              [intensity] { $patternFormation ->
                                 [empty] No pattern has reached the detector screen yet.
                                 [forming] { $patternKind ->
                                   [doubleSlitInterference] Evenly-spaced bright bands form on detector screen.
@@ -587,7 +587,7 @@ a11y:
                               }
     detectionModeChanged:     >-
                               { $detectionMode ->
-                                [averageIntensity] Average Intensity selected. The predicted pattern is shown continuously.
+                                [intensity] Intensity selected. The predicted pattern is shown continuously.
                                *[hits] Hits selected. Individual particle impacts build the pattern statistically.
                               }
     slitConfigurationChanged: >-
@@ -754,7 +754,7 @@ a11y:
                                 }
     detectionMode:              >-
                                 Screen Detection set to { $detectionMode ->
-                                  [averageIntensity] Intensity Mode.
+                                  [intensity] Intensity Mode.
                                  *[hits] Hits Mode.
                                 }
     wavelength:                 'Wavelength is { $wavelength }, in { $color } zone.'
@@ -815,7 +815,7 @@ a11y:
                                   { $isPlaying ->
                                     [false] Experiment started. Sim paused.
                                    *[true] Experiment started. { $detectionMode ->
-                                      [averageIntensity] Alternating bright and dark vertical bands on detector screen.
+                                      [intensity] Alternating bright and dark vertical bands on detector screen.
                                      *[hits] Individual hits increasing on detector screen.
                                     }
                                   }
@@ -1071,12 +1071,12 @@ a11y:
     accessibleHelpTextCollapsed:        Explore a graph of the detector screen pattern.
     accessibleContextResponseExpanded:  >-
                                         { $detectionMode ->
-                                          [averageIntensity] Dynamic graph of intensity pattern shown.
+                                          [intensity] Dynamic graph of intensity pattern shown.
                                          *[hits] Dynamic histogram of hits data shown.
                                         }
     accessibleContextResponseCollapsed: >-
                                         { $detectionMode ->
-                                          [averageIntensity] Intensity graph hidden.
+                                          [intensity] Intensity graph hidden.
                                          *[hits] Hits histogram hidden.
                                         }
     accessibleParagraph:

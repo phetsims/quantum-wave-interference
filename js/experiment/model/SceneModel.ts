@@ -102,7 +102,7 @@ export default class SceneModel extends PhetioObject {
   // Slit configuration
   public readonly slitSettingProperty: StringUnionProperty<SlitConfiguration>;
 
-  // Detection mode (Average Intensity vs Hits)
+  // Detection mode (Intensity vs Hits)
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
 
   // Screen brightness: 0 to SCREEN_BRIGHTNESS_MAX
@@ -270,7 +270,7 @@ export default class SceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
-    this.detectionModeProperty = new StringUnionProperty<DetectionMode>( 'averageIntensity', {
+    this.detectionModeProperty = new StringUnionProperty<DetectionMode>( 'intensity', {
       validValues: DetectionModeValues,
       tandem: tandem.createTandem( 'detectionModeProperty' ),
       phetioFeatured: true

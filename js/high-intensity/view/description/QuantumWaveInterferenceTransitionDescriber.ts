@@ -242,7 +242,7 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       // graph's own pattern description instead. Hits-mode text tracks the hit count and never mentions the screen,
       // so it is used regardless of the active view.
       contextResponses = [
-        after.displayMode === 'graph' && after.detectionMode === 'averageIntensity' ?
+        after.displayMode === 'graph' && after.detectionMode === 'intensity' ?
         after.graphPatternDescription :
         formatDetectorDescription( after )
       ];
