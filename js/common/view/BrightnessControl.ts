@@ -36,7 +36,7 @@ export default class BrightnessControl extends VBox {
       trackSize: new Dimension2( 130, 3 ),
       thumbSize: new Dimension2( 13, 22 ),
       createAriaValueText: value => percentUnit.getAccessibleString(
-        value / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100,
+        value,
         { decimalPlaces: 0, showTrailingZeros: false, showIntegersAsIntegers: true }
       ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleNameStringProperty,

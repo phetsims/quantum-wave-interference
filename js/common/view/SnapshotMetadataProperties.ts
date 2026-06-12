@@ -349,10 +349,9 @@ export default class SnapshotMetadataProperties {
         ...percentUnit.getDependentProperties()
       ],
       () => ifSnapshot( snapshot => {
-        const percentValue = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100;
         return formatLabelValue(
           QuantumWaveInterferenceFluent.screenBrightnessStringProperty.value,
-          percentUnit.getVisualSymbolPatternString( percentValue, {
+          percentUnit.getVisualSymbolPatternString( snapshot.brightness, {
             decimalPlaces: 0,
             showTrailingZeros: false,
             showIntegersAsIntegers: true
@@ -369,10 +368,9 @@ export default class SnapshotMetadataProperties {
         ...percentUnit.getDependentProperties()
       ],
       () => ifSnapshot( snapshot => {
-        const percentValue = snapshot.brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100;
         return formatLabelValue(
           QuantumWaveInterferenceFluent.screenBrightnessStringProperty.value,
-          percentUnit.getAccessibleString( percentValue, {
+          percentUnit.getAccessibleString( snapshot.brightness, {
             decimalPlaces: 0,
             showTrailingZeros: false,
             showIntegersAsIntegers: true

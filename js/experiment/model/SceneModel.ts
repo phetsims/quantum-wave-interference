@@ -28,6 +28,7 @@ import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPer
 import { metersUnit } from '../../../../scenery-phet/js/units/metersUnit.js';
 import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
+import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
@@ -105,7 +106,7 @@ export default class SceneModel extends PhetioObject {
   // Detection mode (Intensity vs Hits)
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
 
-  // Screen brightness: 0 to SCREEN_BRIGHTNESS_MAX
+  // Screen brightness percentage: 0 to SCREEN_BRIGHTNESS_MAX
   public readonly screenBrightnessProperty: NumberProperty;
 
   // Slit width in mm (constant per source type, determined by the physics)
@@ -278,6 +279,7 @@ export default class SceneModel extends PhetioObject {
 
     this.screenBrightnessProperty = new NumberProperty( QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 0.5, {
       range: new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ),
+      units: percentUnit,
       tandem: tandem.createTandem( 'screenBrightnessProperty' ),
       phetioFeatured: true
     } );

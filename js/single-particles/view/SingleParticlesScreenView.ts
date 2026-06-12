@@ -9,7 +9,6 @@
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
-import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -471,7 +470,7 @@ export default class SingleParticlesScreenView extends ScreenView {
           this.model.currentLeftDetectorHitsProperty.value,
           this.model.currentRightDetectorHitsProperty.value
         ),
-        screenBrightnessPercent: roundSymmetric( scene.screenBrightnessProperty.value / scene.screenBrightnessProperty.range.max * 100 ),
+        screenBrightnessPercent: scene.screenBrightnessProperty.value,
         numberOfSnapshots: this.model.currentNumberOfSnapshotsProperty.value
       },
       this.detectorScreenNode.getAccessibleViewState(),

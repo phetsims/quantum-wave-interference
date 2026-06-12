@@ -97,7 +97,7 @@ Additional Experiment screen ranges:
 | Photon wavelength | 380-780 nm, default 650 nm |
 | Source intensity | 0-1, default 0.5 |
 | Screen distance | 0.4-0.8 m, default 0.6 m |
-| Screen brightness | 0-0.25, default 0.125 |
+| Screen brightness | 0-100%, default 50% |
 | Detector-screen zoom | plus/minus 20, 15, 10, or 5 mm visible range |
 
 ### Detector Pattern

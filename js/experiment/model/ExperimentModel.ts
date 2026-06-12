@@ -56,7 +56,7 @@ export default class ExperimentModel implements TModel {
   //   currentParticleSpeedProperty   — m/s (matter-wave scenes only; photons always travel at c)
   //   currentSlitSeparationProperty  — mm (center-to-center distance between the two slits)
   //   currentScreenDistanceProperty  — m (distance from the double slit to the detector screen)
-  //   currentScreenBrightnessProperty — 0..SCREEN_BRIGHTNESS_MAX (dimensionless brightness level)
+  //   currentScreenBrightnessProperty — screen brightness percentage
   public readonly currentSlitSettingProperty: DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>;
   public readonly currentDetectionModeProperty: DynamicProperty<DetectionMode, DetectionMode, SceneModel>;
   public readonly currentIsEmittingProperty: DynamicProperty<boolean, boolean, SceneModel>;

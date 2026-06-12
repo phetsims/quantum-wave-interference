@@ -112,7 +112,7 @@ export default class ScreenSettingsPanel extends Panel {
       thumbSize: new Dimension2( 13, 22 ),
       majorTickLength: 12,
       createAriaValueText: value => percentUnit.getAccessibleString(
-        value / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 100,
+        value,
         {
           decimalPlaces: 0,
           showTrailingZeros: false,

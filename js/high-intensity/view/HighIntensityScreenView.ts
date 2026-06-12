@@ -399,7 +399,7 @@ export default class HighIntensityScreenView extends ScreenView {
       isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
       detectionMode: scene.detectionModeProperty.value,
       displayMode: this.model.isIntensityGraphVisibleProperty.value ? 'graph' : 'screen',
-      screenBrightnessPercent: roundSymmetric( scene.screenBrightnessProperty.value / scene.screenBrightnessProperty.range.max * 100 ),
+      screenBrightnessPercent: scene.screenBrightnessProperty.value,
       waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
       slitConfiguration: slitConfiguration,
       patternKind: patternKind,

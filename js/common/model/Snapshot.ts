@@ -43,8 +43,8 @@ const SNAPSHOT_SCHEMA = {
   slitSetting: StringUnionIO( SlitConfigurationWithNoBarrierValues ),
   isEmitting: BooleanIO,
 
-  // Detector-screen display brightness at capture time; this changes rendering gain without changing the physical
-  // source strength or detector probability distribution.
+  // Detector-screen display brightness percentage at capture time; this changes rendering gain without changing the
+  // physical source strength or detector probability distribution.
   brightness: NumberIO,
 
   // Physical source/emission intensity at capture time; this scales the detector signal independently of the

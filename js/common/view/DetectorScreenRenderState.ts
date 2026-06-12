@@ -37,7 +37,7 @@ export type DetectorScreenHit = {
  *   slitWidth / slitSeparation       — mm (millimeters)
  *   screenDistance                   — m  (meters)
  *   fullScreenHalfWidth              — m  (meters); physical half-width of the complete detector face
- *   brightness                       — dimensionless display gain [0, SCREEN_BRIGHTNESS_MAX]
+ *   brightness                       — detector-screen brightness percentage [0, 100]
  *   intensity                        — dimensionless source emission intensity [0, 1]; 1 for screens without an
  *                                      adjustable source
  */

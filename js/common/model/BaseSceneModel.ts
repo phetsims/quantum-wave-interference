@@ -29,6 +29,7 @@ import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import { metersPerSecondUnit } from '../../../../scenery-phet/js/units/metersPerSecondUnit.js';
 import { millimetersUnit } from '../../../../scenery-phet/js/units/millimetersUnit.js';
 import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
+import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import PhetioObject, { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
@@ -297,6 +298,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.screenBrightnessProperty = new NumberProperty( QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 0.5, {
       range: new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ),
+      units: percentUnit,
       tandem: tandem.createTandem( 'screenBrightnessProperty' ),
       phetioFeatured: true
     } );

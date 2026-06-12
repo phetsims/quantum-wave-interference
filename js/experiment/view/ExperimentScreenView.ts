@@ -55,7 +55,7 @@ type ExperimentAccessibleState = {
   effectiveWavelengthMeters: number;
   slitSeparationMM: number;
   screenDistanceMeters: number;
-  screenBrightness: number;
+  screenBrightnessPercent: number;
   totalHits: number;
   leftDetectorHits: number;
   rightDetectorHits: number;
@@ -326,7 +326,7 @@ export default class ExperimentScreenView extends ScreenView {
       effectiveWavelengthMeters: scene.getEffectiveWavelength(),
       slitSeparationMM: this.model.currentSlitSeparationProperty.value,
       screenDistanceMeters: this.model.currentScreenDistanceProperty.value,
-      screenBrightness: this.model.currentScreenBrightnessProperty.value,
+      screenBrightnessPercent: this.model.currentScreenBrightnessProperty.value,
       totalHits: this.model.currentTotalHitsProperty.value,
       leftDetectorHits: this.model.currentLeftDetectorHitsProperty.value,
       rightDetectorHits: this.model.currentRightDetectorHitsProperty.value,

@@ -29,10 +29,13 @@ export const BASE_HIT_CORE_RADIUS = 2.0;
 export const BASE_HIT_GLOW_RADIUS = 3.4;
 
 // Brightness multiplier range for intensity (Intensity) display mode.
-// The slider maps from a dim baseline (1.2x) up to a bright maximum (6.0x).
 export const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
 export const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
 export const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
+
+// The former screen-brightness range was 0–0.25 and was passed directly to the analytical intensity renderer.
+// Preserve that visual response while exposing the model value as a 0–100 percentage.
+const ANALYTICAL_INTENSITY_BRIGHTNESS_MAX_FRACTION = 0.25;
 
 // Intensity mode on the High Intensity screen uses a dimmer display range than the Experiment screen so bright fringes
 // do not saturate across a wide region.
@@ -50,16 +53,20 @@ export const HITS_GLOW_ALPHA_MAX = 0.15;
 export const HITS_GLOW_START_FRACTION = 0.5;
 
 /**
- * Maps the intensity-mode brightness slider (0–1) to a screen brightness multiplier.
+ * Maps the intensity-mode brightness percentage to a screen brightness multiplier.
  */
-export function getIntensityScreenBrightnessMultiplier( sliderBrightness: number ): number {
-  const clampedBrightness = clamp( sliderBrightness, 0, 1 );
+export function getIntensityScreenBrightnessMultiplier( brightnessPercent: number ): number {
+  const normalizedBrightness = clamp(
+    brightnessPercent / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX,
+    0,
+    1
+  ) * ANALYTICAL_INTENSITY_BRIGHTNESS_MAX_FRACTION;
   return linear(
     0,
     1,
     INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER,
     INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER,
-    clampedBrightness
+    normalizedBrightness
   );
 }
 
@@ -78,7 +85,7 @@ export function getHitsDisplayGain( brightness: number, sliderMax: number = Quan
 }
 
 /**
- * Converts a raw brightness value to a 0–1 fraction of the maximum brightness.
+ * Converts a brightness percentage to a 0–1 fraction of the maximum brightness.
  */
 export function getHitsBrightnessFraction( brightness: number ): number {
   return clamp( brightness / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX, 0, 1 );

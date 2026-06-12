@@ -104,8 +104,8 @@ export default class QuantumWaveInterferenceConstants {
   public static readonly WAVE_PACKET_LONGITUDINAL_SPREAD_TRAVERSALS = 2.5;
   public static readonly WAVE_PACKET_TRANSVERSE_SPREAD_TRAVERSALS = 1.5;
 
-  // Maximum value for the screen brightness slider, shared across all screens
-  public static readonly SCREEN_BRIGHTNESS_MAX = 0.25;
+  // Maximum percentage for the screen brightness slider, shared across all screens
+  public static readonly SCREEN_BRIGHTNESS_MAX = 100;
 
   // Maximum number of hits allowed in Hits mode before the source is shut off.
   public static readonly MAX_HITS = 25000;
