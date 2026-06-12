@@ -6,6 +6,10 @@
  * It toggles between a laser pointer (for photons) and a particle emitter (for electrons/neutrons/helium atoms) based
  * on the active scene.
  *
+ * One LaserPointerNode is created per scene with a scene-specific palette, and visibility is toggled with the active
+ * scene. Each emitter is instrumented under its scene's tandem, matching the per-scene emitterNode pattern used on
+ * the High Intensity screen.
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
@@ -15,13 +19,9 @@ import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import LaserPointerNode from '../../../../scenery-phet/js/LaserPointerNode.js';
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
-import ShadedSphereNode from '../../../../scenery-phet/js/ShadedSphereNode.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
-import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
-import LinearGradient from '../../../../scenery/js/util/LinearGradient.js';
-import RadialGradient from '../../../../scenery/js/util/RadialGradient.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type SourceType } from '../../common/model/SourceType.js';
@@ -46,88 +46,60 @@ const BASE_NOZZLE_WIDTH = 16;
 const BASE_NOZZLE_HEIGHT = 32;
 const BASE_BUTTON_RADIUS = 14;
 const BASE_EMITTER_LEFT = 20;
-const EMITTER_HIGHLIGHT_COLOR_STOP = 0.3;
-const GLASS_HIGHLIGHT_DIAMETER_RATIO = 0.5;
-const GLASS_HIGHLIGHT_OFFSET = -0.4;
 
 /**
- * Color palette used to paint a particle emitter body and its glass-lens highlight.
- * Each SourceType (except photons) has its own entry in PARTICLE_EMITTER_PALETTES so that
- * the emitter appearance updates when the active scene changes.
+ * Color palette used to paint a particle emitter body. Each SourceType (except photons) has its own entry in
+ * PARTICLE_EMITTER_PALETTES so that each matter-particle scene's emitter is constructed with its own colors.
  */
 type ParticleEmitterPalette = {
   topColor: string;
   bottomColor: string;
   highlightColor: string;
-  glassMainColor: string;
-  glassHighlightColor: string;
-  glassShadowColor: string;
 };
 
 const PARTICLE_EMITTER_PALETTES: Record<Exclude<SourceType, 'photons'>, ParticleEmitterPalette> = {
   electrons: {
     topColor: 'rgb(100, 120, 180)',
     bottomColor: 'rgb(30, 40, 80)',
-    highlightColor: 'rgb(160, 180, 230)',
-    glassMainColor: 'rgb(160, 190, 220)',
-    glassHighlightColor: 'white',
-    glassShadowColor: 'rgb(100, 130, 160)'
+    highlightColor: 'rgb(160, 180, 230)'
   },
   neutrons: {
     topColor: 'rgb(92, 137, 144)',
     bottomColor: 'rgb(26, 63, 70)',
-    highlightColor: 'rgb(168, 205, 208)',
-    glassMainColor: 'rgb(160, 190, 220)',
-    glassHighlightColor: 'white',
-    glassShadowColor: 'rgb(100, 130, 160)'
+    highlightColor: 'rgb(168, 205, 208)'
   },
   heliumAtoms: {
     topColor: 'rgb(173, 138, 94)',
     bottomColor: 'rgb(84, 58, 30)',
-    highlightColor: 'rgb(224, 194, 150)',
-    glassMainColor: 'rgb(160, 190, 220)',
-    glassHighlightColor: 'white',
-    glassShadowColor: 'rgb(100, 130, 160)'
+    highlightColor: 'rgb(224, 194, 150)'
   }
 };
 
-function createEmitterGradient( height: number, palette: ParticleEmitterPalette ): LinearGradient {
-  return new LinearGradient( 0, 0, 0, height )
-    .addColorStop( 0, palette.topColor )
-    .addColorStop( EMITTER_HIGHLIGHT_COLOR_STOP, palette.highlightColor )
-    .addColorStop( 1, palette.bottomColor );
-}
-
-function createGlassGradient( glassNode: ShadedSphereNode, palette: ParticleEmitterPalette ): RadialGradient {
-  const radius = glassNode.radius;
-  const highlightX = radius * GLASS_HIGHLIGHT_OFFSET;
-  const highlightY = radius * GLASS_HIGHLIGHT_OFFSET;
-
-  return new RadialGradient( highlightX, highlightY, 0, highlightX, highlightY, radius * 2 )
-    .addColorStop( 0, palette.glassHighlightColor )
-    .addColorStop( GLASS_HIGHLIGHT_DIAMETER_RATIO, palette.glassMainColor )
-    .addColorStop( 1, palette.glassShadowColor );
-}
+// Glass-lens colors shared by all matter-particle emitters.
+const GLASS_MAIN_COLOR = 'rgb(160, 190, 220)';
+const GLASS_HIGHLIGHT_COLOR = 'white';
+const GLASS_SHADOW_COLOR = 'rgb(100, 130, 160)';
 
 export default class OverheadEmitterNode extends Node {
 
-  // Shown when the active scene uses photons. Exposed so callers can read its position for
-  // layout (e.g. aligning the SourceControlPanel) and include it in the PDOM order.
-  public readonly laserPointerNode: LaserPointerNode;
-
-  // Shown when the active scene uses particles (electrons, neutrons, or helium atoms).
-  // Exposed for PDOM order and position queries by parent nodes.
-  public readonly particleEmitterNode: LaserPointerNode;
+  // One emitter Node per scene, in the same order as model.scenes. The photon scene's emitter is a laser pointer;
+  // each matter-particle scene's emitter has a glass lens and a scene-specific palette. Exposed so parent nodes can
+  // observe emitter bounds for layout (e.g. aligning the SourceControlPanel) and include the emitters in the PDOM
+  // order. Only the active scene's emitter is visible.
+  public readonly emitterNodes: LaserPointerNode[];
 
   // Overlay panel that appears when the maximum particle-hit count is reached.
   // Exposed so parent nodes (e.g. ExperimentOverheadApparatusNode) can reposition it
   // after layout changes and include it in the PDOM order.
   public readonly maxHitsReachedPanel: MaxHitsReachedPanel;
+  private readonly model: ExperimentModel;
   private emitterCenterX: number | null = null;
   private readonly updateEmitterLayout: () => void;
 
-  public constructor( model: ExperimentModel, layoutBounds: Bounds2, tandem: Tandem ) {
+  public constructor( model: ExperimentModel, layoutBounds: Bounds2, sceneTandems: ReadonlyMap<object, Tandem>, tandem: Tandem ) {
     super( { isDisposable: false } );
+
+    this.model = model;
 
     // Source label that changes with the selected scene
     const sourceLabelStringProperty = new DerivedProperty(
@@ -198,105 +170,78 @@ export default class OverheadEmitterNode extends Node {
 
     const isMaxHitsReachedProperty = model.currentIsMaxHitsReachedProperty;
 
-    // Track the active scene's source type for accessible name
-    const sourceTypeProperty = model.sceneProperty.derived( scene => scene.sourceType );
+    // One LaserPointerNode per scene with a scene-specific palette. Visibility is toggled per scene
+    // so we never recolor nodes at runtime — each emitter is constructed once with its final colors.
+    this.emitterNodes = model.scenes.map( scene => {
+      const palette = scene.sourceType === 'photons' ? null : PARTICLE_EMITTER_PALETTES[ scene.sourceType ];
+      return new LaserPointerNode( isEmittingProperty, {
+        bodySize: new Dimension2( BASE_BODY_WIDTH * SOURCE_SCALE, BASE_BODY_HEIGHT * SOURCE_SCALE ),
+        nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * SOURCE_SCALE, BASE_NOZZLE_HEIGHT * SOURCE_SCALE ),
+        topColor: palette ? palette.topColor : undefined,
+        bottomColor: palette ? palette.bottomColor : undefined,
+        highlightColor: palette ? palette.highlightColor : undefined,
+        hasGlass: palette !== null,
+        glassOptions: {
+          mainColor: GLASS_MAIN_COLOR,
+          highlightColor: GLASS_HIGHLIGHT_COLOR,
+          shadowColor: GLASS_SHADOW_COLOR,
+          heightProportion: 0.7,
+          proportionStickingOut: 0.3
+        },
+        buttonOptions: {
+          baseColor: 'red',
+          radius: BASE_BUTTON_RADIUS * SOURCE_SCALE,
+          valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
+          valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
+          accessibleName: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleName.createProperty( {
+            sourceType: scene.sourceType
+          } ),
+          accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpText.createProperty( {
+            isEmitting: isEmittingStringProperty,
+            sourceType: scene.sourceType
+          } ),
 
-    // Accessible name for the emitter button, changes with the active source type
-    const emitterAccessibleNameProperty = QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleName.createProperty( {
-      sourceType: sourceTypeProperty
+          // The sim disables the button when the hit cap is reached, so clients may not control it.
+          enabledPropertyOptions: { phetioReadOnly: true }
+        },
+        left: emitterLeft,
+        visible: scene === model.sceneProperty.value,
+
+        // The sim shows exactly one emitter, for the active scene, so clients may not control visibility.
+        visiblePropertyOptions: { phetioReadOnly: true },
+        tandem: sceneTandems.get( scene )!.createTandem( 'emitterNode' ),
+        tandemNameSuffix: 'emitterNode'
+      } );
     } );
-
-    const buttonOptions = {
-      baseColor: 'red',
-      radius: BASE_BUTTON_RADIUS * SOURCE_SCALE,
-      valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
-      valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
-      accessibleName: emitterAccessibleNameProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpText.createProperty( {
-        isEmitting: isEmittingStringProperty,
-        sourceType: sourceTypeProperty
-      } )
-    };
-
-    this.laserPointerNode = new LaserPointerNode( isEmittingProperty, {
-      bodySize: new Dimension2( BASE_BODY_WIDTH * SOURCE_SCALE, BASE_BODY_HEIGHT * SOURCE_SCALE ),
-      nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * SOURCE_SCALE, BASE_NOZZLE_HEIGHT * SOURCE_SCALE ),
-      buttonOptions: buttonOptions,
-      left: emitterLeft,
-      tandem: tandem.createTandem( 'laserPointerNode' )
-    } );
-    this.addChild( this.laserPointerNode );
-
-    this.particleEmitterNode = new LaserPointerNode( isEmittingProperty, {
-      bodySize: new Dimension2( BASE_BODY_WIDTH * SOURCE_SCALE, BASE_BODY_HEIGHT * SOURCE_SCALE ),
-      nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * SOURCE_SCALE, BASE_NOZZLE_HEIGHT * SOURCE_SCALE ),
-      topColor: PARTICLE_EMITTER_PALETTES.electrons.topColor,
-      bottomColor: PARTICLE_EMITTER_PALETTES.electrons.bottomColor,
-      highlightColor: PARTICLE_EMITTER_PALETTES.electrons.highlightColor,
-      buttonOptions: buttonOptions,
-      hasGlass: true,
-      glassOptions: {
-        mainColor: PARTICLE_EMITTER_PALETTES.electrons.glassMainColor,
-        highlightColor: PARTICLE_EMITTER_PALETTES.electrons.glassHighlightColor,
-        shadowColor: PARTICLE_EMITTER_PALETTES.electrons.glassShadowColor,
-        heightProportion: 0.7,
-        proportionStickingOut: 0.3
-      },
-      left: emitterLeft,
-      visible: false,
-      tandem: tandem.createTandem( 'particleEmitterNode' ),
-      tandemNameSuffix: 'particleEmitterNode'
-    } );
-    this.addChild( this.particleEmitterNode );
+    this.emitterNodes.forEach( emitterNode => this.addChild( emitterNode ) );
 
     model.currentIsEmitterEnabledProperty.link( isEnabled => {
-      this.laserPointerNode.enabled = isEnabled;
-      this.particleEmitterNode.enabled = isEnabled;
-      if ( this.laserPointerNode.onOffButton ) {
-        this.laserPointerNode.onOffButton.enabled = isEnabled;
-      }
-      if ( this.particleEmitterNode.onOffButton ) {
-        this.particleEmitterNode.onOffButton.enabled = isEnabled;
-      }
+      this.emitterNodes.forEach( emitterNode => {
+        emitterNode.enabled = isEnabled;
+        if ( emitterNode.onOffButton ) {
+          emitterNode.onOffButton.enabled = isEnabled;
+        }
+      } );
     } );
 
     isMaxHitsReachedProperty.link( isMaxHitsReached => {
       this.maxHitsReachedPanel.visible = isMaxHitsReached;
     } );
 
-    const applyParticleEmitterPalette = ( sourceType: SourceType ) => {
-      if ( sourceType === 'photons' ) {
-        return;
-      }
-
-      const palette = PARTICLE_EMITTER_PALETTES[ sourceType ];
-
-      // Re-color the emitter body and glass highlights to match the new particle type's palette.
-      // Uses instanceof to distinguish the body rectangles from the glass sphere overlays.
-      this.particleEmitterNode.children.forEach( child => {
-        if ( child instanceof Rectangle ) {
-          child.fill = createEmitterGradient( child.height, palette );
-        }
-        else if ( child instanceof ShadedSphereNode ) {
-          child.fill = createGlassGradient( child, palette );
-        }
-      } );
-    };
-
     // Toggle visibility and position based on scene
     this.updateEmitterLayout = () => {
-      const sourceType = model.sceneProperty.value.sourceType;
-      const isPhoton = sourceType === 'photons';
-      this.laserPointerNode.visible = isPhoton;
-      this.particleEmitterNode.visible = !isPhoton;
+      const scene = model.sceneProperty.value;
 
-      applyParticleEmitterPalette( sourceType );
+      this.emitterNodes.forEach( ( emitterNode, index ) => {
+        emitterNode.visible = model.scenes[ index ] === scene;
+      } );
 
-      const targetEmitterCenterX = this.emitterCenterX ?? this.laserPointerNode.centerX;
-      this.laserPointerNode.centerX = targetEmitterCenterX;
-      this.particleEmitterNode.centerX = targetEmitterCenterX;
+      const targetEmitterCenterX = this.emitterCenterX ?? this.emitterNodes[ 0 ].centerX;
+      this.emitterNodes.forEach( emitterNode => {
+        emitterNode.centerX = targetEmitterCenterX;
+      } );
 
-      const activeEmitter = isPhoton ? this.laserPointerNode : this.particleEmitterNode;
+      const activeEmitter = this.getActiveEmitterNode();
       activeEmitter.centerY = getEmitterCenterY();
       sourceLabel.centerX = targetEmitterCenterX;
       sourceLabel.bottom = activeEmitter.top - SOURCE_LABEL_GAP;
@@ -311,7 +256,15 @@ export default class OverheadEmitterNode extends Node {
   }
 
   /**
-   * Pins the horizontal center of both emitters (and the labels above/below them) to the given
+   * Returns the emitter Node that corresponds to the active scene. Used by parents to align other elements
+   * (slit centerline, max-hits panel, beam geometry) with the emitter that is currently shown.
+   */
+  public getActiveEmitterNode(): LaserPointerNode {
+    return this.emitterNodes[ this.model.scenes.indexOf( this.model.sceneProperty.value ) ];
+  }
+
+  /**
+   * Pins the horizontal center of all emitters (and the labels above/below them) to the given
    * x-coordinate in this node's parent coordinate frame.  Called by ExperimentScreenView (via
    * ExperimentOverheadApparatusNode) to keep the emitter centred under the SourceControlPanel.
    * Immediately triggers a full layout update so positions take effect before the next frame.
@@ -325,11 +278,9 @@ export default class OverheadEmitterNode extends Node {
    * Returns the active emitter's output point in this node's coordinate frame.
    * LaserPointerNode's origin is the center of the output nozzle, which is the correct beam centerline.
    *
-   * @param sourceType - active source type
    * @returns output-nozzle center point in this node's coordinate frame
    */
-  public getActiveEmitterOutputPoint( sourceType: SourceType ): Vector2 {
-    const activeEmitter = sourceType === 'photons' ? this.laserPointerNode : this.particleEmitterNode;
-    return activeEmitter.localToParentPoint( Vector2.ZERO );
+  public getActiveEmitterOutputPoint(): Vector2 {
+    return this.getActiveEmitterNode().localToParentPoint( Vector2.ZERO );
   }
 }

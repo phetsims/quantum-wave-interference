@@ -151,8 +151,7 @@ export default class ExperimentScreenViewDescription extends Node {
     ];
 
     this.sourceHeadingNode.pdomOrder = [
-      overheadEmitterNode.laserPointerNode,
-      overheadEmitterNode.particleEmitterNode,
+      ...overheadEmitterNode.emitterNodes,
       sourceControlPanel,
       sceneRadioButtonGroup
     ];

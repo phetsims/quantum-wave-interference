@@ -20,8 +20,8 @@ import WhichPathDetectorIndicatorNode from './WhichPathDetectorIndicatorNode.js'
 
 export default class ExperimentOverheadApparatusNode extends Node {
 
-  // Exposed so ExperimentScreenView can read emitter sub-node positions (e.g. laserPointerNode.left for sourceControlPanel
-  // alignment) and pass the node itself to ExperimentScreenViewDescription for accessibility wiring.
+  // Exposed so ExperimentScreenView can read emitter sub-node positions (e.g. the emitter left edge for
+  // sourceControlPanel alignment) and pass the node itself to ExperimentScreenViewDescription for accessibility wiring.
   public readonly overheadEmitterNode: OverheadEmitterNode;
   private readonly maxHitsReachedPanel: OverheadEmitterNode['maxHitsReachedPanel'];
 
@@ -31,10 +31,10 @@ export default class ExperimentOverheadApparatusNode extends Node {
   private readonly whichPathDetectorNode: WhichPathDetectorIndicatorNode;
   private readonly alignOverheadElements: () => void;
 
-  public constructor( model: ExperimentModel, layoutBounds: Bounds2, tandem: Tandem ) {
+  public constructor( model: ExperimentModel, layoutBounds: Bounds2, sceneTandems: ReadonlyMap<object, Tandem>, tandem: Tandem ) {
     super( { isDisposable: false } );
 
-    this.overheadEmitterNode = new OverheadEmitterNode( model, layoutBounds, tandem );
+    this.overheadEmitterNode = new OverheadEmitterNode( model, layoutBounds, sceneTandems, tandem );
     this.maxHitsReachedPanel = this.overheadEmitterNode.maxHitsReachedPanel;
 
     this.overheadDoubleSlitNode = new OverheadDoubleSlitNode( model.sceneProperty );
@@ -73,10 +73,8 @@ export default class ExperimentOverheadApparatusNode extends Node {
     } );
 
     this.alignOverheadElements = () => {
-      const activeEmitter = model.sceneProperty.value.sourceType === 'photons' ?
-                            this.overheadEmitterNode.laserPointerNode :
-                            this.overheadEmitterNode.particleEmitterNode;
-      const emitterOutputPoint = this.overheadEmitterNode.getActiveEmitterOutputPoint( model.sceneProperty.value.sourceType );
+      const activeEmitter = this.overheadEmitterNode.getActiveEmitterNode();
+      const emitterOutputPoint = this.overheadEmitterNode.getActiveEmitterOutputPoint();
 
       // Keep the slit centered on the active emitter's beam centerline.
       this.overheadDoubleSlitNode.parallelogramNode.centerY = emitterOutputPoint.y;
@@ -93,8 +91,7 @@ export default class ExperimentOverheadApparatusNode extends Node {
       this.overheadBeamNode.updateBeam();
     };
     ManualConstraint.create( this, [
-      this.overheadEmitterNode.laserPointerNode,
-      this.overheadEmitterNode.particleEmitterNode,
+      ...this.overheadEmitterNode.emitterNodes,
       this.overheadEmitterNode.maxHitsReachedPanel,
       this.overheadDoubleSlitNode.parallelogramNode
     ], this.alignOverheadElements );

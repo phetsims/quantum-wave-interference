@@ -98,7 +98,7 @@ export default class ExperimentScreenView extends ScreenView {
       scenesTandem.createTandem( `${scene.sourceType}Scene` )
     ] ) );
 
-    const overheadApparatusNode = new ExperimentOverheadApparatusNode( model, this.layoutBounds, options.tandem );
+    const overheadApparatusNode = new ExperimentOverheadApparatusNode( model, this.layoutBounds, sceneTandems, options.tandem );
     this.addChild( overheadApparatusNode );
 
     const slitColumnNode = new ExperimentSlitColumnNode( model.sceneProperty, model.scenes, this, sceneTandems, options.tandem );
@@ -120,7 +120,7 @@ export default class ExperimentScreenView extends ScreenView {
     const sourceControlPanel = new SourceControlPanel( model.sceneProperty, model.scenes, sceneTandems, {
       tandem: options.tandem.createTandem( 'sourceControlPanel' )
     } );
-    sourceControlPanel.left = overheadApparatusNode.overheadEmitterNode.laserPointerNode.left;
+    sourceControlPanel.left = overheadApparatusNode.overheadEmitterNode.getActiveEmitterNode().left;
     this.addChild( sourceControlPanel );
 
     const updateSourceControlPanelPosition = () => {

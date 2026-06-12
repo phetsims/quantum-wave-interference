@@ -50,7 +50,10 @@ export default class SingleParticleEmitterNode extends Node {
   ) {
 
     const options = optionize<SingleParticleEmitterNodeOptions, SelfOptions, NodeOptions>()( {
-      isDisposable: false
+      isDisposable: false,
+
+      // There is never a reason to hide the emitter, so clients may not control visibility.
+      visiblePropertyOptions: { phetioReadOnly: true }
     }, providedOptions );
 
     super( options );

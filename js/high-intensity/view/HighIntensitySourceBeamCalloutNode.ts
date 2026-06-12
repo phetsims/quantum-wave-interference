@@ -305,6 +305,8 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
             sourceType: sourceTypeProperty
           } )
         },
+        // The sim shows exactly one emitter, for the active scene, so clients may not control visibility.
+        visiblePropertyOptions: { phetioReadOnly: true },
         tandem: sceneTandems.get( scene )!.createTandem( 'emitterNode' ),
         tandemNameSuffix: 'emitterNode'
       } );
