@@ -116,6 +116,7 @@ export default class DetectorRulerNode extends InteractiveHighlightingNode {
       ariaRole: AccessibleDraggableOptions.ariaRole,
       accessibleNameBehavior: AccessibleDraggableOptions.accessibleNameBehavior,
       accessibleRoleDescription: AccessibleDraggableOptions.accessibleRoleDescription,
+      visibleProperty: isRulerVisibleProperty,
       tandem: tandem
     } );
 
@@ -125,12 +126,6 @@ export default class DetectorRulerNode extends InteractiveHighlightingNode {
     this.rulerPositionProperty.link( position => {
       this.translation = position;
     } );
-
-    const updateRulerVisibility = () => {
-      this.visible = isRulerVisibleProperty.value && sceneProperty.value === scene;
-    };
-    sceneProperty.link( updateRulerVisibility );
-    isRulerVisibleProperty.link( updateRulerVisibility );
 
     this.rulerDragBoundsProperty = new RulerDragBoundsProperty(
       visibleBoundsProperty,

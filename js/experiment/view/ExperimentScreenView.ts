@@ -20,6 +20,7 @@ import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import SceneRadioButtonGroup from '../../common/view/SceneRadioButtonGroup.js';
 import SourceControlPanel from '../../common/view/SourceControlPanel.js';
@@ -267,9 +268,9 @@ export default class ExperimentScreenView extends ScreenView {
         this,
         sceneTandems.get( scene )!.createTandem( 'rulerNode' )
       );
-      this.addChild( rulerNode );
       return rulerNode;
     } );
+    this.addChild( new QuantumWaveInterferenceToggleNode( model.sceneProperty, model.scenes, rulerNodes ) );
     this.centerRulerOnDetectorScreen = () => {
       const activeSceneIndex = model.scenes.indexOf( model.sceneProperty.value );
       rulerNodes[ activeSceneIndex ].centerRulerOnDetectorScreen();
