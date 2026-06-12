@@ -57,6 +57,8 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
       bidirectional: true,
       tandem: tandem.createTandem( 'currentSlitConfigurationProperty' ),
       phetioFeatured: true,
+      phetioReadOnly: true,
+      phetioState: false,
       phetioValueType: StringUnionIO( SlitConfigurationWithNoBarrierValues )
     } );
 

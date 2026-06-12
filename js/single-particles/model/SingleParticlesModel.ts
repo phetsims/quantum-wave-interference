@@ -68,6 +68,8 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
       bidirectional: true,
       tandem: tandem.createTandem( 'currentSlitConfigurationProperty' ),
       phetioFeatured: true,
+      phetioReadOnly: true,
+      phetioState: false,
       phetioValueType: StringUnionIO( SlitConfigurationWithNoBarrierValues )
     } );
 
@@ -76,6 +78,8 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
       bidirectional: true,
       tandem: tandem.createTandem( 'currentAutoRepeatProperty' ),
       phetioFeatured: true,
+      phetioReadOnly: true,
+      phetioState: false,
       phetioValueType: BooleanIO
     } );
 

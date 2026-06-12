@@ -152,8 +152,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       phetioReadOnly: true,
       phetioState: false,
       phetioDocumentation: 'The wave display mode currently shown in the wave area, unified across photon and matter ' +
-                           'scenes. To change the mode, set currentPhotonWaveDisplayModeProperty or ' +
-                           'currentMatterWaveDisplayModeProperty.',
+                           'scenes.',
       phetioValueType: StringUnionIO( WaveDisplayModeValues ),
       validValues: WaveDisplayModeValues
     } );
@@ -185,6 +184,8 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       bidirectional: true,
       tandem: tandem.createTandem( 'currentPhotonWaveDisplayModeProperty' ),
       phetioFeatured: false,
+      phetioReadOnly: true,
+      phetioState: false,
       phetioValueType: StringUnionIO( PhotonWaveDisplayModeValues ),
       validValues: PhotonWaveDisplayModeValues
     } );
@@ -194,6 +195,8 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       bidirectional: true,
       tandem: tandem.createTandem( 'currentMatterWaveDisplayModeProperty' ),
       phetioFeatured: false,
+      phetioReadOnly: true,
+      phetioState: false,
       phetioValueType: StringUnionIO( MatterWaveDisplayModeValues ),
       validValues: MatterWaveDisplayModeValues
     } );
