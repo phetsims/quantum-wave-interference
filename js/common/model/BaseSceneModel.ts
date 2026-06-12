@@ -301,16 +301,18 @@ export default abstract class BaseSceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
+    // Both display-mode Properties exist on every scene so that view code can wire both combo boxes uniformly, but
+    // only the one matching the scene's sourceType is ever shown, so only that one is instrumented.
     this.photonWaveDisplayModeProperty = new StringUnionProperty<PhotonWaveDisplayMode>(
       options.sourceType === 'photons' ? options.defaultPhotonWaveDisplayMode : 'electricField', {
         validValues: PhotonWaveDisplayModeValues,
-        tandem: tandem.createTandem( 'photonWaveDisplayModeProperty' ),
+        tandem: options.sourceType === 'photons' ? tandem.createTandem( 'photonWaveDisplayModeProperty' ) : Tandem.OPT_OUT,
         phetioDocumentation: 'How the photon wave is rendered. Amplitude displays sqrt( re^2 + im^2 ).'
       } );
 
     this.matterWaveDisplayModeProperty = new StringUnionProperty<MatterWaveDisplayMode>( options.defaultMatterWaveDisplayMode, {
       validValues: MatterWaveDisplayModeValues,
-      tandem: tandem.createTandem( 'matterWaveDisplayModeProperty' ),
+      tandem: options.sourceType === 'photons' ? Tandem.OPT_OUT : tandem.createTandem( 'matterWaveDisplayModeProperty' ),
       phetioDocumentation: 'How the matter wave is rendered. Amplitude displays sqrt( re^2 + im^2 ).'
     } );
 
