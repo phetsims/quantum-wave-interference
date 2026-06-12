@@ -12,6 +12,7 @@
 
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
@@ -24,8 +25,10 @@ import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
+import type Tandem from '../../../../tandem/js/Tandem.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
+import { type Snapshot } from '../../common/model/Snapshot.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import createDetectorZoomLevelResponseProperty from '../../common/view/description/createDetectorZoomLevelResponseProperty.js';
 import { type DetectorScreenViewStateFragment } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
@@ -67,6 +70,21 @@ type SelfOptions = {
   // Use this to trigger any additional side-effects in the parent view (e.g., a coordinated flash
   // on the overhead apparatus). Defaults to a no-op.
   onSnapshotCaptured?: () => void;
+
+  // The snapshots dialog shared by all scenes (created via DetectorScreenNode.createSnapshotsDialog), opened by
+  // this scene's ViewSnapshotsButton.
+  snapshotsDialog: SnapshotsDialog;
+};
+
+/**
+ * Minimal model contract needed to create the shared snapshots dialog: the active scene's snapshots, snapshot
+ * deletion routed to the active scene, and the shared detector zoom level. Structurally typed so this view file
+ * does not depend on the concrete ExperimentModel class.
+ */
+type SnapshotsDialogModel = {
+  currentSnapshotsProperty: TReadOnlyProperty<Snapshot[]>;
+  detectorScreenScaleIndexProperty: NumberProperty;
+  deleteSnapshot( snapshot: Snapshot ): void;
 };
 
 // Options for DetectorScreenNode. A tandem is required for PhET-iO instrumentation of the snapshot buttons.
@@ -247,29 +265,6 @@ export default class DetectorScreenNode extends Node {
     sceneModel.screenDistanceProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.slitSettingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
-    // Snapshot dialog (one per scene)
-    const snapshotsDialog = new SnapshotsDialog(
-      sceneModel.snapshotsProperty,
-      snapshot => sceneModel.deleteSnapshot( snapshot ),
-      providedOptions.tandem.createTandem( 'snapshotsDialog' ),
-      {
-        slitOrientation: 'leftRight',
-        formatSlitSeparation: formatExperimentSlitSeparation,
-        showScreenDistance: true,
-        getDescription: snapshot => SnapshotDescriber.getDescription(
-          snapshot,
-          getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value )
-        ),
-        detectorScreenScaleIndexProperty: detectorScreenScaleIndexProperty,
-        getVisibleScreenHalfWidth: () => getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value ),
-        createScaleIndicatorNode: () => new DetectorScreenScaleIndicatorNode(
-          detectorScreenScaleIndexProperty,
-          SCREEN_WIDTH,
-          SPAN_ARROW_Y
-        )
-      }
-    );
-
     const snapshotControlsTandem = providedOptions.tandem.createTandem( 'snapshotControls' );
 
     // Camera button to take a snapshot
@@ -291,7 +286,7 @@ export default class DetectorScreenNode extends Node {
     this.viewSnapshotsButton = new ViewSnapshotsButton(
       sceneModel.numberOfSnapshotsProperty,
       isPlayingProperty,
-      snapshotsDialog,
+      options.snapshotsDialog,
       detectorActionButtonMinWidth,
       detectorActionButtonMinHeight,
       snapshotControlsTandem.createTandem( 'viewSnapshotsButton' )
@@ -299,13 +294,10 @@ export default class DetectorScreenNode extends Node {
 
     const indicatorDotsBox = new SnapshotIndicatorDotsNode( sceneModel.numberOfSnapshotsProperty );
 
-    // Close the snapshots dialog when this DetectorScreenNode becomes invisible (i.e.,
-    // when the user switches to a different scene). Without this,
-    // the dialog would remain open showing stale snapshot data from the previous scene, which is confusing.
+    // Stop and clear any active snapshot flash when this DetectorScreenNode becomes invisible (i.e., when the
+    // user switches to a different scene). The shared snapshots dialog needs no such handling: it renders the
+    // active scene's snapshots through currentSnapshotsProperty, so it never shows stale data.
     this.visibleProperty.lazyLink( visible => {
-      if ( !visible && snapshotsDialog.isShowingProperty.value ) {
-        snapshotsDialog.hide();
-      }
       if ( !visible ) {
         clearSnapshotFlash();
       }
@@ -332,6 +324,40 @@ export default class DetectorScreenNode extends Node {
     this.snapshotButtonGroup.left = buttonsLeft;
     this.snapshotButtonGroup.bottom = SCREEN_HEIGHT;
     this.addChild( this.snapshotButtonGroup );
+  }
+
+  /**
+   * Creates the snapshots dialog shared by all scenes on the Experiment screen. The dialog renders the active
+   * scene's snapshots through model.currentSnapshotsProperty, so a single dialog serves every scene, matching the
+   * High Intensity and Single Particles screens (including its view.snapshotsDialog location in the PhET-iO tree).
+   * Pass the result to each scene's DetectorScreenNode, whose ViewSnapshotsButton opens it.
+   *
+   * @param model - provides the active scene's snapshots, snapshot deletion, and the shared detector zoom level
+   * @param tandem - tandem for the dialog
+   * @returns the shared snapshots dialog
+   */
+  public static createSnapshotsDialog( model: SnapshotsDialogModel, tandem: Tandem ): SnapshotsDialog {
+    return new SnapshotsDialog(
+      model.currentSnapshotsProperty,
+      snapshot => model.deleteSnapshot( snapshot ),
+      tandem,
+      {
+        slitOrientation: 'leftRight',
+        formatSlitSeparation: formatExperimentSlitSeparation,
+        showScreenDistance: true,
+        getDescription: snapshot => SnapshotDescriber.getDescription(
+          snapshot,
+          getDetectorScreenHalfWidthForScaleIndex( model.detectorScreenScaleIndexProperty.value )
+        ),
+        detectorScreenScaleIndexProperty: model.detectorScreenScaleIndexProperty,
+        getVisibleScreenHalfWidth: () => getDetectorScreenHalfWidthForScaleIndex( model.detectorScreenScaleIndexProperty.value ),
+        createScaleIndicatorNode: () => new DetectorScreenScaleIndicatorNode(
+          model.detectorScreenScaleIndexProperty,
+          SCREEN_WIDTH,
+          SPAN_ARROW_Y
+        )
+      }
+    );
   }
 
   /**

@@ -25,6 +25,7 @@ import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
 import createCurrentDetectionModeProperty from '../../common/model/createCurrentDetectionModeProperty.js';
 import { type DetectionMode } from '../../common/model/DetectionMode.js';
 import { type SlitConfiguration } from '../../common/model/SlitConfiguration.js';
+import { type Snapshot } from '../../common/model/Snapshot.js';
 import TimeSpeedProperty from '../../common/model/TimeSpeedProperty.js';
 import { DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, DETECTOR_SCREEN_SCALE_OPTIONS } from './DetectorScreenScale.js';
 import SceneModel from './SceneModel.js';
@@ -70,6 +71,7 @@ export default class ExperimentModel implements TModel {
   public readonly currentLeftDetectorHitsProperty: DynamicProperty<number, number, SceneModel>;
   public readonly currentRightDetectorHitsProperty: DynamicProperty<number, number, SceneModel>;
   public readonly currentScreenBrightnessProperty: DynamicProperty<number, number, SceneModel>;
+  public readonly currentSnapshotsProperty: DynamicProperty<Snapshot[], Snapshot[], SceneModel>;
 
   // Shared horizontal detector-screen zoom level for all Experiment scene views and snapshots.
   public readonly detectorScreenScaleIndexProperty: NumberProperty;
@@ -180,6 +182,11 @@ export default class ExperimentModel implements TModel {
       phetioValueType: NumberIO
     } );
 
+    this.currentSnapshotsProperty = new DynamicProperty<Snapshot[], Snapshot[], SceneModel>( this.sceneProperty, {
+      derive: 'snapshotsProperty',
+      bidirectional: true
+    } );
+
     this.detectorScreenScaleIndexProperty = new NumberProperty( DEFAULT_DETECTOR_SCREEN_SCALE_INDEX, {
       range: new Range( 0, DETECTOR_SCREEN_SCALE_OPTIONS.length - 1 ),
       numberType: 'Integer',
@@ -224,6 +231,16 @@ export default class ExperimentModel implements TModel {
 
     // Reset selected scene last so listeners see reset scenes
     this.sceneProperty.reset();
+  }
+
+  /**
+   * Deletes a snapshot from the active scene. Used by shared view code (e.g., the snapshots dialog) that works with
+   * the current scene through this screen-level model instead of directly owning a scene model reference.
+   *
+   * @param snapshot - snapshot to delete from the active scene
+   */
+  public deleteSnapshot( snapshot: Snapshot ): void {
+    this.sceneProperty.value.deleteSnapshot( snapshot );
   }
 
   /**

@@ -45,12 +45,18 @@ export default class ExperimentDetectorColumnNode extends Node {
     super( { isDisposable: false } );
 
     const controlsRight = layoutBoundsMaxX - QuantumWaveInterferenceConstants.SCREEN_VIEW_X_MARGIN;
+
+    // One snapshots dialog is shared by all scenes — it renders the active scene's snapshots, matching the
+    // High Intensity and Single Particles screens, and lives at view.snapshotsDialog in the PhET-iO tree.
+    const snapshotsDialog = DetectorScreenNode.createSnapshotsDialog( model, tandem.createTandem( 'snapshotsDialog' ) );
+
     this.detectorScreenNodes = model.scenes.map( scene => new DetectorScreenNode(
       scene,
       model.detectorScreenScaleIndexProperty,
       model.isPlayingProperty,
       {
         onSnapshotCaptured: startSnapshotFlash,
+        snapshotsDialog: snapshotsDialog,
         tandem: sceneTandems.get( scene )!.createTandem( 'detectorScreenNode' )
       }
     ) );
