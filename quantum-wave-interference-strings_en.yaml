@@ -1047,7 +1047,7 @@ a11y:
   screenGraphSwitch:
     accessibleHelpText: Choose screen or graph representation for data analysis.
   photonWaveDisplayComboBox:
-    accessibleHelpText: Choose Amplitude or Electric Field display for photon wave.
+    accessibleHelpText: Choose Electric Field or Amplitude display for photon wave.
   matterWaveDisplayComboBox:
     accessibleHelpText: Choose real part, imaginary part, or amplitude display for matter wave function.
   slitWidthMicrometersPattern: '{ $value } micrometers'
