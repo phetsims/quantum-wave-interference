@@ -10,6 +10,7 @@
  */
 
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
+import GatedVisibleProperty from '../../../../axon/js/GatedVisibleProperty.js';
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
@@ -100,7 +101,12 @@ export default class WaveDisplaySection extends VBox {
         photonWaveDisplayComboBox
       ],
       tandem: photonWaveDisplayControlTandem,
-      visiblePropertyOptions: { phetioFeatured: true }
+
+      // Gate visibility on the photons scene so that clients cannot show this control in a matter scene.
+      // Clients customize visibility through the featured selfVisibleProperty instead.
+      visibleProperty: new GatedVisibleProperty( isPhotonsProperty, photonWaveDisplayControlTandem, {
+        phetioFeatured: true
+      } )
     } );
 
     const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
@@ -142,7 +148,12 @@ export default class WaveDisplaySection extends VBox {
         matterWaveDisplayComboBox
       ],
       tandem: matterWaveDisplayControlTandem,
-      visiblePropertyOptions: { phetioFeatured: true }
+
+      // Gate visibility on the matter scenes so that clients cannot show this control in the photons scene.
+      // Clients customize visibility through the featured selfVisibleProperty instead.
+      visibleProperty: new GatedVisibleProperty( DerivedProperty.not( isPhotonsProperty ), matterWaveDisplayControlTandem, {
+        phetioFeatured: true
+      } )
     } );
 
     // Match the alternate controls' widths while allowing the selected control to collapse when hidden by a client.
