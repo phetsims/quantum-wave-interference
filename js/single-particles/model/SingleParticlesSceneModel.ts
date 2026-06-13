@@ -5,22 +5,18 @@
  * Neutrons, Helium atoms) on the Single Particles screen.
  *
  * Extends BaseSceneModel with Single Particles–specific state: single-packet emission with auto-repeat,
- * detector tool, restricted slit configurations (no detector variants), and always-Hits mode.
+ * detector probe, restricted slit configurations (no detector variants), and always-Hits mode.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
-import NumberProperty from '../../../../axon/js/NumberProperty.js';
-import StringUnionProperty from '../../../../axon/js/StringUnionProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import Bounds2 from '../../../../dot/js/Bounds2.js';
 import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
-import Vector2Property from '../../../../dot/js/Vector2Property.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import { getDisplaySlitLayout } from '../../common/getDisplaySlitLayout.js';
@@ -30,16 +26,10 @@ import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type S
 import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCDF.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
-import isSettingPhetioStateProperty from '../../../../tandem/js/isSettingPhetioStateProperty.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
-
-export const DetectorToolStateValues = [ 'ready', 'detected', 'notDetected' ] as const;
-
-// 'ready' — waiting for a measurement; 'detected' — the particle was found in the detector circle;
-// 'notDetected' — measurement was performed and the particle was not found.
-export type DetectorToolState = typeof DetectorToolStateValues[number];
+import DetectorProbe from './DetectorProbe.js';
 
 const MIN_EMISSION_INTERVAL = 0.3;
 
@@ -119,11 +109,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   // Whether the wave field should be rendered in the visualization region
   public readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
 
-  // Detector tool state — position/radius are in normalized coordinates (0–1) within the wave region
-  public readonly detectorProbePositionProperty: Vector2Property;
-  public readonly detectorProbeRadiusProperty: NumberProperty;
-  public readonly detectorProbeStateProperty: StringUnionProperty<DetectorToolState>;
-  public readonly detectorProbeProbabilityProperty: NumberProperty;
+  // The circular measurement tool that reports the probability of finding the packet inside its circle.
+  public readonly detectorProbe: DetectorProbe;
 
   public readonly isMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
 
@@ -191,64 +178,15 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
         !isPacketActive
     );
 
-    // Detector probe. Its Properties are grouped under an organizational 'detectorProbe' tandem in the PhET-iO tree.
-    const detectorProbeTandem = tandem.createTandem( 'detectorProbe' );
-
-    this.detectorProbePositionProperty = new Vector2Property( new Vector2( 0.5, 0.5 ), {
-      tandem: detectorProbeTandem.createTandem( 'positionProperty' ),
-      units: null, // The detector position is stored as a normalized fraction of the wave-region size, not a physical length.
-      phetioFeatured: true
-    } );
-
-    this.detectorProbeRadiusProperty = new NumberProperty( 0.1, {
-      range: new Range( 0.06, 0.3 ),
-      units: null, // The detector radius is stored as a normalized fraction of the wave-region width, not a physical length.
-      tandem: detectorProbeTandem.createTandem( 'radiusProperty' ),
-      phetioFeatured: true
-    } );
-
-    this.detectorProbeStateProperty = new StringUnionProperty<DetectorToolState>( 'ready', {
-      validValues: DetectorToolStateValues,
-      tandem: detectorProbeTandem.createTandem( 'stateProperty' ),
-      phetioFeatured: true
-    } );
-
-    this.detectorProbeProbabilityProperty = new NumberProperty( 0, {
-      range: new Range( 0, 1 ),
-      tandem: detectorProbeTandem.createTandem( 'probabilityProperty' ),
-      phetioReadOnly: true,
-      phetioFeatured: true
-    } );
+    // The probe's Properties are grouped under an organizational 'detectorProbe' tandem in the PhET-iO tree.
+    this.detectorProbe = new DetectorProbe(
+      this.isPacketActiveProperty,
+      () => this.computeDetectorProbability(),
+      tandem.createTandem( 'detectorProbe' )
+    );
 
     this.setupSlitConfigurationListeners( this.slitConfigurationProperty );
     this.stopEmitterWhenMaxHitsReached();
-
-    // Keep the entire detector circle inside the wave region: growing the radius pushes the center inward.
-    // Registered before the geometry handler below so that handler always reads an already-clamped position.
-    // Not guarded during PhET-iO state restore — notifications are deferred until all values are applied,
-    // so clamping a valid saved state is a no-op (closestPointTo returns the same object when contained).
-    this.detectorProbeRadiusProperty.lazyLink( radius => {
-      const centerBounds = SingleParticlesSceneModel.getDetectorToolCenterBounds( radius );
-      this.detectorProbePositionProperty.value = centerBounds.closestPointTo( this.detectorProbePositionProperty.value );
-    } );
-
-    // Moving or resizing the detector invalidates a completed measurement, so auto-reset to 'ready'.
-    // While ready, recompute the probability so the readout tracks the tool while paused or mid-drag
-    // (step() only recomputes while the sim is playing). Skipped during PhET-iO state restore so a
-    // saved 'detected'/'notDetected' result is not clobbered by position/radius notifications.
-    const handleDetectorToolGeometryChange = () => {
-      if ( isSettingPhetioStateProperty.value ) {
-        return;
-      }
-      if ( this.detectorProbeStateProperty.value !== 'ready' ) {
-        this.resetDetectorToolState();
-      }
-      else if ( this.isPacketActiveProperty.value ) {
-        this.detectorProbeProbabilityProperty.value = this.computeDetectorProbability();
-      }
-    };
-    this.detectorProbePositionProperty.lazyLink( handleDetectorToolGeometryChange );
-    this.detectorProbeRadiusProperty.lazyLink( handleDetectorToolGeometryChange );
   }
 
   /**
@@ -261,7 +199,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
    */
   public override clearScreen(): void {
     this.isPacketActiveProperty.value = false;
-    this.detectorProbeProbabilityProperty.value = 0;
+    this.detectorProbe.probabilityProperty.value = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.targetOnSlitDetectionTime = Number.POSITIVE_INFINITY;
     this.deterministicOnSlitArrivalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
@@ -284,7 +222,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   protected override clearWaveStateWhenEmitterTurnsOff(): void {
     this.isPacketActiveProperty.value = false;
     this.packetReEmission = null;
-    this.detectorProbeProbabilityProperty.value = 0;
+    this.detectorProbe.probabilityProperty.value = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.targetOnSlitDetectionTime = Number.POSITIVE_INFINITY;
     this.deterministicOnSlitArrivalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
@@ -449,12 +387,12 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       }
 
       // Update detector tool probability while packet is active
-      if ( this.isPacketActiveProperty.value && this.detectorProbeStateProperty.value === 'ready' ) {
-        this.detectorProbeProbabilityProperty.value = this.computeDetectorProbability();
+      if ( this.isPacketActiveProperty.value && this.detectorProbe.stateProperty.value === 'ready' ) {
+        this.detectorProbe.probabilityProperty.value = this.computeDetectorProbability();
       }
     }
     else {
-      this.detectorProbeProbabilityProperty.value = 0;
+      this.detectorProbe.probabilityProperty.value = 0;
     }
 
     // In non-auto-repeat mode, detectPacket() sets isEmitting to false, preventing re-emission.
@@ -626,9 +564,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const amplitudeField = this.waveSolver.getAmplitudeField();
     const gridWidth = this.waveSolver.gridWidth;
     const gridHeight = this.waveSolver.gridHeight;
-    const detectorCenterX = this.detectorProbePositionProperty.value.x * gridWidth;
-    const detectorCenterY = this.detectorProbePositionProperty.value.y * gridHeight;
-    const detectorRadiusSquared = ( this.detectorProbeRadiusProperty.value * gridWidth ) ** 2;
+    const detectorCenterX = this.detectorProbe.positionProperty.value.x * gridWidth;
+    const detectorCenterY = this.detectorProbe.positionProperty.value.y * gridHeight;
+    const detectorRadiusSquared = ( this.detectorProbe.radiusProperty.value * gridWidth ) ** 2;
 
     let detectorProbabilityDensitySum = 0;
     let totalProbabilityDensitySum = 0;
@@ -667,13 +605,13 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
    * subsequent propagation.
    */
   public performDetectorMeasurement(): void {
-    if ( this.detectorProbeStateProperty.value !== 'ready' ) {
+    if ( this.detectorProbe.stateProperty.value !== 'ready' ) {
       return;
     }
 
     if ( !this.isPacketActiveProperty.value ) {
-      this.detectorProbeProbabilityProperty.value = 0;
-      this.detectorProbeStateProperty.value = 'notDetected';
+      this.detectorProbe.probabilityProperty.value = 0;
+      this.detectorProbe.stateProperty.value = 'notDetected';
       return;
     }
 
@@ -681,38 +619,16 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const detected = dotRandom.nextDouble() < probability;
 
     if ( detected ) {
-      this.detectorProbeStateProperty.value = 'detected';
+      this.detectorProbe.stateProperty.value = 'detected';
       this.endPacket();
     }
     else {
-      this.detectorProbeStateProperty.value = 'notDetected';
+      this.detectorProbe.stateProperty.value = 'notDetected';
       this.waveSolver.applyMeasurementProjection(
-        this.detectorProbePositionProperty.value,
-        this.detectorProbeRadiusProperty.value
+        this.detectorProbe.positionProperty.value,
+        this.detectorProbe.radiusProperty.value
       );
     }
-  }
-
-  /**
-   * Bounds for the detector tool's center, in normalized wave-region coordinates, such that the entire
-   * detector circle stays inside the wave region. The radius is stored as a fraction of the wave-region
-   * width, so its vertical half-extent in normalized y is radius * width / height.
-   *
-   * @param radius - detector tool radius, as a normalized fraction of the wave-region width
-   * @returns allowed bounds for the detector tool's center
-   */
-  public static getDetectorToolCenterBounds( radius: number ): Bounds2 {
-    const verticalHalfExtent = radius * QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH /
-                               QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
-    return new Bounds2( radius, verticalHalfExtent, 1 - radius, 1 - verticalHalfExtent );
-  }
-
-  /**
-   * Resets the detector tool measurement result and updates its probability for the current packet, if one is active.
-   */
-  public resetDetectorToolState(): void {
-    this.detectorProbeProbabilityProperty.value = this.computeDetectorProbability();
-    this.detectorProbeStateProperty.value = 'ready';
   }
 
   /**
@@ -758,18 +674,15 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   }
 
   /**
-   * Resets all Single Particles scene state to its initial values, including user controls (autoRepeat, detector tool
-   * position/radius/state/probability) and transient packet run state. Calls super.reset() which resets base scene
-   * state (hits, emitter, slit configuration, snapshots, etc.), then re-syncs the solver parameters.
+   * Resets all Single Particles scene state to its initial values, including user controls (autoRepeat, detector
+   * probe position/radius/state/probability) and transient packet run state. Calls super.reset() which resets base
+   * scene state (hits, emitter, slit configuration, snapshots, etc.), then re-syncs the solver parameters.
    */
   public override reset(): void {
     super.reset();
     this.autoRepeatProperty.reset();
     this.isPacketActiveProperty.reset();
-    this.detectorProbePositionProperty.reset();
-    this.detectorProbeRadiusProperty.reset();
-    this.detectorProbeStateProperty.reset();
-    this.detectorProbeProbabilityProperty.reset();
+    this.detectorProbe.reset();
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.hasCreatedPacketDecoherenceEvent = false;
     this.packetReEmission = null;

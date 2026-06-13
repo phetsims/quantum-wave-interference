@@ -17,13 +17,14 @@ import type Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConfiguration.js';
-import SingleParticlesSceneModel, { type DetectorToolState } from './SingleParticlesSceneModel.js';
+import { type DetectorProbeState } from './DetectorProbe.js';
+import SingleParticlesSceneModel from './SingleParticlesSceneModel.js';
 
 export default class CurrentDetectorTool {
 
   public readonly positionProperty: DynamicProperty<Vector2, Vector2, SingleParticlesSceneModel>;
   public readonly radiusProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
-  public readonly stateProperty: DynamicProperty<DetectorToolState, DetectorToolState, SingleParticlesSceneModel>;
+  public readonly stateProperty: DynamicProperty<DetectorProbeState, DetectorProbeState, SingleParticlesSceneModel>;
   public readonly probabilityProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
 
   // True only when the slit configuration is 'noBarrier'; the detector tool is hidden and disabled for all other
@@ -46,25 +47,25 @@ export default class CurrentDetectorTool {
     toolsTandem: Tandem
   ) {
     this.sceneProperty = sceneProperty;
-    this.radiusRange = sceneProperty.value.detectorProbeRadiusProperty.range;
+    this.radiusRange = sceneProperty.value.detectorProbe.radiusProperty.range;
 
     this.positionProperty = new DynamicProperty<Vector2, Vector2, SingleParticlesSceneModel>( sceneProperty, {
-      derive: 'detectorProbePositionProperty',
+      derive: scene => scene.detectorProbe.positionProperty,
       bidirectional: true
     } );
 
     this.radiusProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( sceneProperty, {
-      derive: 'detectorProbeRadiusProperty',
+      derive: scene => scene.detectorProbe.radiusProperty,
       bidirectional: true
     } );
 
-    this.stateProperty = new DynamicProperty<DetectorToolState, DetectorToolState, SingleParticlesSceneModel>( sceneProperty, {
-      derive: 'detectorProbeStateProperty',
+    this.stateProperty = new DynamicProperty<DetectorProbeState, DetectorProbeState, SingleParticlesSceneModel>( sceneProperty, {
+      derive: scene => scene.detectorProbe.stateProperty,
       bidirectional: true
     } );
 
     this.probabilityProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( sceneProperty, {
-      derive: 'detectorProbeProbabilityProperty'
+      derive: scene => scene.detectorProbe.probabilityProperty
     } );
 
     this.isAvailableProperty = new DerivedProperty( [ currentSlitConfigurationProperty ],
@@ -89,6 +90,6 @@ export default class CurrentDetectorTool {
    * Resets the detector tool measurement state for the active scene, leaving position and size unchanged.
    */
   public resetState(): void {
-    this.sceneProperty.value.resetDetectorToolState();
+    this.sceneProperty.value.detectorProbe.resetMeasurementState();
   }
 }

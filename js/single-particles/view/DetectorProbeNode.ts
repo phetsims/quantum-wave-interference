@@ -42,7 +42,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import { type DetectorToolViewStateFragment } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import CurrentDetectorTool from '../model/CurrentDetectorTool.js';
-import SingleParticlesSceneModel from '../model/SingleParticlesSceneModel.js';
+import DetectorProbe from '../model/DetectorProbe.js';
 
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const WAVE_REGION_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
@@ -291,7 +291,7 @@ export default class DetectorProbeNode extends Node {
     // All parts of the detector circle must stay inside the wave region, so the draggable center bounds
     // shrink as the radius grows. Tracks the active scene's radius through the DynamicProperty.
     const dragBoundsProperty = new DerivedProperty( [ currentDetectorTool.radiusProperty ],
-      radius => SingleParticlesSceneModel.getDetectorToolCenterBounds( radius ) );
+      radius => DetectorProbe.getCenterBounds( radius ) );
 
     // Pointer dragging, with grab/release sound effects.
     const dragListener = new SoundDragListener( {

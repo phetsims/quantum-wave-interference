@@ -32,7 +32,8 @@ import { getWavelengthColorZone, type WavelengthColorZone } from '../../../commo
 import { type QuantumWaveInterferenceWaveProgressStage } from '../../../high-intensity/view/description/HighIntensityAccessibleViewState.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import type SingleParticlesModel from '../../model/SingleParticlesModel.js';
-import SingleParticlesSceneModel, { type DetectorToolState } from '../../model/SingleParticlesSceneModel.js';
+import { type DetectorProbeState } from '../../model/DetectorProbe.js';
+import SingleParticlesSceneModel from '../../model/SingleParticlesSceneModel.js';
 
 // Response-group keys so rapid per-packet narration self-interrupts instead of flooding the speech queue. Wave
 // progress and hit announcements use separate groups so a hit announcement is not replaced by the next packet's
@@ -56,7 +57,7 @@ type SingleParticlesResponseState = {
   isEmitting: boolean;
   isPacketActive: boolean;
   isMaxHitsReached: boolean;
-  detectorToolState: DetectorToolState;
+  detectorToolState: DetectorProbeState;
   slitConfiguration: SlitConfigurationWithNoBarrier;
   waveDisplayMode: WaveDisplayMode;
   wavelengthNM: number;
@@ -266,7 +267,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       isEmitting: scene.isEmittingProperty.value,
       isPacketActive: scene.isPacketActiveProperty.value,
       isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
-      detectorToolState: scene.detectorProbeStateProperty.value,
+      detectorToolState: scene.detectorProbe.stateProperty.value,
       slitConfiguration: slitConfiguration,
       waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
       wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),
