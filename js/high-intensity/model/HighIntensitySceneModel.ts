@@ -113,7 +113,8 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
     this.detectionModeProperty = new StringUnionProperty<DetectionMode>( 'intensity', {
       validValues: DetectionModeValues,
-      tandem: tandem.createTandem( 'detectionModeProperty' )
+      tandem: tandem.createTandem( 'detectionModeProperty' ),
+      phetioFeatured: true
     } );
 
     this.isWaveVisibleProperty = this.isEmittingProperty;
@@ -121,8 +122,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     this._detectorPatternFormationFactorProperty = new NumberProperty( 0, {
       range: new Range( 0, 1 ),
       tandem: tandem.createTandem( 'detectorPatternFormationFactorProperty' ),
-      phetioReadOnly: true,
-      phetioFeatured: true
+      phetioReadOnly: true
     } );
     this.detectorPatternFormationFactorProperty = this._detectorPatternFormationFactorProperty;
 

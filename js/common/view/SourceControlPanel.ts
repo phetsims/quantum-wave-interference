@@ -100,6 +100,7 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
 
     const visibleProperty = new BooleanProperty( true, {
       tandem: options.tandem.createTandem( 'visibleProperty' ),
+      phetioFeatured: true,
       phetioDocumentation: 'Controls whether the source control panel is allowed to be visible. ' +
                            'The panel is automatically hidden when all controls for the active scene are hidden.'
     } );

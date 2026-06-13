@@ -161,7 +161,8 @@ export default class PositionPlotNode extends Node {
 
     this.lineYFractionProperty = new NumberProperty( 0.5, {
       range: new Range( MIN_Y_FRACTION, MAX_Y_FRACTION ),
-      tandem: tandem.createTandem( 'lineYFractionProperty' )
+      tandem: tandem.createTandem( 'lineYFractionProperty' ),
+      phetioFeatured: true
     } );
 
     const yAxisLabelStringProperty = waveDisplayModeYAxisLabelProperty( activeDisplayModeProperty );

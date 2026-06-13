@@ -293,7 +293,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.slitConfigurationProperty = new StringUnionProperty<SlitConfigurationWithNoBarrier>( 'bothOpen', {
       validValues: SlitConfigurationWithNoBarrierValues,
-      tandem: tandem.createTandem( 'slitConfigurationProperty' )
+      tandem: tandem.createTandem( 'slitConfigurationProperty' ),
+      phetioFeatured: true
     } );
 
     this.screenBrightnessProperty = new NumberProperty( QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 0.5, {
@@ -309,12 +310,14 @@ export default abstract class BaseSceneModel extends PhetioObject {
       options.sourceType === 'photons' ? options.defaultPhotonWaveDisplayMode : 'electricField', {
         validValues: PhotonWaveDisplayModeValues,
         tandem: options.sourceType === 'photons' ? tandem.createTandem( 'photonWaveDisplayModeProperty' ) : Tandem.OPT_OUT,
+        phetioFeatured: true,
         phetioDocumentation: 'How the photon wave is rendered. Amplitude displays sqrt( re^2 + im^2 ).'
       } );
 
     this.matterWaveDisplayModeProperty = new StringUnionProperty<MatterWaveDisplayMode>( options.defaultMatterWaveDisplayMode, {
       validValues: MatterWaveDisplayModeValues,
       tandem: options.sourceType === 'photons' ? Tandem.OPT_OUT : tandem.createTandem( 'matterWaveDisplayModeProperty' ),
+      phetioFeatured: true,
       phetioDocumentation: 'How the matter wave is rendered. Amplitude displays sqrt( re^2 + im^2 ).'
     } );
 

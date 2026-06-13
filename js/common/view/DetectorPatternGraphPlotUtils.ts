@@ -178,7 +178,8 @@ export const createDetectorPatternGraphZoomButtonGroup = (
       accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
       accessibleContextResponse: zoomLevelResponseProperty
     },
-    tandem: tandem.createTandem( 'zoomButtonGroup' )
+    tandem: tandem.createTandem( 'zoomButtonGroup' ),
+    visiblePropertyOptions: { phetioFeatured: true }
   } );
 };
 

@@ -249,7 +249,8 @@ export default class GraphAccordionBox extends Node {
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
         accessibleContextResponse: zoomLevelResponseProperty
       },
-      tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' )
+      tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' ),
+      visiblePropertyOptions: { phetioFeatured: true }
     } );
     this.zoomButtonGroup.left = chartNode.right + ZOOM_BUTTON_GROUP_GAP;
     this.zoomButtonGroup.top = chartNode.top;

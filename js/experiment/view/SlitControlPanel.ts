@@ -98,6 +98,7 @@ export default class SlitControlPanel extends Panel {
     );
     const visibleProperty = new BooleanProperty( true, {
       tandem: options.tandem.createTandem( 'visibleProperty' ),
+      phetioFeatured: true,
       phetioDocumentation: 'Controls whether the slit control panel is allowed to be visible. ' +
                            'The panel is automatically hidden when all controls for the active scene are hidden.'
     } );

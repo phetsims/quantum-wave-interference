@@ -214,7 +214,8 @@ export default class DetectorScreenNode extends Node {
         accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
         accessibleContextResponse: horizontalZoomLevelResponseProperty
       },
-      tandem: providedOptions.tandem.createTandem( 'horizontalZoomButtonGroup' )
+      tandem: providedOptions.tandem.createTandem( 'horizontalZoomButtonGroup' ),
+      visiblePropertyOptions: { phetioFeatured: true }
     } );
     this.addChild( horizontalZoomButtonGroup );
 

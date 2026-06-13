@@ -82,7 +82,8 @@ export default class ExperimentDetectorColumnNode extends Node {
     // Shared expanded state for the graph accordion boxes across all scenes,
     // so that switching scenes preserves the open/closed state per the design requirement.
     this.graphExpandedProperty = new BooleanProperty( false, {
-      tandem: tandem.createTandem( 'graphExpandedProperty' )
+      tandem: tandem.createTandem( 'graphExpandedProperty' ),
+      phetioFeatured: true
     } );
 
     this.graphAccordionBoxes = model.scenes.map( scene => new GraphAccordionBox( scene, {

@@ -47,7 +47,8 @@ export default class DetectorPatternGraphZoomLevelProperty extends NumberPropert
     super( zoomRange.defaultValue, {
       range: zoomRange,
       tandem: tandem,
-      numberType: 'Integer'
+      numberType: 'Integer',
+      phetioFeatured: true
     } );
   }
 }
