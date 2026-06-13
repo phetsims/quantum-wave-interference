@@ -311,14 +311,14 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     const { measuringTapeCheckbox, stopwatchCheckbox, timePlotCheckbox, positionPlotCheckbox } =
       createStandardToolCheckboxes( model, toolsPanelTandem );
-    // Detector checkbox is only shown when barrier is None; its checked state is preserved in the model.
-    const detectorCheckboxTandem = toolsPanelTandem.createTandem( 'detectorCheckbox' );
-    const detectorCheckbox = new ToolCheckbox(
+    // Detector probe checkbox is only shown when barrier is None; its checked state is preserved in the model.
+    const detectorProbeCheckboxTandem = toolsPanelTandem.createTandem( 'detectorProbeCheckbox' );
+    const detectorProbeCheckbox = new ToolCheckbox(
       model.currentDetectorTool.isVisibleProperty,
       QuantumWaveInterferenceFluent.detectorProbeStringProperty,
-      detectorCheckboxTandem,
+      detectorProbeCheckboxTandem,
       QuantumWaveInterferenceFluent.a11y.detectorCheckbox.accessibleHelpTextStringProperty,
-      new GatedVisibleProperty( model.currentDetectorTool.isAvailableProperty, detectorCheckboxTandem )
+      new GatedVisibleProperty( model.currentDetectorTool.isAvailableProperty, detectorProbeCheckboxTandem )
     );
 
     const detectorScreenControls = new DetectorScreenControls( model, this, tandem, {
@@ -329,7 +329,7 @@ export default class SingleParticlesScreenView extends ScreenView {
         stopwatchCheckbox,
         timePlotCheckbox,
         positionPlotCheckbox,
-        detectorCheckbox
+        detectorProbeCheckbox
       ],
       clearScreen: () => model.sceneProperty.value.clearScreen(),
       onSnapshotCaptured: () => this.detectorScreenNode.startSnapshotFlash(),

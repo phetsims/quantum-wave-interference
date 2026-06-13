@@ -46,25 +46,25 @@ export default class CurrentDetectorTool {
     toolsTandem: Tandem
   ) {
     this.sceneProperty = sceneProperty;
-    this.radiusRange = sceneProperty.value.detectorToolRadiusProperty.range;
+    this.radiusRange = sceneProperty.value.detectorProbeRadiusProperty.range;
 
     this.positionProperty = new DynamicProperty<Vector2, Vector2, SingleParticlesSceneModel>( sceneProperty, {
-      derive: 'detectorToolPositionProperty',
+      derive: 'detectorProbePositionProperty',
       bidirectional: true
     } );
 
     this.radiusProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( sceneProperty, {
-      derive: 'detectorToolRadiusProperty',
+      derive: 'detectorProbeRadiusProperty',
       bidirectional: true
     } );
 
     this.stateProperty = new DynamicProperty<DetectorToolState, DetectorToolState, SingleParticlesSceneModel>( sceneProperty, {
-      derive: 'detectorToolStateProperty',
+      derive: 'detectorProbeStateProperty',
       bidirectional: true
     } );
 
     this.probabilityProperty = new DynamicProperty<number, number, SingleParticlesSceneModel>( sceneProperty, {
-      derive: 'detectorToolProbabilityProperty'
+      derive: 'detectorProbeProbabilityProperty'
     } );
 
     this.isAvailableProperty = new DerivedProperty( [ currentSlitConfigurationProperty ],
@@ -72,7 +72,7 @@ export default class CurrentDetectorTool {
     );
 
     this.isVisibleProperty = new BooleanProperty( true, {
-      tandem: toolsTandem.createTandem( 'isDetectorToolVisibleProperty' ),
+      tandem: toolsTandem.createTandem( 'isDetectorProbeVisibleProperty' ),
       phetioFeatured: true
     } );
   }

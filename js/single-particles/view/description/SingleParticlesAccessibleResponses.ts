@@ -266,7 +266,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       isEmitting: scene.isEmittingProperty.value,
       isPacketActive: scene.isPacketActiveProperty.value,
       isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
-      detectorToolState: scene.detectorToolStateProperty.value,
+      detectorToolState: scene.detectorProbeStateProperty.value,
       slitConfiguration: slitConfiguration,
       waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
       wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),

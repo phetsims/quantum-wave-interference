@@ -120,10 +120,10 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   public readonly isWaveVisibleProperty: TReadOnlyProperty<boolean>;
 
   // Detector tool state — position/radius are in normalized coordinates (0–1) within the wave region
-  public readonly detectorToolPositionProperty: Vector2Property;
-  public readonly detectorToolRadiusProperty: NumberProperty;
-  public readonly detectorToolStateProperty: StringUnionProperty<DetectorToolState>;
-  public readonly detectorToolProbabilityProperty: NumberProperty;
+  public readonly detectorProbePositionProperty: Vector2Property;
+  public readonly detectorProbeRadiusProperty: NumberProperty;
+  public readonly detectorProbeStateProperty: StringUnionProperty<DetectorToolState>;
+  public readonly detectorProbeProbabilityProperty: NumberProperty;
 
   public readonly isMaxHitsReachedProperty: TReadOnlyProperty<boolean>;
 
@@ -191,29 +191,31 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
         !isPacketActive
     );
 
-    // Detector tool
-    this.detectorToolPositionProperty = new Vector2Property( new Vector2( 0.5, 0.5 ), {
-      tandem: tandem.createTandem( 'detectorToolPositionProperty' ),
-      units: null, // The detector radius is stored as a normalized fraction of the wave-region width, not a physical length.
+    // Detector probe. Its Properties are grouped under an organizational 'detectorProbe' tandem in the PhET-iO tree.
+    const detectorProbeTandem = tandem.createTandem( 'detectorProbe' );
+
+    this.detectorProbePositionProperty = new Vector2Property( new Vector2( 0.5, 0.5 ), {
+      tandem: detectorProbeTandem.createTandem( 'positionProperty' ),
+      units: null, // The detector position is stored as a normalized fraction of the wave-region size, not a physical length.
       phetioFeatured: true
     } );
 
-    this.detectorToolRadiusProperty = new NumberProperty( 0.1, {
+    this.detectorProbeRadiusProperty = new NumberProperty( 0.1, {
       range: new Range( 0.06, 0.3 ),
       units: null, // The detector radius is stored as a normalized fraction of the wave-region width, not a physical length.
-      tandem: tandem.createTandem( 'detectorToolRadiusProperty' ),
+      tandem: detectorProbeTandem.createTandem( 'radiusProperty' ),
       phetioFeatured: true
     } );
 
-    this.detectorToolStateProperty = new StringUnionProperty<DetectorToolState>( 'ready', {
+    this.detectorProbeStateProperty = new StringUnionProperty<DetectorToolState>( 'ready', {
       validValues: DetectorToolStateValues,
-      tandem: tandem.createTandem( 'detectorToolStateProperty' ),
+      tandem: detectorProbeTandem.createTandem( 'stateProperty' ),
       phetioFeatured: true
     } );
 
-    this.detectorToolProbabilityProperty = new NumberProperty( 0, {
+    this.detectorProbeProbabilityProperty = new NumberProperty( 0, {
       range: new Range( 0, 1 ),
-      tandem: tandem.createTandem( 'detectorToolProbabilityProperty' ),
+      tandem: detectorProbeTandem.createTandem( 'probabilityProperty' ),
       phetioReadOnly: true,
       phetioFeatured: true
     } );
@@ -225,9 +227,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     // Registered before the geometry handler below so that handler always reads an already-clamped position.
     // Not guarded during PhET-iO state restore — notifications are deferred until all values are applied,
     // so clamping a valid saved state is a no-op (closestPointTo returns the same object when contained).
-    this.detectorToolRadiusProperty.lazyLink( radius => {
+    this.detectorProbeRadiusProperty.lazyLink( radius => {
       const centerBounds = SingleParticlesSceneModel.getDetectorToolCenterBounds( radius );
-      this.detectorToolPositionProperty.value = centerBounds.closestPointTo( this.detectorToolPositionProperty.value );
+      this.detectorProbePositionProperty.value = centerBounds.closestPointTo( this.detectorProbePositionProperty.value );
     } );
 
     // Moving or resizing the detector invalidates a completed measurement, so auto-reset to 'ready'.
@@ -238,15 +240,15 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       if ( isSettingPhetioStateProperty.value ) {
         return;
       }
-      if ( this.detectorToolStateProperty.value !== 'ready' ) {
+      if ( this.detectorProbeStateProperty.value !== 'ready' ) {
         this.resetDetectorToolState();
       }
       else if ( this.isPacketActiveProperty.value ) {
-        this.detectorToolProbabilityProperty.value = this.computeDetectorProbability();
+        this.detectorProbeProbabilityProperty.value = this.computeDetectorProbability();
       }
     };
-    this.detectorToolPositionProperty.lazyLink( handleDetectorToolGeometryChange );
-    this.detectorToolRadiusProperty.lazyLink( handleDetectorToolGeometryChange );
+    this.detectorProbePositionProperty.lazyLink( handleDetectorToolGeometryChange );
+    this.detectorProbeRadiusProperty.lazyLink( handleDetectorToolGeometryChange );
   }
 
   /**
@@ -259,7 +261,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
    */
   public override clearScreen(): void {
     this.isPacketActiveProperty.value = false;
-    this.detectorToolProbabilityProperty.value = 0;
+    this.detectorProbeProbabilityProperty.value = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.targetOnSlitDetectionTime = Number.POSITIVE_INFINITY;
     this.deterministicOnSlitArrivalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
@@ -282,7 +284,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   protected override clearWaveStateWhenEmitterTurnsOff(): void {
     this.isPacketActiveProperty.value = false;
     this.packetReEmission = null;
-    this.detectorToolProbabilityProperty.value = 0;
+    this.detectorProbeProbabilityProperty.value = 0;
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.targetOnSlitDetectionTime = Number.POSITIVE_INFINITY;
     this.deterministicOnSlitArrivalTime = QuantumWaveInterferenceConstants.WAVE_PACKET_TRAVERSAL_TIME;
@@ -447,12 +449,12 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       }
 
       // Update detector tool probability while packet is active
-      if ( this.isPacketActiveProperty.value && this.detectorToolStateProperty.value === 'ready' ) {
-        this.detectorToolProbabilityProperty.value = this.computeDetectorProbability();
+      if ( this.isPacketActiveProperty.value && this.detectorProbeStateProperty.value === 'ready' ) {
+        this.detectorProbeProbabilityProperty.value = this.computeDetectorProbability();
       }
     }
     else {
-      this.detectorToolProbabilityProperty.value = 0;
+      this.detectorProbeProbabilityProperty.value = 0;
     }
 
     // In non-auto-repeat mode, detectPacket() sets isEmitting to false, preventing re-emission.
@@ -624,9 +626,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const amplitudeField = this.waveSolver.getAmplitudeField();
     const gridWidth = this.waveSolver.gridWidth;
     const gridHeight = this.waveSolver.gridHeight;
-    const detectorCenterX = this.detectorToolPositionProperty.value.x * gridWidth;
-    const detectorCenterY = this.detectorToolPositionProperty.value.y * gridHeight;
-    const detectorRadiusSquared = ( this.detectorToolRadiusProperty.value * gridWidth ) ** 2;
+    const detectorCenterX = this.detectorProbePositionProperty.value.x * gridWidth;
+    const detectorCenterY = this.detectorProbePositionProperty.value.y * gridHeight;
+    const detectorRadiusSquared = ( this.detectorProbeRadiusProperty.value * gridWidth ) ** 2;
 
     let detectorProbabilityDensitySum = 0;
     let totalProbabilityDensitySum = 0;
@@ -665,13 +667,13 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
    * subsequent propagation.
    */
   public performDetectorMeasurement(): void {
-    if ( this.detectorToolStateProperty.value !== 'ready' ) {
+    if ( this.detectorProbeStateProperty.value !== 'ready' ) {
       return;
     }
 
     if ( !this.isPacketActiveProperty.value ) {
-      this.detectorToolProbabilityProperty.value = 0;
-      this.detectorToolStateProperty.value = 'notDetected';
+      this.detectorProbeProbabilityProperty.value = 0;
+      this.detectorProbeStateProperty.value = 'notDetected';
       return;
     }
 
@@ -679,14 +681,14 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     const detected = dotRandom.nextDouble() < probability;
 
     if ( detected ) {
-      this.detectorToolStateProperty.value = 'detected';
+      this.detectorProbeStateProperty.value = 'detected';
       this.endPacket();
     }
     else {
-      this.detectorToolStateProperty.value = 'notDetected';
+      this.detectorProbeStateProperty.value = 'notDetected';
       this.waveSolver.applyMeasurementProjection(
-        this.detectorToolPositionProperty.value,
-        this.detectorToolRadiusProperty.value
+        this.detectorProbePositionProperty.value,
+        this.detectorProbeRadiusProperty.value
       );
     }
   }
@@ -709,8 +711,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
    * Resets the detector tool measurement result and updates its probability for the current packet, if one is active.
    */
   public resetDetectorToolState(): void {
-    this.detectorToolProbabilityProperty.value = this.computeDetectorProbability();
-    this.detectorToolStateProperty.value = 'ready';
+    this.detectorProbeProbabilityProperty.value = this.computeDetectorProbability();
+    this.detectorProbeStateProperty.value = 'ready';
   }
 
   /**
@@ -764,10 +766,10 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     super.reset();
     this.autoRepeatProperty.reset();
     this.isPacketActiveProperty.reset();
-    this.detectorToolPositionProperty.reset();
-    this.detectorToolRadiusProperty.reset();
-    this.detectorToolStateProperty.reset();
-    this.detectorToolProbabilityProperty.reset();
+    this.detectorProbePositionProperty.reset();
+    this.detectorProbeRadiusProperty.reset();
+    this.detectorProbeStateProperty.reset();
+    this.detectorProbeProbabilityProperty.reset();
     this.timeSinceLastEmission = MIN_EMISSION_INTERVAL;
     this.hasCreatedPacketDecoherenceEvent = false;
     this.packetReEmission = null;
