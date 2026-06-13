@@ -7,7 +7,7 @@
  * - Detector slit overlays (yellow stroke when a detector is on a slit)
  * - A green draggable double-headed arrow below the wave region for adjusting slit-to-screen distance
  *
- * The barrier position is set by slitPositionFractionProperty (fraction of wave region width).
+ * The barrier position is set by barrierPositionFractionProperty (fraction of wave region width).
  * Slit separation is mapped from the model range to a visible view range.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -164,7 +164,7 @@ export type DoubleSlitNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tan
 export default class DoubleSlitNode extends Node {
 
   private readonly barrierTypeProperty: TReadOnlyProperty<BarrierType>;
-  private readonly slitPositionFractionProperty: TReadOnlyProperty<number>;
+  private readonly barrierPositionFractionProperty: TReadOnlyProperty<number>;
   private readonly slitSeparationProperty: TReadOnlyProperty<number>;
   private readonly isTopSlitCoveredProperty: TReadOnlyProperty<boolean>;
   private readonly isBottomSlitCoveredProperty: TReadOnlyProperty<boolean>;
@@ -174,7 +174,7 @@ export default class DoubleSlitNode extends Node {
   public constructor(
     sceneProperty: TReadOnlyProperty<{ readonly regionWidth: number; readonly sourceType: SourceType }>,
     barrierTypeProperty: TReadOnlyProperty<BarrierType>,
-    slitPositionFractionProperty: TProperty<number>,
+    barrierPositionFractionProperty: TProperty<number>,
     slitSeparationProperty: TReadOnlyProperty<number>,
     slitSeparationRangeProperty: TReadOnlyProperty<Range>,
     currentIsEmittingProperty: TReadOnlyProperty<boolean>,
@@ -210,7 +210,7 @@ export default class DoubleSlitNode extends Node {
     } );
 
     this.barrierTypeProperty = barrierTypeProperty;
-    this.slitPositionFractionProperty = slitPositionFractionProperty;
+    this.barrierPositionFractionProperty = barrierPositionFractionProperty;
     this.slitSeparationProperty = slitSeparationProperty;
     this.isTopSlitCoveredProperty = options.isTopSlitCoveredProperty;
     this.isBottomSlitCoveredProperty = options.isBottomSlitCoveredProperty;
@@ -257,7 +257,7 @@ export default class DoubleSlitNode extends Node {
     this.addChild( barrierContainer );
 
     const sourceTypeProperty = sceneProperty.derived( scene => scene.sourceType );
-    let previousAccessibleSlitPositionFraction = slitPositionFractionProperty.value;
+    let previousAccessibleSlitPositionFraction = barrierPositionFractionProperty.value;
 
     const arrowNode = new AccessibleArrowNode( 0, 0, 0, 0, {
       doubleHead: true,
@@ -266,7 +266,7 @@ export default class DoubleSlitNode extends Node {
       headWidth: 14,
       tailWidth: 6,
       cursor: 'ew-resize',
-      valueProperty: slitPositionFractionProperty,
+      valueProperty: barrierPositionFractionProperty,
       enabledRangeProperty: new TinyProperty( SLIT_POSITION_FRACTION_RANGE ),
       ariaOrientation: Orientation.HORIZONTAL,
       keyboardStep: SLIT_POSITION_KEYBOARD_STEP,
@@ -274,22 +274,22 @@ export default class DoubleSlitNode extends Node {
       pageKeyboardStep: SLIT_POSITION_PAGE_KEYBOARD_STEP,
       constrainValue: ( value: number ) => SLIT_POSITION_FRACTION_RANGE.constrainValue( value ),
       startDrag: () => {
-        previousAccessibleSlitPositionFraction = slitPositionFractionProperty.value;
+        previousAccessibleSlitPositionFraction = barrierPositionFractionProperty.value;
       },
       drag: event => {
         if ( event.isFromPDOM() ) {
           slitPositionSoundPlayer.playSoundForValueChange(
-            slitPositionFractionProperty.value,
+            barrierPositionFractionProperty.value,
             previousAccessibleSlitPositionFraction
           );
         }
         else {
           slitPositionSoundPlayer.playSoundIfThresholdReached(
-            slitPositionFractionProperty.value,
+            barrierPositionFractionProperty.value,
             previousAccessibleSlitPositionFraction
           );
         }
-        previousAccessibleSlitPositionFraction = slitPositionFractionProperty.value;
+        previousAccessibleSlitPositionFraction = barrierPositionFractionProperty.value;
       },
       accessibleName: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleHelpText.createProperty( {
@@ -320,16 +320,16 @@ export default class DoubleSlitNode extends Node {
 
     const createDragListener = ( tandemName: string ) => new DragListener( {
       start: ( event, listener ) => {
-        dragStartFraction = slitPositionFractionProperty.value;
+        dragStartFraction = barrierPositionFractionProperty.value;
         dragStartX = listener.parentPoint.x;
       },
       drag: ( event, listener ) => {
         const dx = listener.parentPoint.x - dragStartX;
         const fractionDelta = dx / WAVE_REGION_WIDTH;
-        const oldSlitPositionFraction = slitPositionFractionProperty.value;
-        slitPositionFractionProperty.value = SLIT_POSITION_FRACTION_RANGE.constrainValue( dragStartFraction + fractionDelta );
+        const oldSlitPositionFraction = barrierPositionFractionProperty.value;
+        barrierPositionFractionProperty.value = SLIT_POSITION_FRACTION_RANGE.constrainValue( dragStartFraction + fractionDelta );
         slitPositionSoundPlayer.playSoundIfThresholdReached(
-          slitPositionFractionProperty.value,
+          barrierPositionFractionProperty.value,
           oldSlitPositionFraction
         );
       },
@@ -339,7 +339,7 @@ export default class DoubleSlitNode extends Node {
     barrierContainer.addInputListener( createDragListener( 'barrierDragListener' ) );
 
     Multilink.multilink(
-      [ barrierTypeProperty, slitPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
+      [ barrierTypeProperty, barrierPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
         options.isTopSlitCoveredProperty, options.isBottomSlitCoveredProperty,
         options.topDetectorCountProperty, options.bottomDetectorCountProperty, isInteractiveProperty ],
       ( barrierType, slitPositionFraction, slitSeparation, slitSeparationRange,
@@ -426,7 +426,7 @@ export default class DoubleSlitNode extends Node {
     return {
       slitBarrier: {
         barrierType: this.barrierTypeProperty.value,
-        slitPositionFraction: this.slitPositionFractionProperty.value,
+        slitPositionFraction: this.barrierPositionFractionProperty.value,
         slitSeparationMM: this.slitSeparationProperty.value,
         topSlitCovered: this.isTopSlitCoveredProperty.value,
         bottomSlitCovered: this.isBottomSlitCoveredProperty.value,

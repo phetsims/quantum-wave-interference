@@ -15,25 +15,24 @@ import { getDisplaySlitLayout } from '../../getDisplaySlitLayout.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import type { Snapshot } from '../../model/Snapshot.js';
 
-// Structural interface satisfied by both the Experiment screen scene (which exposes
-// screenDistanceProperty/slitSettingProperty) and the High Intensity / Single Particles
-// scenes (which derive screen distance from regionWidth × slitPositionFractionProperty).
+// Structural interface satisfied by both the Experiment screen scene (which exposes an explicit
+// screenDistanceProperty) and the High Intensity / Single Particles scenes (which derive screen
+// distance from regionWidth × barrierPositionFractionProperty).
 // All length quantities are in mm unless otherwise noted. The two discriminated branches
 // reflect the two concrete model types; callers must narrow via 'screenDistanceProperty' in scene.
 type TheoreticalPatternScene = {
   getEffectiveWavelength(): number;
   slitWidth: number;
   slitSeparationProperty: TReadOnlyProperty<number>;
+  slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
   slitSeparationRange?: { min: number; max: number };
   regionHeight?: number;
 } & (
   {
     screenDistanceProperty: TReadOnlyProperty<number>;
-    slitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
   } | {
   regionWidth: number;
-  slitPositionFractionProperty: TReadOnlyProperty<number>;
-  slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
+  barrierPositionFractionProperty: TReadOnlyProperty<number>;
 } );
 
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
@@ -148,10 +147,8 @@ export default class BandAnalysis {
   public static analyzeTheoreticalPattern( scene: TheoreticalPatternScene, screenHalfWidth: number ): BandAnalysisResult {
     const screenDistance = 'screenDistanceProperty' in scene ?
                            scene.screenDistanceProperty.value :
-                           ( 1 - scene.slitPositionFractionProperty.value ) * scene.regionWidth;
-    const slitSetting = 'slitSettingProperty' in scene ?
-                        scene.slitSettingProperty.value :
-                        scene.slitConfigurationProperty.value;
+                           ( 1 - scene.barrierPositionFractionProperty.value ) * scene.regionWidth;
+    const slitSetting = scene.slitConfigurationProperty.value;
 
     return BandAnalysis.computeTheoreticalPattern(
       scene.getEffectiveWavelength(),
@@ -176,7 +173,7 @@ export default class BandAnalysis {
     const lambda = scene.getEffectiveWavelength();
     const slitToScreenDistance = 'screenDistanceProperty' in scene ?
                                  scene.screenDistanceProperty.value :
-                                 ( 1 - scene.slitPositionFractionProperty.value ) * scene.regionWidth;
+                                 ( 1 - scene.barrierPositionFractionProperty.value ) * scene.regionWidth;
 
     if (
       lambda <= 0 ||

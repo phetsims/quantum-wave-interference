@@ -142,7 +142,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly particleSpeedProperty: NumberProperty;
   public readonly barrierTypeProperty: StringUnionProperty<BarrierType>;
   public readonly slitSeparationProperty: NumberProperty;
-  public readonly slitPositionFractionProperty: NumberProperty;
+  public readonly barrierPositionFractionProperty: NumberProperty;
   public readonly slitConfigurationProperty: StringUnionProperty<SlitConfigurationWithNoBarrier>;
   public readonly screenBrightnessProperty: NumberProperty;
   // Wave display mode for the photon scene, where 'amplitude' displays sqrt( re^2 + im^2 ).
@@ -284,10 +284,10 @@ export default abstract class BaseSceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
-    this.slitPositionFractionProperty = new NumberProperty( 0.5, {
+    this.barrierPositionFractionProperty = new NumberProperty( 0.5, {
       units: null,
       range: new Range( 0.25, 0.75 ),
-      tandem: tandem.createTandem( 'slitPositionFractionProperty' ),
+      tandem: tandem.createTandem( 'barrierPositionFractionProperty' ),
       phetioFeatured: true
     } );
 
@@ -431,7 +431,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       slitSeparationMin: this.slitSeparationRange.min * 1e-3,
       slitSeparationMax: this.slitSeparationRange.max * 1e-3,
       slitWidth: this.slitWidth * 1e-3,
-      barrierFractionX: this.slitPositionFractionProperty.value,
+      barrierFractionX: this.barrierPositionFractionProperty.value,
       isTopSlitOpen: this.isTopSlitOpen(),
       isBottomSlitOpen: this.isBottomSlitOpen(),
       isTopSlitDecoherent: this.isTopSlitDecoherent(),
@@ -667,7 +667,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.particleSpeedProperty.lazyLink( () => this.clearScreen() );
     this.barrierTypeProperty.lazyLink( () => this.clearScreen() );
     this.slitSeparationProperty.lazyLink( () => this.clearScreen() );
-    this.slitPositionFractionProperty.lazyLink( () => this.clearScreen() );
+    this.barrierPositionFractionProperty.lazyLink( () => this.clearScreen() );
 
     this.isEmittingProperty.lazyLink( isEmitting => {
       if ( isEmitting ) {
@@ -720,7 +720,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       sourceType: this.sourceType,
       wavelength: this.wavelengthProperty.value,
       slitSeparation: this.slitSeparationProperty.value,
-      screenDistance: this.slitPositionFractionProperty.value * this.regionWidth,
+      screenDistance: this.barrierPositionFractionProperty.value * this.regionWidth,
       screenHalfWidth: this.regionWidth / 2,
       effectiveWavelength: this.getEffectiveWavelength(),
       slitSetting: slitSetting,
@@ -828,7 +828,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     this.particleSpeedProperty.reset();
     this.barrierTypeProperty.reset();
     this.slitSeparationProperty.reset();
-    this.slitPositionFractionProperty.reset();
+    this.barrierPositionFractionProperty.reset();
     this.slitConfigurationProperty.reset();
     this.screenBrightnessProperty.reset();
     this.photonWaveDisplayModeProperty.reset();

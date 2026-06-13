@@ -52,7 +52,7 @@ type ScreenDistanceScene = {
   readonly screenDistanceRange: Range;
   readonly isEmittingProperty: TReadOnlyProperty<boolean>;
   readonly detectionModeProperty: TReadOnlyProperty<DetectionMode>;
-  readonly slitSettingProperty: TReadOnlyProperty<SlitConfiguration>;
+  readonly slitConfigurationProperty: TReadOnlyProperty<SlitConfiguration>;
 };
 
 /**
@@ -110,7 +110,7 @@ function getScreenDistanceContextResponse( scene: ScreenDistanceScene, value: nu
     } );
   }
 
-  const isDoubleSlitInterferencePattern = showsDoubleSlitInterferencePattern( scene.slitSettingProperty.value );
+  const isDoubleSlitInterferencePattern = showsDoubleSlitInterferencePattern( scene.slitConfigurationProperty.value );
   const isCloser = position === 'closest' || position === 'closer';
   const patternEffect: ScreenDistancePatternEffect = isDoubleSlitInterferencePattern ?
                                                      ( isCloser ? 'doubleSlitCloser' : 'doubleSlitFarther' ) :

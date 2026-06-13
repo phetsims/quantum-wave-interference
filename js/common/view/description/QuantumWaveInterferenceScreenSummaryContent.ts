@@ -70,7 +70,7 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
 
   public constructor(
     model: ScreenSummaryModel,
-    slitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>,
+    slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>,
     providedOptions: ScreenSummaryOptions
   ) {
 
@@ -95,7 +95,7 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
 
     const currentDetailsOptions = {
       sourceType: sourceTypeProperty,
-      slitSetting: slitSettingProperty,
+      slitSetting: slitConfigurationProperty,
       slitOrientation: slitOrientation,
       detectionMode: providedOptions.detectionMode,
       isEmitting: isEmittingStringProperty,

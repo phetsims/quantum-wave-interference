@@ -369,7 +369,7 @@ export default class FrontFacingSlitNode extends Node {
     this.addChild( rightDetectorWire );
 
     const updateCoveredSlitAppearance = () => {
-      const slitSetting = sceneModel.slitSettingProperty.value;
+      const slitSetting = sceneModel.slitConfigurationProperty.value;
       const isEmitting = sceneModel.isEmittingProperty.value;
       const leftCovered = slitSetting === 'leftCovered';
       const rightCovered = slitSetting === 'rightCovered';
@@ -405,7 +405,7 @@ export default class FrontFacingSlitNode extends Node {
     // Update covered-slit appearance and detector visibility based on slit setting. Note:
     // QuantumWaveInterferenceColors.slitCoverFillProperty is handled by the fill property auto-subscription.
     Multilink.multilink(
-      [ sceneModel.slitSettingProperty, sceneModel.slitSeparationProperty, sceneModel.isEmittingProperty ],
+      [ sceneModel.slitConfigurationProperty, sceneModel.slitSeparationProperty, sceneModel.isEmittingProperty ],
       slitSetting => {
         updateCoveredSlitAppearance();
         leftDetector.visible = hasDetectorOnSide( slitSetting, 'left' );

@@ -59,7 +59,7 @@ export default class ExperimentModel implements TModel {
   //   currentSlitSeparationProperty  — mm (center-to-center distance between the two slits)
   //   currentScreenDistanceProperty  — m (distance from the double slit to the detector screen)
   //   currentScreenBrightnessProperty — screen brightness percentage
-  public readonly currentSlitSettingProperty: DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>;
+  public readonly currentSlitConfigurationProperty: DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>;
   public readonly currentDetectionModeProperty: DynamicProperty<DetectionMode, DetectionMode, SceneModel>;
   public readonly currentIsEmittingProperty: DynamicProperty<boolean, boolean, SceneModel>;
   public readonly currentIsMaxHitsReachedProperty: DynamicProperty<boolean, boolean, SceneModel>;
@@ -125,8 +125,8 @@ export default class ExperimentModel implements TModel {
       phetioValueType: ReferenceIO( IOType.ObjectIO )
     } );
 
-    this.currentSlitSettingProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>( this.sceneProperty, {
-      derive: 'slitSettingProperty'
+    this.currentSlitConfigurationProperty = new DynamicProperty<SlitConfiguration, SlitConfiguration, SceneModel>( this.sceneProperty, {
+      derive: 'slitConfigurationProperty'
     } );
 
     this.currentDetectionModeProperty = createCurrentDetectionModeProperty( this.sceneProperty, tandem );

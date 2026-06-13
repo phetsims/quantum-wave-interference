@@ -77,7 +77,7 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
   public constructor(
     model: SharedDescriptionModel,
-    slitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>,
+    slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>,
     providedOptions: SharedDescriptionOptions
   ) {
 
@@ -87,7 +87,7 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
     let experimentSetupDetailsNode: Node | null = null;
     if ( includeExperimentSetupDetails ) {
-      experimentSetupDetailsNode = new ExperimentSetupDetailsNode( model, slitSettingProperty, {
+      experimentSetupDetailsNode = new ExperimentSetupDetailsNode( model, slitConfigurationProperty, {
         detectionModeProperty: providedOptions.detectionModeProperty,
         slitOrientation: providedOptions.slitOrientation
       } );

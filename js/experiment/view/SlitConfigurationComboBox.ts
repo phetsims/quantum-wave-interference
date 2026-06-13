@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SlitSettingsComboBox is the ComboBox for selecting the experiment screen's slit configuration.
+ * SlitConfigurationComboBox is the ComboBox for selecting the experiment screen's slit configuration.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -17,20 +17,20 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 
 const COMBO_BOX_FONT = new PhetFont( 14 );
 
-// Options for SlitSettingsComboBox. The tandem is required for PhET-iO instrumentation of the combo box and its items.
-export type SlitSettingsComboBoxOptions = PickRequired<ComboBoxOptions, 'tandem'>;
+// Options for SlitConfigurationComboBox. The tandem is required for PhET-iO instrumentation of the combo box and its items.
+export type SlitConfigurationComboBoxOptions = PickRequired<ComboBoxOptions, 'tandem'>;
 
-export default class SlitSettingsComboBox extends ComboBox<SlitConfiguration> {
+export default class SlitConfigurationComboBox extends ComboBox<SlitConfiguration> {
 
   /**
-   * @param slitSettingProperty - the scene's slit configuration, both displayed and set by this combo box
+   * @param slitConfigurationProperty - the scene's slit configuration, both displayed and set by this combo box
    * @param comboBoxParent - parent for the combo box popup list
    * @param providedOptions
    */
   public constructor(
-    slitSettingProperty: PhetioProperty<SlitConfiguration>,
+    slitConfigurationProperty: PhetioProperty<SlitConfiguration>,
     comboBoxParent: Node,
-    providedOptions: SlitSettingsComboBoxOptions
+    providedOptions: SlitConfigurationComboBoxOptions
   ) {
     const comboBoxItems: ComboBoxItem<SlitConfiguration>[] = [
       {
@@ -92,11 +92,11 @@ export default class SlitSettingsComboBox extends ComboBox<SlitConfiguration> {
     ];
 
     const slitSettingsContextResponseProperty = QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleContextResponse.createProperty( {
-      slitSetting: slitSettingProperty
+      slitSetting: slitConfigurationProperty
     } );
 
     super(
-      slitSettingProperty,
+      slitConfigurationProperty,
       comboBoxItems,
       comboBoxParent,
       {

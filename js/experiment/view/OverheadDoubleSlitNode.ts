@@ -167,7 +167,7 @@ export default class OverheadDoubleSlitNode extends Node {
       this.rightSlitDetectorOverlay.x = rightX - this.slitOverlayDx / 2;
       this.rightSlitDetectorOverlay.y = rightY - this.slitOverlayHeight / 2;
 
-      const slitSetting = scene.slitSettingProperty.value;
+      const slitSetting = scene.slitConfigurationProperty.value;
       leftSlitMarker.visible = true;
       rightSlitMarker.visible = true;
       leftSlitMarker.fill = slitSetting === 'leftCovered' ? QuantumWaveInterferenceColors.slitCoverFillProperty : 'white';
@@ -179,10 +179,10 @@ export default class OverheadDoubleSlitNode extends Node {
     sceneProperty.link( ( newScene, oldScene ) => {
       if ( oldScene ) {
         oldScene.slitSeparationProperty.unlink( updateOverheadSlits );
-        oldScene.slitSettingProperty.unlink( updateOverheadSlits );
+        oldScene.slitConfigurationProperty.unlink( updateOverheadSlits );
       }
       newScene.slitSeparationProperty.link( updateOverheadSlits );
-      newScene.slitSettingProperty.link( updateOverheadSlits );
+      newScene.slitConfigurationProperty.link( updateOverheadSlits );
     } );
   }
 

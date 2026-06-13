@@ -92,7 +92,7 @@ export default class ExperimentSetupDetailsNode extends Node {
 
   public constructor(
     model: SetupDetailsModel,
-    slitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>,
+    slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>,
     providedOptions: SetupDetailsOptions = {}
   ) {
 
@@ -172,7 +172,7 @@ export default class ExperimentSetupDetailsNode extends Node {
 
     const slitConfigurationDescriptionStringProperty =
       QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.createProperty( {
-        slitSetting: slitSettingProperty,
+        slitSetting: slitConfigurationProperty,
         slitOrientation: slitOrientation
       } );
 

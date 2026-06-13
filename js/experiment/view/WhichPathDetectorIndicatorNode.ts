@@ -111,7 +111,7 @@ class DetectorPanelNode extends Node {
     };
 
     this.updateIndicator = () => {
-      const slitSetting = model.currentSlitSettingProperty.value;
+      const slitSetting = model.currentSlitConfigurationProperty.value;
       const isDetectorActive = hasDetectorOnSide( slitSetting, detectorSide );
       this.visible = isDetectorActive;
 
@@ -151,7 +151,7 @@ class DetectorPanelNode extends Node {
         );
     };
 
-    model.currentSlitSettingProperty.link( this.updateIndicator );
+    model.currentSlitConfigurationProperty.link( this.updateIndicator );
     model.currentDetectionModeProperty.link( this.updateIndicator );
     detectorHitCountStringProperty.lazyLink( this.updateIndicator );
     model.sceneProperty.link( this.updateIndicator );

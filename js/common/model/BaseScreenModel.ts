@@ -67,7 +67,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
   public readonly currentScreenBrightnessProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentWaveDisplayModeProperty: DynamicProperty<WaveDisplayMode, WaveDisplayMode, BaseSceneModel>;
   public readonly currentSlitSeparationProperty: DynamicProperty<number, number, BaseSceneModel>;
-  public readonly currentSlitPositionFractionProperty: DynamicProperty<number, number, BaseSceneModel>;
+  public readonly currentBarrierPositionFractionProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentLeftDetectorHitsProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentRightDetectorHitsProperty: DynamicProperty<number, number, BaseSceneModel>;
   public readonly currentTotalHitsProperty: DynamicProperty<number, number, BaseSceneModel>;
@@ -162,8 +162,8 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       bidirectional: true
     } );
 
-    this.currentSlitPositionFractionProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {
-      derive: 'slitPositionFractionProperty',
+    this.currentBarrierPositionFractionProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {
+      derive: 'barrierPositionFractionProperty',
       bidirectional: true
     } );
 

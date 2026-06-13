@@ -280,7 +280,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     }
 
     // First possible slit-detector event occurs when the wavefront emitted at sourceOnTime reaches the slits.
-    const slitArrivalTime = sourceOnTime + this.slitPositionFractionProperty.value * this.regionWidth / propagationSpeed;
+    const slitArrivalTime = sourceOnTime + this.barrierPositionFractionProperty.value * this.regionWidth / propagationSpeed;
     if ( currentTime < slitArrivalTime ) {
       return;
     }

@@ -29,7 +29,7 @@ export default function createDetectorScreenRenderStateFromSceneModel( sceneMode
     isEmitting: sceneModel.isEmittingProperty.value,
     brightness: sceneModel.screenBrightnessProperty.value,
     intensity: sceneModel.sourceStrengthProperty.value,
-    slitSetting: sceneModel.slitSettingProperty.value,
+    slitSetting: sceneModel.slitConfigurationProperty.value,
     hits: sceneModel.hits
   };
 }

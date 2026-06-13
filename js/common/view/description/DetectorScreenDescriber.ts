@@ -23,8 +23,8 @@ import { formatIntensityDescription, formatLiveHitsDescription } from './Detecto
 
 /**
  * Physics-state interface required by DetectorScreenDescriber. The two union branches reflect the two scene
- * archetypes in the sim: the Experiment screen (which carries an explicit screen-distance and slit-setting) and
- * the High-Intensity / Single-Particles screens (which carry a fixed region width and slit-configuration).
+ * archetypes in the sim: the Experiment screen (which carries an explicit screen-distance) and
+ * the High-Intensity / Single-Particles screens (which carry a fixed region width and barrier position).
  * NOTE: see parallel type in DetectorPatternGraphDescriber.ts — the types stay separate because their
  * wording and screen-distance inputs diverge even though the physics state is shared.
  */
@@ -35,6 +35,7 @@ export type DetectorScreenDescriberScene = {
   slitSeparationProperty: TReadOnlyProperty<number>;
   wavelengthProperty: TReadOnlyProperty<number>;
   particleSpeedProperty: TReadOnlyProperty<number>;
+  slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
   getEffectiveWavelength(): number;
   slitWidth: number;
   hasWavefrontReachedScreen?(): boolean;
@@ -42,11 +43,9 @@ export type DetectorScreenDescriberScene = {
   {
     detectionModeProperty: TReadOnlyProperty<DetectionMode>;
     screenDistanceProperty: TReadOnlyProperty<number>;
-    slitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
   } | {
   regionWidth: number;
-  slitPositionFractionProperty: TReadOnlyProperty<number>;
-  slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
+  barrierPositionFractionProperty: TReadOnlyProperty<number>;
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
 }
   );
@@ -56,7 +55,7 @@ function getDetectionMode( scene: DetectorScreenDescriberScene ): DetectionMode 
 }
 
 function getSlitSetting( scene: DetectorScreenDescriberScene ): SlitConfigurationWithNoBarrier {
-  return 'slitSettingProperty' in scene ? scene.slitSettingProperty.value : scene.slitConfigurationProperty.value;
+  return scene.slitConfigurationProperty.value;
 }
 
 function getDetectorScreenHalfWidth( scene: DetectorScreenDescriberScene, detectorScreenHalfWidthProperty?: TReadOnlyProperty<number> ): number {
@@ -169,13 +168,12 @@ export default class DetectorScreenDescriber {
         previousScene.hitsChangedEmitter.removeListener( update );
         previousScene.detectionModeProperty?.unlink( fullUpdate );
         previousScene.isEmittingProperty.unlink( fullUpdate );
-        if ( 'slitSettingProperty' in previousScene ) {
-          previousScene.slitSettingProperty.unlink( fullUpdate );
+        previousScene.slitConfigurationProperty.unlink( fullUpdate );
+        if ( 'screenDistanceProperty' in previousScene ) {
           previousScene.screenDistanceProperty.unlink( fullUpdate );
         }
         else {
-          previousScene.slitConfigurationProperty.unlink( fullUpdate );
-          previousScene.slitPositionFractionProperty.unlink( fullUpdate );
+          previousScene.barrierPositionFractionProperty.unlink( fullUpdate );
         }
         previousScene.slitSeparationProperty.unlink( fullUpdate );
         previousScene.wavelengthProperty.unlink( fullUpdate );
@@ -184,13 +182,12 @@ export default class DetectorScreenDescriber {
       scene.hitsChangedEmitter.addListener( update );
       scene.detectionModeProperty?.lazyLink( fullUpdate );
       scene.isEmittingProperty.lazyLink( fullUpdate );
-      if ( 'slitSettingProperty' in scene ) {
-        scene.slitSettingProperty.lazyLink( fullUpdate );
+      scene.slitConfigurationProperty.lazyLink( fullUpdate );
+      if ( 'screenDistanceProperty' in scene ) {
         scene.screenDistanceProperty.lazyLink( fullUpdate );
       }
       else {
-        scene.slitConfigurationProperty.lazyLink( fullUpdate );
-        scene.slitPositionFractionProperty.lazyLink( fullUpdate );
+        scene.barrierPositionFractionProperty.lazyLink( fullUpdate );
       }
       scene.slitSeparationProperty.lazyLink( fullUpdate );
       scene.wavelengthProperty.lazyLink( fullUpdate );

@@ -129,7 +129,7 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
     }
 
     const amplitudeScale = scene.waveAmplitudeScaleProperty ? scene.waveAmplitudeScaleProperty.value : 1;
-    const barrierFractionX = scene.slitPositionFractionProperty.value;
+    const barrierFractionX = scene.barrierPositionFractionProperty.value;
     const rampEndFractionX = barrierFractionX + COLOR_POWER_RAMP_FRACTION;
     const hasBarrier = scene.barrierTypeProperty.value === 'doubleSlit';
     if ( !this.colorPowers || this.colorPowers.length !== gridWidth ) {

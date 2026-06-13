@@ -40,7 +40,7 @@ function formatExperimentDetectorPatternResponse( model: ExperimentModel ): stri
     getDetectorScreenHalfWidthForScaleIndex( model.detectorScreenScaleIndexProperty.value )
   );
 
-  return formatCompleteIntensityDetectorPatternDescription( model.currentSlitSettingProperty.value, analysis );
+  return formatCompleteIntensityDetectorPatternDescription( model.currentSlitConfigurationProperty.value, analysis );
 }
 
 export default class ExperimentScreenViewDescription extends Node {
@@ -110,7 +110,7 @@ export default class ExperimentScreenViewDescription extends Node {
     const detectorScreenDetailsNode = new ExperimentDetectorScreenDetailsNode( model );
     this.addChild( detectorScreenDetailsNode );
 
-    const experimentSetupDetailsListNode = new ExperimentSetupDetailsNode( model, model.currentSlitSettingProperty, {
+    const experimentSetupDetailsListNode = new ExperimentSetupDetailsNode( model, model.currentSlitConfigurationProperty, {
       screenDistanceProperty: model.currentScreenDistanceProperty,
       leadingParagraphStringProperty:
         QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.experimentDetailsLeadingParagraphStringProperty,

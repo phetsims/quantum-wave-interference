@@ -205,7 +205,7 @@ function createSceneTextureCache(
   sceneModel.particleSpeedProperty.link( markDirty );
   sceneModel.slitSeparationProperty.link( markDirty );
   sceneModel.screenDistanceProperty.link( markDirty );
-  sceneModel.slitSettingProperty.link( markDirty );
+  sceneModel.slitConfigurationProperty.link( markDirty );
 
   return cache;
 }

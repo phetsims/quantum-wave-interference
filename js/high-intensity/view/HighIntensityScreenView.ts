@@ -199,7 +199,7 @@ const getWaveProgress = (
                        solverTime;
   const wavefrontX = propagationSpeed * Math.max( 0, solverTime - sourceOnTime );
   const wavefrontFraction = clamp( wavefrontX / scene.regionWidth, 0, 1 );
-  const slitFraction = scene.slitPositionFractionProperty.value;
+  const slitFraction = scene.barrierPositionFractionProperty.value;
   const slitWindow = 0.04;
   const slitSeparationFraction = scene.slitSeparationProperty.value * 1e-3 / scene.regionWidth;
   const circularWavesOverlapFraction = slitFraction + Math.max( slitWindow, slitSeparationFraction / 2 );

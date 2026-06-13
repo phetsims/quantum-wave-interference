@@ -107,7 +107,7 @@ export default class SceneModel extends PhetioObject {
   public readonly screenDistanceProperty: NumberProperty;
 
   // Slit configuration
-  public readonly slitSettingProperty: StringUnionProperty<SlitConfiguration>;
+  public readonly slitConfigurationProperty: StringUnionProperty<SlitConfiguration>;
 
   // Detection mode (Intensity vs Hits)
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
@@ -288,9 +288,9 @@ export default class SceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
-    this.slitSettingProperty = new StringUnionProperty<SlitConfiguration>( 'bothOpen', {
+    this.slitConfigurationProperty = new StringUnionProperty<SlitConfiguration>( 'bothOpen', {
       validValues: SlitConfigurationValues,
-      tandem: tandem.createTandem( 'slitSettingProperty' ),
+      tandem: tandem.createTandem( 'slitConfigurationProperty' ),
       phetioFeatured: true
     } );
 
@@ -360,7 +360,7 @@ export default class SceneModel extends PhetioObject {
     // so they become inconsistent (and pedagogically misleading) if the pattern changes beneath them.
     this.slitSeparationProperty.lazyLink( () => this.clearScreen() );
     this.screenDistanceProperty.lazyLink( () => this.clearScreen() );
-    this.slitSettingProperty.lazyLink( () => this.clearScreen() );
+    this.slitConfigurationProperty.lazyLink( () => this.clearScreen() );
     this.wavelengthProperty.lazyLink( () => this.clearScreen() );
     this.particleSpeedProperty.lazyLink( () => this.clearScreen() );
 
@@ -409,7 +409,7 @@ export default class SceneModel extends PhetioObject {
       screenDistance: this.screenDistanceProperty.value,
       slitWidth: this.slitWidth * 1E-3,
       slitSeparation: this.slitSeparationProperty.value * 1E-3,
-      slitSetting: this.slitSettingProperty.value
+      slitSetting: this.slitConfigurationProperty.value
     } );
   }
 
@@ -444,7 +444,7 @@ export default class SceneModel extends PhetioObject {
       screenDistance: this.screenDistanceProperty.value,
       screenHalfWidth: this.fullScreenHalfWidth,
       effectiveWavelength: this.getEffectiveWavelength(),
-      slitSetting: this.slitSettingProperty.value,
+      slitSetting: this.slitConfigurationProperty.value,
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
       intensity: this.sourceStrengthProperty.value,
@@ -477,7 +477,7 @@ export default class SceneModel extends PhetioObject {
     this.emissionRateProperty.reset();
     this.slitSeparationProperty.reset();
     this.screenDistanceProperty.reset();
-    this.slitSettingProperty.reset();
+    this.slitConfigurationProperty.reset();
     this.detectionModeProperty.reset();
     this.screenBrightnessProperty.reset();
     this.hits.length = 0;
@@ -548,7 +548,7 @@ export default class SceneModel extends PhetioObject {
       return;
     }
 
-    const slitSetting = this.slitSettingProperty.value;
+    const slitSetting = this.slitConfigurationProperty.value;
     const isDetectorActive = hasAnyDetector( slitSetting );
     let actualHitsAddedThisFrame = 0;
     let leftDetectorHitsThisFrame = 0;

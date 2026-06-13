@@ -310,7 +310,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.targetDetectionTime = this.sampleDetectionTime();
     this.deterministicOnSlitArrivalTime = this.getDeterministicSlitArrivalTime();
     this.targetOnSlitDetectionTime = this.sampleDetectionDelayToTargetX(
-      this.slitPositionFractionProperty.value * this.regionWidth,
+      this.barrierPositionFractionProperty.value * this.regionWidth,
       0
     );
     this.timeSinceLastEmission = 0;
@@ -429,7 +429,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
 
     const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
     const initialCenterX = -QuantumWaveInterferenceConstants.WAVE_PACKET_START_OFFSET_SIGMAS * sigmaX0;
-    return ( this.slitPositionFractionProperty.value * this.regionWidth - initialCenterX ) / propagationSpeed;
+    return ( this.barrierPositionFractionProperty.value * this.regionWidth - initialCenterX ) / propagationSpeed;
   }
 
   /**
@@ -555,7 +555,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
       selectedSlit: selectedSlit,
       eventTime: eventTime,
       timeAdvance: this.getPacketReEmissionTimeAdvance( eventTime ),
-      sourceX: this.slitPositionFractionProperty.value * this.regionWidth,
+      sourceX: this.barrierPositionFractionProperty.value * this.regionWidth,
       centerY: selectedSlit === 'topSlit' ? -displaySlitSeparation / 2 : displaySlitSeparation / 2,
       width: displaySlitWidth
     };

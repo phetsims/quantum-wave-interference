@@ -131,7 +131,7 @@ type HighIntensitySourceBeamCalloutModel<T extends SourceBeamCalloutSceneLike> =
   // Active-scene Properties needed to render the emitter, beam, and mini slit symbol.
   readonly currentWavelengthProperty: TReadOnlyProperty<number>;
   readonly currentBarrierTypeProperty: TReadOnlyProperty<BarrierType>;
-  readonly currentSlitPositionFractionProperty: TReadOnlyProperty<number>;
+  readonly currentBarrierPositionFractionProperty: TReadOnlyProperty<number>;
   readonly currentSlitSeparationProperty: TReadOnlyProperty<number>;
   readonly currentIsEmittingProperty: TProperty<boolean>;
   readonly currentIsEmitterEnabledProperty: TReadOnlyProperty<boolean>;
@@ -178,7 +178,7 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
       scenes,
       currentWavelengthProperty,
       currentBarrierTypeProperty,
-      currentSlitPositionFractionProperty,
+      currentBarrierPositionFractionProperty,
       currentSlitSeparationProperty,
       currentIsEmittingProperty,
       currentIsEmitterEnabledProperty,
@@ -378,7 +378,7 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
     } );
 
     Multilink.multilink(
-      [ sceneProperty, currentBarrierTypeProperty, currentSlitPositionFractionProperty, currentSlitSeparationProperty ],
+      [ sceneProperty, currentBarrierTypeProperty, currentBarrierPositionFractionProperty, currentSlitSeparationProperty ],
       ( scene, barrierType, slitPositionFraction, slitSeparation ) => {
         miniDoubleSlitNode.visible = barrierType === 'doubleSlit';
 

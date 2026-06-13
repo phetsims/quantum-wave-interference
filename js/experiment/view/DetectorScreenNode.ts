@@ -263,7 +263,7 @@ export default class DetectorScreenNode extends Node {
     sceneModel.particleSpeedProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.slitSeparationProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.screenDistanceProperty.link( () => this.screenCanvasNode.invalidatePaint() );
-    sceneModel.slitSettingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
+    sceneModel.slitConfigurationProperty.link( () => this.screenCanvasNode.invalidatePaint() );
 
     const snapshotControlsTandem = providedOptions.tandem.createTandem( 'snapshotControls' );
 

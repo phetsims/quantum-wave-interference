@@ -41,7 +41,7 @@ type WaveRegionModel = {
   readonly currentBarrierTypeProperty: TReadOnlyProperty<BarrierType>;
 
   // Fractional x-position of the slit assembly within the wave region.
-  readonly currentSlitPositionFractionProperty: TProperty<number>;
+  readonly currentBarrierPositionFractionProperty: TProperty<number>;
 
   // Current physical separation between the two slits, in millimeters.
   readonly currentSlitSeparationProperty: TReadOnlyProperty<number>;
@@ -114,7 +114,7 @@ export default class WaveRegionNode extends Node {
     const doubleSlitNode = new DoubleSlitNode(
       model.sceneProperty,
       model.currentBarrierTypeProperty,
-      model.currentSlitPositionFractionProperty,
+      model.currentBarrierPositionFractionProperty,
       model.currentSlitSeparationProperty,
       slitSeparationRangeProperty,
       model.currentIsEmittingProperty,

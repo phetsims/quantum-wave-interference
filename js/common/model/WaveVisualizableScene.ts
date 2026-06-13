@@ -52,7 +52,7 @@ type WaveVisualizableScene = {
   readonly barrierTypeProperty: TReadOnlyProperty<BarrierType>;
 
   /** Normalized horizontal barrier position, where model x = value * regionWidth. */
-  readonly slitPositionFractionProperty: TReadOnlyProperty<number>;
+  readonly barrierPositionFractionProperty: TReadOnlyProperty<number>;
 
   /** Selects which scalar representation of the complex wave field is rendered. */
   readonly activeWaveDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>;

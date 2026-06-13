@@ -41,7 +41,7 @@ export default class GraphDescriber {
     const update = () => {
       const detectionMode = sceneModel.detectionModeProperty.value;
       const isRulerVisible = isRulerVisibleProperty.value;
-      const slitSetting = sceneModel.slitSettingProperty.value;
+      const slitSetting = sceneModel.slitConfigurationProperty.value;
       const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
 
       // NOTE: see other duplicate in
@@ -110,7 +110,7 @@ export default class GraphDescriber {
     sceneModel.hitsChangedEmitter.addListener( update );
     sceneModel.detectionModeProperty.lazyLink( fullUpdate );
     sceneModel.isEmittingProperty.lazyLink( fullUpdate );
-    sceneModel.slitSettingProperty.lazyLink( fullUpdate );
+    sceneModel.slitConfigurationProperty.lazyLink( fullUpdate );
     sceneModel.slitSeparationProperty.lazyLink( fullUpdate );
     sceneModel.screenDistanceProperty.lazyLink( fullUpdate );
     sceneModel.wavelengthProperty.lazyLink( fullUpdate );

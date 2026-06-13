@@ -30,7 +30,7 @@ import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import ScreenDistanceControl from './ScreenDistanceControl.js';
 import SlitSeparationControl from './SlitSeparationControl.js';
-import SlitSettingsComboBox from './SlitSettingsComboBox.js';
+import SlitConfigurationComboBox from './SlitConfigurationComboBox.js';
 
 const SLIT_SETTINGS_TITLE_FONT = new PhetFont( 14 );
 const PANEL_CONTENT_SPACING = 20;
@@ -127,15 +127,15 @@ export default class SlitControlPanel extends Panel {
       maxWidth: 170
     } );
 
-    const slitSettingsComboBox = new SlitSettingsComboBox( scene.slitSettingProperty, comboBoxParent, {
-      tandem: tandem.createTandem( 'slitSettingsComboBox' )
+    const slitConfigurationComboBox = new SlitConfigurationComboBox( scene.slitConfigurationProperty, comboBoxParent, {
+      tandem: tandem.createTandem( 'slitConfigurationComboBox' )
     } );
 
     const slitSettingsSection = new VBox( {
       spacing: SLIT_SETTINGS_SECTION_SPACING,
       align: 'center',
-      children: [ slitSettingsLabel, slitSettingsComboBox ],
-      visibleProperty: slitSettingsComboBox.visibleProperty
+      children: [ slitSettingsLabel, slitConfigurationComboBox ],
+      visibleProperty: slitConfigurationComboBox.visibleProperty
     } );
 
     return {
@@ -147,7 +147,7 @@ export default class SlitControlPanel extends Panel {
       hasVisibleContentProperty: DerivedProperty.or( [
         slitSeparationControl.visibleProperty,
         screenDistanceControl.visibleProperty,
-        slitSettingsComboBox.visibleProperty
+        slitConfigurationComboBox.visibleProperty
       ] )
     };
   }

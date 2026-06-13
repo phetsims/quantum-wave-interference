@@ -330,7 +330,7 @@ export default class GraphAccordionBox extends Node {
     this.zoomLevelProperty.link( () => updateGraph() );
     sceneModel.slitSeparationProperty.link( () => updateGraph() );
     sceneModel.screenDistanceProperty.link( () => updateGraph() );
-    sceneModel.slitSettingProperty.link( () => updateGraph() );
+    sceneModel.slitConfigurationProperty.link( () => updateGraph() );
     sceneModel.sourceStrengthProperty.link( () => updateGraph() );
     providedOptions.detectorScreenScaleIndexProperty.link( () => updateGraph() );
 

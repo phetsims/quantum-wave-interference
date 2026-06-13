@@ -21,11 +21,11 @@ import ExperimentConstants from '../../ExperimentConstants.js';
 export default class SlitViewDescriptionNode extends Node {
 
   /**
-   * @param slitSettingProperty - the current scene's slit configuration
+   * @param slitConfigurationProperty - the current scene's slit configuration
    * @param sceneProperty - the selected scene, which determines the constant slit width to describe
    */
   public constructor(
-    slitSettingProperty: TReadOnlyProperty<SlitConfiguration>,
+    slitConfigurationProperty: TReadOnlyProperty<SlitConfiguration>,
     sceneProperty: TReadOnlyProperty<{ readonly slitWidth: number }>
   ) {
 
@@ -45,7 +45,7 @@ export default class SlitViewDescriptionNode extends Node {
       accessibleParagraph:
         QuantumWaveInterferenceFluent.a11y.slitView.accessibleParagraph.createProperty( {
           slitWidth: slitWidthStringProperty,
-          slitSetting: slitSettingProperty
+          slitSetting: slitConfigurationProperty
         } )
     } );
   }

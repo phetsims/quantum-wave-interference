@@ -80,7 +80,7 @@ export default class ExperimentScreenView extends ScreenView {
     const options = optionize<ExperimentScreenViewOptions, SelfOptions, ScreenViewOptions>()( {
         screenSummaryContent: new QuantumWaveInterferenceScreenSummaryContent(
           model,
-          model.currentSlitSettingProperty,
+          model.currentSlitConfigurationProperty,
           {
             detectionMode: model.currentDetectionModeProperty
           }
@@ -320,7 +320,7 @@ export default class ExperimentScreenView extends ScreenView {
       isEmitterEnabled: this.model.currentIsEmitterEnabledProperty.value,
       isMaxHitsReached: this.model.currentIsMaxHitsReachedProperty.value,
       detectionMode: this.model.currentDetectionModeProperty.value,
-      slitConfiguration: this.model.currentSlitSettingProperty.value,
+      slitConfiguration: this.model.currentSlitConfigurationProperty.value,
       wavelengthNM: this.model.currentWavelengthProperty.value,
       particleSpeedMetersPerSecond: this.model.currentParticleSpeedProperty.value,
       effectiveWavelengthMeters: scene.getEffectiveWavelength(),
