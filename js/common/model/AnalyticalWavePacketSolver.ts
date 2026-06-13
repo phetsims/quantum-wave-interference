@@ -3,7 +3,7 @@
 /**
  * Stateful WaveSolver adapter for the pure analytical Gaussian-packet kernel.
  *
- * The packet solver owns screen state such as current time, cached grids, and detector-tool
+ * The packet solver owns screen state such as current time, cached grids, and detector-probe
  * measurement projections. Each field value is evaluated by AnalyticalWaveKernel, which reports
  * explicit field status and independent coherent components.
  *
@@ -37,7 +37,7 @@ function copyPacketReEmission( reEmission: GaussianPacketReEmission ): GaussianP
 export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver {
 
   /**
-   * Detector-tool measurement projections that have been applied to the current emitted packet. Each projection
+   * Detector-probe measurement projections that have been applied to the current emitted packet. Each projection
    * suppresses the wave inside the failed-detection region after its measurement time, then renormalizes the
    * remaining packet intensity. The array instance is retained so kernel parameters can safely reference it while
    * entries are cleared or replaced during reset and state restore.
@@ -159,7 +159,7 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
   }
 
   /**
-   * Applies a detector-tool measurement projection to the packet wavefunction. The normalized center is converted
+   * Applies a detector-probe measurement projection to the packet wavefunction. The normalized center is converted
    * into model coordinates, the normalized radius is converted to model width, and the field cache is invalidated.
    *
    * @param centerNorm - Projection center in normalized wave-region coordinates.

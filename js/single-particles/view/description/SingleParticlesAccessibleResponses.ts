@@ -57,7 +57,7 @@ type SingleParticlesResponseState = {
   isEmitting: boolean;
   isPacketActive: boolean;
   isMaxHitsReached: boolean;
-  detectorToolState: DetectorProbeState;
+  detectorProbeState: DetectorProbeState;
   slitConfiguration: SlitConfigurationWithNoBarrier;
   waveDisplayMode: WaveDisplayMode;
   wavelengthNM: number;
@@ -193,7 +193,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
     model.currentWavelengthProperty.lazyLink( updateStateSilently );
     model.currentParticleSpeedProperty.lazyLink( updateStateSilently );
     model.currentSlitSeparationProperty.lazyLink( updateStateSilently );
-    model.currentDetectorTool.stateProperty.lazyLink( updateStateSilently );
+    model.currentDetectorProbe.stateProperty.lazyLink( updateStateSilently );
     model.isPlayingProperty.lazyLink( updateStateSilently );
     model.timeSpeedProperty.lazyLink( updateStateSilently );
 
@@ -267,7 +267,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       isEmitting: scene.isEmittingProperty.value,
       isPacketActive: scene.isPacketActiveProperty.value,
       isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
-      detectorToolState: scene.detectorProbe.stateProperty.value,
+      detectorProbeState: scene.detectorProbe.stateProperty.value,
       slitConfiguration: slitConfiguration,
       waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
       wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),
@@ -315,7 +315,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
                                  before.wavelengthNM === after.wavelengthNM &&
                                  before.particleSpeedMetersPerSecond === after.particleSpeedMetersPerSecond &&
                                  before.slitSeparationMM === after.slitSeparationMM &&
-                                 before.detectorToolState === after.detectorToolState &&
+                                 before.detectorProbeState === after.detectorProbeState &&
                                  after.totalHits >= before.totalHits;
       if ( isExplicitUserStop ) {
         this.addAccessibleContextResponse( formatSourceStoppedResponse( 'hits', after.totalHits ) );

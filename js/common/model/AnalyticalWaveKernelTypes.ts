@@ -240,7 +240,7 @@ export type AnalyticalBarrier =
   };
 
 /**
- * One failed detector-tool measurement applied to a gaussian packet. At measurementTime the
+ * One failed detector-probe measurement applied to a gaussian packet. At measurementTime the
  * projection removes amplitude inside the detector disk; afterward the deficit advects with the
  * packet and spreads/fades so the bite fills back in. Plane-wave sources ignore projections.
  */

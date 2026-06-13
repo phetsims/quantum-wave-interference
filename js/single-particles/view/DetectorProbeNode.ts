@@ -39,9 +39,9 @@ import Panel from '../../../../sun/js/Panel.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
-import { type DetectorToolViewStateFragment } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
+import { type DetectorProbeViewStateFragment } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
-import CurrentDetectorTool from '../model/CurrentDetectorTool.js';
+import CurrentDetectorProbe from '../model/CurrentDetectorProbe.js';
 import DetectorProbe from '../model/DetectorProbe.js';
 
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
@@ -58,28 +58,28 @@ const PROBE_KEYBOARD_DRAG_DELTA = 8;
 const PROBE_KEYBOARD_SHIFT_DRAG_DELTA = 2;
 
 /**
- * View/controller for the detector tool. The detector's position and radius are stored in model coordinates normalized
+ * View/controller for the detector probe. The detector's position and radius are stored in model coordinates normalized
  * to the wave region: position components span the wave-region width/height, while radius is a fraction of the
  * wave-region width. This node maps those values into view coordinates, updates the tool labels and measurement-state
  * colors, and routes the dashed wire to the external control panel.
  *
- * The detector tool Properties are exposed by CurrentDetectorTool as DynamicProperties, so one DetectorProbeNode can stay
+ * The detector probe Properties are exposed by CurrentDetectorProbe as DynamicProperties, so one DetectorProbeNode can stay
  * connected while the active Single Particles scene changes.
  */
 export default class DetectorProbeNode extends Node {
 
-  private readonly currentDetectorTool: CurrentDetectorTool;
+  private readonly currentDetectorProbe: CurrentDetectorProbe;
 
   /**
-   * @param currentDetectorTool - detector tool model for the active Single Particles scene
+   * @param currentDetectorProbe - detector probe model for the active Single Particles scene
    * @param waveRegionLeft - left edge of the wave visualization region in this node's parent coordinate frame
    * @param waveRegionTop - top edge of the wave visualization region in this node's parent coordinate frame
    * @param getControlPanelCenterX - callback for the panel center x-coordinate, evaluated after layout changes
    * @param getControlPanelCenterY - callback for the panel center y-coordinate, evaluated after layout changes
-   * @param tandem - instrumentation root for detector-tool controls
+   * @param tandem - instrumentation root for detector-probe controls
    */
   public constructor(
-    currentDetectorTool: CurrentDetectorTool,
+    currentDetectorProbe: CurrentDetectorProbe,
     waveRegionLeft: number,
     waveRegionTop: number,
     getControlPanelCenterX: () => number,
@@ -92,9 +92,9 @@ export default class DetectorProbeNode extends Node {
       // Core description mirroring the visual readout inside the probe circle: the detection chance while ready,
       // or the measurement result. The probability is formatted to match the visual percent readout.
       accessibleParagraph: QuantumWaveInterferenceFluent.a11y.detectorProbe.accessibleParagraph.createProperty( {
-        state: currentDetectorTool.stateProperty,
+        state: currentDetectorProbe.stateProperty,
         probability: percentUnit.getAccessibleStringProperty(
-          new DerivedProperty( [ currentDetectorTool.probabilityProperty ], probability => probability * 100 ),
+          new DerivedProperty( [ currentDetectorProbe.probabilityProperty ], probability => probability * 100 ),
           {
             numberFormatOptions: {
               decimalPlaces: 1,
@@ -105,10 +105,10 @@ export default class DetectorProbeNode extends Node {
       } )
     } );
 
-    this.currentDetectorTool = currentDetectorTool;
+    this.currentDetectorProbe = currentDetectorProbe;
 
     const circleFillProperty = new DerivedProperty(
-      [ currentDetectorTool.stateProperty, QuantumWaveInterferenceColors.detectorToolDetectedFillProperty ],
+      [ currentDetectorProbe.stateProperty, QuantumWaveInterferenceColors.detectorProbeDetectedFillProperty ],
       ( state, detectedFill ) =>
         state === 'detected' ? detectedFill :
         state === 'notDetected' ? CIRCLE_FILL_NOT_DETECTED :
@@ -168,12 +168,12 @@ export default class DetectorProbeNode extends Node {
     };
     const detectTextBox = detectButtonTextAlignGroup.createBox(
       new Text( QuantumWaveInterferenceFluent.detectStringProperty, textOptions ), {
-        visibleProperty: new DerivedProperty( [ currentDetectorTool.stateProperty ], state => state === 'ready' )
+        visibleProperty: new DerivedProperty( [ currentDetectorProbe.stateProperty ], state => state === 'ready' )
       } );
 
     const resetTextBox = detectButtonTextAlignGroup.createBox(
       new Text( QuantumWaveInterferenceFluent.resetDetectorStringProperty, textOptions ), {
-        visibleProperty: new DerivedProperty( [ currentDetectorTool.stateProperty ], state => state !== 'ready' )
+        visibleProperty: new DerivedProperty( [ currentDetectorProbe.stateProperty ], state => state !== 'ready' )
       } );
 
     const detectButton = new RectangularPushButton( {
@@ -182,18 +182,18 @@ export default class DetectorProbeNode extends Node {
       // The visual label is two stacked Text nodes, so the accessible name must be provided explicitly and
       // track the same state.
       accessibleName: new DerivedProperty(
-        [ currentDetectorTool.stateProperty,
+        [ currentDetectorProbe.stateProperty,
           QuantumWaveInterferenceFluent.detectStringProperty,
           QuantumWaveInterferenceFluent.resetDetectorStringProperty ],
         ( state, detectString, resetString ) => state === 'ready' ? detectString : resetString
       ),
       baseColor: QuantumWaveInterferenceColors.snapshotButtonBaseColorProperty,
       listener: () => {
-        if ( currentDetectorTool.stateProperty.value === 'ready' ) {
-          currentDetectorTool.performMeasurement();
+        if ( currentDetectorProbe.stateProperty.value === 'ready' ) {
+          currentDetectorProbe.performMeasurement();
         }
         else {
-          currentDetectorTool.resetState();
+          currentDetectorProbe.resetState();
         }
       },
       tandem: tandem.createTandem( 'detectButton' )
@@ -205,8 +205,8 @@ export default class DetectorProbeNode extends Node {
     } );
 
     const sizeSlider = new HSlider(
-      currentDetectorTool.radiusProperty,
-      currentDetectorTool.radiusRange,
+      currentDetectorProbe.radiusProperty,
+      currentDetectorProbe.radiusRange,
       {
         trackSize: new Dimension2( 80, 3 ),
         thumbSize: new Dimension2( 11, 18 ),
@@ -248,8 +248,8 @@ export default class DetectorProbeNode extends Node {
      * bounds change due to dynamic layout or localization.
      */
     const updateCircle = () => {
-      const pos = currentDetectorTool.positionProperty.value;
-      const radius = currentDetectorTool.radiusProperty.value;
+      const pos = currentDetectorProbe.positionProperty.value;
+      const radius = currentDetectorProbe.radiusProperty.value;
 
       const viewX = waveRegionLeft + pos.x * WAVE_REGION_WIDTH;
       const viewY = waveRegionTop + pos.y * WAVE_REGION_HEIGHT;
@@ -284,19 +284,19 @@ export default class DetectorProbeNode extends Node {
     // --- Drag listener for the circle ---
 
     // DragListener writes normalized model coordinates even though pointer positions are in view coordinates.
-    const detectorToolModelViewTransform = ModelViewTransform2.createRectangleMapping(
+    const detectorProbeModelViewTransform = ModelViewTransform2.createRectangleMapping(
       new Bounds2( 0, 0, 1, 1 ),
       new Bounds2( waveRegionLeft, waveRegionTop, waveRegionLeft + WAVE_REGION_WIDTH, waveRegionTop + WAVE_REGION_HEIGHT )
     );
     // All parts of the detector circle must stay inside the wave region, so the draggable center bounds
     // shrink as the radius grows. Tracks the active scene's radius through the DynamicProperty.
-    const dragBoundsProperty = new DerivedProperty( [ currentDetectorTool.radiusProperty ],
+    const dragBoundsProperty = new DerivedProperty( [ currentDetectorProbe.radiusProperty ],
       radius => DetectorProbe.getCenterBounds( radius ) );
 
     // Pointer dragging, with grab/release sound effects.
     const dragListener = new SoundDragListener( {
-      positionProperty: currentDetectorTool.positionProperty,
-      transform: detectorToolModelViewTransform,
+      positionProperty: currentDetectorProbe.positionProperty,
+      transform: detectorProbeModelViewTransform,
       dragBoundsProperty: dragBoundsProperty,
       tandem: tandem.createTandem( 'dragListener' )
     } );
@@ -305,8 +305,8 @@ export default class DetectorProbeNode extends Node {
     // Keyboard dragging via arrow/WASD keys, with the same grab/release sound effects. Drag deltas are in view
     // pixels and are converted to normalized model coordinates through the transform.
     const keyboardDragListener = new SoundKeyboardDragListener( {
-      positionProperty: currentDetectorTool.positionProperty,
-      transform: detectorToolModelViewTransform,
+      positionProperty: currentDetectorProbe.positionProperty,
+      transform: detectorProbeModelViewTransform,
       dragBoundsProperty: dragBoundsProperty,
       dragDelta: PROBE_KEYBOARD_DRAG_DELTA,
       shiftDragDelta: PROBE_KEYBOARD_SHIFT_DRAG_DELTA,
@@ -322,8 +322,8 @@ export default class DetectorProbeNode extends Node {
      * formatting change.
      */
     const updateProbabilityLabel = () => {
-      const state = currentDetectorTool.stateProperty.value;
-      const probability = currentDetectorTool.probabilityProperty.value;
+      const state = currentDetectorProbe.stateProperty.value;
+      const probability = currentDetectorProbe.probabilityProperty.value;
 
       if ( state === 'detected' ) {
         probabilityText.string = '';
@@ -346,8 +346,8 @@ export default class DetectorProbeNode extends Node {
 
     Multilink.multilinkAny(
       [
-        currentDetectorTool.stateProperty,
-        currentDetectorTool.probabilityProperty,
+        currentDetectorProbe.stateProperty,
+        currentDetectorProbe.probabilityProperty,
         QuantumWaveInterferenceFluent.particleDetectedStringProperty,
         QuantumWaveInterferenceFluent.notDetectedStringProperty,
         ...percentUnit.getDependentProperties()
@@ -355,11 +355,11 @@ export default class DetectorProbeNode extends Node {
       () => updateProbabilityLabel()
     );
 
-    currentDetectorTool.positionProperty.link( () => updateCircle() );
-    currentDetectorTool.radiusProperty.link( () => updateCircle() );
+    currentDetectorProbe.positionProperty.link( () => updateCircle() );
+    currentDetectorProbe.radiusProperty.link( () => updateCircle() );
 
     Multilink.multilink(
-      [ currentDetectorTool.isVisibleProperty, currentDetectorTool.isAvailableProperty ],
+      [ currentDetectorProbe.isVisibleProperty, currentDetectorProbe.isAvailableProperty ],
       ( isVisible, isAvailable ) => {
         this.visible = isVisible && isAvailable;
       }
@@ -370,20 +370,20 @@ export default class DetectorProbeNode extends Node {
   }
 
   /**
-   * Gets detector-tool view state for agent-facing accessibility snapshots.
+   * Gets detector-probe view state for agent-facing accessibility snapshots.
    *
-   * @returns detector-tool view state
+   * @returns detector-probe view state
    */
-  public getAccessibleViewState(): DetectorToolViewStateFragment {
-    const position = this.currentDetectorTool.positionProperty.value;
+  public getAccessibleViewState(): DetectorProbeViewStateFragment {
+    const position = this.currentDetectorProbe.positionProperty.value;
 
     return {
-      detectorTool: {
-        available: this.currentDetectorTool.isAvailableProperty.value,
-        visible: this.currentDetectorTool.isVisibleProperty.value && this.currentDetectorTool.isAvailableProperty.value,
-        state: this.currentDetectorTool.stateProperty.value,
-        probability: this.currentDetectorTool.probabilityProperty.value,
-        radius: this.currentDetectorTool.radiusProperty.value,
+      detectorProbe: {
+        available: this.currentDetectorProbe.isAvailableProperty.value,
+        visible: this.currentDetectorProbe.isVisibleProperty.value && this.currentDetectorProbe.isAvailableProperty.value,
+        state: this.currentDetectorProbe.stateProperty.value,
+        probability: this.currentDetectorProbe.probabilityProperty.value,
+        radius: this.currentDetectorProbe.radiusProperty.value,
         position: {
           x: position.x,
           y: position.y

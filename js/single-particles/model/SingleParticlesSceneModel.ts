@@ -192,7 +192,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   /**
    * Clears the visible Single Particles run state without resetting user controls or saved snapshots. This is called by
    * the Clear Screen button and by BaseSceneModel when wave, slit, or barrier parameters change. This cancels any active
-   * packet, clears the current detector-tool probability without changing its measurement result, clears packet timing
+   * packet, clears the current detector-probe probability without changing its measurement result, clears packet timing
    * and on-slit re-emission state, and turns off the emitter unless auto-repeat is enabled. In auto-repeat mode, clearing
    * cancels the current packet while leaving the source on so step() can emit the next packet. The base implementation
    * clears detector-screen hits, detector counts, shared wave state, and emits the hit-change notification.
@@ -217,7 +217,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
    * Clears transient Single Particles wave state when isEmittingProperty changes to false. This path is used when the
    * user turns off the emitter, when max hits forces the emitter off, and when a non-auto-repeat packet ends. It cancels
    * the active packet and clears pending slit detection/re-emission state and detector probability without changing the
-   * detector-tool measurement result. The base implementation then clears the shared solver/decoherence state.
+   * detector-probe measurement result. The base implementation then clears the shared solver/decoherence state.
    */
   protected override clearWaveStateWhenEmitterTurnsOff(): void {
     this.isPacketActiveProperty.value = false;
@@ -386,7 +386,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
         this.detectPacket();
       }
 
-      // Update detector tool probability while packet is active
+      // Update detector probe probability while packet is active
       if ( this.isPacketActiveProperty.value && this.detectorProbe.stateProperty.value === 'ready' ) {
         this.detectorProbe.probabilityProperty.value = this.computeDetectorProbability();
       }
@@ -537,7 +537,7 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
     this.hitsChangedEmitter.emit();
   }
 
-  // Shared so screen detection and detector-tool detection stop the emitter consistently.
+  // Shared so screen detection and detector-probe detection stop the emitter consistently.
   private endPacket(): void {
     this.isPacketActiveProperty.value = false;
 
@@ -547,9 +547,9 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   }
 
   /**
-   * Computes the instantaneous probability that the active packet would be detected by the detector tool at its current
-   * position and size. This is called while stepping the active packet, when the detector tool is moved or resized, and
-   * when the user performs a detector-tool measurement. It integrates the squared complex amplitude inside the detector
+   * Computes the instantaneous probability that the active packet would be detected by the detector probe at its current
+   * position and size. This is called while stepping the active packet, when the detector probe is moved or resized, and
+   * when the user performs a detector-probe measurement. It integrates the squared complex amplitude inside the detector
    * circle and normalizes by the total squared amplitude in the wave region. This method only reads current state and
    * does not collapse, project, advance, or otherwise mutate the packet.
    *
@@ -596,8 +596,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   }
 
   /**
-   * Performs one detector-tool measurement using the detector tool's current position and size. This is called when the
-   * user activates the detector tool and only acts while the detector is ready. With no active packet, the result is
+   * Performs one detector-probe measurement using the detector probe's current position and size. This is called when the
+   * user activates the detector probe and only acts while the detector is ready. With no active packet, the result is
    * notDetected and the wave solver is unchanged. With an active packet, the measurement probability comes from
    * computeDetectorProbability(), then a random sample determines the outcome. A successful detection sets the detector
    * tool state to detected and ends the packet. A failed detection sets the state to notDetected and applies a

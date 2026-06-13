@@ -2,7 +2,7 @@
 
 /**
  * Top-level model for the Single Particles screen. Extends BaseScreenModel with Single Particles–specific
- * state: slit configuration, auto-repeat, packet state, detector tool, and hits graph visibility.
+ * state: slit configuration, auto-repeat, packet state, detector probe, and hits graph visibility.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -15,7 +15,7 @@ import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
 import BaseScreenModel from '../../common/model/BaseScreenModel.js';
 import { type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from '../../common/model/SlitConfiguration.js';
-import CurrentDetectorTool from './CurrentDetectorTool.js';
+import CurrentDetectorProbe from './CurrentDetectorProbe.js';
 import SingleParticlesSceneModel from './SingleParticlesSceneModel.js';
 
 // Single Particles uses slower continuous-wave motion than High Intensity so individual packet travel is visible at
@@ -37,7 +37,7 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
 
   // Read-only proxy: true while the active scene has a particle packet in flight.
   public readonly currentIsPacketActiveProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
-  public readonly currentDetectorTool: CurrentDetectorTool;
+  public readonly currentDetectorProbe: CurrentDetectorProbe;
 
   // Tool visibility specific to this screen
   public readonly isHitsGraphVisibleProperty: BooleanProperty;
@@ -92,7 +92,7 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
       phetioFeatured: true
     } );
 
-    this.currentDetectorTool = new CurrentDetectorTool(
+    this.currentDetectorProbe = new CurrentDetectorProbe(
       this.sceneProperty,
       this.currentSlitConfigurationProperty,
       this.toolsTandem
@@ -109,11 +109,11 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
   }
 
   /**
-   * Resets the hits-graph visibility and detector tool visibility. Called during reset() after shared tool Properties
+   * Resets the hits-graph visibility and detector probe visibility. Called during reset() after shared tool Properties
    * have been reset.
    */
   protected override resetToolVisibility(): void {
     this.isHitsGraphVisibleProperty.reset();
-    this.currentDetectorTool.isVisibleProperty.reset();
+    this.currentDetectorProbe.isVisibleProperty.reset();
   }
 }

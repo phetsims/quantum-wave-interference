@@ -1,8 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * CurrentDetectorTool provides a screen-level interface to the detector tool state for the active Single Particles
- * scene. The detector tool's position, radius, measurement state, and probability are scene-specific, so this class
+ * CurrentDetectorProbe provides a screen-level interface to the detector probe state for the active Single Particles
+ * scene. The detector probe's position, radius, measurement state, and probability are scene-specific, so this class
  * exposes DynamicProperties that follow SingleParticlesModel.sceneProperty.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -20,22 +20,22 @@ import { type SlitConfigurationWithNoBarrier } from '../../common/model/SlitConf
 import { type DetectorProbeState } from './DetectorProbe.js';
 import SingleParticlesSceneModel from './SingleParticlesSceneModel.js';
 
-export default class CurrentDetectorTool {
+export default class CurrentDetectorProbe {
 
   public readonly positionProperty: DynamicProperty<Vector2, Vector2, SingleParticlesSceneModel>;
   public readonly radiusProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
   public readonly stateProperty: DynamicProperty<DetectorProbeState, DetectorProbeState, SingleParticlesSceneModel>;
   public readonly probabilityProperty: DynamicProperty<number, number, SingleParticlesSceneModel>;
 
-  // True only when the slit configuration is 'noBarrier'; the detector tool is hidden and disabled for all other
+  // True only when the slit configuration is 'noBarrier'; the detector probe is hidden and disabled for all other
   // barrier configurations. Consumed by the view to gate both checkbox visibility and probe interactivity.
   public readonly isAvailableProperty: TReadOnlyProperty<boolean>;
 
-  // PhET-iO-instrumented user preference controlling whether the detector tool is shown. The view combines this with
+  // PhET-iO-instrumented user preference controlling whether the detector probe is shown. The view combines this with
   // isAvailableProperty so the tool is visible only when both are true.
   public readonly isVisibleProperty: BooleanProperty;
 
-  // Shared radius range for the detector tool, captured from the initial scene. All scenes must expose the same range
+  // Shared radius range for the detector probe, captured from the initial scene. All scenes must expose the same range
   // as an invariant; the range is used directly by DetectorProbeNode to configure its drag bounds.
   public readonly radiusRange: Range;
 
@@ -79,15 +79,15 @@ export default class CurrentDetectorTool {
   }
 
   /**
-   * Performs a detector-tool measurement on the active scene. This delegates to the scene so the measurement uses the
-   * active packet, solver state, and scene-specific detector tool settings.
+   * Performs a detector-probe measurement on the active scene. This delegates to the scene so the measurement uses the
+   * active packet, solver state, and scene-specific detector probe settings.
    */
   public performMeasurement(): void {
     this.sceneProperty.value.performDetectorMeasurement();
   }
 
   /**
-   * Resets the detector tool measurement state for the active scene, leaving position and size unchanged.
+   * Resets the detector probe measurement state for the active scene, leaving position and size unchanged.
    */
   public resetState(): void {
     this.sceneProperty.value.detectorProbe.resetMeasurementState();

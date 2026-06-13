@@ -451,14 +451,14 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   public abstract setState( state: WaveSolverState ): void;
 
   /**
-   * Applies a detector-tool measurement projection. Continuous analytical solvers have no projection state, so this
+   * Applies a detector-probe measurement projection. Continuous analytical solvers have no projection state, so this
    * base implementation is intentionally empty; packet solvers override it.
    *
    * @param _centerNorm - Projection center in normalized wave-region coordinates.
    * @param _radiusNorm - Projection radius as a fraction of wave-region width.
    */
   public applyMeasurementProjection( _centerNorm: Vector2, _radiusNorm: number ): void {
-    // No-op by default. Packet solvers override this for detector-tool projections.
+    // No-op by default. Packet solvers override this for detector-probe projections.
   }
 
   /**

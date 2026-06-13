@@ -28,7 +28,7 @@ import createPathDetectorsViewState from '../../common/view/description/createPa
 import DetectorPatternGraphDescriber from '../../common/view/description/DetectorPatternGraphDescriber.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
-import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorToolViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
+import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorProbeViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
 import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
@@ -99,7 +99,7 @@ type SingleParticlesAccessibleViewState = {
   detectorPatternGraph: DetectorPatternGraphViewState;
   waveVisualization: WaveVisualizationViewState;
   slitBarrier: SlitBarrierViewState;
-  detectorTool: DetectorToolViewState;
+  detectorProbe: DetectorProbeViewState;
   measurementTools: MeasurementToolsViewState;
 };
 
@@ -293,7 +293,7 @@ export default class SingleParticlesScreenView extends ScreenView {
 
     // Detector probe (draggable circle + panel, Single Particles only)
     const detectorProbeNode = new DetectorProbeNode(
-      model.currentDetectorTool,
+      model.currentDetectorProbe,
       waveRegionLeft,
       waveRegionTop,
       () => bottomRow.getSlitSeparationControlCenterX(),
@@ -314,11 +314,11 @@ export default class SingleParticlesScreenView extends ScreenView {
     // Detector probe checkbox is only shown when barrier is None; its checked state is preserved in the model.
     const detectorProbeCheckboxTandem = toolsPanelTandem.createTandem( 'detectorProbeCheckbox' );
     const detectorProbeCheckbox = new ToolCheckbox(
-      model.currentDetectorTool.isVisibleProperty,
+      model.currentDetectorProbe.isVisibleProperty,
       QuantumWaveInterferenceFluent.detectorProbeStringProperty,
       detectorProbeCheckboxTandem,
       QuantumWaveInterferenceFluent.a11y.detectorCheckbox.accessibleHelpTextStringProperty,
-      new GatedVisibleProperty( model.currentDetectorTool.isAvailableProperty, detectorProbeCheckboxTandem )
+      new GatedVisibleProperty( model.currentDetectorProbe.isAvailableProperty, detectorProbeCheckboxTandem )
     );
 
     const detectorScreenControls = new DetectorScreenControls( model, this, tandem, {

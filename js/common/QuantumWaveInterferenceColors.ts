@@ -57,8 +57,8 @@ export default class QuantumWaveInterferenceColors {
       default: new Color( 180, 140, 0 )
     } );
 
-  public static readonly detectorToolDetectedFillProperty = new ProfileColorProperty(
-    quantumWaveInterference, 'detectorToolDetectedFill', {
+  public static readonly detectorProbeDetectedFillProperty = new ProfileColorProperty(
+    quantumWaveInterference, 'detectorProbeDetectedFill', {
       default: PhetColorScheme.GREEN_COLORBLIND.withAlpha( 0.65 )
     } );
 

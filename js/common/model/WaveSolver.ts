@@ -16,9 +16,9 @@ import { type DecoherenceEvent, type FieldSample, type GaussianPacketReEmission,
 import { type BarrierType } from './BarrierType.js';
 
 /**
- * Serializable measurement projection for the Single Particles detector tool. The packet solver stores one of these
- * after a failed detector-tool measurement so subsequent field samples include the resulting probability deficit.
- * Developers usually need this only when working on solver state, saved-state migration, or detector-tool physics.
+ * Serializable measurement projection for the Single Particles detector probe. The packet solver stores one of these
+ * after a failed detector-probe measurement so subsequent field samples include the resulting probability deficit.
+ * Developers usually need this only when working on solver state, saved-state migration, or detector-probe physics.
  */
 export type WaveSolverMeasurementProjectionState = {
 
@@ -28,7 +28,7 @@ export type WaveSolverMeasurementProjectionState = {
   // Projection center in solver model coordinates, with y = 0 at the vertical center of the wave region.
   centerY: number;
 
-  // Projection radius in solver model coordinates, scaled from the detector-tool radius.
+  // Projection radius in solver model coordinates, scaled from the detector-probe radius.
   radius: number;
 
   // Width of the smooth inner-edge transition, in solver model coordinates.
@@ -89,7 +89,7 @@ export type AnalyticalWaveSolverState = {
 };
 
 /**
- * Serializable state for the Single Particles Gaussian-packet solver. It preserves the solver clock, detector-tool
+ * Serializable state for the Single Particles Gaussian-packet solver. It preserves the solver clock, detector-probe
  * measurement projections, and any which-slit re-emission descriptor for the active packet.
  */
 export type AnalyticalWavePacketSolverState = {

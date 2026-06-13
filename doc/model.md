@@ -183,7 +183,7 @@ Other Single Particles controls:
 | Barrier | Choose no barrier or double slit. |
 | Slit configuration | Open both slits, cover either slit, or add which-path detectors. |
 | Detector screen | Always shows accumulated hits. |
-| Detector tool | Measures probability in a circular region when there is no barrier. |
+| Detector probe | Measures probability in a circular region when there is no barrier. |
 
 ### Wave Packet Behavior
 
@@ -214,9 +214,9 @@ In Single Particles, each emitted packet can interact with the slit detectors at
 Either way, the final detector-screen hit is still a single localized event. Over many particles, which-path detection
 removes the coherent double-slit fringe pattern.
 
-### Detector Tool
+### Detector Probe
 
-The detector tool is available only when there is no barrier. It represents a circular measurement region inside the
+The detector probe is available only when there is no barrier. It represents a circular measurement region inside the
 wave area.
 
 | Tool result | Meaning |
@@ -225,7 +225,7 @@ wave area.
 | Successful detection | The particle is detected by the tool, the packet disappears, and no detector-screen hit is produced for that packet. |
 | Failed detection | The particle was not in the circular region. Probability inside the tool is removed, and the remaining packet continues. |
 
-The detector tool is an idealized measurement. It is meant to help students reason about probability density and
+The detector probe is an idealized measurement. It is meant to help students reason about probability density and
 measurement, not to represent a detailed physical detector design.
 
 ## Time, Reset, and Snapshots

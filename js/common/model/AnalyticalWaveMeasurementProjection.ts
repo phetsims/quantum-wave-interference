@@ -12,7 +12,7 @@ import { EPSILON, smoothStep } from './AnalyticalWaveMath.js';
 
 const MEASUREMENT_BITE_INITIAL_SATURATION = Math.exp( 0.5 );
 
-// The detector tool's default radius is 0.1 of the wave-region width while the packet starts with
+// The detector probe's default radius is 0.1 of the wave-region width while the packet starts with
 // sigmaX0 = 0.15 of that width. Keeping this ratio here lets the pure kernel derive the reference
 // detector radius from the packet parameters it already receives.
 const MEASUREMENT_BITE_REFERENCE_RADIUS_TO_PACKET_SIGMA_X = 2 / 3;

@@ -169,7 +169,7 @@ export type MeasurementToolsViewStateFragment = {
  * visible is true only when available is also true. probability is the detection probability at the probe location
  * (dimensionless, [0,1]). radius is the probe acceptance radius in view coordinates. position is in view coordinates.
  */
-export type DetectorToolViewState = {
+export type DetectorProbeViewState = {
   available: boolean;
   visible: boolean;
   state: string;
@@ -179,11 +179,11 @@ export type DetectorToolViewState = {
 };
 
 /**
- * Wrapper fragment that names the detectorTool sub-tree; merged into the screen-level accessible view state by
+ * Wrapper fragment that names the detectorProbe sub-tree; merged into the screen-level accessible view state by
  * DetectorProbeNode.getAccessibleViewState().
  */
-export type DetectorToolViewStateFragment = {
-  detectorTool: DetectorToolViewState;
+export type DetectorProbeViewStateFragment = {
+  detectorProbe: DetectorProbeViewState;
 };
 
 /**

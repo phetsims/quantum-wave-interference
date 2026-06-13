@@ -29,7 +29,7 @@ The sim has three Joist screens:
 |--------|-------|------|-------|
 | Experiment | `ExperimentModel` | `ExperimentScreenView` | Own model family with overhead apparatus and front-facing detector views. |
 | High Intensity | `HighIntensityModel` | `HighIntensityScreenView` | Extends shared `BaseScreenModel`/`BaseSceneModel` architecture. |
-| Single Particles | `SingleParticlesModel` | `SingleParticlesScreenView` | Extends shared architecture and adds detector-tool state. |
+| Single Particles | `SingleParticlesModel` | `SingleParticlesScreenView` | Extends shared architecture and adds detector-probe state. |
 
 Each model creates four source scenes. The active source is held by a `sceneProperty`, and screen-level
 `DynamicProperty` instances follow properties of the active scene.
@@ -79,7 +79,7 @@ Subclasses add the screen-specific behavior:
 | Subclass | Adds |
 |----------|------|
 | `HighIntensitySceneModel` | detection mode, detector-pattern formation factor, continuous hit accumulator, continuous slit-detector event scheduler. |
-| `SingleParticlesSceneModel` | auto repeat, packet-active state, sampled packet detection timing, detector-tool state, failed-measurement projections, slit re-emission. |
+| `SingleParticlesSceneModel` | auto repeat, packet-active state, sampled packet detection timing, detector-probe state, failed-measurement projections, slit re-emission. |
 
 ## Analytical Wave System
 
@@ -87,7 +87,7 @@ The current wave implementation is split into pure analytical helpers and statef
 
 | Layer | Files | Role |
 |-------|-------|------|
-| Pure kernel | `AnalyticalWaveKernel.ts`, `AnalyticalWavePropagation.ts`, `AnalyticalWaveDecoherence.ts`, `AnalyticalWaveMeasurementProjection.ts` | Evaluate analytical field samples, slit propagation, decoherence, re-emission, and failed detector-tool measurements. |
+| Pure kernel | `AnalyticalWaveKernel.ts`, `AnalyticalWavePropagation.ts`, `AnalyticalWaveDecoherence.ts`, `AnalyticalWaveMeasurementProjection.ts` | Evaluate analytical field samples, slit propagation, decoherence, re-emission, and failed detector-probe measurements. |
 | Math helpers | `AnalyticalWaveMath.ts`, `FresnelApertureTransfer.ts`, `AnalyticalSlitGeometry.ts`, `inverseStandardNormalCDF.ts` | Numerical helpers used by the analytical kernel and packet timing. |
 | Detector formula | `AnalyticalDetectorPattern.ts` | Fraunhofer detector intensity for Experiment and descriptions. |
 | Stateful adapters | `BaseAnalyticalWaveSolver.ts`, `AnalyticalWaveSolver.ts`, `AnalyticalWavePacketSolver.ts` | Cache grids, expose the `WaveSolver` interface, manage solver time, state, detector distributions, and measurement projections. |
@@ -151,7 +151,7 @@ The view classes expose `getAccessibleViewState()` fragments for agent-facing sn
 | wave visualization | `WaveVisualizationNode` |
 | slit barrier | `DoubleSlitNode` |
 | measurement tools | `MeasurementToolsLayerNode` |
-| detector tool | `DetectorToolNode` on Single Particles |
+| detector probe | `DetectorProbeNode` on Single Particles |
 
 ## Snapshots
 
@@ -178,7 +178,7 @@ The sim instruments model state with tandems and custom IOTypes where plain Prop
 | `Experiment SceneModel.SceneModelIO` | Hit positions and hit accumulator. |
 | `BaseSceneModel.BaseSceneModelIO` | Wave solver state, hits, wavefront status, decoherence events, and subclass state. |
 | `AnalyticalWaveSolverState` | Solver time, source-on time, detector averaging accumulator. |
-| `AnalyticalWavePacketSolverState` | Solver time, detector-tool measurement projections, packet re-emission descriptor. |
+| `AnalyticalWavePacketSolverState` | Solver time, detector-probe measurement projections, packet re-emission descriptor. |
 | `TimePlotDataSeriesIO` | Time-plot samples and sample timing. |
 | `SnapshotIO` | Snapshot metadata and captured hit/pattern data. |
 
