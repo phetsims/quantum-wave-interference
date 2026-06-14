@@ -164,9 +164,10 @@ export default class HighIntensityAccessibleResponses extends Node {
    */
   private emitResponsePlan( responsePlan: QuantumWaveInterferenceResponsePlan, effectiveAction: QuantumWaveInterferenceTransitionAction ): void {
 
-    // Progress and pattern-formation updates can repeat the same text (e.g. the graph pattern description is
-    // identical at formation start and completion), so duplicates of the previous response are dropped.
+    // Progress, pattern-formation, and hit-stage updates can repeat the same text, so duplicates of the previous
+    // response are dropped. For example, multiple no-barrier hit stages share the evenly-scattered-hits description.
     const isDeduplicatedAction = effectiveAction.type === 'waveProgressChanged' ||
+                                 effectiveAction.type === 'hitStageChanged' ||
                                  effectiveAction.type === 'patternFormationStarted' ||
                                  effectiveAction.type === 'patternFormationComplete';
 
