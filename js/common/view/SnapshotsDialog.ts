@@ -8,8 +8,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
+import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
@@ -159,7 +159,8 @@ export default class SnapshotsDialog extends Dialog {
           sharedSoundPlayers.get( 'generalClose' ).stop();
         }
       },
-      tandem: tandem
+      tandem: tandem,
+      accessibleHeading: QuantumWaveInterferenceFluent.a11y.snapshotsDialog.accessibleHeadingStringProperty
     } );
 
     snapshotsProperty.link( snapshots => {

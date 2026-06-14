@@ -108,6 +108,9 @@ type StringsType = {
     'snapshotNode': {
       'deleteSnapshotAccessibleNameStringProperty': LocalizedStringProperty;
     };
+    'snapshotsDialog': {
+      'accessibleHeadingStringProperty': LocalizedStringProperty;
+    };
     'sourceHeadingStringProperty': LocalizedStringProperty;
     'slitsHeadingStringProperty': LocalizedStringProperty;
     'detectorScreenHeadingStringProperty': LocalizedStringProperty;

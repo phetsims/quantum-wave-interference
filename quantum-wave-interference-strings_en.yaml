@@ -216,6 +216,8 @@ a11y:
                              }
   snapshotNode:
     deleteSnapshotAccessibleName: 'Delete { $snapshotTitle }'
+  snapshotsDialog:
+    accessibleHeading:           Snapshots
   sourceHeading:               Source Controls
   slitsHeading:                Slits and Screen Configuration
   detectorScreenHeading:       Detector Screen Controls

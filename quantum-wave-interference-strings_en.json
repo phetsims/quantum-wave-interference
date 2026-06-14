@@ -241,6 +241,11 @@
         "value": "Delete { $snapshotTitle }"
       }
     },
+    "snapshotsDialog": {
+      "accessibleHeading": {
+        "value": "Snapshots"
+      }
+    },
     "sourceHeading": {
       "value": "Source Controls"
     },
