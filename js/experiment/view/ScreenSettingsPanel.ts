@@ -41,6 +41,7 @@ export default class ScreenSettingsPanel extends Panel {
   public constructor( detectionModeProperty: PhetioProperty<DetectionMode>,
                       screenBrightnessProperty: PhetioProperty<number>,
                       isEmittingProperty: TReadOnlyProperty<boolean>,
+                      getIntensityAccessibleContextResponse: () => string,
                       providedOptions: ScreenSettingsPanelOptions ) {
 
     const options = optionize<ScreenSettingsPanelOptions, SelfOptions, PanelOptions>()( {
@@ -63,9 +64,9 @@ export default class ScreenSettingsPanel extends Panel {
         } ),
         tandemName: 'intensityRadioButton',
         options: {
-          accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponse.createProperty( {
-            isEmitting: isEmittingStringProperty
-          } )
+          accessibleContextResponse: () => isEmittingProperty.value ?
+                                             getIntensityAccessibleContextResponse() :
+                                             QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseSourceOffStringProperty
         }
       },
       {

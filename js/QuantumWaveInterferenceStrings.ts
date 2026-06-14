@@ -261,7 +261,7 @@ type StringsType = {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'intensityRadioButton': {
-        'accessibleContextResponseStringProperty': LocalizedStringProperty;
+        'accessibleContextResponseSourceOffStringProperty': LocalizedStringProperty;
       };
       'hitsRadioButton': {
         'accessibleContextResponseStringProperty': LocalizedStringProperty;

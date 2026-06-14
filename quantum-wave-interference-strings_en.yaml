@@ -839,11 +839,7 @@ a11y:
     accessibleName:     Detection Mode
     accessibleHelpText: Choose continuous intensity pattern or individual hits pattern for particle detection.
     intensityRadioButton:
-      accessibleContextResponse: >-
-                                 { $isEmitting ->
-                                   [true] Alternating bright and dark vertical bands on detector screen.
-                                  *[false] Screen is empty. Start particle source.
-                                 }
+      accessibleContextResponseSourceOff: Screen is empty. Start particle source.
     hitsRadioButton:
       accessibleContextResponse: >-
                                  { $isEmitting ->

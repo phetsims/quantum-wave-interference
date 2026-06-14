@@ -584,8 +584,8 @@
         "value": "Choose continuous intensity pattern or individual hits pattern for particle detection."
       },
       "intensityRadioButton": {
-        "accessibleContextResponse": {
-          "value": "{ $isEmitting ->\n  [true] Alternating bright and dark vertical bands on detector screen.\n *[false] Screen is empty. Start particle source.\n}"
+        "accessibleContextResponseSourceOff": {
+          "value": "Screen is empty. Start particle source."
         }
       },
       "hitsRadioButton": {

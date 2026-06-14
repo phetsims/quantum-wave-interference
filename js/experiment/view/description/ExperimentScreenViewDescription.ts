@@ -9,19 +9,17 @@
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
 import ExperimentSetupDetailsNode from '../../../common/view/description/ExperimentSetupDetailsNode.js';
-import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
-import { formatCompleteIntensityDetectorPatternDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import type SceneRadioButtonGroup from '../../../common/view/SceneRadioButtonGroup.js';
 import type SourceControlPanel from '../../../common/view/SourceControlPanel.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../../model/ExperimentModel.js';
-import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import type SceneModel from '../../model/SceneModel.js';
 import type OverheadEmitterNode from '../OverheadEmitterNode.js';
 import type ScreenSettingsPanel from '../ScreenSettingsPanel.js';
 import type SlitControlPanel from '../SlitControlPanel.js';
 import ExperimentDetectorScreenDetailsNode from './ExperimentDetectorScreenDetailsNode.js';
+import formatExperimentDetectorPatternResponse from './formatExperimentDetectorPatternResponse.js';
 
 type ClockSpeedDescription = 'slow' | 'normal' | 'fast';
 
@@ -31,16 +29,6 @@ function getClockSpeedDescription( model: ExperimentModel ): ClockSpeedDescripti
          timeSpeed === TimeSpeed.NORMAL ? 'normal' :
          timeSpeed === TimeSpeed.FAST ? 'fast' :
          ( () => { throw new Error( `Unrecognized timeSpeed: ${timeSpeed}` ); } )();
-}
-
-function formatExperimentDetectorPatternResponse( model: ExperimentModel ): string {
-  const scene = model.sceneProperty.value;
-  const analysis = BandAnalysis.analyzeTheoreticalPattern(
-    scene,
-    getDetectorScreenHalfWidthForScaleIndex( model.detectorScreenScaleIndexProperty.value )
-  );
-
-  return formatCompleteIntensityDetectorPatternDescription( model.currentSlitConfigurationProperty.value, analysis );
 }
 
 export default class ExperimentScreenViewDescription extends Node {

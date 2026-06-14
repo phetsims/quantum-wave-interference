@@ -17,6 +17,7 @@ import ExperimentModel from '../model/ExperimentModel.js';
 import DetectorScreenNode from './DetectorScreenNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
+import formatExperimentDetectorPatternResponse from './description/formatExperimentDetectorPatternResponse.js';
 
 export default class ExperimentDetectorColumnNode extends Node {
 
@@ -72,7 +73,8 @@ export default class ExperimentDetectorColumnNode extends Node {
     this.screenSettingsPanel = new ScreenSettingsPanel(
       model.currentDetectionModeProperty,
       model.currentScreenBrightnessProperty,
-      model.currentIsEmittingProperty, {
+      model.currentIsEmittingProperty,
+      () => formatExperimentDetectorPatternResponse( model ), {
         tandem: tandem.createTandem( 'screenSettingsPanel' )
       }
     );
