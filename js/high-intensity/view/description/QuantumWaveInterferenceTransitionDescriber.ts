@@ -93,7 +93,7 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     let contextResponses: string[] = [];
     let responseGroup: string | null = 'quantum-wave-interference-high-intensity-transition';
     let flushBeforeResponses = false;
-    const advancingWaveResponse = QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.format( {
+    const advancingWaveResponse = QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.advancingWave.format( {
       beamDescription: formatSourceBeamDescription( after )
     } );
 
@@ -111,7 +111,7 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     if ( action.type === 'sourceChanged' ) {
       if ( after.isEmitting ) {
         contextResponses = [
-          QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
+          QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceStarted.format( {
             isPlaying: after.isPlaying ? 'true' : 'false',
             timeSpeed: after.clockSpeedDescription
           } )
@@ -131,7 +131,7 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     }
     else if ( action.type === 'particleTypeChanged' ) {
       contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.particleTypeChanged.format( {
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.particleTypeChanged.format( {
           isEmitting: toFluentBoolean( after.isEmitting ),
           sourceType: after.sourceType
         } )
@@ -139,36 +139,36 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     }
     else if ( action.type === 'detectionModeChanged' ) {
       contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.detectionModeChanged.format( {
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.detectionModeChanged.format( {
           detectionMode: after.detectionMode
         } )
       ];
     }
     else if ( action.type === 'slitConfigurationChanged' ) {
-      applySourceRestartingPlan( QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
+      applySourceRestartingPlan( QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.slitConfigurationChanged.format( {
         isEmitting: toFluentBoolean( after.isEmitting ),
         slitSetting: after.slitConfiguration,
-        sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+        sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value
       } ) );
     }
     else if ( action.type === 'slitSeparationChanged' || action.type === 'wavelengthChanged' || action.type === 'speedChanged' ) {
 
       // These three parameter changes share the same response structure, differing only in which Fluent message
       // announces the change.
-      const message = action.type === 'slitSeparationChanged' ? QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitSeparationChanged :
-                      action.type === 'wavelengthChanged' ? QuantumWaveInterferenceFluent.a11y.highIntensityResponses.wavelengthChanged :
-                      action.type === 'speedChanged' ? QuantumWaveInterferenceFluent.a11y.highIntensityResponses.speedChanged :
+      const message = action.type === 'slitSeparationChanged' ? QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.slitSeparationChanged :
+                      action.type === 'wavelengthChanged' ? QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.wavelengthChanged :
+                      action.type === 'speedChanged' ? QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.speedChanged :
                       ( () => { throw new Error( `Unrecognized action type: ${action}` ); } )();
 
       applySourceRestartingPlan( message.format( {
         isEmitting: toFluentBoolean( after.isEmitting ),
-        sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+        sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value
       } ) );
     }
     else if ( action.type === 'slitPositionChanged' ) {
       contextResponses = after.isEmitting ?
                          [
-                           QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value,
+                           QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value,
                            advancingWaveResponse
                          ] :
                          [];
@@ -177,28 +177,28 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     }
     else if ( action.type === 'displayModeChanged' ) {
       contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.displayModeChanged.format( {
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.displayModeChanged.format( {
           displayMode: after.displayMode
         } )
       ];
     }
     else if ( action.type === 'brightnessChanged' ) {
       contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.brightnessChanged.format( {
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.brightnessChanged.format( {
           brightnessTrend: getTrend( before.screenBrightnessPercent, after.screenBrightnessPercent )
         } )
       ];
     }
     else if ( action.type === 'waveDisplayChanged' ) {
       contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveDisplayChanged.format( {
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveDisplayChanged.format( {
           waveDisplayMode: after.waveDisplayMode
         } )
       ];
     }
     else if ( action.type === 'toolChanged' ) {
       contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.toolChanged.format( {
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.toolChanged.format( {
           tool: action.tool,
           isVisible: after.measurementTools[ action.tool ].visible ? 'true' : 'false'
         } )
@@ -208,9 +208,9 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       const isRestarting = after.isPlaying && after.isEmitting;
 
       contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.screenCleared.format( {
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.screenCleared.format( {
           isRestarting: isRestarting ? 'true' : 'false',
-          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value
         } ),
         ...( isRestarting ? [ advancingWaveResponse ] : [] )
       ];
@@ -219,7 +219,7 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     }
     else if ( action.type === 'hitStageChanged' ) {
       contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.hitStageChanged.format( {
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.hitStageChanged.format( {
           hitStage: after.hitStage,
           patternKind: after.patternKind
         } )
@@ -229,7 +229,7 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       const waveProgressStage = after.waveProgress.stage;
       contextResponses = ( waveProgressStage === 'travelingToSlits' || waveProgressStage === 'directToScreen' ) ? [] :
                          [
-                           QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
+                           QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.format( {
                              waveProgressStage: waveProgressStage,
                              waveDisplayMode: after.waveDisplayMode,
                              patternKind: after.patternKind
@@ -248,10 +248,10 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       ];
     }
     else if ( action.type === 'maxHitsReached' ) {
-      contextResponses = [ QuantumWaveInterferenceFluent.a11y.highIntensityResponses.maxHitsReachedStringProperty.value ];
+      contextResponses = [ QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.maxHitsReachedStringProperty.value ];
     }
     else if ( action.type === 'reset' ) {
-      contextResponses = [ QuantumWaveInterferenceFluent.a11y.highIntensityResponses.resetStringProperty.value ];
+      contextResponses = [ QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.resetStringProperty.value ];
     }
 
     return {

@@ -37,8 +37,8 @@ type SequenceItem = {
 function createDependencies( model: HighIntensityModel ): TReadOnlyProperty<unknown>[] {
   return Array.from( new Set( [
     ...QuantumWaveInterferenceAccessibleStateTemplate.createDependencies( model ),
-    ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.getDependentProperties(),
-    ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.getDependentProperties()
+    ...QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.advancingWave.getDependentProperties(),
+    ...QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.getDependentProperties()
   ] ) );
 }
 
@@ -71,7 +71,7 @@ const createItem = (
 } );
 
 function formatAdvancingWave( state: HighIntensityAccessibleViewState ): string {
-  return QuantumWaveInterferenceFluent.a11y.highIntensityResponses.advancingWave.format( {
+  return QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.advancingWave.format( {
     beamDescription: formatSourceBeamDescription( state )
   } );
 }
@@ -80,7 +80,7 @@ const formatWaveProgress = (
   state: HighIntensityAccessibleViewState,
   stage: SequenceWaveProgressStage
 ): string =>
-  QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
+  QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.format( {
     waveProgressStage: stage,
     waveDisplayMode: state.waveDisplayMode,
     patternKind: state.patternKind

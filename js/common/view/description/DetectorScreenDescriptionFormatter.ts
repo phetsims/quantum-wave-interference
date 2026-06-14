@@ -60,7 +60,7 @@ export function formatDetectorPatternDescription(
   hitCount = 0,
   bandSpacing: BandAnalysisResult[ 'spacingCategory' ] = 'somewhatCloseTogether'
 ): string {
-  return QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.format( {
+  return QuantumWaveInterferenceFluent.a11y.waveExperimentState.detectorPattern.format( {
     isEmitting: isEmitting ? 'true' : 'false',
     detectionMode: detectionMode,
     patternFormation: patternFormation,

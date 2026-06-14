@@ -306,7 +306,7 @@ a11y:
                                *[extremelyCloseTogether] Wave peaks, extremely close together.
                               }
   singleParticlesState:
-    # Single Particles counterpart to highIntensityState.sourceBeam: a single emitted wave packet rendered as a round
+    # Single Particles counterpart to waveExperimentState.sourceBeam: a single emitted wave packet rendered as a round
     # packet of waves, rather than a continuous beam of plane wave fronts.
     sourcePacket:             >-
                               { $waveDisplayMode ->
@@ -325,7 +325,7 @@ a11y:
   singleParticlesScreen:
     detectorProbeCheckbox:
       accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
-  highIntensityState:
+  waveExperimentState:
     overview:             >-
                           Currently, { $isPlaying ->
                             [false] sim is paused.
@@ -548,7 +548,7 @@ a11y:
                             [true] position plot.
                            *[false] no position plot.
                           }
-  highIntensityResponses:
+  waveExperimentResponses:
     sourceStarted:            >-
                               { $isPlaying ->
                                 [false] Source started. Sim is paused.

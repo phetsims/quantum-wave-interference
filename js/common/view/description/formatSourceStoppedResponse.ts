@@ -17,7 +17,7 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
  * @returns localized source-off context response
  */
 export default function formatSourceStoppedResponse( detectionMode: DetectionMode, totalHits: number ): string {
-  return QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStopped.format( {
+  return QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceStopped.format( {
     hasHitsData: detectionMode === 'hits' && totalHits > 0 ? 'true' : 'false'
   } );
 }

@@ -48,7 +48,7 @@ function getSingleSlitLocationKey( state: HighIntensitySemanticAccessibleViewSta
  * experiment-setup sequence items on the High Intensity and Single Particles screens.
  */
 export function formatSourceBeamDescription( state: HighIntensitySemanticAccessibleViewState ): string {
-  return QuantumWaveInterferenceFluent.a11y.highIntensityState.sourceBeam.format( {
+  return QuantumWaveInterferenceFluent.a11y.waveExperimentState.sourceBeam.format( {
     isEmitting: toFluentBoolean( state.isEmitting ),
     sourceType: state.sourceType,
     photonColor: state.wavelengthColorZone || 'red',
@@ -66,7 +66,7 @@ export function formatSourceBeamDescription( state: HighIntensitySemanticAccessi
  */
 export function formatParticleDescription( state: HighIntensitySemanticAccessibleViewState ): string {
   if ( state.sourceType === 'photons' ) {
-    return QuantumWaveInterferenceFluent.a11y.highIntensityState.photonDetail.format( {
+    return QuantumWaveInterferenceFluent.a11y.waveExperimentState.photonDetail.format( {
       wavelength: nanometersUnit.getAccessibleString( state.wavelengthNM, {
         decimalPlaces: 0,
         showTrailingZeros: false,
@@ -76,7 +76,7 @@ export function formatParticleDescription( state: HighIntensitySemanticAccessibl
     } );
   }
 
-  return QuantumWaveInterferenceFluent.a11y.highIntensityState.particleDetail.format( {
+  return QuantumWaveInterferenceFluent.a11y.waveExperimentState.particleDetail.format( {
     sourceType: state.sourceType,
     speed: metersPerSecondUnit.getAccessibleString( state.particleSpeedMetersPerSecond, {
       decimalPlaces: 0,
@@ -97,7 +97,7 @@ export function formatParticleDescription( state: HighIntensitySemanticAccessibl
  * Returns an empty string for the separation component when no slit separation is applicable.
  */
 export function formatSlitDescription( state: HighIntensitySemanticAccessibleViewState ): string {
-  return QuantumWaveInterferenceFluent.a11y.highIntensityState.slits.format( {
+  return QuantumWaveInterferenceFluent.a11y.waveExperimentState.slits.format( {
     slitSetting: state.slitConfiguration,
     separation: state.slitSeparationMM === null ? '' :
                 state.sourceType === 'photons' ?

@@ -255,10 +255,10 @@ export default class SingleParticlesScreenView extends ScreenView {
         model.currentSlitConfigurationProperty
       ],
       ( isEmitting, slitConfiguration ) => {
-        return QuantumWaveInterferenceFluent.a11y.highIntensityResponses.slitConfigurationChanged.format( {
+        return QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.slitConfigurationChanged.format( {
           isEmitting: isEmitting ? 'true' : 'false',
           slitSetting: slitConfiguration,
-          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceRestartedStringProperty.value
+          sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value
         } );
       }
     );

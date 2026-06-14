@@ -133,7 +133,7 @@ type StringsType = {
         'accessibleHelpTextStringProperty': LocalizedStringProperty;
       }
     };
-    'highIntensityState': {
+    'waveExperimentState': {
       'overviewStringProperty': LocalizedStringProperty;
       'sourceStatusStringProperty': LocalizedStringProperty;
       'sourceBeamStringProperty': LocalizedStringProperty;
@@ -144,7 +144,7 @@ type StringsType = {
       'waveProgressStringProperty': LocalizedStringProperty;
       'displayToolsStringProperty': LocalizedStringProperty;
     };
-    'highIntensityResponses': {
+    'waveExperimentResponses': {
       'sourceStartedStringProperty': LocalizedStringProperty;
       'sourceRestartedStringProperty': LocalizedStringProperty;
       'advancingWaveStringProperty': LocalizedStringProperty;

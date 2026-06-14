@@ -118,7 +118,7 @@ function getPacketWaveProgressStage(
 }
 
 function formatSourceStarted( state: SingleParticlesResponseState ): string {
-  return QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
+  return QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceStarted.format( {
     isPlaying: state.isPlaying ? 'true' : 'false',
     timeSpeed: state.clockSpeedDescription
   } );
@@ -138,14 +138,14 @@ const formatWaveProgress = (
   state: SingleParticlesResponseState,
   stage: DescribableWaveProgressStage
 ): string =>
-  QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.format( {
+  QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.format( {
     waveProgressStage: stage,
     waveDisplayMode: state.waveDisplayMode,
     patternKind: state.patternKind
   } );
 
 function formatHitDescription( state: SingleParticlesResponseState ): string {
-  return QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.format( {
+  return QuantumWaveInterferenceFluent.a11y.waveExperimentState.detectorPattern.format( {
     isEmitting: 'true',
     detectionMode: 'hits',
     patternFormation: 'collectingHits',
@@ -244,8 +244,8 @@ export default class SingleParticlesAccessibleResponses extends Node {
       this.model.currentTotalHitsProperty,
       this.model.accessibleStateStepProperty,
       ...QuantumWaveInterferenceFluent.a11y.singleParticlesState.sourcePacket.getDependentProperties(),
-      ...QuantumWaveInterferenceFluent.a11y.highIntensityState.detectorPattern.getDependentProperties(),
-      ...QuantumWaveInterferenceFluent.a11y.highIntensityResponses.waveProgressChanged.getDependentProperties()
+      ...QuantumWaveInterferenceFluent.a11y.waveExperimentState.detectorPattern.getDependentProperties(),
+      ...QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.getDependentProperties()
     ] ) );
   }
 

@@ -74,7 +74,7 @@ export default class ExperimentScreenViewDescription extends Node {
       }
 
       sourceStartedResponseNode.addAccessibleContextResponse(
-        QuantumWaveInterferenceFluent.a11y.highIntensityResponses.sourceStarted.format( {
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceStarted.format( {
           isPlaying: model.isPlayingProperty.value ? 'true' : 'false',
           timeSpeed: getClockSpeedDescription( model )
         } ),

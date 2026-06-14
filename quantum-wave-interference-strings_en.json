@@ -296,7 +296,7 @@
         }
       }
     },
-    "highIntensityState": {
+    "waveExperimentState": {
       "overview": {
         "value": "Currently, { $isPlaying ->\n  [false] sim is paused.\n *[true] sim is running.\n} { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} { $isEmitting ->\n  [true] are being emitted\n *[false] are not being emitted\n}. { $displayMode ->\n  [graph] The graph is shown\n *[screen] The detector screen is shown\n} in { $detectionMode ->\n  [intensity] Intensity mode.\n *[hits] Hits mode.\n}"
       },
@@ -325,7 +325,7 @@
         "value": "{ $displayMode ->\n  [graph] Graph view is active\n *[screen] Detector screen view is active\n}. Wave display mode is { $waveDisplayMode ->\n  [electricField] Electric Field\n  [realPart] Real Part\n  [imaginaryPart] Imaginary Part\n *[amplitude] Amplitude\n}. Screen brightness is { $brightness } percent. Stored snapshots: { $snapshotCount }. Tools shown: { $measuringTape ->\n  [true] measuring tape\n *[false] no measuring tape\n}, { $stopwatch ->\n  [true] stopwatch\n *[false] no stopwatch\n}, { $timePlot ->\n  [true] time plot\n *[false] no time plot\n}, { $positionPlot ->\n  [true] position plot.\n *[false] no position plot.\n}"
       }
     },
-    "highIntensityResponses": {
+    "waveExperimentResponses": {
       "sourceStarted": {
         "value": "{ $isPlaying ->\n  [false] Source started. Sim is paused.\n *[true] Source started on { $timeSpeed } speed.\n}"
       },
