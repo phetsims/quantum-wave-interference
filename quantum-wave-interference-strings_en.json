@@ -696,6 +696,9 @@
         "intensitySingleSlit": {
           "value": "The graph traces intensity versus position as a single broad peak centered on the graph, tapering smoothly toward the edges."
         },
+        "intensityNoBarrier": {
+          "value": "The graph traces uniform intensity versus position as a flat horizontal line."
+        },
         "hitsNone": {
           "value": "The histogram is empty. No particles have been counted yet."
         },
@@ -716,6 +719,9 @@
         },
         "hitsSingleSlitClear": {
           "value": "The histogram shows a broad central peak that tapers toward the edges. { $spatialDescription }"
+        },
+        "hitsNoBarrier": {
+          "value": "The histogram shows evenly distributed hits across the graph."
         }
       },
       "zoomButtonGroup": {

@@ -944,6 +944,7 @@ a11y:
       intensitySingleSlit:    >-
                               The graph traces intensity versus position as a single broad peak centered on the
                               graph, tapering smoothly toward the edges.
+      intensityNoBarrier:     The graph traces uniform intensity versus position as a flat horizontal line.
       hitsNone:               The histogram is empty. No particles have been counted yet.
       hitsFew:                >-
                               A few bars have appeared at scattered positions across the histogram.
@@ -962,6 +963,7 @@ a11y:
       hitsSingleSlitClear:    >-
                               The histogram shows a broad central peak that tapers toward the edges.
                               { $spatialDescription }
+      hitsNoBarrier:          The histogram shows evenly distributed hits across the graph.
     zoomButtonGroup:
       zoomInAccessibleHelpText:  Zoom in to see more detail of graph pattern.
       zoomOutAccessibleHelpText: Zoom out to see more of graph pattern.

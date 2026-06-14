@@ -71,6 +71,7 @@ export default class DetectorPatternGraphDescriber {
       const isRulerVisible = isRulerVisibleProperty.value;
       const slitSetting = scene.slitConfigurationProperty.value;
       const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
+      const isNoBarrier = slitSetting === 'noBarrier';
 
       if ( detectionMode === 'intensity' ) {
         if ( !scene.isEmittingProperty.value ) {
@@ -83,6 +84,8 @@ export default class DetectorPatternGraphDescriber {
 
         descriptionProperty.value = isDoubleSlit ?
                                     QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } ) :
+                                    isNoBarrier ?
+                                    QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensityNoBarrierStringProperty.value :
                                     QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensitySingleSlitStringProperty.value;
         return;
       }
@@ -106,6 +109,13 @@ export default class DetectorPatternGraphDescriber {
                                     newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsEmergingStringProperty.value :
                                     newStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsDeveloping.format( { spatialDescription: spatialDescription } ) :
                                     newStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsClear.format( { spatialDescription: spatialDescription } ) :
+                                    ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
+      }
+      else if ( isNoBarrier ) {
+        descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
+                                    newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
+                                    ( newStage === 'emerging' || newStage === 'clear' ) ?
+                                    QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierStringProperty.value :
                                     ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
       }
       else {

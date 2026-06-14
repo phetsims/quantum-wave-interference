@@ -321,6 +321,7 @@ type StringsType = {
         'intensityOffStringProperty': LocalizedStringProperty;
         'intensityStringProperty': LocalizedStringProperty;
         'intensitySingleSlitStringProperty': LocalizedStringProperty;
+        'intensityNoBarrierStringProperty': LocalizedStringProperty;
         'hitsNoneStringProperty': LocalizedStringProperty;
         'hitsFewStringProperty': LocalizedStringProperty;
         'hitsEmergingStringProperty': LocalizedStringProperty;
@@ -328,6 +329,7 @@ type StringsType = {
         'hitsClearStringProperty': LocalizedStringProperty;
         'hitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
         'hitsSingleSlitClearStringProperty': LocalizedStringProperty;
+        'hitsNoBarrierStringProperty': LocalizedStringProperty;
       };
       'zoomButtonGroup': {
         'zoomInAccessibleHelpTextStringProperty': LocalizedStringProperty;

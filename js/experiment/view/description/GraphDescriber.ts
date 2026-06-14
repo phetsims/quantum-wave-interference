@@ -15,7 +15,7 @@
 
 import Property from '../../../../../axon/js/Property.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
-import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
+import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
@@ -41,8 +41,9 @@ export default class GraphDescriber {
     const update = () => {
       const detectionMode = sceneModel.detectionModeProperty.value;
       const isRulerVisible = isRulerVisibleProperty.value;
-      const slitSetting = sceneModel.slitConfigurationProperty.value;
+      const slitSetting = sceneModel.slitConfigurationProperty.value as SlitConfigurationWithNoBarrier;
       const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
+      const isNoBarrier = slitSetting === 'noBarrier';
 
       // NOTE: see other duplicate in
       // quantum-wave-interference/js/common/view/description/DetectorPatternGraphDescriber.ts. Experiment graph
@@ -61,6 +62,8 @@ export default class GraphDescriber {
 
         descriptionProperty.value = isDoubleSlit
                                     ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } )
+                                    : isNoBarrier
+                                      ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensityNoBarrierStringProperty.value
                                     : QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensitySingleSlitStringProperty.value;
         return;
       }
@@ -90,6 +93,13 @@ export default class GraphDescriber {
                                     newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsEmergingStringProperty.value :
                                     newStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsDeveloping.format( { spatialDescription: spatialDescription } ) :
                                     newStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsClear.format( { spatialDescription: spatialDescription } ) :
+                                    ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
+      }
+      else if ( isNoBarrier ) {
+        descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
+                                    newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
+                                    ( newStage === 'emerging' || newStage === 'clear' ) ?
+                                    QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierStringProperty.value :
                                     ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
       }
       else {
