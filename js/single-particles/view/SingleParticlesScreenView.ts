@@ -317,7 +317,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       model.currentDetectorProbe.isVisibleProperty,
       QuantumWaveInterferenceFluent.detectorProbeStringProperty,
       detectorProbeCheckboxTandem,
-      QuantumWaveInterferenceFluent.a11y.detectorCheckbox.accessibleHelpTextStringProperty,
+      QuantumWaveInterferenceFluent.a11y.singleParticlesScreen.detectorProbeCheckbox.accessibleHelpTextStringProperty,
       new GatedVisibleProperty( model.currentDetectorProbe.isAvailableProperty, detectorProbeCheckboxTandem )
     );
 

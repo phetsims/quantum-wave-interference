@@ -339,6 +339,9 @@ a11y:
                                 waves moves toward { a11y.sourceWaveFragments.slitTarget }
                                 { a11y.sourceWaveFragments.wavePeakSpacing }
                               }
+  singleParticlesScreen:
+    detectorProbeCheckbox:
+      accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
   highIntensityState:
     overview:             >-
                           Currently, { $isPlaying ->
@@ -880,8 +883,6 @@ a11y:
                            [notDetected] Particle not detected in probe region.
                           *[ready] Chance of detecting particle in probe region is { $probability }.
                          }
-  detectorCheckbox:
-    accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
   slitSeparationSlider:
     accessibleHelpText: Change distance between centers of slits in barrier.
   slitPositionSlider:

@@ -120,6 +120,7 @@ addToMapIfDefined( 'a11y_sourceWaveFragments_capitalizedColorAndBlack', 'a11y.so
 addToMapIfDefined( 'a11y_sourceWaveFragments_slitTarget', 'a11y.sourceWaveFragments.slitTargetStringProperty' );
 addToMapIfDefined( 'a11y_sourceWaveFragments_wavePeakSpacing', 'a11y.sourceWaveFragments.wavePeakSpacingStringProperty' );
 addToMapIfDefined( 'a11y_singleParticlesState_sourcePacket', 'a11y.singleParticlesState.sourcePacketStringProperty' );
+addToMapIfDefined( 'a11y_singleParticlesScreen_detectorProbeCheckbox_accessibleHelpText', 'a11y.singleParticlesScreen.detectorProbeCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_highIntensityState_overview', 'a11y.highIntensityState.overviewStringProperty' );
 addToMapIfDefined( 'a11y_highIntensityState_sourceStatus', 'a11y.highIntensityState.sourceStatusStringProperty' );
 addToMapIfDefined( 'a11y_highIntensityState_sourceBeam', 'a11y.highIntensityState.sourceBeamStringProperty' );
@@ -181,7 +182,6 @@ addToMapIfDefined( 'a11y_positionPlot_accessibleParagraph', 'a11y.positionPlot.a
 addToMapIfDefined( 'a11y_detectorProbe_accessibleName', 'a11y.detectorProbe.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_detectorProbe_accessibleHelpText', 'a11y.detectorProbe.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectorProbe_accessibleParagraph', 'a11y.detectorProbe.accessibleParagraphStringProperty' );
-addToMapIfDefined( 'a11y_detectorCheckbox_accessibleHelpText', 'a11y.detectorCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitSeparationSlider_accessibleHelpText', 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_slitPositionSlider_accessibleName', 'a11y.slitPositionSlider.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_slitPositionSlider_accessibleHelpText', 'a11y.slitPositionSlider.accessibleHelpTextStringProperty' );
@@ -425,6 +425,11 @@ const QuantumWaveInterferenceFluent = {
       _comment_1: new FluentComment( {"comment":"packet of waves, rather than a continuous beam of plane wave fronts.","associatedKey":"sourcePacket"} ),
       sourcePacket: new FluentPattern<{ photonColor: 'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red' | TReadOnlyProperty<'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red'>, slitSetting: 'noBarrier' | 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors' | TReadOnlyProperty<'noBarrier' | 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'>, waveDisplayMode: 'amplitude' | 'electricField' | 'realPart' | 'imaginaryPart' | TReadOnlyProperty<'amplitude' | 'electricField' | 'realPart' | 'imaginaryPart'>, wavefrontSpacing: 'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether' | TReadOnlyProperty<'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether'> }>( fluentSupport.bundleProperty, 'a11y_singleParticlesState_sourcePacket', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesState.sourcePacketStringProperty' ), [{"name":"photonColor","variants":["violet","blue","indigo","green","yellow","orange","red"]},{"name":"slitSetting","variants":["noBarrier","bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","bothDetectors"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]},{"name":"waveDisplayMode","variants":["amplitude","electricField","realPart","imaginaryPart"]},{"name":"wavefrontSpacing","variants":["extremelyFarApart","veryFarApart","farApart","somewhatCloseTogether","closeTogether","veryCloseTogether","extremelyCloseTogether"]}] )
     },
+    singleParticlesScreen: {
+      detectorProbeCheckbox: {
+        accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_singleParticlesScreen_detectorProbeCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesScreen.detectorProbeCheckbox.accessibleHelpTextStringProperty' ) )
+      }
+    },
     highIntensityState: {
       overview: new FluentPattern<{ detectionMode: 'intensity' | 'hits' | TReadOnlyProperty<'intensity' | 'hits'>, displayMode: 'graph' | 'screen' | TReadOnlyProperty<'graph' | 'screen'>, isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isPlaying: 'false' | 'true' | TReadOnlyProperty<'false' | 'true'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_highIntensityState_overview', _.get( QuantumWaveInterferenceStrings, 'a11y.highIntensityState.overviewStringProperty' ), [{"name":"detectionMode","variants":["intensity","hits"]},{"name":"displayMode","variants":["graph","screen"]},{"name":"isEmitting","variants":["true","false"]},{"name":"isPlaying","variants":["false","true"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
       sourceStatus: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isPlaying: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, timeSpeed: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_highIntensityState_sourceStatus', _.get( QuantumWaveInterferenceStrings, 'a11y.highIntensityState.sourceStatusStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"isPlaying","variants":["true","false"]},{"name":"timeSpeed"}] ),
@@ -517,9 +522,6 @@ const QuantumWaveInterferenceFluent = {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorProbe_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorProbe.accessibleNameStringProperty' ) ),
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorProbe_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorProbe.accessibleHelpTextStringProperty' ) ),
       accessibleParagraph: new FluentPattern<{ probability: FluentVariable, state: 'detected' | 'notDetected' | 'ready' | TReadOnlyProperty<'detected' | 'notDetected' | 'ready'> }>( fluentSupport.bundleProperty, 'a11y_detectorProbe_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorProbe.accessibleParagraphStringProperty' ), [{"name":"probability"},{"name":"state","variants":["detected","notDetected","ready"]}] )
-    },
-    detectorCheckbox: {
-      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorCheckbox.accessibleHelpTextStringProperty' ) )
     },
     slitSeparationSlider: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSeparationSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' ) )

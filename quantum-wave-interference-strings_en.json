@@ -304,6 +304,13 @@
         "value": "{ $waveDisplayMode ->\n  [amplitude] Round packet of solid { a11y_sourceWaveFragments_lowercaseColor } wave\n  moves toward { a11y_sourceWaveFragments_slitTarget }\n *[electricField] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n  [realPart] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n  [imaginaryPart] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n}"
       }
     },
+    "singleParticlesScreen": {
+      "detectorProbeCheckbox": {
+        "accessibleHelpText": {
+          "value": "Use added detector probe to measure probability of detecting particle in circular region of wave area."
+        }
+      }
+    },
     "highIntensityState": {
       "overview": {
         "value": "Currently, { $isPlaying ->\n  [false] sim is paused.\n *[true] sim is running.\n} { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} { $isEmitting ->\n  [true] are being emitted\n *[false] are not being emitted\n}. { $displayMode ->\n  [graph] The graph is shown\n *[screen] The detector screen is shown\n} in { $detectionMode ->\n  [intensity] Intensity mode.\n *[hits] Hits mode.\n}"
@@ -515,11 +522,6 @@
       },
       "accessibleParagraph": {
         "value": "{ $state ->\n  [detected] Particle detected in probe region.\n  [notDetected] Particle not detected in probe region.\n *[ready] Chance of detecting particle in probe region is { $probability }.\n}"
-      }
-    },
-    "detectorCheckbox": {
-      "accessibleHelpText": {
-        "value": "Use added detector probe to measure probability of detecting particle in circular region of wave area."
       }
     },
     "slitSeparationSlider": {

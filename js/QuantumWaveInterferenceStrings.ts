@@ -133,6 +133,11 @@ type StringsType = {
     'singleParticlesState': {
       'sourcePacketStringProperty': LocalizedStringProperty;
     };
+    'singleParticlesScreen': {
+      'detectorProbeCheckbox': {
+        'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      }
+    };
     'highIntensityState': {
       'overviewStringProperty': LocalizedStringProperty;
       'sourceStatusStringProperty': LocalizedStringProperty;
@@ -223,9 +228,6 @@ type StringsType = {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleParagraphStringProperty': LocalizedStringProperty;
-    };
-    'detectorCheckbox': {
-      'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
     'slitSeparationSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
