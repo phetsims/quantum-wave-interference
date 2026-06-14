@@ -88,7 +88,6 @@ addToMapIfDefined( 'coverBottom', 'coverBottomStringProperty' );
 addToMapIfDefined( 'detectorTop', 'detectorTopStringProperty' );
 addToMapIfDefined( 'detectorBottom', 'detectorBottomStringProperty' );
 addToMapIfDefined( 'autoRepeat', 'autoRepeatStringProperty' );
-addToMapIfDefined( 'timeScaleLabel', 'timeScaleLabelStringProperty' );
 addToMapIfDefined( 'detectorSize', 'detectorSizeStringProperty' );
 addToMapIfDefined( 'detect', 'detectStringProperty' );
 addToMapIfDefined( 'resetDetector', 'resetDetectorStringProperty' );
@@ -110,10 +109,6 @@ addToMapIfDefined( 'a11y_experimentDetectorScreenDetails_graphAndExperimentDetai
 addToMapIfDefined( 'a11y_experimentDetectorScreenDetails_displaySurface', 'a11y.experimentDetectorScreenDetails.displaySurfaceStringProperty' );
 addToMapIfDefined( 'a11y_experimentDetectorScreenDetails_leadingParagraph', 'a11y.experimentDetectorScreenDetails.leadingParagraphStringProperty' );
 addToMapIfDefined( 'a11y_experimentDetectorScreenDetails_experimentDetailsLeadingParagraph', 'a11y.experimentDetectorScreenDetails.experimentDetailsLeadingParagraphStringProperty' );
-addToMapIfDefined( 'a11y_experimentDetectorScreenDetails_heading', 'a11y.experimentDetectorScreenDetails.headingStringProperty' );
-addToMapIfDefined( 'a11y_experimentDetectorScreenDetails_experimentalDetailsHeading', 'a11y.experimentDetectorScreenDetails.experimentalDetailsHeadingStringProperty' );
-addToMapIfDefined( 'a11y_experimentDetectorScreenDetails_sourceState', 'a11y.experimentDetectorScreenDetails.sourceStateStringProperty' );
-addToMapIfDefined( 'a11y_experimentDetectorScreenDetails_totalHits', 'a11y.experimentDetectorScreenDetails.totalHitsStringProperty' );
 addToMapIfDefined( 'a11y_experimentDetectorScreenDetails_empty', 'a11y.experimentDetectorScreenDetails.emptyStringProperty' );
 addToMapIfDefined( 'a11y_sourceWaveFragments_lowercaseColor', 'a11y.sourceWaveFragments.lowercaseColorStringProperty' );
 addToMapIfDefined( 'a11y_sourceWaveFragments_capitalizedColorAndBlack', 'a11y.sourceWaveFragments.capitalizedColorAndBlackStringProperty' );
@@ -160,8 +155,6 @@ addToMapIfDefined( 'a11y_experimentSetupDetails_screenDistance', 'a11y.experimen
 addToMapIfDefined( 'a11y_particleMass_accessibleParagraph', 'a11y.particleMass.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleName', 'a11y.emitterButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleHelpText', 'a11y.emitterButton.accessibleHelpTextStringProperty' );
-addToMapIfDefined( 'a11y_emitterButton_accessibleContextResponseOn', 'a11y.emitterButton.accessibleContextResponseOnStringProperty' );
-addToMapIfDefined( 'a11y_emitterButton_accessibleContextResponseOff', 'a11y.emitterButton.accessibleContextResponseOffStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleHelpText', 'a11y.rulerCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleContextResponseChecked', 'a11y.rulerCheckbox.accessibleContextResponseCheckedStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleContextResponseUnchecked', 'a11y.rulerCheckbox.accessibleContextResponseUncheckedStringProperty' );
@@ -373,7 +366,6 @@ const QuantumWaveInterferenceFluent = {
   detectorTopStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorTopStringProperty' ),
   detectorBottomStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorBottomStringProperty' ),
   autoRepeatStringProperty: _.get( QuantumWaveInterferenceStrings, 'autoRepeatStringProperty' ),
-  timeScaleLabelStringProperty: _.get( QuantumWaveInterferenceStrings, 'timeScaleLabelStringProperty' ),
   detectorSizeStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorSizeStringProperty' ),
   detectStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectStringProperty' ),
   resetDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'resetDetectorStringProperty' ),
@@ -406,10 +398,6 @@ const QuantumWaveInterferenceFluent = {
       _comment_3: new FluentComment( {"comment":"wave area, so the \"experiment ready\" invitation would be wrong.","associatedKey":"leadingParagraph"} ),
       leadingParagraph: new FluentPattern<{ detectionMode: 'intensity' | 'hits' | TReadOnlyProperty<'intensity' | 'hits'>, detectorScreenStatus: 'empty' | 'emptyWavePropagating' | 'pattern' | TReadOnlyProperty<'empty' | 'emptyWavePropagating' | 'pattern'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'>, surface: 'graph' | 'detectorScreen' | TReadOnlyProperty<'graph' | 'detectorScreen'> }>( fluentSupport.bundleProperty, 'a11y_experimentDetectorScreenDetails_leadingParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentDetectorScreenDetails.leadingParagraphStringProperty' ), [{"name":"detectionMode","variants":["intensity","hits"]},{"name":"detectorScreenStatus","variants":["empty","emptyWavePropagating","pattern"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]},{"name":"surface","variants":["graph","detectorScreen"]}] ),
       experimentDetailsLeadingParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_experimentDetectorScreenDetails_experimentDetailsLeadingParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentDetectorScreenDetails.experimentDetailsLeadingParagraphStringProperty' ) ),
-      heading: new FluentPattern<{ detectionMode: 'intensity' | 'hits' | TReadOnlyProperty<'intensity' | 'hits'> }>( fluentSupport.bundleProperty, 'a11y_experimentDetectorScreenDetails_heading', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentDetectorScreenDetails.headingStringProperty' ), [{"name":"detectionMode","variants":["intensity","hits"]}] ),
-      experimentalDetailsHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_experimentDetectorScreenDetails_experimentalDetailsHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentDetectorScreenDetails.experimentalDetailsHeadingStringProperty' ) ),
-      sourceState: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'> }>( fluentSupport.bundleProperty, 'a11y_experimentDetectorScreenDetails_sourceState', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentDetectorScreenDetails.sourceStateStringProperty' ), [{"name":"isEmitting","variants":["true","false"]}] ),
-      totalHits: new FluentPattern<{ hitCount: FluentVariable, isMaxHitsReached: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'> }>( fluentSupport.bundleProperty, 'a11y_experimentDetectorScreenDetails_totalHits', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentDetectorScreenDetails.totalHitsStringProperty' ), [{"name":"hitCount"},{"name":"isMaxHitsReached","variants":["true","false"]}] ),
       emptyStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_experimentDetectorScreenDetails_empty', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentDetectorScreenDetails.emptyStringProperty' ) )
     },
     _comment_0: new FluentComment( {"comment":"Shared fragments composed into the source beam/packet descriptions on the High Intensity and Single Particles","associatedKey":"sourceWaveFragments"} ),
@@ -479,9 +467,7 @@ const QuantumWaveInterferenceFluent = {
     },
     emitterButton: {
       accessibleName: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleNameStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
-      accessibleHelpText: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleHelpTextStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
-      accessibleContextResponseOn: new FluentPattern<{ detectionMode: 'intensity' | 'hits' | TReadOnlyProperty<'intensity' | 'hits'>, isPlaying: 'false' | 'true' | TReadOnlyProperty<'false' | 'true'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleContextResponseOn', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleContextResponseOnStringProperty' ), [{"name":"detectionMode","variants":["intensity","hits"]},{"name":"isPlaying","variants":["false","true"]}] ),
-      accessibleContextResponseOffStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleContextResponseOff', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleContextResponseOffStringProperty' ) )
+      accessibleHelpText: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleHelpTextStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] )
     },
     rulerCheckbox: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_rulerCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.rulerCheckbox.accessibleHelpTextStringProperty' ) ),

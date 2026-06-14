@@ -90,7 +90,6 @@ type StringsType = {
   'detectorTopStringProperty': LocalizedStringProperty;
   'detectorBottomStringProperty': LocalizedStringProperty;
   'autoRepeatStringProperty': LocalizedStringProperty;
-  'timeScaleLabelStringProperty': LocalizedStringProperty;
   'detectorSizeStringProperty': LocalizedStringProperty;
   'detectStringProperty': LocalizedStringProperty;
   'resetDetectorStringProperty': LocalizedStringProperty;
@@ -118,10 +117,6 @@ type StringsType = {
       'displaySurfaceStringProperty': LocalizedStringProperty;
       'leadingParagraphStringProperty': LocalizedStringProperty;
       'experimentDetailsLeadingParagraphStringProperty': LocalizedStringProperty;
-      'headingStringProperty': LocalizedStringProperty;
-      'experimentalDetailsHeadingStringProperty': LocalizedStringProperty;
-      'sourceStateStringProperty': LocalizedStringProperty;
-      'totalHitsStringProperty': LocalizedStringProperty;
       'emptyStringProperty': LocalizedStringProperty;
     };
     'sourceWaveFragments': {
@@ -186,8 +181,6 @@ type StringsType = {
     'emitterButton': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
-      'accessibleContextResponseOnStringProperty': LocalizedStringProperty;
-      'accessibleContextResponseOffStringProperty': LocalizedStringProperty;
     };
     'rulerCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;

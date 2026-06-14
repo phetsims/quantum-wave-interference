@@ -197,9 +197,6 @@
   "autoRepeat": {
     "value": "Auto-repeat"
   },
-  "timeScaleLabel": {
-    "value": "1 fs = 10<sup>-15</sup> s"
-  },
   "detectorSize": {
     "value": "Size"
   },
@@ -268,18 +265,6 @@
       },
       "experimentDetailsLeadingParagraph": {
         "value": "Experiment details include:"
-      },
-      "heading": {
-        "value": "Detector Screen, { $detectionMode ->\n  [intensity] Intensity Pattern\n *[hits] Hits Pattern\n}"
-      },
-      "experimentalDetailsHeading": {
-        "value": "Experimental Details"
-      },
-      "sourceState": {
-        "value": "Source is { $isEmitting ->\n  [true] on.\n *[false] off.\n}"
-      },
-      "totalHits": {
-        "value": "{ $isMaxHitsReached ->\n  [true] Total hits is { $hitCount }. Maximum hits reached.\n *[false] Total hits is { $hitCount }.\n}"
       },
       "empty": {
         "value": "Detector screen is empty."
@@ -436,12 +421,6 @@
       },
       "accessibleHelpText": {
         "value": "{ $isEmitting ->\n  [true] Turn source off to stop experiment.\n *[false] { $sourceType ->\n    [photons] Turn source on to start experiment.\n    [electrons] Turn source on to start experiment. Electron mass is 9.1\n    times 10 to the negative 31 kilograms.\n    [neutrons] Turn source on to start experiment. Neutron mass is 1.7\n    times 10 to the negative 27 kilograms.\n   *[heliumAtoms] Turn source on to start experiment. Helium atom mass is\n    6.6 times 10 to the negative 27 kilograms.\n  }\n}"
-      },
-      "accessibleContextResponseOn": {
-        "value": "{ $isPlaying ->\n  [false] Experiment started. Sim paused.\n *[true] Experiment started. { $detectionMode ->\n    [intensity] Alternating bright and dark vertical bands on detector screen.\n   *[hits] Individual hits increasing on detector screen.\n  }\n}"
-      },
-      "accessibleContextResponseOff": {
-        "value": "Experiment stopped."
       }
     },
     "rulerCheckbox": {

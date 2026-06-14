@@ -67,7 +67,6 @@ coverBottom:                     Cover Bottom
 detectorTop:                     Detector Top
 detectorBottom:                  Detector Bottom
 autoRepeat:                      Auto-repeat
-timeScaleLabel:                  '1 fs = 10<sup>-15</sup> s'
 detectorSize:                    Size
 detect:                          Detect
 resetDetector:                   Reset
@@ -252,22 +251,6 @@ a11y:
                                  } experiment.
                                }
     experimentDetailsLeadingParagraph: 'Experiment details include:'
-    heading:                    >-
-                                Detector Screen, { $detectionMode ->
-                                  [intensity] Intensity Pattern
-                                 *[hits] Hits Pattern
-                                }
-    experimentalDetailsHeading: Experimental Details
-    sourceState:                >-
-                                Source is { $isEmitting ->
-                                  [true] on.
-                                 *[false] off.
-                                }
-    totalHits:                  >-
-                                { $isMaxHitsReached ->
-                                  [true] Total hits is { $hitCount }. Maximum hits reached.
-                                 *[false] Total hits is { $hitCount }.
-                                }
     empty:                      Detector screen is empty.
   # Shared fragments composed into the source beam/packet descriptions on the High Intensity and Single Particles
   # screens. Each fragment resolves its { $variable } placeholders from the referencing message's format() arguments.
@@ -814,15 +797,6 @@ a11y:
                                       6.6 times 10 to the negative 27 kilograms.
                                     }
                                   }
-    accessibleContextResponseOn:  >-
-                                  { $isPlaying ->
-                                    [false] Experiment started. Sim paused.
-                                   *[true] Experiment started. { $detectionMode ->
-                                      [intensity] Alternating bright and dark vertical bands on detector screen.
-                                     *[hits] Individual hits increasing on detector screen.
-                                    }
-                                  }
-    accessibleContextResponseOff: Experiment stopped.
   rulerCheckbox:
     accessibleHelpText:                 Add ruler to measure distances on detector screen or graph. Once added, move ruler up or down with keyboard shortcuts.
     accessibleContextResponseChecked:   Ruler added near detector screen.
