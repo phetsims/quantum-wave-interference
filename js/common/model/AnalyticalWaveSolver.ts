@@ -4,14 +4,14 @@
  * Stateful WaveSolver adapter for the pure analytical continuous-wave kernel.
  *
  * The PhET model still needs cached amplitude grids, detector accumulation, source-on timing,
- * serialization, and the legacy single-complex WaveSolver API. The physics evaluation itself lives
+ * serialization, and the combined single-complex WaveSolver API. The physics evaluation itself lives
  * in AnalyticalWaveKernel and returns richer field samples with independent coherent components.
  *
  * For High Intensity, this solver also caches LayeredFieldSample values. Those layered samples are
  * a rendering-oriented companion to FieldSample: they preserve which selected-slit particle band is
  * visible at each grid cell so the canvas renderer can composite transparent layers in z order. The
  * ordinary FieldSample cache remains the model-facing path for amplitude grids, detector intensity,
- * graphing, tests, and the legacy representative-complex API.
+ * graphing, tests, and the combined representative-complex API.
  *
  * Keeping both caches here is deliberate during this experimental phase. The scene model still owns
  * the time-ordered detector records, the kernel defines their particle-chain interpretation, and the
@@ -176,7 +176,7 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
   }
 
   /**
-   * Evaluates the continuous-wave field at model coordinates and reduces the analytical sample to the legacy
+   * Evaluates the continuous-wave field at model coordinates and reduces the analytical sample to the combined
    * representative complex value used by the WaveSolver API.
    *
    * @param x - Horizontal model coordinate measured from the source side of the wave region.

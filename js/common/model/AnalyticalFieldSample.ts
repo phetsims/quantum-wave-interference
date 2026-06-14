@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Helpers for reducing analytical field samples to scalar intensity or the legacy single-complex
+ * Helpers for reducing analytical field samples to scalar intensity or the combined single-complex
  * display value.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -67,8 +67,7 @@ export function computeSampleIntensity( sample: FieldSample ): number {
 }
 
 /**
- * Legacy display adapter: produce one complex value from a physically richer FieldSample.
- * TODO: Why is this a legacy display adapter? Is it unused? Why does our sim have any legacy things? See https://github.com/phetsims/quantum-wave-interference/issues/135
+ * Combined display adapter: produce one complex value from a physically richer FieldSample.
  *
  * If there is one coherence group, this is the coherent sum. If there are multiple groups, the
  * returned phase is taken from the strongest group and the magnitude is scaled to the total
@@ -82,7 +81,7 @@ export function getRepresentativeComplex( sample: FieldSample ): Complex {
   const components = sample.components;
 
   // Mirror computeSampleIntensity's common 0/1/2-component fast path, but preserve this adapter's
-  // legacy rule: if groups are decoherent, display the strongest phase scaled to total intensity.
+  // combined rule: if groups are decoherent, display the strongest phase scaled to total intensity.
   if ( components.length === 0 ) {
     return new Complex( 0, 0 );
   }
@@ -169,7 +168,7 @@ function getCoherentGroupSums( components: FieldComponent[] ): CoherentGroupSum[
 }
 
 /**
- * Creates a single legacy display value whose phase matches the strongest coherent group and whose
+ * Creates a single combined display value whose phase matches the strongest coherent group and whose
  * magnitude squared equals the total intensity across all groups. Returns zero when either the
  * total intensity or strongest-group intensity is non-positive, avoiding an undefined phase and
  * division by zero.

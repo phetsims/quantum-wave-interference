@@ -10,7 +10,7 @@
  * A sample is richer than a single complex value because decohered slit paths must not interfere.
  * The kernel reports one component per coherent path and assigns each component to a coherence group.
  * Intensity is then computed as sum( |sum(group)|^2 ). Views may choose their own depiction of
- * multiple groups; the legacy WaveSolver adapter reduces them to one representative complex value.
+ * multiple groups; the combined WaveSolver adapter reduces them to one representative complex value.
  *
  * High Intensity plane waves are interpreted as a time-ordered chain of discrete particles rather
  * than one indivisible classical wave. A which-path detector record belongs to the particle whose

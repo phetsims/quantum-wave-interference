@@ -6,8 +6,7 @@
  * This intentionally avoids Scenery and browser canvas APIs. It maps AnalyticalWaveKernel
  * FieldSample status/value objects to RGBA bytes for the production canvas renderer.
  *
- * TODO: Why is there a legacy thing in a new sim? See https://github.com/phetsims/quantum-wave-interference/issues/135
- * There are two rendering paths. The legacy FieldSample path returns opaque pixels and encodes weak
+ * There are two rendering paths. The combined FieldSample path returns opaque pixels and encodes weak
  * field support by blending RGB toward the vacuum color. The layered path is used for the experimental
  * High Intensity particle-chain interpretation: each selected-slit band is drawn as a transparent
  * source-over layer. Its taper changes alpha, not color, so the layer fades out over the black
@@ -58,12 +57,12 @@ export type RGBAColor = RGBColor & {
 
 /**
  * Non-field kernel statuses that map to fixed vacuum colors. getNonFieldSampleRGBA uses this type to
- * share the same grayscale status treatment between the legacy and layered rendering paths.
+ * share the same grayscale status treatment between the combined and layered rendering paths.
  */
 type NonFieldSample = { kind: 'unreached' | 'absorbed' | 'blocked' };
 
 /**
- * Converts one model-level FieldSample into an opaque RGBA color for the legacy wave display path.
+ * Converts one model-level FieldSample into an opaque RGBA color for the combined wave display path.
  *
  * WaveVisualizationCanvasNode calls this once per grid cell when the solver exposes ordinary
  * FieldSamples. Non-field statuses map to fixed vacuum grays. Field samples are first reduced by
@@ -156,7 +155,7 @@ export function getLayeredFieldSampleRGBA(
 /**
  * Converts a non-field sample status into the fixed opaque vacuum color used by both rasterization paths.
  *
- * Field rendering differs between the legacy and layered paths, but unreached, absorbed, and blocked cells
+ * Field rendering differs between the combined and layered paths, but unreached, absorbed, and blocked cells
  * use the same grayscale status colors in both.
  *
  * @param sample - Non-field sample status to convert.
@@ -174,7 +173,7 @@ function getNonFieldSampleRGBA( sample: NonFieldSample ): RGBAColor {
  * getLayeredFieldSampleRGBA.
  *
  * Layered samples separate particle-chain bands before compositing. This helper gives each band the
- * same coherence-group reduction and display-mode color treatment as the legacy path, then applies the
+ * same coherence-group reduction and display-mode color treatment as the combined path, then applies the
  * layer alpha as transparency so getLayeredFieldSampleRGBA can combine bands in z-order.
  *
  * @param layer - Render-layer description from the analytical kernel.
@@ -201,7 +200,7 @@ function getFieldLayerRGBA(
 }
 
 /**
- * Converts a reduced field display state into the opaque color used by the legacy renderer.
+ * Converts a reduced field display state into the opaque color used by the combined renderer.
  *
  * getFieldSampleRGBA calls this after coherence groups have been reduced to a display state. It is
  * responsible for display-mode-specific intensity mapping and for preblending weak support into the
@@ -212,7 +211,7 @@ function getFieldLayerRGBA(
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
  * @param colorPower - Spatial contrast boost applied before color clamping.
- * @returns Opaque RGBA color for the legacy renderer.
+ * @returns Opaque RGBA color for the combined renderer.
  */
 function getDisplayStateRGBA(
   displayState: FieldDisplayState,
@@ -248,7 +247,7 @@ function getDisplayStateRGBA(
  * Converts one layer's display state into a transparent pixel.
  *
  * getDisplayStateRGBA bakes visibility into RGB by blending toward UNREACHED_VACUUM and always returns
- * alpha 255. That is right for the legacy renderer, but wrong for particle bands because a taper would
+ * alpha 255. That is right for the combined renderer, but wrong for particle bands because a taper would
  * look like the wave itself darkens. Here intensity still controls the layer's color, while
  * displayState.visibility and layerAlpha control transparency. The black backing node supplies the
  * vacuum color during canvas compositing.
@@ -367,7 +366,7 @@ type CoherenceGroupDisplayState = {
 };
 
 /**
- * Final display state after reducing physical coherence groups to the legacy single-wave display.
+ * Final display state after reducing physical coherence groups to the combined single-wave display.
  * real/imaginary are the representative value used by real/imaginary display modes.
  */
 type FieldDisplayState = {

@@ -464,7 +464,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   }
 
   /**
-   * Evaluates the analytical field at continuous model coordinates and reduces it to the legacy representative complex
+   * Evaluates the analytical field at continuous model coordinates and reduces it to the combined representative complex
    * value used by the WaveSolver API.
    *
    * @param x - Horizontal model coordinate measured from the source side of the wave region.

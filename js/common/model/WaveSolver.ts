@@ -193,7 +193,7 @@ export type WaveSolverParameters = {
 /**
  * Shared interface for wave propagation adapters used by the High Intensity and Single Particles screens. The
  * interface separates scene models from a specific numerical or analytical implementation while preserving the
- * legacy grid-amplitude API used by view code.
+ * combined grid-amplitude API used by view code.
  */
 type WaveSolver = {
 
