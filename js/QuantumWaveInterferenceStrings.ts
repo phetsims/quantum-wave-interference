@@ -319,6 +319,8 @@ type StringsType = {
       'accessibleHelpTextCollapsedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseCollapsedStringProperty': LocalizedStringProperty;
+    };
+    'detectorPatternGraph': {
       'accessibleParagraph': {
         'intensityOffStringProperty': LocalizedStringProperty;
         'intensityStringProperty': LocalizedStringProperty;
@@ -332,10 +334,12 @@ type StringsType = {
         'hitsSingleSlitClearStringProperty': LocalizedStringProperty;
       };
       'zoomButtonGroup': {
-        'zoomLevelResponseStringProperty': LocalizedStringProperty;
         'zoomInAccessibleHelpTextStringProperty': LocalizedStringProperty;
         'zoomOutAccessibleHelpTextStringProperty': LocalizedStringProperty;
       }
+    };
+    'zoomButtonGroup': {
+      'zoomLevelResponseStringProperty': LocalizedStringProperty;
     };
     'detectorScreen': {
       'maxHitsReached': {

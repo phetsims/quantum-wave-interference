@@ -157,7 +157,7 @@ export const createDetectorPatternGraphZoomButtonGroup = (
   zoomLevelProperty: NumberProperty,
   tandem: Tandem
 ): PlusMinusZoomButtonGroup => {
-  const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
+  const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.zoomButtonGroup.zoomLevelResponse.createProperty( {
     level: zoomLevelProperty,
     max: zoomLevelProperty.range.max
   } );

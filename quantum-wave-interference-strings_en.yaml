@@ -1054,6 +1054,7 @@ a11y:
                                           [intensity] Intensity graph hidden.
                                          *[hits] Hits histogram hidden.
                                         }
+  detectorPatternGraph:
     accessibleParagraph:
       intensityOff:           Graph is empty. Source is off.
       intensity:              >-
@@ -1082,9 +1083,10 @@ a11y:
                               The histogram shows a broad central peak that tapers toward the edges.
                               { $spatialDescription }
     zoomButtonGroup:
-      zoomLevelResponse:         'Zoom level { $level } of { $max }.'
       zoomInAccessibleHelpText:  Zoom in to see more detail of graph pattern.
       zoomOutAccessibleHelpText: Zoom out to see more of graph pattern.
+  zoomButtonGroup:
+    zoomLevelResponse: 'Zoom level { $level } of { $max }.'
   detectorScreen:
     maxHitsReached:
       accessibleContextResponse: Maximum number of hits reached. Source is off. Clear detector screen to make more observations.

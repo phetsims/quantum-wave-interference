@@ -20,7 +20,7 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
  * @returns a string Property whose value updates whenever the scale index changes
  */
 function createDetectorZoomLevelResponseProperty( detectorScreenScaleIndexProperty: NumberProperty ): TReadOnlyProperty<string> {
-  return QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
+  return QuantumWaveInterferenceFluent.a11y.zoomButtonGroup.zoomLevelResponse.createProperty( {
     level: new DerivedProperty(
       [ detectorScreenScaleIndexProperty ],
       detectorScreenScaleIndex => detectorScreenScaleIndex + 1

@@ -224,7 +224,7 @@ export default class GraphAccordionBox extends Node {
       maxWidth: 120
     } );
 
-    const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomLevelResponse.createProperty( {
+    const zoomLevelResponseProperty = QuantumWaveInterferenceFluent.a11y.zoomButtonGroup.zoomLevelResponse.createProperty( {
       level: this.zoomLevelProperty,
       max: this.zoomLevelProperty.range.max
     } );
@@ -241,12 +241,12 @@ export default class GraphAccordionBox extends Node {
       touchAreaYDilation: 5,
       zoomInButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty,
         accessibleContextResponse: zoomLevelResponseProperty
       },
       zoomOutButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
         accessibleContextResponse: zoomLevelResponseProperty
       },
       tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' ),

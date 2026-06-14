@@ -695,7 +695,9 @@
       },
       "accessibleContextResponseCollapsed": {
         "value": "{ $detectionMode ->\n  [intensity] Intensity graph hidden.\n *[hits] Hits histogram hidden.\n}"
-      },
+      }
+    },
+    "detectorPatternGraph": {
       "accessibleParagraph": {
         "intensityOff": {
           "value": "Graph is empty. Source is off."
@@ -729,15 +731,17 @@
         }
       },
       "zoomButtonGroup": {
-        "zoomLevelResponse": {
-          "value": "Zoom level { $level } of { $max }."
-        },
         "zoomInAccessibleHelpText": {
           "value": "Zoom in to see more detail of graph pattern."
         },
         "zoomOutAccessibleHelpText": {
           "value": "Zoom out to see more of graph pattern."
         }
+      }
+    },
+    "zoomButtonGroup": {
+      "zoomLevelResponse": {
+        "value": "Zoom level { $level } of { $max }."
       }
     },
     "detectorScreen": {
