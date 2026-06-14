@@ -326,33 +326,6 @@ a11y:
     detectorProbeCheckbox:
       accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
   waveExperimentState:
-    overview:             >-
-                          Currently, { $isPlaying ->
-                            [false] sim is paused.
-                           *[true] sim is running.
-                          } { $sourceType ->
-                            [photons] photons
-                            [electrons] electrons
-                            [neutrons] neutrons
-                           *[heliumAtoms] helium atoms
-                          } { $isEmitting ->
-                            [true] are being emitted
-                           *[false] are not being emitted
-                          }. { $displayMode ->
-                            [graph] The graph is shown
-                           *[screen] The detector screen is shown
-                          } in { $detectionMode ->
-                            [intensity] Intensity mode.
-                           *[hits] Hits mode.
-                          }
-    sourceStatus:         >-
-                          Source is { $isEmitting ->
-                            [true] on
-                           *[false] off
-                          }. Time is { $isPlaying ->
-                            [true] running
-                           *[false] paused
-                          } at { $timeSpeed } speed.
     sourceBeam:           >-
                           { $isEmitting ->
                             [false] No beam is visible in the wave area.
@@ -454,99 +427,6 @@ a11y:
                                 } Total hits: { $hitCount }.
                               }
                             }
-                          }
-    waveProgress:         >-
-                          { $waveProgressStage ->
-                            [sourceOff] Source is off, so no wave is traveling.
-                            [travelingToSlits] { $waveDisplayMode ->
-                              [amplitude] Solid wave moves toward slitted barrier.
-                             *[electricField] Plane wave fronts move toward slitted barrier.
-                              [realPart] Plane wave fronts move toward slitted barrier.
-                              [imaginaryPart] Plane wave fronts move toward slitted barrier.
-                            }
-                            [atSlits] { $waveDisplayMode ->
-                              [amplitude] { $patternKind ->
-                                [doubleSlitInterference] Solid circular waves emerge from both slits and overlap.
-                                [singleSlitDiffraction] Solid circular wave emerges from open slit only.
-                                [whichPathDiffraction] As detection events occur, solid circular waves emerge from both slits one at a time
-                                and do not interact.
-                               *[noBarrier] Solid wave moves directly toward the detector screen.
-                              }
-                             *[electricField] { $patternKind ->
-                                [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
-                                [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
-                                [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits
-                                one at a time and do not interact.
-                               *[noBarrier] Plane wave fronts move directly toward the detector screen.
-                              }
-                              [realPart] { $patternKind ->
-                                [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
-                                [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
-                                [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits
-                                one at a time and do not interact.
-                               *[noBarrier] Plane wave fronts move directly toward the detector screen.
-                              }
-                              [imaginaryPart] { $patternKind ->
-                                [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
-                                [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
-                                [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits
-                                one at a time and do not interact.
-                               *[noBarrier] Plane wave fronts move directly toward the detector screen.
-                              }
-                            }
-                            [interferingAfterSlits] { $waveDisplayMode ->
-                              [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward detector screen.
-                             *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
-                              [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
-                              [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
-                            }
-                            [diffractingAfterSlits] { $waveDisplayMode ->
-                              [amplitude] Solid circular wave spreads toward detector screen.
-                             *[electricField] Circular wave fronts spread toward detector screen.
-                              [realPart] Circular wave fronts spread toward detector screen.
-                              [imaginaryPart] Circular wave fronts spread toward detector screen.
-                            }
-                            [whichPathAfterSlits] { $waveDisplayMode ->
-                              [amplitude] Non-interacting solid circular waves spread toward detector screen.
-                             *[electricField] Non-interacting circular wave fronts spread toward detector screen.
-                              [realPart] Non-interacting circular wave fronts spread toward detector screen.
-                              [imaginaryPart] Non-interacting circular wave fronts spread toward detector screen.
-                            }
-                            [directToScreen] { $waveDisplayMode ->
-                              [amplitude] Solid wave moves directly toward the detector screen.
-                             *[electricField] Plane wave fronts move directly toward the detector screen.
-                              [realPart] Plane wave fronts move directly toward the detector screen.
-                              [imaginaryPart] Plane wave fronts move directly toward the detector screen.
-                            }
-                           *[hittingScreen] { $waveDisplayMode ->
-                              [amplitude] Solid wave has reached the detector screen.
-                             *[electricField] Wave fronts have reached the detector screen.
-                              [realPart] Wave fronts have reached the detector screen.
-                              [imaginaryPart] Wave fronts have reached the detector screen.
-                            }
-                          }
-    displayTools:         >-
-                          { $displayMode ->
-                            [graph] Graph view is active
-                           *[screen] Detector screen view is active
-                          }. Wave display mode is { $waveDisplayMode ->
-                            [electricField] Electric Field
-                            [realPart] Real Part
-                            [imaginaryPart] Imaginary Part
-                           *[amplitude] Amplitude
-                          }. Screen brightness is { $brightness } percent. Stored snapshots: { $snapshotCount }.
-                          Tools shown: { $measuringTape ->
-                            [true] measuring tape
-                           *[false] no measuring tape
-                          }, { $stopwatch ->
-                            [true] stopwatch
-                           *[false] no stopwatch
-                          }, { $timePlot ->
-                            [true] time plot
-                           *[false] no time plot
-                          }, { $positionPlot ->
-                            [true] position plot.
-                           *[false] no position plot.
                           }
   waveExperimentResponses:
     sourceStarted:            >-

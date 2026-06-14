@@ -134,15 +134,11 @@ type StringsType = {
       }
     };
     'waveExperimentState': {
-      'overviewStringProperty': LocalizedStringProperty;
-      'sourceStatusStringProperty': LocalizedStringProperty;
       'sourceBeamStringProperty': LocalizedStringProperty;
       'photonDetailStringProperty': LocalizedStringProperty;
       'particleDetailStringProperty': LocalizedStringProperty;
       'slitsStringProperty': LocalizedStringProperty;
       'detectorPatternStringProperty': LocalizedStringProperty;
-      'waveProgressStringProperty': LocalizedStringProperty;
-      'displayToolsStringProperty': LocalizedStringProperty;
     };
     'waveExperimentResponses': {
       'sourceStartedStringProperty': LocalizedStringProperty;
