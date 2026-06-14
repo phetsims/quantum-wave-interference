@@ -560,9 +560,9 @@
         "value": "Change speed of emitted particles in kilometers or meters per second."
       }
     },
-    "intensitySlider": {
+    "sourceStrengthSlider": {
       "accessibleHelpText": {
-        "value": "Change number of { $sourceType ->\n  [photons] photons\n  [electrons] electrons\n  [neutrons] neutrons\n *[heliumAtoms] helium atoms\n} emitted per second to adjust source intensity."
+        "value": "{ $sourceType ->\n  [photons] Change number of photons emitted per second to adjust source intensity.\n  [electrons] Change number of electrons emitted per second to adjust emission rate.\n  [neutrons] Change number of neutrons emitted per second to adjust emission rate.\n *[heliumAtoms] Change number of helium atoms emitted per second to adjust emission rate.\n}"
       },
       "accessibleContextResponse": {
         "value": "{ $change ->\n  [more] More { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n  [less] Less { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n  [max] Max { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n *[zero] Zero { $sourceType ->\n    [photons] photons\n    [electrons] electrons\n    [neutrons] neutrons\n   *[heliumAtoms] helium atoms\n  }.\n}"

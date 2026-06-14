@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * SourceIntensityControl creates the optional source-intensity or emission-rate slider. Some screens use source scenes
+ * SourceStrengthControl creates the optional source-intensity or emission-rate slider. Some screens use source scenes
  * with fixed source strength and therefore do not create this control.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -21,9 +21,9 @@ import { type SourceType } from '../model/SourceType.js';
 import { SOURCE_CONTROL_PARTICLE_INTENSITY_LABEL_SPACING, SOURCE_CONTROL_PHOTON_INTENSITY_LABEL_SPACING, SOURCE_CONTROL_SLIDER_TRACK_HEIGHT, SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SOURCE_CONTROL_TICK_LABEL_FONT, SOURCE_CONTROL_TITLE_FONT } from './SourceControlPanelConstants.js';
 
 /**
- * Returns a screen-reader context response that describes how the source intensity changed after a drag.
+ * Returns a screen-reader context response that describes how the source strength changed after a drag.
  */
-function getIntensityContextResponse( sourceType: SourceType, value: number, valueOnStart: number, range: Range ): string | null {
+function getSourceStrengthContextResponse( sourceType: SourceType, value: number, valueOnStart: number, range: Range ): string | null {
   if ( value === valueOnStart ) {
     return null;
   }
@@ -33,22 +33,22 @@ function getIntensityContextResponse( sourceType: SourceType, value: number, val
                  value > valueOnStart ? 'more' :
                  'less';
 
-  return QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleContextResponse.format( {
+  return QuantumWaveInterferenceFluent.a11y.sourceStrengthSlider.accessibleContextResponse.format( {
     sourceType: sourceType,
     change: change
   } );
 }
 
-export default class SourceIntensityControl extends VBox {
+export default class SourceStrengthControl extends VBox {
 
   public constructor(
     sourceStrengthProperty: NumberProperty,
     sourceType: SourceType,
-    intensityLabelStringProperty: TReadOnlyProperty<string>,
+    sourceStrengthLabelStringProperty: TReadOnlyProperty<string>,
     tandem: Tandem
   ) {
-    const intensityControlTandem = tandem.createTandem( 'intensityControl' );
-    const intensitySlider = new HSlider( sourceStrengthProperty, sourceStrengthProperty.range, {
+    const sourceStrengthControlTandem = tandem.createTandem( 'intensityControl' );
+    const sourceStrengthSlider = new HSlider( sourceStrengthProperty, sourceStrengthProperty.range, {
       trackSize: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SOURCE_CONTROL_SLIDER_TRACK_HEIGHT ),
       thumbSize: new Dimension2( 13, 22 ),
       majorTickLength: 12,
@@ -59,18 +59,18 @@ export default class SourceIntensityControl extends VBox {
         showIntegersAsIntegers: true
       } ),
       createContextResponseAlert: ( value, _newValue, valueOnStart ) =>
-        getIntensityContextResponse( sourceType, value, valueOnStart, sourceStrengthProperty.range ),
-      accessibleName: intensityLabelStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.intensitySlider.accessibleHelpText.createProperty( {
+        getSourceStrengthContextResponse( sourceType, value, valueOnStart, sourceStrengthProperty.range ),
+      accessibleName: sourceStrengthLabelStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.sourceStrengthSlider.accessibleHelpText.createProperty( {
         sourceType: sourceType
       } ),
-      tandem: intensityControlTandem.createTandem( 'slider' ),
+      tandem: sourceStrengthControlTandem.createTandem( 'slider' ),
       phetioVisiblePropertyInstrumented: false
     } );
 
-    intensitySlider.addMajorTick( 0, new Text( '0', { font: SOURCE_CONTROL_TICK_LABEL_FONT } ) );
-    intensitySlider.addMajorTick( 0.5 );
-    intensitySlider.addMajorTick(
+    sourceStrengthSlider.addMajorTick( 0, new Text( '0', { font: SOURCE_CONTROL_TICK_LABEL_FONT } ) );
+    sourceStrengthSlider.addMajorTick( 0.5 );
+    sourceStrengthSlider.addMajorTick(
       1,
       new Text( QuantumWaveInterferenceFluent.maxStringProperty, {
         font: SOURCE_CONTROL_TICK_LABEL_FONT,
@@ -78,11 +78,11 @@ export default class SourceIntensityControl extends VBox {
       } )
     );
     for ( let i = 1; i <= 4; i++ ) {
-      intensitySlider.addMinorTick( i * 0.1 );
-      intensitySlider.addMinorTick( 0.5 + i * 0.1 );
+      sourceStrengthSlider.addMinorTick( i * 0.1 );
+      sourceStrengthSlider.addMinorTick( 0.5 + i * 0.1 );
     }
 
-    const intensityLabel = new Text( intensityLabelStringProperty, {
+    const sourceStrengthLabel = new Text( sourceStrengthLabelStringProperty, {
       font: SOURCE_CONTROL_TITLE_FONT,
       maxWidth: 120
     } );
@@ -91,8 +91,8 @@ export default class SourceIntensityControl extends VBox {
       spacing: sourceType === 'photons' ?
                SOURCE_CONTROL_PHOTON_INTENSITY_LABEL_SPACING :
                SOURCE_CONTROL_PARTICLE_INTENSITY_LABEL_SPACING,
-      children: [ intensityLabel, intensitySlider ],
-      tandem: intensityControlTandem,
+      children: [ sourceStrengthLabel, sourceStrengthSlider ],
+      tandem: sourceStrengthControlTandem,
       visiblePropertyOptions: { phetioFeatured: true }
     } );
   }

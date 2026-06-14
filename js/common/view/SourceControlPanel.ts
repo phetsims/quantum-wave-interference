@@ -6,7 +6,7 @@
  * It owns the Panel shell and delegates the source-specific controls to smaller view classes:
  * - PhotonWavelengthControl for photon wavelength.
  * - ParticleVelocityControl for electron, neutron, and helium-atom speed.
- * - SourceIntensityControl for optional source intensity/emission rate.
+ * - SourceStrengthControl for optional source intensity/emission rate.
  *
  * The panel creates one complete control subtree per scene, aligns all subtrees to the same width, then toggles
  * visibility as sceneProperty changes. Keeping each subtree alive preserves control state, while the panel height
@@ -39,7 +39,7 @@ export type { default as SourceControlScene } from './SourceControlScene.js';
 /**
  * Options specific to SourceControlPanel that are not forwarded from PanelOptions.
  *
- * The two label overrides let each screen supply its own localized string for the intensity/emission-rate slider.
+ * The two label overrides let each screen supply its own localized string for the source-strength slider.
  * Defaults are the shared sim strings; screens that display different terminology (e.g., "Emission Rate" vs
  * "Source Intensity") pass a replacement here.
  *
@@ -47,8 +47,8 @@ export type { default as SourceControlScene } from './SourceControlScene.js';
  * checkbox in the Single Particles screen). Null means no extra content.
  */
 type SelfOptions = {
-  photonIntensityLabelStringProperty?: TReadOnlyProperty<string>;
-  particleIntensityLabelStringProperty?: TReadOnlyProperty<string>;
+  photonSourceStrengthLabelStringProperty?: TReadOnlyProperty<string>;
+  particleSourceStrengthLabelStringProperty?: TReadOnlyProperty<string>;
   additionalContent?: Node | null;
 };
 
@@ -74,8 +74,8 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
         stroke: QuantumWaveInterferenceColors.panelStrokeProperty,
         align: 'center',
         minWidth: 160,
-        photonIntensityLabelStringProperty: QuantumWaveInterferenceFluent.sourceIntensityStringProperty,
-        particleIntensityLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty,
+        photonSourceStrengthLabelStringProperty: QuantumWaveInterferenceFluent.sourceIntensityStringProperty,
+        particleSourceStrengthLabelStringProperty: QuantumWaveInterferenceFluent.emissionRateStringProperty,
         additionalContent: null
       },
       providedOptions
@@ -86,8 +86,8 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
       scenes,
       options.tandem,
       sceneTandems,
-      options.photonIntensityLabelStringProperty,
-      options.particleIntensityLabelStringProperty
+      options.photonSourceStrengthLabelStringProperty,
+      options.particleSourceStrengthLabelStringProperty
     );
 
     const panelContent = options.additionalContent ?

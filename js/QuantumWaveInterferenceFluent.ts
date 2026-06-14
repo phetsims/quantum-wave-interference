@@ -190,8 +190,8 @@ addToMapIfDefined( 'a11y_wavelengthSlider_color_yellow', 'a11y.wavelengthSlider.
 addToMapIfDefined( 'a11y_wavelengthSlider_color_orange', 'a11y.wavelengthSlider.color.orangeStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_color_red', 'a11y.wavelengthSlider.color.redStringProperty' );
 addToMapIfDefined( 'a11y_particleSpeedSlider_accessibleHelpText', 'a11y.particleSpeedSlider.accessibleHelpTextStringProperty' );
-addToMapIfDefined( 'a11y_intensitySlider_accessibleHelpText', 'a11y.intensitySlider.accessibleHelpTextStringProperty' );
-addToMapIfDefined( 'a11y_intensitySlider_accessibleContextResponse', 'a11y.intensitySlider.accessibleContextResponseStringProperty' );
+addToMapIfDefined( 'a11y_sourceStrengthSlider_accessibleHelpText', 'a11y.sourceStrengthSlider.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_sourceStrengthSlider_accessibleContextResponse', 'a11y.sourceStrengthSlider.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_brightnessSlider_accessibleName', 'a11y.brightnessSlider.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_brightnessSlider_accessibleHelpText', 'a11y.brightnessSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectionModeRadioButtons_accessibleName', 'a11y.detectionModeRadioButtons.accessibleNameStringProperty' );
@@ -534,9 +534,9 @@ const QuantumWaveInterferenceFluent = {
     particleSpeedSlider: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_particleSpeedSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.particleSpeedSlider.accessibleHelpTextStringProperty' ) )
     },
-    intensitySlider: {
-      accessibleHelpText: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_intensitySlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.intensitySlider.accessibleHelpTextStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
-      accessibleContextResponse: new FluentPattern<{ change: 'more' | 'less' | 'max' | number | 'zero' | TReadOnlyProperty<'more' | 'less' | 'max' | number | 'zero'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_intensitySlider_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.intensitySlider.accessibleContextResponseStringProperty' ), [{"name":"change","variants":["more","less","max",{"type":"number","value":"zero"}]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] )
+    sourceStrengthSlider: {
+      accessibleHelpText: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_sourceStrengthSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceStrengthSlider.accessibleHelpTextStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
+      accessibleContextResponse: new FluentPattern<{ change: 'more' | 'less' | 'max' | number | 'zero' | TReadOnlyProperty<'more' | 'less' | 'max' | number | 'zero'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_sourceStrengthSlider_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceStrengthSlider.accessibleContextResponseStringProperty' ), [{"name":"change","variants":["more","less","max",{"type":"number","value":"zero"}]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] )
     },
     brightnessSlider: {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_brightnessSlider_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.brightnessSlider.accessibleNameStringProperty' ) ),

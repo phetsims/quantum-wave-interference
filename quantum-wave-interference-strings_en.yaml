@@ -797,14 +797,14 @@ a11y:
       red:    red
   particleSpeedSlider:
     accessibleHelpText: Change speed of emitted particles in kilometers or meters per second.
-  intensitySlider:
+  sourceStrengthSlider:
     accessibleHelpText:        >-
-                               Change number of { $sourceType ->
-                                 [photons] photons
-                                 [electrons] electrons
-                                 [neutrons] neutrons
-                                *[heliumAtoms] helium atoms
-                               } emitted per second to adjust source intensity.
+                               { $sourceType ->
+                                 [photons] Change number of photons emitted per second to adjust source intensity.
+                                 [electrons] Change number of electrons emitted per second to adjust emission rate.
+                                 [neutrons] Change number of neutrons emitted per second to adjust emission rate.
+                                *[heliumAtoms] Change number of helium atoms emitted per second to adjust emission rate.
+                               }
     accessibleContextResponse: >-
                                { $change ->
                                  [more] More { $sourceType ->

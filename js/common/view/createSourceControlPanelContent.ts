@@ -21,9 +21,9 @@ import ParticleVelocityControl from './ParticleVelocityControl.js';
 import PhotonWavelengthControl from './PhotonWavelengthControl.js';
 import { SOURCE_CONTROL_ROW_VERTICAL_MARGIN, SOURCE_CONTROL_SECTION_SPACING } from './SourceControlPanelConstants.js';
 import SourceControlScene from './SourceControlScene.js';
-import SourceIntensityControl from './SourceIntensityControl.js';
+import SourceStrengthControl from './SourceStrengthControl.js';
 
-// The top source-specific control (wavelength or velocity) and an optional bottom intensity control for one scene.
+// The top source-specific control (wavelength or velocity) and an optional bottom source-strength control for one scene.
 type SceneControlContent = {
   topControl: Node;
   bottomControl: Node | null;
@@ -43,8 +43,8 @@ type SourceControlPanelContent = {
  * @param tandem - fallback tandem used when sceneTandems is null or has no entry for a scene
  * @param sceneTandems - optional per-scene tandem overrides; when provided, each scene looks up its own tandem so
  *   PhET-iO instruments each scene's controls under a distinct path; falls back to tandem when null or missing
- * @param photonIntensityLabelStringProperty - label for the intensity slider shown in photon scenes
- * @param particleIntensityLabelStringProperty - label for the emission-rate slider shown in particle scenes
+ * @param photonSourceStrengthLabelStringProperty - label for the source-strength slider shown in photon scenes
+ * @param particleSourceStrengthLabelStringProperty - label for the source-strength slider shown in particle scenes
  * @returns contentNode - a ToggleNode that shows only the active scene's controls;
  *          hasVisibleContentProperty - whether the active scene has at least one visible source control
  */
@@ -53,13 +53,13 @@ export default function createSourceControlPanelContent<T extends SourceControlS
   scenes: T[],
   tandem: Tandem,
   sceneTandems: ReadonlyMap<object, Tandem> | null,
-  photonIntensityLabelStringProperty: TReadOnlyProperty<string>,
-  particleIntensityLabelStringProperty: TReadOnlyProperty<string>
+  photonSourceStrengthLabelStringProperty: TReadOnlyProperty<string>,
+  particleSourceStrengthLabelStringProperty: TReadOnlyProperty<string>
 ): SourceControlPanelContent {
   const sceneControlContents = scenes.map( scene => createSceneControlContent(
     scene,
     sceneTandems?.get( scene ) || tandem,
-    scene.sourceType === 'photons' ? photonIntensityLabelStringProperty : particleIntensityLabelStringProperty
+    scene.sourceType === 'photons' ? photonSourceStrengthLabelStringProperty : particleSourceStrengthLabelStringProperty
   ) );
 
   const topControlAlignGroup = new AlignGroup( { matchVertical: false } );
@@ -108,12 +108,12 @@ export default function createSourceControlPanelContent<T extends SourceControlS
 }
 
 /**
- * Creates the top source-specific control and optional bottom intensity control for one scene.
+ * Creates the top source-specific control and optional bottom source-strength control for one scene.
  */
 function createSceneControlContent(
   scene: SourceControlScene,
   tandem: Tandem,
-  intensityLabelStringProperty: TReadOnlyProperty<string>
+  sourceStrengthLabelStringProperty: TReadOnlyProperty<string>
 ): SceneControlContent {
   const topControl = scene.sourceType === 'photons' ?
                      new PhotonWavelengthControl( scene.wavelengthProperty, tandem ) :
@@ -125,7 +125,7 @@ function createSceneControlContent(
   return {
     topControl: topControl,
     bottomControl: sourceStrengthProperty ?
-                   new SourceIntensityControl( sourceStrengthProperty, scene.sourceType, intensityLabelStringProperty, tandem ) :
+                   new SourceStrengthControl( sourceStrengthProperty, scene.sourceType, sourceStrengthLabelStringProperty, tandem ) :
                    null
   };
 }

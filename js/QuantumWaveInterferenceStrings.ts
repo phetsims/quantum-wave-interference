@@ -249,7 +249,7 @@ type StringsType = {
     'particleSpeedSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
-    'intensitySlider': {
+    'sourceStrengthSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleContextResponseStringProperty': LocalizedStringProperty;
     };
