@@ -86,7 +86,9 @@ export default class ViewSnapshotsButton extends RectangularPushButton {
         }
       ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleNameStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleHelpTextStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenButtons.viewSnapshots.accessibleHelpText.createProperty( {
+        snapshotCount: numberOfSnapshotsProperty
+      } ),
       accessibleContextResponse: accessibleContextResponseProperty,
       accessibleContextResponseOptions: {
 
