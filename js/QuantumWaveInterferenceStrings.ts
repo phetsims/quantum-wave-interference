@@ -97,7 +97,7 @@ type StringsType = {
   'notDetectedStringProperty': LocalizedStringProperty;
   'a11y': {
     'screenSummary': {
-      'playAreaStringProperty': LocalizedStringProperty;
+      'playAreaExperimentStringProperty': LocalizedStringProperty;
       'playAreaHighIntensityStringProperty': LocalizedStringProperty;
       'playAreaSingleParticlesStringProperty': LocalizedStringProperty;
       'controlAreaStringProperty': LocalizedStringProperty;

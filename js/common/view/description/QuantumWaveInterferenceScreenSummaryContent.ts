@@ -45,19 +45,18 @@ type ScreenSummaryModel = {
 };
 
 /**
- * Per-screen customisation of the shared screen summary. Screens that deviate from defaults (e.g. a different
- * play-area description or a custom current-details section) pass overrides here; all fields are optional except
- * detectionMode, which varies by screen.
+ * Per-screen customisation of the shared screen summary. Each screen supplies its detection mode and play-area
+ * description; screens that deviate from other defaults can pass additional overrides.
  */
 type ScreenSummaryOptions = {
   // Whether the detector screen shows intensity or discrete particle hits.
   detectionMode: DetectionMode | TReadOnlyProperty<DetectionMode>;
 
+  // Screen-specific static description of the play area.
+  playAreaContent: SectionContent;
+
   // Defaults to 'leftRight'. Pass 'topBottom' for screens where slits are arranged on the vertical axis.
   slitOrientation?: SlitOrientation;
-
-  // Override the default Fluent play-area description string.
-  playAreaContent?: SectionContent;
 
   // Override the default derivation that infers whether a pattern is visible on the detector screen.
   detectorScreenHasPatternProperty?: TReadOnlyProperty<boolean>;
@@ -123,8 +122,7 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
     );
 
     super( {
-      playAreaContent: providedOptions.playAreaContent ||
-                       QuantumWaveInterferenceFluent.a11y.screenSummary.playAreaStringProperty,
+      playAreaContent: providedOptions.playAreaContent,
       controlAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.controlAreaStringProperty,
       currentDetailsContent: providedOptions.currentDetailsContent || currentDetailsContentProperty,
       interactionHintContent: interactionHintContentProperty

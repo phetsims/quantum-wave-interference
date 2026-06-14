@@ -82,7 +82,8 @@ export default class ExperimentScreenView extends ScreenView {
           model,
           model.currentSlitConfigurationProperty,
           {
-            detectionMode: model.currentDetectionModeProperty
+            detectionMode: model.currentDetectionModeProperty,
+            playAreaContent: QuantumWaveInterferenceFluent.a11y.screenSummary.playAreaExperimentStringProperty
           }
         )
       },

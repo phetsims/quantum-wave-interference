@@ -93,7 +93,7 @@ addToMapIfDefined( 'detect', 'detectStringProperty' );
 addToMapIfDefined( 'resetDetector', 'resetDetectorStringProperty' );
 addToMapIfDefined( 'particleDetected', 'particleDetectedStringProperty' );
 addToMapIfDefined( 'notDetected', 'notDetectedStringProperty' );
-addToMapIfDefined( 'a11y_screenSummary_playArea', 'a11y.screenSummary.playAreaStringProperty' );
+addToMapIfDefined( 'a11y_screenSummary_playAreaExperiment', 'a11y.screenSummary.playAreaExperimentStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playAreaHighIntensity', 'a11y.screenSummary.playAreaHighIntensityStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playAreaSingleParticles', 'a11y.screenSummary.playAreaSingleParticlesStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_controlArea', 'a11y.screenSummary.controlAreaStringProperty' );
@@ -372,7 +372,7 @@ const QuantumWaveInterferenceFluent = {
   _comment_1: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
   a11y: {
     screenSummary: {
-      playAreaStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_playArea', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.playAreaStringProperty' ) ),
+      playAreaExperimentStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_playAreaExperiment', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.playAreaExperimentStringProperty' ) ),
       playAreaHighIntensityStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_playAreaHighIntensity', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.playAreaHighIntensityStringProperty' ) ),
       playAreaSingleParticlesStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_playAreaSingleParticles', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.playAreaSingleParticlesStringProperty' ) ),
       controlAreaStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_controlArea', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.controlAreaStringProperty' ) ),

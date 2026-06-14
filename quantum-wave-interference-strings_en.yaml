@@ -76,7 +76,7 @@ notDetected:                     No particle<br>detected
 # Accessibility strings
 a11y:
   screenSummary:
-    playArea:                >-
+    playAreaExperiment:      >-
                              A highly configurable three-part experimental setup includes a particle source emitter,
                              double-slit barrier, and detector screen. When experiment is running, particles pass through
                              available slits in barrier to land on detector screen and form patterns. You can choose and
