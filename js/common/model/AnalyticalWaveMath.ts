@@ -41,19 +41,6 @@ export function smoothStep( edge0: number, edge1: number, x: number ): number {
 }
 
 /**
- * Creates the polar complex value magnitude * exp( i * phase ) for public analytical-wave results.
- * Both arguments must be finite, and phase is measured in radians.
- *
- * @param magnitude - Scalar magnitude of the complex value.
- * @param phase - Complex phase in radians.
- * @returns A newly allocated Complex with the corresponding real and imaginary components.
- */
-// TODO: Add to Complex, right? See https://github.com/phetsims/quantum-wave-interference/issues/135
-export function createPolarComplex( magnitude: number, phase: number ): Complex {
-  return new Complex( magnitude * Math.cos( phase ), magnitude * Math.sin( phase ) );
-}
-
-/**
  * Multiplies value by the polar factor magnitude * exp( i * phase ). All numeric inputs must be
  * finite, phase is measured in radians, and value is not mutated.
  *

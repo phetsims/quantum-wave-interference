@@ -8,7 +8,7 @@
 
 import Complex from '../../../../dot/js/Complex.js';
 import { type AnalyticalBarrier, type AnalyticalSlit, type AnalyticalSource, type AnalyticalWaveParameters, type FieldComponent, type FieldComponentSource, type FieldSample, type GaussianPacketReEmission, type GaussianPacketSource, type PlaneWaveSource } from './AnalyticalWaveKernelTypes.js';
-import { createPolarComplex, createPolarTimesComplex, EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './AnalyticalWaveMath.js';
+import { createPolarTimesComplex, EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './AnalyticalWaveMath.js';
 import { getClosestYOnSlit } from './AnalyticalSlitGeometry.js';
 import { getFresnelApertureTransfer } from './FresnelApertureTransfer.js';
 
@@ -323,7 +323,7 @@ function evaluateSourceComponent(
       source: componentSource,
       coherenceGroup: coherenceGroup,
       support: sourceEnvelope,
-      value: createPolarComplex( sourceEnvelope, phase )
+      value: Complex.createPolar( sourceEnvelope, phase )
     };
   }
 
@@ -358,7 +358,7 @@ function evaluateSourceComponent(
     // Packet support follows its envelope so low amplitude from phase/diffraction is still rendered
     // as reached field instead of being mistaken for unreached background.
     support: envelope,
-    value: createPolarComplex( envelope, phase )
+    value: Complex.createPolar( envelope, phase )
   };
 }
 
