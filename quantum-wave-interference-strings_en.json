@@ -611,7 +611,7 @@
     },
     "detectionModeRadioButtons": {
       "accessibleName": {
-        "value": "Detection Mode Sensitivity"
+        "value": "Detection Mode"
       },
       "accessibleHelpText": {
         "value": "Choose continuous intensity pattern or individual hits pattern for particle detection."

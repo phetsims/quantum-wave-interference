@@ -982,7 +982,7 @@ a11y:
     accessibleName:     Screen Brightness
     accessibleHelpText: Adjust brightness for pattern on detector screen.
   detectionModeRadioButtons:
-    accessibleName:     Detection Mode Sensitivity
+    accessibleName:     Detection Mode
     accessibleHelpText: Choose continuous intensity pattern or individual hits pattern for particle detection.
     intensityRadioButton:
       accessibleContextResponse: >-
