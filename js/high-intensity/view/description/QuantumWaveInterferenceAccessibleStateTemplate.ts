@@ -35,7 +35,7 @@ export default class QuantumWaveInterferenceAccessibleStateTemplate {
       model.currentIsEmitterEnabledProperty,
       model.currentIsMaxHitsReachedProperty,
       model.currentDetectionModeProperty,
-      model.isIntensityGraphVisibleProperty,
+      model.isGraphVisibleProperty,
       model.currentScreenBrightnessProperty,
       model.currentWaveDisplayModeProperty,
       model.currentSlitConfigurationProperty,

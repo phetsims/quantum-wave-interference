@@ -283,10 +283,10 @@ export default class SingleParticlesScreenView extends ScreenView {
     this.detectorPatternGraphLayerNode = new DetectorPatternGraphLayerNode(
       model.sceneProperty,
       this.detectorScreenNode,
-      model.isHitsGraphVisibleProperty,
+      model.isGraphVisibleProperty,
       waveRegionRight,
       waveRegionTop,
-      tandem.createTandem( 'sidewaysGraphNode' ),
+      tandem.createTandem( 'detectorPatternGraphNode' ),
       { initialZoomLevel: 'max' }
     );
     this.addChild( this.detectorPatternGraphLayerNode );
@@ -322,7 +322,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     );
 
     const detectorScreenControls = new DetectorScreenControls( model, this, tandem, {
-      screenGraphVisibleProperty: model.isHitsGraphVisibleProperty,
+      screenGraphVisibleProperty: model.isGraphVisibleProperty,
       additionalScreenControlChildren: [],
       toolCheckboxes: [
         measuringTapeCheckbox,
@@ -393,7 +393,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     const graphDescriber = new DetectorPatternGraphDescriber( model.sceneProperty, new BooleanProperty( false ) );
     const graphDetailItem: AccessibleListItem = {
       stringProperty: graphDescriber.descriptionProperty,
-      visibleProperty: model.isHitsGraphVisibleProperty
+      visibleProperty: model.isGraphVisibleProperty
     };
 
     const detectorScreenDetailsNode = new Node( {
@@ -401,7 +401,7 @@ export default class SingleParticlesScreenView extends ScreenView {
         leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
           detectionMode: 'hits',
           sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
-          surface: model.isHitsGraphVisibleProperty.derived( isGraphVisible => isGraphVisible ? 'graph' as const : 'detectorScreen' as const ),
+          surface: model.isGraphVisibleProperty.derived( isGraphVisible => isGraphVisible ? 'graph' as const : 'detectorScreen' as const ),
           detectorScreenStatus: detectorScreenStatusProperty
         } ),
         listItems: [ accessibleResponses.packetStatusItem, graphDetailItem ]
@@ -413,7 +413,7 @@ export default class SingleParticlesScreenView extends ScreenView {
       model,
       model.currentSlitConfigurationProperty,
       {
-        screenGraphVisibleProperty: model.isHitsGraphVisibleProperty,
+        screenGraphVisibleProperty: model.isGraphVisibleProperty,
         slitOrientation: 'topBottom',
         detectorScreenDetailsNodes: [ detectorScreenDetailsNode ],
         sourceNodes: [ emitterNode, maxHitsReachedPanel, sourceControlPanel, sceneRadioButtonGroup ],
@@ -465,7 +465,7 @@ export default class SingleParticlesScreenView extends ScreenView {
         autoRepeat: this.model.currentAutoRepeatProperty.value,
         isPacketActive: this.model.currentIsPacketActiveProperty.value,
         detectionMode: 'hits' as const,
-        displayMode: this.model.isHitsGraphVisibleProperty.value ? 'graph' as const : 'screen' as const,
+        displayMode: this.model.isGraphVisibleProperty.value ? 'graph' as const : 'screen' as const,
         waveDisplayMode: this.model.currentWaveDisplayModeProperty.value,
         slitConfiguration: slitConfiguration,
         wavelengthNM: this.model.currentWavelengthProperty.value,

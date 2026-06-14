@@ -400,7 +400,7 @@ export default class HighIntensityScreenView extends ScreenView {
       isEmitterEnabled: scene.isEmitterEnabledProperty.value,
       isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
       detectionMode: scene.detectionModeProperty.value,
-      displayMode: this.model.isIntensityGraphVisibleProperty.value ? 'graph' : 'screen',
+      displayMode: this.model.isGraphVisibleProperty.value ? 'graph' : 'screen',
       screenBrightnessPercent: scene.screenBrightnessProperty.value,
       waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
       slitConfiguration: slitConfiguration,
@@ -644,10 +644,10 @@ export default class HighIntensityScreenView extends ScreenView {
     const detectorPatternGraphLayerNode = new DetectorPatternGraphLayerNode(
       model.sceneProperty,
       detectorScreenNode,
-      model.isIntensityGraphVisibleProperty,
+      model.isGraphVisibleProperty,
       waveRegionLayout.waveRegionRight,
       waveRegionLayout.waveRegionTop,
-      tandem.createTandem( 'sidewaysGraphNode' ), {
+      tandem.createTandem( 'detectorPatternGraphNode' ), {
         detectionModeProperty: model.currentDetectionModeProperty,
         initialZoomLevels: {
           intensity: 3,
@@ -734,7 +734,7 @@ export default class HighIntensityScreenView extends ScreenView {
       createStandardToolCheckboxes( model, toolsPanelTandem );
 
     const detectorScreenControls = new DetectorScreenControls( model, this, tandem, {
-      screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,
+      screenGraphVisibleProperty: model.isGraphVisibleProperty,
       additionalScreenControlChildren: [ detectionModeRadioButtonGroupBox ],
       toolCheckboxes: [
         measuringTapeCheckbox,
@@ -870,11 +870,11 @@ export default class HighIntensityScreenView extends ScreenView {
       stringProperty: this.detectorPatternGraphDescriber.descriptionProperty,
       visibleProperty: DerivedProperty.deriveAny(
         [
-          model.isIntensityGraphVisibleProperty,
+          model.isGraphVisibleProperty,
           model.currentDetectionModeProperty,
           detectorScreenStatusProperty
         ],
-        () => model.isIntensityGraphVisibleProperty.value &&
+        () => model.isGraphVisibleProperty.value &&
               ( model.currentDetectionModeProperty.value === 'hits' || detectorScreenStatusProperty.value === 'pattern' )
       )
     };
@@ -884,7 +884,7 @@ export default class HighIntensityScreenView extends ScreenView {
         leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
           detectionMode: model.currentDetectionModeProperty,
           sourceType: model.sceneProperty.derived( scene => scene.sourceType ),
-          surface: model.isIntensityGraphVisibleProperty.derived( isGraphVisible => isGraphVisible ? 'graph' as const : 'detectorScreen' as const ),
+          surface: model.isGraphVisibleProperty.derived( isGraphVisible => isGraphVisible ? 'graph' as const : 'detectorScreen' as const ),
           detectorScreenStatus: detectorScreenStatusProperty
         } ),
         listItems: [
@@ -899,7 +899,7 @@ export default class HighIntensityScreenView extends ScreenView {
       model,
       model.currentSlitConfigurationProperty, {
         detectionModeProperty: model.currentDetectionModeProperty,
-        screenGraphVisibleProperty: model.isIntensityGraphVisibleProperty,
+        screenGraphVisibleProperty: model.isGraphVisibleProperty,
         slitOrientation: 'topBottom',
         detectorScreenDetailsNodes: [ detectorScreenDetailsNode ],
         sourceNodes: [ sourceBeamCalloutNode, sourceControlPanel, sceneRadioButtonGroup ],

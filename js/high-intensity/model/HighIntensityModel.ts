@@ -2,7 +2,7 @@
 
 /**
  * Top-level model for the High Intensity screen. Extends BaseScreenModel with High Intensity–specific
- * state: detection mode, intensity graph visibility, and slit configuration DynamicProperties
+ * state: detection mode, detector-pattern graph visibility, and slit configuration DynamicProperties
  * (including detector variants).
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -32,8 +32,8 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
   public readonly currentSlitConfigurationProperty: DynamicProperty<SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrier, HighIntensitySceneModel>;
   public readonly currentDetectionModeProperty: DynamicProperty<DetectionMode, DetectionMode, HighIntensitySceneModel>;
 
-  // Tool visibility specific to this screen
-  public readonly isIntensityGraphVisibleProperty: BooleanProperty;
+  // Detector-pattern graph visibility
+  public readonly isGraphVisibleProperty: BooleanProperty;
 
   public constructor( providedOptions: HighIntensityModelOptions ) {
 
@@ -64,8 +64,8 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
 
     this.currentDetectionModeProperty = createCurrentDetectionModeProperty( this.sceneProperty, tandem );
 
-    this.isIntensityGraphVisibleProperty = new BooleanProperty( false, {
-      tandem: this.toolsTandem.createTandem( 'isIntensityGraphVisibleProperty' ),
+    this.isGraphVisibleProperty = new BooleanProperty( false, {
+      tandem: tandem.createTandem( 'isGraphVisibleProperty' ),
       phetioFeatured: true
     } );
   }
@@ -75,6 +75,6 @@ export default class HighIntensityModel extends BaseScreenModel<HighIntensitySce
   }
 
   protected override resetToolVisibility(): void {
-    this.isIntensityGraphVisibleProperty.reset();
+    this.isGraphVisibleProperty.reset();
   }
 }

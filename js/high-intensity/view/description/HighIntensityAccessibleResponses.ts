@@ -106,7 +106,7 @@ export default class HighIntensityAccessibleResponses extends Node {
     model.currentBarrierPositionFractionProperty.lazyLink( () => emitTransition( { type: 'slitPositionChanged' } ) );
     model.currentWavelengthProperty.lazyLink( () => emitTransition( { type: 'wavelengthChanged' } ) );
     model.currentParticleSpeedProperty.lazyLink( () => emitTransition( { type: 'speedChanged' } ) );
-    model.isIntensityGraphVisibleProperty.lazyLink( () => emitTransition( { type: 'displayModeChanged' } ) );
+    model.isGraphVisibleProperty.lazyLink( () => emitTransition( { type: 'displayModeChanged' } ) );
     model.currentScreenBrightnessProperty.lazyLink( () => emitTransition( { type: 'brightnessChanged' } ) );
     model.currentWaveDisplayModeProperty.lazyLink( () => emitTransition( { type: 'waveDisplayChanged' } ) );
     model.isMeasuringTapeVisibleProperty.lazyLink( () => emitTransition( { type: 'toolChanged', tool: 'measuringTape' } ) );

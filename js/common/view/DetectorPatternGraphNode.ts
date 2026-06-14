@@ -91,7 +91,10 @@ export default class DetectorPatternGraphNode extends Node {
       detectionModeProperty: undefined as never,
       initialZoomLevel: 'default',
       initialZoomLevels: {},
-      isDisposable: false
+      isDisposable: false,
+
+      // Visibility is controlled by the ScreenGraphSwitch Property, so it should not be controlled independently.
+      phetioVisiblePropertyInstrumented: false
     }, providedOptions );
 
     super( options );

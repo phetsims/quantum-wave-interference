@@ -2,7 +2,7 @@
 
 /**
  * Top-level model for the Single Particles screen. Extends BaseScreenModel with Single Particles–specific
- * state: slit configuration, auto-repeat, packet state, detector probe, and hits graph visibility.
+ * state: slit configuration, auto-repeat, packet state, detector probe, and detector-pattern graph visibility.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -39,8 +39,8 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
   public readonly currentIsPacketActiveProperty: DynamicProperty<boolean, boolean, SingleParticlesSceneModel>;
   public readonly currentDetectorProbe: CurrentDetectorProbe;
 
-  // Tool visibility specific to this screen
-  public readonly isHitsGraphVisibleProperty: BooleanProperty;
+  // Detector-pattern graph visibility
+  public readonly isGraphVisibleProperty: BooleanProperty;
 
   public constructor( providedOptions: SingleParticlesModelOptions ) {
 
@@ -87,8 +87,8 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
       derive: 'isPacketActiveProperty'
     } );
 
-    this.isHitsGraphVisibleProperty = new BooleanProperty( false, {
-      tandem: this.toolsTandem.createTandem( 'isHitsGraphVisibleProperty' ),
+    this.isGraphVisibleProperty = new BooleanProperty( false, {
+      tandem: tandem.createTandem( 'isGraphVisibleProperty' ),
       phetioFeatured: true
     } );
 
@@ -109,11 +109,11 @@ export default class SingleParticlesModel extends BaseScreenModel<SingleParticle
   }
 
   /**
-   * Resets the hits-graph visibility and detector probe visibility. Called during reset() after shared tool Properties
-   * have been reset.
+   * Resets the detector-pattern graph visibility and detector probe visibility. Called during reset() after shared
+   * tool Properties have been reset.
    */
   protected override resetToolVisibility(): void {
-    this.isHitsGraphVisibleProperty.reset();
+    this.isGraphVisibleProperty.reset();
     this.currentDetectorProbe.isVisibleProperty.reset();
   }
 }
