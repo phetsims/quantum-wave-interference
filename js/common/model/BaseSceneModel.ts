@@ -723,7 +723,11 @@ export default abstract class BaseSceneModel extends PhetioObject {
       sourceType: this.sourceType,
       wavelength: this.wavelengthProperty.value,
       slitSeparation: this.slitSeparationProperty.value,
-      screenDistance: this.barrierPositionFractionProperty.value * this.regionWidth,
+
+      // Barrier-to-screen distance (the screen sits at the far edge, x = regionWidth), used as the slit-to-screen
+      // distance L when describers reconstruct the theoretical pattern. Must match the live analysis convention in
+      // BandAnalysis.analyzeTheoreticalPattern.
+      screenDistance: ( 1 - this.barrierPositionFractionProperty.value ) * this.regionWidth,
       screenHalfWidth: this.regionWidth / 2,
       effectiveWavelength: this.getEffectiveWavelength(),
       slitSetting: slitSetting,

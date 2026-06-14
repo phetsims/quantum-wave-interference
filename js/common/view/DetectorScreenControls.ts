@@ -41,6 +41,7 @@ import { type MatterWaveDisplayMode, type PhotonWaveDisplayMode } from '../model
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import BrightnessControl from './BrightnessControl.js';
+import SnapshotDescriber from './description/SnapshotDescriber.js';
 import SnapshotButton from './SnapshotButton.js';
 import SnapshotIndicatorDotsNode from './SnapshotIndicatorDotsNode.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
@@ -197,7 +198,8 @@ export default class DetectorScreenControls extends VBox {
       {
         slitOrientation: options.slitOrientation,
         slitSettingDisplayMap: options.slitSettingDisplayMap,
-        useFrontFacingHitCoordinates: true
+        useFrontFacingHitCoordinates: true,
+        getDescription: snapshot => SnapshotDescriber.getDescription( snapshot )
       }
     );
 
