@@ -499,6 +499,9 @@
     "slitSeparationSlider": {
       "accessibleHelpText": {
         "value": "Change distance between centers of slits in barrier."
+      },
+      "bandSpacingContextResponse": {
+        "value": "{ $trend ->\n  [increased] Wider slit separation, bright bands get closer together.\n *[decreased] Narrower slit separation, bright bands get farther apart.\n}"
       }
     },
     "barrierPositionSlider": {
@@ -536,6 +539,9 @@
       "accessibleValue": {
         "value": "{ $value }, { $color } zone"
       },
+      "bandSpacingContextResponse": {
+        "value": "{ $trend ->\n  [increased] Longer wavelength, bright bands get farther apart.\n *[decreased] Shorter wavelength, bright bands get closer together.\n}"
+      },
       "color": {
         "violet": {
           "value": "violet"
@@ -563,6 +569,9 @@
     "particleSpeedSlider": {
       "accessibleHelpText": {
         "value": "Change speed of emitted particles in kilometers or meters per second."
+      },
+      "bandSpacingContextResponse": {
+        "value": "{ $trend ->\n  [increased] Faster particles, bright bands get closer together.\n *[decreased] Slower particles, bright bands get farther apart.\n}"
       }
     },
     "sourceStrengthSlider": {

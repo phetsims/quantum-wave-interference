@@ -223,6 +223,7 @@ type StringsType = {
     };
     'slitSeparationSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'bandSpacingContextResponseStringProperty': LocalizedStringProperty;
     };
     'barrierPositionSlider': {
       'accessibleNameStringProperty': LocalizedStringProperty;
@@ -239,6 +240,7 @@ type StringsType = {
     'wavelengthSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleValueStringProperty': LocalizedStringProperty;
+      'bandSpacingContextResponseStringProperty': LocalizedStringProperty;
       'color': {
         'violetStringProperty': LocalizedStringProperty;
         'blueStringProperty': LocalizedStringProperty;
@@ -251,6 +253,7 @@ type StringsType = {
     };
     'particleSpeedSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'bandSpacingContextResponseStringProperty': LocalizedStringProperty;
     };
     'sourceStrengthSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;

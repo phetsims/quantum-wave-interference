@@ -764,6 +764,11 @@ a11y:
                          }
   slitSeparationSlider:
     accessibleHelpText: Change distance between centers of slits in barrier.
+    bandSpacingContextResponse: >-
+                                { $trend ->
+                                  [increased] Wider slit separation, bright bands get closer together.
+                                 *[decreased] Narrower slit separation, bright bands get farther apart.
+                                }
   barrierPositionSlider:
     accessibleName:     Barrier-Screen Distance
     accessibleHelpText: >-
@@ -812,6 +817,11 @@ a11y:
   wavelengthSlider:
     accessibleHelpText: Change wavelength of emitted photons in nanometers from shortest, violet, to longest, red.
     accessibleValue:    '{ $value }, { $color } zone'
+    bandSpacingContextResponse: >-
+                                { $trend ->
+                                  [increased] Longer wavelength, bright bands get farther apart.
+                                 *[decreased] Shorter wavelength, bright bands get closer together.
+                                }
     color:
       violet: violet
       blue:   blue
@@ -822,6 +832,11 @@ a11y:
       red:    red
   particleSpeedSlider:
     accessibleHelpText: Change speed of emitted particles in kilometers or meters per second.
+    bandSpacingContextResponse: >-
+                                { $trend ->
+                                  [increased] Faster particles, bright bands get closer together.
+                                 *[decreased] Slower particles, bright bands get farther apart.
+                                }
   sourceStrengthSlider:
     accessibleHelpText:        >-
                                { $sourceType ->

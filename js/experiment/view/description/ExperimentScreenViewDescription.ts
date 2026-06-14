@@ -23,6 +23,10 @@ import formatExperimentDetectorPatternResponse from './formatExperimentDetectorP
 
 type ClockSpeedDescription = 'slow' | 'normal' | 'fast';
 
+// Response-group key so that rapid wavelength/speed/slit-separation changes self-interrupt rather than flooding
+// the speech queue; only the most recent band-spacing change is spoken.
+const BAND_SPACING_RESPONSE_GROUP = 'quantum-wave-interference-experiment-band-spacing';
+
 function getClockSpeedDescription( model: ExperimentModel ): ClockSpeedDescription {
   const timeSpeed = model.timeSpeedProperty.value;
   return timeSpeed === TimeSpeed.SLOW ? 'slow' :
@@ -93,6 +97,77 @@ export default class ExperimentScreenViewDescription extends Node {
           );
         }
       } );
+    } );
+
+    // Announce how the double-slit fringe spacing responds to wavelength (photon scenes), particle speed (matter
+    // scenes), and slit-separation changes — but only while both slits are open, the source is on, and the detector
+    // screen shows intensity. The barrier-screen-distance slider already reports its own band-spacing effect, so it
+    // is intentionally excluded here.
+    const bandSpacingResponseNode = new Node();
+    this.addChild( bandSpacingResponseNode );
+
+    // Per-parameter baselines, compared against the latest value to derive the change direction. They are resynced
+    // (without announcing) whenever the active scene changes, so switching particle type never announces a spacing
+    // change. activeScene is updated only by the sceneProperty listener below; the DynamicProperty handlers run
+    // before that listener during a scene switch, so they detect the switch via isSceneSwitchInFlight() and skip.
+    let activeScene = model.sceneProperty.value;
+    let previousWavelength = model.currentWavelengthProperty.value;
+    let previousParticleSpeed = model.currentParticleSpeedProperty.value;
+    let previousSlitSeparation = model.currentSlitSeparationProperty.value;
+
+    const bandSpacingConditionsMet = () =>
+      model.currentSlitConfigurationProperty.value === 'bothOpen' &&
+      model.currentIsEmittingProperty.value &&
+      model.currentDetectionModeProperty.value === 'intensity';
+
+    // True while a scene switch is in flight: the current* DynamicProperties have already jumped to the new scene's
+    // values but activeScene still references the previous scene. Used to suppress announcements caused by switching.
+    const isSceneSwitchInFlight = () => model.sceneProperty.value !== activeScene;
+
+    model.sceneProperty.lazyLink( scene => {
+      activeScene = scene;
+      previousWavelength = model.currentWavelengthProperty.value;
+      previousParticleSpeed = model.currentParticleSpeedProperty.value;
+      previousSlitSeparation = model.currentSlitSeparationProperty.value;
+    } );
+
+    model.currentWavelengthProperty.lazyLink( wavelength => {
+      if ( isSceneSwitchInFlight() ) { return; }
+      const increased = wavelength > previousWavelength;
+      const changed = wavelength !== previousWavelength;
+      previousWavelength = wavelength;
+      if ( changed && activeScene.sourceType === 'photons' && bandSpacingConditionsMet() ) {
+        bandSpacingResponseNode.addAccessibleContextResponse(
+          QuantumWaveInterferenceFluent.a11y.wavelengthSlider.bandSpacingContextResponse.format( { trend: increased ? 'increased' : 'decreased' } ),
+          { responseGroup: BAND_SPACING_RESPONSE_GROUP }
+        );
+      }
+    } );
+
+    model.currentParticleSpeedProperty.lazyLink( particleSpeed => {
+      if ( isSceneSwitchInFlight() ) { return; }
+      const increased = particleSpeed > previousParticleSpeed;
+      const changed = particleSpeed !== previousParticleSpeed;
+      previousParticleSpeed = particleSpeed;
+      if ( changed && activeScene.sourceType !== 'photons' && bandSpacingConditionsMet() ) {
+        bandSpacingResponseNode.addAccessibleContextResponse(
+          QuantumWaveInterferenceFluent.a11y.particleSpeedSlider.bandSpacingContextResponse.format( { trend: increased ? 'increased' : 'decreased' } ),
+          { responseGroup: BAND_SPACING_RESPONSE_GROUP }
+        );
+      }
+    } );
+
+    model.currentSlitSeparationProperty.lazyLink( slitSeparation => {
+      if ( isSceneSwitchInFlight() ) { return; }
+      const increased = slitSeparation > previousSlitSeparation;
+      const changed = slitSeparation !== previousSlitSeparation;
+      previousSlitSeparation = slitSeparation;
+      if ( changed && bandSpacingConditionsMet() ) {
+        bandSpacingResponseNode.addAccessibleContextResponse(
+          QuantumWaveInterferenceFluent.a11y.slitSeparationSlider.bandSpacingContextResponse.format( { trend: increased ? 'increased' : 'decreased' } ),
+          { responseGroup: BAND_SPACING_RESPONSE_GROUP }
+        );
+      }
     } );
 
     const detectorScreenDetailsNode = new ExperimentDetectorScreenDetailsNode( model );

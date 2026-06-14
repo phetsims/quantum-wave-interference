@@ -173,6 +173,7 @@ addToMapIfDefined( 'a11y_detectorProbe_accessibleName', 'a11y.detectorProbe.acce
 addToMapIfDefined( 'a11y_detectorProbe_accessibleHelpText', 'a11y.detectorProbe.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectorProbe_accessibleParagraph', 'a11y.detectorProbe.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_slitSeparationSlider_accessibleHelpText', 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_slitSeparationSlider_bandSpacingContextResponse', 'a11y.slitSeparationSlider.bandSpacingContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_barrierPositionSlider_accessibleName', 'a11y.barrierPositionSlider.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_barrierPositionSlider_accessibleHelpText', 'a11y.barrierPositionSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_barrierPositionSlider_accessibleValue', 'a11y.barrierPositionSlider.accessibleValueStringProperty' );
@@ -183,6 +184,7 @@ addToMapIfDefined( 'a11y_detectorScreenPositionSlider_accessibleContextResponseH
 addToMapIfDefined( 'a11y_detectorScreenPositionSlider_accessibleContextResponse', 'a11y.detectorScreenPositionSlider.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_accessibleHelpText', 'a11y.wavelengthSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_accessibleValue', 'a11y.wavelengthSlider.accessibleValueStringProperty' );
+addToMapIfDefined( 'a11y_wavelengthSlider_bandSpacingContextResponse', 'a11y.wavelengthSlider.bandSpacingContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_color_violet', 'a11y.wavelengthSlider.color.violetStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_color_blue', 'a11y.wavelengthSlider.color.blueStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_color_indigo', 'a11y.wavelengthSlider.color.indigoStringProperty' );
@@ -191,6 +193,7 @@ addToMapIfDefined( 'a11y_wavelengthSlider_color_yellow', 'a11y.wavelengthSlider.
 addToMapIfDefined( 'a11y_wavelengthSlider_color_orange', 'a11y.wavelengthSlider.color.orangeStringProperty' );
 addToMapIfDefined( 'a11y_wavelengthSlider_color_red', 'a11y.wavelengthSlider.color.redStringProperty' );
 addToMapIfDefined( 'a11y_particleSpeedSlider_accessibleHelpText', 'a11y.particleSpeedSlider.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_particleSpeedSlider_bandSpacingContextResponse', 'a11y.particleSpeedSlider.bandSpacingContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_sourceStrengthSlider_accessibleHelpText', 'a11y.sourceStrengthSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_sourceStrengthSlider_accessibleContextResponse', 'a11y.sourceStrengthSlider.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_brightnessSlider_accessibleName', 'a11y.brightnessSlider.accessibleNameStringProperty' );
@@ -508,7 +511,8 @@ const QuantumWaveInterferenceFluent = {
       accessibleParagraph: new FluentPattern<{ probability: FluentVariable, state: 'detected' | 'notDetected' | 'ready' | TReadOnlyProperty<'detected' | 'notDetected' | 'ready'> }>( fluentSupport.bundleProperty, 'a11y_detectorProbe_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorProbe.accessibleParagraphStringProperty' ), [{"name":"probability"},{"name":"state","variants":["detected","notDetected","ready"]}] )
     },
     slitSeparationSlider: {
-      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSeparationSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' ) )
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitSeparationSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSeparationSlider.accessibleHelpTextStringProperty' ) ),
+      bandSpacingContextResponse: new FluentPattern<{ trend: 'increased' | 'decreased' | TReadOnlyProperty<'increased' | 'decreased'> }>( fluentSupport.bundleProperty, 'a11y_slitSeparationSlider_bandSpacingContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.slitSeparationSlider.bandSpacingContextResponseStringProperty' ), [{"name":"trend","variants":["increased","decreased"]}] )
     },
     barrierPositionSlider: {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_barrierPositionSlider_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.barrierPositionSlider.accessibleNameStringProperty' ) ),
@@ -525,6 +529,7 @@ const QuantumWaveInterferenceFluent = {
     wavelengthSlider: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.accessibleHelpTextStringProperty' ) ),
       accessibleValue: new FluentPattern<{ color: FluentVariable, value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_accessibleValue', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.accessibleValueStringProperty' ), [{"name":"color"},{"name":"value"}] ),
+      bandSpacingContextResponse: new FluentPattern<{ trend: 'increased' | 'decreased' | TReadOnlyProperty<'increased' | 'decreased'> }>( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_bandSpacingContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.bandSpacingContextResponseStringProperty' ), [{"name":"trend","variants":["increased","decreased"]}] ),
       color: {
         violetStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_color_violet', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.color.violetStringProperty' ) ),
         blueStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_wavelengthSlider_color_blue', _.get( QuantumWaveInterferenceStrings, 'a11y.wavelengthSlider.color.blueStringProperty' ) ),
@@ -536,7 +541,8 @@ const QuantumWaveInterferenceFluent = {
       }
     },
     particleSpeedSlider: {
-      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_particleSpeedSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.particleSpeedSlider.accessibleHelpTextStringProperty' ) )
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_particleSpeedSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.particleSpeedSlider.accessibleHelpTextStringProperty' ) ),
+      bandSpacingContextResponse: new FluentPattern<{ trend: 'increased' | 'decreased' | TReadOnlyProperty<'increased' | 'decreased'> }>( fluentSupport.bundleProperty, 'a11y_particleSpeedSlider_bandSpacingContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.particleSpeedSlider.bandSpacingContextResponseStringProperty' ), [{"name":"trend","variants":["increased","decreased"]}] )
     },
     sourceStrengthSlider: {
       accessibleHelpText: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_sourceStrengthSlider_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceStrengthSlider.accessibleHelpTextStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
