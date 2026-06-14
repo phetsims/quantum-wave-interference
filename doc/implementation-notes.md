@@ -199,7 +199,7 @@ Some solver state accepts legacy saved-state shapes. For example, `AnalyticalWav
 | `positionPlotSamplesPerPixel` | Position plot sample density; default 2. |
 | `timePlotMaxSamples` | Time plot stored sample count; default 600. |
 | `maxHits` | Testing cap for detector-screen hits; default 25,000, maximum 25,000. |
-| `sidewaysGraphSampleScale` | High Intensity/Single Particles side-graph sample scale; default 1. |
+| `detectorPatternGraphSampleScale` | High Intensity/Single Particles side-graph sample scale; default 1. |
 | `experimentGraphSamplesPerPixel` | Experiment graph sample density; default 8. |
 | `experimentDetectorTextureScale` | Experiment detector texture scale; default 2. |
 

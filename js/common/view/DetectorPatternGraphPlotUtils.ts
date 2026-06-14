@@ -35,7 +35,7 @@ export const DETECTOR_PATTERN_GRAPH_HEIGHT = QuantumWaveInterferenceConstants.WA
 
 const HISTOGRAM_BINS = 100;
 const INTENSITY_SAMPLE_COUNT = 200;
-const INTENSITY_SAMPLE_SCALE = QuantumWaveInterferenceQueryParameters.sidewaysGraphSampleScale;
+const INTENSITY_SAMPLE_SCALE = QuantumWaveInterferenceQueryParameters.detectorPatternGraphSampleScale;
 const NUM_HORIZONTAL_GRID_DIVISIONS = 10;
 const NUM_VERTICAL_GRID_DIVISIONS = 4;
 
