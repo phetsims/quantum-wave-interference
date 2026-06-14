@@ -32,25 +32,6 @@ import { applyDecoherenceEvent, applyPlaneWaveDecoherenceEventLayers } from './A
 import { applyGaussianPacketMeasurementProjectionLayers, applyMeasurementProjections } from './AnalyticalWaveMeasurementProjection.js';
 import { evaluateUndecoheredAnalyticalSample } from './AnalyticalWavePropagation.js';
 
-export { computeSampleIntensity, getRepresentativeComplex } from './AnalyticalFieldSample.js';
-export type {
-  AnalyticalBarrier,
-  AnalyticalSlit,
-  AnalyticalSource,
-  AnalyticalWaveParameters,
-  DecoherenceEvent,
-  DecoherenceSlit,
-  FieldComponent,
-  FieldComponentSource,
-  FieldLayer,
-  FieldSample,
-  GaussianPacketReEmission,
-  GaussianPacketSource,
-  LayeredFieldSample,
-  MeasurementProjection,
-  PlaneWaveSource
-} from './AnalyticalWaveKernelTypes.js';
-
 /**
  * Evaluates the model-facing analytical field at one sample point.
  *

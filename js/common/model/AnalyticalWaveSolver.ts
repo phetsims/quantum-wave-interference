@@ -22,7 +22,9 @@
  */
 
 import type Complex from '../../../../dot/js/Complex.js';
-import { type AnalyticalSource, computeSampleIntensity, evaluateAnalyticalSample, getRepresentativeComplex } from './AnalyticalWaveKernel.js';
+import { computeSampleIntensity, getRepresentativeComplex } from './AnalyticalFieldSample.js';
+import { evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
+import { type AnalyticalSource } from './AnalyticalWaveKernelTypes.js';
 import BaseAnalyticalWaveSolver from './BaseAnalyticalWaveSolver.js';
 import { type AnalyticalWaveSolverState, type WaveSolverState } from './WaveSolver.js';
 

@@ -39,7 +39,7 @@ import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ObjectLiteralIO from '../../../../tandem/js/types/ObjectLiteralIO.js';
 import { DISPLAY_SLIT_WIDTH, MAX_DISPLAY_SLIT_SEPARATION, MIN_DISPLAY_SLIT_SEPARATION } from '../getDisplaySlitLayout.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKernel.js';
+import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKernelTypes.js';
 import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
 import { type DetectionMode } from './DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnBottomSlit, hasDetectorOnTopSlit, isBottomSlitCovered, isTopSlitCovered, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from './SlitConfiguration.js';

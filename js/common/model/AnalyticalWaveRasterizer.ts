@@ -24,7 +24,7 @@
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
-import { type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernel.js';
+import { type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernelTypes.js';
 import { type WaveDisplayMode } from './WaveDisplayMode.js';
 
 // Minimum visible field contribution used so very weak supported samples are still distinguishable

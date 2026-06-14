@@ -38,8 +38,12 @@ export type AnalyticalDetectorPatternOptions = {
 
 const SINGLE_OPEN_SLIT_INTENSITY_SCALE = 0.5;
 
-function sincSquared( arg: number ): number {
-  return arg === 0 ? 1 : Math.pow( Math.sin( arg ) / arg, 2 );
+/**
+ * Evaluates the sinc-squared function, which describes the single-slit diffraction envelope. Defined as sinc^2(x) =
+ * (sin(x)/x)^2, with the limit value of 1 at x=0.
+ */
+function sincSquared( x: number ): number {
+  return x === 0 ? 1 : Math.pow( Math.sin( x ) / x, 2 );
 }
 
 /**
@@ -49,8 +53,7 @@ function sincSquared( arg: number ): number {
  * @param effectiveWavelength - effective wavelength in meters
  * @param screenDistance - distance from the slits to the detector screen in meters
  * @param slitWidth - slit width in meters
- * @returns normalized envelope intensity from 0 (dark) to 1 (peak intensity), or 0 when the effective wavelength is
- *          zero
+ * @returns normalized envelope intensity from 0 (dark) to 1 (peak intensity), or 0 when the effective wavelength is zero
  */
 export function getAnalyticalSingleSlitEnvelopeIntensity(
   positionOnScreen: number,

@@ -34,8 +34,6 @@ import createSourceControlPanelContent from './createSourceControlPanelContent.j
 import { SOURCE_CONTROL_SECTION_SPACING } from './SourceControlPanelConstants.js';
 import SourceControlScene from './SourceControlScene.js';
 
-export type { default as SourceControlScene } from './SourceControlScene.js';
-
 /**
  * Options specific to SourceControlPanel that are not forwarded from PanelOptions.
  *

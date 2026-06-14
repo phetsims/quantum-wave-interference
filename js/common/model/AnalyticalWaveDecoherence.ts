@@ -7,9 +7,9 @@
  */
 
 import Complex from '../../../../dot/js/Complex.js';
+import { getClosestYOnSlit } from './AnalyticalSlitGeometry.js';
 import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample, type PlaneWaveSource } from './AnalyticalWaveKernelTypes.js';
 import { EPSILON, smoothStep } from './AnalyticalWaveMath.js';
-import { getClosestYOnSlit } from './AnalyticalSlitGeometry.js';
 
 const PLANE_WAVE_DECOHERENCE_BAND_DURATION = 0.2;
 const PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION = PLANE_WAVE_DECOHERENCE_BAND_DURATION / 2;
@@ -125,11 +125,11 @@ function getPlaneWaveDecoherenceChainStrength(
   // same-slit particles behaves like a stable one-slit plane wave rather than a sequence of packets.
   const leadingStrength = smoothStep(
     chainStartTime,
-    chainStartTime + PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION,
+    ( chainStartTime + PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION ),
     passTime
   );
   const trailingStrength = 1 - smoothStep(
-                           chainEndTime - PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION,
+    ( chainEndTime - PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION ),
     chainEndTime,
     passTime
   );
@@ -218,6 +218,7 @@ export function applyPlaneWaveDecoherenceEventLayers(
     const chain = getPlaneWaveComponentDecoherenceChain( component, events, barrier, source, x, y, t );
     if ( chain ) {
       if ( chain.event.selectedSlit === component.source && chain.strength > EPSILON ) {
+
         // Only the selected slit is rendered for a detected particle band. The alpha envelope fades
         // this layer to transparent; the black wave-region background supplies the visual vacuum.
         layers.push( {

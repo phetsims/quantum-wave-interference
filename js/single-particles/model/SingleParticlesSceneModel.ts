@@ -20,7 +20,7 @@ import Vector2 from '../../../../dot/js/Vector2.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
 import { getDisplaySlitLayout } from '../../common/getDisplaySlitLayout.js';
-import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernel.js';
+import { type GaussianPacketReEmission } from '../../common/model/AnalyticalWaveKernelTypes.js';
 import AnalyticalWavePacketSolver from '../../common/model/AnalyticalWavePacketSolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCDF.js';
