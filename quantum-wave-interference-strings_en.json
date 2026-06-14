@@ -496,7 +496,7 @@
         "value": "Change distance between centers of slits in barrier."
       }
     },
-    "slitPositionSlider": {
+    "barrierPositionSlider": {
       "accessibleName": {
         "value": "Barrier-Screen Distance"
       },
@@ -510,7 +510,7 @@
         "value": "{ $position ->\n  [closest] Closest to detector screen.\n  [closer] Closer to detector screen.\n  [farthest] Farthest from detector screen.\n *[farther] Farther from detector screen.\n}"
       }
     },
-    "screenDistanceSlider": {
+    "detectorScreenPositionSlider": {
       "accessibleHelpText": {
         "value": "Move detector screen closer to or farther from slitted barrier in meters."
       },

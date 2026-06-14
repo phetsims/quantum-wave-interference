@@ -739,7 +739,7 @@ a11y:
                          }
   slitSeparationSlider:
     accessibleHelpText: Change distance between centers of slits in barrier.
-  slitPositionSlider:
+  barrierPositionSlider:
     accessibleName:     Barrier-Screen Distance
     accessibleHelpText: >-
                         { $sourceType ->
@@ -756,7 +756,7 @@ a11y:
                                  [farthest] Farthest from detector screen.
                                 *[farther] Farther from detector screen.
                                }
-  screenDistanceSlider:
+  detectorScreenPositionSlider:
     accessibleHelpText: Move detector screen closer to or farther from slitted barrier in meters.
     accessibleContextResponseNoPattern: >-
                                         { $position ->

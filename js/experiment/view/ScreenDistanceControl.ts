@@ -99,13 +99,13 @@ function getScreenDistanceContextResponse( scene: ScreenDistanceScene, value: nu
   const position = getScreenDistancePosition( scene, value, valueOnStart );
 
   if ( !scene.isEmittingProperty.value ) {
-    return QuantumWaveInterferenceFluent.a11y.screenDistanceSlider.accessibleContextResponseNoPattern.format( {
+    return QuantumWaveInterferenceFluent.a11y.detectorScreenPositionSlider.accessibleContextResponseNoPattern.format( {
       position: position
     } );
   }
 
   if ( scene.detectionModeProperty.value === 'hits' ) {
-    return QuantumWaveInterferenceFluent.a11y.screenDistanceSlider.accessibleContextResponseHits.format( {
+    return QuantumWaveInterferenceFluent.a11y.detectorScreenPositionSlider.accessibleContextResponseHits.format( {
       position: position
     } );
   }
@@ -116,7 +116,7 @@ function getScreenDistanceContextResponse( scene: ScreenDistanceScene, value: nu
                                                      ( isCloser ? 'doubleSlitCloser' : 'doubleSlitFarther' ) :
                                                      ( isCloser ? 'singleSlitCloser' : 'singleSlitFarther' );
 
-  return QuantumWaveInterferenceFluent.a11y.screenDistanceSlider.accessibleContextResponse.format( {
+  return QuantumWaveInterferenceFluent.a11y.detectorScreenPositionSlider.accessibleContextResponse.format( {
     position: position,
     patternEffect: patternEffect
   } );
@@ -144,7 +144,7 @@ export default class ScreenDistanceControl extends NumberControl {
         },
         maxWidth: 100
       },
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.screenDistanceSlider.accessibleHelpTextStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreenPositionSlider.accessibleHelpTextStringProperty,
       sliderOptions: {
         trackSize: SLIDER_TRACK_SIZE,
         thumbSize: new Dimension2( 13, 22 ),

@@ -140,7 +140,7 @@ function getSlitPositionContextResponse(
     distance < distanceOnStart ? 'closer' :
     'farther';
 
-  return QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleContextResponse.format( {
+  return QuantumWaveInterferenceFluent.a11y.barrierPositionSlider.accessibleContextResponse.format( {
     position: position
   } );
 }
@@ -291,12 +291,12 @@ export default class DoubleSlitNode extends Node {
         }
         previousAccessibleSlitPositionFraction = barrierPositionFractionProperty.value;
       },
-      accessibleName: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleNameStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleHelpText.createProperty( {
+      accessibleName: QuantumWaveInterferenceFluent.a11y.barrierPositionSlider.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.barrierPositionSlider.accessibleHelpText.createProperty( {
         sourceType: sourceTypeProperty
       } ),
       createAriaValueText: ( value: number ) => {
-        return QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleValue.format( {
+        return QuantumWaveInterferenceFluent.a11y.barrierPositionSlider.accessibleValue.format( {
           value: getSlitPositionAccessibleDistance( sceneProperty.value.regionWidth, value )
         } );
       },
@@ -307,7 +307,7 @@ export default class DoubleSlitNode extends Node {
         currentIsEmittingProperty,
         ...micrometersUnit.getDependentProperties(),
         ...nanometersUnit.getDependentProperties(),
-        ...QuantumWaveInterferenceFluent.a11y.slitPositionSlider.accessibleValue.getDependentProperties()
+        ...QuantumWaveInterferenceFluent.a11y.barrierPositionSlider.accessibleValue.getDependentProperties()
       ] ) )
     } );
     this.addChild( arrowNode );

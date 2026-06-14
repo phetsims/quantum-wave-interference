@@ -221,13 +221,13 @@ type StringsType = {
     'slitSeparationSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
     };
-    'slitPositionSlider': {
+    'barrierPositionSlider': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleValueStringProperty': LocalizedStringProperty;
       'accessibleContextResponseStringProperty': LocalizedStringProperty;
     };
-    'screenDistanceSlider': {
+    'detectorScreenPositionSlider': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleContextResponseNoPatternStringProperty': LocalizedStringProperty;
       'accessibleContextResponseHitsStringProperty': LocalizedStringProperty;
