@@ -345,7 +345,7 @@
         "value": "{ $isEmitting ->\n  [true] { $sourceRestartedResponse }\n *[false] Particle speed changed.\n}"
       },
       "displayModeChanged": {
-        "value": "{ $displayMode ->\n  [graph] Graph shown.\n *[screen] Detector screen shown.\n}"
+        "value": "{ $displayMode ->\n  [graph] Graph shown. { $graphState }\n *[screen] Detector screen shown.\n}"
       },
       "brightnessChanged": {
         "value": "Screen brightness { $brightnessTrend ->\n  [increased] increased.\n  [decreased] decreased.\n *[unchanged] unchanged.\n}"
@@ -679,7 +679,7 @@
         "value": "Explore a graph of the detector screen pattern."
       },
       "accessibleContextResponseExpanded": {
-        "value": "{ $detectionMode ->\n  [intensity] Dynamic graph of intensity pattern shown.\n *[hits] Dynamic histogram of hits data shown.\n}"
+        "value": "{ $detectionMode ->\n  [intensity] Dynamic graph of intensity pattern shown. { $graphState }\n *[hits] Dynamic histogram of hits data shown. { $graphState }\n}"
       },
       "accessibleContextResponseCollapsed": {
         "value": "{ $detectionMode ->\n  [intensity] Intensity graph hidden.\n *[hits] Hits histogram hidden.\n}"
@@ -691,37 +691,37 @@
           "value": "Graph is empty. Source is off."
         },
         "intensity": {
-          "value": "The graph traces intensity versus position with a tall central peak and smaller peaks on either side. { $spatialDescription }"
+          "value": "Graph traces intensity versus position with tall central peak and smaller peaks on either side. { $spatialDescription }"
         },
         "intensitySingleSlit": {
-          "value": "The graph traces intensity versus position as a single broad peak centered on the graph, tapering smoothly toward the edges."
+          "value": "Graph traces intensity versus position as a single broad peak centered on the graph, tapering smoothly toward the edges."
         },
         "intensityNoBarrier": {
-          "value": "The graph traces uniform intensity versus position as a flat horizontal line."
+          "value": "Graph traces uniform intensity versus position as a flat horizontal line."
         },
         "hitsNone": {
-          "value": "The histogram is empty. No particles have been counted yet."
+          "value": "Histogram empty. No particles counted."
         },
         "hitsFew": {
-          "value": "A few bars have appeared at scattered positions across the histogram."
+          "value": "A few bars have appeared at scattered positions across histogram."
         },
         "hitsEmerging": {
-          "value": "The histogram is growing. Some bars are becoming taller than others at repeated positions across the graph."
+          "value": "Histogram growing. Some bars are becoming taller than others at repeated positions across graph."
         },
         "hitsDeveloping": {
           "value": "Taller bars are appearing at regular intervals, with shorter bars between them. { $spatialDescription }"
         },
         "hitsClear": {
-          "value": "The histogram shows a tall central peak with repeating side peaks and lower bars between them. { $spatialDescription }"
+          "value": "Histogram shows a tall central peak with repeating side peaks and lower bars between them. { $spatialDescription }"
         },
         "hitsSingleSlitEmerging": {
-          "value": "The histogram is growing, with taller bars near the center and shorter bars toward the edges."
+          "value": "Histogram growing, with taller bars near center and shorter bars toward edges."
         },
         "hitsSingleSlitClear": {
-          "value": "The histogram shows a broad central peak that tapers toward the edges. { $spatialDescription }"
+          "value": "Histogram shows a broad central peak that tapers toward edges. { $spatialDescription }"
         },
         "hitsNoBarrier": {
-          "value": "The histogram shows evenly distributed hits across the graph."
+          "value": "Histogram shows evenly distributed hits across graph."
         }
       },
       "zoomButtonGroup": {

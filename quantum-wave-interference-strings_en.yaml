@@ -509,7 +509,7 @@ a11y:
                               }
     displayModeChanged:       >-
                               { $displayMode ->
-                                [graph] Graph shown.
+                                [graph] Graph shown. { $graphState }
                                *[screen] Detector screen shown.
                               }
     brightnessChanged:        >-
@@ -945,8 +945,8 @@ a11y:
     accessibleHelpTextCollapsed:        Explore a graph of the detector screen pattern.
     accessibleContextResponseExpanded:  >-
                                         { $detectionMode ->
-                                          [intensity] Dynamic graph of intensity pattern shown.
-                                         *[hits] Dynamic histogram of hits data shown.
+                                          [intensity] Dynamic graph of intensity pattern shown. { $graphState }
+                                         *[hits] Dynamic histogram of hits data shown. { $graphState }
                                         }
     accessibleContextResponseCollapsed: >-
                                         { $detectionMode ->
@@ -957,32 +957,31 @@ a11y:
     accessibleParagraph:
       intensityOff:           Graph is empty. Source is off.
       intensity:              >-
-                              The graph traces intensity versus position with a tall central peak and smaller
+                              Graph traces intensity versus position with tall central peak and smaller
                               peaks on either side.
                               { $spatialDescription }
       intensitySingleSlit:    >-
-                              The graph traces intensity versus position as a single broad peak centered on the
+                              Graph traces intensity versus position as a single broad peak centered on the
                               graph, tapering smoothly toward the edges.
-      intensityNoBarrier:     The graph traces uniform intensity versus position as a flat horizontal line.
-      hitsNone:               The histogram is empty. No particles have been counted yet.
+      intensityNoBarrier:     Graph traces uniform intensity versus position as a flat horizontal line.
+      hitsNone:               Histogram empty. No particles counted.
       hitsFew:                >-
-                              A few bars have appeared at scattered positions across the histogram.
+                              A few bars have appeared at scattered positions across histogram.
       hitsEmerging:           >-
-                              The histogram is growing. Some bars are becoming taller than others at repeated
-                              positions across the graph.
+                              Histogram growing. Some bars are becoming taller than others at repeated
+                              positions across graph.
       hitsDeveloping:         >-
                               Taller bars are appearing at regular intervals, with shorter bars between them.
                               { $spatialDescription }
       hitsClear:              >-
-                              The histogram shows a tall central peak with repeating side peaks and lower bars
+                              Histogram shows a tall central peak with repeating side peaks and lower bars
                               between them. { $spatialDescription }
       hitsSingleSlitEmerging: >-
-                              The histogram is growing, with taller bars near the center and shorter bars toward
-                              the edges.
+                              Histogram growing, with taller bars near center and shorter bars toward edges.
       hitsSingleSlitClear:    >-
-                              The histogram shows a broad central peak that tapers toward the edges.
+                              Histogram shows a broad central peak that tapers toward edges.
                               { $spatialDescription }
-      hitsNoBarrier:          The histogram shows evenly distributed hits across the graph.
+      hitsNoBarrier:          Histogram shows evenly distributed hits across graph.
     zoomButtonGroup:
       zoomInAccessibleHelpText:  Zoom in to see more detail of graph pattern.
       zoomOutAccessibleHelpText: Zoom out to see more of graph pattern.

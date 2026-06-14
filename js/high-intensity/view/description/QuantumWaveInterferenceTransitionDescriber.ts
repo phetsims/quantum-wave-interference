@@ -178,7 +178,8 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     else if ( action.type === 'displayModeChanged' ) {
       contextResponses = [
         QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.displayModeChanged.format( {
-          displayMode: after.displayMode
+          displayMode: after.displayMode,
+          graphState: after.graphPatternDescription
         } )
       ];
     }

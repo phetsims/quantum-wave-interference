@@ -396,6 +396,17 @@ export default class SingleParticlesScreenView extends ScreenView {
       visibleProperty: model.isGraphVisibleProperty
     };
 
+    // Announce the screen/graph switch, chaining the current graph contents into the same response so a
+    // screen-reader user hears whether the revealed graph has data (mirrors the High Intensity screen).
+    model.isGraphVisibleProperty.lazyLink( isGraphVisible => {
+      accessibleResponses.addAccessibleContextResponse(
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.displayModeChanged.format( {
+          displayMode: isGraphVisible ? 'graph' : 'screen',
+          graphState: graphDescriber.descriptionProperty.value
+        } )
+      );
+    } );
+
     const detectorScreenDetailsNode = new Node( {
       accessibleTemplate: AccessibleList.createTemplateProperty( {
         leadingParagraphStringProperty: QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.leadingParagraph.createProperty( {
