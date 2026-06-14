@@ -414,6 +414,7 @@ export default class HighIntensityScreenView extends ScreenView {
       slitSeparationMM: slitConfiguration === 'noBarrier' ? null : scene.slitSeparationProperty.value,
       slitSeparationMicrometers: slitConfiguration === 'noBarrier' ? null : Number( toFixed( scene.slitSeparationProperty.value * 1000, 2 ) ),
       bandSpacingDescription: bandAnalysis.spacingCategory,
+      envelopeCategory: bandAnalysis.envelopeCategory,
       graphPatternDescription: this.detectorPatternGraphDescriber.descriptionProperty.value,
       hitStage: hitStage,
       totalHits: scene.totalHitsProperty.value,

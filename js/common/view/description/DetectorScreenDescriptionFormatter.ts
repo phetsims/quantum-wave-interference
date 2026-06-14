@@ -7,7 +7,7 @@
  */
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { type BandAnalysisResult, type HitStage } from './BandAnalysis.js';
+import { type BandAnalysisResult, type EnvelopeCategory, type HitStage } from './BandAnalysis.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type WaveDisplayMode } from '../../model/WaveDisplayMode.js';
@@ -47,6 +47,8 @@ function getSingleSlitLocationKey( slitConfiguration: SlitConfigurationWithNoBar
  * @param hitStage - current hit accumulation stage
  * @param hitCount - current hit count
  * @param bandSpacing - qualitative spacing between bright bands
+ * @param envelope - qualitative single-slit envelope category; drives whether the pattern reads as a single central
+ *   band or as two groups (one across from each slit) when the geometry separates them
  * @returns localized detector-pattern description
  */
 export function formatDetectorPatternDescription(
@@ -58,7 +60,8 @@ export function formatDetectorPatternDescription(
   slitSetting: SingleSlitLocationKey = 'rightCovered',
   hitStage: HitStage = 'clear',
   hitCount = 0,
-  bandSpacing: BandAnalysisResult[ 'spacingCategory' ] = 'somewhatCloseTogether'
+  bandSpacing: BandAnalysisResult[ 'spacingCategory' ] = 'somewhatCloseTogether',
+  envelope: EnvelopeCategory = 'brightestAtCenter'
 ): string {
   return QuantumWaveInterferenceFluent.a11y.waveExperimentState.detectorPattern.format( {
     isEmitting: isEmitting ? 'true' : 'false',
@@ -69,7 +72,8 @@ export function formatDetectorPatternDescription(
     slitSetting: slitSetting,
     hitStage: hitStage,
     hitCount: hitCount,
-    bandSpacing: bandSpacing
+    bandSpacing: bandSpacing,
+    envelope: envelope
   } );
 }
 
@@ -92,7 +96,8 @@ export function formatCompleteIntensityDetectorPatternDescription(
     getSingleSlitLocationKey( slitConfiguration ),
     'clear',
     0,
-    analysis.spacingCategory
+    analysis.spacingCategory,
+    analysis.envelopeCategory
   );
 }
 

@@ -12,7 +12,7 @@ import { clamp } from '../../../../../dot/js/util/clamp.js';
 import { millimetersUnit } from '../../../../../scenery-phet/js/units/millimetersUnit.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { getDisplaySlitLayout } from '../../getDisplaySlitLayout.js';
-import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
+import { hasAnyDetector, showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import type { Snapshot } from '../../model/Snapshot.js';
 
 // Structural interface satisfied by both the Experiment screen scene (which exposes an explicit
@@ -286,6 +286,9 @@ export default class BandAnalysis {
       const centralHalfWidthM = lambda * screenDistanceMeters / slitWidthMeters;
       const centralWidthMM = 2 * centralHalfWidthM * 1000;
 
+      // A genuinely covered slit always shows a single central diffraction lobe. The which-path detector case keeps
+      // both slits open, so its two un-interfered single-slit beams can split into two groups as the geometry
+      // separates them; surface the heuristic envelope category so describers can report the clustering.
       return {
         bandCount: 1,
         peakPositionsMM: [ 0 ],
@@ -293,7 +296,7 @@ export default class BandAnalysis {
         centralWidthMM: centralWidthMM,
         screenWidthMM: screenWidthMM,
         spacingCategory: 'extremelyFarApart',
-        envelopeCategory: 'brightestAtCenter'
+        envelopeCategory: hasAnyDetector( slitSetting ) ? envelopeCategory : 'brightestAtCenter'
       };
     }
   }

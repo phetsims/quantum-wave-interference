@@ -130,5 +130,6 @@ export const formatDetectorDescription = (
     getSingleSlitLocationKey( state ),
     state.hitStage,
     state.totalHits,
-    state.bandSpacingDescription
+    state.bandSpacingDescription,
+    state.envelopeCategory
   );

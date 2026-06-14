@@ -23,7 +23,7 @@ import Node from '../../../../../scenery/js/nodes/Node.js';
 import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
 import QuantumWaveInterferenceConstants from '../../../common/QuantumWaveInterferenceConstants.js';
-import BandAnalysis, { type BandSpacingCategory, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import BandAnalysis, { type BandSpacingCategory, type EnvelopeCategory, type HitStage } from '../../../common/view/description/BandAnalysis.js';
 import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import { getClockSpeedDescription, type QuantumWaveInterferenceClockSpeedDescription } from '../../../common/view/description/getClockSpeedDescription.js';
 import { getPatternKind, type QuantumWaveInterferencePatternKind } from '../../../common/view/description/getPatternKind.js';
@@ -68,6 +68,7 @@ type SingleParticlesResponseState = {
   totalHits: number;
   hitStage: HitStage;
   bandSpacingDescription: BandSpacingCategory;
+  envelopeCategory: EnvelopeCategory;
   patternKind: QuantumWaveInterferencePatternKind;
   waveProgressStage: QuantumWaveInterferenceWaveProgressStage;
 };
@@ -154,7 +155,8 @@ function formatHitDescription( state: SingleParticlesResponseState ): string {
     slitSetting: state.slitConfiguration === 'leftCovered' ? 'leftCovered' : 'rightCovered',
     hitStage: state.hitStage,
     hitCount: state.totalHits,
-    bandSpacing: state.bandSpacingDescription
+    bandSpacing: state.bandSpacingDescription,
+    envelope: state.envelopeCategory
   } );
 }
 
@@ -259,6 +261,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
     const slitConfiguration = scene.slitConfigurationProperty.value;
     const patternKind = getPatternKind( slitConfiguration );
     const totalHits = scene.totalHitsProperty.value;
+    const bandAnalysis = BandAnalysis.analyzeTheoreticalPattern( scene, scene.regionWidth / 2 );
 
     return {
       scene: scene,
@@ -277,7 +280,8 @@ export default class SingleParticlesAccessibleResponses extends Node {
       slitSeparationMM: scene.slitSeparationProperty.value,
       totalHits: totalHits,
       hitStage: BandAnalysis.getHitStage( totalHits, patternKind === 'doubleSlitInterference' ),
-      bandSpacingDescription: BandAnalysis.analyzeTheoreticalPattern( scene, scene.regionWidth / 2 ).spacingCategory,
+      bandSpacingDescription: bandAnalysis.spacingCategory,
+      envelopeCategory: bandAnalysis.envelopeCategory,
       patternKind: patternKind,
       waveProgressStage: getPacketWaveProgressStage( scene, patternKind )
     };
