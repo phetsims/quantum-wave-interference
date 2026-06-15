@@ -73,15 +73,40 @@ const getModeZoomLevel = (
 
 export default class DetectorPatternGraphNode extends Node {
 
-  // TODO: Document attributes, see https://github.com/phetsims/quantum-wave-interference/issues/135
+  // Current horizontal (data) axis zoom level, instrumented for PhET-iO. Controls histogram bar width and intensity-curve
+  // sampling; when the graph has detection modes, it always reflects the active mode's stored level.
   private readonly zoomLevelProperty: NumberProperty;
+
+  // The chart plot-area rectangle. Serves as the clip region for dataPath and intensityCurveStrokePath, and as the
+  // layout anchor for the chart border and zoom buttons.
   private readonly chartBackground: Rectangle;
+
+  // The path that renders the active representation: the filled histogram bars in hits mode, or the filled intensity
+  // curve in intensity mode.
   private readonly dataPath: Path;
+
+  // The visible stroke outline of the intensity curve. Used in intensity mode only; its shape is cleared (set to null)
+  // in hits mode, where dataPath carries its own stroke.
   private readonly intensityCurveStrokePath: Path;
+
+  // The active scene whose hit positions and wavelength drive the plot. The graph re-listens to the new scene and
+  // repaints whenever this changes.
   private readonly sceneProperty: TReadOnlyProperty<DetectorPatternGraphSceneLike>;
+
+  // The current detection mode (intensity vs hits), or undefined on single-mode screens (e.g. Single Particles, always
+  // hits). Selects which representation updateGraph() paints.
   private readonly detectionModeProperty: TReadOnlyProperty<DetectionMode> | undefined;
+
+  // The configured initial zoom level for each detection mode, used by reset() to restore per-mode defaults. Null when
+  // detectionModeProperty is absent (the graph then uses a single zoom level).
   private readonly defaultZoomLevelsByDetectionMode: Record<DetectionMode, number> | null;
+
+  // The live per-mode zoom levels, updated as the user zooms, so each mode keeps its own level across mode switches.
+  // Null when detectionModeProperty is absent.
   private readonly zoomLevelsByDetectionMode: Record<DetectionMode, number> | null;
+
+  // The detection mode currently displayed, mirrored from detectionModeProperty; null on single-mode screens. Used to
+  // index the per-mode zoom maps above.
   private activeDetectionMode: DetectionMode | null;
 
   public constructor(
