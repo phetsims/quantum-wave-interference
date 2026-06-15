@@ -42,31 +42,36 @@ type SharedDescriptionModel = {
 
 /**
  * Options for QuantumWaveInterferenceScreenViewDescription.
- *
- * // TODO: Move documentation above each option, see https://github.com/phetsims/quantum-wave-interference/issues/135
- *
- * - detectionModeProperty: when provided, adds a detection-mode item to ExperimentSetupDetailsNode.
- * - screenGraphVisibleProperty: when provided, the section heading switches from "Detector Screen and Experiment
- *   Details" to "Graph and Experiment Details" while the graph is visible.
- * - slitOrientation: axis along which the slits are arranged; defaults to the describer's own default.
- * - includeExperimentSetupDetails: set to false to suppress the graph and ExperimentSetupDetailsNode children
- *   (used when that content lives elsewhere in the PDOM).
- * - detectorScreenDetailsNodes: scenery nodes placed first under the "Detector Screen and Experiment Details"
- *   PDOM heading, before the "Current experimental details" list. Each screen supplies its own list describing
- *   the detector-screen pattern and wave progress, mirroring the Experiment screen's structure. Callers must add
- *   these nodes to the scene graph themselves.
- * - sourceNodes: scenery nodes placed under the "Source" PDOM heading in pdomOrder.
- * - slitNodes: scenery nodes placed under the "Slits" PDOM heading in pdomOrder.
- * - detectorScreenControlNodes: scenery nodes placed under the "Detector Screen" PDOM heading in pdomOrder.
  */
 type SharedDescriptionOptions = {
+
+  // When provided, adds a detection-mode item to ExperimentSetupDetailsNode.
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
+
+  // When provided, the section heading switches from "Detector Screen and Experiment Details" to "Graph and
+  // Experiment Details" while the graph is visible.
   screenGraphVisibleProperty?: TReadOnlyProperty<boolean>;
+
+  // Axis along which the slits are arranged; defaults to the describer's own default.
   slitOrientation?: SlitOrientation;
+
+  // Set to false to suppress the graph and ExperimentSetupDetailsNode children (used when that content lives
+  // elsewhere in the PDOM).
   includeExperimentSetupDetails?: boolean;
+
+  // Scenery nodes placed first under the "Detector Screen and Experiment Details" PDOM heading, before the
+  // "Current experimental details" list. Each screen supplies its own list describing the detector-screen pattern
+  // and wave progress, mirroring the Experiment screen's structure. Callers must add these nodes to the scene graph
+  // themselves.
   detectorScreenDetailsNodes?: Node[];
+
+  // Scenery nodes placed under the "Source" PDOM heading in pdomOrder.
   sourceNodes: Node[];
+
+  // Scenery nodes placed under the "Slits" PDOM heading in pdomOrder.
   slitNodes: Node[];
+
+  // Scenery nodes placed under the "Detector Screen" PDOM heading in pdomOrder.
   detectorScreenControlNodes: Node[];
 };
 
