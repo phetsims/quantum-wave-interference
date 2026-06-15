@@ -878,7 +878,7 @@
           "value": "View Snapshots"
         },
         "accessibleHelpText": {
-          "value": "{ $snapshotCount ->\n  [0] After taking snapshots, open for comparison or deletion.\n  [one] 1 snapshot stored. Open for comparison or deletion.\n *[other] { $snapshotCount } snapshots stored. Open for comparison or deletion.\n}"
+          "value": "{ $snapshotCount ->\n  [0] After taking snapshots, open for comparison or deletion.\n  [1] One snapshot stored. Open for comparison or deletion.\n  [2] Two snapshots stored. Open for comparison or deletion.\n  [3] Three snapshots stored. Open for comparison or deletion.\n  [4] Four snapshots stored. Open for comparison or deletion.\n *[other] { $snapshotCount } snapshots stored. Open for comparison or deletion.\n}"
         },
         "accessibleContextResponse": {
           "value": "{ $snapshotCount ->\n  [one] 1 snapshot ready to review.\n *[other] { $snapshotCount } snapshots ready to review.\n}"

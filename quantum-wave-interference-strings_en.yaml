@@ -1169,7 +1169,10 @@ a11y:
       accessibleHelpText:        |-
                                  { $snapshotCount ->
                                    [0] After taking snapshots, open for comparison or deletion.
-                                   [one] 1 snapshot stored. Open for comparison or deletion.
+                                   [1] One snapshot stored. Open for comparison or deletion.
+                                   [2] Two snapshots stored. Open for comparison or deletion.
+                                   [3] Three snapshots stored. Open for comparison or deletion.
+                                   [4] Four snapshots stored. Open for comparison or deletion.
                                   *[other] { $snapshotCount } snapshots stored. Open for comparison or deletion.
                                  }
       accessibleContextResponse: |-
