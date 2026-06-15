@@ -10,8 +10,6 @@
  * The barrier position is set by barrierPositionFractionProperty (fraction of wave region width).
  * Slit separation is mapped from the model range to a visible view range.
  *
- * TODO: Should this have a better name like BarrierNode? See https://github.com/phetsims/quantum-wave-interference/issues/135
- *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
