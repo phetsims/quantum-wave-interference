@@ -181,10 +181,11 @@ export default class DoubleSlitNode extends Node {
     providedOptions: DoubleSlitNodeOptions
   ) {
 
-    // TODO: Add helpful documentation throughout this constructor implementation, see https://github.com/phetsims/quantum-wave-interference/issues/135
-
     const options = optionize<DoubleSlitNodeOptions, SelfOptions, NodeOptions>()( {
       isDisposable: false,
+
+      // Slit-detector overlays are opt-in (used by the which-path detector feature on the front-facing screens);
+      // default to absent so callers that do not show detectors need not supply these.
       isTopSlitDetectorProperty: new TinyProperty( false ),
       isBottomSlitDetectorProperty: new TinyProperty( false ),
       topDetectorCountProperty: new TinyProperty( 0 ),
@@ -211,6 +212,7 @@ export default class DoubleSlitNode extends Node {
       !isInteractive && this.interruptSubtreeInput();
     } );
 
+    // Retain the model Properties that getAccessibleViewState() reads back for accessibility snapshots.
     this.barrierTypeProperty = barrierTypeProperty;
     this.barrierPositionFractionProperty = barrierPositionFractionProperty;
     this.slitSeparationProperty = slitSeparationProperty;
@@ -219,6 +221,9 @@ export default class DoubleSlitNode extends Node {
     this.isTopSlitDetectorProperty = options.isTopSlitDetectorProperty;
     this.isBottomSlitDetectorProperty = options.isBottomSlitDetectorProperty;
 
+    // The three gray barrier rectangles: the solid material above, between, and below the two slits. All are created
+    // empty here and given their positions/heights by the layout Multilink below (which depends on slit separation,
+    // barrier position, and slit width).
     const topBarrier = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, 0, CORNER_RADIUS, CORNER_RADIUS, {
       fill: BARRIER_FILL
     } );
@@ -229,6 +234,7 @@ export default class DoubleSlitNode extends Node {
       fill: BARRIER_FILL
     } );
 
+    // Darker overlays that fill a slit opening when that slit is covered; shown/hidden by the layout Multilink.
     const topCover = new Rectangle( 0, 0, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, CORNER_RADIUS, CORNER_RADIUS, {
       fill: QuantumWaveInterferenceColors.slitCoverFillProperty
     } );
@@ -236,9 +242,11 @@ export default class DoubleSlitNode extends Node {
       fill: QuantumWaveInterferenceColors.slitCoverFillProperty
     } );
 
+    // Yellow detector indicators (with hit counts) drawn at a slit when a which-path detector is placed on it.
     const topSlitDetectorNode = new SlitDetectorNode( options.isTopSlitDetectorProperty, options.topDetectorCountProperty );
     const bottomSlitDetectorNode = new SlitDetectorNode( options.isBottomSlitDetectorProperty, options.bottomDetectorCountProperty );
 
+    // Group the barrier pieces so they are shown/hidden and clipped together.
     const barrierContainer = new Node( {
       children: [
         topBarrier,
@@ -250,6 +258,8 @@ export default class DoubleSlitNode extends Node {
         bottomSlitDetectorNode
       ]
     } );
+
+    // Clip to the wave region (slightly inset) so no barrier piece paints over the region's border.
     barrierContainer.clipArea = Shape.rectangle(
       WAVE_REGION_FILL_INSET,
       WAVE_REGION_FILL_INSET,
@@ -259,8 +269,13 @@ export default class DoubleSlitNode extends Node {
     this.addChild( barrierContainer );
 
     const sourceTypeProperty = sceneProperty.derived( scene => scene.sourceType );
+
+    // Tracks the value at the previous sound-feedback step so the slit-position sound plays for the right delta.
     let previousAccessibleSlitPositionFraction = barrierPositionFractionProperty.value;
 
+    // Draggable double-headed arrow below the wave region. It also acts as a PDOM slider, so the barrier position
+    // (and hence the slit-to-screen distance) can be adjusted with the keyboard. barrierPositionFractionProperty is
+    // its value; the visual arrow is repositioned to track the barrier in the layout Multilink below.
     const arrowNode = new AccessibleArrowNode( 0, 0, 0, 0, {
       doubleHead: true,
       fill: '#74ad67',
@@ -279,6 +294,9 @@ export default class DoubleSlitNode extends Node {
         previousAccessibleSlitPositionFraction = barrierPositionFractionProperty.value;
       },
       drag: event => {
+
+        // Keyboard changes are discrete, so play the sound for every step; pointer changes are continuous, so only
+        // play when the value crosses the next sound threshold (avoids a continuous tone while dragging).
         if ( event.isFromPDOM() ) {
           slitPositionSoundPlayer.playSoundForValueChange(
             barrierPositionFractionProperty.value,
@@ -317,6 +335,9 @@ export default class DoubleSlitNode extends Node {
 
     barrierContainer.cursor = 'ew-resize';
 
+    // Pointer dragging of the barrier. The arrow and the barrier rectangles each get their own listener (and tandem)
+    // but share this behavior: horizontal pointer motion is converted to a fraction delta and applied to
+    // barrierPositionFractionProperty, clamped to the allowed range, relative to where the drag started.
     let dragStartFraction = 0;
     let dragStartX = 0;
 
@@ -340,6 +361,8 @@ export default class DoubleSlitNode extends Node {
     arrowNode.addInputListener( createDragListener( 'arrowDragListener' ) );
     barrierContainer.addInputListener( createDragListener( 'barrierDragListener' ) );
 
+    // Lay out all barrier geometry whenever anything that affects it changes: barrier type, position, slit separation
+    // (and its range, which can change per scene), the cover/detector state, or interactivity.
     Multilink.multilink(
       [ barrierTypeProperty, barrierPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
         options.isTopSlitCoveredProperty, options.isBottomSlitCoveredProperty,
@@ -347,6 +370,7 @@ export default class DoubleSlitNode extends Node {
       ( barrierType, slitPositionFraction, slitSeparation, slitSeparationRange,
         isTopCovered, isBottomCovered ) => {
 
+        // The barrier is only drawn for the 'doubleSlit' type; for 'none' hide everything and skip layout.
         const isDoubleSlit = barrierType === 'doubleSlit';
         barrierContainer.visible = isDoubleSlit;
 
@@ -358,6 +382,7 @@ export default class DoubleSlitNode extends Node {
           return;
         }
 
+        // Map the physical slit separation to a view distance between the two slit centers.
         const { displaySlitSeparation } = getDisplaySlitLayout(
           slitSeparation,
           slitSeparationRange.min,
@@ -365,12 +390,16 @@ export default class DoubleSlitNode extends Node {
           WAVE_REGION_HEIGHT
         );
 
+        // Horizontal placement of the barrier column (centered on the slit-position fraction), and the vertical
+        // centers of the two slit openings, symmetric about the region's vertical center.
         const barrierX = slitPositionFraction * WAVE_REGION_WIDTH - BARRIER_VIEW_WIDTH / 2;
         const centerY = WAVE_REGION_HEIGHT / 2;
 
         const topSlitCenterY = centerY - displaySlitSeparation / 2;
         const bottomSlitCenterY = centerY + displaySlitSeparation / 2;
 
+        // Size the three solid segments to fill the column except for the two slit openings (each DISPLAY_SLIT_WIDTH
+        // tall, centered on a slit center). Math.max( 0, ... ) guards against negative heights at extreme separations.
         const topBarrierBottom = topSlitCenterY - DISPLAY_SLIT_WIDTH / 2;
         topBarrier.setRect(
           barrierX,
@@ -396,14 +425,17 @@ export default class DoubleSlitNode extends Node {
           CORNER_RADIUS
         );
 
+        // Position each cover over its slit opening and show it only when that slit is covered.
         topCover.setRect( barrierX, topBarrierBottom, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, CORNER_RADIUS, CORNER_RADIUS );
         bottomCover.setRect( barrierX, centralBarrierBottom, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, CORNER_RADIUS, CORNER_RADIUS );
         topCover.visible = isTopCovered;
         bottomCover.visible = isBottomCovered;
 
+        // Align each detector indicator to its slit opening (drawn above the top slit, below the bottom slit).
         topSlitDetectorNode.layoutDetector( barrierX, topBarrierBottom, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, 'above' );
         bottomSlitDetectorNode.layoutDetector( barrierX, centralBarrierBottom, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, 'below' );
 
+        // Center the drag arrow horizontally on the barrier, just below the wave region.
         const arrowY = WAVE_REGION_HEIGHT + 12;
         const barrierCenterX = barrierX + BARRIER_VIEW_WIDTH / 2;
         arrowNode.setTailAndTip( barrierCenterX - ARROW_WIDTH / 2, arrowY, barrierCenterX + ARROW_WIDTH / 2, arrowY );
