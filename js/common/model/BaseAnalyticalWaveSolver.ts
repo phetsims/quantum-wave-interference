@@ -46,16 +46,6 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
 
   /**
-   * Effective physical wavelength in meters. Scene models update this from the selected particle or light source.
-   */
-  private wavelength = QuantumWaveInterferenceConstants.DEFAULT_PHOTON_WAVELENGTH_NM * 1e-9;
-
-  /**
-   * Effective physical propagation speed in meters per second.
-   */
-  private waveSpeed = QuantumWaveInterferenceConstants.SPEED_OF_LIGHT;
-
-  /**
    * Ratio between the current physical speed and the screen's default speed, used to scale display-time propagation.
    */
   protected displaySpeedScale = 1;
@@ -84,11 +74,6 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
    * Maximum physical center-to-center slit separation in meters, used for display-coordinate scaling.
    */
   private slitSeparationMax = 3e-3;
-
-  /**
-   * Physical slit aperture width in meters.
-   */
-  private slitWidth = 0.02e-3;
 
   /**
    * Horizontal barrier position as a fraction of regionWidth.
@@ -205,15 +190,12 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
    * @param params - Partial solver parameter update.
    */
   public setParameters( params: WaveSolverParameters ): void {
-    this.setIfDefined( params.wavelength, value => { this.wavelength = value; } );
-    this.setIfDefined( params.waveSpeed, value => { this.waveSpeed = value; } );
     this.setIfDefined( params.displaySpeedScale, value => { this.displaySpeedScale = value; } );
     this.setIfDefined( params.displayWavelengths, value => { this.displayWavelengths = value; } );
     this.setIfDefined( params.barrierType, value => { this.barrierType = value; } );
     this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
     this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
     this.setIfDefined( params.slitSeparationMax, value => { this.slitSeparationMax = value; } );
-    this.setIfDefined( params.slitWidth, value => { this.slitWidth = value; } );
     this.setIfDefined( params.barrierFractionX, value => { this.barrierFractionX = value; } );
     this.setIfDefined( params.isTopSlitOpen, value => { this.isTopSlitOpen = value; } );
     this.setIfDefined( params.isBottomSlitOpen, value => { this.isBottomSlitOpen = value; } );
