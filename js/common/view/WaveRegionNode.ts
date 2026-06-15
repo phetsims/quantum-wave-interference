@@ -37,6 +37,10 @@ type WaveRegionModel = {
   // Whether the active source is emitting.
   readonly currentIsEmittingProperty: TReadOnlyProperty<boolean>;
 
+  // Whether the sim clock is running, used to decide whether moving the barrier announces its direction or defers to
+  // the wave-restart description.
+  readonly isPlayingProperty: TReadOnlyProperty<boolean>;
+
   // Active barrier type controls whether the barrier/double slit is shown.
   readonly currentBarrierTypeProperty: TReadOnlyProperty<BarrierType>;
 
@@ -118,6 +122,7 @@ export default class WaveRegionNode extends Node {
       model.currentSlitSeparationProperty,
       slitSeparationRangeProperty,
       model.currentIsEmittingProperty,
+      model.isPlayingProperty,
       doubleSlitNodeOptions
     );
 

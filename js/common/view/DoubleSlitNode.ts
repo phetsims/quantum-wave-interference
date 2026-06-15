@@ -113,8 +113,9 @@ function getSlitPositionAccessibleDistance( regionWidth: number, slitPositionFra
 
 /**
  * Returns a localized context-response string describing the direction of barrier movement after a drag gesture,
- * or null when the distance has not meaningfully changed (within SLIT_POSITION_RESPONSE_EPSILON) or when the
- * source is currently emitting (context responses are suppressed during emission).
+ * or null when the distance has not meaningfully changed (within SLIT_POSITION_RESPONSE_EPSILON). The caller
+ * additionally suppresses this directional response while the source is emitting and the sim is playing, since the
+ * transition describer announces "Source restarted." plus the advancing wave in that case instead.
  * Used as the createContextResponseAlert callback on the accessible arrow slider.
  *
  * @param regionWidth - wave-region width in model units
@@ -178,6 +179,7 @@ export default class DoubleSlitNode extends Node {
     slitSeparationProperty: TReadOnlyProperty<number>,
     slitSeparationRangeProperty: TReadOnlyProperty<Range>,
     currentIsEmittingProperty: TReadOnlyProperty<boolean>,
+    isPlayingProperty: TReadOnlyProperty<boolean>,
     providedOptions: DoubleSlitNodeOptions
   ) {
 
@@ -320,11 +322,17 @@ export default class DoubleSlitNode extends Node {
           value: getSlitPositionAccessibleDistance( sceneProperty.value.regionWidth, value )
         } );
       },
-      createContextResponseAlert: ( value, _newValue, valueOnStart ) => currentIsEmittingProperty.value ? null :
-                                                                        getSlitPositionContextResponse( sceneProperty.value.regionWidth, value, valueOnStart ),
+      // Speak the directional "closer/farther from screen" response only when the wave is not actively restarting: while
+      // the source is emitting AND the sim is playing, moving the barrier restarts the wave and the transition describer
+      // announces "Source restarted." plus the advancing wave instead. While paused (even if emitting), no restart is
+      // announced, so the directional response still plays.
+      createContextResponseAlert: ( value, _newValue, valueOnStart ) =>
+        ( currentIsEmittingProperty.value && isPlayingProperty.value ) ? null :
+        getSlitPositionContextResponse( sceneProperty.value.regionWidth, value, valueOnStart ),
       descriptionDependencies: Array.from( new Set( [
         sceneProperty,
         currentIsEmittingProperty,
+        isPlayingProperty,
         ...micrometersUnit.getDependentProperties(),
         ...nanometersUnit.getDependentProperties(),
         ...QuantumWaveInterferenceFluent.a11y.barrierPositionSlider.accessibleValue.getDependentProperties()
