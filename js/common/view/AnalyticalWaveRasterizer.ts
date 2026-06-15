@@ -13,7 +13,7 @@
  * wave-region background instead of becoming a dark wave.
  *
  * This rasterizer is intentionally where z-order policy lives. The kernel describes layers with an
- * order value, and this file sorts and composites them. That keeps the model-level wave description
+ * order value, and this file sorts and composites them. That keeps the model's wave description
  * independent of whether we eventually draw bands newest-on-top, oldest-on-top, or with another
  * visual ordering.
  *
@@ -23,8 +23,8 @@
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
-import { type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernelTypes.js';
-import { type WaveDisplayMode } from './WaveDisplayMode.js';
+import { type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from '../model/AnalyticalWaveKernelTypes.js';
+import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 
 // Minimum visible field contribution used so very weak supported samples are still distinguishable
 // from vacuum.
