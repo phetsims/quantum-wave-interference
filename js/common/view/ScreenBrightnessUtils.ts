@@ -33,9 +33,9 @@ export const INTENSITY_SCREEN_BRIGHTNESS_MIN_MULTIPLIER = 1.2;
 export const INTENSITY_SCREEN_BRIGHTNESS_MAX_MULTIPLIER = 6.0;
 export const INTENSITY_BRIGHTNESS_MAX_MULTIPLIER = 0.8;
 
-// The former screen-brightness range was 0–0.25 and was passed directly to the analytical intensity renderer.
+// The former screen-brightness range was 0–0.25 and was passed directly to the computed intensity renderer.
 // Preserve that visual response while exposing the model value as a 0–100 percentage.
-const ANALYTICAL_INTENSITY_BRIGHTNESS_MAX_FRACTION = 0.25;
+const COMPUTED_INTENSITY_BRIGHTNESS_MAX_FRACTION = 0.25;
 
 // Intensity mode on the High Intensity screen uses a dimmer display range than the Experiment screen so bright fringes
 // do not saturate across a wide region.
@@ -60,7 +60,7 @@ export function getIntensityScreenBrightnessMultiplier( brightnessPercent: numbe
     brightnessPercent / QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX,
     0,
     1
-  ) * ANALYTICAL_INTENSITY_BRIGHTNESS_MAX_FRACTION;
+  ) * COMPUTED_INTENSITY_BRIGHTNESS_MAX_FRACTION;
   return linear(
     0,
     1,

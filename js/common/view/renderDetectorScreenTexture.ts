@@ -22,9 +22,9 @@
  * detected hits to an existing canvas. When no cache is provided, this function still works by repainting the requested
  * hit range into the supplied context.
  *
- * Intensity mode is intentionally analytical. Experiment snapshots do not store a solver intensity
+ * Intensity mode is intentionally computed. Experiment snapshots do not store a solver intensity
  * distribution, so the renderer recomputes the apparent detector pattern from the frozen slit/source/screen parameters.
- * The optional intensitySampleWidthOnScreen parameter is important for previews: it tells the analytical sampler the
+ * The optional intensitySampleWidthOnScreen parameter is important for previews: it tells the computed sampler the
  * physical width represented by each visible sample, which keeps dense fringes from aliasing when rendering at high
  * backing-canvas resolution.
  *
@@ -33,7 +33,7 @@
 
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import { getApparentAnalyticalDetectorIntensity } from './ApparentDetectorPattern.js';
+import { getApparentDetectorIntensity } from './ApparentDetectorPattern.js';
 import { type DetectorScreenRenderState } from './DetectorScreenRenderState.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getSceneRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
@@ -70,7 +70,7 @@ export type DetectorScreenHitRenderCache = {
  *
  * - brightness: user-controlled detector-screen brightness slider value.
  * - wavelength: source wavelength in nm, used to select the scene color palette for hit dots and intensity bands.
- * - effectiveWavelength: wavelength used for the analytical fringe-pattern computation. May be undefined when the
+ * - effectiveWavelength: wavelength used for the fringe-pattern computation. May be undefined when the
  *   source has not yet emitted; may differ from wavelength during warm-up ramping in High Intensity mode.
  * - detectionMode: 'hits' or 'intensity', selects which rendering path to use.
  * - intensity: user-controlled display gain for intensity rendering (High Intensity screen only; 1 elsewhere).
@@ -392,7 +392,7 @@ function paintHits(
 }
 
 /**
- * Paints the analytical Intensity detector pattern.
+ * Paints the computed Intensity detector pattern.
  *
  * Each output x-column samples the apparent intensity over a physical detector width. That width is normally one output
  * pixel in detector coordinates, but snapshot previews can pass a coarser sample width to match the display resolution
@@ -416,7 +416,7 @@ function paintIntensity(
   const displayGain = getIntensityDisplayGain( renderState.brightness, renderState.intensity );
   const sampleWidthOnScreen = options.intensitySampleWidthOnScreen || 2 * options.visibleScreenHalfWidth / width;
 
-  // The model stores slit dimensions in millimeters while the analytical detector-pattern helpers use meters.
+  // The model stores slit dimensions in millimeters while the detector-pattern helpers use meters.
   const slitWidth = renderState.slitWidth * 1e-3;
   const slitSeparation = renderState.slitSeparation * 1e-3;
 
@@ -425,7 +425,7 @@ function paintIntensity(
     // Sample at the center of the output pixel/column.
     const fraction = ( x + 0.5 ) / width;
     const physicalX = ( fraction - 0.5 ) * 2 * options.visibleScreenHalfWidth;
-    const intensity = getApparentAnalyticalDetectorIntensity( {
+    const intensity = getApparentDetectorIntensity( {
       positionOnScreen: physicalX,
       sampleWidthOnScreen: sampleWidthOnScreen,
       effectiveWavelength: renderState.effectiveWavelength,

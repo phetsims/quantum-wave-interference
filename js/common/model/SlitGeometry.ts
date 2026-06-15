@@ -1,12 +1,12 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Slit geometry helpers for the pure analytical wave kernel.
+ * Slit geometry helpers for the wave kernel.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { type AnalyticalSlit } from './AnalyticalWaveKernelTypes.js';
+import { type WaveSlit } from './WaveKernelTypes.js';
 
 /**
  * Returns the y coordinate on a slit aperture that is closest to a sample point.
@@ -15,7 +15,7 @@ import { type AnalyticalSlit } from './AnalyticalWaveKernelTypes.js';
  * than the slit center so wavefronts originate from the full opening. This pure helper is useful
  * whenever downstream propagation needs a shortest distance to an aperture segment.
  */
-export function getClosestYOnSlit( y: number, slit: AnalyticalSlit ): number {
+export function getClosestYOnSlit( y: number, slit: WaveSlit ): number {
   const halfWidth = slit.width / 2;
   const yMin = slit.centerY - halfWidth;
   const yMax = slit.centerY + halfWidth;

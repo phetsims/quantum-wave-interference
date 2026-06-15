@@ -13,7 +13,7 @@ import QuantumWaveInterferenceConstants from './QuantumWaveInterferenceConstants
 
 const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
 
-  // Internal performance tuning knob for the analytical wave visualization grid. For example,
+  // Internal performance tuning knob for the wave visualization grid. For example,
   // ?waveSolverGridSize=100 reduces the default 120x120 solver grid to 100x100.
   waveSolverGridSize: {
     type: 'number',
@@ -54,7 +54,7 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
   },
 
   // Internal performance tuning knob for the Position Plot. The default 2 samples at twice the chart
-  // pixel width. Lower values reduce analytical evaluate() calls while dragging/showing the tool.
+  // pixel width. Lower values reduce evaluate() calls while dragging/showing the tool.
   positionPlotSamplesPerPixel: {
     type: 'number',
     defaultValue: 2,

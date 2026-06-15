@@ -3,7 +3,7 @@
 /**
  * TimePlotNode is a tool that shows the currently displayed wave quantity at a crosshair position
  * versus time. It consists of a draggable chart panel and a draggable crosshair probe connected
- * by a wire. The crosshair samples the analytical wave field at fixed time intervals so the trace
+ * by a wire. The crosshair samples the wave field at fixed time intervals so the trace
  * does not depend on animation-frame timing.
  *
  * Analogous to the WaveMeterNode in wave-interference.

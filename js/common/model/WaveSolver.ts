@@ -12,7 +12,7 @@
 
 import type Complex from '../../../../dot/js/Complex.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
-import { type DecoherenceEvent, type FieldSample, type GaussianPacketReEmission, type LayeredFieldSample } from './AnalyticalWaveKernelTypes.js';
+import { type DecoherenceEvent, type FieldSample, type GaussianPacketReEmission, type LayeredFieldSample } from './WaveKernelTypes.js';
 import { type BarrierType } from './BarrierType.js';
 
 /**
@@ -45,7 +45,7 @@ export type WaveSolverMeasurementProjectionState = {
  * Serializable state for the High Intensity continuous-wave solver. It preserves the solver clock and detector-screen
  * averaging data so PhET-iO state restore can resume the current wavefront and intensity pattern.
  */
-export type AnalyticalWaveSolverState = {
+export type HighIntensitySolverState = {
 
   // Current solver time in model seconds.
   time: number;
@@ -64,7 +64,7 @@ export type AnalyticalWaveSolverState = {
  * Serializable state for the Single Particles Gaussian-packet solver. It preserves the solver clock, detector-probe
  * measurement projections, and any which-slit re-emission descriptor for the active packet.
  */
-export type AnalyticalWavePacketSolverState = {
+export type SingleParticleSolverState = {
 
   // Current solver time in model seconds.
   time: number;
@@ -80,7 +80,7 @@ export type AnalyticalWavePacketSolverState = {
  * Union of all solver state payloads accepted by WaveSolver.setState(). Callers should treat this as an opaque
  * serialization contract and use discriminating property checks when they need solver-specific fields.
  */
-export type WaveSolverState = AnalyticalWaveSolverState | AnalyticalWavePacketSolverState;
+export type WaveSolverState = HighIntensitySolverState | SingleParticleSolverState;
 
 /**
  * Partial scene-to-solver parameter update. setParameters() treats undefined fields as "leave the previous value

@@ -2,7 +2,7 @@
 
 /**
  * Maps physical slit-separation range to the display-coordinate slit geometry used by the wave
- * solvers and view nodes. This lives in common, not model or view, because the analytical solvers
+ * solvers and view nodes. This lives in common, not model or view, because the solvers
  * operate in display-model coordinates and the view must render the same slit geometry.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -38,7 +38,7 @@ export type DisplaySlitLayout = {
  * height. When slitSeparationMax === slitSeparationMin (or the range is non-positive), the
  * fraction defaults to 0.5 (mid-range display separation) to avoid division by zero.
  *
- * Called by BaseAnalyticalWaveSolver (to position interference sources) and DoubleSlitNode
+ * Called by BaseWaveSolver (to position interference sources) and DoubleSlitNode
  * (to render the barrier openings).
  *
  * @param slitSeparation - current physical slit separation, in the same units as the min/max

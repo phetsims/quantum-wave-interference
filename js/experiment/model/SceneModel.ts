@@ -8,7 +8,7 @@
  */
 
 // NOTE: see other duplicate import block in quantum-wave-interference/js/common/model/BaseSceneModel.ts. These models
-// intentionally remain separate because Experiment uses a closed-form analytical detector-pattern model (no per-cell
+// intentionally remain separate because Experiment uses a closed-form detector-pattern model (no per-cell
 // WaveSolver) while High Intensity/Single Particles share the WaveSolver-backed BaseSceneModel.
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
@@ -35,7 +35,7 @@ import ArrayIO from '../../../../tandem/js/types/ArrayIO.js';
 import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
 import NumberIO from '../../../../tandem/js/types/NumberIO.js';
-import { getExactAnalyticalDetectorIntensity } from '../../common/model/AnalyticalDetectorPattern.js';
+import { getExactDetectorIntensity } from '../../common/model/DetectorPattern.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnSide, type SlitConfiguration, SlitConfigurationValues } from '../../common/model/SlitConfiguration.js';
 import { renumberSnapshots, type Snapshot, SnapshotIO } from '../../common/model/Snapshot.js';
@@ -403,7 +403,7 @@ export default class SceneModel extends PhetioObject {
     const lambda = this.getEffectiveWavelength();
 
     // Convert mm-scale slit geometry to meters before evaluating the shared Fraunhofer detector formula.
-    return getExactAnalyticalDetectorIntensity( {
+    return getExactDetectorIntensity( {
       positionOnScreen: positionOnScreen,
       effectiveWavelength: lambda,
       screenDistance: this.screenDistanceProperty.value,

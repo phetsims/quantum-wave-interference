@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * BaseAnalyticalWaveSolver owns the shared stateful WaveSolver adapter behavior for analytical solvers.
+ * BaseWaveSolver owns the shared stateful WaveSolver adapter behavior for solvers.
  * Subclasses provide the source model and any screen-specific detector/projection state.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -12,9 +12,9 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
 import { getDisplaySlitLayout } from '../getDisplaySlitLayout.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { computeSampleIntensity, getRepresentativeComplex } from './AnalyticalFieldSample.js';
-import { evaluateAnalyticalSample, evaluateAnalyticalSamples } from './AnalyticalWaveKernel.js';
-import { type AnalyticalBarrier, type AnalyticalSource, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernelTypes.js';
+import { computeSampleIntensity, getRepresentativeComplex } from './FieldSampleMath.js';
+import { evaluateSample, evaluateSamples } from './WaveKernel.js';
+import { type WaveBarrier, type WaveSource, type WaveParameters, type DecoherenceEvent, type FieldSample, type LayeredFieldSample } from './WaveKernelTypes.js';
 import { type BarrierType } from './BarrierType.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
@@ -27,7 +27,7 @@ const DISPLAY_WAVELENGTHS = QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS
 const UNREACHED_SAMPLE: FieldSample = { kind: 'unreached' };
 const UNREACHED_LAYERED_SAMPLE: LayeredFieldSample = { kind: 'unreached' };
 
-export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
+export default abstract class BaseWaveSolver implements WaveSolver {
 
   /**
    * Number of horizontal cells in the cached visualization grid.
@@ -146,7 +146,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   private sampledDetectorDistribution: Float64Array | null = null;
 
   /**
-   * Time-ordered which-path detector records that the analytical kernel applies to field samples.
+   * Time-ordered which-path detector records that the kernel applies to field samples.
    */
   protected decoherenceEvents: readonly DecoherenceEvent[] = [];
 
@@ -156,7 +156,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   protected dirty = true;
 
   /**
-   * Creates a base analytical solver and allocates all shared grid and detector caches.
+   * Creates a base solver and allocates all shared grid and detector caches.
    *
    * @param gridWidth - Number of grid cells in the horizontal direction.
    * @param gridHeight - Number of grid cells in the vertical direction.
@@ -260,7 +260,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   }
 
   /**
-   * Gets the analytical field sample for a grid cell at the current solver time.
+   * Gets the field sample for a grid cell at the current solver time.
    *
    * @param gridX - Horizontal grid-cell index.
    * @param gridY - Vertical grid-cell index.
@@ -282,7 +282,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   }
 
   /**
-   * Gets the layered analytical field sample for a grid cell. Subclasses that use layered samples return their cache;
+   * Gets the layered field sample for a grid cell. Subclasses that use layered samples return their cache;
    * otherwise this adapts the ordinary field sample into a one-layer representation.
    *
    * @param gridX - Horizontal grid-cell index.
@@ -361,7 +361,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
 
     for ( let iy = 0; iy < sampleCount; iy++ ) {
       const y = ( iy + 0.5 ) * dy - this.regionHeight / 2;
-      const prob = computeSampleIntensity( evaluateAnalyticalSample( parameters, this.regionWidth, y, this.time ) );
+      const prob = computeSampleIntensity( evaluateSample( parameters, this.regionWidth, y, this.time ) );
       distribution[ iy ] = prob;
       maxProb = Math.max( maxProb, prob );
     }
@@ -435,7 +435,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   public abstract setState( state: WaveSolverState ): void;
 
   /**
-   * Applies a detector-probe measurement projection. Continuous analytical solvers have no projection state, so this
+   * Applies a detector-probe measurement projection. Continuous solvers have no projection state, so this
    * base implementation is intentionally empty; packet solvers override it.
    *
    * @param _centerNorm - Projection center in normalized wave-region coordinates.
@@ -446,7 +446,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   }
 
   /**
-   * Evaluates the analytical field at continuous model coordinates and reduces it to the combined representative complex
+   * Evaluates the field at continuous model coordinates and reduces it to the combined representative complex
    * value used by the WaveSolver API.
    *
    * @param x - Horizontal model coordinate measured from the source side of the wave region.
@@ -456,7 +456,7 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
    */
   public evaluate( x: number, y: number, t = this.time ): Complex {
     this.ensureComputed();
-    return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
+    return getRepresentativeComplex( evaluateSample( this.createKernelParameters(), x, y, t ) );
   }
 
   /**
@@ -484,8 +484,8 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
         const y = this.getGridCellY( iy );
         const cellIndex = iy * gridWidth + ix;
         const idx = cellIndex * 2;
-        const samples = usesLayeredFieldSamples ? evaluateAnalyticalSamples( parameters, x, y, this.time ) : null;
-        const sample = samples ? samples.sample : evaluateAnalyticalSample( parameters, x, y, this.time );
+        const samples = usesLayeredFieldSamples ? evaluateSamples( parameters, x, y, this.time ) : null;
+        const sample = samples ? samples.sample : evaluateSample( parameters, x, y, this.time );
         const value = getRepresentativeComplex( sample );
 
         fieldSamples[ cellIndex ] = sample;
@@ -509,20 +509,20 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   /**
    * Hook called after kernel parameters are created and before the grid field samples are evaluated.
    *
-   * @param _parameters - Analytical-kernel parameters that will be used for field sampling.
+   * @param _parameters - -kernel parameters that will be used for field sampling.
    */
-  protected beforeFieldSampleLoop( _parameters: AnalyticalWaveParameters ): void {
+  protected beforeFieldSampleLoop( _parameters: WaveParameters ): void {
     // Hook for subclasses that update source/projection parameters before sampling.
   }
 
   /**
-   * Creates the analytical-kernel parameter object for the current solver state.
+   * Creates the kernel parameter object for the current solver state.
    *
    * @param includeDecoherenceEvents - Whether which-path detector records should be included.
-   * @returns Source, barrier, and optional decoherence data for analytical field evaluation.
+   * @returns Source, barrier, and optional decoherence data for field evaluation.
    */
-  protected createKernelParameters( includeDecoherenceEvents = true ): AnalyticalWaveParameters {
-    const parameters: AnalyticalWaveParameters = {
+  protected createKernelParameters( includeDecoherenceEvents = true ): WaveParameters {
+    const parameters: WaveParameters = {
       source: this.createKernelSource(),
       barrier: this.createKernelBarrier()
     };
@@ -535,11 +535,11 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   }
 
   /**
-   * Creates the analytical-kernel barrier definition from the current slit and decoherence state.
+   * Creates the kernel barrier definition from the current slit and decoherence state.
    *
-   * @returns Barrier description for analytical field evaluation.
+   * @returns Barrier description for field evaluation.
    */
-  private createKernelBarrier(): AnalyticalBarrier {
+  private createKernelBarrier(): WaveBarrier {
     if ( this.barrierType !== 'doubleSlit' ) {
       return { kind: 'none' };
     }
@@ -610,16 +610,16 @@ export default abstract class BaseAnalyticalWaveSolver implements WaveSolver {
   }
 
   /**
-   * Creates the analytical-kernel source definition for the subclass's wave model.
+   * Creates the kernel source definition for the subclass's wave model.
    *
-   * @returns Source description for analytical field evaluation.
+   * @returns Source description for field evaluation.
    */
-  protected abstract createKernelSource(): AnalyticalSource;
+  protected abstract createKernelSource(): WaveSource;
 
   /**
    * Gets the coherence-group identifier shared by coherent open slits for the subclass's source model.
    *
-   * @returns Coherence-group identifier used by analytical-kernel slit components.
+   * @returns Coherence-group identifier used by kernel slit components.
    */
   protected abstract getCoherentSlitsGroup(): string;
 

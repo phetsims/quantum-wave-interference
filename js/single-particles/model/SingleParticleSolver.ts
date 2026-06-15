@@ -1,22 +1,22 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Stateful WaveSolver adapter for the pure analytical Gaussian-packet kernel.
+ * Stateful WaveSolver adapter for the Gaussian-packet kernel.
  *
  * The packet solver owns screen state such as current time, cached grids, and detector-probe
- * measurement projections. Each field value is evaluated by AnalyticalWaveKernel, which reports
+ * measurement projections. Each field value is evaluated by WaveKernel, which reports
  * explicit field status and independent coherent components.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import Vector2 from '../../../../dot/js/Vector2.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { computeSampleIntensity } from './AnalyticalFieldSample.js';
-import { evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
-import { type AnalyticalSource, type AnalyticalWaveParameters, type GaussianPacketReEmission, type MeasurementProjection } from './AnalyticalWaveKernelTypes.js';
-import BaseAnalyticalWaveSolver from './BaseAnalyticalWaveSolver.js';
-import { type AnalyticalWavePacketSolverState, type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import { computeSampleIntensity } from '../../common/model/FieldSampleMath.js';
+import { evaluateSample } from '../../common/model/WaveKernel.js';
+import { type WaveSource, type WaveParameters, type GaussianPacketReEmission, type MeasurementProjection } from '../../common/model/WaveKernelTypes.js';
+import BaseWaveSolver from '../../common/model/BaseWaveSolver.js';
+import { type SingleParticleSolverState, type WaveSolverParameters, type WaveSolverState } from '../../common/model/WaveSolver.js';
 
 const EPSILON = 1e-12;
 
@@ -36,7 +36,7 @@ function copyPacketReEmission( reEmission: GaussianPacketReEmission ): GaussianP
   };
 }
 
-export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver {
+export default class SingleParticleSolver extends BaseWaveSolver {
 
   /**
    * Detector-probe measurement projections that have been applied to the current emitted packet. Each projection
@@ -106,7 +106,7 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
    *
    * @returns State containing time, measurement projections, and packet re-emission information.
    */
-  public getState(): AnalyticalWavePacketSolverState {
+  public getState(): SingleParticleSolverState {
     return {
       time: this.time,
       measurementProjections: this.measurementProjections.map( projection => ( {
@@ -206,17 +206,17 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
   }
 
   /**
-   * Creates analytical-kernel parameters for this packet solver, including active measurement projections
+   * Creates kernel parameters for this packet solver, including active measurement projections
    * and packet re-emission state.
    *
    * @param includeDecoherenceEvents - Whether decoherence events should be included in the parameters.
    * @param projections - Measurement projections to include, or the solver's active projections by default.
-   * @returns Parameters to pass to the analytical wave kernel.
+   * @returns Parameters to pass to the wave kernel.
    */
   protected override createKernelParameters(
     includeDecoherenceEvents = true,
     projections: MeasurementProjection[] = this.measurementProjections
-  ): AnalyticalWaveParameters {
+  ): WaveParameters {
     const parameters = super.createKernelParameters( includeDecoherenceEvents );
     parameters.projections = projections;
     parameters.packetReEmission = this.packetReEmission;
@@ -225,11 +225,11 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
   }
 
   /**
-   * Creates the Gaussian-packet source definition used by the analytical kernel.
+   * Creates the Gaussian-packet source definition used by the kernel.
    *
    * @returns A Gaussian-packet source configured for the current region size and display speed.
    */
-  protected override createKernelSource(): AnalyticalSource {
+  protected override createKernelSource(): WaveSource {
     const sigmaX0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_X_FRACTION * this.regionWidth;
     const sigmaY0 = QuantumWaveInterferenceConstants.WAVE_PACKET_SIGMA_Y_FRACTION * this.regionHeight;
 
@@ -282,8 +282,8 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
       const x = this.getGridCellX( ix );
       for ( let iy = 0; iy < this.gridHeight; iy++ ) {
         const y = this.getGridCellY( iy );
-        unprojectedTotal += computeSampleIntensity( evaluateAnalyticalSample( unprojectedParameters, x, y, t ) );
-        projectedTotal += computeSampleIntensity( evaluateAnalyticalSample( projectedParameters, x, y, t ) );
+        unprojectedTotal += computeSampleIntensity( evaluateSample( unprojectedParameters, x, y, t ) );
+        projectedTotal += computeSampleIntensity( evaluateSample( projectedParameters, x, y, t ) );
       }
     }
 

@@ -1,14 +1,14 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Fresnel aperture transfer for analytical slit diffraction.
+ * Fresnel aperture transfer for slit diffraction.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { type AnalyticalSlit } from './AnalyticalWaveKernelTypes.js';
-import { EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './AnalyticalWaveMath.js';
+import { type WaveSlit } from './WaveKernelTypes.js';
+import { EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './WaveMath.js';
 
 // Smooth the first post-aperture samples so the visual transition from slit mask to Fresnel propagation
 // does not create a screen-specific artifact at the aperture boundary.
@@ -22,7 +22,7 @@ export type ApertureTransfer = {
   support: number;
 };
 
-// The analytical kernel is sampled for every visible grid cell. Keep transient complex arithmetic in
+// The kernel is sampled for every visible grid cell. Keep transient complex arithmetic in
 // numeric real/imaginary components here, then allocate Complex only at the public transfer boundary.
 type ComplexComponents = {
   real: number;
@@ -110,7 +110,7 @@ export function getFresnelApertureTransfer(
   waveNumber: number,
   xPastBarrier: number,
   y: number,
-  slit: AnalyticalSlit
+  slit: WaveSlit
 ): ApertureTransfer {
   const halfWidth = slit.width / 2;
   const yMin = slit.centerY - halfWidth;

@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Minimal pure rasterization harness for analytical wave samples.
+ * Minimal pure rasterization harness for wave samples.
  *
- * This intentionally avoids Scenery and browser canvas APIs. It maps AnalyticalWaveKernel
+ * This intentionally avoids Scenery and browser canvas APIs. It maps WaveKernel
  * FieldSample status/value objects to RGBA bytes for the production canvas renderer.
  *
  * There are two rendering paths. The combined FieldSample path returns opaque pixels and encodes weak
@@ -22,7 +22,7 @@
 
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import { type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from '../model/AnalyticalWaveKernelTypes.js';
+import { type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from '../model/WaveKernelTypes.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 
@@ -69,7 +69,7 @@ type NonFieldSample = { kind: 'unreached' | 'absorbed' | 'blocked' };
  * coherence group so coherent paths interfere, decoherent groups add intensities, and weak support
  * fades toward the unreached vacuum color.
  *
- * @param sample - Analytical field sample to convert.
+ * @param sample - Field sample to convert.
  * @param displayMode - Wave display mode controlling how field values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
@@ -103,7 +103,7 @@ export function getFieldSampleRGBA(
  *
  * WaveVisualizationCanvasNode calls this once per grid cell when the solver exposes layered samples.
  *
- * @param sample - Layered analytical field sample to convert.
+ * @param sample - Layered field sample to convert.
  * @param displayMode - Wave display mode controlling how layer values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
@@ -176,7 +176,7 @@ function getNonFieldSampleRGBA( sample: NonFieldSample ): RGBAColor {
  * same coherence-group reduction and display-mode color treatment as the combined path, then applies the
  * layer alpha as transparency so getLayeredFieldSampleRGBA can combine bands in z-order.
  *
- * @param layer - Render-layer description from the analytical kernel.
+ * @param layer - Render-layer description from the kernel.
  * @param displayMode - Wave display mode controlling how field values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
@@ -258,7 +258,7 @@ function getDisplayStateRGBA(
  * @param displayMode - Wave display mode controlling how field values map to brightness.
  * @param baseColor - Source color used to tint visible wave values.
  * @param amplitudeScale - Scale factor applied before intensity and visibility mapping.
- * @param layerAlpha - Layer-specific transparency multiplier from the analytical kernel.
+ * @param layerAlpha - Layer-specific transparency multiplier from the kernel.
  * @param colorPower - Spatial contrast boost applied before color clamping.
  * @returns Transparent RGBA color for the layered renderer.
  */
@@ -554,7 +554,7 @@ function addComponentToGroupState( groupState: CoherenceGroupDisplayState, compo
  * Computes the visibility of one sampled field point for rendering.
  *
  * getDisplayState calls this after all coherence groups have been summarized. Explicit kernel support
- * is used when available, which lets analytical wavefront tapers control visibility directly. Otherwise,
+ * is used when available, which lets wavefront tapers control visibility directly. Otherwise,
  * visibility falls back to scaled component magnitude so very weak fields fade toward vacuum instead of
  * producing fully saturated dark pixels.
  *

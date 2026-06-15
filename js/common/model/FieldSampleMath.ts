@@ -1,14 +1,14 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Helpers for reducing analytical field samples to scalar intensity or the combined single-complex
+ * Helpers for reducing field samples to scalar intensity or the combined single-complex
  * display value.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { type FieldComponent, type FieldSample } from './AnalyticalWaveKernelTypes.js';
+import { type FieldComponent, type FieldSample } from './WaveKernelTypes.js';
 
 /**
  * The coherent complex-amplitude sum for all field components with the same coherence-group name.
@@ -25,7 +25,7 @@ type CoherentGroupSum = {
  * within each coherence group before taking magnitude squared, then those group intensities are
  * summed. Empty field samples and non-field samples have zero intensity.
  *
- * @param sample - The analytical sample to reduce to intensity.
+ * @param sample - The sample to reduce to intensity.
  * @returns The non-negative total intensity, or zero when the sample has no field value.
  */
 export function computeSampleIntensity( sample: FieldSample ): number {

@@ -1,15 +1,15 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Which-path detector decoherence helpers for the pure analytical wave kernel.
+ * Which-path detector decoherence helpers for the wave kernel.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { getClosestYOnSlit } from './AnalyticalSlitGeometry.js';
-import { type AnalyticalBarrier, type AnalyticalWaveParameters, type DecoherenceEvent, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample, type PlaneWaveSource } from './AnalyticalWaveKernelTypes.js';
-import { EPSILON, smoothStep } from './AnalyticalWaveMath.js';
+import { getClosestYOnSlit } from './SlitGeometry.js';
+import { type WaveBarrier, type WaveParameters, type DecoherenceEvent, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample, type PlaneWaveSource } from './WaveKernelTypes.js';
+import { EPSILON, smoothStep } from './WaveMath.js';
 
 const PLANE_WAVE_DECOHERENCE_BAND_DURATION = 0.2;
 const PLANE_WAVE_DECOHERENCE_BAND_HALF_DURATION = PLANE_WAVE_DECOHERENCE_BAND_DURATION / 2;
@@ -147,7 +147,7 @@ function getPlaneWaveDecoherenceChainStrength(
 function getPlaneWaveComponentDecoherenceChain(
   component: FieldComponent,
   events: readonly DecoherenceEvent[],
-  barrier: Extract<AnalyticalBarrier, { kind: 'doubleSlit' }>,
+  barrier: Extract<WaveBarrier, { kind: 'doubleSlit' }>,
   source: PlaneWaveSource,
   x: number,
   y: number,
@@ -185,7 +185,7 @@ function getPlaneWaveComponentDecoherenceChain(
  */
 export function applyPlaneWaveDecoherenceEventLayers(
   sample: Extract<FieldSample, { kind: 'field' }>,
-  parameters: AnalyticalWaveParameters,
+  parameters: WaveParameters,
   x: number,
   y: number,
   t: number
@@ -253,7 +253,7 @@ export function applyPlaneWaveDecoherenceEventLayers(
  */
 export function applyDecoherenceEvent(
   sample: FieldSample,
-  parameters: AnalyticalWaveParameters,
+  parameters: WaveParameters,
   x: number,
   y: number,
   t: number

@@ -1,15 +1,15 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Source and barrier propagation helpers for the pure analytical wave kernel.
+ * Source and barrier propagation helpers for the wave kernel.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { type AnalyticalBarrier, type AnalyticalSlit, type AnalyticalSource, type AnalyticalWaveParameters, type FieldComponent, type FieldComponentSource, type FieldSample, type GaussianPacketReEmission, type GaussianPacketSource, type PlaneWaveSource } from './AnalyticalWaveKernelTypes.js';
-import { createPolarTimesComplex, EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './AnalyticalWaveMath.js';
-import { getClosestYOnSlit } from './AnalyticalSlitGeometry.js';
+import { type WaveBarrier, type WaveSlit, type WaveSource, type WaveParameters, type FieldComponent, type FieldComponentSource, type FieldSample, type GaussianPacketReEmission, type GaussianPacketSource, type PlaneWaveSource } from './WaveKernelTypes.js';
+import { createPolarTimesComplex, EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './WaveMath.js';
+import { getClosestYOnSlit } from './SlitGeometry.js';
 import { getFresnelApertureTransfer } from './FresnelApertureTransfer.js';
 
 /**
@@ -29,15 +29,15 @@ type GaussianPacketState = {
 };
 
 /**
- * Computes the raw analytical field before detector-record decoherence or measurement projections.
+ * Computes the raw field before detector-record decoherence or measurement projections.
  *
  * Both public evaluators start here so model-facing FieldSample output and rendering-facing
  * LayeredFieldSample output share the exact same source/barrier propagation. This avoids a common
  * failure mode where the rendered particle bands and detector/graph math drift because they each
  * approximate diffraction or source reachability independently.
  */
-export function evaluateUndecoheredAnalyticalSample(
-  parameters: AnalyticalWaveParameters,
+export function evaluateUndecoheredSample(
+  parameters: WaveParameters,
   x: number,
   y: number,
   t: number
@@ -88,7 +88,7 @@ function evaluateGaussianPacketReEmissionSample(
     longitudinalSpreadTime: source.longitudinalSpreadTime,
     transverseSpreadTime: source.transverseSpreadTime
   };
-  const slit: AnalyticalSlit = {
+  const slit: WaveSlit = {
     source: reEmission.selectedSlit,
     centerY: reEmission.centerY,
     width: reEmission.width,
@@ -146,8 +146,8 @@ function evaluateGaussianPacketReEmissionSample(
  * projections; callers layer those effects afterward.
  */
 function evaluateDoubleSlitSample(
-  source: AnalyticalSource,
-  barrier: Extract<AnalyticalBarrier, { kind: 'doubleSlit' }>,
+  source: WaveSource,
+  barrier: Extract<WaveBarrier, { kind: 'doubleSlit' }>,
   x: number,
   y: number,
   t: number
@@ -225,8 +225,8 @@ function evaluateDoubleSlitSample(
  * the source or path has not reached the sample.
  */
 function evaluateDiffractedComponent(
-  source: AnalyticalSource,
-  slit: AnalyticalSlit,
+  source: WaveSource,
+  slit: WaveSlit,
   barrierX: number,
   xPastBarrier: number,
   y: number,
@@ -304,7 +304,7 @@ function evaluateDiffractedComponent(
  * for incident fields and for samples located directly on an open aperture. This helper is pure.
  */
 function evaluateSourceComponent(
-  source: AnalyticalSource,
+  source: WaveSource,
   componentSource: FieldComponentSource,
   coherenceGroup: string,
   x: number,
@@ -419,7 +419,7 @@ function getPlaneEmissionEnvelope( source: PlaneWaveSource, pathLength: number, 
  * envelope cutoff is handled by component evaluators. Plane waves use the causal emission envelope.
  * This pure helper is used to distinguish unreached background from reached zero-amplitude field.
  */
-function isPathReachable( source: AnalyticalSource, pathLength: number, t: number ): boolean {
+function isPathReachable( source: WaveSource, pathLength: number, t: number ): boolean {
   if ( source.kind === 'gaussianPacket' ) {
     return source.isActive;
   }

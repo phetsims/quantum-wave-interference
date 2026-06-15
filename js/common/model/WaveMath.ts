@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Small numerical helpers shared by analytical wave kernel modules.
+ * Small numerical helpers shared by wave kernel modules.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

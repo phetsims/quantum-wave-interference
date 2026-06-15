@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Pure analytical wave kernel for the High Intensity and Single Particles screens.
+ * Wave kernel for the High Intensity and Single Particles screens.
  *
  * This file intentionally has no scene-model state, cached grid arrays, detector accumulation, or
  * rendering assumptions. It answers one question: given complete source/barrier parameters, what
@@ -27,25 +27,25 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { type AnalyticalWaveParameters, type FieldSample, type LayeredFieldSample } from './AnalyticalWaveKernelTypes.js';
-import { applyDecoherenceEvent, applyPlaneWaveDecoherenceEventLayers } from './AnalyticalWaveDecoherence.js';
-import { applyGaussianPacketMeasurementProjectionLayers, applyMeasurementProjections } from './AnalyticalWaveMeasurementProjection.js';
-import { evaluateUndecoheredAnalyticalSample } from './AnalyticalWavePropagation.js';
+import { type WaveParameters, type FieldSample, type LayeredFieldSample } from './WaveKernelTypes.js';
+import { applyDecoherenceEvent, applyPlaneWaveDecoherenceEventLayers } from './WaveDecoherence.js';
+import { applyGaussianPacketMeasurementProjectionLayers, applyMeasurementProjections } from './WaveMeasurementProjection.js';
+import { evaluateUndecoheredSample } from './WavePropagation.js';
 
 /**
- * Evaluates the model-facing analytical field at one sample point.
+ * Evaluates the model-facing field at one sample point.
  *
  * The result includes barrier propagation, detector-record decoherence, and failed-measurement
  * projections, but does not allocate or mutate solver grid state. Call this when model code needs
  * the physical FieldSample used for intensity, graph, screen, or representative-complex queries.
  */
-export function evaluateAnalyticalSample(
-  parameters: AnalyticalWaveParameters,
+export function evaluateSample(
+  parameters: WaveParameters,
   x: number,
   y: number,
   t: number
 ): FieldSample {
-  let sample = evaluateUndecoheredAnalyticalSample( parameters, x, y, t );
+  let sample = evaluateUndecoheredSample( parameters, x, y, t );
 
   sample = applyDecoherenceEvent( sample, parameters, x, y, t );
 
@@ -55,18 +55,18 @@ export function evaluateAnalyticalSample(
 /**
  * Evaluates both the model-facing field and the rendering-facing layered field at one sample point.
  *
- * The returned sample is the same value evaluateAnalyticalSample would compute. The layered sample
+ * The returned sample is the same value evaluateSample would compute. The layered sample
  * preserves particle-chain bands needed by rasterized wave rendering, especially for High Intensity
  * which-path records. This pure function is the appropriate entry point for renderers that need both
  * numerical field data and layer alpha/order data from the same parameters.
  */
-export function evaluateAnalyticalSamples(
-  parameters: AnalyticalWaveParameters,
+export function evaluateSamples(
+  parameters: WaveParameters,
   x: number,
   y: number,
   t: number
 ): { sample: FieldSample; layeredSample: LayeredFieldSample } {
-  const undecoheredSample = evaluateUndecoheredAnalyticalSample( parameters, x, y, t );
+  const undecoheredSample = evaluateUndecoheredSample( parameters, x, y, t );
   const decoheredSample = applyDecoherenceEvent( undecoheredSample, parameters, x, y, t );
   const sample = applyMeasurementProjections( decoheredSample, parameters.projections || [], parameters.source, x, y, t );
 

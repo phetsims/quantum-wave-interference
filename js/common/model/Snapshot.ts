@@ -54,7 +54,7 @@ const SNAPSHOT_SCHEMA = {
 
   // 1D probability distribution along the detector screen at capture time. Populated only for snapshots
   // taken in intensity mode from solver-driven scenes (High Intensity screen); empty otherwise.
-  // It is unused by the Experiment screen because Experiment snapshots are rendered analytically from metadata.
+  // It is unused by the Experiment screen because Experiment snapshots are computed from metadata.
   // Consumers that render an intensity-mode snapshot should prefer this captured distribution so the
   // snapshot image matches the live detector screen; if empty, callers must fall back to a closed-form
   // pattern computed from the other snapshot metadata (used by the Experiment screen).

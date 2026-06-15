@@ -1,9 +1,9 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Public data shapes for the pure analytical wave kernel.
+ * Public data shapes for the wave kernel.
  *
- * Keeping these types separate from AnalyticalWaveKernel makes the evaluator easier to scan while
+ * Keeping these types separate from WaveKernel makes the evaluator easier to scan while
  * preserving one shared vocabulary for solvers, rasterizers, and tests.
  *
  * Conventions shared by every type in this file:
@@ -202,12 +202,12 @@ export type GaussianPacketSource = {
  * Source field description: a continuous plane wave (High Intensity) or one gaussian packet
  * (Single Particles).
  */
-export type AnalyticalSource = PlaneWaveSource | GaussianPacketSource;
+export type WaveSource = PlaneWaveSource | GaussianPacketSource;
 
 /**
  * One slit aperture in the double-slit barrier.
  */
-export type AnalyticalSlit = {
+export type WaveSlit = {
 
   // Which slit this is; becomes the source of this slit's downstream diffracted components.
   source: 'topSlit' | 'bottomSlit';
@@ -231,12 +231,12 @@ export type AnalyticalSlit = {
  * Barrier description: either no barrier, or a vertical barrier at x = barrierX containing slit
  * apertures. Samples with x < barrierX see only the incident source field.
  */
-export type AnalyticalBarrier =
+export type WaveBarrier =
   { kind: 'none' } |
   {
     kind: 'doubleSlit';
     barrierX: number;
-    slits: AnalyticalSlit[];
+    slits: WaveSlit[];
   };
 
 /**
@@ -267,12 +267,12 @@ export type MeasurementProjection = {
 };
 
 /**
- * Complete input to one analytical kernel evaluation: everything needed to answer "what is the
+ * Complete input to one kernel evaluation: everything needed to answer "what is the
  * field at ( x, y, t )?" without any solver state. Treated as immutable during evaluation.
  */
-export type AnalyticalWaveParameters = {
-  source: AnalyticalSource;
-  barrier: AnalyticalBarrier;
+export type WaveParameters = {
+  source: WaveSource;
+  barrier: WaveBarrier;
 
   // Failed-measurement projections in measurement order. Omitted or empty means none. Only
   // gaussian-packet sources are affected.

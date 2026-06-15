@@ -18,7 +18,7 @@ import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
-import AnalyticalWaveSolver from '../../common/model/AnalyticalWaveSolver.js';
+import HighIntensitySolver from './HighIntensitySolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
@@ -102,7 +102,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   public constructor( providedOptions: HighIntensitySceneModelOptions ) {
 
-    super( new AnalyticalWaveSolver(
+    super( new HighIntensitySolver(
       QuantumWaveInterferenceQueryParameters.waveSolverGridSize,
       QuantumWaveInterferenceQueryParameters.waveSolverGridSize
     ), combineOptions<BaseSceneModelOptions>( {
@@ -236,7 +236,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
   /**
    * Advances the continuous high-intensity slit-detector/decoherence scheduler. When an emitted wavefront reaches the
    * double-slit barrier and one or more slit detectors are present, this creates model-time detector records at
-   * SLIT_DETECTOR_EVENT_RATE. Those records are stored as decoherence events so the analytical solver can render the
+   * SLIT_DETECTOR_EVENT_RATE. Those records are stored as decoherence events so the solver can render the
    * selected slit bands and attenuate the opposite slit contribution. Creating an event also increments the appropriate
    * slit detector hit count through addDecoherenceEvent().
    *

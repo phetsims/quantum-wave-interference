@@ -71,7 +71,7 @@ export function hasDetectorOnSide( slitConfiguration: SlitConfigurationWithNoBar
 }
 
 /**
- * In front-facing wave-region views and analytical wave solvers, the physical slit named "left" in
+ * In front-facing wave-region views and wave solvers, the physical slit named "left" in
  * Experiment's overhead view is drawn and modeled as the top slit.
  *
  * @param slitConfiguration - current slit configuration
@@ -82,7 +82,7 @@ export function isTopSlitCovered( slitConfiguration: SlitConfigurationWithNoBarr
 }
 
 /**
- * In front-facing wave-region views and analytical wave solvers, the physical slit named "right" in
+ * In front-facing wave-region views and wave solvers, the physical slit named "right" in
  * Experiment's overhead view is drawn and modeled as the bottom slit.
  *
  * @param slitConfiguration - current slit configuration
@@ -93,7 +93,7 @@ export function isBottomSlitCovered( slitConfiguration: SlitConfigurationWithNoB
 }
 
 /**
- * In front-facing wave-region views and analytical wave solvers, the physical slit named "left" in
+ * In front-facing wave-region views and wave solvers, the physical slit named "left" in
  * Experiment's overhead view is drawn and modeled as the top slit.
  *
  * @param slitConfiguration - current slit configuration
@@ -104,7 +104,7 @@ export function hasDetectorOnTopSlit( slitConfiguration: SlitConfigurationWithNo
 }
 
 /**
- * In front-facing wave-region views and analytical wave solvers, the physical slit named "right" in
+ * In front-facing wave-region views and wave solvers, the physical slit named "right" in
  * Experiment's overhead view is drawn and modeled as the bottom slit.
  *
  * @param slitConfiguration - current slit configuration

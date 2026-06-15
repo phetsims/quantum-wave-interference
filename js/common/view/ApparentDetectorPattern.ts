@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Pure analytical helpers for rendering detector-screen intensity patterns. These functions are view-only: they
+ * Helpers for rendering detector-screen intensity patterns. These functions are view-only: they
  * preserve the exact model formulas when the interference fringes are resolvable, but use a bright-biased apparent
  * intensity when double-slit fringes are finer than the rendered sample footprint.
  *
@@ -9,21 +9,21 @@
  */
 
 import { clamp } from '../../../../dot/js/util/clamp.js';
-import { type AnalyticalDetectorPatternOptions, getAnalyticalSingleSlitEnvelopeIntensity, getExactAnalyticalDetectorIntensity, getLocalDoubleSlitFringeSpacing } from '../model/AnalyticalDetectorPattern.js';
+import { type DetectorPatternOptions, getSingleSlitEnvelopeIntensity, getExactDetectorIntensity, getLocalDoubleSlitFringeSpacing } from '../model/DetectorPattern.js';
 import { showsDoubleSlitInterferencePattern } from '../model/SlitConfiguration.js';
 
 // Below this many samples per bright-fringe spacing, alternating bright/dark fringes are not displayable.
 const FULLY_UNRESOLVED_SAMPLES_PER_FRINGE = 2;
 
-// Above this many samples per bright-fringe spacing, keep the exact analytical pattern.
+// Above this many samples per bright-fringe spacing, keep the exact pattern.
 const FULLY_RESOLVED_SAMPLES_PER_FRINGE = 4;
 
 /**
- * Extends the base analytical options with the rendered sample width so the view layer can decide whether double-slit
+ * Extends the base options with the rendered sample width so the view layer can decide whether double-slit
  * fringes are spatially resolved on screen. Used exclusively by the two detector-screen rendering paths
  * (renderDetectorScreenTexture and SnapshotCanvasNode).
  */
-export type ApparentAnalyticalDetectorPatternOptions = AnalyticalDetectorPatternOptions & {
+export type ApparentDetectorPatternOptions = DetectorPatternOptions & {
 
   // Physical width, in meters, represented by the rendered sample.
   sampleWidthOnScreen: number;
@@ -50,8 +50,8 @@ function smootherStep( t: number ): number {
  * resolved) to the single-slit diffraction envelope (when fringes are finer than the sample footprint),
  * preventing unresolved bright/dark bands from averaging to a misleadingly gray screen.
  */
-export function getApparentAnalyticalDetectorIntensity( options: ApparentAnalyticalDetectorPatternOptions ): number {
-  const exactIntensity = getExactAnalyticalDetectorIntensity( options );
+export function getApparentDetectorIntensity( options: ApparentDetectorPatternOptions ): number {
+  const exactIntensity = getExactDetectorIntensity( options );
 
   // Apparent filtering only applies to double-slit interference with a positive rendered sample width.
   if ( !showsDoubleSlitInterferencePattern( options.slitSetting ) || options.sampleWidthOnScreen <= 0 ) {
@@ -72,13 +72,13 @@ export function getApparentAnalyticalDetectorIntensity( options: ApparentAnalyti
   );
   const unresolvedBlend = 1 - smootherStep( resolvedFraction );
 
-  // With a fully resolved sample, preserve the exact analytical intensity and skip the envelope calculation.
+  // With a fully resolved sample, preserve the exact intensity and skip the envelope calculation.
   if ( unresolvedBlend === 0 ) {
     return exactIntensity;
   }
 
   // The envelope is a bright-biased fallback: unresolved bright fringes visually merge instead of averaging to gray.
-  const envelopeIntensity = getAnalyticalSingleSlitEnvelopeIntensity(
+  const envelopeIntensity = getSingleSlitEnvelopeIntensity(
     options.positionOnScreen,
     options.effectiveWavelength,
     options.screenDistance,

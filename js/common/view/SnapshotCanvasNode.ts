@@ -5,7 +5,7 @@
  * It supports the two snapshot data sources used by Quantum Wave Interference:
  *
  * - stored particle hits from hits mode
- * - intensity snapshots, either captured from the wave solver or reconstructed from analytical metadata
+ * - intensity snapshots, either captured from the wave solver or reconstructed from computed metadata
  *
  * The node owns a reusable offscreen texture canvas for intensity rendering and Experiment snapshot rendering so
  * repainting a snapshot does not allocate canvas resources every frame. Non-Experiment hit rendering draws directly to
@@ -19,16 +19,16 @@ import Bounds2 from '../../../../dot/js/Bounds2.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import type { Snapshot } from '../model/Snapshot.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { getApparentAnalyticalDetectorIntensity } from './ApparentDetectorPattern.js';
+import { getApparentDetectorIntensity } from './ApparentDetectorPattern.js';
 import { createDetectorScreenRenderStateFromSnapshot } from './DetectorScreenRenderState.js';
 import renderDetectorScreenTexture from './renderDetectorScreenTexture.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getIntensityDisplayGain, getInterpolatedRGBFillStyle, getSceneRGB, sampleSmoothedIntensityDistribution } from './ScreenBrightnessUtils.js';
 
 const MAX_RENDERED_SNAPSHOT_HITS = 100000;
 
-// Resolution for the offscreen texture canvas used by the analytical intensity rendering path.
-const ANALYTICAL_TEXTURE_WIDTH = 376;
-const ANALYTICAL_TEXTURE_HEIGHT = 155;
+// Resolution for the offscreen texture canvas used by the computed intensity rendering path.
+const COMPUTED_TEXTURE_WIDTH = 376;
+const COMPUTED_TEXTURE_HEIGHT = 155;
 const CAPTURED_INTENSITY_SUPERSAMPLE = 4;
 const CAPTURED_INTENSITY_SMOOTHING_RADIUS = 1.5;
 const EXPERIMENT_SNAPSHOT_SUPERSAMPLE = 2;
@@ -67,8 +67,8 @@ export default class SnapshotCanvasNode extends CanvasNode {
     this.capturedIntensityTextureHeight = height;
 
     this.intensityTextureCanvas = document.createElement( 'canvas' );
-    this.intensityTextureCanvas.width = ANALYTICAL_TEXTURE_WIDTH;
-    this.intensityTextureCanvas.height = ANALYTICAL_TEXTURE_HEIGHT;
+    this.intensityTextureCanvas.width = COMPUTED_TEXTURE_WIDTH;
+    this.intensityTextureCanvas.height = COMPUTED_TEXTURE_HEIGHT;
 
     const intensityTextureContext = this.intensityTextureCanvas.getContext( '2d' );
     if ( !intensityTextureContext ) {
@@ -121,7 +121,7 @@ export default class SnapshotCanvasNode extends CanvasNode {
       outputHeight: textureHeight,
       visibleScreenHalfWidth: visibleScreenHalfWidth,
       renderScale: EXPERIMENT_SNAPSHOT_SUPERSAMPLE,
-      intensitySampleWidthOnScreen: 2 * visibleScreenHalfWidth / ANALYTICAL_TEXTURE_WIDTH
+      intensitySampleWidthOnScreen: 2 * visibleScreenHalfWidth / COMPUTED_TEXTURE_WIDTH
     } );
 
     this.drawIntensityTexture( context, true );
@@ -190,7 +190,7 @@ export default class SnapshotCanvasNode extends CanvasNode {
   }
 
   /**
-   * Selects the intensity rendering path. Captured intensity comes from simulated detector data, while analytical
+   * Selects the intensity rendering path. Captured intensity comes from simulated detector data, while computed
    * intensity is reconstructed from Experiment screen metadata.
    */
   private paintIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
@@ -198,7 +198,7 @@ export default class SnapshotCanvasNode extends CanvasNode {
       this.paintCapturedIntensity( context, snapshot );
     }
     else {
-      this.paintAnalyticalIntensity( context, snapshot );
+      this.paintComputedIntensity( context, snapshot );
     }
   }
 
@@ -231,9 +231,9 @@ export default class SnapshotCanvasNode extends CanvasNode {
   }
 
   /**
-   * Computes the analytical Fraunhofer diffraction pattern from snapshot metadata (Experiment screen).
+   * Computes the Fraunhofer diffraction pattern from snapshot metadata (Experiment screen).
    */
-  private paintAnalyticalIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
+  private paintComputedIntensity( context: CanvasRenderingContext2D, snapshot: Snapshot ): void {
     if ( !snapshot.isEmitting ) {
       return;
     }
@@ -244,14 +244,14 @@ export default class SnapshotCanvasNode extends CanvasNode {
     }
 
     const textureContext = this.intensityTextureContext;
-    this.setIntensityTextureSize( ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
-    textureContext.clearRect( 0, 0, ANALYTICAL_TEXTURE_WIDTH, ANALYTICAL_TEXTURE_HEIGHT );
+    this.setIntensityTextureSize( COMPUTED_TEXTURE_WIDTH, COMPUTED_TEXTURE_HEIGHT );
+    textureContext.clearRect( 0, 0, COMPUTED_TEXTURE_WIDTH, COMPUTED_TEXTURE_HEIGHT );
 
     const displayGain = getIntensityDisplayGain( snapshot.brightness, snapshot.intensity );
     const screenHalfWidth = this.getVisibleScreenHalfWidth( snapshot );
 
-    // The analytical snapshot texture spans the full detector width, which is twice the captured screenHalfWidth.
-    const sampleWidthOnScreen = 2 * screenHalfWidth / ANALYTICAL_TEXTURE_WIDTH;
+    // The computed snapshot texture spans the full detector width, which is twice the captured screenHalfWidth.
+    const sampleWidthOnScreen = 2 * screenHalfWidth / COMPUTED_TEXTURE_WIDTH;
     const slitWidthMeters = snapshot.slitWidth * 1e-3;
     const slitSeparationMeters = snapshot.slitSeparation * 1e-3;
     const screenDistanceMeters = snapshot.screenDistance;
@@ -260,10 +260,10 @@ export default class SnapshotCanvasNode extends CanvasNode {
 
     const sourceRGB = getSceneRGB( snapshot.sourceType, snapshot.wavelength );
 
-    for ( let x = 0; x < ANALYTICAL_TEXTURE_WIDTH; x++ ) {
-      const fraction = ( x + 0.5 ) / ANALYTICAL_TEXTURE_WIDTH;
+    for ( let x = 0; x < COMPUTED_TEXTURE_WIDTH; x++ ) {
+      const fraction = ( x + 0.5 ) / COMPUTED_TEXTURE_WIDTH;
       const physicalX = ( fraction - 0.5 ) * 2 * screenHalfWidth;
-      const intensity = getApparentAnalyticalDetectorIntensity( {
+      const intensity = getApparentDetectorIntensity( {
         positionOnScreen: physicalX,
         sampleWidthOnScreen: sampleWidthOnScreen,
         effectiveWavelength: lambda,
@@ -276,7 +276,7 @@ export default class SnapshotCanvasNode extends CanvasNode {
       const intensityScale = intensity * displayGain;
       const fillStyle = getInterpolatedRGBFillStyle( backgroundRGB, sourceRGB, intensityScale );
       textureContext.fillStyle = fillStyle;
-      textureContext.fillRect( x, 0, 1, ANALYTICAL_TEXTURE_HEIGHT );
+      textureContext.fillRect( x, 0, 1, COMPUTED_TEXTURE_HEIGHT );
     }
 
     this.drawIntensityTexture( context, false );
@@ -295,7 +295,7 @@ export default class SnapshotCanvasNode extends CanvasNode {
    */
   /**
    * Draws the intensity texture canvas onto the target context using image smoothing. Used by all three
-   * intensity paint paths (experiment, captured, analytical).
+   * intensity paint paths (experiment, captured, computed).
    */
   private drawIntensityTexture( context: CanvasRenderingContext2D, highQuality: boolean ): void {
     const displayBounds = this.canvasBounds;

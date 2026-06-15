@@ -1,11 +1,11 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Stateful WaveSolver adapter for the pure analytical continuous-wave kernel.
+ * Stateful WaveSolver adapter for the continuous-wave kernel.
  *
  * The PhET model still needs cached amplitude grids, detector accumulation, source-on timing,
  * serialization, and the combined single-complex WaveSolver API. The physics evaluation itself lives
- * in AnalyticalWaveKernel and returns richer field samples with independent coherent components.
+ * in WaveKernel and returns richer field samples with independent coherent components.
  *
  * For High Intensity, this solver also caches LayeredFieldSample values. Those layered samples are
  * a rendering-oriented companion to FieldSample: they preserve which selected-slit particle band is
@@ -22,19 +22,19 @@
  */
 
 import type Complex from '../../../../dot/js/Complex.js';
-import { computeSampleIntensity, getRepresentativeComplex } from './AnalyticalFieldSample.js';
-import { evaluateAnalyticalSample } from './AnalyticalWaveKernel.js';
-import { type AnalyticalSource } from './AnalyticalWaveKernelTypes.js';
-import BaseAnalyticalWaveSolver from './BaseAnalyticalWaveSolver.js';
-import { type AnalyticalWaveSolverState, type WaveSolverState } from './WaveSolver.js';
+import { computeSampleIntensity, getRepresentativeComplex } from '../../common/model/FieldSampleMath.js';
+import { evaluateSample } from '../../common/model/WaveKernel.js';
+import { type WaveSource } from '../../common/model/WaveKernelTypes.js';
+import BaseWaveSolver from '../../common/model/BaseWaveSolver.js';
+import { type HighIntensitySolverState, type WaveSolverState } from '../../common/model/WaveSolver.js';
 
 const DISPLAY_TRAVERSAL_TIME = 2.0;
 const EDGE_TAPER_CELLS = 4;
 
-export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
+export default class HighIntensitySolver extends BaseWaveSolver {
 
   /**
-   * Solver time when the continuous source was most recently turned on. The analytical kernel uses this as the
+   * Solver time when the continuous source was most recently turned on. The kernel uses this as the
    * wavefront emission time so cells ahead of the leading edge remain unreached.
    */
   private sourceOnTime: number | null = null;
@@ -51,7 +51,7 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
   private detectorAccumulatorCount = 0;
 
   /**
-   * Creates a continuous-wave analytical solver with optional visualization-grid dimensions.
+   * Creates a continuous-wave solver with optional visualization-grid dimensions.
    *
    * @param gridWidth - Number of grid cells in the horizontal direction.
    * @param gridHeight - Number of grid cells in the vertical direction.
@@ -63,7 +63,7 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
 
   /**
    * Updates the source-on state and clears detector averaging state at source transitions. Starting the source records
-   * the emission time for the analytical wavefront; stopping the source clears the displayed detector pattern.
+   * the emission time for the wavefront; stopping the source clears the displayed detector pattern.
    *
    * @param isSourceOn - Whether the source should emit.
    */
@@ -151,7 +151,7 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
    *
    * @returns State containing solver time, source emission time, and detector averaging data.
    */
-  public getState(): AnalyticalWaveSolverState {
+  public getState(): HighIntensitySolverState {
     return {
       time: this.time,
       sourceOnTime: this.sourceOnTime,
@@ -176,7 +176,7 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
   }
 
   /**
-   * Evaluates the continuous-wave field at model coordinates and reduces the analytical sample to the combined
+   * Evaluates the continuous-wave field at model coordinates and reduces the sample to the combined
    * representative complex value used by the WaveSolver API.
    *
    * @param x - Horizontal model coordinate measured from the source side of the wave region.
@@ -185,7 +185,7 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
    * @returns Representative complex amplitude at the requested coordinates and time.
    */
   public override evaluate( x: number, y: number, t = this.time ): Complex {
-    return getRepresentativeComplex( evaluateAnalyticalSample( this.createKernelParameters(), x, y, t ) );
+    return getRepresentativeComplex( evaluateSample( this.createKernelParameters(), x, y, t ) );
   }
 
   /**
@@ -208,17 +208,17 @@ export default class AnalyticalWaveSolver extends BaseAnalyticalWaveSolver {
     for ( let iy = 0; iy < this.gridHeight; iy++ ) {
       const y = ( iy + 0.5 ) * dy - this.regionHeight / 2;
       this.detectorDistribution[ iy ] = computeSampleIntensity(
-        evaluateAnalyticalSample( parameters, this.regionWidth, y, this.time )
+        evaluateSample( parameters, this.regionWidth, y, this.time )
       );
     }
   }
 
   /**
-   * Creates the continuous plane-wave source definition used by the analytical kernel.
+   * Creates the continuous plane-wave source definition used by the kernel.
    *
    * @returns A plane-wave source configured for the current wave number, display speed, emission time, and edge taper.
    */
-  protected override createKernelSource(): AnalyticalSource {
+  protected override createKernelSource(): WaveSource {
     return {
       kind: 'plane',
       waveNumber: this.getDisplayWaveNumber(),

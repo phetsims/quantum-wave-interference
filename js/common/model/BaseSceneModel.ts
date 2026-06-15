@@ -11,7 +11,7 @@
  */
 
 // NOTE: see other duplicate import block in quantum-wave-interference/js/experiment/model/SceneModel.ts. These models
-// intentionally remain separate because Experiment uses a closed-form analytical detector-pattern model (no per-cell
+// intentionally remain separate because Experiment uses a closed-form detector-pattern model (no per-cell
 // WaveSolver) while High Intensity/Single Particles share the WaveSolver-backed BaseSceneModel.
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
@@ -39,7 +39,7 @@ import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ObjectLiteralIO from '../../../../tandem/js/types/ObjectLiteralIO.js';
 import { DISPLAY_SLIT_WIDTH, MAX_DISPLAY_SLIT_SEPARATION, MIN_DISPLAY_SLIT_SEPARATION } from '../getDisplaySlitLayout.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
-import { type DecoherenceEvent, type DecoherenceSlit } from './AnalyticalWaveKernelTypes.js';
+import { type DecoherenceEvent, type DecoherenceSlit } from './WaveKernelTypes.js';
 import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
 import { type DetectionMode } from './DetectionMode.js';
 import { hasAnyDetector, hasDetectorOnBottomSlit, hasDetectorOnTopSlit, isBottomSlitCovered, isTopSlitCovered, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from './SlitConfiguration.js';
@@ -423,9 +423,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
       wavelength: effectiveWavelength,
       waveSpeed: this.getEffectiveWaveSpeed(),
 
-      // The analytical solvers animate waves in display coordinates. displaySpeedScale maps the
+      // The solvers animate waves in display coordinates. displaySpeedScale maps the
       // current physical speed to display speed by comparing it to this scene's default speed. For
-      // wave packets, AnalyticalWavePacketSolver applies this scale to
+      // wave packets, SingleParticleSolver applies this scale to
       // regionWidth / WAVE_PACKET_TRAVERSAL_TIME.
       displaySpeedScale: this.getEffectiveWaveSpeed() / this.defaultWaveSpeed,
       displayWavelengths: displayWavelengths,

@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Pure analytical helpers for detector-screen intensity patterns. These functions contain the exact Fraunhofer
+ * Helpers for detector-screen intensity patterns. These functions contain the exact Fraunhofer
  * formulas shared by Experiment screen model hit generation and detector-screen rendering.
  *
  * @author Matthew Blackman (PhET Interactive Simulations)
@@ -10,10 +10,10 @@
 import { hasAnyDetector, type SlitConfigurationWithNoBarrier } from './SlitConfiguration.js';
 
 /**
- * Physical parameters used to evaluate an analytical detector-screen pattern. All distances and wavelengths are
+ * Physical parameters used to evaluate a detector-screen pattern. All distances and wavelengths are
  * expressed in meters.
  */
-export type AnalyticalDetectorPatternOptions = {
+export type DetectorPatternOptions = {
 
   // Position on the detector screen in meters, relative to the screen center.
   positionOnScreen: number;
@@ -31,7 +31,7 @@ export type AnalyticalDetectorPatternOptions = {
   slitSeparation: number;
 
   /**
-   * Barrier, slit-cover, and which-path detector configuration used to select the analytical pattern.
+   * Barrier, slit-cover, and which-path detector configuration used to select the pattern.
    */
   slitSetting: SlitConfigurationWithNoBarrier;
 };
@@ -55,7 +55,7 @@ function sincSquared( x: number ): number {
  * @param slitWidth - slit width in meters
  * @returns normalized envelope intensity from 0 (dark) to 1 (peak intensity), or 0 when the effective wavelength is zero
  */
-export function getAnalyticalSingleSlitEnvelopeIntensity(
+export function getSingleSlitEnvelopeIntensity(
   positionOnScreen: number,
   effectiveWavelength: number,
   screenDistance: number,
@@ -80,7 +80,7 @@ export function getAnalyticalSingleSlitEnvelopeIntensity(
  * @returns fringe spacing in meters, or positive infinity when slitSetting is not `bothOpen` or the wavelength, slit
  *          separation, or screen distance is zero
  */
-export function getLocalDoubleSlitFringeSpacing( options: AnalyticalDetectorPatternOptions ): number {
+export function getLocalDoubleSlitFringeSpacing( options: DetectorPatternOptions ): number {
   if (
     options.slitSetting !== 'bothOpen' ||
     options.effectiveWavelength === 0 ||
@@ -106,7 +106,7 @@ export function getLocalDoubleSlitFringeSpacing( options: AnalyticalDetectorPatt
  * @returns normalized intensity from 0 (dark) to 1 (the unobstructed reference intensity); returns 0 when the
  *          effective wavelength is zero
  */
-export function getExactAnalyticalDetectorIntensity( options: AnalyticalDetectorPatternOptions ): number {
+export function getExactDetectorIntensity( options: DetectorPatternOptions ): number {
   const lambda = options.effectiveWavelength;
   if ( lambda === 0 ) {
     return 0;
@@ -125,7 +125,7 @@ export function getExactAnalyticalDetectorIntensity( options: AnalyticalDetector
                                 -options.slitSeparation / 2;
 
     // With one slit covered, half the incident beam is blocked, so the transmitted peak intensity is halved.
-    return SINGLE_OPEN_SLIT_INTENSITY_SCALE * getAnalyticalSingleSlitEnvelopeIntensity(
+    return SINGLE_OPEN_SLIT_INTENSITY_SCALE * getSingleSlitEnvelopeIntensity(
       options.positionOnScreen - uncoveredSlitOffset,
       lambda,
       options.screenDistance,
@@ -133,7 +133,7 @@ export function getExactAnalyticalDetectorIntensity( options: AnalyticalDetector
     );
   }
 
-  const envelope = getAnalyticalSingleSlitEnvelopeIntensity( options.positionOnScreen, lambda, options.screenDistance, options.slitWidth );
+  const envelope = getSingleSlitEnvelopeIntensity( options.positionOnScreen, lambda, options.screenDistance, options.slitWidth );
 
   if ( hasAnyDetector( slitSetting ) ) {
 
