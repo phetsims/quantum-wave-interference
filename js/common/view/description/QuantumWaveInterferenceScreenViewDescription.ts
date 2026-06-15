@@ -77,10 +77,22 @@ type SharedDescriptionOptions = {
 
 export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
-  // TODO: Document these, see https://github.com/phetsims/quantum-wave-interference/issues/135
+  // PDOM heading node for the detector-screen / experiment-details section. Its heading text follows the active view
+  // ("Detector Screen and Experiment Details" vs "Graph and Experiment Details"), and its pdomOrder holds the
+  // per-screen detectorScreenDetailsNodes followed by the "Current experimental details" list. Exposed so the owning
+  // screen view can sequence this section among the other headings in its play-area pdomOrder.
   public readonly detectorScreenAndExperimentDetailsHeadingNode: Node;
+
+  // PDOM heading node for the "Source" section; its pdomOrder holds the caller-supplied sourceNodes. Exposed for the
+  // owning screen view's pdomOrder.
   public readonly sourceHeadingNode: Node;
+
+  // PDOM heading node for the "Slits" section; its pdomOrder holds the caller-supplied slitNodes. Exposed for the
+  // owning screen view's pdomOrder.
   public readonly slitsHeadingNode: Node;
+
+  // PDOM heading node for the "Detector Screen" section; its pdomOrder holds the caller-supplied
+  // detectorScreenControlNodes. Exposed for the owning screen view's pdomOrder.
   public readonly detectorScreenHeadingNode: Node;
 
   public constructor(
