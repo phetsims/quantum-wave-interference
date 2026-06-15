@@ -41,16 +41,34 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
   // Background color shared by the backing Rectangle in parent nodes so transparent layered samples reveal black.
   public static readonly BACKGROUND_COLOR = Color.BLACK;
 
-  // TODO: Document each class attribute, see https://github.com/phetsims/quantum-wave-interference/issues/135
-
+  // Active scene to render. paintCanvas reads its solver grid, source type, wavelength, display mode, amplitude scale,
+  // and barrier state on each repaint.
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
+
+  // View-coordinate size of the wave region. Used to clear the canvas and to scale the solver-resolution offscreen
+  // canvas up to the displayed size in the final drawImage.
   private readonly viewWidth: number;
   private readonly viewHeight: number;
+
+  // Reusable offscreen canvas sized to the solver grid (gridWidth x gridHeight, NOT the view size): the field is
+  // rasterized here at solver resolution, then drawn scaled to the view. Lazily (re)created when the grid size changes.
   private offscreenCanvas: HTMLCanvasElement | null = null;
+
+  // 2D context of offscreenCanvas, used to create and put the ImageData. (Re)created together with offscreenCanvas.
   private offscreenContext: CanvasRenderingContext2D | null = null;
+
+  // Reusable RGBA pixel buffer for the offscreen canvas. Its bytes are overwritten per grid cell each paint and reused
+  // across paints to avoid per-frame allocation; discarded (null) when the grid size changes so it is recreated.
   private imageData: ImageData | null = null;
+
+  // Reusable per-column (length gridWidth) cache of the color-power exponent applied along the propagation axis.
+  // Recomputed each paint from the barrier position, but the buffer is reused; reallocated only when gridWidth changes.
+  // Precomputing per column keeps this work out of the per-pixel inner loop.
   private colorPowers: Float64Array | null = null;
 
+  // Memo for the photon base color: the wavelength-to-RGB conversion (VisibleColor) is rerun only when the wavelength
+  // changes, with the result kept in cachedR/G/B. cachedWavelength starts at -1 as a "nothing cached yet" sentinel,
+  // since no real wavelength is negative.
   private cachedWavelength = -1;
   private cachedR = 0;
   private cachedG = 0;
