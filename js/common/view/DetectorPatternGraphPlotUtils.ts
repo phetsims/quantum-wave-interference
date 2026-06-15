@@ -80,7 +80,11 @@ export type DetectorPatternGraphSceneLike = {
 /**
  * Creates the plotting background, including the horizontal and vertical grid lines.
  *
- * TODO: Use bamboo? See https://github.com/phetsims/quantum-wave-interference/issues/135
+ * NOTE: This graph is intentionally hand-rolled rather than built with bamboo. It is transposed — the independent axis
+ * (position on the detector screen) runs vertically while the data (intensity / hit count) grows horizontally to the
+ * right. Bamboo's ChartTransform fixes x to horizontal and y to vertical (it can invert an axis direction but not swap
+ * the data axis), and its BarPlot/AreaPlot/LinePlot render against a vertical baseline, so they cannot produce this
+ * sideways histogram and rightward-filled intensity curve. See https://github.com/phetsims/quantum-wave-interference/issues/135
  */
 export function createDetectorPatternGraphChartBackground(): Rectangle {
   const chartBackground = new Rectangle( 0, 0, DETECTOR_PATTERN_GRAPH_WIDTH, DETECTOR_PATTERN_GRAPH_HEIGHT, {
