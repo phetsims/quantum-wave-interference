@@ -159,9 +159,6 @@ type WaveSolver = {
   // Number of vertical cells in the solver visualization grid.
   readonly gridHeight: number;
 
-  // Fallback display wavelength count used when a scene cannot compute one from physical parameters.
-  readonly defaultDisplayWavelengths: number;
-
   /**
    * Advances the solver clock by dt model seconds and marks cached field data invalid.
    */

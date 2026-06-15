@@ -40,12 +40,6 @@ export default abstract class BaseWaveSolver implements WaveSolver {
   public readonly gridHeight: number;
 
   /**
-   * Fallback number of display wavelengths across the wave region when caller parameters do not override it.
-   * TODO: Do caller parameters sometimes override it? If so, keep it! If not, delete all this indirection. https://github.com/phetsims/quantum-wave-interference/issues/135
-   */
-  public readonly defaultDisplayWavelengths = DISPLAY_WAVELENGTHS;
-
-  /**
    * Ratio between the current physical speed and the screen's default speed, used to scale display-time propagation.
    */
   protected displaySpeedScale = 1;

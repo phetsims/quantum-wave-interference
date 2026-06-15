@@ -422,7 +422,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
     const effectiveWavelength = this.getEffectiveWavelength();
     const displayWavelengths = effectiveWavelength > 0 ?
                                this.regionWidth / effectiveWavelength :
-                               this.waveSolver.defaultDisplayWavelengths;
+                               QuantumWaveInterferenceConstants.DISPLAY_WAVELENGTHS;
     this.waveSolver.setParameters( {
       wavelength: effectiveWavelength,
       waveSpeed: this.getEffectiveWaveSpeed(),
