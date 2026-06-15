@@ -101,7 +101,7 @@ export default class ExperimentScreenView extends ScreenView {
     const overheadApparatusNode = new ExperimentOverheadApparatusNode( model, this.layoutBounds, sceneTandems, options.tandem );
     this.addChild( overheadApparatusNode );
 
-    const slitColumnNode = new ExperimentSlitColumnNode( model.sceneProperty, model.scenes, this, sceneTandems, options.tandem );
+    const slitColumnNode = new ExperimentSlitColumnNode( model.sceneProperty, model.scenes, model.isPlayingProperty, this, sceneTandems, options.tandem );
     this.addChild( slitColumnNode );
 
     this.detectorColumnNode = new ExperimentDetectorColumnNode(

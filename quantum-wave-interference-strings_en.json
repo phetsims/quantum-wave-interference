@@ -535,7 +535,7 @@
         "value": "{ $position ->\n  [closest] Closest to barrier.\n  [closer] Closer to barrier.\n  [farthest] Farthest from barrier.\n *[farther] Farther from barrier.\n}"
       },
       "accessibleContextResponseHits": {
-        "value": "{ $position ->\n  [closest] Closest to barrier\n  [closer] Closer to barrier\n  [farthest] Farthest from barrier\n *[farther] Farther from barrier\n}, hits cleared, new pattern forming."
+        "value": "{ $position ->\n  [closest] Closest to barrier\n  [closer] Closer to barrier\n  [farthest] Farthest from barrier\n *[farther] Farther from barrier\n}, hits cleared{ $isPlaying ->\n  [true] , new pattern forming.\n *[false] .\n}"
       },
       "accessibleContextResponse": {
         "value": "{ $position ->\n  [closest] Closest to barrier\n  [closer] Closer to barrier\n  [farthest] Farthest from barrier\n *[farther] Farther from barrier\n}, { $patternEffect ->\n  [doubleSlitCloser] bright bands get closer together\n  [doubleSlitFarther] bright bands get farther apart\n  [singleSlitCloser] central bright area gets narrower\n *[singleSlitFarther] central bright area gets wider\n}."

@@ -87,11 +87,13 @@ function getScreenDistancePosition( scene: ScreenDistanceScene, value: number, v
  * SCREEN_DISTANCE_RESPONSE_EPSILON, so no unchanged-value response is announced.
  *
  * @param scene - supplies the screen-distance range and current experiment state
+ * @param isPlaying - whether the sim clock is running; while paused, no new hits pattern is forming, so that clause is
+ *   omitted from the hits-mode response
  * @param value - final screen distance
  * @param valueOnStart - screen distance when the interaction started
  * @returns a localized accessibility response, or null when the distance did not meaningfully change
  */
-function getScreenDistanceContextResponse( scene: ScreenDistanceScene, value: number, valueOnStart: number ): string | null {
+function getScreenDistanceContextResponse( scene: ScreenDistanceScene, isPlaying: boolean, value: number, valueOnStart: number ): string | null {
   if ( equalsEpsilon( value, valueOnStart, SCREEN_DISTANCE_RESPONSE_EPSILON ) ) {
     return null;
   }
@@ -105,7 +107,11 @@ function getScreenDistanceContextResponse( scene: ScreenDistanceScene, value: nu
   }
 
   if ( scene.detectionModeProperty.value === 'hits' ) {
+
+    // Moving the screen clears the accumulated hits regardless of play state, but a new pattern only forms while the
+    // sim is playing, so the "new pattern forming" clause is suppressed when paused.
     return QuantumWaveInterferenceFluent.a11y.detectorScreenPositionSlider.accessibleContextResponseHits.format( {
+      isPlaying: isPlaying ? 'true' : 'false',
       position: position
     } );
   }
@@ -128,7 +134,7 @@ function getScreenDistanceContextResponse( scene: ScreenDistanceScene, value: nu
  */
 export default class ScreenDistanceControl extends NumberControl {
 
-  public constructor( scene: ScreenDistanceScene, providedOptions: ScreenDistanceControlOptions ) {
+  public constructor( scene: ScreenDistanceScene, isPlayingProperty: TReadOnlyProperty<boolean>, providedOptions: ScreenDistanceControlOptions ) {
     const screenDistanceRange = scene.screenDistanceRange;
 
     const options = optionize<ScreenDistanceControlOptions, SelfOptions, NumberControlOptions>()( {
@@ -153,7 +159,7 @@ export default class ScreenDistanceControl extends NumberControl {
           decimalPlaces: SCREEN_DISTANCE_DECIMAL_PLACES
         } ),
         createContextResponseAlert: ( value, _newValue, valueOnStart ) =>
-          getScreenDistanceContextResponse( scene, value, valueOnStart )
+          getScreenDistanceContextResponse( scene, isPlayingProperty.value, value, valueOnStart )
       },
       layoutFunction: NumberControl.createLayoutFunction1( {
         ySpacing: NUMBER_CONTROL_Y_SPACING,

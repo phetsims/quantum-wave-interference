@@ -7,6 +7,7 @@
  */
 
 import Property from '../../../../axon/js/Property.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
@@ -25,6 +26,7 @@ export default class ExperimentSlitColumnNode extends Node {
   /**
    * @param sceneProperty - the selected scene, which determines the displayed slit view and controls
    * @param scenes - all scenes, each getting its own slit view and controls
+   * @param isPlayingProperty - whether the sim clock is running; threaded to the screen-distance control's responses
    * @param comboBoxParent - parent for the slit settings combo box popup list
    * @param sceneTandems - the parent Tandem for each scene's controls
    * @param tandem
@@ -32,6 +34,7 @@ export default class ExperimentSlitColumnNode extends Node {
   public constructor(
     sceneProperty: Property<SceneModel>,
     scenes: SceneModel[],
+    isPlayingProperty: TReadOnlyProperty<boolean>,
     comboBoxParent: Node,
     sceneTandems: ReadonlyMap<object, Tandem>,
     tandem: Tandem
@@ -48,7 +51,7 @@ export default class ExperimentSlitColumnNode extends Node {
     const frontFacingSlitToggleNode = new QuantumWaveInterferenceToggleNode( sceneProperty, scenes, this.frontFacingSlitNodes );
     this.addChild( frontFacingSlitToggleNode );
 
-    this.slitControlPanel = new SlitControlPanel( sceneProperty, scenes, sceneTandems, comboBoxParent, {
+    this.slitControlPanel = new SlitControlPanel( sceneProperty, scenes, isPlayingProperty, sceneTandems, comboBoxParent, {
       tandem: tandem.createTandem( 'slitControlPanel' )
     } );
     this.slitControlPanel.top = this.frontFacingSlitNodes[ 0 ].bottom + 8;

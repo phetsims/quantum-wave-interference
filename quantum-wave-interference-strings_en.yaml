@@ -804,7 +804,10 @@ a11y:
                                      [closer] Closer to barrier
                                      [farthest] Farthest from barrier
                                     *[farther] Farther from barrier
-                                   }, hits cleared, new pattern forming.
+                                   }, hits cleared{ $isPlaying ->
+                                     [true] , new pattern forming.
+                                    *[false] .
+                                   }
     accessibleContextResponse: >-
                                { $position ->
                                  [closest] Closest to barrier

@@ -59,6 +59,7 @@ export default class SlitControlPanel extends Panel {
   public constructor(
     sceneProperty: Property<SceneModel>,
     scenes: SceneModel[],
+    isPlayingProperty: TReadOnlyProperty<boolean>,
     sceneTandems: ReadonlyMap<object, Tandem>,
     comboBoxParent: Node,
     providedOptions: SlitControlPanelOptions
@@ -79,7 +80,7 @@ export default class SlitControlPanel extends Panel {
 
     // Create the content for each scene (different NumberControl ranges per scene), swap visibility.
     const sceneContents = scenes.map( scene =>
-      SlitControlPanel.createSceneContent( scene, comboBoxParent, sceneTandems.get( scene )! )
+      SlitControlPanel.createSceneContent( scene, isPlayingProperty, comboBoxParent, sceneTandems.get( scene )! )
     );
 
     const contentNode = new ToggleNode( sceneProperty, scenes.map( ( scene, index ) => ( {
@@ -112,6 +113,7 @@ export default class SlitControlPanel extends Panel {
    */
   private static createSceneContent(
     scene: SceneModel,
+    isPlayingProperty: TReadOnlyProperty<boolean>,
     comboBoxParent: Node,
     tandem: SlitControlPanelOptions['tandem']
   ): SceneContent {
@@ -119,7 +121,7 @@ export default class SlitControlPanel extends Panel {
       tandem: tandem.createTandem( 'slitSeparationControl' )
     } );
 
-    const screenDistanceControl = new ScreenDistanceControl( scene, {
+    const screenDistanceControl = new ScreenDistanceControl( scene, isPlayingProperty, {
       tandem: tandem.createTandem( 'screenDistanceControl' )
     } );
 
