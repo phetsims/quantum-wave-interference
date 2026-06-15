@@ -87,11 +87,13 @@ export default class SourceControlPanel<T extends SourceControlScene> extends Pa
       options.photonSourceStrengthLabelStringProperty,
       options.particleSourceStrengthLabelStringProperty
     );
+    sourceContent.contentNode.visibleProperty = sourceContent.hasVisibleContentProperty;
 
     const panelContent = options.additionalContent ?
                          new VBox( {
                            spacing: SOURCE_CONTROL_SECTION_SPACING,
                            align: 'center',
+                           minContentWidth: sourceContent.contentNode.width,
                            children: [ sourceContent.contentNode, options.additionalContent ]
                          } ) :
                          sourceContent.contentNode;
