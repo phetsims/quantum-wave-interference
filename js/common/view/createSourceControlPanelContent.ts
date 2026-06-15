@@ -86,19 +86,23 @@ export default function createSourceControlPanelContent<T extends SourceControlS
     xAlign: 'center'
   } ) );
 
-  const contentNode = new ToggleNode( sceneProperty, scenes.map( ( scene, index ) => ( {
-    value: scene,
-    createNode: () => sceneNodes[ index ]
-  } ) ), {
-    unselectedChildrenSceneGraphStrategy: 'excluded'
-  } );
-
+  // Whether the active scene has at least one visible source control. Drives the ToggleNode's own visibility so that
+  // when all of the active scene's source controls are hidden, the swappable content collapses (rather than reserving
+  // empty space) and SourceControlPanel can hide the panel.
   const hasVisibleContentProperty = DerivedProperty.deriveAny( [ sceneProperty, ...sceneHasVisibleContentProperties ],
     () => {
       const sceneIndex = scenes.indexOf( sceneProperty.value );
       return sceneHasVisibleContentProperties[ sceneIndex ].value;
     }
   );
+
+  const contentNode = new ToggleNode( sceneProperty, scenes.map( ( scene, index ) => ( {
+    value: scene,
+    createNode: () => sceneNodes[ index ]
+  } ) ), {
+    unselectedChildrenSceneGraphStrategy: 'excluded',
+    visibleProperty: hasVisibleContentProperty
+  } );
 
   return {
     contentNode: contentNode,
