@@ -160,16 +160,36 @@ export default class ExperimentDetectorColumnNode extends Node {
   }
 
   private layoutScreenSettingsPanel(): void {
-    this.screenSettingsPanel.centerX = this.detectorScreenCenterX;
-    this.screenSettingsPanel.top = this.detectorScreenNodes[ 0 ].bottom + 8;
+    const detectorScreen = this.detectorScreenNodes[ 0 ];
+
+    // Skip when the detector screen reports empty (non-finite) bounds, as can happen transiently under PhET-iO fuzz
+    // (e.g. fuzzValues hiding the nodes that anchor its bounds); otherwise the computed top would be non-finite and
+    // trip an assertion in Node.setTop. A later relayout runs once bounds are valid again.
+    if ( detectorScreen.bounds.isFinite() ) {
+      this.screenSettingsPanel.centerX = this.detectorScreenCenterX;
+      this.screenSettingsPanel.top = detectorScreen.bottom + 8;
+    }
   }
 
   private layoutGraphAccordionBoxes(): void {
+    const detectorScreen = this.detectorScreenNodes[ 0 ];
+
+    // Align the graph below the screen settings panel when it is visible with finite bounds, otherwise below the
+    // detector screen. Under PhET-iO fuzz the panel can be hidden (all controls off) or transiently collapse to empty
+    // bounds while its visibleProperty catches up, and the detector screen can likewise report non-finite bounds. Bail
+    // out rather than feed a non-finite value to Node.setTop/setX; a later relayout positions the boxes once bounds
+    // settle. See DetectorScreenControls for the same isFinite guard pattern.
+    const usePanel = this.screenSettingsPanel.visible && this.screenSettingsPanel.bounds.isFinite();
+    if ( !usePanel && !detectorScreen.bounds.isFinite() ) {
+      return;
+    }
+    const referenceBottom = usePanel ? this.screenSettingsPanel.bottom : detectorScreen.bottom;
+
     this.graphAccordionBoxes.forEach( graphBox => {
-      graphBox.x = this.detectorScreenCenterX - graphBox.getChartAreaLocalBounds().centerX;
-      graphBox.top = ( this.screenSettingsPanel.visible ?
-                       this.screenSettingsPanel.bottom :
-                       this.detectorScreenNodes[ 0 ].bottom ) + 8;
+      if ( graphBox.bounds.isFinite() ) {
+        graphBox.x = this.detectorScreenCenterX - graphBox.getChartAreaLocalBounds().centerX;
+        graphBox.top = referenceBottom + 8;
+      }
     } );
   }
 }
