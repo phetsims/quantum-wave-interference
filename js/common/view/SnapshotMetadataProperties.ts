@@ -80,6 +80,13 @@ const SLIT_SETTING_DISPLAY_MAPS: Record<SlitOrientation, SlitSettingDisplayMap> 
   }
 };
 
+// Number formatting shared by the integer-valued wavelength and speed readouts.
+const NUMBER_FORMAT_OPTIONS = {
+  decimalPlaces: 0,
+  showTrailingZeros: false,
+  showIntegersAsIntegers: true
+};
+
 function DEFAULT_FORMAT_SLIT_SEPARATION( slitSepMM: number ): DualString {
   return slitSepMM < 0.1 ?
          micrometersUnit.getDualString( slitSepMM * 1000, {
@@ -221,113 +228,63 @@ export default class SnapshotMetadataProperties {
       } ) : ''
     );
 
-    this.slitSeparationProperty = DerivedProperty.deriveAny(
-      Array.from( new Set( [
-        snapshotProperty,
-        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
-        QuantumWaveInterferenceFluent.slitSeparationStringProperty,
-        ...micrometersUnit.getDependentProperties(),
-        ...millimetersUnit.getDependentProperties()
-      ] ) ),
-      () => ifSnapshot( snapshot => formatLabelValue(
-        QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
-        formatSlitSeparation( snapshot.slitSeparation ).visualString
-      ), '' )( snapshotProperty.value )
-    );
+    // The visual and accessible slit-separation rows are identical except for which side of the DualString they read.
+    const createSlitSeparationProperty = ( selectString: ( dual: DualString ) => string ): TReadOnlyProperty<string> =>
+      DerivedProperty.deriveAny(
+        Array.from( new Set( [
+          snapshotProperty,
+          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+          QuantumWaveInterferenceFluent.slitSeparationStringProperty,
+          ...micrometersUnit.getDependentProperties(),
+          ...millimetersUnit.getDependentProperties()
+        ] ) ),
+        () => ifSnapshot( snapshot => formatLabelValue(
+          QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
+          selectString( formatSlitSeparation( snapshot.slitSeparation ) )
+        ), '' )( snapshotProperty.value )
+      );
 
-    this.slitSeparationAccessibleProperty = DerivedProperty.deriveAny(
-      Array.from( new Set( [
-        snapshotProperty,
-        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
-        QuantumWaveInterferenceFluent.slitSeparationStringProperty,
-        ...micrometersUnit.getDependentProperties(),
-        ...millimetersUnit.getDependentProperties()
-      ] ) ),
-      () => ifSnapshot( snapshot => formatLabelValue(
-        QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
-        formatSlitSeparation( snapshot.slitSeparation ).accessibleString
-      ), '' )( snapshotProperty.value )
-    );
+    this.slitSeparationProperty = createSlitSeparationProperty( dual => dual.visualString );
+    this.slitSeparationAccessibleProperty = createSlitSeparationProperty( dual => dual.accessibleString );
 
-    this.wavelengthOrSpeedProperty = DerivedProperty.deriveAny(
-      Array.from( new Set( [
-        snapshotProperty,
-        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
-        SceneryPhetFluent.wavelengthStringProperty,
-        QuantumWaveInterferenceFluent.particleSpeedStringProperty,
-        ...nanometersUnit.getDependentProperties(),
-        ...kilometersPerSecondUnit.getDependentProperties(),
-        ...metersPerSecondUnit.getDependentProperties()
-      ] ) ),
-      () => ifSnapshot( snapshot => {
-        if ( snapshot.sourceType === 'photons' ) {
-          const wavelengthValue = nanometersUnit.getVisualSymbolPatternString( roundSymmetric( snapshot.wavelength ), {
-            decimalPlaces: 0,
-            showTrailingZeros: false,
-            showIntegersAsIntegers: true
-          } );
-          return formatLabelValue( SceneryPhetFluent.wavelengthStringProperty.value, wavelengthValue );
-        }
+    // The visual and accessible wavelength/speed rows are identical except for which PhetUnit string method formats the
+    // value (getVisualSymbolPatternString vs getAccessibleString). All three units share the same type, so the builder
+    // takes a formatter and applies it uniformly.
+    const createWavelengthOrSpeedProperty = (
+      formatUnitValue: ( unit: typeof nanometersUnit, value: number ) => string
+    ): TReadOnlyProperty<string> =>
+      DerivedProperty.deriveAny(
+        Array.from( new Set( [
+          snapshotProperty,
+          QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
+          SceneryPhetFluent.wavelengthStringProperty,
+          QuantumWaveInterferenceFluent.particleSpeedStringProperty,
+          ...nanometersUnit.getDependentProperties(),
+          ...kilometersPerSecondUnit.getDependentProperties(),
+          ...metersPerSecondUnit.getDependentProperties()
+        ] ) ),
+        () => ifSnapshot( snapshot => {
+          if ( snapshot.sourceType === 'photons' ) {
+            return formatLabelValue(
+              SceneryPhetFluent.wavelengthStringProperty.value,
+              formatUnitValue( nanometersUnit, roundSymmetric( snapshot.wavelength ) )
+            );
+          }
 
-        const sourceType = snapshot.sourceType;
-        const particleMass = QuantumWaveInterferenceConstants.getParticleMass( sourceType );
-        const speed = snapshot.effectiveWavelength === 0 ? 0 :
-                      QuantumWaveInterferenceConstants.PLANCK_CONSTANT /
-                      ( particleMass * snapshot.effectiveWavelength );
-        const speedValue = speed >= 10000
-                           ? kilometersPerSecondUnit.getVisualSymbolPatternString( roundSymmetric( speed / 1000 ), {
-            decimalPlaces: 0,
-            showTrailingZeros: false,
-            showIntegersAsIntegers: true
-          } )
-                           : metersPerSecondUnit.getVisualSymbolPatternString( roundSymmetric( speed ), {
-            decimalPlaces: 0,
-            showTrailingZeros: false,
-            showIntegersAsIntegers: true
-          } );
-        return formatLabelValue( QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, speedValue );
-      }, '' )( snapshotProperty.value )
-    );
+          const particleMass = QuantumWaveInterferenceConstants.getParticleMass( snapshot.sourceType );
+          const speed = snapshot.effectiveWavelength === 0 ? 0 :
+                        QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
+          const speedValue = speed >= 10000 ?
+                             formatUnitValue( kilometersPerSecondUnit, roundSymmetric( speed / 1000 ) ) :
+                             formatUnitValue( metersPerSecondUnit, roundSymmetric( speed ) );
+          return formatLabelValue( QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, speedValue );
+        }, '' )( snapshotProperty.value )
+      );
 
-    this.wavelengthOrSpeedAccessibleProperty = DerivedProperty.deriveAny(
-      Array.from( new Set( [
-        snapshotProperty,
-        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
-        SceneryPhetFluent.wavelengthStringProperty,
-        QuantumWaveInterferenceFluent.particleSpeedStringProperty,
-        ...nanometersUnit.getDependentProperties(),
-        ...kilometersPerSecondUnit.getDependentProperties(),
-        ...metersPerSecondUnit.getDependentProperties()
-      ] ) ),
-      () => ifSnapshot( snapshot => {
-        if ( snapshot.sourceType === 'photons' ) {
-          const wavelengthValue = nanometersUnit.getAccessibleString( roundSymmetric( snapshot.wavelength ), {
-            decimalPlaces: 0,
-            showTrailingZeros: false,
-            showIntegersAsIntegers: true
-          } );
-          return formatLabelValue( SceneryPhetFluent.wavelengthStringProperty.value, wavelengthValue );
-        }
-
-        const sourceType = snapshot.sourceType;
-        const particleMass = QuantumWaveInterferenceConstants.getParticleMass( sourceType );
-        const speed = snapshot.effectiveWavelength === 0 ? 0 :
-                      QuantumWaveInterferenceConstants.PLANCK_CONSTANT /
-                      ( particleMass * snapshot.effectiveWavelength );
-        const speedValue = speed >= 10000
-                           ? kilometersPerSecondUnit.getAccessibleString( roundSymmetric( speed / 1000 ), {
-            decimalPlaces: 0,
-            showTrailingZeros: false,
-            showIntegersAsIntegers: true
-          } )
-                           : metersPerSecondUnit.getAccessibleString( roundSymmetric( speed ), {
-            decimalPlaces: 0,
-            showTrailingZeros: false,
-            showIntegersAsIntegers: true
-          } );
-        return formatLabelValue( QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, speedValue );
-      }, '' )( snapshotProperty.value )
-    );
+    this.wavelengthOrSpeedProperty = createWavelengthOrSpeedProperty(
+      ( unit, value ) => unit.getVisualSymbolPatternString( value, NUMBER_FORMAT_OPTIONS ) );
+    this.wavelengthOrSpeedAccessibleProperty = createWavelengthOrSpeedProperty(
+      ( unit, value ) => unit.getAccessibleString( value, NUMBER_FORMAT_OPTIONS ) );
 
     this.slitSettingProperty = new DerivedProperty(
       [

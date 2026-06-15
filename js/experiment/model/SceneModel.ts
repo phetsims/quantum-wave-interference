@@ -300,6 +300,8 @@ export default class SceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/common/model/BaseSceneModel.ts. Screen brightness is
+    // initialized identically in both scene-model families.
     this.screenBrightnessProperty = new NumberProperty( QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 0.5, {
       range: new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ),
       units: percentUnit,
@@ -327,6 +329,9 @@ export default class SceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/high-intensity/model/HighIntensitySceneModel.ts. The
+    // max-hits derivation (hits mode plus the maxHits threshold turning off the source) is identical across the
+    // Experiment and High Intensity scene-model families.
     this.isMaxHitsReachedProperty = new DerivedProperty(
       [ this.detectionModeProperty, this.totalHitsProperty ],
       ( detectionMode, totalHits ) =>
@@ -339,6 +344,8 @@ export default class SceneModel extends PhetioObject {
 
     this.isEmitterEnabledProperty = this.isMaxHitsReachedProperty.derived( isMaxHitsReached => !isMaxHitsReached );
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/common/model/BaseSceneModel.ts. Snapshot storage and
+    // the derived snapshot count are initialized identically in both scene-model families.
     this.snapshotsProperty = new Property<Snapshot[]>( [], {
       tandem: tandem.createTandem( 'snapshotsProperty' ),
       phetioValueType: ArrayIO( SnapshotIO ),

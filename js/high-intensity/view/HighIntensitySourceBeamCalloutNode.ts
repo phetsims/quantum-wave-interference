@@ -43,6 +43,7 @@ import { type BarrierType } from '../../common/model/BarrierType.js';
 import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import getParticleEmitterPalette from '../../common/view/getParticleEmitterPalette.js';
 import MaxHitsReachedPanel from '../../common/view/MaxHitsReachedPanel.js';
 import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import WaveVisualizationCanvasNode from '../../common/view/WaveVisualizationCanvasNode.js';
@@ -79,34 +80,6 @@ const RIGHT_BEAM_FADE_WIDTH_SCALE = 0.25;
 
 const CALLOUT_LINE_WIDTH = 1.5 * MINI_SYMBOL_SCALE;
 const CALLOUT_LINE_START_Y_OFFSET = 2 * MINI_SYMBOL_SCALE;
-
-/**
- * Three-stop gradient palette applied to a matter-particle LaserPointerNode body so each particle type
- * (electrons, neutrons, helium) gets a visually distinct emitter color instead of the default photon yellow.
- */
-type ParticleEmitterPalette = {
-  topColor: string;
-  bottomColor: string;
-  highlightColor: string;
-};
-
-const PARTICLE_EMITTER_PALETTES: Record<Exclude<SourceType, 'photons'>, ParticleEmitterPalette> = {
-  electrons: {
-    topColor: 'rgb(100, 120, 180)',
-    bottomColor: 'rgb(30, 40, 80)',
-    highlightColor: 'rgb(160, 180, 230)'
-  },
-  neutrons: {
-    topColor: 'rgb(92, 137, 144)',
-    bottomColor: 'rgb(26, 63, 70)',
-    highlightColor: 'rgb(168, 205, 208)'
-  },
-  heliumAtoms: {
-    topColor: 'rgb(173, 138, 94)',
-    bottomColor: 'rgb(84, 58, 30)',
-    highlightColor: 'rgb(224, 194, 150)'
-  }
-};
 
 /**
  * Minimal structural interface that a scene object must satisfy to be rendered by
@@ -281,7 +254,7 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
     const isEmittingStringProperty = currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
 
     const emitterChildren: LaserPointerNode[] = scenes.map( scene => {
-      const palette = scene.sourceType === 'photons' ? null : PARTICLE_EMITTER_PALETTES[ scene.sourceType ];
+      const palette = getParticleEmitterPalette( scene.sourceType );
       return new LaserPointerNode( currentIsEmittingProperty, {
         bodySize: new Dimension2( EMITTER_BODY_WIDTH, EMITTER_BODY_HEIGHT ),
         nozzleSize: new Dimension2( EMITTER_NOZZLE_WIDTH, EMITTER_NOZZLE_HEIGHT ),

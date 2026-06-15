@@ -297,6 +297,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/experiment/model/SceneModel.ts. Screen brightness is
+    // initialized identically in both scene-model families.
     this.screenBrightnessProperty = new NumberProperty( QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX * 0.5, {
       range: new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX ),
       units: percentUnit,
@@ -332,6 +334,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/experiment/model/SceneModel.ts. Snapshot storage and
+    // the derived snapshot count are initialized identically in both scene-model families.
     this.snapshotsProperty = new Property<Snapshot[]>( [], {
       tandem: tandem.createTandem( 'snapshotsProperty' ),
       phetioValueType: ArrayIO( SnapshotIO ),

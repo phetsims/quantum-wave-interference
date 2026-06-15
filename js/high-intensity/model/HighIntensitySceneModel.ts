@@ -126,6 +126,9 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
     } );
     this.detectorPatternFormationFactorProperty = this._detectorPatternFormationFactorProperty;
 
+    // NOTE: see other duplicate in quantum-wave-interference/js/experiment/model/SceneModel.ts. The max-hits derivation
+    // (hits mode plus the maxHits threshold turning off the source) is identical across the Experiment and High
+    // Intensity scene-model families.
     this.isMaxHitsReachedProperty = new DerivedProperty( [ this.detectionModeProperty, this.totalHitsProperty ],
       ( detectionMode, totalHits ) => detectionMode === 'hits' && totalHits >= QuantumWaveInterferenceQueryParameters.maxHits, {
         tandem: tandem.createTandem( 'isMaxHitsReachedProperty' ),

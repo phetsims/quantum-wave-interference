@@ -24,8 +24,8 @@ import RichText from '../../../../scenery/js/nodes/RichText.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
 import sharedSoundPlayers from '../../../../tambo/js/sharedSoundPlayers.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import { type SourceType } from '../../common/model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import getParticleEmitterPalette from '../../common/view/getParticleEmitterPalette.js';
 import MaxHitsReachedPanel from '../../common/view/MaxHitsReachedPanel.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import ExperimentConstants from '../ExperimentConstants.js';
@@ -46,34 +46,6 @@ const BASE_NOZZLE_WIDTH = 16;
 const BASE_NOZZLE_HEIGHT = 32;
 const BASE_BUTTON_RADIUS = 14;
 const BASE_EMITTER_LEFT = 20;
-
-/**
- * Color palette used to paint a particle emitter body. Each SourceType (except photons) has its own entry in
- * PARTICLE_EMITTER_PALETTES so that each matter-particle scene's emitter is constructed with its own colors.
- */
-type ParticleEmitterPalette = {
-  topColor: string;
-  bottomColor: string;
-  highlightColor: string;
-};
-
-const PARTICLE_EMITTER_PALETTES: Record<Exclude<SourceType, 'photons'>, ParticleEmitterPalette> = {
-  electrons: {
-    topColor: 'rgb(100, 120, 180)',
-    bottomColor: 'rgb(30, 40, 80)',
-    highlightColor: 'rgb(160, 180, 230)'
-  },
-  neutrons: {
-    topColor: 'rgb(92, 137, 144)',
-    bottomColor: 'rgb(26, 63, 70)',
-    highlightColor: 'rgb(168, 205, 208)'
-  },
-  heliumAtoms: {
-    topColor: 'rgb(173, 138, 94)',
-    bottomColor: 'rgb(84, 58, 30)',
-    highlightColor: 'rgb(224, 194, 150)'
-  }
-};
 
 // Glass-lens colors shared by all matter-particle emitters.
 const GLASS_MAIN_COLOR = 'rgb(160, 190, 220)';
@@ -173,7 +145,7 @@ export default class OverheadEmitterNode extends Node {
     // One LaserPointerNode per scene with a scene-specific palette. Visibility is toggled per scene
     // so we never recolor nodes at runtime — each emitter is constructed once with its final colors.
     this.emitterNodes = model.scenes.map( scene => {
-      const palette = scene.sourceType === 'photons' ? null : PARTICLE_EMITTER_PALETTES[ scene.sourceType ];
+      const palette = getParticleEmitterPalette( scene.sourceType );
       return new LaserPointerNode( isEmittingProperty, {
         bodySize: new Dimension2( BASE_BODY_WIDTH * SOURCE_SCALE, BASE_BODY_HEIGHT * SOURCE_SCALE ),
         nozzleSize: new Dimension2( BASE_NOZZLE_WIDTH * SOURCE_SCALE, BASE_NOZZLE_HEIGHT * SOURCE_SCALE ),

@@ -199,6 +199,10 @@ const getWaveProgress = (
                        solverTime;
   const wavefrontX = propagationSpeed * Math.max( 0, solverTime - sourceOnTime );
   const wavefrontFraction = clamp( wavefrontX / scene.regionWidth, 0, 1 );
+
+  // NOTE: see other duplicate in quantum-wave-interference/js/single-particles/view/description/SingleParticlesAccessibleResponses.ts
+  // (getPacketWaveProgressStage). The slit-window and circular-wave-overlap thresholds are kept identical so the
+  // continuous wavefront (High Intensity) and the discrete packet (Single Particles) narrate the same milestones.
   const slitFraction = scene.barrierPositionFractionProperty.value;
   const slitWindow = 0.04;
   const slitSeparationFraction = scene.slitSeparationProperty.value * 1e-3 / scene.regionWidth;
