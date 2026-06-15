@@ -264,13 +264,22 @@ export default class DetectorProbeNode extends Node {
       probabilityText.center = Vector2.ZERO;
       stateText.center = Vector2.ZERO;
 
-      const panelCX = controlPanel.centerX;
-      const panelTY = controlPanel.top;
-      const midY = ( viewY + viewRadius + panelTY ) / 2;
+      // The dashed wire connects the probe to the control panel. Under PhET-iO fuzz the panel can be hidden (all of its
+      // controls off) and report empty (non-finite) bounds; clear the wire in that case rather than build a Shape with
+      // non-finite control points (which would trip an assertion in kite). The controlPanel.localBoundsProperty link
+      // reroutes the wire once the panel is shown again.
+      if ( controlPanel.bounds.isFinite() ) {
+        const panelCX = controlPanel.centerX;
+        const panelTY = controlPanel.top;
+        const midY = ( viewY + viewRadius + panelTY ) / 2;
 
-      wirePath.shape = new Shape()
-        .moveTo( viewX, viewY + viewRadius )
-        .cubicCurveTo( viewX, midY, panelCX, midY, panelCX, panelTY );
+        wirePath.shape = new Shape()
+          .moveTo( viewX, viewY + viewRadius )
+          .cubicCurveTo( viewX, midY, panelCX, midY, panelCX, panelTY );
+      }
+      else {
+        wirePath.shape = null;
+      }
     };
 
     // Reposition the panel after its contents change size, then reroute the wire to match the new panel bounds.
