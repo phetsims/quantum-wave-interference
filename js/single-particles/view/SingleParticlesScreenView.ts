@@ -62,7 +62,7 @@ const Y_MARGIN = QuantumWaveInterferenceConstants.SCREEN_VIEW_Y_MARGIN;
 const WAVE_REGION_WIDTH = QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH;
 const CONTENT_VERTICAL_OFFSET = 12;
 const TOP_ROW_CENTER_Y = 40 + CONTENT_VERTICAL_OFFSET;
-const CALLOUT_GAP = 55;
+const THUMBNAIL_GAP = 55;
 const WAVE_REGION_Y_OFFSET = -30;
 const EMITTER_WAVE_REGION_OVERLAP = 2;
 const MAX_HITS_REACHED_PANEL_SPACING = 10;
@@ -195,7 +195,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     sceneRadioButtonGroup.centerY = QuantumWaveInterferenceConstants.SCENE_BUTTON_GROUP_CENTER_Y;
     this.addChild( sceneRadioButtonGroup );
 
-    const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + CALLOUT_GAP;
+    const baseWaveRegionTop = Y_MARGIN + TOP_ROW_CENTER_Y + THUMBNAIL_GAP;
     const waveRegionTop = baseWaveRegionTop + WAVE_REGION_Y_OFFSET;
     const waveRegionLeft = X_MARGIN + leftColumnWidth + 20;
     const waveRegionRight = waveRegionLeft + WAVE_REGION_WIDTH;

@@ -6,7 +6,7 @@
  * meaning "use the default photon appearance".
  *
  * Used by every emitter view that tints its LaserPointerNode by source type (e.g. OverheadEmitterNode on the
- * Experiment screen and HighIntensitySourceBeamCalloutNode on the High Intensity screen) so the colors stay in sync.
+ * Experiment screen and HighIntensitySourceBeamThumbnailNode on the High Intensity screen) so the colors stay in sync.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */

@@ -135,9 +135,9 @@ export default class QuantumWaveInterferenceColors {
       default: '#555'
     } );
 
-  // Zoom-callout lines between the mini symbol and the main wave region on the High Intensity screen
-  public static readonly zoomCalloutStrokeProperty = new ProfileColorProperty(
-    quantumWaveInterference, 'zoomCalloutStroke', {
+  // Zoom-thumbnail lines between the mini symbol and the main wave region on the High Intensity screen
+  public static readonly zoomThumbnailStrokeProperty = new ProfileColorProperty(
+    quantumWaveInterference, 'zoomThumbnailStroke', {
       default: 'black'
     } );
 }

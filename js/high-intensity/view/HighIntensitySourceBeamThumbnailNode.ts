@@ -1,8 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * HighIntensitySourceBeamCalloutNode renders a per-scene emitter source, beam graphics extending
- * rightward through a mini wave-visualization symbol, and a pair of callout lines that connect the
+ * HighIntensitySourceBeamThumbnailNode renders a per-scene emitter source, beam graphics extending
+ * rightward through a mini wave-visualization symbol, and a pair of thumbnail lines that connect the
  * mini symbol's top corners to the main wave region's top corners (a zoom-in "viewing frustum"
  * effect, analogous to TinyBox → ZoomedInBox in MOTHA).
  *
@@ -14,8 +14,6 @@
  * For visual fidelity with the Experiment screen, each matter-particle source uses its own emitter
  * palette (electrons → blue, neutrons → teal, helium → tan/orange). One LaserPointerNode is created
  * per scene; visibility is toggled with the active scene to avoid recoloring node children at runtime.
- *
- * TODO: Let's call "callout" "thumbnail" thoughout the sim, https://github.com/phetsims/quantum-wave-interference/issues/135
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -78,24 +76,24 @@ const HIGH_OPACITY_BEAM_ALPHA_SCALE = 0.6;
 const DIM_RIGHT_BEAM_ALPHA_SCALE = 0.3;
 const RIGHT_BEAM_FADE_WIDTH_SCALE = 0.25;
 
-const CALLOUT_LINE_WIDTH = 1.5 * MINI_SYMBOL_SCALE;
-const CALLOUT_LINE_START_Y_OFFSET = 2 * MINI_SYMBOL_SCALE;
+const THUMBNAIL_LINE_WIDTH = 1.5 * MINI_SYMBOL_SCALE;
+const THUMBNAIL_LINE_START_Y_OFFSET = 2 * MINI_SYMBOL_SCALE;
 
 /**
  * Minimal structural interface that a scene object must satisfy to be rendered by
- * HighIntensitySourceBeamCalloutNode. Using a structural type keeps the node decoupled from concrete model classes.
+ * HighIntensitySourceBeamThumbnailNode. Using a structural type keeps the node decoupled from concrete model classes.
  */
-type SourceBeamCalloutSceneLike = {
+type SourceBeamThumbnailSceneLike = {
   sourceType: SourceType;
   slitSeparationRange: Range;
 };
 
 /**
- * Model-side contract consumed by HighIntensitySourceBeamCalloutNode. All properties are read-only from the node's
+ * Model-side contract consumed by HighIntensitySourceBeamThumbnailNode. All properties are read-only from the node's
  * perspective except currentIsEmittingProperty, which the emitter button toggles directly. The Properties with a
  * "current" prefix reflect the active scene and are expected to switch atomically when sceneProperty changes.
  */
-type HighIntensitySourceBeamCalloutModel<T extends SourceBeamCalloutSceneLike> = {
+type HighIntensitySourceBeamThumbnailModel<T extends SourceBeamThumbnailSceneLike> = {
 
   // Active source scene and the full scene list used to swap emitter artwork.
   readonly sceneProperty: TReadOnlyProperty<T>;
@@ -112,23 +110,23 @@ type HighIntensitySourceBeamCalloutModel<T extends SourceBeamCalloutSceneLike> =
 };
 
 /**
- * Static layout descriptor passed from HighIntensityScreenView into HighIntensitySourceBeamCalloutNode. All values
+ * Static layout descriptor passed from HighIntensityScreenView into HighIntensitySourceBeamThumbnailNode. All values
  * are in the parent coordinate frame and are fixed at construction time — there is no dynamic relayout. The wave
- * region coordinates are used to anchor the callout lines that form the zoom-in frustum from the mini symbol to the
+ * region coordinates are used to anchor the thumbnail lines that form the zoom-in frustum from the mini symbol to the
  * main wave area.
  */
-export type HighIntensitySourceBeamCalloutLayout = {
+export type HighIntensitySourceBeamThumbnailLayout = {
   emitterCenterX: number;      // horizontal center of the emitter body + nozzle assembly
   centerY: number;             // vertical center of emitter + mini symbol + beam
   waveRegionLeft: number;      // x of main wave region's left edge
   waveRegionRight: number;     // x of main wave region's right edge (i.e. left + width)
-  waveRegionTop: number;       // y of main wave region's top edge (target for callout lines)
+  waveRegionTop: number;       // y of main wave region's top edge (target for thumbnail lines)
 };
 
-export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCalloutSceneLike> extends Node {
+export default class HighIntensitySourceBeamThumbnailNode<T extends SourceBeamThumbnailSceneLike> extends Node {
 
   // Bottom y of the emitter body, so callers can stack controls below it without being
-  // affected by the taller bounds of the callout lines that extend down to the wave region.
+  // affected by the taller bounds of the thumbnail lines that extend down to the wave region.
   public readonly emitterBottom: number;
 
   // Horizontal center of the emitter assembly in the parent coordinate frame, mirroring layout.emitterCenterX.
@@ -137,10 +135,10 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
   private readonly maxHitsReachedPanel: MaxHitsReachedPanel;
 
   public constructor(
-    model: HighIntensitySourceBeamCalloutModel<T>,
+    model: HighIntensitySourceBeamThumbnailModel<T>,
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
     beamRightLimitXProperty: TReadOnlyProperty<number>,
-    layout: HighIntensitySourceBeamCalloutLayout,
+    layout: HighIntensitySourceBeamThumbnailLayout,
     sceneTandems: ReadonlyMap<object, Tandem>,
     tandem: Tandem
   ) {
@@ -161,7 +159,7 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
     const emitterLeft = emitterCenterX - ( EMITTER_BODY_WIDTH + EMITTER_NOZZLE_WIDTH ) / 2;
 
     // Mini wave-visualization symbol: a small neutral square + skewed detector, centered horizontally
-    // above the main wave region so the callout lines form a symmetric "zoom in" frustum.
+    // above the main wave region so the thumbnail lines form a symmetric "zoom in" frustum.
     // The detector is z-ordered behind the square and overlaps it, mirroring the main layout.
     const miniSquare = new Rectangle( 0, 0, MINI_SYMBOL_SQUARE_SIZE, MINI_SYMBOL_SQUARE_SIZE, {
       fill: WaveVisualizationCanvasNode.BACKGROUND_COLOR,
@@ -199,19 +197,19 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
     miniSymbol.centerX = ( waveRegionLeft + waveRegionRight ) / 2;
     miniSymbol.centerY = centerY;
 
-    // Callout lines from the top corners of the mini wave area (not the detector) to the
+    // Thumbnail lines from the top corners of the mini wave area (not the detector) to the
     // main wave region corners.
     const squareLeft = miniSymbol.x + miniSquare.left;
     const squareRight = miniSymbol.x + miniSquare.right;
     const squareTop = miniSymbol.y + miniSquare.top;
-    const calloutLineStartY = squareTop + CALLOUT_LINE_START_Y_OFFSET;
-    const calloutLines = new Path( new Shape()
-      .moveTo( squareLeft, calloutLineStartY )
+    const thumbnailLineStartY = squareTop + THUMBNAIL_LINE_START_Y_OFFSET;
+    const thumbnailLines = new Path( new Shape()
+      .moveTo( squareLeft, thumbnailLineStartY )
       .lineTo( waveRegionLeft, waveRegionTop )
-      .moveTo( squareRight, calloutLineStartY )
+      .moveTo( squareRight, thumbnailLineStartY )
       .lineTo( waveRegionRight, waveRegionTop ), {
-      stroke: QuantumWaveInterferenceColors.zoomCalloutStrokeProperty,
-      lineWidth: CALLOUT_LINE_WIDTH
+      stroke: QuantumWaveInterferenceColors.zoomThumbnailStrokeProperty,
+      lineWidth: THUMBNAIL_LINE_WIDTH
     } );
 
     // Beam graphics: one full-height high-opacity beam coming out of the emitter, two high-opacity
@@ -300,8 +298,8 @@ export default class HighIntensitySourceBeamCalloutNode<T extends SourceBeamCall
 
     this.maxHitsReachedPanel = new MaxHitsReachedPanel( tandem.createTandem( 'maxHitsReachedPanel' ) );
 
-    // Z-order: callout lines and beam behind the mini symbol and emitter so their geometry reads cleanly.
-    this.addChild( calloutLines );
+    // Z-order: thumbnail lines and beam behind the mini symbol and emitter so their geometry reads cleanly.
+    this.addChild( thumbnailLines );
     this.addChild( beamContainer );
     this.addChild( miniSymbol );
     this.addChild( emitterContainer );
