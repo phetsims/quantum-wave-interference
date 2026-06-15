@@ -13,8 +13,8 @@ import ScreenView, { ScreenViewOptions } from '../../../../joist/js/ScreenView.j
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
 import StrictOmit from '../../../../phet-core/js/types/StrictOmit.js';
-import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import AccessibleList, { type AccessibleListItem } from '../../../../scenery-phet/js/accessibility/AccessibleList.js';
+import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import ManualConstraint from '../../../../scenery/js/layout/constraints/ManualConstraint.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import Text from '../../../../scenery/js/nodes/Text.js';
@@ -26,9 +26,9 @@ import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontF
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
 import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
 import DetectorPatternGraphDescriber from '../../common/view/description/DetectorPatternGraphDescriber.js';
+import { type DetectorPatternGraphViewState, type DetectorProbeViewState, type DetectorScreenViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import QuantumWaveInterferenceScreenSummaryContent from '../../common/view/description/QuantumWaveInterferenceScreenSummaryContent.js';
 import QuantumWaveInterferenceScreenViewDescription from '../../common/view/description/QuantumWaveInterferenceScreenViewDescription.js';
-import { type DetectorPatternGraphViewState, type DetectorScreenViewState, type DetectorProbeViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import DetectorPatternGraphLayerNode from '../../common/view/DetectorPatternGraphLayerNode.js';
 import DetectorScreenControls from '../../common/view/DetectorScreenControls.js';
 import DetectorScreenNode from '../../common/view/DetectorScreenNode.js';
@@ -452,6 +452,8 @@ export default class SingleParticlesScreenView extends ScreenView {
 
   /**
    * Gets authored semantic view state for agent-facing accessibility snapshots.
+   *
+   * Called at runtime by the description editor.
    *
    * @returns current Single Particles accessible view state
    */

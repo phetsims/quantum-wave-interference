@@ -3,6 +3,8 @@
 /**
  * Query parameters supported by this simulation.
  *
+ * TODO: New issue to prune unnecessary query parameters, see https://github.com/phetsims/quantum-wave-interference/issues/135
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 

@@ -9,8 +9,8 @@
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import Range from '../../../../../dot/js/Range.js';
 import { clamp } from '../../../../../dot/js/util/clamp.js';
-import QuantumWaveInterferenceConstants from '../../QuantumWaveInterferenceConstants.js';
 import { type SourceType } from '../../model/SourceType.js';
+import QuantumWaveInterferenceConstants from '../../QuantumWaveInterferenceConstants.js';
 import { type BandSpacingCategory } from './BandAnalysis.js';
 
 /**
@@ -56,13 +56,10 @@ function getRangeFraction( value: number, min: number, max: number ): number {
   return rangeLength > 0 ? clamp( ( value - min ) / rangeLength, 0, 1 ) : 0;
 }
 
-const getEvenlySpacedCategory = (
-  fraction: number,
-  categories: WavePeakSpacingCategory[]
-): WavePeakSpacingCategory => {
+function getEvenlySpacedCategory( fraction: number, categories: WavePeakSpacingCategory[] ): WavePeakSpacingCategory {
   const categoryIndex = clamp( Math.floor( fraction * categories.length ), 0, categories.length - 1 );
   return categories[ categoryIndex ];
-};
+}
 
 /**
  * Gets the qualitative distance category for the separation between adjacent wave peaks. The seven categories are

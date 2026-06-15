@@ -15,11 +15,13 @@ import { getDisplaySlitLayout } from '../../getDisplaySlitLayout.js';
 import { hasAnyDetector, showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import type { Snapshot } from '../../model/Snapshot.js';
 
-// Structural interface satisfied by both the Experiment screen scene (which exposes an explicit
-// screenDistanceProperty) and the High Intensity / Single Particles scenes (which derive screen
-// distance from regionWidth × barrierPositionFractionProperty).
-// All length quantities are in mm unless otherwise noted. The two discriminated branches
-// reflect the two concrete model types; callers must narrow via 'screenDistanceProperty' in scene.
+/**
+ * Structural interface satisfied by both the Experiment screen scene (which exposes an explicit
+ * screenDistanceProperty) and the High Intensity / Single Particles scenes (which derive screen
+ * distance from regionWidth × barrierPositionFractionProperty).
+ * All length quantities are in mm unless otherwise noted. The two discriminated branches
+ * reflect the two concrete model types; callers must narrow via 'screenDistanceProperty' in scene.
+ */
 type TheoreticalPatternScene = {
   getEffectiveWavelength(): number;
   slitWidth: number;
@@ -27,8 +29,7 @@ type TheoreticalPatternScene = {
   slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
   slitSeparationRange?: { min: number; max: number };
   regionHeight?: number;
-} & (
-  {
+} & ( {
     screenDistanceProperty: TReadOnlyProperty<number>;
   } | {
   regionWidth: number;

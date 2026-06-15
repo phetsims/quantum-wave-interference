@@ -71,16 +71,16 @@ type SetupDetailsOptions = {
   // Extra caller-supplied list items appended after the standard items.
   additionalListItems?: AccessibleListItem[];
 
-  // Set to false to suppress the "Current experimental details" leading paragraph (default: true).
+  // Set false to suppress the "Current experimental details" leading paragraph (default: true).
   includeLeadingParagraph?: boolean;
 
   // Optional leading paragraph string to use before the list items.
   leadingParagraphStringProperty?: TReadOnlyProperty<string>;
 
-  // Set to false to omit the source-emitter (on/off) list item (default: true).
+  // Set false to omit the source-emitter (on/off) list item (default: true).
   includeSourceEmitter?: boolean;
 
-  // Set to false to omit the detection-mode list item even when detectionModeProperty is supplied (default: true).
+  // Set false to omit the detection-mode list item even when detectionModeProperty is supplied (default: true).
   includeDetectionMode?: boolean;
 };
 

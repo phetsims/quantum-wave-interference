@@ -15,7 +15,6 @@ import { EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './AnalyticalWaveM
 const APERTURE_BLEND_SLIT_WIDTH_FRACTION = 0.5;
 const APERTURE_BLEND_WAVELENGTH_FRACTION = 0.25;
 
-
 // Keep physical complex amplitude separate from visual wavefront support. Diffraction can reduce
 // amplitude without meaning the sample is unreached background.
 export type ApertureTransfer = {

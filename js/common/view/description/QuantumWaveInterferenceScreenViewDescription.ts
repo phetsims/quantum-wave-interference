@@ -43,6 +43,8 @@ type SharedDescriptionModel = {
 /**
  * Options for QuantumWaveInterferenceScreenViewDescription.
  *
+ * // TODO: Move documentation above each option, see https://github.com/phetsims/quantum-wave-interference/issues/135
+ *
  * - detectionModeProperty: when provided, adds a detection-mode item to ExperimentSetupDetailsNode.
  * - screenGraphVisibleProperty: when provided, the section heading switches from "Detector Screen and Experiment
  *   Details" to "Graph and Experiment Details" while the graph is visible.
@@ -70,6 +72,7 @@ type SharedDescriptionOptions = {
 
 export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
+  // TODO: Document these, see https://github.com/phetsims/quantum-wave-interference/issues/135
   public readonly detectorScreenAndExperimentDetailsHeadingNode: Node;
   public readonly sourceHeadingNode: Node;
   public readonly slitsHeadingNode: Node;

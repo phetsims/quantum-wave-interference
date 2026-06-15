@@ -73,6 +73,7 @@ const getModeZoomLevel = (
 
 export default class DetectorPatternGraphNode extends Node {
 
+  // TODO: Document attributes, see https://github.com/phetsims/quantum-wave-interference/issues/135
   private readonly zoomLevelProperty: NumberProperty;
   private readonly chartBackground: Rectangle;
   private readonly dataPath: Path;

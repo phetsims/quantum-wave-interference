@@ -74,13 +74,9 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
   ) {
 
     const slitOrientation = providedOptions.slitOrientation || 'leftRight';
-
     const sourceTypeProperty = model.sceneProperty.derived( scene => scene.sourceType );
-
     const isEmittingStringProperty = model.currentIsEmittingProperty.derived( toFluentBoolean );
-
     const isPlayingStringProperty = model.isPlayingProperty.derived( toFluentBoolean );
-
     const isMaxHitsReachedStringProperty = model.currentIsMaxHitsReachedProperty.derived( toFluentBoolean );
 
     const detectorScreenHasPatternProperty = providedOptions.detectorScreenHasPatternProperty ||

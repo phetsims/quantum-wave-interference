@@ -10,6 +10,8 @@
  * The barrier position is set by barrierPositionFractionProperty (fraction of wave region width).
  * Slit separation is mapped from the model range to a visible view range.
  *
+ * TODO: Should this have a better name like BarrierNode? See https://github.com/phetsims/quantum-wave-interference/issues/135
+ *
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
@@ -181,6 +183,8 @@ export default class DoubleSlitNode extends Node {
     providedOptions: DoubleSlitNodeOptions
   ) {
 
+    // TODO: Add helpful documentation throughout this constructor implementation, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
     const options = optionize<DoubleSlitNodeOptions, SelfOptions, NodeOptions>()( {
       isDisposable: false,
       isTopSlitDetectorProperty: new TinyProperty( false ),
@@ -195,7 +199,7 @@ export default class DoubleSlitNode extends Node {
 
     super( options );
 
-    // PhET-iO clients can set this to false to lock the barrier position.
+    // PhET-iO clients can set this false to lock the barrier position.
     const isInteractiveProperty = new BooleanProperty( true, {
       tandem: options.tandem.createTandem( 'isInteractiveProperty' ),
       phetioFeatured: true,
@@ -301,7 +305,7 @@ export default class DoubleSlitNode extends Node {
         } );
       },
       createContextResponseAlert: ( value, _newValue, valueOnStart ) => currentIsEmittingProperty.value ? null :
-                                                                       getSlitPositionContextResponse( sceneProperty.value.regionWidth, value, valueOnStart ),
+                                                                        getSlitPositionContextResponse( sceneProperty.value.regionWidth, value, valueOnStart ),
       descriptionDependencies: Array.from( new Set( [
         sceneProperty,
         currentIsEmittingProperty,

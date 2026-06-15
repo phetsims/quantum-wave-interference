@@ -93,8 +93,7 @@ export default function createSourceControlPanelContent<T extends SourceControlS
     unselectedChildrenSceneGraphStrategy: 'excluded'
   } );
 
-  const hasVisibleContentProperty = DerivedProperty.deriveAny(
-    [ sceneProperty, ...sceneHasVisibleContentProperties ],
+  const hasVisibleContentProperty = DerivedProperty.deriveAny( [ sceneProperty, ...sceneHasVisibleContentProperties ],
     () => {
       const sceneIndex = scenes.indexOf( sceneProperty.value );
       return sceneHasVisibleContentProperties[ sceneIndex ].value;

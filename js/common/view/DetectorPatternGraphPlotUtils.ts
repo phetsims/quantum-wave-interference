@@ -79,6 +79,8 @@ export type DetectorPatternGraphSceneLike = {
 
 /**
  * Creates the plotting background, including the horizontal and vertical grid lines.
+ *
+ * TODO: Use bamboo? See https://github.com/phetsims/quantum-wave-interference/issues/135
  */
 export function createDetectorPatternGraphChartBackground(): Rectangle {
   const chartBackground = new Rectangle( 0, 0, DETECTOR_PATTERN_GRAPH_WIDTH, DETECTOR_PATTERN_GRAPH_HEIGHT, {

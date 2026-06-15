@@ -45,6 +45,7 @@ export default function createAndAddSlitConfigurationControlsRow(
   slitConfigComboItemTandems: SlitConfigComboItemTandems,
   accessibleContextResponse?: TAlertable
 ): SlitConfigurationControlsRow<SlitConfigurationWithNoBarrier> {
+
   const bottomRow = new SlitConfigurationControlsRow(
     slitConfigurationProperty,
     createSlitConfigComboItems( slitConfigComboItemTandems ),

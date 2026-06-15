@@ -25,9 +25,6 @@ import WaveVisualizationCanvasNode from './WaveVisualizationCanvasNode.js';
 
 type SelfOptions = EmptySelfOptions;
 
-/**
- * Options for DetectorScreenNode. Currently no custom options beyond the base NodeOptions.
- */
 export type DetectorScreenNodeOptions = SelfOptions & NodeOptions;
 
 const SCREEN_WIDTH = QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH;

@@ -41,6 +41,8 @@ export default class WaveVisualizationCanvasNode extends CanvasNode {
   // Background color shared by the backing Rectangle in parent nodes so transparent layered samples reveal black.
   public static readonly BACKGROUND_COLOR = Color.BLACK;
 
+  // TODO: Document each class attribute, see https://github.com/phetsims/quantum-wave-interference/issues/135
+
   private readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene>;
   private readonly viewWidth: number;
   private readonly viewHeight: number;

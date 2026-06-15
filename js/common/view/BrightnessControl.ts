@@ -30,15 +30,17 @@ export default class BrightnessControl extends VBox {
       maxWidth: QuantumWaveInterferenceConstants.RIGHT_PANEL_CONTENT_WIDTH
     } );
     const brightnessRange = new Range( 0, QuantumWaveInterferenceConstants.SCREEN_BRIGHTNESS_MAX );
+
     // NOTE: see other duplicate in quantum-wave-interference/js/experiment/view/ScreenSettingsPanel.ts. The brightness
     // slider options stay local because Experiment combines brightness with detection-mode controls in one panel.
     const brightnessSlider = new HSlider( screenBrightnessProperty, brightnessRange, {
       trackSize: new Dimension2( 130, 3 ),
       thumbSize: new Dimension2( 13, 22 ),
-      createAriaValueText: value => percentUnit.getAccessibleString(
-        value,
-        { decimalPlaces: 0, showTrailingZeros: false, showIntegersAsIntegers: true }
-      ),
+      createAriaValueText: value => percentUnit.getAccessibleString( value, {
+        decimalPlaces: 0,
+        showTrailingZeros: false,
+        showIntegersAsIntegers: true
+      } ),
       accessibleName: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleNameStringProperty,
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.brightnessSlider.accessibleHelpTextStringProperty,
       layoutOptions: { stretch: true },

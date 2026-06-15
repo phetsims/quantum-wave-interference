@@ -22,9 +22,9 @@
 
 import { clamp } from '../../../../dot/js/util/clamp.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
-import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import { type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample } from '../model/AnalyticalWaveKernelTypes.js';
 import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
+import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 
 // Minimum visible field contribution used so very weak supported samples are still distinguishable
 // from vacuum.
@@ -311,12 +311,8 @@ function getDisplayModeIntensity(
                           Math.sqrt( displayState.intensity ) * boostedAmplitudeScale :
                           0;
 
-  return displayMode === 'amplitude' ? clamp(
-                                       FIELD_DISPLAY_CUTOFF * minimumIntensityVisibility +
-                                       ( 1 - FIELD_DISPLAY_CUTOFF ) * scaledAmplitude * scaledAmplitude,
-                                       0,
-                                       1
-                                     ) :
+  return displayMode === 'amplitude' ? clamp( FIELD_DISPLAY_CUTOFF * minimumIntensityVisibility +
+                                              ( 1 - FIELD_DISPLAY_CUTOFF ) * scaledAmplitude * scaledAmplitude, 0, 1 ) :
          displayMode === 'electricField' ? getPhaseDisplayIntensity( real * colorPower ) * phaseVisibility :
          displayMode === 'realPart' ? getPhaseDisplayIntensity( real * colorPower ) * phaseVisibility :
          displayMode === 'imaginaryPart' ? getPhaseDisplayIntensity( imaginary * colorPower ) * phaseVisibility :
