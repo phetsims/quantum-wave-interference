@@ -8,6 +8,7 @@
  */
 
 import BasicActionsKeyboardHelpSection from '../../../../scenery-phet/js/keyboard/help/BasicActionsKeyboardHelpSection.js';
+import ComboBoxKeyboardHelpSection from '../../../../scenery-phet/js/keyboard/help/ComboBoxKeyboardHelpSection.js';
 import MoveDraggableItemsKeyboardHelpSection from '../../../../scenery-phet/js/keyboard/help/MoveDraggableItemsKeyboardHelpSection.js';
 import SliderControlsKeyboardHelpSection from '../../../../scenery-phet/js/keyboard/help/SliderControlsKeyboardHelpSection.js';
 import TimeControlsKeyboardHelpSection from '../../../../scenery-phet/js/keyboard/help/TimeControlsKeyboardHelpSection.js';
@@ -19,7 +20,8 @@ export default class QuantumWaveInterferenceKeyboardHelpContent extends TwoColum
     super(
       [
         new MoveDraggableItemsKeyboardHelpSection(),
-        new SliderControlsKeyboardHelpSection()
+        new SliderControlsKeyboardHelpSection(),
+        new ComboBoxKeyboardHelpSection()
       ],
       [
         new TimeControlsKeyboardHelpSection(),
