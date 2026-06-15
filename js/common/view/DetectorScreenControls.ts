@@ -127,8 +127,13 @@ export default class DetectorScreenControls extends VBox {
                                           2 * stepForwardButtonRadius +
                                           playPauseStepButtonSpacing;
 
-    // Aqua radio button circle, stroke, and label spacing.
-    const timeSpeedRadioButtonChromeWidth = 25;
+    // Non-label width of a TimeSpeed radio button (circle + stroke + circle-to-label spacing), reserved so the speed
+    // labels are clamped to leave room for it. This is intentionally conservative: TimeSpeedRadioButtonGroup derives
+    // the circle radius from the label font's text height ( Text( 'test', labelOptions ).height / 2 ), so the true
+    // chrome is font-metric dependent (~25.4 px for PhetFont( 14 )) and slightly exceeds a bare-circle estimate. The
+    // extra allowance keeps timeControlNode.width within rightPanelWidth across platforms, including the worst case
+    // where ?stringTest=xss saturates every label to its maxWidth.
+    const timeSpeedRadioButtonChromeWidth = 27;
     const timeSpeedLabelMaxWidth = Math.max( 1, rightPanelWidth -
                                                 playPauseStepButtonGroupWidth -
                                                 timeControlFlowBoxSpacing -
