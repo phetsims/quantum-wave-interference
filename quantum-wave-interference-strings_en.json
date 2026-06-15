@@ -396,6 +396,9 @@
       "slitConfiguration": {
         "value": "{ $slitSetting ->\n  [bothOpen] Both slits open in barrier.\n  [leftCovered] { $slitOrientation ->\n    [topBottom] Top slit covered in barrier.\n   *[leftRight] Left slit covered in barrier.\n  }\n  [rightCovered] { $slitOrientation ->\n    [topBottom] Bottom slit covered in barrier.\n   *[leftRight] Right slit covered in barrier.\n  }\n  [leftDetector] { $slitOrientation ->\n    [topBottom] Detector on top slit in barrier.\n   *[leftRight] Detector on left slit in barrier.\n  }\n  [rightDetector] { $slitOrientation ->\n    [topBottom] Detector on bottom slit in barrier.\n   *[leftRight] Detector on right slit in barrier.\n  }\n  [noBarrier] No barrier between source and screen.\n *[bothDetectors] Detectors on both slits in barrier.\n}"
       },
+      "slitWidth": {
+        "value": "Slit width is { $width }."
+      },
       "slitSeparation": {
         "value": "Slit separation distance is { $distance }."
       },
@@ -668,14 +671,6 @@
     "matterWaveDisplayComboBox": {
       "accessibleHelpText": {
         "value": "Choose real part, imaginary part, or amplitude display for matter wave function."
-      }
-    },
-    "slitWidthMicrometersPattern": {
-      "value": "{ $value } micrometers"
-    },
-    "slitView": {
-      "accessibleParagraph": {
-        "value": "Magnified view of the barrier with two vertical slits, each { $slitWidth } wide. { $slitSetting ->\n  [bothOpen] Both slits open.\n  [leftCovered] Left slit covered.\n  [rightCovered] Right slit covered.\n  [leftDetector] Left slit monitored by a detector.\n  [rightDetector] Right slit monitored by a detector.\n  [noBarrier] No barrier between source and screen.\n *[bothDetectors] Both slits monitored by detectors.\n}"
       }
     },
     "zoomInButton": {

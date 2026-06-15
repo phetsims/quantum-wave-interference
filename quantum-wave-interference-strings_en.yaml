@@ -672,6 +672,7 @@ a11y:
                                   [noBarrier] No barrier between source and screen.
                                  *[bothDetectors] Detectors on both slits in barrier.
                                 }
+    slitWidth:                  'Slit width is { $width }.'
     slitSeparation:             'Slit separation distance is { $distance }.'
     screenDistance:             'Barrier-screen distance is { $distance }.'
   particleMass:
@@ -941,19 +942,6 @@ a11y:
     accessibleHelpText: Choose Electric Field or Amplitude display for photon wave.
   matterWaveDisplayComboBox:
     accessibleHelpText: Choose real part, imaginary part, or amplitude display for matter wave function.
-  slitWidthMicrometersPattern: '{ $value } micrometers'
-  slitView:
-    accessibleParagraph: >-
-                         Magnified view of the barrier with two vertical slits, each { $slitWidth } wide.
-                         { $slitSetting ->
-                           [bothOpen] Both slits open.
-                           [leftCovered] Left slit covered.
-                           [rightCovered] Right slit covered.
-                           [leftDetector] Left slit monitored by a detector.
-                           [rightDetector] Right slit monitored by a detector.
-                           [noBarrier] No barrier between source and screen.
-                          *[bothDetectors] Both slits monitored by detectors.
-                         }
   zoomInButton:
     accessibleName: Zoom In
   zoomOutButton:

@@ -178,7 +178,8 @@ export default class ExperimentScreenViewDescription extends Node {
       leadingParagraphStringProperty:
         QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.experimentDetailsLeadingParagraphStringProperty,
       includeSourceEmitter: false,
-      includeDetectionMode: false
+      includeDetectionMode: false,
+      includeSlitWidth: true
     } );
     this.addChild( experimentSetupDetailsListNode );
 

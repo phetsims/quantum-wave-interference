@@ -171,6 +171,7 @@ type StringsType = {
       'wavelengthStringProperty': LocalizedStringProperty;
       'particleSpeedStringProperty': LocalizedStringProperty;
       'slitConfigurationStringProperty': LocalizedStringProperty;
+      'slitWidthStringProperty': LocalizedStringProperty;
       'slitSeparationStringProperty': LocalizedStringProperty;
       'screenDistanceStringProperty': LocalizedStringProperty;
     };
@@ -306,10 +307,6 @@ type StringsType = {
     };
     'matterWaveDisplayComboBox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
-    };
-    'slitWidthMicrometersPatternStringProperty': LocalizedStringProperty;
-    'slitView': {
-      'accessibleParagraphStringProperty': LocalizedStringProperty;
     };
     'zoomInButton': {
       'accessibleNameStringProperty': LocalizedStringProperty;

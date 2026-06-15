@@ -147,6 +147,7 @@ addToMapIfDefined( 'a11y_experimentSetupDetails_detectionMode', 'a11y.experiment
 addToMapIfDefined( 'a11y_experimentSetupDetails_wavelength', 'a11y.experimentSetupDetails.wavelengthStringProperty' );
 addToMapIfDefined( 'a11y_experimentSetupDetails_particleSpeed', 'a11y.experimentSetupDetails.particleSpeedStringProperty' );
 addToMapIfDefined( 'a11y_experimentSetupDetails_slitConfiguration', 'a11y.experimentSetupDetails.slitConfigurationStringProperty' );
+addToMapIfDefined( 'a11y_experimentSetupDetails_slitWidth', 'a11y.experimentSetupDetails.slitWidthStringProperty' );
 addToMapIfDefined( 'a11y_experimentSetupDetails_slitSeparation', 'a11y.experimentSetupDetails.slitSeparationStringProperty' );
 addToMapIfDefined( 'a11y_experimentSetupDetails_screenDistance', 'a11y.experimentSetupDetails.screenDistanceStringProperty' );
 addToMapIfDefined( 'a11y_particleMass_accessibleParagraph', 'a11y.particleMass.accessibleParagraphStringProperty' );
@@ -216,8 +217,6 @@ addToMapIfDefined( 'a11y_slitSettingsComboBox_accessibleContextResponse', 'a11y.
 addToMapIfDefined( 'a11y_screenGraphSwitch_accessibleHelpText', 'a11y.screenGraphSwitch.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_photonWaveDisplayComboBox_accessibleHelpText', 'a11y.photonWaveDisplayComboBox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_matterWaveDisplayComboBox_accessibleHelpText', 'a11y.matterWaveDisplayComboBox.accessibleHelpTextStringProperty' );
-addToMapIfDefined( 'a11y_slitWidthMicrometersPattern', 'a11y.slitWidthMicrometersPatternStringProperty' );
-addToMapIfDefined( 'a11y_slitView_accessibleParagraph', 'a11y.slitView.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_zoomInButton_accessibleName', 'a11y.zoomInButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_zoomOutButton_accessibleName', 'a11y.zoomOutButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleHelpTextCollapsed', 'a11y.graphAccordionBox.accessibleHelpTextCollapsedStringProperty' );
@@ -460,6 +459,7 @@ const QuantumWaveInterferenceFluent = {
       wavelength: new FluentPattern<{ color: FluentVariable, wavelength: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_wavelength', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.wavelengthStringProperty' ), [{"name":"color"},{"name":"wavelength"}] ),
       particleSpeed: new FluentPattern<{ speed: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_particleSpeed', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.particleSpeedStringProperty' ), [{"name":"speed"}] ),
       slitConfiguration: new FluentPattern<{ slitOrientation: 'topBottom' | 'leftRight' | TReadOnlyProperty<'topBottom' | 'leftRight'>, slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors'> }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_slitConfiguration', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.slitConfigurationStringProperty' ), [{"name":"slitOrientation","variants":["topBottom","leftRight"]},{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","noBarrier","bothDetectors"]}] ),
+      slitWidth: new FluentPattern<{ width: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_slitWidth', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.slitWidthStringProperty' ), [{"name":"width"}] ),
       slitSeparation: new FluentPattern<{ distance: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_slitSeparation', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.slitSeparationStringProperty' ), [{"name":"distance"}] ),
       screenDistance: new FluentPattern<{ distance: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_experimentSetupDetails_screenDistance', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentSetupDetails.screenDistanceStringProperty' ), [{"name":"distance"}] )
     },
@@ -595,10 +595,6 @@ const QuantumWaveInterferenceFluent = {
     },
     matterWaveDisplayComboBox: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_matterWaveDisplayComboBox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.matterWaveDisplayComboBox.accessibleHelpTextStringProperty' ) )
-    },
-    slitWidthMicrometersPattern: new FluentPattern<{ value: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitWidthMicrometersPattern', _.get( QuantumWaveInterferenceStrings, 'a11y.slitWidthMicrometersPatternStringProperty' ), [{"name":"value"}] ),
-    slitView: {
-      accessibleParagraph: new FluentPattern<{ slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors'>, slitWidth: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_slitView_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.slitView.accessibleParagraphStringProperty' ), [{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","noBarrier","bothDetectors"]},{"name":"slitWidth"}] )
     },
     zoomInButton: {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_zoomInButton_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.zoomInButton.accessibleNameStringProperty' ) )

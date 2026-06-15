@@ -39,6 +39,7 @@ type SetupDetailsScene = {
   sourceType: SourceType;
   particleSpeedRange: RangeLike; // m/s — used to decide between m/s and km/s display units
   slitSeparationRange: RangeLike; // mm — used to decide between μm and nm display units
+  slitWidth: number; // mm — constant per scene; only described when includeSlitWidth is set
 };
 
 /**
@@ -82,6 +83,10 @@ type SetupDetailsOptions = {
 
   // Set false to omit the detection-mode list item even when detectionModeProperty is supplied (default: true).
   includeDetectionMode?: boolean;
+
+  // Set true to add a "slit width" list item describing the constant per-scene slit opening width (default: false).
+  // Used by the Experiment screen, whose magnified slit view shows this width visually.
+  includeSlitWidth?: boolean;
 };
 
 const NANOMETER_RANGE_THRESHOLD_MM = 0.0001;
@@ -176,6 +181,27 @@ export default class ExperimentSetupDetailsNode extends Node {
         slitOrientation: slitOrientation
       } );
 
+    // The slit width is a constant per scene, displayed visually only on the Experiment screen, so it is opt-in here.
+    const slitWidthDescriptionStringProperty = providedOptions.includeSlitWidth ?
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitWidth.createProperty( {
+        width: DerivedProperty.deriveAny(
+          Array.from( new Set( [ model.sceneProperty, ...micrometersUnit.getDependentProperties() ] ) ),
+          () => {
+            const slitWidthUM = model.sceneProperty.value.slitWidth * MICROMETERS_PER_MILLIMETER;
+
+            // Mirror FrontFacingSlitNode's visual label precision: 0 decimals for >=1 μm, 1 for >=0.1 μm, 2 otherwise.
+            const decimalPlaces = slitWidthUM >= 1 ? 0 :
+                                  slitWidthUM >= 0.1 ? 1 : 2;
+            return micrometersUnit.getAccessibleString( slitWidthUM, {
+              decimalPlaces: decimalPlaces,
+              showTrailingZeros: false,
+              showIntegersAsIntegers: true
+            } );
+          }
+        )
+      } ) :
+      null;
+
     const slitSeparationStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [
         model.sceneProperty,
@@ -238,9 +264,12 @@ export default class ExperimentSetupDetailsNode extends Node {
         stringProperty: particleMassDescriptionStringProperty,
         visibleProperty: isParticleSceneProperty
       },
-      slitConfigurationDescriptionStringProperty,
-      slitSeparationDescriptionStringProperty
+      slitConfigurationDescriptionStringProperty
     );
+
+    slitWidthDescriptionStringProperty && listItems.push( slitWidthDescriptionStringProperty );
+
+    listItems.push( slitSeparationDescriptionStringProperty );
 
     const screenDistanceProperty = providedOptions.screenDistanceProperty;
     if ( screenDistanceProperty ) {
