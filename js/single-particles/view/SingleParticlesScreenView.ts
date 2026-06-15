@@ -256,11 +256,15 @@ export default class SingleParticlesScreenView extends ScreenView {
     const slitConfigurationContextResponseProperty = new DerivedProperty(
       [
         model.currentIsEmittingProperty,
+        model.isPlayingProperty,
         model.currentSlitConfigurationProperty
       ],
-      ( isEmitting, slitConfiguration ) => {
+      ( isEmitting, isPlaying, slitConfiguration ) => {
+
+        // Only announce "Source restarted." when the source is emitting AND the sim is playing; while paused, changing
+        // the slit configuration describes the new configuration instead of claiming the source restarted.
         return QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.slitConfigurationChanged.format( {
-          isEmitting: isEmitting ? 'true' : 'false',
+          isRestarting: ( isEmitting && isPlaying ) ? 'true' : 'false',
           slitSetting: slitConfiguration,
           sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value
         } );

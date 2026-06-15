@@ -484,7 +484,7 @@ a11y:
                                *[hits] Hits selected. Individual particle impacts build the pattern statistically.
                               }
     slitConfigurationChanged: >-
-                              { $isEmitting ->
+                              { $isRestarting ->
                                 [true] { $sourceRestartedResponse }
                                *[false] { $slitSetting ->
                                   [bothOpen] In barrier, both slits open.
@@ -497,17 +497,17 @@ a11y:
                                 }
                               }
     slitSeparationChanged:    >-
-                              { $isEmitting ->
+                              { $isRestarting ->
                                 [true] { $sourceRestartedResponse }
                                *[false] Slit separation changed. Experiment changed. Previous hits cleared.
                               }
     wavelengthChanged:        >-
-                              { $isEmitting ->
+                              { $isRestarting ->
                                 [true] { $sourceRestartedResponse }
                                *[false] Wavelength changed. Experiment changed. Previous hits cleared.
                               }
     speedChanged:             >-
-                              { $isEmitting ->
+                              { $isRestarting ->
                                 [true] { $sourceRestartedResponse }
                                *[false] Particle speed changed.
                               }

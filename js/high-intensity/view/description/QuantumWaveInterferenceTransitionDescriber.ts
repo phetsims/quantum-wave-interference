@@ -97,15 +97,20 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       beamDescription: formatSourceBeamDescription( after )
     } );
 
-    // Shared plan for changes that restart the wave: announce the change, and if the source is emitting,
+    // The source only "restarts" (announcing "Source restarted." plus the advancing wave) when it is emitting AND the
+    // sim is playing. While paused, changing a characteristic does not restart the wave, so we describe the change
+    // instead and stay silent about a restart. Mirrors the isRestarting logic used by the 'screenCleared' action.
+    const sourceRestarting = after.isEmitting && after.isPlaying;
+
+    // Shared plan for changes that restart the wave: announce the change, and when the source is restarting,
     // also announce the advancing wave, flush prior responses, and drop the response group.
     const applySourceRestartingPlan = ( changeResponse: string ) => {
       contextResponses = [
         changeResponse,
-        ...( after.isEmitting ? [ advancingWaveResponse ] : [] )
+        ...( sourceRestarting ? [ advancingWaveResponse ] : [] )
       ];
-      responseGroup = after.isEmitting ? null : responseGroup;
-      flushBeforeResponses = after.isEmitting;
+      responseGroup = sourceRestarting ? null : responseGroup;
+      flushBeforeResponses = sourceRestarting;
     };
 
     if ( action.type === 'sourceChanged' ) {
@@ -146,7 +151,7 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     }
     else if ( action.type === 'slitConfigurationChanged' ) {
       applySourceRestartingPlan( QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.slitConfigurationChanged.format( {
-        isEmitting: toFluentBoolean( after.isEmitting ),
+        isRestarting: toFluentBoolean( sourceRestarting ),
         slitSetting: after.slitConfiguration,
         sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value
       } ) );
@@ -161,19 +166,19 @@ export default class QuantumWaveInterferenceTransitionDescriber {
                       ( () => { throw new Error( `Unrecognized action type: ${action}` ); } )();
 
       applySourceRestartingPlan( message.format( {
-        isEmitting: toFluentBoolean( after.isEmitting ),
+        isRestarting: toFluentBoolean( sourceRestarting ),
         sourceRestartedResponse: QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value
       } ) );
     }
     else if ( action.type === 'slitPositionChanged' ) {
-      contextResponses = after.isEmitting ?
+      contextResponses = sourceRestarting ?
                          [
                            QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value,
                            advancingWaveResponse
                          ] :
                          [];
-      responseGroup = after.isEmitting ? null : responseGroup;
-      flushBeforeResponses = after.isEmitting;
+      responseGroup = sourceRestarting ? null : responseGroup;
+      flushBeforeResponses = sourceRestarting;
     }
     else if ( action.type === 'displayModeChanged' ) {
       contextResponses = [
