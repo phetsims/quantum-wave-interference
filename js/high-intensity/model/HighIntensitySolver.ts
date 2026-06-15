@@ -22,6 +22,7 @@
  */
 
 import type Complex from '../../../../dot/js/Complex.js';
+import isSettingPhetioStateProperty from '../../../../tandem/js/isSettingPhetioStateProperty.js';
 import { computeSampleIntensity, getRepresentativeComplex } from '../../common/model/FieldSampleMath.js';
 import { evaluateSample } from '../../common/model/WaveKernel.js';
 import { type WaveSource } from '../../common/model/WaveKernelTypes.js';
@@ -68,15 +69,24 @@ export default class HighIntensitySolver extends BaseWaveSolver {
    * @param isSourceOn - Whether the source should emit.
    */
   protected override setSourceOn( isSourceOn: boolean ): void {
-    if ( !this.isSourceOn && isSourceOn ) {
-      this.sourceOnTime = this.time;
-      this.detectorAccumulator.fill( 0 );
-      this.detectorAccumulatorCount = 0;
-    }
-    else if ( this.isSourceOn && !isSourceOn ) {
-      this.detectorDistribution.fill( 0 );
-      this.detectorAccumulator.fill( 0 );
-      this.detectorAccumulatorCount = 0;
+
+    // Skip the wavefront-clock and detector-average resets while PhET-iO is setting state. During state restore the
+    // authoritative sourceOnTime and detector accumulator are restored from the serialized solver state (in setState),
+    // and parameters are re-synced in an unspecified order relative to isEmittingProperty. Without this guard, a sync
+    // that runs while isSourceOn is still false registers a spurious source-on transition and resets sourceOnTime to
+    // the current time, blanking the just-restored wavefront. The flag itself is still updated below so the solver
+    // ends in the correct emitting state once restore completes.
+    if ( !isSettingPhetioStateProperty.value ) {
+      if ( !this.isSourceOn && isSourceOn ) {
+        this.sourceOnTime = this.time;
+        this.detectorAccumulator.fill( 0 );
+        this.detectorAccumulatorCount = 0;
+      }
+      else if ( this.isSourceOn && !isSourceOn ) {
+        this.detectorDistribution.fill( 0 );
+        this.detectorAccumulator.fill( 0 );
+        this.detectorAccumulatorCount = 0;
+      }
     }
     this.isSourceOn = isSourceOn;
   }
