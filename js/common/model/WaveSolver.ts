@@ -42,34 +42,6 @@ export type WaveSolverMeasurementProjectionState = {
 };
 
 /**
- * Legacy saved-state shape for Single Particles failed-detection projections. setState() accepts this so older
- * state files and hand-authored tests can be restored, then converts each entry to WaveSolverMeasurementProjectionState.
- */
-export type LegacyWaveSolverMeasurementProjectionState = {
-
-  // Former name for the projection center x coordinate in solver model coordinates.
-  worldX0: number;
-
-  // Former name for the projection center y coordinate in solver model coordinates.
-  worldY: number;
-
-  // Former Gaussian inverse-variance parameter. Current state stores radius = sqrt( 1 / invSigmaSq ).
-  invSigmaSq: number;
-
-  // Width of the smooth inner-edge transition, in solver model coordinates.
-  edgeFeather?: number;
-
-  // Solver time, in model seconds, when the projection was applied.
-  measurementTime: number;
-
-  // Optional legacy amplitude multiplier. Missing values restore as 1.
-  renormScale?: number;
-
-  // Legacy timing field retained only for compatibility; current projection spreading ignores it.
-  shrinkDuration?: number;
-};
-
-/**
  * Serializable state for the High Intensity continuous-wave solver. It preserves the solver clock and detector-screen
  * averaging data so PhET-iO state restore can resume the current wavefront and intensity pattern.
  */
@@ -105,26 +77,10 @@ export type AnalyticalWavePacketSolverState = {
 };
 
 /**
- * Legacy Single Particles packet-solver state accepted by setState() for compatibility with older saved states.
- * New code should write AnalyticalWavePacketSolverState instead.
- */
-export type LegacyAnalyticalWavePacketSolverState = {
-
-  // Current solver time in model seconds.
-  time: number;
-
-  // Legacy failed-detection projections, converted to measurementProjections during restore.
-  biteGaussians: LegacyWaveSolverMeasurementProjectionState[];
-
-  // Optional legacy slit re-emission descriptor. Missing and null both mean no active re-emission.
-  packetReEmission?: GaussianPacketReEmission | null;
-};
-
-/**
  * Union of all solver state payloads accepted by WaveSolver.setState(). Callers should treat this as an opaque
  * serialization contract and use discriminating property checks when they need solver-specific fields.
  */
-export type WaveSolverState = AnalyticalWaveSolverState | AnalyticalWavePacketSolverState | LegacyAnalyticalWavePacketSolverState;
+export type WaveSolverState = AnalyticalWaveSolverState | AnalyticalWavePacketSolverState;
 
 /**
  * Partial scene-to-solver parameter update. setParameters() treats undefined fields as "leave the previous value

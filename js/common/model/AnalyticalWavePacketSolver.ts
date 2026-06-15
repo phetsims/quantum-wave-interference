@@ -122,8 +122,8 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
   }
 
   /**
-   * Restores packet solver state from serialized data. This accepts both current measurement-projection state
-   * and legacy bite-gaussian state so older saved data can still be loaded.
+   * Restores packet solver state from serialized data: the solver clock, measurement projections, and any
+   * packet re-emission descriptor.
    *
    * @param state - Serialized wave solver state to restore.
    */
@@ -140,18 +140,6 @@ export default class AnalyticalWavePacketSolver extends BaseAnalyticalWaveSolver
           edgeFeather: projection.edgeFeather,
           measurementTime: projection.measurementTime,
           renormScale: projection.renormScale
-        } );
-      }
-    }
-    else if ( 'biteGaussians' in state ) {
-      for ( const projection of state.biteGaussians ) {
-        this.measurementProjections.push( {
-          centerX: projection.worldX0,
-          centerY: projection.worldY,
-          radius: Math.sqrt( 1 / projection.invSigmaSq ),
-          edgeFeather: projection.edgeFeather ?? this.getMeasurementBiteEdgeFeather(),
-          measurementTime: projection.measurementTime,
-          renormScale: projection.renormScale ?? 1
         } );
       }
     }

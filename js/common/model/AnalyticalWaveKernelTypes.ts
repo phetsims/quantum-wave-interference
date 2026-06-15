@@ -264,10 +264,6 @@ export type MeasurementProjection = {
   // Amplitude multiplier maintained by the solver so the projected packet keeps the same total
   // integrated intensity as the unprojected packet. 1 means no renormalization.
   renormScale: number;
-
-  // Kept only so legacy saved states and hand-authored test parameters can be read harmlessly.
-  // Radius-dependent spreading ignores this field.
-  shrinkDuration?: number;
 };
 
 /**

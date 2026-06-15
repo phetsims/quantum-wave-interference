@@ -84,7 +84,7 @@ export default class DetectorScreenDescriber {
    * @param updateTriggerProperty - an optional extra Property whose changes force a full description refresh,
    *   used when the caller knows of an external display change (e.g. scale index) not captured by scene properties
    * @param useSharedDetectorPatternDescription - whether the double-slit intensity branch should reuse the
-   *   shared detector-pattern wording from Screen 2 instead of the legacy detector-screen paragraph wording
+   *   shared detector-pattern wording from Screen 2 instead of this describer's own detector-screen paragraph wording
    */
   public constructor(
     sceneProperty: TReadOnlyProperty<DetectorScreenDescriberScene>,

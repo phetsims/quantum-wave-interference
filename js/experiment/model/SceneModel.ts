@@ -8,8 +8,8 @@
  */
 
 // NOTE: see other duplicate import block in quantum-wave-interference/js/common/model/BaseSceneModel.ts. These models
-// intentionally remain separate because Experiment uses a legacy analytical model while High Intensity/Single Particles
-// share BaseSceneModel.
+// intentionally remain separate because Experiment uses a closed-form analytical detector-pattern model (no per-cell
+// WaveSolver) while High Intensity/Single Particles share the WaveSolver-backed BaseSceneModel.
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import Emitter from '../../../../axon/js/Emitter.js';
