@@ -14,15 +14,15 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import DetectorScreenNode from './DetectorScreenNode.js';
+import FrontFacingDetectorScreenNode from './FrontFacingDetectorScreenNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
 import formatExperimentDetectorPatternResponse from './description/formatExperimentDetectorPatternResponse.js';
 
 export default class ExperimentDetectorColumnNode extends Node {
 
-  // One DetectorScreenNode per scene; only the active scene's node is visible via QuantumWaveInterferenceToggleNode.
-  public readonly detectorScreenNodes: DetectorScreenNode[];
+  // One FrontFacingDetectorScreenNode per scene; only the active scene's node is visible via QuantumWaveInterferenceToggleNode.
+  public readonly detectorScreenNodes: FrontFacingDetectorScreenNode[];
 
   // One GraphAccordionBox per scene; shares graphExpandedProperty so the collapsed/expanded state
   // persists when switching scenes.
@@ -49,9 +49,9 @@ export default class ExperimentDetectorColumnNode extends Node {
 
     // One snapshots dialog is shared by all scenes — it renders the active scene's snapshots, matching the
     // High Intensity and Single Particles screens, and lives at view.snapshotsDialog in the PhET-iO tree.
-    const snapshotsDialog = DetectorScreenNode.createSnapshotsDialog( model, tandem.createTandem( 'snapshotsDialog' ) );
+    const snapshotsDialog = FrontFacingDetectorScreenNode.createSnapshotsDialog( model, tandem.createTandem( 'snapshotsDialog' ) );
 
-    this.detectorScreenNodes = model.scenes.map( scene => new DetectorScreenNode(
+    this.detectorScreenNodes = model.scenes.map( scene => new FrontFacingDetectorScreenNode(
       scene,
       model.detectorScreenScaleIndexProperty,
       model.isPlayingProperty,

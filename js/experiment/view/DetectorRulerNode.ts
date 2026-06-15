@@ -27,7 +27,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import { DETECTOR_SCREEN_SCALE_OPTIONS } from '../model/DetectorScreenScale.js';
 import SceneModel from '../model/SceneModel.js';
-import DetectorScreenNode from './DetectorScreenNode.js';
+import FrontFacingDetectorScreenNode from './FrontFacingDetectorScreenNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
 import RulerDragBoundsProperty from './RulerDragBoundsProperty.js';
 
@@ -60,7 +60,7 @@ export default class DetectorRulerNode extends InteractiveHighlightingNode {
     rulerPositionProperty: Property<Vector2>,
     visibleBoundsProperty: TReadOnlyProperty<Bounds2>,
     graphExpandedProperty: TReadOnlyProperty<boolean>,
-    detectorScreenNodes: DetectorScreenNode[],
+    detectorScreenNodes: FrontFacingDetectorScreenNode[],
     graphAccordionBoxes: GraphAccordionBox[],
     localRootNode: Node,
     tandem: Tandem

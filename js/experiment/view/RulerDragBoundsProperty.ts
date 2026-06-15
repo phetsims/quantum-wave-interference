@@ -15,7 +15,7 @@ import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import Node from '../../../../scenery/js/nodes/Node.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
-import DetectorScreenNode from './DetectorScreenNode.js';
+import FrontFacingDetectorScreenNode from './FrontFacingDetectorScreenNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
 
 const RULER_X_OFFSET = 0.5;
@@ -25,7 +25,7 @@ export default class RulerDragBoundsProperty {
 
   private readonly sceneProperty: TReadOnlyProperty<SceneModel>;
   private readonly scenes: SceneModel[];
-  private readonly detectorScreenNodes: DetectorScreenNode[];
+  private readonly detectorScreenNodes: FrontFacingDetectorScreenNode[];
   private readonly rulerNode: Node;
 
   public constructor(
@@ -33,7 +33,7 @@ export default class RulerDragBoundsProperty {
     sceneProperty: TReadOnlyProperty<SceneModel>,
     scenes: SceneModel[],
     graphExpandedProperty: TReadOnlyProperty<boolean>,
-    detectorScreenNodes: DetectorScreenNode[],
+    detectorScreenNodes: FrontFacingDetectorScreenNode[],
     graphAccordionBoxes: GraphAccordionBox[],
     rulerNode: Node,
     localRootNode: Node

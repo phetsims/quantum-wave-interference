@@ -1,14 +1,12 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * DetectorScreenNode is the front-facing view of the detector screen.
+ * FrontFacingDetectorScreenNode is the front-facing view of the detector screen.
  * It displays either individual hit dots (in Hits mode) or an intensity glow pattern (in Intensity mode) on a
  * black rounded rectangle. Hit rendering uses CanvasNode for efficient drawing of potentially thousands of dots.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
-
-// TODO: Cannot have same name as other DetectorScreenNode in quantum-wave-interference, see https://github.com/phetsims/quantum-wave-interference/issues/135
 
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
@@ -71,7 +69,7 @@ type SelfOptions = {
   // on the overhead apparatus). Defaults to a no-op.
   onSnapshotCaptured?: () => void;
 
-  // The snapshots dialog shared by all scenes (created via DetectorScreenNode.createSnapshotsDialog), opened by
+  // The snapshots dialog shared by all scenes (created via FrontFacingDetectorScreenNode.createSnapshotsDialog), opened by
   // this scene's ViewSnapshotsButton.
   snapshotsDialog: SnapshotsDialog;
 };
@@ -87,10 +85,10 @@ type SnapshotsDialogModel = {
   deleteSnapshot( snapshot: Snapshot ): void;
 };
 
-// Options for DetectorScreenNode. A tandem is required for PhET-iO instrumentation of the snapshot buttons.
-type DetectorScreenNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
+// Options for FrontFacingDetectorScreenNode. A tandem is required for PhET-iO instrumentation of the snapshot buttons.
+type FrontFacingDetectorScreenNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'>;
 
-export default class DetectorScreenNode extends Node {
+export default class FrontFacingDetectorScreenNode extends Node {
   private readonly sceneModel: SceneModel;
   private readonly detectorScreenScaleIndexProperty: NumberProperty;
   private readonly screenCanvasNode: DetectorScreenCanvasNode;
@@ -105,9 +103,9 @@ export default class DetectorScreenNode extends Node {
     sceneModel: SceneModel,
     detectorScreenScaleIndexProperty: NumberProperty,
     isPlayingProperty: Property<boolean>,
-    providedOptions: DetectorScreenNodeOptions
+    providedOptions: FrontFacingDetectorScreenNodeOptions
   ) {
-    const options = optionize<DetectorScreenNodeOptions, SelfOptions, NodeOptions>()(
+    const options = optionize<FrontFacingDetectorScreenNodeOptions, SelfOptions, NodeOptions>()(
       {
         onSnapshotCaptured: _.noop,
         isDisposable: false
@@ -295,7 +293,7 @@ export default class DetectorScreenNode extends Node {
 
     const indicatorDotsBox = new SnapshotIndicatorDotsNode( sceneModel.numberOfSnapshotsProperty );
 
-    // Stop and clear any active snapshot flash when this DetectorScreenNode becomes invisible (i.e., when the
+    // Stop and clear any active snapshot flash when this FrontFacingDetectorScreenNode becomes invisible (i.e., when the
     // user switches to a different scene). The shared snapshots dialog needs no such handling: it renders the
     // active scene's snapshots through currentSnapshotsProperty, so it never shows stale data.
     this.visibleProperty.lazyLink( visible => {
@@ -331,7 +329,7 @@ export default class DetectorScreenNode extends Node {
    * Creates the snapshots dialog shared by all scenes on the Experiment screen. The dialog renders the active
    * scene's snapshots through model.currentSnapshotsProperty, so a single dialog serves every scene, matching the
    * High Intensity and Single Particles screens (including its view.snapshotsDialog location in the PhET-iO tree).
-   * Pass the result to each scene's DetectorScreenNode, whose ViewSnapshotsButton opens it.
+   * Pass the result to each scene's FrontFacingDetectorScreenNode, whose ViewSnapshotsButton opens it.
    *
    * @param model - provides the active scene's snapshots, snapshot deletion, and the shared detector zoom level
    * @param tandem - tandem for the dialog
