@@ -102,6 +102,8 @@ addToMapIfDefined( 'a11y_screenSummary_currentDetails', 'a11y.screenSummary.curr
 addToMapIfDefined( 'a11y_screenSummary_interactionHint', 'a11y.screenSummary.interactionHintStringProperty' );
 addToMapIfDefined( 'a11y_snapshotNode_deleteSnapshotAccessibleName', 'a11y.snapshotNode.deleteSnapshotAccessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_snapshotsDialog_accessibleHeading', 'a11y.snapshotsDialog.accessibleHeadingStringProperty' );
+addToMapIfDefined( 'a11y_snapshotsDialog_snapshotDeletedContextResponse', 'a11y.snapshotsDialog.snapshotDeletedContextResponseStringProperty' );
+addToMapIfDefined( 'a11y_snapshotsDialog_snapshotDeletedDialogClosedContextResponse', 'a11y.snapshotsDialog.snapshotDeletedDialogClosedContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_sourceHeading', 'a11y.sourceHeadingStringProperty' );
 addToMapIfDefined( 'a11y_slitsHeading', 'a11y.slitsHeadingStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenHeading', 'a11y.detectorScreenHeadingStringProperty' );
@@ -387,7 +389,9 @@ const QuantumWaveInterferenceFluent = {
       deleteSnapshotAccessibleName: new FluentPattern<{ snapshotTitle: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_snapshotNode_deleteSnapshotAccessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotNode.deleteSnapshotAccessibleNameStringProperty' ), [{"name":"snapshotTitle"}] )
     },
     snapshotsDialog: {
-      accessibleHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_snapshotsDialog_accessibleHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotsDialog.accessibleHeadingStringProperty' ) )
+      accessibleHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_snapshotsDialog_accessibleHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotsDialog.accessibleHeadingStringProperty' ) ),
+      snapshotDeletedContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_snapshotsDialog_snapshotDeletedContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotsDialog.snapshotDeletedContextResponseStringProperty' ) ),
+      snapshotDeletedDialogClosedContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_snapshotsDialog_snapshotDeletedDialogClosedContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotsDialog.snapshotDeletedDialogClosedContextResponseStringProperty' ) )
     },
     sourceHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sourceHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceHeadingStringProperty' ) ),
     slitsHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitsHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.slitsHeadingStringProperty' ) ),

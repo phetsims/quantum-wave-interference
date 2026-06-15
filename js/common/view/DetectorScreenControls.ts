@@ -216,6 +216,9 @@ export default class DetectorScreenControls extends VBox {
       snapshotControlsTandem.createTandem( 'snapshotButton' )
     );
 
+    // When the last snapshot is deleted and the dialog auto-closes, return focus to the take-snapshot button.
+    snapshotsDialog.getTakeSnapshotButton = () => snapshotButton;
+
     const viewSnapshotsButton = new ViewSnapshotsButton(
       model.currentNumberOfSnapshotsProperty,
       model.isPlayingProperty,

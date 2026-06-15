@@ -244,6 +244,12 @@
     "snapshotsDialog": {
       "accessibleHeading": {
         "value": "Snapshots"
+      },
+      "snapshotDeletedContextResponse": {
+        "value": "Snapshot deleted."
+      },
+      "snapshotDeletedDialogClosedContextResponse": {
+        "value": "Snapshot deleted, dialog closed."
       }
     },
     "sourceHeading": {

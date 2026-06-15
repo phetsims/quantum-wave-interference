@@ -64,6 +64,11 @@ type SnapshotsDialogOptions = {
 
 export default class SnapshotsDialog extends Dialog {
 
+  // Supplies the Node to focus when the dialog auto-closes after the last snapshot is deleted — typically the
+  // take-snapshot (camera) button, since the view-snapshots button that opened the dialog becomes disabled (and thus
+  // not focusable) at zero snapshots. The owner assigns this once the button exists; defaults to focusing nothing.
+  public getTakeSnapshotButton: () => Node | null = () => null;
+
   /**
    * @param snapshotsProperty - ordered snapshots shown in the dialog
    * @param deleteSnapshot - deletes a snapshot from the owning scene/model
@@ -163,10 +168,35 @@ export default class SnapshotsDialog extends Dialog {
       accessibleHeading: QuantumWaveInterferenceFluent.a11y.snapshotsDialog.accessibleHeadingStringProperty
     } );
 
+    let previousSnapshotCount = snapshotsProperty.value.length;
     snapshotsProperty.link( snapshots => {
+      const wasDeleted = snapshots.length < previousSnapshotCount;
+      previousSnapshotCount = snapshots.length;
+
       if ( snapshots.length === 0 && this.isShowingProperty.value ) {
+
+        // Deleting the last snapshot empties the dialog: auto-close it (suppressing the duplicate close sound),
+        // announce the closure, and move focus to the take-snapshot button since the view-snapshots button that
+        // opened the dialog is now disabled (and therefore not focusable, so Popupable cannot restore focus to it).
         suppressNextCloseSound = true;
         this.hide();
+
+        this.addAccessibleContextResponse(
+          QuantumWaveInterferenceFluent.a11y.snapshotsDialog.snapshotDeletedDialogClosedContextResponseStringProperty,
+          { alertWhenNotDisplayed: true }
+        );
+
+        const takeSnapshotButton = this.getTakeSnapshotButton();
+        if ( takeSnapshotButton && takeSnapshotButton.focusable ) {
+          takeSnapshotButton.focus();
+        }
+      }
+      else if ( wasDeleted && this.isShowingProperty.value ) {
+
+        // A snapshot was deleted but others remain; the dialog stays open.
+        this.addAccessibleContextResponse(
+          QuantumWaveInterferenceFluent.a11y.snapshotsDialog.snapshotDeletedContextResponseStringProperty
+        );
       }
     } );
   }

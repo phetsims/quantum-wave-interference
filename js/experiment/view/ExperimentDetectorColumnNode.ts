@@ -62,6 +62,13 @@ export default class ExperimentDetectorColumnNode extends Node {
       }
     ) );
 
+    // When the last snapshot is deleted and the dialog auto-closes, return focus to the active scene's take-snapshot
+    // button (the snapshots dialog is shared across scenes, so the target depends on the selected scene).
+    snapshotsDialog.getTakeSnapshotButton = () => {
+      const activeIndex = model.scenes.indexOf( model.sceneProperty.value );
+      return activeIndex >= 0 ? this.detectorScreenNodes[ activeIndex ].snapshotButton : null;
+    };
+
     const maxLocalRight = Math.max( ...this.detectorScreenNodes.map( detectorScreen => detectorScreen.localBounds.maxX ) );
     const detectorScreenX = controlsRight - maxLocalRight;
     for ( const detectorScreen of this.detectorScreenNodes ) {

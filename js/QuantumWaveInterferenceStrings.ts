@@ -110,6 +110,8 @@ type StringsType = {
     };
     'snapshotsDialog': {
       'accessibleHeadingStringProperty': LocalizedStringProperty;
+      'snapshotDeletedContextResponseStringProperty': LocalizedStringProperty;
+      'snapshotDeletedDialogClosedContextResponseStringProperty': LocalizedStringProperty;
     };
     'sourceHeadingStringProperty': LocalizedStringProperty;
     'slitsHeadingStringProperty': LocalizedStringProperty;
