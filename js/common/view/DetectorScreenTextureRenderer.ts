@@ -17,6 +17,7 @@ import type Vector2 from '../../../../dot/js/Vector2.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { type SourceType } from '../model/SourceType.js';
 import type WaveSolver from '../model/WaveSolver.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { createDetectorScreenHitRenderCache, createDetectorScreenHitSpriteParams, type DetectorScreenHitRenderCache, detectorScreenHitSpriteParamsMatch, type DetectorScreenTextureRenderParameters, detectorScreenTextureRenderParametersChanged, resetDetectorScreenHitRenderCache } from './renderDetectorScreenTexture.js';
 import { BASE_HIT_CORE_RADIUS, BASE_HIT_GLOW_RADIUS, getHighIntensityIntensityDisplayGain, getHitsBrightnessFraction, getHitsCoreAlpha, getHitsDisplayGain, getHitsGlowAlpha, getSceneRGB, getWaveAndDetectorBackgroundRGB, HITS_SCREEN_BRIGHTNESS_MAX_MULTIPLIER, PERCEPTUAL_VISIBILITY_THRESHOLD } from './ScreenBrightnessUtils.js';
 
@@ -36,8 +37,8 @@ const HIT_SIZE_SCALE = 1.2;
 // depending on screen-specific model classes.
 export type DetectorScreenSceneLike = {
 
-  // Detector-screen hit positions in normalized screen coordinates. The renderer maps hit.y to horizontal screen
-  // position and hit.x to vertical screen position to match the detector-screen face orientation.
+  // Detector-screen hit positions. The renderer maps hit.y in [0, 1] to horizontal screen position and hit.x in
+  // [-1, 1] to vertical screen position to match the detector-screen face orientation.
   hits: Vector2[];
 
   // Selects the scene color palette. The final color also depends on wavelengthProperty.
@@ -277,7 +278,10 @@ export default class DetectorScreenTextureRenderer {
     for ( let i = incrementalStart; i < hitCount; i++ ) {
       const hit = hits[ i ];
 
-      const viewX = ( ( hit.y + 1 ) / 2 ) * this.textureWidth;
+      const viewX = (
+        QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP_FRACTION +
+        hit.y * QuantumWaveInterferenceConstants.DETECTOR_SCREEN_VISIBLE_FRACTION
+      ) * this.textureWidth;
       const viewY = ( ( hit.x + 1 ) / 2 ) * this.faceHeight;
       context.drawImage( sprite, viewX - this.hitSpriteCenter, viewY - this.hitSpriteCenter );
     }

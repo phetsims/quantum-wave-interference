@@ -222,8 +222,12 @@ export default class SingleParticlesScreenView extends ScreenView {
       )
     } );
     this.detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
-      x: waveRegionRight - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
-      y: waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
+      x: waveRegionRight -
+         QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH *
+         QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP_FRACTION,
+      y: waveRegionTop -
+         QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW *
+         QuantumWaveInterferenceConstants.DETECTOR_SCREEN_VISIBLE_FRACTION
     } );
     this.addChild( this.detectorScreenNode );
 

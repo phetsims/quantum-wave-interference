@@ -29,8 +29,8 @@ import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstant
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
 import { MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL, MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL } from './DetectorPatternGraphZoomLevelProperty.js';
 
-// Preserve the previous right edge while moving the graph left edge to the wave visualizer's right edge.
-export const DETECTOR_PATTERN_GRAPH_WIDTH = 80 + QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 4;
+// Preserve the graph footprint when changing the detector-screen width.
+export const DETECTOR_PATTERN_GRAPH_WIDTH = 102;
 export const DETECTOR_PATTERN_GRAPH_HEIGHT = QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT;
 
 const HISTOGRAM_BINS = 100;

@@ -582,8 +582,12 @@ export default class HighIntensityScreenView extends ScreenView {
       )
     } );
     const detectorScreenNode = new DetectorScreenNode( model.sceneProperty, {
-      x: waveRegionLayout.waveRegionRight - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH / 2,
-      y: waveRegionLayout.waveRegionTop - QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW / 2
+      x: waveRegionLayout.waveRegionRight -
+         QuantumWaveInterferenceConstants.DETECTOR_SCREEN_WIDTH *
+         QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP_FRACTION,
+      y: waveRegionLayout.waveRegionTop -
+         QuantumWaveInterferenceConstants.DETECTOR_SCREEN_SKEW *
+         QuantumWaveInterferenceConstants.DETECTOR_SCREEN_VISIBLE_FRACTION
     } );
     this.addChild( detectorScreenNode );
 

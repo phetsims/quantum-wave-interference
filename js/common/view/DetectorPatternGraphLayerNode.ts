@@ -48,7 +48,7 @@ export default class DetectorPatternGraphLayerNode extends Node {
     sceneProperty: TReadOnlyProperty<DetectorPatternGraphSceneLike>,
     detectorScreenNode: Node,
     isVisibleProperty: TReadOnlyProperty<boolean>,
-    detectorScreenCenterX: number,
+    waveRegionRight: number,
     waveRegionTop: number,
     tandem: Tandem,
     options: DetectorPatternGraphLayerNodeOptions = {}
@@ -87,10 +87,8 @@ export default class DetectorPatternGraphLayerNode extends Node {
       this.graphNode.visible = isVisible;
       detectorScreenNode.visible = !isVisible;
 
-      detectorScreenNode.centerX = detectorScreenCenterX;
-
       if ( isVisible ) {
-        this.left = detectorScreenCenterX + DETECTOR_PATTERN_GRAPH_LEFT_GAP;
+        this.left = waveRegionRight + DETECTOR_PATTERN_GRAPH_LEFT_GAP;
         this.top = waveRegionTop;
       }
     } );
