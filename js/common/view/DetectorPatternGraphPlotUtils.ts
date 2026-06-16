@@ -27,6 +27,7 @@ import type WaveSolver from '../model/WaveSolver.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
+import { type DetectorPatternGraphDescriberScene } from './description/DetectorPatternGraphDescriber.js';
 import { MAX_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL, MIN_DETECTOR_PATTERN_GRAPH_ZOOM_LEVEL } from './DetectorPatternGraphZoomLevelProperty.js';
 
 // Preserve the graph footprint when changing the detector-screen width.
@@ -67,7 +68,7 @@ export type IntensityCurveShapes = {
  *     pattern has been established; only High Intensity scenes animate this from 0 to 1 as photons
  *     accumulate. Defaults to 1 (fully formed) when absent.
  */
-export type DetectorPatternGraphSceneLike = {
+export type DetectorPatternGraphSceneLike = DetectorPatternGraphDescriberScene & {
   hits: Vector2[];
   sourceType: SourceType;
   wavelengthProperty: TReadOnlyProperty<number>;
@@ -178,10 +179,12 @@ export const createDetectorPatternGraphZoomButtonGroup = (
     touchAreaYDilation: 5,
     zoomInButtonOptions: {
       accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty,
       accessibleContextResponse: zoomLevelResponseProperty
     },
     zoomOutButtonOptions: {
       accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
       accessibleContextResponse: zoomLevelResponseProperty
     },
     tandem: tandem.createTandem( 'zoomButtonGroup' ),

@@ -13,6 +13,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import optionize from '../../../../phet-core/js/optionize.js';
@@ -25,6 +27,8 @@ import Text from '../../../../scenery/js/nodes/Text.js';
 import { type DetectionMode } from '../model/DetectionMode.js';
 import { createClippedDetectorPatternGraphDataPath, createClippedDetectorPatternGraphStrokePath, createDetectorPatternGraphChartBackground, createDetectorPatternGraphChartBorder, createDetectorPatternGraphZoomButtonGroup, createDetectorPatternHistogramShape, createIntensityCurveShapes, DETECTOR_PATTERN_GRAPH_WIDTH, type DetectorPatternGraphSceneLike, getDetectorPatternGraphPaint } from './DetectorPatternGraphPlotUtils.js';
 import DetectorPatternGraphZoomLevelProperty, { type DetectorPatternGraphZoomLevelOption, getDetectorPatternGraphZoomLevel } from './DetectorPatternGraphZoomLevelProperty.js';
+import DetectorPatternGraphDescriber from './description/DetectorPatternGraphDescriber.js';
+import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 
 const LABEL_FONT = new PhetFont( 12 );
 const ZOOM_BUTTON_GROUP_MARGIN = 4;
@@ -159,8 +163,31 @@ export default class DetectorPatternGraphNode extends Node {
       maxWidth: DETECTOR_PATTERN_GRAPH_WIDTH
     } );
 
-    this.addChild( chartNode );
-    this.addChild( axisLabel );
+    const graphDescriber = new DetectorPatternGraphDescriber( sceneProperty, new BooleanProperty( false ) );
+    const graphDescriptionNode = new Node( {
+      accessibleParagraph: graphDescriber.descriptionProperty
+    } );
+
+    const graphHeadingStringProperty = options.detectionModeProperty ?
+                                       new DerivedProperty(
+                                         [
+                                           options.detectionModeProperty,
+                                           QuantumWaveInterferenceFluent.hitsGraphStringProperty,
+                                           QuantumWaveInterferenceFluent.intensityGraphStringProperty
+                                         ],
+                                         ( detectionMode, hitsGraphString, intensityGraphString ) =>
+                                           detectionMode === 'hits' ? hitsGraphString : intensityGraphString
+                                       ) :
+                                       QuantumWaveInterferenceFluent.hitsGraphStringProperty;
+
+    const graphSectionNode = new Node( {
+      accessibleHeading: graphHeadingStringProperty,
+      children: [ graphDescriptionNode, chartNode, axisLabel ]
+    } );
+    graphSectionNode.pdomOrder = [ graphDescriptionNode, zoomButtonGroup ];
+
+    this.addChild( graphSectionNode );
+    this.pdomOrder = [ graphSectionNode ];
 
     axisLabel.localBoundsProperty.link( () => {
       axisLabel.centerX = chartNode.centerX;
