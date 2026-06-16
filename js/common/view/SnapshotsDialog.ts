@@ -132,7 +132,8 @@ export default class SnapshotsDialog extends Dialog {
           accessibleContextResponse: zoomLevelResponseProperty
         },
         tandem: tandem.createTandem( 'zoomButtonGroup' ),
-        phetioFeatured: true
+        phetioFeatured: true,
+        visiblePropertyOptions: { phetioFeatured: true }
       } );
       snapshotNodes[ 0 ].addSnapshotOverlayChild( zoomButtonGroup, true );
       snapshotNodes[ 0 ].addSnapshotOverlayChild( providedOptions.createScaleIndicatorNode() );

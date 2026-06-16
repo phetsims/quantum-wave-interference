@@ -350,6 +350,7 @@ export default class SceneModel extends PhetioObject {
       tandem: tandem.createTandem( 'snapshotsProperty' ),
       phetioValueType: ArrayIO( SnapshotIO ),
       phetioReadOnly: true,
+      phetioFeatured: true,
       phetioDocumentation: 'The array of detector screen snapshots captured in this scene.'
     } );
 
@@ -358,6 +359,7 @@ export default class SceneModel extends PhetioObject {
       snapshots => snapshots.length, {
         tandem: tandem.createTandem( 'numberOfSnapshotsProperty' ),
         phetioValueType: NumberIO,
+        phetioFeatured: true,
         phetioDocumentation: 'The number of snapshots currently stored in this scene.'
       }
     );
