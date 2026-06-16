@@ -9,7 +9,7 @@
  */
 
 import { clamp } from '../../../../dot/js/util/clamp.js';
-import { type DetectorPatternOptions, getSingleSlitEnvelopeIntensity, getExactDetectorIntensity, getLocalDoubleSlitFringeSpacing } from '../model/DetectorPattern.js';
+import { type DetectorPatternOptions, getExactDetectorIntensity, getLocalDoubleSlitFringeSpacing, getSingleSlitEnvelopeIntensity } from '../model/DetectorPattern.js';
 import { showsDoubleSlitInterferencePattern } from '../model/SlitConfiguration.js';
 
 // Below this many samples per bright-fringe spacing, alternating bright/dark fringes are not displayable.

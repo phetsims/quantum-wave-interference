@@ -279,9 +279,9 @@ export default class DetectorScreenTextureRenderer {
       const hit = hits[ i ];
 
       const viewX = (
-        QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP_FRACTION +
-        hit.y * QuantumWaveInterferenceConstants.DETECTOR_SCREEN_VISIBLE_FRACTION
-      ) * this.textureWidth;
+                      QuantumWaveInterferenceConstants.DETECTOR_SCREEN_OVERLAP_FRACTION +
+                      hit.y * QuantumWaveInterferenceConstants.DETECTOR_SCREEN_VISIBLE_FRACTION
+                    ) * this.textureWidth;
       const viewY = ( ( hit.x + 1 ) / 2 ) * this.faceHeight;
       context.drawImage( sprite, viewX - this.hitSpriteCenter, viewY - this.hitSpriteCenter );
     }

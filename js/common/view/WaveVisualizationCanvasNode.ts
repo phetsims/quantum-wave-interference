@@ -26,9 +26,9 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import VisibleColor from '../../../../scenery-phet/js/VisibleColor.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import Color from '../../../../scenery/js/util/Color.js';
-import { getFieldSampleRGBA, getLayeredFieldSampleRGBA } from './WaveRasterizer.js';
 import type { WaveVisualizableScene } from '../model/WaveVisualizableScene.js';
 import QuantumWaveInterferenceQueryParameters from '../QuantumWaveInterferenceQueryParameters.js';
+import { getFieldSampleRGBA, getLayeredFieldSampleRGBA } from './WaveRasterizer.js';
 
 const MATTER_BASE_R = 200;
 const MATTER_BASE_G = 200;

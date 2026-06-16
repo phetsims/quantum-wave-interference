@@ -7,10 +7,10 @@
  */
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { type BandAnalysisResult, type EnvelopeCategory, type HitStage } from './BandAnalysis.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type WaveDisplayMode } from '../../model/WaveDisplayMode.js';
+import { type BandAnalysisResult, type EnvelopeCategory, type HitStage } from './BandAnalysis.js';
 
 export type QuantumWaveInterferencePatternKind = 'doubleSlitInterference' | 'singleSlitDiffraction' | 'whichPathDiffraction' | 'noBarrier';
 export type QuantumWaveInterferencePatternFormation = 'empty' | 'forming' | 'complete' | 'collectingHits' | 'paused' | 'notApplicable';

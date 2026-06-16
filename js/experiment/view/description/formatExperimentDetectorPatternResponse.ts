@@ -8,8 +8,8 @@
 
 import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
 import { formatCompleteIntensityDetectorPatternDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
-import ExperimentModel from '../../model/ExperimentModel.js';
 import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
+import ExperimentModel from '../../model/ExperimentModel.js';
 
 /**
  * Formats the active Experiment scene's detector pattern using its current physics state and detector-screen zoom.

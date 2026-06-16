@@ -471,15 +471,15 @@ export default class PositionPlotNode extends Node {
     const slitConfiguration = this.slitProperties.slitConfigurationProperty.value;
 
     return Math.abs( rowY - topSlitCenterY ) <= halfSlitWidth ? (
-             hasDetectorOnTopSlit( slitConfiguration ) ? 'detectorSlit' :
-             isTopSlitCovered( slitConfiguration ) ? 'coveredSlit' :
-             'openSlit'
-           ) :
+                                                                hasDetectorOnTopSlit( slitConfiguration ) ? 'detectorSlit' :
+                                                                isTopSlitCovered( slitConfiguration ) ? 'coveredSlit' :
+                                                                'openSlit'
+                                                              ) :
            Math.abs( rowY - bottomSlitCenterY ) <= halfSlitWidth ? (
-             hasDetectorOnBottomSlit( slitConfiguration ) ? 'detectorSlit' :
-             isBottomSlitCovered( slitConfiguration ) ? 'coveredSlit' :
-             'openSlit'
-           ) :
+                                                                   hasDetectorOnBottomSlit( slitConfiguration ) ? 'detectorSlit' :
+                                                                   isBottomSlitCovered( slitConfiguration ) ? 'coveredSlit' :
+                                                                   'openSlit'
+                                                                 ) :
            'noSlit';
   }
 

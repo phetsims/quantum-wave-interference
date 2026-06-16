@@ -30,8 +30,8 @@ type TheoreticalPatternScene = {
   slitSeparationRange?: { min: number; max: number };
   regionHeight?: number;
 } & ( {
-    screenDistanceProperty: TReadOnlyProperty<number>;
-  } | {
+  screenDistanceProperty: TReadOnlyProperty<number>;
+} | {
   regionWidth: number;
   barrierPositionFractionProperty: TReadOnlyProperty<number>;
 } );

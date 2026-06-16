@@ -8,7 +8,7 @@
 
 import Complex from '../../../../dot/js/Complex.js';
 import { getClosestYOnSlit } from './SlitGeometry.js';
-import { type WaveBarrier, type WaveParameters, type DecoherenceEvent, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample, type PlaneWaveSource } from './WaveKernelTypes.js';
+import { type DecoherenceEvent, type FieldComponent, type FieldLayer, type FieldSample, type LayeredFieldSample, type PlaneWaveSource, type WaveBarrier, type WaveParameters } from './WaveKernelTypes.js';
 import { EPSILON, smoothStep } from './WaveMath.js';
 
 const PLANE_WAVE_DECOHERENCE_BAND_DURATION = 0.2;

@@ -80,7 +80,7 @@ export default class SlitSeparationNumberControl extends NumberControl {
         { value: range.max, label: new Text( toFixed( maxNM, decimalPlaces ), { font: TICK_LABEL_FONT, maxWidth: 40 } ) }
       ];
     }
-    // NOTE: see other duplicate in quantum-wave-interference/js/experiment/view/SlitSeparationControl.ts. The
+      // NOTE: see other duplicate in quantum-wave-interference/js/experiment/view/SlitSeparationControl.ts. The
     // micrometer display formatter is parallel, but this shared control also supports nanometer-scale scenes.
     else if ( usesMicrometers ) {
 

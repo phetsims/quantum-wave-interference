@@ -6,9 +6,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import PhetColorScheme from '../../../scenery-phet/js/PhetColorScheme.js';
 import Color from '../../../scenery/js/util/Color.js';
 import ProfileColorProperty from '../../../scenery/js/util/ProfileColorProperty.js';
-import PhetColorScheme from '../../../scenery-phet/js/PhetColorScheme.js';
 import quantumWaveInterference from '../quantumWaveInterference.js';
 
 export default class QuantumWaveInterferenceColors {

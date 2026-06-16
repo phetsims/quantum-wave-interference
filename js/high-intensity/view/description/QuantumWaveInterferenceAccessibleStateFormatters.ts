@@ -7,8 +7,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
 import { metersPerSecondUnit } from '../../../../../scenery-phet/js/units/metersPerSecondUnit.js';
+import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 import { picometersUnit } from '../../../../../scenery-phet/js/units/picometersUnit.js';
 import { formatDetectorPatternDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';

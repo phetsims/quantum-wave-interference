@@ -6,8 +6,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { type DetectionMode } from '../../model/DetectionMode.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
+import { type DetectionMode } from '../../model/DetectionMode.js';
 
 /**
  * Formats the source-off context response. Hits data remain visible only in Hits mode after at least one hit has

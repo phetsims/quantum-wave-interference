@@ -18,13 +18,13 @@ import dotRandom from '../../../../dot/js/dotRandom.js';
 import Range from '../../../../dot/js/Range.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
-import HighIntensitySolver from './HighIntensitySolver.js';
+import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import { type DetectionMode, DetectionModeValues } from '../../common/model/DetectionMode.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
-import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
+import HighIntensitySolver from './HighIntensitySolver.js';
 
 // Detector-screen hit dots created per model second in Hits mode.
 export const DETECTOR_SCREEN_HIT_RATE = 40;

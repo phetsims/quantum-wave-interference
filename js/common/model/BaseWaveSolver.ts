@@ -12,10 +12,10 @@ import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import type Vector2 from '../../../../dot/js/Vector2.js';
 import { getDisplaySlitLayout } from '../getDisplaySlitLayout.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import { type BarrierType } from './BarrierType.js';
 import { computeSampleIntensity, getRepresentativeComplex } from './FieldSampleMath.js';
 import { evaluateSample, evaluateSamples } from './WaveKernel.js';
-import { type WaveBarrier, type WaveSource, type WaveParameters, type DecoherenceEvent, type FieldSample, type LayeredFieldSample } from './WaveKernelTypes.js';
-import { type BarrierType } from './BarrierType.js';
+import { type DecoherenceEvent, type FieldSample, type LayeredFieldSample, type WaveBarrier, type WaveParameters, type WaveSource } from './WaveKernelTypes.js';
 import type WaveSolver from './WaveSolver.js';
 import { type WaveSolverParameters, type WaveSolverState } from './WaveSolver.js';
 

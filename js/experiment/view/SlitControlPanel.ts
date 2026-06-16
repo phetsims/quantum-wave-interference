@@ -29,8 +29,8 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 import ExperimentConstants from '../ExperimentConstants.js';
 import SceneModel from '../model/SceneModel.js';
 import ScreenDistanceControl from './ScreenDistanceControl.js';
-import SlitSeparationControl from './SlitSeparationControl.js';
 import SlitConfigurationComboBox from './SlitConfigurationComboBox.js';
+import SlitSeparationControl from './SlitSeparationControl.js';
 
 const SLIT_SETTINGS_TITLE_FONT = new PhetFont( 14 );
 const PANEL_CONTENT_SPACING = 20;

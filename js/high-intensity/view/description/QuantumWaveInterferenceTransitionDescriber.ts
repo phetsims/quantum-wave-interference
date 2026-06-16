@@ -6,9 +6,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type HighIntensityAccessibleViewState, type QuantumWaveInterferenceValueTrend } from './HighIntensityAccessibleViewState.js';
-import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import { formatDetectorDescription, formatSourceBeamDescription, toFluentBoolean } from './QuantumWaveInterferenceAccessibleStateFormatters.js';
 
 /**
@@ -172,11 +172,11 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     }
     else if ( action.type === 'slitPositionChanged' ) {
       contextResponses = sourceRestarting ?
-                         [
-                           QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value,
-                           advancingWaveResponse
-                         ] :
-                         [];
+        [
+          QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceRestartedStringProperty.value,
+          advancingWaveResponse
+        ] :
+        [];
       responseGroup = sourceRestarting ? null : responseGroup;
       flushBeforeResponses = sourceRestarting;
     }
@@ -234,13 +234,13 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     else if ( action.type === 'waveProgressChanged' ) {
       const waveProgressStage = after.waveProgress.stage;
       contextResponses = ( waveProgressStage === 'travelingToSlits' || waveProgressStage === 'directToScreen' ) ? [] :
-                         [
-                           QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.format( {
-                             waveProgressStage: waveProgressStage,
-                             waveDisplayMode: after.waveDisplayMode,
-                             patternKind: after.patternKind
-                           } )
-                         ];
+        [
+          QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.format( {
+            waveProgressStage: waveProgressStage,
+            waveDisplayMode: after.waveDisplayMode,
+            patternKind: after.patternKind
+          } )
+        ];
     }
     else if ( action.type === 'patternFormationStarted' || action.type === 'patternFormationComplete' ) {
 

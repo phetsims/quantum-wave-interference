@@ -8,10 +8,10 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
 import NumberProperty from '../../../../axon/js/NumberProperty.js';
 import Property from '../../../../axon/js/Property.js';
 import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
-import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';

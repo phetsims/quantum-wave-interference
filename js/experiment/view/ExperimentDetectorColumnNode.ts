@@ -14,10 +14,10 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
+import formatExperimentDetectorPatternResponse from './description/formatExperimentDetectorPatternResponse.js';
 import FrontFacingDetectorScreenNode from './FrontFacingDetectorScreenNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
-import formatExperimentDetectorPatternResponse from './description/formatExperimentDetectorPatternResponse.js';
 
 export default class ExperimentDetectorColumnNode extends Node {
 

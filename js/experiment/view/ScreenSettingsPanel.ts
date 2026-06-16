@@ -65,8 +65,8 @@ export default class ScreenSettingsPanel extends Panel {
         tandemName: 'intensityRadioButton',
         options: {
           accessibleContextResponse: () => isEmittingProperty.value ?
-                                             getIntensityAccessibleContextResponse() :
-                                             QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseSourceOffStringProperty
+                                           getIntensityAccessibleContextResponse() :
+                                           QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseSourceOffStringProperty
         }
       },
       {

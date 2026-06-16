@@ -6,8 +6,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import Node from '../../../../../scenery/js/nodes/Node.js';
 import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
+import Node from '../../../../../scenery/js/nodes/Node.js';
 import ExperimentSetupDetailsNode from '../../../common/view/description/ExperimentSetupDetailsNode.js';
 import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import type SceneRadioButtonGroup from '../../../common/view/SceneRadioButtonGroup.js';
@@ -176,7 +176,7 @@ export default class ExperimentScreenViewDescription extends Node {
     const experimentSetupDetailsListNode = new ExperimentSetupDetailsNode( model, model.currentSlitConfigurationProperty, {
       screenDistanceProperty: model.currentScreenDistanceProperty,
       leadingParagraphStringProperty:
-        QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.experimentDetailsLeadingParagraphStringProperty,
+      QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.experimentDetailsLeadingParagraphStringProperty,
       includeSourceEmitter: false,
       includeDetectionMode: false,
       includeSlitWidth: true
@@ -189,7 +189,7 @@ export default class ExperimentScreenViewDescription extends Node {
     // between major sections with heading shortcuts.
     this.detectorScreenAndExperimentDetailsHeadingNode = new Node( {
       accessibleHeading:
-        QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.detectorScreenAndExperimentDetailsHeadingStringProperty
+      QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.detectorScreenAndExperimentDetailsHeadingStringProperty
     } );
     this.addChild( this.detectorScreenAndExperimentDetailsHeadingNode );
 

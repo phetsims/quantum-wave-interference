@@ -8,8 +8,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
+import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import { roundSymmetric } from '../../../../dot/js/util/roundSymmetric.js';
 import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';

@@ -64,7 +64,7 @@ export default class GraphDescriber {
                                     ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } )
                                     : isNoBarrier
                                       ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensityNoBarrierStringProperty.value
-                                    : QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensitySingleSlitStringProperty.value;
+                                      : QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensitySingleSlitStringProperty.value;
         return;
       }
 

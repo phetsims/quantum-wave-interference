@@ -7,8 +7,8 @@
  */
 
 import DynamicProperty from '../../../../axon/js/DynamicProperty.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import TProperty from '../../../../axon/js/TProperty.js';
+import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
 import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
 import { type DetectionMode, DetectionModeValues } from './DetectionMode.js';

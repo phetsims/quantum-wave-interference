@@ -17,8 +17,8 @@ import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit
 import WavelengthNumberControl from '../../../../scenery-phet/js/WavelengthNumberControl.js';
 import SunConstants from '../../../../sun/js/SunConstants.js';
 import Tandem from '../../../../tandem/js/Tandem.js';
-import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
+import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SOURCE_CONTROL_TITLE_FONT } from './SourceControlPanelConstants.js';
 import { getWavelengthColorZone, getWavelengthColorZoneStringProperty, WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from './WavelengthColorUtils.js';
 

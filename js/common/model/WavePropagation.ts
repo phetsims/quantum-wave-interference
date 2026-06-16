@@ -7,10 +7,10 @@
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { type WaveBarrier, type WaveSlit, type WaveSource, type WaveParameters, type FieldComponent, type FieldComponentSource, type FieldSample, type GaussianPacketReEmission, type GaussianPacketSource, type PlaneWaveSource } from './WaveKernelTypes.js';
-import { createPolarTimesComplex, EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './WaveMath.js';
-import { getClosestYOnSlit } from './SlitGeometry.js';
 import { getFresnelApertureTransfer } from './FresnelApertureTransfer.js';
+import { getClosestYOnSlit } from './SlitGeometry.js';
+import { type FieldComponent, type FieldComponentSource, type FieldSample, type GaussianPacketReEmission, type GaussianPacketSource, type PlaneWaveSource, type WaveBarrier, type WaveParameters, type WaveSlit, type WaveSource } from './WaveKernelTypes.js';
+import { createPolarTimesComplex, EPSILON, NEAR_APERTURE_X_FRACTION, smoothStep } from './WaveMath.js';
 
 /**
  * Time-derived gaussian packet state shared by direct-source and diffracted-field evaluation.

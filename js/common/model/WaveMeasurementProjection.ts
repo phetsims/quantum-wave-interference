@@ -7,7 +7,7 @@
  */
 
 import Complex from '../../../../dot/js/Complex.js';
-import { type WaveSource, type WaveParameters, type FieldComponent, type FieldLayer, type FieldSample, type GaussianPacketSource, type LayeredFieldSample, type MeasurementProjection } from './WaveKernelTypes.js';
+import { type FieldComponent, type FieldLayer, type FieldSample, type GaussianPacketSource, type LayeredFieldSample, type MeasurementProjection, type WaveParameters, type WaveSource } from './WaveKernelTypes.js';
 import { EPSILON, smoothStep } from './WaveMath.js';
 
 const MEASUREMENT_BITE_INITIAL_SATURATION = Math.exp( 0.5 );

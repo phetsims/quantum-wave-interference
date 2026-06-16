@@ -48,7 +48,7 @@ export default class HighIntensityAccessibleResponses extends Node {
       // source type changed, report the scene change once and silence subsequent no-op notifications.
       const effectiveAction: QuantumWaveInterferenceTransitionAction = before.sourceType !== after.sourceType && action.type !== 'particleTypeChanged' ?
         { type: 'particleTypeChanged' } :
-                                                   action;
+                                                                       action;
 
       if ( effectiveAction.type === 'particleTypeChanged' && before.sourceType === after.sourceType ) {
         this.previousState = after;

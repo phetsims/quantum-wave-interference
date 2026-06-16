@@ -183,24 +183,24 @@ export default class ExperimentSetupDetailsNode extends Node {
 
     // The slit width is a constant per scene, displayed visually only on the Experiment screen, so it is opt-in here.
     const slitWidthDescriptionStringProperty = providedOptions.includeSlitWidth ?
-      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitWidth.createProperty( {
-        width: DerivedProperty.deriveAny(
-          Array.from( new Set( [ model.sceneProperty, ...micrometersUnit.getDependentProperties() ] ) ),
-          () => {
-            const slitWidthUM = model.sceneProperty.value.slitWidth * MICROMETERS_PER_MILLIMETER;
+                                               QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitWidth.createProperty( {
+                                                 width: DerivedProperty.deriveAny(
+                                                   Array.from( new Set( [ model.sceneProperty, ...micrometersUnit.getDependentProperties() ] ) ),
+                                                   () => {
+                                                     const slitWidthUM = model.sceneProperty.value.slitWidth * MICROMETERS_PER_MILLIMETER;
 
-            // Mirror FrontFacingSlitNode's visual label precision: 0 decimals for >=1 μm, 1 for >=0.1 μm, 2 otherwise.
-            const decimalPlaces = slitWidthUM >= 1 ? 0 :
-                                  slitWidthUM >= 0.1 ? 1 : 2;
-            return micrometersUnit.getAccessibleString( slitWidthUM, {
-              decimalPlaces: decimalPlaces,
-              showTrailingZeros: false,
-              showIntegersAsIntegers: true
-            } );
-          }
-        )
-      } ) :
-      null;
+                                                     // Mirror FrontFacingSlitNode's visual label precision: 0 decimals for >=1 μm, 1 for >=0.1 μm, 2 otherwise.
+                                                     const decimalPlaces = slitWidthUM >= 1 ? 0 :
+                                                                           slitWidthUM >= 0.1 ? 1 : 2;
+                                                     return micrometersUnit.getAccessibleString( slitWidthUM, {
+                                                       decimalPlaces: decimalPlaces,
+                                                       showTrailingZeros: false,
+                                                       showIntegersAsIntegers: true
+                                                     } );
+                                                   }
+                                                 )
+                                               } ) :
+                                               null;
 
     const slitSeparationStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [

@@ -19,17 +19,17 @@ import { clamp } from '../../../../dot/js/util/clamp.js';
 import Vector2 from '../../../../dot/js/Vector2.js';
 import affirm from '../../../../perennial-alias/js/browser-and-node/affirm.js';
 import { combineOptions } from '../../../../phet-core/js/optionize.js';
+import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
 import { getDisplaySlitLayout } from '../../common/getDisplaySlitLayout.js';
-import { type GaussianPacketReEmission } from '../../common/model/WaveKernelTypes.js';
-import SingleParticleSolver from './SingleParticleSolver.js';
 import BaseSceneModel, { type BaseSceneModelOptions, HIT_VERTICAL_EXTENT, type SlitSeparationConfig } from '../../common/model/BaseSceneModel.js';
 import inverseStandardNormalCDF from '../../common/model/inverseStandardNormalCDF.js';
 import { hasAnyDetector } from '../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../common/model/SourceType.js';
-import BooleanIO from '../../../../tandem/js/types/BooleanIO.js';
+import { type GaussianPacketReEmission } from '../../common/model/WaveKernelTypes.js';
 import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 import QuantumWaveInterferenceQueryParameters from '../../common/QuantumWaveInterferenceQueryParameters.js';
 import DetectorProbe from './DetectorProbe.js';
+import SingleParticleSolver from './SingleParticleSolver.js';
 
 const MIN_EMISSION_INTERVAL = 0.3;
 

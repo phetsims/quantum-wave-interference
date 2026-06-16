@@ -11,12 +11,12 @@
  */
 
 import Vector2 from '../../../../dot/js/Vector2.js';
-import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
+import BaseWaveSolver from '../../common/model/BaseWaveSolver.js';
 import { computeSampleIntensity } from '../../common/model/FieldSampleMath.js';
 import { evaluateSample } from '../../common/model/WaveKernel.js';
-import { type WaveSource, type WaveParameters, type GaussianPacketReEmission, type MeasurementProjection } from '../../common/model/WaveKernelTypes.js';
-import BaseWaveSolver from '../../common/model/BaseWaveSolver.js';
+import { type GaussianPacketReEmission, type MeasurementProjection, type WaveParameters, type WaveSource } from '../../common/model/WaveKernelTypes.js';
 import { type SingleParticleSolverState, type WaveSolverParameters, type WaveSolverState } from '../../common/model/WaveSolver.js';
+import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferenceConstants.js';
 
 const EPSILON = 1e-12;
 

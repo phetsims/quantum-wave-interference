@@ -27,8 +27,8 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { type WaveParameters, type FieldSample, type LayeredFieldSample } from './WaveKernelTypes.js';
 import { applyDecoherenceEvent, applyPlaneWaveDecoherenceEventLayers } from './WaveDecoherence.js';
+import { type FieldSample, type LayeredFieldSample, type WaveParameters } from './WaveKernelTypes.js';
 import { applyGaussianPacketMeasurementProjectionLayers, applyMeasurementProjections } from './WaveMeasurementProjection.js';
 import { evaluateUndecoheredSample } from './WavePropagation.js';
 

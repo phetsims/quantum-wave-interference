@@ -23,10 +23,10 @@
 
 import type Complex from '../../../../dot/js/Complex.js';
 import isSettingPhetioStateProperty from '../../../../tandem/js/isSettingPhetioStateProperty.js';
+import BaseWaveSolver from '../../common/model/BaseWaveSolver.js';
 import { computeSampleIntensity, getRepresentativeComplex } from '../../common/model/FieldSampleMath.js';
 import { evaluateSample } from '../../common/model/WaveKernel.js';
 import { type WaveSource } from '../../common/model/WaveKernelTypes.js';
-import BaseWaveSolver from '../../common/model/BaseWaveSolver.js';
 import { type HighIntensitySolverState, type WaveSolverState } from '../../common/model/WaveSolver.js';
 
 const DISPLAY_TRAVERSAL_TIME = 2.0;
