@@ -24,6 +24,7 @@ import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitC
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
 import QuantumWaveInterferenceConstants from '../../../common/QuantumWaveInterferenceConstants.js';
 import BandAnalysis, { type BandSpacingCategory, type EnvelopeCategory, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import { formatDetectorPatternDescription, formatLiveHitsDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import { getClockSpeedDescription, type QuantumWaveInterferenceClockSpeedDescription } from '../../../common/view/description/getClockSpeedDescription.js';
 import { getPatternKind, type QuantumWaveInterferencePatternKind } from '../../../common/view/description/getPatternKind.js';
@@ -150,18 +151,27 @@ const formatWaveProgress = (
   } );
 
 function formatHitDescription( state: SingleParticlesResponseState ): string {
-  return QuantumWaveInterferenceFluent.a11y.waveExperimentState.detectorPattern.format( {
-    isEmitting: 'true',
-    detectionMode: 'hits',
-    patternFormation: 'collectingHits',
-    patternKind: state.patternKind,
-    waveDisplayMode: state.waveDisplayMode,
-    slitSetting: state.slitConfiguration === 'leftCovered' ? 'leftCovered' : 'rightCovered',
-    hitStage: state.hitStage,
-    hitCount: state.totalHits,
-    bandSpacing: state.bandSpacingDescription,
-    envelope: state.envelopeCategory
-  } );
+  return state.patternKind === 'doubleSlitInterference' ?
+         formatLiveHitsDescription(
+           state.hitStage,
+           true,
+           false,
+           {
+             spacingCategory: state.bandSpacingDescription,
+             envelopeCategory: state.envelopeCategory
+           }
+         ) :
+         formatDetectorPatternDescription(
+           true,
+           'hits',
+           'collectingHits',
+           state.patternKind,
+           state.waveDisplayMode,
+           state.slitConfiguration === 'leftCovered' ? 'leftCovered' : 'rightCovered',
+           state.hitStage,
+           state.bandSpacingDescription,
+           state.envelopeCategory
+         );
 }
 
 export default class SingleParticlesAccessibleResponses extends Node {

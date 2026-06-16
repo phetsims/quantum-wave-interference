@@ -417,19 +417,15 @@ a11y:
                               }
                              *[hits] { $hitStage ->
                                 [none] Detector screen is empty. No particles have arrived yet.
-                                [few] Individual scattered hits appear. Total hits: { $hitCount }.
+                                [few] Individual scattered hits appear on detector screen.
                                 [emerging] { $patternKind ->
-                                  [doubleSlitInterference] Hits begin forming faint bands.
+                                  [doubleSlitInterference] Hits begin to form faint bands.
                                   [singleSlitDiffraction] Bright-band pattern is absent.
                                   [whichPathDiffraction] Bright bands are gone.
                                  *[noBarrier] Evenly scattered hits appear across the detector screen.
-                                } Total hits: { $hitCount }.
+                                }
                                 [developing] { $patternKind ->
-                                  [doubleSlitInterference] { $envelope ->
-                                    [clusteringIntoTwoFaintSections] Hits form evenly spaced bands clustering into two faint sections, directly across from slits.
-                                    [clusteringIntoTwoDistinctSections] Hits form evenly spaced bands clustering into two distinct sections, directly across from slits.
-                                   *[brightestAtCenter] Hits form evenly spaced bands.
-                                  }
+                                  [doubleSlitInterference] Evenly-spaced bands become more distinct.
                                   [singleSlitDiffraction] Bright-band pattern is absent.
                                   [whichPathDiffraction] { $envelope ->
                                     [clusteringIntoTwoFaintSections] Bright bands are gone. Hits collect in two areas, directly across from the slits.
@@ -437,13 +433,17 @@ a11y:
                                    *[brightestAtCenter] Bright bands are gone.
                                   }
                                  *[noBarrier] Evenly scattered hits collect across the detector screen.
-                                } Total hits: { $hitCount }.
+                                }
                                *[clear] { $patternKind ->
-                                  [doubleSlitInterference] { $envelope ->
-                                    [clusteringIntoTwoFaintSections] Hits form evenly spaced bands clustering into two faint sections, directly across from slits.
-                                    [clusteringIntoTwoDistinctSections] Hits form evenly spaced bands clustering into two distinct sections, directly across from slits.
-                                   *[brightestAtCenter] Hits form evenly spaced bands.
-                                  }
+                                  [doubleSlitInterference] Across detector screen, evenly-spaced bands are { $bandSpacing ->
+                                    [extremelyFarApart] extremely far apart
+                                    [veryFarApart] very far apart
+                                    [farApart] far apart
+                                    [somewhatCloseTogether] somewhat close together
+                                    [closeTogether] close together
+                                    [veryCloseTogether] very close together
+                                   *[extremelyCloseTogether] extremely close together
+                                  }.
                                   [singleSlitDiffraction] Bright-band pattern is absent.
                                   [whichPathDiffraction] { $envelope ->
                                     [clusteringIntoTwoFaintSections] Bright bands are gone. Hits collect in two areas, directly across from the slits.
@@ -451,7 +451,7 @@ a11y:
                                    *[brightestAtCenter] Bright bands are gone.
                                   }
                                  *[noBarrier] Evenly scattered hits collect across the detector screen.
-                                } Total hits: { $hitCount }.
+                                }
                               }
                             }
                           }
@@ -1021,24 +1021,11 @@ a11y:
                                       brightest in the middle and fading toward the edges. { $spatialDescription }
       intensityNoBarrier:             Plane wave fronts move directly to the detector screen. Uniform glow from plane wave fronts.
       hitsNone:                       Detector screen is empty. No particles have arrived yet.
-      hitsFew:                        Individual scattered hits appear on the detector screen.
-      hitsEmerging:                   Hits begin forming faint bands on the detector screen.
-      hitsDeveloping:                 >-
-                                      Hits form evenly spaced bands on the detector screen. Bands are { $spacing ->
-                                        [extremelyFarApart] extremely far apart
-                                        [veryFarApart] very far apart
-                                        [farApart] far apart
-                                        [somewhatCloseTogether] somewhat close together
-                                        [closeTogether] close together
-                                        [veryCloseTogether] very close together
-                                       *[extremelyCloseTogether] extremely close together
-                                      } across screen, { $envelope ->
-                                        [clusteringIntoTwoFaintSections] clustering into two faint sections, directly across from slits
-                                        [clusteringIntoTwoDistinctSections] clustering into two distinct sections, directly across from slits
-                                       *[brightestAtCenter] brightest band at center
-                                      }.
+      hitsFew:                        Individual scattered hits appear on detector screen.
+      hitsEmerging:                   Hits begin to form faint bands.
+      hitsDeveloping:                 Evenly-spaced bands become more distinct.
       hitsClear:                      >-
-                                      Hits form evenly spaced bands across the detector screen. Bands are { $spacing ->
+                                      Across detector screen, evenly-spaced bands are { $spacing ->
                                         [extremelyFarApart] extremely far apart
                                         [veryFarApart] very far apart
                                         [farApart] far apart
@@ -1046,10 +1033,6 @@ a11y:
                                         [closeTogether] close together
                                         [veryCloseTogether] very close together
                                        *[extremelyCloseTogether] extremely close together
-                                      } across screen, { $envelope ->
-                                        [clusteringIntoTwoFaintSections] clustering into two faint sections, directly across from slits
-                                        [clusteringIntoTwoDistinctSections] clustering into two distinct sections, directly across from slits
-                                       *[brightestAtCenter] brightest band at center
                                       }.
       hitsSingleSlitEmerging:         >-
                                       Bright-band pattern is absent. Hits collect in a broad region near the center of

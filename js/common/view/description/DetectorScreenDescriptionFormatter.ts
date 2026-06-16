@@ -45,7 +45,6 @@ function getSingleSlitLocationKey( slitConfiguration: SlitConfigurationWithNoBar
  *   branch does not use wave display mode
  * @param slitSetting - current slit setting, used by single-slit branches
  * @param hitStage - current hit accumulation stage
- * @param hitCount - current hit count
  * @param bandSpacing - qualitative spacing between bright bands
  * @param envelope - qualitative single-slit envelope category; drives whether the pattern reads as a single central
  *   band or as two groups (one across from each slit) when the geometry separates them
@@ -59,7 +58,6 @@ export function formatDetectorPatternDescription(
   waveDisplayMode: WaveDisplayMode = 'electricField',
   slitSetting: SingleSlitLocationKey = 'rightCovered',
   hitStage: HitStage = 'clear',
-  hitCount = 0,
   bandSpacing: BandAnalysisResult[ 'spacingCategory' ] = 'somewhatCloseTogether',
   envelope: EnvelopeCategory = 'brightestAtCenter'
 ): string {
@@ -71,7 +69,6 @@ export function formatDetectorPatternDescription(
     waveDisplayMode: waveDisplayMode,
     slitSetting: slitSetting,
     hitStage: hitStage,
-    hitCount: hitCount,
     bandSpacing: bandSpacing,
     envelope: envelope
   } );
@@ -95,7 +92,6 @@ export function formatCompleteIntensityDetectorPatternDescription(
     'electricField',
     getSingleSlitLocationKey( slitConfiguration ),
     'clear',
-    0,
     analysis.spacingCategory,
     analysis.envelopeCategory
   );
@@ -143,8 +139,8 @@ export function formatLiveHitsDescription(
   hitStage: HitStage,
   isDoubleSlit: boolean,
   isNoBarrier: boolean,
-  analysis: BandAnalysisResult,
-  spatialDescription: string
+  analysis: Pick<BandAnalysisResult, 'spacingCategory' | 'envelopeCategory'>,
+  spatialDescription = ''
 ): string {
   if ( hitStage === 'none' ) {
     return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsNoneStringProperty.value;
@@ -157,13 +153,9 @@ export function formatLiveHitsDescription(
   // share the same hit-stage decision tree but target different Fluent strings and count arguments.
   if ( isDoubleSlit ) {
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty.value :
-           hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDeveloping.format( {
-                                       spacing: analysis.spacingCategory,
-                                       envelope: analysis.envelopeCategory
-                                     } ) :
+           hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDevelopingStringProperty.value :
            hitStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( {
-                                  spacing: analysis.spacingCategory,
-                                  envelope: analysis.envelopeCategory
+                                  spacing: analysis.spacingCategory
                                 } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }

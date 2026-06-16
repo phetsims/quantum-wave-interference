@@ -309,6 +309,7 @@ export default class BandAnalysis {
    */
   public static getHitStage( totalHits: number, isDoubleSlit: boolean ): HitStage {
     if ( totalHits === 0 ) { return 'none'; }
+    if ( isDoubleSlit && totalHits <= 25 ) { return 'few'; }
     if ( totalHits <= 10 ) { return 'few'; }
     if ( totalHits <= 50 ) { return 'emerging'; }
     if ( isDoubleSlit && totalHits <= 200 ) { return 'developing'; }

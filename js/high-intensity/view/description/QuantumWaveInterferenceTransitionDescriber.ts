@@ -225,10 +225,7 @@ export default class QuantumWaveInterferenceTransitionDescriber {
     }
     else if ( action.type === 'hitStageChanged' ) {
       contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.hitStageChanged.format( {
-          hitStage: after.hitStage,
-          patternKind: after.patternKind
-        } )
+        formatDetectorDescription( after, 'collectingHits' )
       ];
     }
     else if ( action.type === 'waveProgressChanged' ) {

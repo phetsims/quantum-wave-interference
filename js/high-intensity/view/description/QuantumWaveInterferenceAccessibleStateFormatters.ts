@@ -11,7 +11,7 @@ import { metersPerSecondUnit } from '../../../../../scenery-phet/js/units/meters
 import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
 import { picometersUnit } from '../../../../../scenery-phet/js/units/picometersUnit.js';
-import { formatDetectorPatternDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
+import { formatDetectorPatternDescription, formatLiveHitsDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import { getWavelengthColorZoneStringProperty } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind } from './HighIntensityAccessibleViewState.js';
@@ -108,9 +108,8 @@ export function formatSlitDescription( state: HighIntensitySemanticAccessibleVie
 
 /**
  * Formats a localized string describing the current detector/pattern state, including emission status,
- * detection mode, pattern formation stage, pattern kind, display mode, slit location, hit stage, total
- * hit count, and band spacing. Used as a context response in transition descriptions and as a sequence-item
- * string in experiment-setup sequences.
+ * detection mode, pattern formation stage, pattern kind, display mode, slit location, hit stage, and band spacing.
+ * Used as a context response in transition descriptions and as a sequence-item string in experiment-setup sequences.
  *
  * @param state - the current semantic accessible view state
  * @param patternFormation - override for the pattern-formation value; defaults to state.patternFormation.
@@ -121,6 +120,16 @@ export const formatDetectorDescription = (
   state: HighIntensitySemanticAccessibleViewState,
   patternFormation: QuantumWaveInterferencePatternFormation = state.patternFormation
 ): string =>
+  state.detectionMode === 'hits' && state.patternKind === 'doubleSlitInterference' ?
+  formatLiveHitsDescription(
+    state.hitStage,
+    true,
+    false,
+    {
+      spacingCategory: state.bandSpacingDescription,
+      envelopeCategory: state.envelopeCategory
+    }
+  ) :
   formatDetectorPatternDescription(
     state.isEmitting,
     state.detectionMode,
@@ -129,7 +138,6 @@ export const formatDetectorDescription = (
     state.waveDisplayMode,
     getSingleSlitLocationKey( state ),
     state.hitStage,
-    state.totalHits,
     state.bandSpacingDescription,
     state.envelopeCategory
   );
