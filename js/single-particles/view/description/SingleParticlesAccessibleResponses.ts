@@ -66,6 +66,7 @@ type SingleParticlesResponseState = {
   wavefrontSpacing: WavePeakSpacingCategory;
   particleSpeedMetersPerSecond: number;
   slitSeparationMM: number;
+  barrierPositionFraction: number;
   totalHits: number;
   hitStage: HitStage;
   bandSpacingDescription: BandSpacingCategory;
@@ -184,6 +185,11 @@ export default class SingleParticlesAccessibleResponses extends Node {
   // detection in single-shot mode stays silent: the hit response already describes how the packet ended.
   private lastTransitionWasHit = false;
 
+  // Auto-repeat can emit many packets without toggling the source. Only the first packet after a source start or
+  // scene clear/restart should produce packet-lifecycle context responses.
+  private hasHandledFirstAutoRepeatPacketSinceRestart = false;
+  private isCurrentPacketFirstSinceRestart = true;
+
   // PDOM state item describing the current stage of the in-flight packet (moving packet, at slits, interfering, or
   // reaching the screen), or the accumulated hits pattern when idle; hidden while the detector screen is empty.
   // Because the packet is transient, this single item replaces the accumulating milestone list used on the
@@ -199,6 +205,40 @@ export default class SingleParticlesAccessibleResponses extends Node {
     model.currentTotalHitsProperty.lazyLink( () => this.handleTotalHitsChanged() );
     model.currentIsMaxHitsReachedProperty.lazyLink( () => this.handleMaxHitsChanged() );
     model.accessibleStateStepProperty.lazyLink( () => this.handleAccessibleStateStep() );
+    model.currentIsPacketActiveProperty.lazyLink( isPacketActive => {
+      if ( isPacketActive ) {
+        this.isCurrentPacketFirstSinceRestart = !this.hasHandledFirstAutoRepeatPacketSinceRestart;
+
+        if ( model.currentAutoRepeatProperty.value ) {
+          this.hasHandledFirstAutoRepeatPacketSinceRestart = true;
+        }
+      }
+      else {
+        this.isCurrentPacketFirstSinceRestart = false;
+      }
+    } );
+    model.currentAutoRepeatProperty.lazyLink( autoRepeat => {
+      this.resetFirstPacketResponseTracking();
+
+      if ( autoRepeat && model.currentIsPacketActiveProperty.value ) {
+        this.isCurrentPacketFirstSinceRestart = true;
+        this.hasHandledFirstAutoRepeatPacketSinceRestart = true;
+      }
+    } );
+
+    const resetFirstPacketResponsesIfScreenCleared = () => {
+      if ( model.currentTotalHitsProperty.value === 0 ) {
+        this.resetFirstPacketResponseTracking();
+      }
+    };
+    model.sceneProperty.link( ( scene, previousScene ) => {
+      if ( previousScene ) {
+        previousScene.hitsChangedEmitter.removeListener( resetFirstPacketResponsesIfScreenCleared );
+      }
+
+      this.resetFirstPacketResponseTracking();
+      scene.hitsChangedEmitter.addListener( resetFirstPacketResponsesIfScreenCleared );
+    } );
 
     // Changes that have their own responses elsewhere (scene radio buttons, slit configuration controls, parameter
     // sliders, probe measurements, time controls) only refresh the baseline snapshot so later guards compare against
@@ -209,6 +249,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
     model.currentWavelengthProperty.lazyLink( updateStateSilently );
     model.currentParticleSpeedProperty.lazyLink( updateStateSilently );
     model.currentSlitSeparationProperty.lazyLink( updateStateSilently );
+    model.currentBarrierPositionFractionProperty.lazyLink( updateStateSilently );
     model.currentDetectorProbe.stateProperty.lazyLink( updateStateSilently );
     model.isPlayingProperty.lazyLink( updateStateSilently );
     model.timeSpeedProperty.lazyLink( updateStateSilently );
@@ -256,6 +297,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       this.model.currentWavelengthProperty,
       this.model.currentParticleSpeedProperty,
       this.model.currentSlitSeparationProperty,
+      this.model.currentBarrierPositionFractionProperty,
       this.model.currentWaveDisplayModeProperty,
       this.model.currentTotalHitsProperty,
       this.model.accessibleStateStepProperty,
@@ -292,6 +334,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       wavefrontSpacing: getWavePeakSpacingCategory( scene ),
       particleSpeedMetersPerSecond: scene.particleSpeedProperty.value,
       slitSeparationMM: scene.slitSeparationProperty.value,
+      barrierPositionFraction: scene.barrierPositionFractionProperty.value,
       totalHits: totalHits,
       hitStage: BandAnalysis.getHitStage( totalHits, patternKind === 'doubleSlitInterference' ),
       bandSpacingDescription: bandAnalysis.spacingCategory,
@@ -299,6 +342,28 @@ export default class SingleParticlesAccessibleResponses extends Node {
       patternKind: patternKind,
       waveProgressStage: getPacketWaveProgressStage( scene, patternKind )
     };
+  }
+
+  /**
+   * Resets the auto-repeat packet-lifecycle response guards so the next emitted packet is treated as the first packet in
+   * a fresh run. Called when the source stops, when auto-repeat is toggled, when the active scene changes, and when a
+   * scene clear/restart invalidates the current packet.
+   */
+  private resetFirstPacketResponseTracking(): void {
+    this.hasHandledFirstAutoRepeatPacketSinceRestart = false;
+    this.isCurrentPacketFirstSinceRestart = true;
+  }
+
+  /**
+   * Returns whether packet-lifecycle context responses should be emitted for the current packet. In single-shot mode every
+   * packet is eligible. In auto-repeat mode, only the first packet after the most recent source start or scene restart is
+   * eligible so repeated packets do not keep narrating the same travel and hit stages.
+   *
+   * @param state - current semantic response state
+   * @returns whether packet-lifecycle context responses are eligible for the current packet
+   */
+  private shouldAddPacketLifecycleContextResponses( state: SingleParticlesResponseState ): boolean {
+    return !state.scene.autoRepeatProperty.value || this.isCurrentPacketFirstSinceRestart;
   }
 
   /**
@@ -321,7 +386,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       this.lastTransitionWasHit = false;
       this.addAccessibleContextResponse( formatSourceStarted( after ), { flush: true } );
 
-      if ( after.isPlaying ) {
+      if ( after.isPlaying && this.shouldAddPacketLifecycleContextResponses( after ) ) {
         this.addAccessibleContextResponse( formatPacketBeamDescription( after ) );
       }
     }
@@ -333,11 +398,13 @@ export default class SingleParticlesAccessibleResponses extends Node {
                                  before.wavelengthNM === after.wavelengthNM &&
                                  before.particleSpeedMetersPerSecond === after.particleSpeedMetersPerSecond &&
                                  before.slitSeparationMM === after.slitSeparationMM &&
+                                 before.barrierPositionFraction === after.barrierPositionFraction &&
                                  before.detectorProbeState === after.detectorProbeState &&
                                  after.totalHits >= before.totalHits;
       if ( isExplicitUserStop ) {
         this.addAccessibleContextResponse( formatSourceStoppedResponse( 'hits', after.totalHits ) );
       }
+      this.resetFirstPacketResponseTracking();
       this.lastTransitionWasHit = false;
     }
   }
@@ -357,7 +424,10 @@ export default class SingleParticlesAccessibleResponses extends Node {
     }
 
     this.lastTransitionWasHit = true;
-    this.addAccessibleContextResponse( formatHitDescription( after ), { responseGroup: HIT_RESPONSE_GROUP } );
+
+    if ( this.shouldAddPacketLifecycleContextResponses( after ) ) {
+      this.addAccessibleContextResponse( formatHitDescription( after ), { responseGroup: HIT_RESPONSE_GROUP } );
+    }
   }
 
   /**
@@ -396,7 +466,10 @@ export default class SingleParticlesAccessibleResponses extends Node {
     // Announce only barrier-region stages: earlier travel is covered by the source-start packet description, and
     // reaching the screen is covered by the hit response.
     const stage = after.waveProgressStage;
-    if ( stage === 'atSlits' || stage === 'interferingAfterSlits' || stage === 'diffractingAfterSlits' || stage === 'whichPathAfterSlits' ) {
+    if (
+      this.shouldAddPacketLifecycleContextResponses( after ) &&
+      ( stage === 'atSlits' || stage === 'interferingAfterSlits' || stage === 'diffractingAfterSlits' || stage === 'whichPathAfterSlits' )
+    ) {
       this.addAccessibleContextResponse( formatWaveProgress( after, stage ), {
           responseGroup: WAVE_PROGRESS_RESPONSE_GROUP
         }
