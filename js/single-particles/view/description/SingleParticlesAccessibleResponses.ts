@@ -31,8 +31,8 @@ import { getWavePeakSpacingCategory, type WavePeakSpacingCategory } from '../../
 import { getWavelengthColorZone, type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
 import { type QuantumWaveInterferenceWaveProgressStage } from '../../../high-intensity/view/description/HighIntensityAccessibleViewState.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import type SingleParticlesModel from '../../model/SingleParticlesModel.js';
 import { type DetectorProbeState } from '../../model/DetectorProbe.js';
+import type SingleParticlesModel from '../../model/SingleParticlesModel.js';
 import SingleParticlesSceneModel from '../../model/SingleParticlesSceneModel.js';
 
 // Response-group keys so rapid per-packet narration self-interrupts instead of flooding the speech queue. Wave
@@ -361,8 +361,9 @@ export default class SingleParticlesAccessibleResponses extends Node {
 
     if ( after.isMaxHitsReached && !before.isMaxHitsReached ) {
       this.addAccessibleContextResponse(
-        QuantumWaveInterferenceFluent.a11y.detectorScreen.maxHitsReached.accessibleContextResponseStringProperty,
-        { responseGroup: MAX_HITS_RESPONSE_GROUP }
+        QuantumWaveInterferenceFluent.a11y.detectorScreen.maxHitsReached.accessibleContextResponseStringProperty, {
+          responseGroup: MAX_HITS_RESPONSE_GROUP
+        }
       );
     }
   }
@@ -386,9 +387,9 @@ export default class SingleParticlesAccessibleResponses extends Node {
     // reaching the screen is covered by the hit response.
     const stage = after.waveProgressStage;
     if ( stage === 'atSlits' || stage === 'interferingAfterSlits' || stage === 'diffractingAfterSlits' || stage === 'whichPathAfterSlits' ) {
-      this.addAccessibleContextResponse(
-        formatWaveProgress( after, stage ),
-        { responseGroup: WAVE_PROGRESS_RESPONSE_GROUP }
+      this.addAccessibleContextResponse( formatWaveProgress( after, stage ), {
+          responseGroup: WAVE_PROGRESS_RESPONSE_GROUP
+        }
       );
     }
   }
