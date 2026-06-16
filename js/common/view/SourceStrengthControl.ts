@@ -48,7 +48,7 @@ export default class SourceStrengthControl extends VBox {
     tandem: Tandem
   ) {
     const sourceStrengthControlTandem = tandem.createTandem(
-      sourceType === 'photons' ? 'intensityControl' : 'emissionRateControl'
+      sourceType === 'photons' ? 'sourceIntensityControl' : 'emissionRateControl'
     );
     const sourceStrengthSlider = new HSlider( sourceStrengthProperty, sourceStrengthProperty.range, {
       trackSize: new Dimension2( SOURCE_CONTROL_SLIDER_TRACK_WIDTH, SOURCE_CONTROL_SLIDER_TRACK_HEIGHT ),

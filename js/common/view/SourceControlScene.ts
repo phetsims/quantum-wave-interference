@@ -19,7 +19,7 @@ type SourceControlScene = {
   readonly particleSpeedRange: Range;
 
   // Scenes omit both Properties when their source strength is fixed, which hides the source-strength slider.
-  readonly intensityProperty?: NumberProperty;
+  readonly sourceIntensityProperty?: NumberProperty;
   readonly emissionRateProperty?: NumberProperty;
 };
 

@@ -92,7 +92,7 @@ export default class SceneModel extends PhetioObject {
   public readonly particleSpeedProperty: NumberProperty;
 
   // Normalized photon source intensity. Only instrumented for the photon scene.
-  public readonly intensityProperty: NumberProperty;
+  public readonly sourceIntensityProperty: NumberProperty;
 
   // Normalized matter-particle emission rate. Only instrumented for matter scenes.
   public readonly emissionRateProperty: NumberProperty;
@@ -250,9 +250,9 @@ export default class SceneModel extends PhetioObject {
       phetioFeatured: true
     } );
 
-    this.intensityProperty = new NumberProperty( 0.5, {
+    this.sourceIntensityProperty = new NumberProperty( 0.5, {
       range: new Range( 0, 1 ),
-      tandem: options.sourceType === 'photons' ? tandem.createTandem( 'intensityProperty' ) : Tandem.OPT_OUT,
+      tandem: options.sourceType === 'photons' ? tandem.createTandem( 'sourceIntensityProperty' ) : Tandem.OPT_OUT,
       phetioFeatured: true,
       phetioDocumentation: 'The normalized photon source intensity, from 0 to 1. It scales beam opacity and ' +
                            'detector-pattern brightness. The photon detection-event rate is this value multiplied ' +
@@ -269,7 +269,7 @@ export default class SceneModel extends PhetioObject {
     } );
 
     this.sourceStrengthProperty = options.sourceType === 'photons' ?
-                                  this.intensityProperty :
+                                  this.sourceIntensityProperty :
                                   this.emissionRateProperty;
 
     // NOTE: see other duplicate in quantum-wave-interference/js/common/model/BaseSceneModel.ts. Slit separation is
@@ -482,7 +482,7 @@ export default class SceneModel extends PhetioObject {
     this.isEmittingProperty.reset();
     this.wavelengthProperty.reset();
     this.particleSpeedProperty.reset();
-    this.intensityProperty.reset();
+    this.sourceIntensityProperty.reset();
     this.emissionRateProperty.reset();
     this.slitSeparationProperty.reset();
     this.screenDistanceProperty.reset();

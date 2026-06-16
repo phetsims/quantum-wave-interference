@@ -122,7 +122,7 @@ function createSceneControlContent(
                      new PhotonWavelengthControl( scene.wavelengthProperty, tandem ) :
                      new ParticleVelocityControl( scene, tandem );
   const sourceStrengthProperty = scene.sourceType === 'photons' ?
-                                 scene.intensityProperty :
+                                 scene.sourceIntensityProperty :
                                  scene.emissionRateProperty;
 
   return {
