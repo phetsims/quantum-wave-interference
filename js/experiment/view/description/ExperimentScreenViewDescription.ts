@@ -8,11 +8,15 @@
 
 import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
+import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
+import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
+import { formatLiveHitsDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import ExperimentSetupDetailsNode from '../../../common/view/description/ExperimentSetupDetailsNode.js';
 import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import type SceneRadioButtonGroup from '../../../common/view/SceneRadioButtonGroup.js';
 import type SourceControlPanel from '../../../common/view/SourceControlPanel.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
+import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import ExperimentModel from '../../model/ExperimentModel.js';
 import type SceneModel from '../../model/SceneModel.js';
 import type OverheadEmitterNode from '../OverheadEmitterNode.js';
@@ -26,6 +30,7 @@ type ClockSpeedDescription = 'slow' | 'normal' | 'fast';
 // Response-group key so that rapid wavelength/speed/slit-separation changes self-interrupt rather than flooding
 // the speech queue; only the most recent band-spacing change is spoken.
 const BAND_SPACING_RESPONSE_GROUP = 'quantum-wave-interference-experiment-band-spacing';
+const HIT_STAGE_RESPONSE_GROUP = 'quantum-wave-interference-experiment-hit-stage';
 
 function getClockSpeedDescription( model: ExperimentModel ): ClockSpeedDescription {
   const timeSpeed = model.timeSpeedProperty.value;
@@ -98,6 +103,67 @@ export default class ExperimentScreenViewDescription extends Node {
         }
       } );
     } );
+
+    const hitStageResponseNode = new Node();
+    this.addChild( hitStageResponseNode );
+
+    let previousTotalHits = model.currentTotalHitsProperty.value;
+    let previousHitStage = BandAnalysis.getHitStage(
+      previousTotalHits,
+      showsDoubleSlitInterferencePattern( model.currentSlitConfigurationProperty.value )
+    );
+
+    const syncHitStageBaseline = () => {
+      previousTotalHits = model.currentTotalHitsProperty.value;
+      previousHitStage = BandAnalysis.getHitStage(
+        previousTotalHits,
+        showsDoubleSlitInterferencePattern( model.currentSlitConfigurationProperty.value )
+      );
+    };
+
+    model.currentTotalHitsProperty.lazyLink( totalHits => {
+      const scene = model.sceneProperty.value;
+      const slitSetting = model.currentSlitConfigurationProperty.value;
+      const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
+      const hitStage = BandAnalysis.getHitStage( totalHits, isDoubleSlit );
+
+      if (
+        model.currentDetectionModeProperty.value !== 'hits' ||
+        totalHits <= previousTotalHits ||
+        hitStage === previousHitStage
+      ) {
+        syncHitStageBaseline();
+        return;
+      }
+
+      const analysis = BandAnalysis.analyzeTheoreticalPattern(
+        scene,
+        getDetectorScreenHalfWidthForScaleIndex( model.detectorScreenScaleIndexProperty.value )
+      );
+      const spatialDescription = BandAnalysis.formatSpatialDescription(
+        analysis,
+        isDoubleSlit,
+        model.isRulerVisibleProperty.value,
+        false
+      );
+
+      previousTotalHits = totalHits;
+      previousHitStage = hitStage;
+
+      hitStageResponseNode.addAccessibleContextResponse(
+        formatLiveHitsDescription( hitStage, isDoubleSlit, false, analysis, spatialDescription ), {
+          responseGroup: HIT_STAGE_RESPONSE_GROUP
+        }
+      );
+    } );
+
+    model.sceneProperty.lazyLink( syncHitStageBaseline );
+    model.currentDetectionModeProperty.lazyLink( syncHitStageBaseline );
+    model.currentSlitConfigurationProperty.lazyLink( syncHitStageBaseline );
+    model.currentWavelengthProperty.lazyLink( syncHitStageBaseline );
+    model.currentParticleSpeedProperty.lazyLink( syncHitStageBaseline );
+    model.currentSlitSeparationProperty.lazyLink( syncHitStageBaseline );
+    model.currentScreenDistanceProperty.lazyLink( syncHitStageBaseline );
 
     // Announce how the double-slit fringe spacing responds to wavelength (photon scenes), particle speed (matter
     // scenes), and slit-separation changes — but only while both slits are open, the source is on, and the detector
