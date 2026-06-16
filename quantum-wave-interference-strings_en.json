@@ -63,7 +63,7 @@
     "value": "{{label}}: {{value}}"
   },
   "snapshotHeadingPattern": {
-    "value": "{{snapshot}}: {{scene}}"
+    "value": "{{snapshot}}: {{detectionMode}}"
   },
   "electronMassLabel": {
     "value": "m<sub>e</sub> = 9.1×10<sup>−31</sup> kg"
@@ -243,13 +243,16 @@
     },
     "snapshotsDialog": {
       "accessibleHeading": {
-        "value": "Snapshots"
+        "value": "{ $snapshotCount } { $sourceType ->\n  [photons] Photon\n  [electrons] Electron\n  [neutrons] Neutron\n *[heliumAtoms] Helium Atom\n} Experiment { $snapshotCount ->\n  [one] Snapshot\n *[other] Snapshots\n}"
       },
       "snapshotDeletedContextResponse": {
         "value": "Snapshot deleted."
       },
       "snapshotDeletedDialogClosedContextResponse": {
         "value": "Snapshot deleted, dialog closed."
+      },
+      "screenBrightness": {
+        "value": "Screen brightness is { $brightness }."
       }
     },
     "sourceHeading": {

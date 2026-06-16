@@ -24,8 +24,8 @@ import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import type { Snapshot } from '../model/Snapshot.js';
-import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import { getWavelengthColorZone, getWavelengthColorZoneStringProperty, WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from './WavelengthColorUtils.js';
 
 // Whether the two slits are arranged left-right (Experiment screen, overhead view) or top-bottom (High Intensity /
 // Single Particles screens, front-facing view). Controls which localized slit-name strings are used.
@@ -47,13 +47,6 @@ export type SnapshotMetadataPropertiesOptions = {
 
   // When true, a screen distance row is included in the metadata labels.
   showScreenDistance?: boolean;
-};
-
-const SOURCE_TYPE_DISPLAY_MAP: Record<SourceType, TReadOnlyProperty<string>> = {
-  photons: QuantumWaveInterferenceFluent.photonsStringProperty,
-  electrons: QuantumWaveInterferenceFluent.electronsStringProperty,
-  neutrons: QuantumWaveInterferenceFluent.neutronsStringProperty,
-  heliumAtoms: QuantumWaveInterferenceFluent.heliumAtomsStringProperty
 };
 
 const SLIT_SETTING_DISPLAY_MAPS: Record<SlitOrientation, SlitSettingDisplayMap> = {
@@ -99,13 +92,6 @@ function DEFAULT_FORMAT_SLIT_SEPARATION( slitSepMM: number ): DualString {
          } );
 }
 
-const SOURCE_TYPE_DISPLAY_DEPENDENCIES = [
-  SOURCE_TYPE_DISPLAY_MAP.photons,
-  SOURCE_TYPE_DISPLAY_MAP.electrons,
-  SOURCE_TYPE_DISPLAY_MAP.neutrons,
-  SOURCE_TYPE_DISPLAY_MAP.heliumAtoms
-] as const;
-
 function ifSnapshot<T>( compute: ( snapshot: Snapshot ) => T, empty: T ): ( snapshot: Snapshot | null ) => T {
   return snapshot => snapshot ? compute( snapshot ) : empty;
 }
@@ -140,7 +126,7 @@ const createSlitSettingDisplayMap = (
 
 export default class SnapshotMetadataProperties {
 
-  // Formatted heading shown at the top of the snapshot card, e.g. "Snapshot 1 – Photons".
+  // Formatted heading shown at the top of the snapshot card, e.g. "Snapshot 1: Intensity".
   public readonly headingProperty: TReadOnlyProperty<string>;
 
   // Visual label row showing photon wavelength (nm) for photons, or particle speed (m/s or km/s) for matter particles.
@@ -173,9 +159,6 @@ export default class SnapshotMetadataProperties {
   // Accessible name for the delete-snapshot button, includes the snapshot title for screen-reader context.
   public readonly trashButtonAccessibleNameProperty: TReadOnlyProperty<string>;
 
-  // PDOM list-item string for the detection mode row (Intensity vs. Hits), used inside the accessible metadata list.
-  public readonly detectionModeListItemProperty: TReadOnlyProperty<string>;
-
   // PDOM list-item string for the slit setting row, used inside the accessible metadata list.
   public readonly slitSettingListItemProperty: TReadOnlyProperty<string>;
 
@@ -192,8 +175,9 @@ export default class SnapshotMetadataProperties {
     snapshotProperty: TReadOnlyProperty<Snapshot | null>,
     options: SnapshotMetadataPropertiesOptions
   ) {
+    const slitOrientation = options.slitOrientation || 'topBottom';
     const slitSettingDisplayMap = createSlitSettingDisplayMap(
-      options.slitOrientation || 'topBottom',
+      slitOrientation,
       options.slitSettingDisplayMap
     );
     const slitSettingDisplayDependencies = [
@@ -215,20 +199,25 @@ export default class SnapshotMetadataProperties {
                                : ''
     );
 
-    const sceneNameProperty = new DerivedProperty(
-      [ snapshotProperty, ...SOURCE_TYPE_DISPLAY_DEPENDENCIES ],
-      ifSnapshot( snapshot => SOURCE_TYPE_DISPLAY_MAP[ snapshot.sourceType ].value, '' )
+    const detectionModeDisplayProperty = new DerivedProperty(
+      [
+        snapshotProperty,
+        QuantumWaveInterferenceFluent.intensityStringProperty,
+        QuantumWaveInterferenceFluent.hitsStringProperty
+      ],
+      ifSnapshot( snapshot => snapshot.detectionMode === 'intensity' ?
+                              QuantumWaveInterferenceFluent.intensityStringProperty.value :
+                              QuantumWaveInterferenceFluent.hitsStringProperty.value, '' )
     );
 
     this.headingProperty = new DerivedProperty(
-      [ titleProperty, sceneNameProperty, QuantumWaveInterferenceFluent.snapshotHeadingPatternStringProperty ],
-      ( title, sceneName, pattern ) => title ? StringUtils.fillIn( pattern, {
+      [ titleProperty, detectionModeDisplayProperty, QuantumWaveInterferenceFluent.snapshotHeadingPatternStringProperty ],
+      ( title, detectionMode, pattern ) => title ? StringUtils.fillIn( pattern, {
         snapshot: title,
-        scene: sceneName
+        detectionMode: detectionMode
       } ) : ''
     );
 
-    // The visual and accessible slit-separation rows are identical except for which side of the DualString they read.
     const createSlitSeparationProperty = ( selectString: ( dual: DualString ) => string ): TReadOnlyProperty<string> =>
       DerivedProperty.deriveAny(
         Array.from( new Set( [
@@ -245,11 +234,27 @@ export default class SnapshotMetadataProperties {
       );
 
     this.slitSeparationProperty = createSlitSeparationProperty( dual => dual.visualString );
-    this.slitSeparationAccessibleProperty = createSlitSeparationProperty( dual => dual.accessibleString );
 
-    // The visual and accessible wavelength/speed rows are identical except for which PhetUnit string method formats the
-    // value (getVisualSymbolPatternString vs getAccessibleString). All three units share the same type, so the builder
-    // takes a formatter and applies it uniformly.
+    const slitSeparationAccessibleValueProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [
+        snapshotProperty,
+        ...micrometersUnit.getDependentProperties(),
+        ...millimetersUnit.getDependentProperties()
+      ] ) ),
+      () => ifSnapshot( snapshot => formatSlitSeparation( snapshot.slitSeparation ).accessibleString, '' )(
+        snapshotProperty.value
+      )
+    );
+    const slitSeparationDescriptionProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitSeparation.createProperty( {
+        distance: slitSeparationAccessibleValueProperty
+      } );
+    this.slitSeparationAccessibleProperty = new DerivedProperty(
+      [ snapshotProperty, slitSeparationDescriptionProperty ],
+      ( snapshot, description ) => snapshot ? description : ''
+    );
+
+    // The visual row needs label-value formatting, while the PDOM row below reuses the main-view sentence pattern.
     const createWavelengthOrSpeedProperty = (
       formatUnitValue: ( unit: typeof nanometersUnit, value: number ) => string
     ): TReadOnlyProperty<string> =>
@@ -283,8 +288,67 @@ export default class SnapshotMetadataProperties {
 
     this.wavelengthOrSpeedProperty = createWavelengthOrSpeedProperty(
       ( unit, value ) => unit.getVisualSymbolPatternString( value, NUMBER_FORMAT_OPTIONS ) );
-    this.wavelengthOrSpeedAccessibleProperty = createWavelengthOrSpeedProperty(
-      ( unit, value ) => unit.getAccessibleString( value, NUMBER_FORMAT_OPTIONS ) );
+
+    const wavelengthAccessibleValueProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [
+        snapshotProperty,
+        ...nanometersUnit.getDependentProperties()
+      ] ) ),
+      () => ifSnapshot(
+        snapshot => nanometersUnit.getAccessibleString( roundSymmetric( snapshot.wavelength ), NUMBER_FORMAT_OPTIONS ),
+        ''
+      )( snapshotProperty.value )
+    );
+
+    const wavelengthColorStringProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [
+        snapshotProperty,
+        ...WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES
+      ] ) ),
+      () => ifSnapshot( snapshot => getWavelengthColorZoneStringProperty(
+        getWavelengthColorZone( roundSymmetric( snapshot.wavelength ) )
+      ).value, '' )( snapshotProperty.value )
+    );
+
+    const wavelengthDescriptionProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.wavelength.createProperty( {
+        wavelength: wavelengthAccessibleValueProperty,
+        color: wavelengthColorStringProperty
+      } );
+
+    const particleSpeedAccessibleValueProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [
+        snapshotProperty,
+        ...kilometersPerSecondUnit.getDependentProperties(),
+        ...metersPerSecondUnit.getDependentProperties()
+      ] ) ),
+      () => ifSnapshot( snapshot => {
+        if ( snapshot.sourceType === 'photons' ) {
+          return '';
+        }
+
+        const particleMass = QuantumWaveInterferenceConstants.getParticleMass( snapshot.sourceType );
+        const speed = snapshot.effectiveWavelength === 0 ? 0 :
+                      QuantumWaveInterferenceConstants.PLANCK_CONSTANT / ( particleMass * snapshot.effectiveWavelength );
+        return speed >= 10000 ?
+               kilometersPerSecondUnit.getAccessibleString( roundSymmetric( speed / 1000 ), NUMBER_FORMAT_OPTIONS ) :
+               metersPerSecondUnit.getAccessibleString( roundSymmetric( speed ), NUMBER_FORMAT_OPTIONS );
+      }, '' )( snapshotProperty.value )
+    );
+
+    const particleSpeedDescriptionProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.particleSpeed.createProperty( {
+        speed: particleSpeedAccessibleValueProperty
+      } );
+
+    this.wavelengthOrSpeedAccessibleProperty = new DerivedProperty(
+      [ snapshotProperty, wavelengthDescriptionProperty, particleSpeedDescriptionProperty ],
+      ( snapshot, wavelengthDescription, particleSpeedDescription ) => snapshot ?
+                                                                       ( snapshot.sourceType === 'photons' ?
+                                                                         wavelengthDescription :
+                                                                         particleSpeedDescription ) :
+                                                                       ''
+    );
 
     this.slitSettingProperty = new DerivedProperty(
       [
@@ -296,6 +360,18 @@ export default class SnapshotMetadataProperties {
         QuantumWaveInterferenceFluent.slitsLabelPatternStringProperty.value,
         { setting: slitSettingDisplayMap[ snapshot.slitSetting ].value }
       ), '' )
+    );
+    const snapshotSlitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier> = snapshotProperty.derived(
+      snapshot => snapshot ? snapshot.slitSetting : 'bothOpen'
+    );
+    const slitSettingDescriptionProperty =
+      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.createProperty( {
+        slitSetting: snapshotSlitSettingProperty,
+        slitOrientation: slitOrientation
+      } );
+    this.slitSettingListItemProperty = new DerivedProperty(
+      [ snapshotProperty, slitSettingDescriptionProperty ],
+      ( snapshot, description ) => snapshot ? description : ''
     );
 
     this.screenBrightnessProperty = DerivedProperty.deriveAny(
@@ -317,23 +393,24 @@ export default class SnapshotMetadataProperties {
       }, '' )( snapshotProperty.value )
     );
 
-    this.screenBrightnessAccessibleProperty = DerivedProperty.deriveAny(
+    const screenBrightnessAccessibleValueProperty = DerivedProperty.deriveAny(
       [
         snapshotProperty,
-        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
-        QuantumWaveInterferenceFluent.screenBrightnessStringProperty,
         ...percentUnit.getDependentProperties()
       ],
-      () => ifSnapshot( snapshot => {
-        return formatLabelValue(
-          QuantumWaveInterferenceFluent.screenBrightnessStringProperty.value,
-          percentUnit.getAccessibleString( snapshot.brightness, {
-            decimalPlaces: 0,
-            showTrailingZeros: false,
-            showIntegersAsIntegers: true
-          } )
-        );
-      }, '' )( snapshotProperty.value )
+      () => ifSnapshot( snapshot => percentUnit.getAccessibleString( snapshot.brightness, {
+        decimalPlaces: 0,
+        showTrailingZeros: false,
+        showIntegersAsIntegers: true
+      } ), '' )( snapshotProperty.value )
+    );
+    const screenBrightnessDescriptionProperty =
+      QuantumWaveInterferenceFluent.a11y.snapshotsDialog.screenBrightness.createProperty( {
+        brightness: screenBrightnessAccessibleValueProperty
+      } );
+    this.screenBrightnessAccessibleProperty = new DerivedProperty(
+      [ snapshotProperty, screenBrightnessDescriptionProperty ],
+      ( snapshot, description ) => snapshot ? description : ''
     );
 
     this.screenDistanceProperty = options.showScreenDistance ?
@@ -358,27 +435,29 @@ export default class SnapshotMetadataProperties {
                                   ) :
                                   null;
 
-    this.screenDistanceAccessibleProperty = options.showScreenDistance ?
-                                            DerivedProperty.deriveAny(
-                                              [
-                                                snapshotProperty,
-                                                QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
-                                                QuantumWaveInterferenceFluent.screenDistanceStringProperty,
-                                                ...metersUnit.getDependentProperties()
-                                              ],
-                                              () => ifSnapshot( snapshot => {
-                                                const screenDistanceValue = metersUnit.getAccessibleString(
-                                                  snapshot.screenDistance, {
-                                                    decimalPlaces: 2,
-                                                    showTrailingZeros: true
-                                                  } );
-                                                return formatLabelValue(
-                                                  QuantumWaveInterferenceFluent.screenDistanceStringProperty.value,
-                                                  screenDistanceValue
-                                                );
-                                              }, '' )( snapshotProperty.value )
-                                            ) :
-                                            null;
+    if ( options.showScreenDistance ) {
+      const screenDistanceAccessibleValueProperty = DerivedProperty.deriveAny(
+        [
+          snapshotProperty,
+          ...metersUnit.getDependentProperties()
+        ],
+        () => ifSnapshot( snapshot => metersUnit.getAccessibleString( snapshot.screenDistance, {
+          decimalPlaces: 2,
+          showTrailingZeros: true
+        } ), '' )( snapshotProperty.value )
+      );
+      const screenDistanceDescriptionProperty =
+        QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.screenDistance.createProperty( {
+          distance: screenDistanceAccessibleValueProperty
+        } );
+      this.screenDistanceAccessibleProperty = new DerivedProperty(
+        [ snapshotProperty, screenDistanceDescriptionProperty ],
+        ( snapshot, description ) => snapshot ? description : ''
+      );
+    }
+    else {
+      this.screenDistanceAccessibleProperty = null;
+    }
 
     this.trashButtonAccessibleNameProperty = DerivedProperty.deriveAny(
       [
@@ -393,33 +472,5 @@ export default class SnapshotMetadataProperties {
             ''
     );
 
-    this.detectionModeListItemProperty = new DerivedProperty(
-      [
-        snapshotProperty,
-        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
-        QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty,
-        QuantumWaveInterferenceFluent.intensityStringProperty,
-        QuantumWaveInterferenceFluent.hitsStringProperty
-      ],
-      ifSnapshot( snapshot => formatLabelValue(
-        QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.accessibleNameStringProperty.value,
-        snapshot.detectionMode === 'intensity'
-        ? QuantumWaveInterferenceFluent.intensityStringProperty.value
-        : QuantumWaveInterferenceFluent.hitsStringProperty.value
-      ), '' )
-    );
-
-    this.slitSettingListItemProperty = new DerivedProperty(
-      [
-        snapshotProperty,
-        QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
-        QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty,
-        ...slitSettingDisplayDependencies
-      ],
-      ifSnapshot( snapshot => formatLabelValue(
-        QuantumWaveInterferenceFluent.a11y.slitSettingsComboBox.accessibleNameStringProperty.value,
-        slitSettingDisplayMap[ snapshot.slitSetting ].value
-      ), '' )
-    );
   }
 }

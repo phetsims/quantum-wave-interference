@@ -20,6 +20,7 @@ import Tandem from '../../../../tandem/js/Tandem.js';
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.js';
 import type { Snapshot } from '../model/Snapshot.js';
+import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import createDetectorZoomLevelResponseProperty from './description/createDetectorZoomLevelResponseProperty.js';
 import SnapshotNode from './SnapshotNode.js';
@@ -83,6 +84,14 @@ export default class SnapshotsDialog extends Dialog {
   ) {
     let suppressNextCloseSound = false;
     const detectorScreenScaleIndexProperty = providedOptions?.detectorScreenScaleIndexProperty;
+    const snapshotCountProperty = snapshotsProperty.derived( snapshots => snapshots.length );
+    const dialogSourceTypeProperty: TReadOnlyProperty<SourceType> = snapshotsProperty.derived(
+      snapshots => snapshots.length > 0 ? snapshots[ 0 ].sourceType : 'photons'
+    );
+    const accessibleHeadingProperty = QuantumWaveInterferenceFluent.a11y.snapshotsDialog.accessibleHeading.createProperty( {
+      snapshotCount: snapshotCountProperty,
+      sourceType: dialogSourceTypeProperty
+    } );
 
     const snapshotNodes: SnapshotNode[] = [];
     for ( let i = 0; i < QuantumWaveInterferenceConstants.MAX_SNAPSHOTS; i++ ) {
@@ -104,6 +113,7 @@ export default class SnapshotsDialog extends Dialog {
     }
 
     const contentChildren = [ ...snapshotNodes ];
+    const pdomOrderAfterSnapshots: Node[] = [];
 
     // Experiment snapshots share the detector-screen horizontal zoom. Add the zoom controls only when both the model
     // Property and the matching visual scale indicator factory are provided.
@@ -123,26 +133,27 @@ export default class SnapshotsDialog extends Dialog {
         top: SNAPSHOT_ZOOM_BUTTON_MARGIN,
         zoomInButtonOptions: {
           accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
-          accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty,
           accessibleContextResponse: zoomLevelResponseProperty
         },
         zoomOutButtonOptions: {
           accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
-          accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
           accessibleContextResponse: zoomLevelResponseProperty
         },
         tandem: tandem.createTandem( 'zoomButtonGroup' ),
         phetioFeatured: true,
         visiblePropertyOptions: { phetioFeatured: true }
       } );
-      snapshotNodes[ 0 ].addSnapshotOverlayChild( zoomButtonGroup, true );
+      snapshotNodes[ 0 ].addSnapshotOverlayChild( zoomButtonGroup );
       snapshotNodes[ 0 ].addSnapshotOverlayChild( providedOptions.createScaleIndicatorNode() );
+      pdomOrderAfterSnapshots.push( zoomButtonGroup );
     }
 
     const content = new VBox( {
       spacing: 10,
       align: 'center',
-      children: contentChildren
+      children: contentChildren,
+      accessibleHeading: accessibleHeadingProperty,
+      pdomOrder: [ ...snapshotNodes, ...pdomOrderAfterSnapshots ]
     } );
 
     super( content, {
@@ -165,8 +176,7 @@ export default class SnapshotsDialog extends Dialog {
           sharedSoundPlayers.get( 'generalClose' ).stop();
         }
       },
-      tandem: tandem,
-      accessibleHeading: QuantumWaveInterferenceFluent.a11y.snapshotsDialog.accessibleHeadingStringProperty
+      tandem: tandem
     } );
 
     let previousSnapshotCount = snapshotsProperty.value.length;

@@ -87,7 +87,6 @@ export default class SnapshotNode extends Node {
       screenBrightnessProperty,
       screenBrightnessAccessibleProperty,
       trashButtonAccessibleNameProperty,
-      detectionModeListItemProperty,
       slitSettingListItemProperty
     } = new SnapshotMetadataProperties( snapshotProperty, options );
 
@@ -234,7 +233,6 @@ export default class SnapshotNode extends Node {
       } );
 
       const metadataListChildren: Node[] = [
-        new Node( { tagName: 'li', innerContent: detectionModeListItemProperty } ),
         new Node( { tagName: 'li', innerContent: wavelengthOrSpeedAccessibleProperty } ),
         new Node( { tagName: 'li', innerContent: slitSeparationAccessibleProperty } )
       ];
@@ -283,12 +281,17 @@ export default class SnapshotNode extends Node {
    * Adds controls or indicators over the detector snapshot area.
    *
    * @param child - overlay node to add inside the detector snapshot slot
-   * @param includeInPDOM - whether the overlay should appear before snapshot details in screen-reader order
+   * @param includeInPDOM - whether the overlay should appear after snapshot details in screen-reader order
    */
   public addSnapshotOverlayChild( child: Node, includeInPDOM = false ): void {
     this.detectorSnapshotSlot.addChild( child );
-    if ( includeInPDOM && this.pdomOrder ) {
-      this.pdomOrder = [ child, ...this.pdomOrder ];
+    if ( includeInPDOM && this.pdomOrder && this.pdomOrder.length > 0 ) {
+      const lastPDOMNode = this.pdomOrder[ this.pdomOrder.length - 1 ];
+      this.pdomOrder = [
+        ...this.pdomOrder.slice( 0, -1 ),
+        child,
+        lastPDOMNode
+      ];
     }
   }
 }

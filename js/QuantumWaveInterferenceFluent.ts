@@ -104,6 +104,7 @@ addToMapIfDefined( 'a11y_snapshotNode_deleteSnapshotAccessibleName', 'a11y.snaps
 addToMapIfDefined( 'a11y_snapshotsDialog_accessibleHeading', 'a11y.snapshotsDialog.accessibleHeadingStringProperty' );
 addToMapIfDefined( 'a11y_snapshotsDialog_snapshotDeletedContextResponse', 'a11y.snapshotsDialog.snapshotDeletedContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_snapshotsDialog_snapshotDeletedDialogClosedContextResponse', 'a11y.snapshotsDialog.snapshotDeletedDialogClosedContextResponseStringProperty' );
+addToMapIfDefined( 'a11y_snapshotsDialog_screenBrightness', 'a11y.snapshotsDialog.screenBrightnessStringProperty' );
 addToMapIfDefined( 'a11y_sourceHeading', 'a11y.sourceHeadingStringProperty' );
 addToMapIfDefined( 'a11y_slitsHeading', 'a11y.slitsHeadingStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenHeading', 'a11y.detectorScreenHeadingStringProperty' );
@@ -389,9 +390,10 @@ const QuantumWaveInterferenceFluent = {
       deleteSnapshotAccessibleName: new FluentPattern<{ snapshotTitle: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_snapshotNode_deleteSnapshotAccessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotNode.deleteSnapshotAccessibleNameStringProperty' ), [{"name":"snapshotTitle"}] )
     },
     snapshotsDialog: {
-      accessibleHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_snapshotsDialog_accessibleHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotsDialog.accessibleHeadingStringProperty' ) ),
+      accessibleHeading: new FluentPattern<{ snapshotCount: number | 'one' | number | 'other' | TReadOnlyProperty<number | 'one' | number | 'other'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_snapshotsDialog_accessibleHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotsDialog.accessibleHeadingStringProperty' ), [{"name":"snapshotCount","variants":[{"type":"number","value":"one"},{"type":"number","value":"other"}]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
       snapshotDeletedContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_snapshotsDialog_snapshotDeletedContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotsDialog.snapshotDeletedContextResponseStringProperty' ) ),
-      snapshotDeletedDialogClosedContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_snapshotsDialog_snapshotDeletedDialogClosedContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotsDialog.snapshotDeletedDialogClosedContextResponseStringProperty' ) )
+      snapshotDeletedDialogClosedContextResponseStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_snapshotsDialog_snapshotDeletedDialogClosedContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotsDialog.snapshotDeletedDialogClosedContextResponseStringProperty' ) ),
+      screenBrightness: new FluentPattern<{ brightness: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_snapshotsDialog_screenBrightness', _.get( QuantumWaveInterferenceStrings, 'a11y.snapshotsDialog.screenBrightnessStringProperty' ), [{"name":"brightness"}] )
     },
     sourceHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_sourceHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.sourceHeadingStringProperty' ) ),
     slitsHeadingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_slitsHeading', _.get( QuantumWaveInterferenceStrings, 'a11y.slitsHeadingStringProperty' ) ),

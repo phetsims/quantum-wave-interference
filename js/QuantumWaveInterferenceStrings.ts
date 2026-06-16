@@ -112,6 +112,7 @@ type StringsType = {
       'accessibleHeadingStringProperty': LocalizedStringProperty;
       'snapshotDeletedContextResponseStringProperty': LocalizedStringProperty;
       'snapshotDeletedDialogClosedContextResponseStringProperty': LocalizedStringProperty;
+      'screenBrightnessStringProperty': LocalizedStringProperty;
     };
     'sourceHeadingStringProperty': LocalizedStringProperty;
     'slitsHeadingStringProperty': LocalizedStringProperty;
