@@ -391,6 +391,7 @@ export default class HighIntensityScreenView extends ScreenView {
     const patternKind = getPatternKind( slitConfiguration );
     const detectorScreenHalfWidth = scene.regionWidth / 2;
     const bandAnalysis = BandAnalysis.analyzeTheoreticalPattern( scene, detectorScreenHalfWidth );
+    const envelopeHeuristic = BandAnalysis.analyzeEnvelopeHeuristic( scene );
     const hitStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value, patternKind === 'doubleSlitInterference' );
     const effectiveWavelengthMeters = scene.getEffectiveWavelength();
     const wavelengthColorZone = scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : null;
@@ -419,6 +420,7 @@ export default class HighIntensityScreenView extends ScreenView {
       slitSeparationMicrometers: slitConfiguration === 'noBarrier' ? null : Number( toFixed( scene.slitSeparationProperty.value * 1000, 2 ) ),
       bandSpacingDescription: bandAnalysis.spacingCategory,
       envelopeCategory: bandAnalysis.envelopeCategory,
+      envelopeHeuristic: envelopeHeuristic,
       graphPatternDescription: this.detectorPatternGraphDescriber.descriptionProperty.value,
       hitStage: hitStage,
       totalHits: scene.totalHitsProperty.value,

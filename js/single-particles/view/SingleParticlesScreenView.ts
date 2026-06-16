@@ -24,6 +24,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import createAndAddSlitConfigurationControlsRow from '../../common/view/createAndAddSlitConfigurationControlsRow.js';
 import createFrontFacingSlitDetectorOptions from '../../common/view/createFrontFacingSlitDetectorOptions.js';
 import createStandardToolCheckboxes from '../../common/view/createStandardToolCheckboxes.js';
+import BandAnalysis, { type EnvelopeHeuristicAnalysis } from '../../common/view/description/BandAnalysis.js';
 import createPathDetectorsViewState from '../../common/view/description/createPathDetectorsViewState.js';
 import DetectorPatternGraphDescriber from '../../common/view/description/DetectorPatternGraphDescriber.js';
 import { type DetectorPatternGraphViewState, type DetectorProbeViewState, type DetectorScreenViewState, type MeasurementToolsViewState, type PathDetectorsViewState, type SlitBarrierViewState, type WaveVisualizationViewState } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
@@ -91,6 +92,7 @@ type SingleParticlesAccessibleViewState = {
   particleSpeedMetersPerSecond: number;
   effectiveWavelengthMeters: number;
   slitSeparationMM: number;
+  envelopeHeuristic: EnvelopeHeuristicAnalysis | null;
   totalHits: number;
   pathDetectors: PathDetectorsViewState;
   screenBrightnessPercent: number;
@@ -470,6 +472,7 @@ export default class SingleParticlesScreenView extends ScreenView {
     const measurementTools = this.measurementToolsNode.getAccessibleViewState().measurementTools;
     const slitBarrier = this.doubleSlitNode.getAccessibleViewState()?.slitBarrier;
     const slitConfiguration = this.model.currentSlitConfigurationProperty.value;
+    const envelopeHeuristic = BandAnalysis.analyzeEnvelopeHeuristic( scene );
 
     affirm( slitBarrier, 'Expected Single Particles slit-barrier view state.' );
 
@@ -493,6 +496,7 @@ export default class SingleParticlesScreenView extends ScreenView {
         particleSpeedMetersPerSecond: this.model.currentParticleSpeedProperty.value,
         effectiveWavelengthMeters: scene.getEffectiveWavelength(),
         slitSeparationMM: this.model.currentSlitSeparationProperty.value,
+        envelopeHeuristic: envelopeHeuristic,
         totalHits: this.model.currentTotalHitsProperty.value,
         pathDetectors: createPathDetectorsViewState(
           slitConfiguration,

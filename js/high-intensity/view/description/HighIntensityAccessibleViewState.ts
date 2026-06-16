@@ -12,7 +12,7 @@ import { type DetectionMode } from '../../../common/model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import { type SourceType } from '../../../common/model/SourceType.js';
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
-import { type BandSpacingCategory, type EnvelopeCategory, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import { type BandSpacingCategory, type EnvelopeCategory, type EnvelopeHeuristicAnalysis, type HitStage } from '../../../common/view/description/BandAnalysis.js';
 import { type QuantumWaveInterferenceClockSpeedDescription } from '../../../common/view/description/getClockSpeedDescription.js';
 import { type QuantumWaveInterferencePatternKind } from '../../../common/view/description/getPatternKind.js';
 import { type WavePeakSpacingCategory } from '../../../common/view/description/getWavePeakSpacingCategory.js';
@@ -92,6 +92,9 @@ export type HighIntensitySemanticAccessibleViewState = {
   // central band or as two groups (one across from each slit) when the slit separation and barrier-to-screen
   // distance separate the pattern.
   envelopeCategory: EnvelopeCategory;
+
+  // Full single-slit envelope heuristic details used to produce envelopeCategory.
+  envelopeHeuristic: EnvelopeHeuristicAnalysis | null;
 
   // Localized description of the current graph/histogram pattern, produced by DetectorPatternGraphDescriber. Used
   // when a response must describe the graph surface instead of the detector screen (graph view is active).
