@@ -452,13 +452,13 @@ export default class SingleParticlesScreenView extends ScreenView {
       screenViewDescription.detectorScreenAndExperimentDetailsHeadingNode,
       screenViewDescription.sourceHeadingNode,
       screenViewDescription.slitsHeadingNode,
+      screenViewDescription.detectorScreenHeadingNode,
       this.detectorPatternGraphLayerNode,
       detectorProbeNode,
       measurementToolsNode
     ];
 
     this.pdomControlAreaNode.pdomOrder = [
-      screenViewDescription.detectorScreenHeadingNode,
       detectorScreenControls.waveDisplayAndTimeControlsGroup,
       detectorScreenControls.bottomButtonsRow
     ];

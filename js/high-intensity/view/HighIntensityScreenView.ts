@@ -941,12 +941,12 @@ export default class HighIntensityScreenView extends ScreenView {
       screenViewDescription.detectorScreenAndExperimentDetailsHeadingNode,
       screenViewDescription.sourceHeadingNode,
       screenViewDescription.slitsHeadingNode,
+      screenViewDescription.detectorScreenHeadingNode,
       this.detectorPatternGraphLayerNode,
       measurementToolsNode
     ];
 
     this.pdomControlAreaNode.pdomOrder = [
-      screenViewDescription.detectorScreenHeadingNode,
       detectorScreenControls.waveDisplayAndTimeControlsGroup,
       detectorScreenControls.bottomButtonsRow
     ];
