@@ -721,6 +721,41 @@ a11y:
                                       6.6 times 10 to the negative 27 kilograms.
                                     }
                                   }
+    # Single Particles screen: the emitter is a switch whose guidance reflects the Auto-repeat checkbox state.
+    # When Auto-repeat is off the source fires one packet then auto-returns to off; when on it behaves like a
+    # continuous on/off switch. Mass of the particle is appended for matter sources (not photons).
+    singleParticleAccessibleHelpText: >-
+                                  { $autoRepeat ->
+                                    [true] { $isEmitting ->
+                                      [true] { $sourceType ->
+                                        [electrons] Turn source off to stop experiment. Electron mass is 9.1
+                                        times 10 to the negative 31 kilograms.
+                                        [neutrons] Turn source off to stop experiment. Neutron mass is 1.7
+                                        times 10 to the negative 27 kilograms.
+                                        [heliumAtoms] Turn source off to stop experiment. Helium atom mass is
+                                        6.6 times 10 to the negative 27 kilograms.
+                                       *[photons] Turn source off to stop experiment.
+                                      }
+                                     *[false] { $sourceType ->
+                                        [electrons] Fire single particle wave packets continuously. Electron mass is 9.1
+                                        times 10 to the negative 31 kilograms.
+                                        [neutrons] Fire single particle wave packets continuously. Neutron mass is 1.7
+                                        times 10 to the negative 27 kilograms.
+                                        [heliumAtoms] Fire single particle wave packets continuously. Helium atom mass is
+                                        6.6 times 10 to the negative 27 kilograms.
+                                       *[photons] Fire single particle wave packets continuously.
+                                      }
+                                    }
+                                   *[false] { $sourceType ->
+                                      [electrons] Fire single particle wave packets one at a time. Electron mass is 9.1
+                                      times 10 to the negative 31 kilograms.
+                                      [neutrons] Fire single particle wave packets one at a time. Neutron mass is 1.7
+                                      times 10 to the negative 27 kilograms.
+                                      [heliumAtoms] Fire single particle wave packets one at a time. Helium atom mass is
+                                      6.6 times 10 to the negative 27 kilograms.
+                                     *[photons] Fire single particle wave packets one at a time.
+                                    }
+                                  }
   rulerCheckbox:
     accessibleHelpText:                 Add ruler to measure distances on detector screen or graph. Once added, move ruler up or down with keyboard shortcuts.
     accessibleContextResponseChecked:   Ruler added near detector screen.

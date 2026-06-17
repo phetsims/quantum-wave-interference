@@ -46,6 +46,7 @@ export default class SingleParticleEmitterNode extends Node {
     sceneProperty: TReadOnlyProperty<SceneLike>,
     isEmittingProperty: TProperty<boolean>,
     isEmitterEnabledProperty: TReadOnlyProperty<boolean>,
+    autoRepeatProperty: TReadOnlyProperty<boolean>,
     providedOptions: SingleParticleEmitterNodeOptions
   ) {
 
@@ -65,6 +66,7 @@ export default class SingleParticleEmitterNode extends Node {
 
     const sourceTypeProperty = sceneProperty.derived( scene => scene.sourceType );
     const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
+    const autoRepeatStringProperty = autoRepeatProperty.derived( autoRepeat => autoRepeat ? 'true' : 'false' );
 
     // NOTE: see other duplicate in quantum-wave-interference/js/high-intensity/view/HighIntensitySourceBeamThumbnailNode.ts.
     // These button options stay inline because RoundStickyToggleButton and LaserPointerNode own different option
@@ -74,10 +76,16 @@ export default class SingleParticleEmitterNode extends Node {
       radius: BUTTON_RADIUS,
       valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
       valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
+
+      // Convey the source emitter as a switch with on/off states (matching the Experiment and High Intensity screens),
+      // rather than the default toggle-button "pressed" state. When Auto-repeat is checked it behaves exactly like the
+      // on/off switches on the other screens; when unchecked it auto-returns to off after firing a single packet.
+      accessibleRoleConfiguration: 'switch',
       accessibleName: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleName.createProperty( {
         sourceType: sourceTypeProperty
       } ),
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleHelpText.createProperty( {
+      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.singleParticleAccessibleHelpText.createProperty( {
+        autoRepeat: autoRepeatStringProperty,
         isEmitting: isEmittingStringProperty,
         sourceType: sourceTypeProperty
       } ),

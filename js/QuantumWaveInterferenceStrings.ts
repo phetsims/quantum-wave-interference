@@ -198,6 +198,7 @@ type StringsType = {
     'emitterButton': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      'singleParticleAccessibleHelpTextStringProperty': LocalizedStringProperty;
     };
     'rulerCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
