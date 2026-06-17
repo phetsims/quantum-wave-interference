@@ -431,12 +431,12 @@ a11y:
                               }
                              *[hits] { $hitStage ->
                                 [none] Detector screen is empty. No particles have arrived yet.
-                                [few] Individual scattered hits appear on detector screen.
+                                [few] Individual scattered hits on detector screen.
                                 [emerging] { $patternKind ->
                                   [doubleSlitInterference] Hits begin to form faint bands.
                                   [singleSlitDiffraction] Bright-band pattern is absent.
                                   [whichPathDiffraction] Bright bands are gone.
-                                 *[noBarrier] Evenly scattered hits appear across the detector screen.
+                                 *[noBarrier] Evenly scattered hits across the detector screen.
                                 }
                                 [developing] { $patternKind ->
                                   [doubleSlitInterference] Evenly-spaced bands become more distinct.
@@ -992,12 +992,12 @@ a11y:
       intensityNoBarrier:     Graph traces uniform intensity versus position as a flat horizontal line.
       hitsNone:               Histogram empty. No particles counted.
       hitsFew:                >-
-                              A few bars have appeared at scattered positions across histogram.
+                              A few bars at scattered positions across histogram.
       hitsEmerging:           >-
                               Histogram growing. Some bars are becoming taller than others at repeated
                               positions across graph.
       hitsDeveloping:         >-
-                              Taller bars are appearing at regular intervals, with shorter bars between them.
+                              Taller bars at regular intervals, with shorter bars between them.
                               { $spatialDescription }
       hitsClear:              >-
                               Histogram shows a tall central peak with repeating side peaks and lower bars
@@ -1036,7 +1036,7 @@ a11y:
                                       brightest in the middle and fading toward the edges. { $spatialDescription }
       intensityNoBarrier:             Plane wave fronts move directly to the detector screen. Uniform glow from plane wave fronts.
       hitsNone:                       Detector screen is empty. No particles have arrived yet.
-      hitsFew:                        Individual scattered hits appear on detector screen.
+      hitsFew:                        Individual scattered hits on detector screen.
       hitsEmerging:                   Hits begin to form faint bands.
       hitsDeveloping:                 Evenly-spaced bands become more distinct.
       hitsClear:                      >-
@@ -1055,7 +1055,7 @@ a11y:
       hitsSingleSlitClear:            >-
                                       Bright-band pattern is absent. Hits form a broad central area that tapers toward the edges.
                                       { $spatialDescription }
-      hitsNoBarrier:                  Evenly scattered hits appear across the detector screen.
+      hitsNoBarrier:                  Evenly scattered hits across the detector screen.
       snapshotHitsNone:               |-
                                       Detector screen is empty. { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
@@ -1067,7 +1067,7 @@ a11y:
                                          *[other] Detector screen shows a total of { $hitCount } hits.
                                       }
       snapshotHitsEmerging:           |-
-                                      More particles are appearing, and faint vertical stripes are becoming visible with gaps between them. { $hitCount ->
+                                      More particles, and faint vertical stripes are becoming visible with gaps between them. { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
                                          *[other] Detector screen shows a total of { $hitCount } hits.
                                       }
@@ -1082,7 +1082,7 @@ a11y:
                                          *[other] Detector screen shows a total of { $hitCount } hits.
                                       } { $spatialDescription }
       snapshotHitsSingleSlitEmerging: |-
-                                      More particles are appearing in a broad region near the center of the screen, with fewer toward the edges. { $hitCount ->
+                                      More particles in a broad region near the center of the screen, with fewer toward the edges. { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
                                          *[other] Detector screen shows a total of { $hitCount } hits.
                                       }
@@ -1092,7 +1092,7 @@ a11y:
                                          *[other] Detector screen shows a total of { $hitCount } hits.
                                       } { $spatialDescription }
       snapshotHitsNoBarrier:          |-
-                                      Evenly scattered hits appear across the detector screen. { $hitCount ->
+                                      Evenly scattered hits across the detector screen. { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
                                          *[other] Detector screen shows a total of { $hitCount } hits.
                                       }
