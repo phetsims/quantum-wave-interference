@@ -201,8 +201,7 @@ export default class GraphAccordionBox extends Node {
 
     const graphDescriber = new GraphDescriber(
       sceneModel,
-      providedOptions.isRulerVisibleProperty,
-      providedOptions.detectorScreenScaleIndexProperty
+      providedOptions.isRulerVisibleProperty
     );
     const graphDescriptionNode = new Node( {
       accessibleParagraph: graphDescriber.descriptionProperty

@@ -348,10 +348,7 @@ export default class FrontFacingDetectorScreenNode extends Node {
         slitOrientation: 'leftRight',
         formatSlitSeparation: formatExperimentSlitSeparation,
         showScreenDistance: true,
-        getDescription: snapshot => SnapshotDescriber.getDescription(
-          snapshot,
-          getDetectorScreenHalfWidthForScaleIndex( model.detectorScreenScaleIndexProperty.value )
-        ),
+        getDescription: snapshot => SnapshotDescriber.getDescription( snapshot ),
         detectorScreenScaleIndexProperty: model.detectorScreenScaleIndexProperty,
         getVisibleScreenHalfWidth: () => getDetectorScreenHalfWidthForScaleIndex( model.detectorScreenScaleIndexProperty.value ),
         createScaleIndicatorNode: () => new DetectorScreenScaleIndicatorNode(

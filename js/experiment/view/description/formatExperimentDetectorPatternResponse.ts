@@ -8,20 +8,19 @@
 
 import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
 import { formatCompleteIntensityDetectorPatternDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
-import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import ExperimentModel from '../../model/ExperimentModel.js';
 
 /**
- * Formats the active Experiment scene's detector pattern using its current physics state and detector-screen zoom.
+ * Formats the active Experiment scene's detector pattern using its current physics state and full detector width.
  *
- * @param model - Experiment model supplying the active scene and detector-screen scale
+ * @param model - Experiment model supplying the active scene
  * @returns localized completed intensity-pattern description
  */
 export default function formatExperimentDetectorPatternResponse( model: ExperimentModel ): string {
   const scene = model.sceneProperty.value;
   const analysis = BandAnalysis.analyzeTheoreticalPattern(
     scene,
-    getDetectorScreenHalfWidthForScaleIndex( model.detectorScreenScaleIndexProperty.value )
+    scene.fullScreenHalfWidth
   );
 
   return formatCompleteIntensityDetectorPatternDescription( model.currentSlitConfigurationProperty.value, analysis );

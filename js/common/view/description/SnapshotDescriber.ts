@@ -23,12 +23,8 @@ export default class SnapshotDescriber {
    * emitting); for particle-detection modes it describes the hit count and spatial arrangement.
    *
    * @param snapshot - the snapshot whose data drives the description
-   * @param screenHalfWidth - half the visible detector-screen width in model units, used to bin the pattern into
-   *   qualitative bands. Defaults to the value recorded in the snapshot, but callers that display the snapshot at
-   *   a different scale (e.g. the SnapshotsDialog, which uses the current detector-screen scale index) pass the
-   *   current visible half-width so the band boundaries match the displayed scale.
    */
-  public static getDescription( snapshot: Snapshot, screenHalfWidth = snapshot.screenHalfWidth ): string {
+  public static getDescription( snapshot: Snapshot ): string {
     const isDoubleSlit = showsDoubleSlitInterferencePattern( snapshot.slitSetting );
 
     if ( snapshot.detectionMode === 'intensity' ) {
@@ -36,7 +32,7 @@ export default class SnapshotDescriber {
         return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty.value;
       }
 
-      const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot, screenHalfWidth );
+      const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot );
       const spatialDescription = isDoubleSlit ?
                                  BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, false, false ) :
                                  BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
@@ -46,7 +42,7 @@ export default class SnapshotDescriber {
 
     const hitCount = snapshot.hits.length;
     const hitStage = BandAnalysis.getHitStage( hitCount );
-    const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot, screenHalfWidth );
+    const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot );
     const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
 
     return formatSnapshotHitsDescription( hitStage, isDoubleSlit, snapshot.slitSetting === 'noBarrier', hitCount, spatialDescription );

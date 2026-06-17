@@ -1,7 +1,8 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * GraphDescriber produces a dynamic accessible description of the intensity graph / hits histogram that scales with
+ * GraphDescriber produces a dynamic accessible description of the intensity graph / hits histogram that uses the full
+ * detector width, independent of the current visual detector zoom. The description still scales with
  * hit count and describes the theoretical intensity curve.
  * Uses the same band analysis as DetectorScreenDescriber but with graph-oriented language ("peaks" and "valleys"
  * instead of "bright bands" and "dark bands").
@@ -18,7 +19,6 @@ import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitConfiguration.js';
 import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import SceneModel from '../../model/SceneModel.js';
 
 export default class GraphDescriber {
@@ -27,8 +27,7 @@ export default class GraphDescriber {
 
   public constructor(
     sceneModel: SceneModel,
-    isRulerVisibleProperty: TReadOnlyProperty<boolean>,
-    detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+    isRulerVisibleProperty: TReadOnlyProperty<boolean>
   ) {
 
     const descriptionProperty = new Property<string>( '' );
@@ -47,7 +46,7 @@ export default class GraphDescriber {
 
       // NOTE: see other duplicate in
       // quantum-wave-interference/js/common/view/description/DetectorPatternGraphDescriber.ts. Experiment graph
-      // descriptions use a detector-screen scale Property instead of the shared scene region width.
+      // descriptions use the full detector width so physics-pattern wording does not change with visual zoom.
       if ( detectionMode === 'intensity' ) {
         if ( !sceneModel.isEmittingProperty.value ) {
           descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensityOffStringProperty.value;
@@ -56,7 +55,7 @@ export default class GraphDescriber {
 
         const analysis = BandAnalysis.analyzeTheoreticalPattern(
           sceneModel,
-          getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value )
+          sceneModel.fullScreenHalfWidth
         );
         const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
 
@@ -80,7 +79,7 @@ export default class GraphDescriber {
       // rather than jumping with noisy bin data.
       const analysis = BandAnalysis.analyzeTheoreticalPattern(
         sceneModel,
-        getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value )
+        sceneModel.fullScreenHalfWidth
       );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
 
@@ -125,7 +124,6 @@ export default class GraphDescriber {
     sceneModel.screenDistanceProperty.lazyLink( fullUpdate );
     sceneModel.wavelengthProperty.lazyLink( fullUpdate );
     sceneModel.particleSpeedProperty.lazyLink( fullUpdate );
-    detectorScreenScaleIndexProperty.lazyLink( fullUpdate );
     isRulerVisibleProperty.lazyLink( fullUpdate );
 
     // Re-render whenever the Fluent bundle changes (e.g. locale change,

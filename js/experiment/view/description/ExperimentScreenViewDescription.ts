@@ -16,7 +16,6 @@ import formatSourceStoppedResponse from '../../../common/view/description/format
 import type SceneRadioButtonGroup from '../../../common/view/SceneRadioButtonGroup.js';
 import type SourceControlPanel from '../../../common/view/SourceControlPanel.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import ExperimentModel from '../../model/ExperimentModel.js';
 import type SceneModel from '../../model/SceneModel.js';
 import type OverheadEmitterNode from '../OverheadEmitterNode.js';
@@ -132,7 +131,7 @@ export default class ExperimentScreenViewDescription extends Node {
 
       const analysis = BandAnalysis.analyzeTheoreticalPattern(
         scene,
-        getDetectorScreenHalfWidthForScaleIndex( model.detectorScreenScaleIndexProperty.value )
+        scene.fullScreenHalfWidth
       );
       const spatialDescription = BandAnalysis.formatSpatialDescription(
         analysis,

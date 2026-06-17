@@ -11,7 +11,6 @@ import AccessibleList from '../../../../../scenery-phet/js/accessibility/Accessi
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import DetectorScreenDescriber from '../../../common/view/description/DetectorScreenDescriber.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { getDetectorScreenHalfWidthForScaleIndex } from '../../model/DetectorScreenScale.js';
 import ExperimentModel from '../../model/ExperimentModel.js';
 
 export default class ExperimentDetectorScreenDetailsNode extends Node {
@@ -20,7 +19,7 @@ export default class ExperimentDetectorScreenDetailsNode extends Node {
     const detectorScreenDescriber = new DetectorScreenDescriber(
       model.sceneProperty,
       model.isRulerVisibleProperty,
-      model.detectorScreenScaleIndexProperty.derived( getDetectorScreenHalfWidthForScaleIndex ),
+      model.sceneProperty.derived( scene => scene.fullScreenHalfWidth ),
       undefined,
       true
     );
