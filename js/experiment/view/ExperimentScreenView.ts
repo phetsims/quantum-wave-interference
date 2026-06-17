@@ -277,7 +277,7 @@ export default class ExperimentScreenView extends ScreenView {
       sourceControlPanel,
       sceneRadioButtonGroup,
       slitColumnNode.slitControlPanel,
-      this.detectorColumnNode.getDetectorScreenButtonNodes(),
+      this.detectorColumnNode.getDetectorScreenPDOMNodes(),
       this.detectorColumnNode.screenSettingsPanel
     );
     this.addChild( experimentScreenViewDescription );

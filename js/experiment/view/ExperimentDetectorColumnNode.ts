@@ -147,11 +147,13 @@ export default class ExperimentDetectorColumnNode extends Node {
   }
 
   /**
-   * Returns the snapshot and view-snapshots buttons for every detector screen node (all scenes).
-   * Called by ExperimentScreenViewDescription to place these buttons in the PDOM accessibility order.
+   * Returns detector-screen controls and descriptions for every scene-specific detector screen node. Called by
+   * ExperimentScreenViewDescription to place these nodes under the Detector Screen heading in PDOM order.
    */
-  public getDetectorScreenButtonNodes(): Node[] {
+  public getDetectorScreenPDOMNodes(): Node[] {
     return this.detectorScreenNodes.flatMap( detectorScreen => [
+      detectorScreen.horizontalZoomButtonGroup,
+      detectorScreen.horizontalZoomButtonGroupParagraphNode,
       detectorScreen.snapshotButton,
       detectorScreen.viewSnapshotsButton
     ] );

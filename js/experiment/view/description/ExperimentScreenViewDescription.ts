@@ -53,7 +53,7 @@ export default class ExperimentScreenViewDescription extends Node {
     sourceControlPanel: SourceControlPanel<SceneModel>,
     sceneRadioButtonGroup: SceneRadioButtonGroup<SceneModel>,
     slitControlPanel: SlitControlPanel,
-    detectorScreenButtonNodes: Node[],
+    detectorScreenPDOMNodes: Node[],
     screenSettingsPanel: ScreenSettingsPanel
   ) {
 
@@ -283,7 +283,7 @@ export default class ExperimentScreenViewDescription extends Node {
     this.slitsHeadingNode.pdomOrder = [ slitControlPanel ];
 
     this.detectorScreenHeadingNode.pdomOrder = [
-      ...detectorScreenButtonNodes,
+      ...detectorScreenPDOMNodes,
       screenSettingsPanel
     ];
   }

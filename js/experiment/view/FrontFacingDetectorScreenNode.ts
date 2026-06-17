@@ -95,6 +95,8 @@ export default class FrontFacingDetectorScreenNode extends Node {
   private readonly screenBackgroundRect: Rectangle;
 
   // Public so that ExperimentDetectorColumnNode can collect them for PDOM ordering (pdomOrder / focus management).
+  public readonly horizontalZoomButtonGroup: PlusMinusZoomButtonGroup;
+  public readonly horizontalZoomButtonGroupParagraphNode: Node;
   public readonly snapshotButton: SnapshotButton;
   public readonly viewSnapshotsButton: ViewSnapshotsButton;
   private readonly snapshotButtonGroup: VBox;
@@ -192,7 +194,7 @@ export default class FrontFacingDetectorScreenNode extends Node {
 
     const horizontalZoomLevelResponseProperty = createDetectorZoomLevelResponseProperty( detectorScreenScaleIndexProperty );
 
-    const horizontalZoomButtonGroup = new PlusMinusZoomButtonGroup( detectorScreenScaleIndexProperty, {
+    this.horizontalZoomButtonGroup = new PlusMinusZoomButtonGroup( detectorScreenScaleIndexProperty, {
       orientation: 'horizontal',
       spacing: 0,
       iconOptions: {
@@ -213,10 +215,11 @@ export default class FrontFacingDetectorScreenNode extends Node {
       tandem: providedOptions.tandem.createTandem( 'horizontalZoomButtonGroup' ),
       visiblePropertyOptions: { phetioFeatured: true }
     } );
-    this.addChild( horizontalZoomButtonGroup );
-    this.addChild( new Node( {
+    this.addChild( this.horizontalZoomButtonGroup );
+    this.horizontalZoomButtonGroupParagraphNode = new Node( {
       accessibleParagraph: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.accessibleParagraphStringProperty
-    } ) );
+    } );
+    this.addChild( this.horizontalZoomButtonGroupParagraphNode );
 
     // Hit count text - only visible in Hits mode, positioned above the screen on the right side (per design:
     // "Above the screen... on the right, there is a readout displaying the total number of detected hits (only if
