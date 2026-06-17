@@ -122,6 +122,7 @@ export function formatIntensityDescription(
          isNoBarrier ?
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityNoBarrierStringProperty.value :
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( {
+           envelope: analysis.envelopeCategory,
            spatialDescription: spatialDescription
          } );
 }
@@ -166,7 +167,10 @@ export function formatLiveHitsDescription(
   }
   else {
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value :
-           ( hitStage === 'developing' || hitStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } ) :
+           ( hitStage === 'developing' || hitStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitClear.format( {
+                                                                   envelope: analysis.envelopeCategory,
+                                                                   spatialDescription: spatialDescription
+                                                                 } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
 }

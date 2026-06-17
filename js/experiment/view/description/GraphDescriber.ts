@@ -63,7 +63,9 @@ export default class GraphDescriber {
                                     ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensity.format( { spatialDescription: spatialDescription } )
                                     : isNoBarrier
                                       ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensityNoBarrierStringProperty.value
-                                      : QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensitySingleSlitStringProperty.value;
+                                      : QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensitySingleSlit.format( {
+                                        envelope: analysis.envelopeCategory
+                                      } );
         return;
       }
 
@@ -105,7 +107,10 @@ export default class GraphDescriber {
         descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
                                     newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
                                     newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value :
-                                    ( newStage === 'developing' || newStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitClear.format( { spatialDescription: spatialDescription } ) :
+                                    ( newStage === 'developing' || newStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitClear.format( {
+                                      envelope: analysis.envelopeCategory,
+                                      spatialDescription: spatialDescription
+                                    } ) :
                                     ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
       }
     };

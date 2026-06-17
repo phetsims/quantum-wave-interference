@@ -419,7 +419,7 @@ a11y:
                                     brightest part at center.
                                   }
                                   [whichPathDiffraction] { $envelope ->
-                                    [clusteringIntoTwoFaintSections] Across detector screen are two bright areas, directly across from the slits, each fading toward its edges.
+                                    [clusteringIntoTwoFaintSections] Across detector screen, brightness is closely clustering into two areas, directly across from the slits.
                                     [clusteringIntoTwoDistinctSections] Across detector screen are two distinct bright areas, directly across from the slits, each fading toward its edges.
                                    *[brightestAtCenter] Across detector screen is a wide bright area fading toward edges, brightest part at center.
                                   }
@@ -442,7 +442,7 @@ a11y:
                                   [doubleSlitInterference] Evenly-spaced bands become more distinct.
                                   [singleSlitDiffraction] Bright-band pattern is absent.
                                   [whichPathDiffraction] { $envelope ->
-                                    [clusteringIntoTwoFaintSections] Bright bands are gone. Hits collect in two areas, directly across from the slits.
+                                    [clusteringIntoTwoFaintSections] Bright bands are gone. Hits are closely clustering into two areas, directly across from the slits.
                                     [clusteringIntoTwoDistinctSections] Bright bands are gone. Hits collect in two distinct areas, directly across from the slits.
                                    *[brightestAtCenter] Bright bands are gone.
                                   }
@@ -460,7 +460,7 @@ a11y:
                                   }.
                                   [singleSlitDiffraction] Bright-band pattern is absent.
                                   [whichPathDiffraction] { $envelope ->
-                                    [clusteringIntoTwoFaintSections] Bright bands are gone. Hits collect in two areas, directly across from the slits.
+                                    [clusteringIntoTwoFaintSections] Bright bands are gone. Hits are closely clustering into two areas, directly across from the slits.
                                     [clusteringIntoTwoDistinctSections] Bright bands are gone. Hits collect in two distinct areas, directly across from the slits.
                                    *[brightestAtCenter] Bright bands are gone.
                                   }
@@ -987,8 +987,11 @@ a11y:
                               peaks on either side.
                               { $spatialDescription }
       intensitySingleSlit:    >-
-                              Graph traces intensity versus position as a single broad peak centered on the
-                              graph, tapering smoothly toward the edges.
+                              { $envelope ->
+                                [clusteringIntoTwoFaintSections] Graph traces intensity versus position as two peaks that are close together.
+                                [clusteringIntoTwoDistinctSections] Graph traces intensity versus position as two distinct peaks.
+                               *[brightestAtCenter] Graph traces intensity versus position as a single broad peak centered on the graph, tapering smoothly toward the edges.
+                              }
       intensityNoBarrier:     Graph traces uniform intensity versus position as a flat horizontal line.
       hitsNone:               Histogram empty. No particles counted.
       hitsFew:                >-
@@ -1005,8 +1008,11 @@ a11y:
       hitsSingleSlitEmerging: >-
                               Histogram growing, with taller bars near center and shorter bars toward edges.
       hitsSingleSlitClear:    >-
-                              Histogram shows a broad central peak that tapers toward edges.
-                              { $spatialDescription }
+                              { $envelope ->
+                                [clusteringIntoTwoFaintSections] Histogram shows two peaks that are close together.
+                                [clusteringIntoTwoDistinctSections] Histogram shows two distinct peaks.
+                               *[brightestAtCenter] Histogram shows a broad central peak that tapers toward edges. { $spatialDescription }
+                              }
       hitsNoBarrier:          Histogram shows evenly distributed hits across graph.
     zoomButtonGroup:
       accessibleParagraph: PLACEHOLDER TEXT FOR COMBINED HISTOGRAM/CHART ZOOM BUTTON HELP TEXT.
@@ -1032,8 +1038,11 @@ a11y:
                                        *[brightestAtCenter] brightest band at center
                                       }.
       intensitySingleSlit:            >-
-                                      Bright-band pattern is absent. Detector screen shows a wide central bright area,
-                                      brightest in the middle and fading toward the edges. { $spatialDescription }
+                                      { $envelope ->
+                                        [clusteringIntoTwoFaintSections] Bright-band pattern is absent. Brightness is closely clustering into two areas, directly across from the slits.
+                                        [clusteringIntoTwoDistinctSections] Bright-band pattern is absent. Detector screen shows two distinct bright areas, directly across from the slits.
+                                       *[brightestAtCenter] Bright-band pattern is absent. Detector screen shows a wide central bright area, brightest in the middle and fading toward the edges. { $spatialDescription }
+                                      }
       intensityNoBarrier:             Plane wave fronts move directly to the detector screen. Uniform glow from plane wave fronts.
       hitsNone:                       Detector screen is empty. No particles have arrived yet.
       hitsFew:                        Individual scattered hits on detector screen.
@@ -1053,8 +1062,11 @@ a11y:
                                       Bright-band pattern is absent. Hits collect in a broad region near the center of
                                       the screen, with fewer toward the edges.
       hitsSingleSlitClear:            >-
-                                      Bright-band pattern is absent. Hits form a broad central area that tapers toward the edges.
-                                      { $spatialDescription }
+                                      { $envelope ->
+                                        [clusteringIntoTwoFaintSections] Bright-band pattern is absent. Hits are closely clustering into two areas, directly across from the slits.
+                                        [clusteringIntoTwoDistinctSections] Bright-band pattern is absent. Hits collect in two distinct areas, directly across from the slits.
+                                       *[brightestAtCenter] Bright-band pattern is absent. Hits form a broad central area that tapers toward the edges. { $spatialDescription }
+                                      }
       hitsNoBarrier:                  Evenly scattered hits across the detector screen.
       snapshotHitsNone:               |-
                                       Detector screen is empty. { $hitCount ->
