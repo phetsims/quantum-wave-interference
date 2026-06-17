@@ -179,12 +179,10 @@ export const createDetectorPatternGraphZoomButtonGroup = (
     touchAreaYDilation: 5,
     zoomInButtonOptions: {
       accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty,
       accessibleContextResponse: zoomLevelResponseProperty
     },
     zoomOutButtonOptions: {
       accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
-      accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
       accessibleContextResponse: zoomLevelResponseProperty
     },
     tandem: tandem.createTandem( 'zoomButtonGroup' ),

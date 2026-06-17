@@ -120,6 +120,7 @@ addToMapIfDefined( 'a11y_sourceWaveFragments_slitTarget', 'a11y.sourceWaveFragme
 addToMapIfDefined( 'a11y_sourceWaveFragments_wavePeakSpacing', 'a11y.sourceWaveFragments.wavePeakSpacingStringProperty' );
 addToMapIfDefined( 'a11y_singleParticlesState_sourcePacket', 'a11y.singleParticlesState.sourcePacketStringProperty' );
 addToMapIfDefined( 'a11y_singleParticlesScreen_detectorProbeCheckbox_accessibleHelpText', 'a11y.singleParticlesScreen.detectorProbeCheckbox.accessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_singleParticlesScreen_detectorPatternGraph_zoomButtonGroup_accessibleParagraph', 'a11y.singleParticlesScreen.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_waveExperimentState_sourceBeam', 'a11y.waveExperimentState.sourceBeamStringProperty' );
 addToMapIfDefined( 'a11y_waveExperimentState_photonDetail', 'a11y.waveExperimentState.photonDetailStringProperty' );
 addToMapIfDefined( 'a11y_waveExperimentState_particleDetail', 'a11y.waveExperimentState.particleDetailStringProperty' );
@@ -225,6 +226,7 @@ addToMapIfDefined( 'a11y_zoomOutButton_accessibleName', 'a11y.zoomOutButton.acce
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleHelpTextCollapsed', 'a11y.graphAccordionBox.accessibleHelpTextCollapsedStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseExpanded', 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' );
 addToMapIfDefined( 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' );
+addToMapIfDefined( 'a11y_graphAccordionBox_zoomButtonGroup_accessibleParagraph', 'a11y.graphAccordionBox.zoomButtonGroup.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_detectorPatternGraph_accessibleParagraph_intensityOff', 'a11y.detectorPatternGraph.accessibleParagraph.intensityOffStringProperty' );
 addToMapIfDefined( 'a11y_detectorPatternGraph_accessibleParagraph_intensity', 'a11y.detectorPatternGraph.accessibleParagraph.intensityStringProperty' );
 addToMapIfDefined( 'a11y_detectorPatternGraph_accessibleParagraph_intensitySingleSlit', 'a11y.detectorPatternGraph.accessibleParagraph.intensitySingleSlitStringProperty' );
@@ -237,8 +239,7 @@ addToMapIfDefined( 'a11y_detectorPatternGraph_accessibleParagraph_hitsClear', 'a
 addToMapIfDefined( 'a11y_detectorPatternGraph_accessibleParagraph_hitsSingleSlitEmerging', 'a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitEmergingStringProperty' );
 addToMapIfDefined( 'a11y_detectorPatternGraph_accessibleParagraph_hitsSingleSlitClear', 'a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitClearStringProperty' );
 addToMapIfDefined( 'a11y_detectorPatternGraph_accessibleParagraph_hitsNoBarrier', 'a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierStringProperty' );
-addToMapIfDefined( 'a11y_detectorPatternGraph_zoomButtonGroup_zoomInAccessibleHelpText', 'a11y.detectorPatternGraph.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty' );
-addToMapIfDefined( 'a11y_detectorPatternGraph_zoomButtonGroup_zoomOutAccessibleHelpText', 'a11y.detectorPatternGraph.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_detectorPatternGraph_zoomButtonGroup_accessibleParagraph', 'a11y.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_zoomButtonGroup_zoomLevelResponse', 'a11y.zoomButtonGroup.zoomLevelResponseStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_maxHitsReached_accessibleContextResponse', 'a11y.detectorScreen.maxHitsReached.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_intensityOff', 'a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty' );
@@ -267,8 +268,7 @@ addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_rulerDoubleSlitArrang
 addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_noRulerDoubleSlitArrangement', 'a11y.detectorScreen.spatialDescription.noRulerDoubleSlitArrangementStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_rulerSingleSlit', 'a11y.detectorScreen.spatialDescription.rulerSingleSlitStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_spatialDescription_noRulerSingleSlit', 'a11y.detectorScreen.spatialDescription.noRulerSingleSlitStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_zoomButtonGroup_zoomInAccessibleHelpText', 'a11y.detectorScreen.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty' );
-addToMapIfDefined( 'a11y_detectorScreen_zoomButtonGroup_zoomOutAccessibleHelpText', 'a11y.detectorScreen.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_zoomButtonGroup_accessibleParagraph', 'a11y.detectorScreen.zoomButtonGroup.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleName', 'a11y.detectorScreenButtons.clearScreen.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleHelpText', 'a11y.detectorScreenButtons.clearScreen.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreenButtons_clearScreen_accessibleContextResponse', 'a11y.detectorScreenButtons.clearScreen.accessibleContextResponseStringProperty' );
@@ -426,6 +426,11 @@ const QuantumWaveInterferenceFluent = {
     singleParticlesScreen: {
       detectorProbeCheckbox: {
         accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_singleParticlesScreen_detectorProbeCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesScreen.detectorProbeCheckbox.accessibleHelpTextStringProperty' ) )
+      },
+      detectorPatternGraph: {
+        zoomButtonGroup: {
+          accessibleParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_singleParticlesScreen_detectorPatternGraph_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesScreen.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty' ) )
+        }
       }
     },
     waveExperimentState: {
@@ -611,7 +616,10 @@ const QuantumWaveInterferenceFluent = {
     graphAccordionBox: {
       accessibleHelpTextCollapsedStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleHelpTextCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleHelpTextCollapsedStringProperty' ) ),
       accessibleContextResponseExpanded: new FluentPattern<{ detectionMode: 'intensity' | 'hits' | TReadOnlyProperty<'intensity' | 'hits'>, graphState: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseExpanded', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' ), [{"name":"detectionMode","variants":["intensity","hits"]},{"name":"graphState"}] ),
-      accessibleContextResponseCollapsed: new FluentPattern<{ detectionMode: 'intensity' | 'hits' | TReadOnlyProperty<'intensity' | 'hits'> }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' ), [{"name":"detectionMode","variants":["intensity","hits"]}] )
+      accessibleContextResponseCollapsed: new FluentPattern<{ detectionMode: 'intensity' | 'hits' | TReadOnlyProperty<'intensity' | 'hits'> }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' ), [{"name":"detectionMode","variants":["intensity","hits"]}] ),
+      zoomButtonGroup: {
+        accessibleParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.zoomButtonGroup.accessibleParagraphStringProperty' ) )
+      }
     },
     detectorPatternGraph: {
       accessibleParagraph: {
@@ -629,8 +637,7 @@ const QuantumWaveInterferenceFluent = {
         hitsNoBarrierStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorPatternGraph_accessibleParagraph_hitsNoBarrier', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierStringProperty' ) )
       },
       zoomButtonGroup: {
-        zoomInAccessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorPatternGraph_zoomButtonGroup_zoomInAccessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorPatternGraph.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty' ) ),
-        zoomOutAccessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorPatternGraph_zoomButtonGroup_zoomOutAccessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorPatternGraph.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty' ) )
+        accessibleParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorPatternGraph_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty' ) )
       }
     },
     zoomButtonGroup: {
@@ -671,8 +678,7 @@ const QuantumWaveInterferenceFluent = {
         noRulerSingleSlit: new FluentPattern<{ style: 'bands' | 'peaks' | TReadOnlyProperty<'bands' | 'peaks'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_noRulerSingleSlit', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.noRulerSingleSlitStringProperty' ), [{"name":"style","variants":["bands","peaks"]}] )
       },
       zoomButtonGroup: {
-        zoomInAccessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_zoomButtonGroup_zoomInAccessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty' ) ),
-        zoomOutAccessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_zoomButtonGroup_zoomOutAccessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty' ) )
+        accessibleParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.zoomButtonGroup.accessibleParagraphStringProperty' ) )
       }
     },
     detectorScreenButtons: {

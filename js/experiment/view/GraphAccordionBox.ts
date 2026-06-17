@@ -241,12 +241,10 @@ export default class GraphAccordionBox extends Node {
       touchAreaYDilation: 5,
       zoomInButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty,
         accessibleContextResponse: zoomLevelResponseProperty
       },
       zoomOutButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
         accessibleContextResponse: zoomLevelResponseProperty
       },
       tandem: providedOptions.tandem.createTandem( 'zoomButtonGroup' ),
@@ -254,6 +252,10 @@ export default class GraphAccordionBox extends Node {
     } );
     this.zoomButtonGroup.left = chartNode.right + ZOOM_BUTTON_GROUP_GAP;
     this.zoomButtonGroup.top = chartNode.top;
+
+    const zoomButtonGroupParagraphNode = new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.accessibleParagraphStringProperty
+    } );
 
     const zoomButtonRightSpacer = new Rectangle( 0, 0, ZOOM_BUTTON_GROUP_RIGHT_PADDING, this.zoomButtonGroup.height, {
       fill: 'rgba( 0, 0, 0, 0 )',
@@ -264,9 +266,9 @@ export default class GraphAccordionBox extends Node {
     } );
 
     const chartAndZoomNode = new Node( {
-      children: [ chartNode, this.zoomButtonGroup, zoomButtonRightSpacer ]
+      children: [ chartNode, this.zoomButtonGroup, zoomButtonRightSpacer, zoomButtonGroupParagraphNode ]
     } );
-    chartAndZoomNode.pdomOrder = [ chartNode, this.zoomButtonGroup ];
+    chartAndZoomNode.pdomOrder = [ chartNode, this.zoomButtonGroup, zoomButtonGroupParagraphNode ];
 
     const contentNode = new Node( {
       children: [ graphDescriptionNode, chartAndZoomNode ]

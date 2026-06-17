@@ -52,12 +52,15 @@ export type { DetectorPatternGraphSceneLike };
  *
  * initialZoomLevels — per-mode initial zoom overrides; takes precedence over initialZoomLevel for each mode that
  *   has an entry. Used by the High Intensity screen to open intensity at zoom 3 and hits at max zoom.
+ *
+ * zoomButtonGroupAccessibleParagraphStringProperty — optional group-level paragraph for the graph zoom controls.
  */
 type SelfOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   axisLabelStringProperty: TReadOnlyProperty<string>;
   initialZoomLevel?: DetectorPatternGraphZoomLevelOption;
   initialZoomLevels?: Partial<Record<DetectionMode, DetectorPatternGraphZoomLevelOption>>;
+  zoomButtonGroupAccessibleParagraphStringProperty?: TReadOnlyProperty<string> | null;
 };
 
 /**
@@ -121,6 +124,7 @@ export default class DetectorPatternGraphNode extends Node {
       detectionModeProperty: undefined as never,
       initialZoomLevel: 'default',
       initialZoomLevels: {},
+      zoomButtonGroupAccessibleParagraphStringProperty: null,
       isDisposable: false,
 
       // Visibility is controlled by the ScreenGraphSwitch Property, so it should not be controlled independently.
@@ -153,9 +157,19 @@ export default class DetectorPatternGraphNode extends Node {
     const zoomButtonGroup = createDetectorPatternGraphZoomButtonGroup( this.zoomLevelProperty, providedOptions.tandem );
     zoomButtonGroup.right = this.chartBackground.right - ZOOM_BUTTON_GROUP_MARGIN;
     zoomButtonGroup.top = this.chartBackground.top + ZOOM_BUTTON_GROUP_MARGIN;
+    const zoomButtonGroupParagraphNode = options.zoomButtonGroupAccessibleParagraphStringProperty ?
+                                         new Node( {
+                                           accessibleParagraph: options.zoomButtonGroupAccessibleParagraphStringProperty
+                                         } ) :
+                                         null;
+
+    const chartChildren: Node[] = [ this.chartBackground, this.dataPath, this.intensityCurveStrokePath, chartBorder, zoomButtonGroup ];
+    if ( zoomButtonGroupParagraphNode ) {
+      chartChildren.push( zoomButtonGroupParagraphNode );
+    }
 
     const chartNode = new Node( {
-      children: [ this.chartBackground, this.dataPath, this.intensityCurveStrokePath, chartBorder, zoomButtonGroup ]
+      children: chartChildren
     } );
 
     const axisLabel = new Text( options.axisLabelStringProperty, {
@@ -167,6 +181,10 @@ export default class DetectorPatternGraphNode extends Node {
     const graphDescriptionNode = new Node( {
       accessibleParagraph: graphDescriber.descriptionProperty
     } );
+    const graphSectionPDOMOrder: Node[] = [ graphDescriptionNode, zoomButtonGroup ];
+    if ( zoomButtonGroupParagraphNode ) {
+      graphSectionPDOMOrder.push( zoomButtonGroupParagraphNode );
+    }
 
     const graphHeadingStringProperty = options.detectionModeProperty ?
                                        new DerivedProperty(
@@ -184,7 +202,7 @@ export default class DetectorPatternGraphNode extends Node {
       accessibleHeading: graphHeadingStringProperty,
       children: [ graphDescriptionNode, chartNode, axisLabel ]
     } );
-    graphSectionNode.pdomOrder = [ graphDescriptionNode, zoomButtonGroup ];
+    graphSectionNode.pdomOrder = graphSectionPDOMOrder;
 
     this.addChild( graphSectionNode );
     this.pdomOrder = [ graphSectionNode ];

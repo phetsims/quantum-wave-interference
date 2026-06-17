@@ -204,18 +204,19 @@ export default class FrontFacingDetectorScreenNode extends Node {
       top: HORIZONTAL_ZOOM_BUTTON_MARGIN,
       zoomInButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomInButton.accessibleNameStringProperty,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.zoomInAccessibleHelpTextStringProperty,
         accessibleContextResponse: horizontalZoomLevelResponseProperty
       },
       zoomOutButtonOptions: {
         accessibleName: QuantumWaveInterferenceFluent.a11y.zoomOutButton.accessibleNameStringProperty,
-        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.zoomOutAccessibleHelpTextStringProperty,
         accessibleContextResponse: horizontalZoomLevelResponseProperty
       },
       tandem: providedOptions.tandem.createTandem( 'horizontalZoomButtonGroup' ),
       visiblePropertyOptions: { phetioFeatured: true }
     } );
     this.addChild( horizontalZoomButtonGroup );
+    this.addChild( new Node( {
+      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.accessibleParagraphStringProperty
+    } ) );
 
     // Hit count text - only visible in Hits mode, positioned above the screen on the right side (per design:
     // "Above the screen... on the right, there is a readout displaying the total number of detected hits (only if

@@ -143,9 +143,13 @@ export default class SnapshotsDialog extends Dialog {
         phetioFeatured: true,
         visiblePropertyOptions: { phetioFeatured: true }
       } );
+      const zoomButtonGroupParagraphNode = new Node( {
+        accessibleParagraph: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.accessibleParagraphStringProperty
+      } );
       snapshotNodes[ 0 ].addSnapshotOverlayChild( zoomButtonGroup );
+      snapshotNodes[ 0 ].addSnapshotOverlayChild( zoomButtonGroupParagraphNode );
       snapshotNodes[ 0 ].addSnapshotOverlayChild( providedOptions.createScaleIndicatorNode() );
-      pdomOrderAfterSnapshots.push( zoomButtonGroup );
+      pdomOrderAfterSnapshots.push( zoomButtonGroup, zoomButtonGroupParagraphNode );
     }
 
     const content = new VBox( {

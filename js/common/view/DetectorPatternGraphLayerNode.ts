@@ -35,6 +35,9 @@ type DetectorPatternGraphLayerNodeOptions = {
   // Use this when different modes (e.g. intensity vs. hits) warrant different default zoom levels,
   // as on the High Intensity screen where intensity starts at level 3 and hits starts at max.
   initialZoomLevels?: Partial<Record<DetectionMode, DetectorPatternGraphZoomLevelOption>>;
+
+  // Optional group-level paragraph for the graph zoom controls.
+  zoomButtonGroupAccessibleParagraphStringProperty?: TReadOnlyProperty<string>;
 };
 
 export default class DetectorPatternGraphLayerNode extends Node {
@@ -76,6 +79,7 @@ export default class DetectorPatternGraphLayerNode extends Node {
       axisLabelStringProperty: axisLabelStringProperty,
       initialZoomLevel: options.initialZoomLevel,
       initialZoomLevels: options.initialZoomLevels,
+      zoomButtonGroupAccessibleParagraphStringProperty: options.zoomButtonGroupAccessibleParagraphStringProperty,
       tandem: tandem
     } );
 

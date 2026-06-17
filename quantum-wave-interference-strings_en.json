@@ -308,6 +308,13 @@
         "accessibleHelpText": {
           "value": "Use added detector probe to measure probability of detecting particle in circular region of wave area."
         }
+      },
+      "detectorPatternGraph": {
+        "zoomButtonGroup": {
+          "accessibleParagraph": {
+            "value": "PLACEHOLDER TEXT FOR SINGLE PARTICLES HITS HISTOGRAM ZOOM BUTTON HELP TEXT."
+          }
+        }
       }
     },
     "waveExperimentState": {
@@ -701,6 +708,11 @@
       },
       "accessibleContextResponseCollapsed": {
         "value": "{ $detectionMode ->\n  [intensity] Intensity graph hidden.\n *[hits] Hits histogram hidden.\n}"
+      },
+      "zoomButtonGroup": {
+        "accessibleParagraph": {
+          "value": "PLACEHOLDER TEXT FOR INTENSITY GRAPH ZOOM BUTTON HELP TEXT."
+        }
       }
     },
     "detectorPatternGraph": {
@@ -743,11 +755,8 @@
         }
       },
       "zoomButtonGroup": {
-        "zoomInAccessibleHelpText": {
-          "value": "Zoom in to see more detail of graph pattern."
-        },
-        "zoomOutAccessibleHelpText": {
-          "value": "Zoom out to see more of graph pattern."
+        "accessibleParagraph": {
+          "value": "PLACEHOLDER TEXT FOR COMBINED HISTOGRAM/CHART ZOOM BUTTON HELP TEXT."
         }
       }
     },
@@ -845,11 +854,8 @@
         }
       },
       "zoomButtonGroup": {
-        "zoomInAccessibleHelpText": {
-          "value": "Zoom in to see more detail of detector screen pattern."
-        },
-        "zoomOutAccessibleHelpText": {
-          "value": "Zoom out to see more of detector screen pattern."
+        "accessibleParagraph": {
+          "value": "PLACEHOLDER TEXT FOR DETECTOR SCREEN ZOOM BUTTON HELP TEXT."
         }
       }
     },

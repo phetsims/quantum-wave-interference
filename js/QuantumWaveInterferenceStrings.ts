@@ -137,6 +137,11 @@ type StringsType = {
     'singleParticlesScreen': {
       'detectorProbeCheckbox': {
         'accessibleHelpTextStringProperty': LocalizedStringProperty;
+      };
+      'detectorPatternGraph': {
+        'zoomButtonGroup': {
+          'accessibleParagraphStringProperty': LocalizedStringProperty;
+        }
       }
     };
     'waveExperimentState': {
@@ -321,6 +326,9 @@ type StringsType = {
       'accessibleHelpTextCollapsedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseExpandedStringProperty': LocalizedStringProperty;
       'accessibleContextResponseCollapsedStringProperty': LocalizedStringProperty;
+      'zoomButtonGroup': {
+        'accessibleParagraphStringProperty': LocalizedStringProperty;
+      }
     };
     'detectorPatternGraph': {
       'accessibleParagraph': {
@@ -338,8 +346,7 @@ type StringsType = {
         'hitsNoBarrierStringProperty': LocalizedStringProperty;
       };
       'zoomButtonGroup': {
-        'zoomInAccessibleHelpTextStringProperty': LocalizedStringProperty;
-        'zoomOutAccessibleHelpTextStringProperty': LocalizedStringProperty;
+        'accessibleParagraphStringProperty': LocalizedStringProperty;
       }
     };
     'zoomButtonGroup': {
@@ -380,8 +387,7 @@ type StringsType = {
         'noRulerSingleSlitStringProperty': LocalizedStringProperty;
       };
       'zoomButtonGroup': {
-        'zoomInAccessibleHelpTextStringProperty': LocalizedStringProperty;
-        'zoomOutAccessibleHelpTextStringProperty': LocalizedStringProperty;
+        'accessibleParagraphStringProperty': LocalizedStringProperty;
       }
     };
     'detectorScreenButtons': {
