@@ -411,8 +411,10 @@ export default class SingleParticlesAccessibleResponses extends Node {
 
   /**
    * Announces the hit that ends a packet on the detector screen, using the stage-aware hits description ("Individual
-   * scattered hits appear...", "Hits form evenly spaced bands...") with the running hit count. Decreases (clear
-   * screen, parameter changes) and scene swaps stay silent because their causes have their own responses.
+   * scattered hits appear...", "Hits form evenly spaced bands...") with the running hit count. In auto-repeat, repeated
+   * same-stage hits stay silent, but qualitative hit-stage changes still announce as the detector pattern accumulates.
+   * Decreases (clear screen, parameter changes) and scene swaps stay silent because their causes have their own
+   * responses.
    */
   private handleTotalHitsChanged(): void {
     const before = this.previousState;
@@ -425,7 +427,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
 
     this.lastTransitionWasHit = true;
 
-    if ( this.shouldAddPacketLifecycleContextResponses( after ) ) {
+    if ( before.hitStage !== after.hitStage || this.shouldAddPacketLifecycleContextResponses( after ) ) {
       this.addAccessibleContextResponse( formatHitDescription( after ), { responseGroup: HIT_RESPONSE_GROUP } );
     }
   }
