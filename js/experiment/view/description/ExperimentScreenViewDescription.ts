@@ -84,9 +84,7 @@ export default class ExperimentScreenViewDescription extends Node {
       sourceStartedResponseNode.addAccessibleContextResponse(
         model.currentDetectionModeProperty.value === 'intensity' ?
         formatExperimentDetectorPatternResponse( model ) :
-        QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponse.format( {
-          isEmitting: 'true'
-        } )
+        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.hitsIncreasingStringProperty.value
       );
     } );
 

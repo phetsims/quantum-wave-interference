@@ -11,7 +11,6 @@
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import type PhetioProperty from '../../../../axon/js/PhetioProperty.js';
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Dimension2 from '../../../../dot/js/Dimension2.js';
 import Range from '../../../../dot/js/Range.js';
 import optionize, { EmptySelfOptions } from '../../../../phet-core/js/optionize.js';
@@ -40,8 +39,7 @@ export default class ScreenSettingsPanel extends Panel {
 
   public constructor( detectionModeProperty: PhetioProperty<DetectionMode>,
                       screenBrightnessProperty: PhetioProperty<number>,
-                      isEmittingProperty: TReadOnlyProperty<boolean>,
-                      getIntensityAccessibleContextResponse: () => string,
+                      getDetectorScreenAccessibleContextResponse: ( mode: DetectionMode ) => string,
                       providedOptions: ScreenSettingsPanelOptions ) {
 
     const options = optionize<ScreenSettingsPanelOptions, SelfOptions, PanelOptions>()( {
@@ -52,9 +50,8 @@ export default class ScreenSettingsPanel extends Panel {
       stroke: null
     }, providedOptions );
 
-    const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
-
-    // Radio buttons for Intensity vs Hits
+    // Radio buttons for Intensity vs Hits. Each button's context response describes the current detector-screen state
+    // for its mode, so switching modes is described consistently and leftover hits are never reported as "empty".
     const radioButtonItems: AquaRadioButtonGroupItem<DetectionMode>[] = [
       {
         value: 'intensity',
@@ -64,9 +61,7 @@ export default class ScreenSettingsPanel extends Panel {
         } ),
         tandemName: 'intensityRadioButton',
         options: {
-          accessibleContextResponse: () => isEmittingProperty.value ?
-                                           getIntensityAccessibleContextResponse() :
-                                           QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseSourceOffStringProperty
+          accessibleContextResponse: () => getDetectorScreenAccessibleContextResponse( 'intensity' )
         }
       },
       {
@@ -77,9 +72,7 @@ export default class ScreenSettingsPanel extends Panel {
         } ),
         tandemName: 'hitsRadioButton',
         options: {
-          accessibleContextResponse: QuantumWaveInterferenceFluent.a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponse.createProperty( {
-            isEmitting: isEmittingStringProperty
-          } )
+          accessibleContextResponse: () => getDetectorScreenAccessibleContextResponse( 'hits' )
         }
       }
     ];

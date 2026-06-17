@@ -444,7 +444,7 @@ a11y:
                                  *[noBarrier] Evenly scattered hits across the detector screen.
                                 }
                                 [developing] { $patternKind ->
-                                  [doubleSlitInterference] Evenly-spaced bands become more distinct.
+                                  [doubleSlitInterference] Evenly-spaced bands more distinct.
                                   [singleSlitDiffraction] Bright-band pattern is absent.
                                   [whichPathDiffraction] { $envelope ->
                                     [clusteringIntoTwoFaintSections] Bright bands are gone. Hits are closely clustering into two areas, directly across from the slits.
@@ -497,11 +497,8 @@ a11y:
                                 [true] in progress.
                                *[false] ready to start.
                               }
-    detectionModeChanged:     >-
-                              { $detectionMode ->
-                                [intensity] Intensity selected. The predicted pattern is shown continuously.
-                               *[hits] Hits selected. Individual particle impacts build the pattern statistically.
-                              }
+    screenEmpty:              Screen is empty. Start particle source.
+    hitsIncreasing:           Individual hits increasing on detector screen.
     slitConfigurationChanged: >-
                               { $isRestarting ->
                                 [true] { $sourceRestartedResponse }
@@ -903,14 +900,6 @@ a11y:
   detectionModeRadioButtons:
     accessibleName:     Detection Mode
     accessibleHelpText: Choose continuous intensity pattern or individual hits pattern for particle detection.
-    intensityRadioButton:
-      accessibleContextResponseSourceOff: Screen is empty. Start particle source.
-    hitsRadioButton:
-      accessibleContextResponse: >-
-                                 { $isEmitting ->
-                                   [true] Individual hits increasing on detector screen.
-                                  *[false] Screen is empty. Start particle source.
-                                 }
   timeControlNode:
     simSpeedDescription: Choose Normal or Fast speed. In Hits mode, Fast collects hits more quickly for faster data collection.
   sceneRadioButtonGroup:
@@ -1052,7 +1041,7 @@ a11y:
       hitsNone:                       Detector screen is empty. No particles have arrived yet.
       hitsFew:                        Individual scattered hits on detector screen.
       hitsEmerging:                   Hits begin to form faint bands.
-      hitsDeveloping:                 Evenly-spaced bands become more distinct.
+      hitsDeveloping:                 Evenly-spaced bands more distinct.
       hitsClear:                      >-
                                       Across detector screen, evenly-spaced bands are { $spacing ->
                                         [extremelyFarApart] extremely far apart

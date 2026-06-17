@@ -135,7 +135,8 @@ addToMapIfDefined( 'a11y_waveExperimentResponses_sourceRestarted', 'a11y.waveExp
 addToMapIfDefined( 'a11y_waveExperimentResponses_advancingWave', 'a11y.waveExperimentResponses.advancingWaveStringProperty' );
 addToMapIfDefined( 'a11y_waveExperimentResponses_sourceStopped', 'a11y.waveExperimentResponses.sourceStoppedStringProperty' );
 addToMapIfDefined( 'a11y_waveExperimentResponses_particleTypeChanged', 'a11y.waveExperimentResponses.particleTypeChangedStringProperty' );
-addToMapIfDefined( 'a11y_waveExperimentResponses_detectionModeChanged', 'a11y.waveExperimentResponses.detectionModeChangedStringProperty' );
+addToMapIfDefined( 'a11y_waveExperimentResponses_screenEmpty', 'a11y.waveExperimentResponses.screenEmptyStringProperty' );
+addToMapIfDefined( 'a11y_waveExperimentResponses_hitsIncreasing', 'a11y.waveExperimentResponses.hitsIncreasingStringProperty' );
 addToMapIfDefined( 'a11y_waveExperimentResponses_slitConfigurationChanged', 'a11y.waveExperimentResponses.slitConfigurationChangedStringProperty' );
 addToMapIfDefined( 'a11y_waveExperimentResponses_slitSeparationChanged', 'a11y.waveExperimentResponses.slitSeparationChangedStringProperty' );
 addToMapIfDefined( 'a11y_waveExperimentResponses_wavelengthChanged', 'a11y.waveExperimentResponses.wavelengthChangedStringProperty' );
@@ -209,8 +210,6 @@ addToMapIfDefined( 'a11y_brightnessSlider_accessibleName', 'a11y.brightnessSlide
 addToMapIfDefined( 'a11y_brightnessSlider_accessibleHelpText', 'a11y.brightnessSlider.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_detectionModeRadioButtons_accessibleName', 'a11y.detectionModeRadioButtons.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_detectionModeRadioButtons_accessibleHelpText', 'a11y.detectionModeRadioButtons.accessibleHelpTextStringProperty' );
-addToMapIfDefined( 'a11y_detectionModeRadioButtons_intensityRadioButton_accessibleContextResponseSourceOff', 'a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseSourceOffStringProperty' );
-addToMapIfDefined( 'a11y_detectionModeRadioButtons_hitsRadioButton_accessibleContextResponse', 'a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_timeControlNode_simSpeedDescription', 'a11y.timeControlNode.simSpeedDescriptionStringProperty' );
 addToMapIfDefined( 'a11y_sceneRadioButtonGroup_accessibleName', 'a11y.sceneRadioButtonGroup.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_sceneRadioButtonGroup_accessibleHelpText', 'a11y.sceneRadioButtonGroup.accessibleHelpTextStringProperty' );
@@ -458,7 +457,8 @@ const QuantumWaveInterferenceFluent = {
       advancingWave: new FluentPattern<{ beamDescription: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_waveExperimentResponses_advancingWave', _.get( QuantumWaveInterferenceStrings, 'a11y.waveExperimentResponses.advancingWaveStringProperty' ), [{"name":"beamDescription"}] ),
       sourceStopped: new FluentPattern<{ hasHitsData: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'> }>( fluentSupport.bundleProperty, 'a11y_waveExperimentResponses_sourceStopped', _.get( QuantumWaveInterferenceStrings, 'a11y.waveExperimentResponses.sourceStoppedStringProperty' ), [{"name":"hasHitsData","variants":["true","false"]}] ),
       particleTypeChanged: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_waveExperimentResponses_particleTypeChanged', _.get( QuantumWaveInterferenceStrings, 'a11y.waveExperimentResponses.particleTypeChangedStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
-      detectionModeChanged: new FluentPattern<{ detectionMode: 'intensity' | 'hits' | TReadOnlyProperty<'intensity' | 'hits'> }>( fluentSupport.bundleProperty, 'a11y_waveExperimentResponses_detectionModeChanged', _.get( QuantumWaveInterferenceStrings, 'a11y.waveExperimentResponses.detectionModeChangedStringProperty' ), [{"name":"detectionMode","variants":["intensity","hits"]}] ),
+      screenEmptyStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_waveExperimentResponses_screenEmpty', _.get( QuantumWaveInterferenceStrings, 'a11y.waveExperimentResponses.screenEmptyStringProperty' ) ),
+      hitsIncreasingStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_waveExperimentResponses_hitsIncreasing', _.get( QuantumWaveInterferenceStrings, 'a11y.waveExperimentResponses.hitsIncreasingStringProperty' ) ),
       slitConfigurationChanged: new FluentPattern<{ isRestarting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, slitSetting: 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors' | TReadOnlyProperty<'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'noBarrier' | 'bothDetectors'>, sourceRestartedResponse: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_waveExperimentResponses_slitConfigurationChanged', _.get( QuantumWaveInterferenceStrings, 'a11y.waveExperimentResponses.slitConfigurationChangedStringProperty' ), [{"name":"isRestarting","variants":["true","false"]},{"name":"slitSetting","variants":["bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","noBarrier","bothDetectors"]},{"name":"sourceRestartedResponse"}] ),
       slitSeparationChanged: new FluentPattern<{ isRestarting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceRestartedResponse: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_waveExperimentResponses_slitSeparationChanged', _.get( QuantumWaveInterferenceStrings, 'a11y.waveExperimentResponses.slitSeparationChangedStringProperty' ), [{"name":"isRestarting","variants":["true","false"]},{"name":"sourceRestartedResponse"}] ),
       wavelengthChanged: new FluentPattern<{ isRestarting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceRestartedResponse: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_waveExperimentResponses_wavelengthChanged', _.get( QuantumWaveInterferenceStrings, 'a11y.waveExperimentResponses.wavelengthChangedStringProperty' ), [{"name":"isRestarting","variants":["true","false"]},{"name":"sourceRestartedResponse"}] ),
@@ -577,13 +577,7 @@ const QuantumWaveInterferenceFluent = {
     },
     detectionModeRadioButtons: {
       accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.accessibleNameStringProperty' ) ),
-      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.accessibleHelpTextStringProperty' ) ),
-      intensityRadioButton: {
-        accessibleContextResponseSourceOffStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_intensityRadioButton_accessibleContextResponseSourceOff', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.intensityRadioButton.accessibleContextResponseSourceOffStringProperty' ) )
-      },
-      hitsRadioButton: {
-        accessibleContextResponse: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'> }>( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_hitsRadioButton_accessibleContextResponse', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.hitsRadioButton.accessibleContextResponseStringProperty' ), [{"name":"isEmitting","variants":["true","false"]}] )
-      }
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectionModeRadioButtons_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.detectionModeRadioButtons.accessibleHelpTextStringProperty' ) )
     },
     timeControlNode: {
       simSpeedDescriptionStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_timeControlNode_simSpeedDescription', _.get( QuantumWaveInterferenceStrings, 'a11y.timeControlNode.simSpeedDescriptionStringProperty' ) )

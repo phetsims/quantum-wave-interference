@@ -14,7 +14,7 @@ import QuantumWaveInterferenceConstants from '../../common/QuantumWaveInterferen
 import QuantumWaveInterferenceToggleNode from '../../common/view/QuantumWaveInterferenceToggleNode.js';
 import ExperimentConstants from '../ExperimentConstants.js';
 import ExperimentModel from '../model/ExperimentModel.js';
-import formatExperimentDetectorPatternResponse from './description/formatExperimentDetectorPatternResponse.js';
+import { formatExperimentDetectorScreenResponse } from './description/formatExperimentDetectorPatternResponse.js';
 import FrontFacingDetectorScreenNode from './FrontFacingDetectorScreenNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
 import ScreenSettingsPanel from './ScreenSettingsPanel.js';
@@ -80,8 +80,7 @@ export default class ExperimentDetectorColumnNode extends Node {
     this.screenSettingsPanel = new ScreenSettingsPanel(
       model.currentDetectionModeProperty,
       model.currentScreenBrightnessProperty,
-      model.currentIsEmittingProperty,
-      () => formatExperimentDetectorPatternResponse( model ), {
+      mode => formatExperimentDetectorScreenResponse( model, mode ), {
         tandem: tandem.createTandem( 'screenSettingsPanel' )
       }
     );

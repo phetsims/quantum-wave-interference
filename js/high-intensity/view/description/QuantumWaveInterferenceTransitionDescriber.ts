@@ -143,10 +143,17 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       ];
     }
     else if ( action.type === 'detectionModeChanged' ) {
+
+      // Describe the current detector-screen (or graph) state for the newly selected mode, matching the Experiment
+      // screen's detection-mode responses. In hits mode, "empty" means no hits have accumulated; leftover hits with the
+      // source off are still described as the current pattern rather than reported as empty. In intensity mode the
+      // screen empties as soon as the source stops, so "Start particle source." only applies while the source is off
+      // (when emitting but the wave has not yet arrived, formatDetectorDescription reports that instead).
+      const screenEmpty = after.detectionMode === 'hits' ? after.totalHits === 0 : !after.isEmitting;
       contextResponses = [
-        QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.detectionModeChanged.format( {
-          detectionMode: after.detectionMode
-        } )
+        screenEmpty ? QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.screenEmptyStringProperty.value :
+        after.displayMode === 'graph' && after.detectionMode === 'intensity' ? after.graphPatternDescription :
+        formatDetectorDescription( after )
       ];
     }
     else if ( action.type === 'slitConfigurationChanged' ) {

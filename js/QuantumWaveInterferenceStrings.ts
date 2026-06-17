@@ -165,7 +165,8 @@ type StringsType = {
       'advancingWaveStringProperty': LocalizedStringProperty;
       'sourceStoppedStringProperty': LocalizedStringProperty;
       'particleTypeChangedStringProperty': LocalizedStringProperty;
-      'detectionModeChangedStringProperty': LocalizedStringProperty;
+      'screenEmptyStringProperty': LocalizedStringProperty;
+      'hitsIncreasingStringProperty': LocalizedStringProperty;
       'slitConfigurationChangedStringProperty': LocalizedStringProperty;
       'slitSeparationChangedStringProperty': LocalizedStringProperty;
       'wavelengthChangedStringProperty': LocalizedStringProperty;
@@ -283,12 +284,6 @@ type StringsType = {
     'detectionModeRadioButtons': {
       'accessibleNameStringProperty': LocalizedStringProperty;
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
-      'intensityRadioButton': {
-        'accessibleContextResponseSourceOffStringProperty': LocalizedStringProperty;
-      };
-      'hitsRadioButton': {
-        'accessibleContextResponseStringProperty': LocalizedStringProperty;
-      }
     };
     'timeControlNode': {
       'simSpeedDescriptionStringProperty': LocalizedStringProperty;
