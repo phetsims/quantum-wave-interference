@@ -14,6 +14,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import BooleanProperty from '../../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import { clamp } from '../../../../../dot/js/util/clamp.js';
@@ -189,11 +190,16 @@ export default class SingleParticlesAccessibleResponses extends Node {
   // scene clear/restart should produce packet-lifecycle context responses.
   private hasHandledFirstAutoRepeatPacketSinceRestart = false;
   private isCurrentPacketFirstSinceRestart = true;
+  private readonly showPacketLifecycleInStateDescriptionProperty = new BooleanProperty( true );
+
+  // PDOM state item shown while auto-repeat is actively sending particles, so repeated packet lifecycle details can
+  // stay quiet while the state description still exposes that the source is continuing.
+  public readonly autoRepeatStatusItem: AccessibleListItem;
 
   // PDOM state item describing the current stage of the in-flight packet (moving packet, at slits, interfering, or
   // reaching the screen), or the accumulated hits pattern when idle; hidden while the detector screen is empty.
   // Because the packet is transient, this single item replaces the accumulating milestone list used on the
-  // High Intensity screen; it is the only bullet in the "Detector Screen and Experiment Details" list.
+  // High Intensity screen.
   public readonly packetStatusItem: AccessibleListItem;
 
   public constructor( private readonly model: SingleParticlesModel ) {
@@ -208,6 +214,8 @@ export default class SingleParticlesAccessibleResponses extends Node {
     model.currentIsPacketActiveProperty.lazyLink( isPacketActive => {
       if ( isPacketActive ) {
         this.isCurrentPacketFirstSinceRestart = !this.hasHandledFirstAutoRepeatPacketSinceRestart;
+        this.showPacketLifecycleInStateDescriptionProperty.value = !model.currentAutoRepeatProperty.value ||
+                                                                  this.isCurrentPacketFirstSinceRestart;
 
         if ( model.currentAutoRepeatProperty.value ) {
           this.hasHandledFirstAutoRepeatPacketSinceRestart = true;
@@ -215,6 +223,12 @@ export default class SingleParticlesAccessibleResponses extends Node {
       }
       else {
         this.isCurrentPacketFirstSinceRestart = false;
+
+        if ( model.currentAutoRepeatProperty.value &&
+             model.currentIsEmittingProperty.value &&
+             this.hasHandledFirstAutoRepeatPacketSinceRestart ) {
+          this.showPacketLifecycleInStateDescriptionProperty.value = false;
+        }
       }
     } );
     model.currentAutoRepeatProperty.lazyLink( autoRepeat => {
@@ -257,15 +271,24 @@ export default class SingleParticlesAccessibleResponses extends Node {
     const dependencies = this.createDependencies();
     const getState = () => this.getResponseState();
 
+    this.autoRepeatStatusItem = {
+      stringProperty: QuantumWaveInterferenceFluent.a11y.singleParticlesState.autoRepeatStatusStringProperty,
+      visibleProperty: DerivedProperty.deriveAny( [
+        model.currentAutoRepeatProperty,
+        model.currentIsEmittingProperty
+      ], () => model.currentAutoRepeatProperty.value && model.currentIsEmittingProperty.value )
+    };
+
     this.packetStatusItem = {
       stringProperty: DerivedProperty.deriveAny( dependencies, () => {
         const state = getState();
         const stage = state.waveProgressStage;
 
         // With the source off, describe the accumulated hits pattern. While the packet is between the source and
-        // the barrier (or there is no barrier, or the next auto-repeat packet is about to fire), describe the moving
-        // packet itself; after that, describe its interaction with the slits and detector screen.
-        return !state.isEmitting ?
+        // the barrier (or there is no barrier), describe the moving packet itself; after that, describe its
+        // interaction with the slits and detector screen. After the first auto-repeat packet, keep this item on the
+        // accumulated hit-pattern description instead of cycling through repeated packet lifecycle states.
+        return !state.isEmitting || !this.showPacketLifecycleInStateDescriptionProperty.value ?
                formatHitDescription( state ) :
                ( stage === 'sourceOff' || stage === 'travelingToSlits' || stage === 'directToScreen' ) ?
                formatPacketBeamDescription( state ) :
@@ -293,6 +316,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       this.model.timeSpeedProperty,
       this.model.currentIsEmittingProperty,
       this.model.currentIsPacketActiveProperty,
+      this.model.currentAutoRepeatProperty,
       this.model.currentSlitConfigurationProperty,
       this.model.currentWavelengthProperty,
       this.model.currentParticleSpeedProperty,
@@ -301,6 +325,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       this.model.currentWaveDisplayModeProperty,
       this.model.currentTotalHitsProperty,
       this.model.accessibleStateStepProperty,
+      this.showPacketLifecycleInStateDescriptionProperty,
       ...QuantumWaveInterferenceFluent.a11y.singleParticlesState.sourcePacket.getDependentProperties(),
       ...QuantumWaveInterferenceFluent.a11y.waveExperimentState.detectorPattern.getDependentProperties(),
       ...QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.getDependentProperties()
@@ -352,6 +377,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
   private resetFirstPacketResponseTracking(): void {
     this.hasHandledFirstAutoRepeatPacketSinceRestart = false;
     this.isCurrentPacketFirstSinceRestart = true;
+    this.showPacketLifecycleInStateDescriptionProperty.value = true;
   }
 
   /**

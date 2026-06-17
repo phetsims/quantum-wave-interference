@@ -429,7 +429,7 @@ export default class SingleParticlesScreenView extends ScreenView {
           surface: model.isGraphVisibleProperty.derived( isGraphVisible => isGraphVisible ? 'graph' as const : 'detectorScreen' as const ),
           detectorScreenStatus: detectorScreenStatusProperty
         } ),
-        listItems: [ accessibleResponses.packetStatusItem, graphDetailItem ]
+        listItems: [ accessibleResponses.autoRepeatStatusItem, accessibleResponses.packetStatusItem, graphDetailItem ]
       } )
     } );
     this.addChild( detectorScreenDetailsNode );

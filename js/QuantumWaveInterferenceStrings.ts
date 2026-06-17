@@ -132,6 +132,7 @@ type StringsType = {
       'wavePeakSpacingStringProperty': LocalizedStringProperty;
     };
     'singleParticlesState': {
+      'autoRepeatStatusStringProperty': LocalizedStringProperty;
       'sourcePacketStringProperty': LocalizedStringProperty;
     };
     'singleParticlesScreen': {

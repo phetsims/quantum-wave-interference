@@ -299,6 +299,9 @@
       }
     },
     "singleParticlesState": {
+      "autoRepeatStatus": {
+        "value": "PLACEHOLDER MESSAGE : AUTO REPEAT MODE CONTINUES TO SEND PARTICLES"
+      },
       "sourcePacket": {
         "value": "{ $waveDisplayMode ->\n  [amplitude] Round packet of solid { a11y_sourceWaveFragments_lowercaseColor } wave\n  moves toward { a11y_sourceWaveFragments_slitTarget }\n *[electricField] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n  [realPart] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n  [imaginaryPart] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n}"
       }

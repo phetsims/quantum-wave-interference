@@ -320,6 +320,7 @@ a11y:
                                *[extremelyCloseTogether] Wave peaks, extremely close together.
                               }
   singleParticlesState:
+    autoRepeatStatus:         'PLACEHOLDER MESSAGE : AUTO REPEAT MODE CONTINUES TO SEND PARTICLES'
     # Single Particles counterpart to waveExperimentState.sourceBeam: a single emitted wave packet rendered as a round
     # packet of waves, rather than a continuous beam of plane wave fronts.
     sourcePacket:             >-
