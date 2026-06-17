@@ -108,24 +108,18 @@ export default class ExperimentScreenViewDescription extends Node {
     this.addChild( hitStageResponseNode );
 
     let previousTotalHits = model.currentTotalHitsProperty.value;
-    let previousHitStage = BandAnalysis.getHitStage(
-      previousTotalHits,
-      showsDoubleSlitInterferencePattern( model.currentSlitConfigurationProperty.value )
-    );
+    let previousHitStage = BandAnalysis.getHitStage( previousTotalHits );
 
     const syncHitStageBaseline = () => {
       previousTotalHits = model.currentTotalHitsProperty.value;
-      previousHitStage = BandAnalysis.getHitStage(
-        previousTotalHits,
-        showsDoubleSlitInterferencePattern( model.currentSlitConfigurationProperty.value )
-      );
+      previousHitStage = BandAnalysis.getHitStage( previousTotalHits );
     };
 
     model.currentTotalHitsProperty.lazyLink( totalHits => {
       const scene = model.sceneProperty.value;
       const slitSetting = model.currentSlitConfigurationProperty.value;
       const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
-      const hitStage = BandAnalysis.getHitStage( totalHits, isDoubleSlit );
+      const hitStage = BandAnalysis.getHitStage( totalHits );
 
       if (
         model.currentDetectionModeProperty.value !== 'hits' ||

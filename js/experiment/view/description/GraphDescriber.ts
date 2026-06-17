@@ -70,7 +70,7 @@ export default class GraphDescriber {
 
       // Hits mode: only recompute description when the qualitative stage changes.
       const totalHits = sceneModel.totalHitsProperty.value;
-      const newStage = BandAnalysis.getHitStage( totalHits, isDoubleSlit );
+      const newStage = BandAnalysis.getHitStage( totalHits );
       if ( newStage === hitStage ) {
         return;
       }
@@ -98,7 +98,7 @@ export default class GraphDescriber {
       else if ( isNoBarrier ) {
         descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
                                     newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
-                                    ( newStage === 'emerging' || newStage === 'clear' ) ?
+                                    ( newStage === 'emerging' || newStage === 'developing' || newStage === 'clear' ) ?
                                     QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierStringProperty.value :
                                     ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
       }

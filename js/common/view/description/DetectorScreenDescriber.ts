@@ -136,7 +136,7 @@ export default class DetectorScreenDescriber {
 
       // Hits mode: only recompute description when the qualitative stage changes.
       const totalHits = scene.totalHitsProperty.value;
-      const newStage = BandAnalysis.getHitStage( totalHits, isDoubleSlit );
+      const newStage = BandAnalysis.getHitStage( totalHits );
       if ( newStage === hitStage ) {
         return;
       }

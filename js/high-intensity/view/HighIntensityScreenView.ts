@@ -392,7 +392,7 @@ export default class HighIntensityScreenView extends ScreenView {
     const detectorScreenHalfWidth = scene.regionWidth / 2;
     const bandAnalysis = BandAnalysis.analyzeTheoreticalPattern( scene, detectorScreenHalfWidth );
     const envelopeHeuristic = BandAnalysis.analyzeEnvelopeHeuristic( scene );
-    const hitStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value, patternKind === 'doubleSlitInterference' );
+    const hitStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value );
     const effectiveWavelengthMeters = scene.getEffectiveWavelength();
     const wavelengthColorZone = scene.sourceType === 'photons' ? getWavelengthColorZone( roundSymmetric( scene.wavelengthProperty.value ) ) : null;
     const waveProgress = getWaveProgress( scene, patternKind );

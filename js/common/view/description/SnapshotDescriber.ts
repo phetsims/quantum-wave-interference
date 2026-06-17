@@ -45,7 +45,7 @@ export default class SnapshotDescriber {
     }
 
     const hitCount = snapshot.hits.length;
-    const hitStage = BandAnalysis.getHitStage( hitCount, isDoubleSlit );
+    const hitStage = BandAnalysis.getHitStage( hitCount );
     const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot, screenHalfWidth );
     const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
 

@@ -40,6 +40,27 @@ type TheoreticalPatternScene = {
 // updates so they only fire at pedagogically meaningful thresholds.
 export type HitStage = 'none' | 'few' | 'emerging' | 'developing' | 'clear';
 
+type NonEmptyHitStage = Exclude<HitStage, 'none'>;
+
+type HitStageThreshold = {
+
+  // Inclusive minimum number of hits needed to use this stage.
+  minimumHits: number;
+  hitStage: NonEmptyHitStage;
+};
+
+// Hit-stage thresholds, as inclusive minima:
+// 1+   few        individual scattered hits
+// 250+ emerging   faint bands begin forming
+// 500+ developing bands become more distinct
+// 750+ clear      stable band-spacing description, filled from the current geometry
+const HIT_STAGE_THRESHOLDS: readonly HitStageThreshold[] = [
+  { minimumHits: 1, hitStage: 'few' },
+  { minimumHits: 250, hitStage: 'emerging' },
+  { minimumHits: 500, hitStage: 'developing' },
+  { minimumHits: 750, hitStage: 'clear' }
+];
+
 // Seven-point qualitative scale for the spacing between adjacent double-slit bright bands,
 // expressed as a fraction of the total detector-screen width. Used by describers to select
 // the appropriate Fluent string for screen-reader output.
@@ -135,6 +156,16 @@ function getEnvelopeCategory( envelopeScore: number ): EnvelopeCategory {
   return envelopeScore < FAINT_SECTIONS_ENVELOPE_SCORE ? 'brightestAtCenter' :
          envelopeScore < DISTINCT_SECTIONS_ENVELOPE_SCORE ? 'clusteringIntoTwoFaintSections' :
          'clusteringIntoTwoDistinctSections';
+}
+
+function getHitStageFromThresholds( totalHits: number, thresholds: readonly HitStageThreshold[] ): HitStage {
+  for ( let i = thresholds.length - 1; i >= 0; i-- ) {
+    if ( totalHits >= thresholds[ i ].minimumHits ) {
+      return thresholds[ i ].hitStage;
+    }
+  }
+
+  return 'none';
 }
 
 export default class BandAnalysis {
@@ -304,16 +335,10 @@ export default class BandAnalysis {
 
   /**
    * Returns the qualitative hit stage for the current number of accumulated hits.
-   * Double-slit patterns require more hits to resolve (extra 'developing' stage at 51–200) because interference
-   * fringes are finer than the broad single-slit diffraction envelope.
+   * @param totalHits - number of accumulated detector hits
    */
-  public static getHitStage( totalHits: number, isDoubleSlit: boolean ): HitStage {
-    if ( totalHits === 0 ) { return 'none'; }
-    if ( isDoubleSlit && totalHits <= 25 ) { return 'few'; }
-    if ( totalHits <= 10 ) { return 'few'; }
-    if ( totalHits <= 50 ) { return 'emerging'; }
-    if ( isDoubleSlit && totalHits <= 200 ) { return 'developing'; }
-    return 'clear';
+  public static getHitStage( totalHits: number ): HitStage {
+    return getHitStageFromThresholds( totalHits, HIT_STAGE_THRESHOLDS );
   }
 
   /**

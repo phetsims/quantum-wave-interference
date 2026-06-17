@@ -336,7 +336,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       slitSeparationMM: scene.slitSeparationProperty.value,
       barrierPositionFraction: scene.barrierPositionFractionProperty.value,
       totalHits: totalHits,
-      hitStage: BandAnalysis.getHitStage( totalHits, patternKind === 'doubleSlitInterference' ),
+      hitStage: BandAnalysis.getHitStage( totalHits ),
       bandSpacingDescription: bandAnalysis.spacingCategory,
       envelopeCategory: bandAnalysis.envelopeCategory,
       patternKind: patternKind,
