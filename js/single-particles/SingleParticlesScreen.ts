@@ -36,6 +36,7 @@ export default class SingleParticlesScreen extends Screen<SingleParticlesModel, 
         maxIconWidthProportion: 1,
         maxIconHeightProportion: 1
       } ),
+      screenButtonsHelpText: QuantumWaveInterferenceFluent.a11y.singleParticlesScreen.screenButtonsHelpTextStringProperty,
       createKeyboardHelpNode: () => new QuantumWaveInterferenceKeyboardHelpContent()
     }, providedOptions );
 

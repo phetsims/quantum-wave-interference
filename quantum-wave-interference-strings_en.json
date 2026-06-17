@@ -213,6 +213,16 @@
     "value": "No particle<br>detected"
   },
   "a11y": {
+    "experimentScreen": {
+      "screenButtonsHelpText": {
+        "value": "Explore how source, slit, and detector settings shape intensity and hits patterns."
+      }
+    },
+    "highIntensityScreen": {
+      "screenButtonsHelpText": {
+        "value": "Explore how interfering waves build patterns on a detector screen."
+      }
+    },
     "screenSummary": {
       "playAreaExperiment": {
         "value": "A highly configurable three-part experimental setup includes a particle source emitter, double-slit barrier, and detector screen. When experiment is running, particles pass through available slits in barrier to land on detector screen and form patterns. You can choose and adjust source particles, configure slitted barrier, and observe and take snapshots of resulting patterns on detector screen. Additionally, a graph of detector screen data can be shown."
@@ -307,6 +317,9 @@
       }
     },
     "singleParticlesScreen": {
+      "screenButtonsHelpText": {
+        "value": "Explore how one particle at a time builds a probability pattern."
+      },
       "detectorProbeCheckbox": {
         "accessibleHelpText": {
           "value": "Use added detector probe to measure probability of detecting particle in circular region of wave area."

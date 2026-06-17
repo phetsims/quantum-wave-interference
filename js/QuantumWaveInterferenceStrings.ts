@@ -96,6 +96,12 @@ type StringsType = {
   'particleDetectedStringProperty': LocalizedStringProperty;
   'notDetectedStringProperty': LocalizedStringProperty;
   'a11y': {
+    'experimentScreen': {
+      'screenButtonsHelpTextStringProperty': LocalizedStringProperty;
+    };
+    'highIntensityScreen': {
+      'screenButtonsHelpTextStringProperty': LocalizedStringProperty;
+    };
     'screenSummary': {
       'playAreaExperimentStringProperty': LocalizedStringProperty;
       'playAreaHighIntensityStringProperty': LocalizedStringProperty;
@@ -136,6 +142,7 @@ type StringsType = {
       'sourcePacketStringProperty': LocalizedStringProperty;
     };
     'singleParticlesScreen': {
+      'screenButtonsHelpTextStringProperty': LocalizedStringProperty;
       'detectorProbeCheckbox': {
         'accessibleHelpTextStringProperty': LocalizedStringProperty;
       };

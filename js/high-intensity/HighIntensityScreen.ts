@@ -36,6 +36,7 @@ export default class HighIntensityScreen extends Screen<HighIntensityModel, High
         maxIconWidthProportion: 1,
         maxIconHeightProportion: 1
       } ),
+      screenButtonsHelpText: QuantumWaveInterferenceFluent.a11y.highIntensityScreen.screenButtonsHelpTextStringProperty,
       createKeyboardHelpNode: () => new QuantumWaveInterferenceKeyboardHelpContent()
     }, providedOptions );
 

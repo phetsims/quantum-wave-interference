@@ -35,6 +35,7 @@ export default class ExperimentScreen extends Screen<ExperimentModel, Experiment
         maxIconWidthProportion: 1,
         maxIconHeightProportion: 1
       } ),
+      screenButtonsHelpText: QuantumWaveInterferenceFluent.a11y.experimentScreen.screenButtonsHelpTextStringProperty,
       createKeyboardHelpNode: () => new QuantumWaveInterferenceKeyboardHelpContent()
     }, providedOptions );
 

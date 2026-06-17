@@ -93,6 +93,8 @@ addToMapIfDefined( 'detect', 'detectStringProperty' );
 addToMapIfDefined( 'resetDetector', 'resetDetectorStringProperty' );
 addToMapIfDefined( 'particleDetected', 'particleDetectedStringProperty' );
 addToMapIfDefined( 'notDetected', 'notDetectedStringProperty' );
+addToMapIfDefined( 'a11y_experimentScreen_screenButtonsHelpText', 'a11y.experimentScreen.screenButtonsHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_highIntensityScreen_screenButtonsHelpText', 'a11y.highIntensityScreen.screenButtonsHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playAreaExperiment', 'a11y.screenSummary.playAreaExperimentStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playAreaHighIntensity', 'a11y.screenSummary.playAreaHighIntensityStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playAreaSingleParticles', 'a11y.screenSummary.playAreaSingleParticlesStringProperty' );
@@ -120,6 +122,7 @@ addToMapIfDefined( 'a11y_sourceWaveFragments_slitTarget', 'a11y.sourceWaveFragme
 addToMapIfDefined( 'a11y_sourceWaveFragments_wavePeakSpacing', 'a11y.sourceWaveFragments.wavePeakSpacingStringProperty' );
 addToMapIfDefined( 'a11y_singleParticlesState_autoRepeatStatus', 'a11y.singleParticlesState.autoRepeatStatusStringProperty' );
 addToMapIfDefined( 'a11y_singleParticlesState_sourcePacket', 'a11y.singleParticlesState.sourcePacketStringProperty' );
+addToMapIfDefined( 'a11y_singleParticlesScreen_screenButtonsHelpText', 'a11y.singleParticlesScreen.screenButtonsHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_singleParticlesScreen_detectorProbeCheckbox_accessibleHelpText', 'a11y.singleParticlesScreen.detectorProbeCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_singleParticlesScreen_detectorPatternGraph_zoomButtonGroup_accessibleParagraph', 'a11y.singleParticlesScreen.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty' );
 addToMapIfDefined( 'a11y_waveExperimentState_sourceBeam', 'a11y.waveExperimentState.sourceBeamStringProperty' );
@@ -378,6 +381,12 @@ const QuantumWaveInterferenceFluent = {
   notDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'notDetectedStringProperty' ),
   _comment_1: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
   a11y: {
+    experimentScreen: {
+      screenButtonsHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_experimentScreen_screenButtonsHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentScreen.screenButtonsHelpTextStringProperty' ) )
+    },
+    highIntensityScreen: {
+      screenButtonsHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_highIntensityScreen_screenButtonsHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.highIntensityScreen.screenButtonsHelpTextStringProperty' ) )
+    },
     screenSummary: {
       playAreaExperimentStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_playAreaExperiment', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.playAreaExperimentStringProperty' ) ),
       playAreaHighIntensityStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_screenSummary_playAreaHighIntensity', _.get( QuantumWaveInterferenceStrings, 'a11y.screenSummary.playAreaHighIntensityStringProperty' ) ),
@@ -426,6 +435,7 @@ const QuantumWaveInterferenceFluent = {
       sourcePacket: new FluentPattern<{ photonColor: 'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red' | TReadOnlyProperty<'violet' | 'blue' | 'indigo' | 'green' | 'yellow' | 'orange' | 'red'>, slitSetting: 'noBarrier' | 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors' | TReadOnlyProperty<'noBarrier' | 'bothOpen' | 'leftCovered' | 'rightCovered' | 'leftDetector' | 'rightDetector' | 'bothDetectors'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'>, waveDisplayMode: 'amplitude' | 'electricField' | 'realPart' | 'imaginaryPart' | TReadOnlyProperty<'amplitude' | 'electricField' | 'realPart' | 'imaginaryPart'>, wavefrontSpacing: 'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether' | TReadOnlyProperty<'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether'> }>( fluentSupport.bundleProperty, 'a11y_singleParticlesState_sourcePacket', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesState.sourcePacketStringProperty' ), [{"name":"photonColor","variants":["violet","blue","indigo","green","yellow","orange","red"]},{"name":"slitSetting","variants":["noBarrier","bothOpen","leftCovered","rightCovered","leftDetector","rightDetector","bothDetectors"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]},{"name":"waveDisplayMode","variants":["amplitude","electricField","realPart","imaginaryPart"]},{"name":"wavefrontSpacing","variants":["extremelyFarApart","veryFarApart","farApart","somewhatCloseTogether","closeTogether","veryCloseTogether","extremelyCloseTogether"]}] )
     },
     singleParticlesScreen: {
+      screenButtonsHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_singleParticlesScreen_screenButtonsHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesScreen.screenButtonsHelpTextStringProperty' ) ),
       detectorProbeCheckbox: {
         accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_singleParticlesScreen_detectorProbeCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesScreen.detectorProbeCheckbox.accessibleHelpTextStringProperty' ) )
       },

@@ -75,6 +75,10 @@ notDetected:                     No particle<br>detected
 
 # Accessibility strings
 a11y:
+  experimentScreen:
+    screenButtonsHelpText: Explore how source, slit, and detector settings shape intensity and hits patterns.
+  highIntensityScreen:
+    screenButtonsHelpText: Explore how interfering waves build patterns on a detector screen.
   screenSummary:
     playAreaExperiment:      >-
                              A highly configurable three-part experimental setup includes a particle source emitter,
@@ -338,6 +342,7 @@ a11y:
                                 { a11y.sourceWaveFragments.wavePeakSpacing }
                               }
   singleParticlesScreen:
+    screenButtonsHelpText: Explore how one particle at a time builds a probability pattern.
     detectorProbeCheckbox:
       accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
     detectorPatternGraph:
