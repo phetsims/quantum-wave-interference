@@ -51,14 +51,14 @@ type HitStageThreshold = {
 
 // Hit-stage thresholds, as inclusive minima:
 // 1+   few        individual scattered hits
-// 250+ emerging   faint bands begin forming
-// 500+ developing bands become more distinct
-// 750+ clear      stable band-spacing description, filled from the current geometry
+// 188+ emerging   faint bands begin forming
+// 375+ developing bands become more distinct
+// 563+ clear      stable band-spacing description, filled from the current geometry
 const HIT_STAGE_THRESHOLDS: readonly HitStageThreshold[] = [
   { minimumHits: 1, hitStage: 'few' },
-  { minimumHits: 250, hitStage: 'emerging' },
-  { minimumHits: 500, hitStage: 'developing' },
-  { minimumHits: 750, hitStage: 'clear' }
+  { minimumHits: 188, hitStage: 'emerging' },
+  { minimumHits: 375, hitStage: 'developing' },
+  { minimumHits: 563, hitStage: 'clear' }
 ];
 
 // Seven-point qualitative scale for the spacing between adjacent double-slit bright bands,
