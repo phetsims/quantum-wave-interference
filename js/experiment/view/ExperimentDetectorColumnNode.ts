@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * ExperimentDetectorColumnNode owns the front-facing detector screens, screen settings, and graph accordion boxes for
+ * ExperimentDetectorColumnNode owns the front-facing detector screens, screen controls, and graph accordion boxes for
  * the Experiment screen.
  *
  * @author Sam Reid (PhET Interactive Simulations)
@@ -17,7 +17,7 @@ import ExperimentModel from '../model/ExperimentModel.js';
 import { formatExperimentDetectorScreenResponse } from './description/formatExperimentDetectorPatternResponse.js';
 import FrontFacingDetectorScreenNode from './FrontFacingDetectorScreenNode.js';
 import GraphAccordionBox from './GraphAccordionBox.js';
-import ScreenSettingsPanel from './ScreenSettingsPanel.js';
+import ScreenControlsPanel from './ScreenControlsPanel.js';
 
 export default class ExperimentDetectorColumnNode extends Node {
 
@@ -34,7 +34,7 @@ export default class ExperimentDetectorColumnNode extends Node {
 
   // Detection-mode, brightness, and emit controls displayed below the detector screen.
   // Exposed so ExperimentScreenViewDescription can place it in the PDOM order.
-  public readonly screenSettingsPanel: ScreenSettingsPanel;
+  public readonly screenControlsPanel: ScreenControlsPanel;
 
   public constructor(
     model: ExperimentModel,
@@ -77,15 +77,15 @@ export default class ExperimentDetectorColumnNode extends Node {
     }
     this.addChild( new QuantumWaveInterferenceToggleNode( model.sceneProperty, model.scenes, this.detectorScreenNodes ) );
 
-    this.screenSettingsPanel = new ScreenSettingsPanel(
+    this.screenControlsPanel = new ScreenControlsPanel(
       model.currentDetectionModeProperty,
       model.currentScreenBrightnessProperty,
       mode => formatExperimentDetectorScreenResponse( model, mode ), {
-        tandem: tandem.createTandem( 'screenSettingsPanel' )
+        tandem: tandem.createTandem( 'screenControlsPanel' )
       }
     );
-    this.layoutScreenSettingsPanel();
-    this.addChild( this.screenSettingsPanel );
+    this.layoutScreenControlsPanel();
+    this.addChild( this.screenControlsPanel );
 
     // Shared expanded state for the graph accordion boxes across all scenes,
     // so that switching scenes preserves the open/closed state per the design requirement.
@@ -104,13 +104,13 @@ export default class ExperimentDetectorColumnNode extends Node {
 
     this.layoutGraphAccordionBoxes();
 
-    // Keep the graph below the screen settings panel to avoid overlap and align the chart rectangle to the detector
+    // Keep the graph below the screen controls panel to avoid overlap and align the chart rectangle to the detector
     // screen rectangle even if labels or scale change.
-    this.screenSettingsPanel.localBoundsProperty.link( () => {
-      this.layoutScreenSettingsPanel();
+    this.screenControlsPanel.localBoundsProperty.link( () => {
+      this.layoutScreenControlsPanel();
       this.layoutGraphAccordionBoxes();
     } );
-    this.screenSettingsPanel.visibleProperty.link( () => this.layoutGraphAccordionBoxes() );
+    this.screenControlsPanel.visibleProperty.link( () => this.layoutGraphAccordionBoxes() );
     this.graphAccordionBoxes.forEach( graphBox => {
       graphBox.localBoundsProperty.link( () => this.layoutGraphAccordionBoxes() );
     } );
@@ -167,31 +167,31 @@ export default class ExperimentDetectorColumnNode extends Node {
     this.graphAccordionBoxes.forEach( box => box.reset() );
   }
 
-  private layoutScreenSettingsPanel(): void {
+  private layoutScreenControlsPanel(): void {
     const detectorScreen = this.detectorScreenNodes[ 0 ];
 
     // Skip when the detector screen reports empty (non-finite) bounds, as can happen transiently under PhET-iO fuzz
     // (e.g. fuzzValues hiding the nodes that anchor its bounds); otherwise the computed top would be non-finite and
     // trip an assertion in Node.setTop. A later relayout runs once bounds are valid again.
     if ( detectorScreen.bounds.isFinite() ) {
-      this.screenSettingsPanel.centerX = this.detectorScreenCenterX;
-      this.screenSettingsPanel.top = detectorScreen.bottom + 8;
+      this.screenControlsPanel.centerX = this.detectorScreenCenterX;
+      this.screenControlsPanel.top = detectorScreen.bottom + 8;
     }
   }
 
   private layoutGraphAccordionBoxes(): void {
     const detectorScreen = this.detectorScreenNodes[ 0 ];
 
-    // Align the graph below the screen settings panel when it is visible with finite bounds, otherwise below the
+    // Align the graph below the screen controls panel when it is visible with finite bounds, otherwise below the
     // detector screen. Under PhET-iO fuzz the panel can be hidden (all controls off) or transiently collapse to empty
     // bounds while its visibleProperty catches up, and the detector screen can likewise report non-finite bounds. Bail
     // out rather than feed a non-finite value to Node.setTop/setX; a later relayout positions the boxes once bounds
     // settle. See DetectorScreenControls for the same isFinite guard pattern.
-    const usePanel = this.screenSettingsPanel.visible && this.screenSettingsPanel.bounds.isFinite();
+    const usePanel = this.screenControlsPanel.visible && this.screenControlsPanel.bounds.isFinite();
     if ( !usePanel && !detectorScreen.bounds.isFinite() ) {
       return;
     }
-    const referenceBottom = usePanel ? this.screenSettingsPanel.bottom : detectorScreen.bottom;
+    const referenceBottom = usePanel ? this.screenControlsPanel.bottom : detectorScreen.bottom;
 
     this.graphAccordionBoxes.forEach( graphBox => {
       if ( graphBox.bounds.isFinite() ) {

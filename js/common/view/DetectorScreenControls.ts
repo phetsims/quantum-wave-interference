@@ -187,13 +187,13 @@ export default class DetectorScreenControls extends VBox {
       }
     );
 
-    const eraseButton = new EraserButton( {
+    const eraserButton = new EraserButton( {
       listener: options.clearScreen,
       iconWidth: QuantumWaveInterferenceConstants.ERASER_BUTTON_ICON_WIDTH,
       minWidth: QuantumWaveInterferenceConstants.ERASER_BUTTON_MIN_WIDTH,
       minHeight: QuantumWaveInterferenceConstants.ERASER_BUTTON_MIN_HEIGHT,
       yMargin: 0,
-      tandem: tandem.createTandem( 'eraseButton' )
+      tandem: tandem.createTandem( 'eraserButton' )
     } );
 
     const snapshotsDialog = new SnapshotsDialog(
@@ -368,7 +368,7 @@ export default class DetectorScreenControls extends VBox {
     const bottomButtonsRow = new HBox( {
       spacing: 15,
       align: 'center',
-      children: [ eraseButton, resetAllButton ]
+      children: [ eraserButton, resetAllButton ]
     } );
 
     // Keep wave display and time controls together, but outside this VBox's flowing panel layout.

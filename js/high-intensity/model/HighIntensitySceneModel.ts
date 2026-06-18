@@ -81,7 +81,7 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
 
   // Controls how the detector screen and chart display accumulated data. 'intensity' shows the
   // continuous wave-interference pattern; 'hits' accumulates individual particle dots. Linked by the view
-  // (HighIntensityScreenView, ScreenSettingsPanel) and proxied through HighIntensityModel.currentDetectionModeProperty.
+  // (HighIntensityScreenView, ScreenControlsPanel) and proxied through HighIntensityModel.currentDetectionModeProperty.
   public readonly detectionModeProperty: StringUnionProperty<DetectionMode>;
 
   // True when Hits mode has reached the hit cap

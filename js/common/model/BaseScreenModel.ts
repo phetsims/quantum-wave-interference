@@ -18,8 +18,10 @@ import TModel from '../../../../joist/js/TModel.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
 import Stopwatch from '../../../../scenery-phet/js/Stopwatch.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import { percentUnit } from '../../../../scenery-phet/js/units/percentUnit.js';
 import { PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js';
 import IOType from '../../../../tandem/js/types/IOType.js';
+import NumberIO from '../../../../tandem/js/types/NumberIO.js';
 import ReferenceIO from '../../../../tandem/js/types/ReferenceIO.js';
 import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
 import { type BarrierType } from './BarrierType.js';
@@ -142,7 +144,14 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
 
     this.currentScreenBrightnessProperty = new DynamicProperty<number, number, BaseSceneModel>( this.sceneProperty, {
       derive: 'screenBrightnessProperty',
-      bidirectional: true
+      bidirectional: true,
+      tandem: tandem.createTandem( 'currentScreenBrightnessProperty' ),
+      phetioFeatured: true,
+      phetioDocumentation: 'The detector screen brightness for the current source scene.',
+      phetioReadOnly: true,
+      phetioState: false,
+      phetioValueType: NumberIO,
+      units: percentUnit
     } );
 
     this.currentWaveDisplayModeProperty = new DynamicProperty<WaveDisplayMode, WaveDisplayMode, BaseSceneModel>( this.sceneProperty, {

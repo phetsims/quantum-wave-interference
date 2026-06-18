@@ -24,7 +24,7 @@ import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.j
 
 type SelfOptions = EmptySelfOptions;
 
-/** Options for SingleParticleEmitterNode. A tandem is required for PhET-iO instrumentation of the emit button. */
+/** Options for SingleParticleEmitterNode. A tandem is required for PhET-iO instrumentation of the button. */
 export type SingleParticleEmitterNodeOptions = SelfOptions & PickRequired<NodeOptions, 'tandem'> & NodeOptions;
 
 const EMITTER_SCALE = 1.24;
@@ -71,7 +71,7 @@ export default class SingleParticleEmitterNode extends Node {
     // NOTE: see other duplicate in quantum-wave-interference/js/high-intensity/view/HighIntensitySourceBeamThumbnailNode.ts.
     // These button options stay inline because RoundStickyToggleButton and LaserPointerNode own different option
     // surfaces and tandems.
-    const emitButton = new RoundStickyToggleButton( isEmittingProperty, false, true, {
+    const button = new RoundStickyToggleButton( isEmittingProperty, false, true, {
       baseColor: 'red',
       radius: BUTTON_RADIUS,
       valueUpSoundPlayer: sharedSoundPlayers.get( 'toggleOff' ),
@@ -89,21 +89,21 @@ export default class SingleParticleEmitterNode extends Node {
         isEmitting: isEmittingStringProperty,
         sourceType: sourceTypeProperty
       } ),
-      tandem: providedOptions.tandem.createTandem( 'emitButton' ),
+      tandem: providedOptions.tandem.createTandem( 'button' ),
 
       // The sim enables/disables the button based on the model state, so clients may not control it.
       enabledPropertyOptions: { phetioReadOnly: true }
     } );
 
     // Drive the button's own instrumented enabledProperty from the model, rather than passing
-    // isEmitterEnabledProperty as the button's enabledProperty, so that emitButton.enabledProperty
+    // isEmitterEnabledProperty as the button's enabledProperty, so that button.enabledProperty
     // appears in the PhET-iO tree with phetioReadOnly: true (matching the emitters on other screens).
     isEmitterEnabledProperty.link( isEnabled => {
-      emitButton.enabled = isEnabled;
+      button.enabled = isEnabled;
     } );
 
-    emitButton.centerX = imageNode.width * BUTTON_CENTER_X_FRACTION;
-    emitButton.centerY = imageNode.height * BUTTON_CENTER_Y_FRACTION;
-    this.addChild( emitButton );
+    button.centerX = imageNode.width * BUTTON_CENTER_X_FRACTION;
+    button.centerY = imageNode.height * BUTTON_CENTER_Y_FRACTION;
+    this.addChild( button );
   }
 }

@@ -4,7 +4,7 @@
  * ExperimentScreenView is the top-level view for the Quantum Wave Interference simulation. It contains three visual
  * "rows": the top row with the emitter, double slit, and detector screen in overhead perspective;
  * the middle row with controls and front-facing views; and the bottom row with scene selectors, slit controls,
- * and screen settings.
+ * and screen controls.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -278,7 +278,7 @@ export default class ExperimentScreenView extends ScreenView {
       sceneRadioButtonGroup,
       slitColumnNode.slitControlPanel,
       this.detectorColumnNode.getDetectorScreenPDOMNodes(),
-      this.detectorColumnNode.screenSettingsPanel
+      this.detectorColumnNode.screenControlsPanel
     );
     this.addChild( experimentScreenViewDescription );
 

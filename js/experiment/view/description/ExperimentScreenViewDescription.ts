@@ -19,7 +19,7 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
 import ExperimentModel from '../../model/ExperimentModel.js';
 import type SceneModel from '../../model/SceneModel.js';
 import type OverheadEmitterNode from '../OverheadEmitterNode.js';
-import type ScreenSettingsPanel from '../ScreenSettingsPanel.js';
+import type ScreenControlsPanel from '../ScreenControlsPanel.js';
 import type SlitControlPanel from '../SlitControlPanel.js';
 import ExperimentDetectorScreenDetailsNode from './ExperimentDetectorScreenDetailsNode.js';
 import formatExperimentDetectorPatternResponse from './formatExperimentDetectorPatternResponse.js';
@@ -53,7 +53,7 @@ export default class ExperimentScreenViewDescription extends Node {
     sceneRadioButtonGroup: SceneRadioButtonGroup<SceneModel>,
     slitControlPanel: SlitControlPanel,
     detectorScreenPDOMNodes: Node[],
-    screenSettingsPanel: ScreenSettingsPanel
+    screenControlsPanel: ScreenControlsPanel
   ) {
 
     super();
@@ -281,7 +281,7 @@ export default class ExperimentScreenViewDescription extends Node {
 
     this.detectorScreenHeadingNode.pdomOrder = [
       ...detectorScreenPDOMNodes,
-      screenSettingsPanel
+      screenControlsPanel
     ];
   }
 }

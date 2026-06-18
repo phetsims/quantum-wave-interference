@@ -22,7 +22,7 @@ export default class QuantumWaveInterferenceColors {
       default: 'white'
     } );
 
-  // Panel fill and stroke used by SourceControlPanel, SlitControlPanel, and ScreenSettingsPanel
+  // Panel fill and stroke used by SourceControlPanel, SlitControlPanel, and ScreenControlsPanel
   public static readonly panelFillProperty = new ProfileColorProperty(
     quantumWaveInterference, 'panelFill', {
       default: '#f4f4f4'
