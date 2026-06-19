@@ -29,6 +29,9 @@ import HighIntensitySolver from './HighIntensitySolver.js';
 // Detector-screen hit dots created per model second in Hits mode.
 export const DETECTOR_SCREEN_HIT_RATE = 40;
 
+// Detector-screen hit dots created per model second in Hits mode when one or more on-slit detectors are present.
+const DETECTOR_SCREEN_HIT_RATE_WITH_SLIT_DETECTORS = 5;
+
 // On-slit detector/decoherence events created per model second for Detector Top/Bottom/Both.
 export const SLIT_DETECTOR_EVENT_RATE = 5;
 
@@ -200,7 +203,9 @@ export default class HighIntensitySceneModel extends BaseSceneModel {
    */
   private accumulateHits( dt: number ): void {
     // rate is the detector-screen hit creation rate in hits per model second for the current scene.
-    const rate = DETECTOR_SCREEN_HIT_RATE;
+    const rate = hasAnyDetector( this.slitConfigurationProperty.value ) ?
+                 DETECTOR_SCREEN_HIT_RATE_WITH_SLIT_DETECTORS :
+                 DETECTOR_SCREEN_HIT_RATE;
 
     // rate * dt converts the continuous hit rate into the expected number of hits for this frame. The accumulator
     // preserves fractional hits across frames so non-integer per-frame rates still produce the correct average rate.
