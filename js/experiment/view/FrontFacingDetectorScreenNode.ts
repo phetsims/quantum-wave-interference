@@ -28,6 +28,7 @@ import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
 import { type Snapshot } from '../../common/model/Snapshot.js';
 import QuantumWaveInterferenceColors from '../../common/QuantumWaveInterferenceColors.js';
+import createDetectorZoomButtonGroupAccessibleParagraphProperty from '../../common/view/description/createDetectorZoomButtonGroupAccessibleParagraphProperty.js';
 import createDetectorZoomLevelResponseProperty from '../../common/view/description/createDetectorZoomLevelResponseProperty.js';
 import { type DetectorScreenViewStateFragment } from '../../common/view/description/QuantumWaveInterferenceAccessibleViewState.js';
 import SnapshotDescriber from '../../common/view/description/SnapshotDescriber.js';
@@ -193,6 +194,8 @@ export default class FrontFacingDetectorScreenNode extends Node {
     };
 
     const horizontalZoomLevelResponseProperty = createDetectorZoomLevelResponseProperty( detectorScreenScaleIndexProperty );
+    const horizontalZoomButtonGroupAccessibleParagraphProperty =
+      createDetectorZoomButtonGroupAccessibleParagraphProperty( detectorScreenScaleIndexProperty );
 
     this.horizontalZoomButtonGroup = new PlusMinusZoomButtonGroup( detectorScreenScaleIndexProperty, {
       orientation: 'horizontal',
@@ -217,7 +220,7 @@ export default class FrontFacingDetectorScreenNode extends Node {
     } );
     this.addChild( this.horizontalZoomButtonGroup );
     this.horizontalZoomButtonGroupParagraphNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.accessibleParagraphStringProperty
+      accessibleParagraph: horizontalZoomButtonGroupAccessibleParagraphProperty
     } );
     this.addChild( this.horizontalZoomButtonGroupParagraphNode );
 

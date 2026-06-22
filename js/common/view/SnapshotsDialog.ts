@@ -22,6 +22,7 @@ import { type SlitConfigurationWithNoBarrier } from '../model/SlitConfiguration.
 import type { Snapshot } from '../model/Snapshot.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import createDetectorZoomButtonGroupAccessibleParagraphProperty from './description/createDetectorZoomButtonGroupAccessibleParagraphProperty.js';
 import createDetectorZoomLevelResponseProperty from './description/createDetectorZoomLevelResponseProperty.js';
 import SnapshotNode from './SnapshotNode.js';
 
@@ -120,6 +121,8 @@ export default class SnapshotsDialog extends Dialog {
     if ( detectorScreenScaleIndexProperty && providedOptions?.createScaleIndicatorNode ) {
 
       const zoomLevelResponseProperty = createDetectorZoomLevelResponseProperty( detectorScreenScaleIndexProperty );
+      const zoomButtonGroupAccessibleParagraphProperty =
+        createDetectorZoomButtonGroupAccessibleParagraphProperty( detectorScreenScaleIndexProperty );
 
       const zoomButtonGroup = new PlusMinusZoomButtonGroup( detectorScreenScaleIndexProperty, {
         orientation: 'horizontal',
@@ -144,7 +147,7 @@ export default class SnapshotsDialog extends Dialog {
         visiblePropertyOptions: { phetioFeatured: true }
       } );
       const zoomButtonGroupParagraphNode = new Node( {
-        accessibleParagraph: QuantumWaveInterferenceFluent.a11y.detectorScreen.zoomButtonGroup.accessibleParagraphStringProperty
+        accessibleParagraph: zoomButtonGroupAccessibleParagraphProperty
       } );
       snapshotNodes[ 0 ].addSnapshotOverlayChild( zoomButtonGroup );
       snapshotNodes[ 0 ].addSnapshotOverlayChild( zoomButtonGroupParagraphNode );

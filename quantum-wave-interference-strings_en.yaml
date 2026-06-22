@@ -1175,7 +1175,14 @@ a11y:
           peaks: >-
                  A broad central peak, tapering toward the edges.
     zoomButtonGroup:
-      accessibleParagraph: PLACEHOLDER TEXT FOR DETECTOR SCREEN ZOOM BUTTON HELP TEXT.
+      accessibleParagraph: |-
+                           { $level ->
+                             [1] Zoom level 1, full screen shown.
+                             [2] Zoom level 2.
+                             [3] Zoom level 3.
+                             [4] Zoom level 4, max pattern detail.
+                            *[other] Zoom level { $level }.
+                           } Use 4 zoom levels to get desired detail of pattern on detector screen.
   detectorScreenButtons:
     clearScreen:
       accessibleName:            Clear Hits

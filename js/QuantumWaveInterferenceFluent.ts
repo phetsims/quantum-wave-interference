@@ -689,7 +689,7 @@ const QuantumWaveInterferenceFluent = {
         noRulerSingleSlit: new FluentPattern<{ style: 'bands' | 'peaks' | TReadOnlyProperty<'bands' | 'peaks'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_spatialDescription_noRulerSingleSlit', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.spatialDescription.noRulerSingleSlitStringProperty' ), [{"name":"style","variants":["bands","peaks"]}] )
       },
       zoomButtonGroup: {
-        accessibleParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.zoomButtonGroup.accessibleParagraphStringProperty' ) )
+        accessibleParagraph: new FluentPattern<{ level: 1 | 2 | 3 | 4 | number | 'other' | TReadOnlyProperty<1 | 2 | 3 | 4 | number | 'other'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.zoomButtonGroup.accessibleParagraphStringProperty' ), [{"name":"level","variants":[1,2,3,4,{"type":"number","value":"other"}]}] )
       }
     },
     detectorScreenButtons: {
