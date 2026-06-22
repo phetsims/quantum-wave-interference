@@ -53,14 +53,16 @@ export type { DetectorPatternGraphSceneLike };
  * initialZoomLevels — per-mode initial zoom overrides; takes precedence over initialZoomLevel for each mode that
  *   has an entry. Used by the High Intensity screen to open intensity at zoom 3 and hits at max zoom.
  *
- * zoomButtonGroupAccessibleParagraphStringProperty — optional group-level paragraph for the graph zoom controls.
+ * createZoomButtonGroupAccessibleParagraphProperty — optional function that creates the group-level paragraph for
+ *   the graph zoom controls. It receives this graph's zoom-level Property so the paragraph can describe the current
+ *   level.
  */
 type SelfOptions = {
   detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
   axisLabelStringProperty: TReadOnlyProperty<string>;
   initialZoomLevel?: DetectorPatternGraphZoomLevelOption;
   initialZoomLevels?: Partial<Record<DetectionMode, DetectorPatternGraphZoomLevelOption>>;
-  zoomButtonGroupAccessibleParagraphStringProperty?: TReadOnlyProperty<string> | null;
+  createZoomButtonGroupAccessibleParagraphProperty?: ( ( zoomLevelProperty: NumberProperty ) => TReadOnlyProperty<string> ) | null;
 };
 
 /**
@@ -124,7 +126,7 @@ export default class DetectorPatternGraphNode extends Node {
       detectionModeProperty: undefined as never,
       initialZoomLevel: 'default',
       initialZoomLevels: {},
-      zoomButtonGroupAccessibleParagraphStringProperty: null,
+      createZoomButtonGroupAccessibleParagraphProperty: null,
       isDisposable: false,
 
       // Visibility is controlled by the ScreenGraphSwitch Property, so it should not be controlled independently.
@@ -157,9 +159,12 @@ export default class DetectorPatternGraphNode extends Node {
     const zoomButtonGroup = createDetectorPatternGraphZoomButtonGroup( this.zoomLevelProperty, providedOptions.tandem );
     zoomButtonGroup.right = this.chartBackground.right - ZOOM_BUTTON_GROUP_MARGIN;
     zoomButtonGroup.top = this.chartBackground.top + ZOOM_BUTTON_GROUP_MARGIN;
-    const zoomButtonGroupParagraphNode = options.zoomButtonGroupAccessibleParagraphStringProperty ?
+    const zoomButtonGroupAccessibleParagraphProperty = options.createZoomButtonGroupAccessibleParagraphProperty ?
+                                                       options.createZoomButtonGroupAccessibleParagraphProperty( this.zoomLevelProperty ) :
+                                                       null;
+    const zoomButtonGroupParagraphNode = zoomButtonGroupAccessibleParagraphProperty ?
                                          new Node( {
-                                           accessibleParagraph: options.zoomButtonGroupAccessibleParagraphStringProperty
+                                           accessibleParagraph: zoomButtonGroupAccessibleParagraphProperty
                                          } ) :
                                          null;
 

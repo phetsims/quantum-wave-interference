@@ -441,7 +441,7 @@ const QuantumWaveInterferenceFluent = {
       },
       detectorPatternGraph: {
         zoomButtonGroup: {
-          accessibleParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_singleParticlesScreen_detectorPatternGraph_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesScreen.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty' ) )
+          accessibleParagraph: new FluentPattern<{ level: 1 | 2 | 3 | 4 | 5 | 6 | number | 'other' | TReadOnlyProperty<1 | 2 | 3 | 4 | 5 | 6 | number | 'other'> }>( fluentSupport.bundleProperty, 'a11y_singleParticlesScreen_detectorPatternGraph_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.singleParticlesScreen.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty' ), [{"name":"level","variants":[1,2,3,4,5,6,{"type":"number","value":"other"}]}] )
         }
       }
     },
@@ -629,7 +629,7 @@ const QuantumWaveInterferenceFluent = {
       accessibleContextResponseExpanded: new FluentPattern<{ detectionMode: 'intensity' | 'hits' | TReadOnlyProperty<'intensity' | 'hits'>, graphState: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseExpanded', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseExpandedStringProperty' ), [{"name":"detectionMode","variants":["intensity","hits"]},{"name":"graphState"}] ),
       accessibleContextResponseCollapsed: new FluentPattern<{ detectionMode: 'intensity' | 'hits' | TReadOnlyProperty<'intensity' | 'hits'> }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_accessibleContextResponseCollapsed', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.accessibleContextResponseCollapsedStringProperty' ), [{"name":"detectionMode","variants":["intensity","hits"]}] ),
       zoomButtonGroup: {
-        accessibleParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.zoomButtonGroup.accessibleParagraphStringProperty' ) )
+        accessibleParagraph: new FluentPattern<{ level: 1 | 2 | 3 | 4 | 5 | 6 | number | 'other' | TReadOnlyProperty<1 | 2 | 3 | 4 | 5 | 6 | number | 'other'> }>( fluentSupport.bundleProperty, 'a11y_graphAccordionBox_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.graphAccordionBox.zoomButtonGroup.accessibleParagraphStringProperty' ), [{"name":"level","variants":[1,2,3,4,5,6,{"type":"number","value":"other"}]}] )
       }
     },
     detectorPatternGraph: {
@@ -648,7 +648,7 @@ const QuantumWaveInterferenceFluent = {
         hitsNoBarrierStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorPatternGraph_accessibleParagraph_hitsNoBarrier', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierStringProperty' ) )
       },
       zoomButtonGroup: {
-        accessibleParagraphStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorPatternGraph_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty' ) )
+        accessibleParagraph: new FluentPattern<{ level: 1 | 2 | 3 | 4 | 5 | 6 | number | 'other' | TReadOnlyProperty<1 | 2 | 3 | 4 | 5 | 6 | number | 'other'> }>( fluentSupport.bundleProperty, 'a11y_detectorPatternGraph_zoomButtonGroup_accessibleParagraph', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty' ), [{"name":"level","variants":[1,2,3,4,5,6,{"type":"number","value":"other"}]}] )
       }
     },
     zoomButtonGroup: {

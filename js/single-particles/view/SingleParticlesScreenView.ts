@@ -300,8 +300,10 @@ export default class SingleParticlesScreenView extends ScreenView {
       tandem.createTandem( 'detectorPatternGraphNode' ),
       {
         initialZoomLevel: 'max',
-        zoomButtonGroupAccessibleParagraphStringProperty:
-          QuantumWaveInterferenceFluent.a11y.singleParticlesScreen.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty
+        createZoomButtonGroupAccessibleParagraphProperty: zoomLevelProperty =>
+          QuantumWaveInterferenceFluent.a11y.singleParticlesScreen.detectorPatternGraph.zoomButtonGroup.accessibleParagraph.createProperty( {
+            level: zoomLevelProperty
+          } )
       }
     );
     this.addChild( this.detectorPatternGraphLayerNode );

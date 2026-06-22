@@ -328,7 +328,7 @@
       "detectorPatternGraph": {
         "zoomButtonGroup": {
           "accessibleParagraph": {
-            "value": "PLACEHOLDER TEXT FOR SINGLE PARTICLES HITS HISTOGRAM ZOOM BUTTON HELP TEXT."
+            "value": "{ $level ->\n  [1] Zoom level 1.\n  [2] Zoom level 2.\n  [3] Zoom level 3.\n  [4] Zoom level 4.\n  [5] Zoom level 5.\n  [6] Zoom level 6.\n *[other] Zoom level { $level }.\n} Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph."
           }
         }
       }
@@ -723,7 +723,7 @@
       },
       "zoomButtonGroup": {
         "accessibleParagraph": {
-          "value": "PLACEHOLDER TEXT FOR INTENSITY GRAPH ZOOM BUTTON HELP TEXT."
+          "value": "{ $level ->\n  [1] Zoom level 1.\n  [2] Zoom level 2.\n  [3] Zoom level 3.\n  [4] Zoom level 4.\n  [5] Zoom level 5.\n  [6] Zoom level 6.\n *[other] Zoom level { $level }.\n} Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph."
         }
       }
     },
@@ -768,7 +768,7 @@
       },
       "zoomButtonGroup": {
         "accessibleParagraph": {
-          "value": "PLACEHOLDER TEXT FOR COMBINED HISTOGRAM/CHART ZOOM BUTTON HELP TEXT."
+          "value": "{ $level ->\n  [1] Zoom level 1.\n  [2] Zoom level 2.\n  [3] Zoom level 3.\n  [4] Zoom level 4.\n  [5] Zoom level 5.\n  [6] Zoom level 6.\n *[other] Zoom level { $level }.\n} Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph."
         }
       }
     },

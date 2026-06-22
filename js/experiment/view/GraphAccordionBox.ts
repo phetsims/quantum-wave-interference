@@ -252,8 +252,12 @@ export default class GraphAccordionBox extends Node {
     this.zoomButtonGroup.left = chartNode.right + ZOOM_BUTTON_GROUP_GAP;
     this.zoomButtonGroup.top = chartNode.top;
 
+    const zoomButtonGroupAccessibleParagraphProperty =
+      QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.accessibleParagraph.createProperty( {
+        level: this.zoomLevelProperty
+      } );
     const zoomButtonGroupParagraphNode = new Node( {
-      accessibleParagraph: QuantumWaveInterferenceFluent.a11y.graphAccordionBox.zoomButtonGroup.accessibleParagraphStringProperty
+      accessibleParagraph: zoomButtonGroupAccessibleParagraphProperty
     } );
 
     const zoomButtonRightSpacer = new Rectangle( 0, 0, ZOOM_BUTTON_GROUP_RIGHT_PADDING, this.zoomButtonGroup.height, {

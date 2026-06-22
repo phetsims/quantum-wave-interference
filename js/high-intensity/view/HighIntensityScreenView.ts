@@ -664,8 +664,10 @@ export default class HighIntensityScreenView extends ScreenView {
           intensity: 3,
           hits: 'max'
         },
-        zoomButtonGroupAccessibleParagraphStringProperty:
-          QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.zoomButtonGroup.accessibleParagraphStringProperty
+        createZoomButtonGroupAccessibleParagraphProperty: zoomLevelProperty =>
+          QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.zoomButtonGroup.accessibleParagraph.createProperty( {
+            level: zoomLevelProperty
+          } )
       }
     );
     this.addChild( detectorPatternGraphLayerNode );

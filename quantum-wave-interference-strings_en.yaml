@@ -347,7 +347,16 @@ a11y:
       accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
     detectorPatternGraph:
       zoomButtonGroup:
-        accessibleParagraph: PLACEHOLDER TEXT FOR SINGLE PARTICLES HITS HISTOGRAM ZOOM BUTTON HELP TEXT.
+        accessibleParagraph: |-
+                             { $level ->
+                               [1] Zoom level 1.
+                               [2] Zoom level 2.
+                               [3] Zoom level 3.
+                               [4] Zoom level 4.
+                               [5] Zoom level 5.
+                               [6] Zoom level 6.
+                              *[other] Zoom level { $level }.
+                             } Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph.
   waveExperimentState:
     sourceBeam:           >-
                           { $isEmitting ->
@@ -1007,7 +1016,16 @@ a11y:
                                          *[hits] Hits histogram hidden.
                                         }
     zoomButtonGroup:
-      accessibleParagraph: PLACEHOLDER TEXT FOR INTENSITY GRAPH ZOOM BUTTON HELP TEXT.
+      accessibleParagraph: |-
+                           { $level ->
+                             [1] Zoom level 1.
+                             [2] Zoom level 2.
+                             [3] Zoom level 3.
+                             [4] Zoom level 4.
+                             [5] Zoom level 5.
+                             [6] Zoom level 6.
+                            *[other] Zoom level { $level }.
+                           } Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph.
   detectorPatternGraph:
     accessibleParagraph:
       intensityOff:           Graph is empty. Source is off.
@@ -1044,7 +1062,16 @@ a11y:
                               }
       hitsNoBarrier:          Histogram shows evenly distributed hits across graph.
     zoomButtonGroup:
-      accessibleParagraph: PLACEHOLDER TEXT FOR COMBINED HISTOGRAM/CHART ZOOM BUTTON HELP TEXT.
+      accessibleParagraph: |-
+                           { $level ->
+                             [1] Zoom level 1.
+                             [2] Zoom level 2.
+                             [3] Zoom level 3.
+                             [4] Zoom level 4.
+                             [5] Zoom level 5.
+                             [6] Zoom level 6.
+                            *[other] Zoom level { $level }.
+                           } Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph.
   zoomButtonGroup:
     zoomLevelResponse: 'Zoom level { $level } of { $max }.'
   detectorScreen:
