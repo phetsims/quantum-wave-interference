@@ -267,8 +267,6 @@ export default class ExperimentSetupDetailsNode extends Node {
       slitConfigurationDescriptionStringProperty
     );
 
-    slitWidthDescriptionStringProperty && listItems.push( slitWidthDescriptionStringProperty );
-
     listItems.push( slitSeparationDescriptionStringProperty );
 
     const screenDistanceProperty = providedOptions.screenDistanceProperty;
@@ -288,6 +286,8 @@ export default class ExperimentSetupDetailsNode extends Node {
         } )
       );
     }
+
+    slitWidthDescriptionStringProperty && listItems.push( slitWidthDescriptionStringProperty );
 
     providedOptions.additionalListItems && listItems.push( ...providedOptions.additionalListItems );
 
