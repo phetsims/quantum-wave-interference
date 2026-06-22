@@ -257,7 +257,7 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
     } );
 
     this.stopwatch = new Stopwatch( {
-      position: new Vector2( 60, 420 ),
+      position: new Vector2( 778, 544 ),
       tandem: this.toolsTandem.createTandem( 'stopwatch' ),
       timePropertyOptions: {
         range: Stopwatch.ZERO_TO_ALMOST_SIXTY
