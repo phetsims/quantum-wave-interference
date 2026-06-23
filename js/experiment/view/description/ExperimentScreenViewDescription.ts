@@ -10,7 +10,7 @@ import TimeSpeed from '../../../../../scenery-phet/js/TimeSpeed.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
 import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
-import { formatLiveHitsDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
+import { formatLiveHitsDescription, formatMeasuredBandSpacingDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import ExperimentSetupDetailsNode from '../../../common/view/description/ExperimentSetupDetailsNode.js';
 import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import type SceneRadioButtonGroup from '../../../common/view/SceneRadioButtonGroup.js';
@@ -137,12 +137,15 @@ export default class ExperimentScreenViewDescription extends Node {
         model.isRulerVisibleProperty.value,
         false
       );
+      const bandSpacingDescription = isDoubleSlit && model.isRulerVisibleProperty.value ?
+                                     formatMeasuredBandSpacingDescription( analysis.averageSpacingMM ) :
+                                     undefined;
 
       previousTotalHits = totalHits;
       previousHitStage = hitStage;
 
       hitStageResponseNode.addAccessibleContextResponse(
-        formatLiveHitsDescription( hitStage, isDoubleSlit, false, analysis, spatialDescription ), {
+        formatLiveHitsDescription( hitStage, isDoubleSlit, false, analysis, spatialDescription, bandSpacingDescription ), {
           responseGroup: HIT_STAGE_RESPONSE_GROUP
         }
       );

@@ -9,7 +9,7 @@
 import { type DetectionMode } from '../../../common/model/DetectionMode.js';
 import { showsDoubleSlitInterferencePattern } from '../../../common/model/SlitConfiguration.js';
 import BandAnalysis from '../../../common/view/description/BandAnalysis.js';
-import { formatCompleteIntensityDetectorPatternDescription, formatLiveHitsDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
+import { formatCompleteIntensityDetectorPatternDescription, formatLiveHitsDescription, formatMeasuredBandSpacingDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import ExperimentModel from '../../model/ExperimentModel.js';
 
@@ -26,8 +26,15 @@ export default function formatExperimentDetectorPatternResponse( model: Experime
     scene,
     scene.fullScreenHalfWidth
   );
+  const bandSpacingDescription = model.isRulerVisibleProperty.value && showsDoubleSlitInterferencePattern( model.currentSlitConfigurationProperty.value ) ?
+                                 formatMeasuredBandSpacingDescription( analysis.averageSpacingMM ) :
+                                 undefined;
 
-  return formatCompleteIntensityDetectorPatternDescription( model.currentSlitConfigurationProperty.value, analysis );
+  return formatCompleteIntensityDetectorPatternDescription(
+    model.currentSlitConfigurationProperty.value,
+    analysis,
+    bandSpacingDescription
+  );
 }
 
 /**
@@ -46,10 +53,13 @@ export function formatExperimentLiveHitsResponse( model: ExperimentModel ): stri
   // Use the theoretical pattern for spatial descriptions so they remain stable as hits accumulate.
   const analysis = BandAnalysis.analyzeTheoreticalPattern( scene, scene.fullScreenHalfWidth );
   const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, model.isRulerVisibleProperty.value, false );
+  const bandSpacingDescription = isDoubleSlit && model.isRulerVisibleProperty.value ?
+                                 formatMeasuredBandSpacingDescription( analysis.averageSpacingMM ) :
+                                 undefined;
 
   // The Experiment screen's slit configuration never represents a no-barrier setup (its type excludes 'noBarrier'),
   // matching the hit-stage response in ExperimentScreenViewDescription.
-  return formatLiveHitsDescription( hitStage, isDoubleSlit, false, analysis, spatialDescription );
+  return formatLiveHitsDescription( hitStage, isDoubleSlit, false, analysis, spatialDescription, bandSpacingDescription );
 }
 
 /**

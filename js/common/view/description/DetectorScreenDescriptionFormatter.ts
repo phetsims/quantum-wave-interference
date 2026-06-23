@@ -7,6 +7,7 @@
  */
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
+import { millimetersUnit } from '../../../../../scenery-phet/js/units/millimetersUnit.js';
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type WaveDisplayMode } from '../../model/WaveDisplayMode.js';
@@ -35,6 +36,30 @@ function getSingleSlitLocationKey( slitConfiguration: SlitConfigurationWithNoBar
 }
 
 /**
+ * Formats one of the existing qualitative band-spacing categories for insertion into detector-screen descriptions.
+ * @param spacingCategory - qualitative spacing between bright bands from BandAnalysis
+ * @returns localized qualitative band-spacing phrase
+ */
+export function formatQualitativeBandSpacingDescription( spacingCategory: BandAnalysisResult[ 'spacingCategory' ] ): string {
+  return QuantumWaveInterferenceFluent.a11y.detectorScreen.bandSpacingDescription.format( {
+    spacing: spacingCategory
+  } );
+}
+
+/**
+ * Formats a measured band-spacing phrase for Screen 1 descriptions when the ruler is visible.
+ * @param averageSpacingMM - average distance between adjacent bright-band centers, in millimeters
+ * @returns localized measured band-spacing phrase
+ */
+export function formatMeasuredBandSpacingDescription( averageSpacingMM: number ): string {
+  return QuantumWaveInterferenceFluent.a11y.detectorScreen.measuredBandSpacingDescription.format( {
+    spacing: millimetersUnit.getAccessibleString( averageSpacingMM, {
+      decimalPlaces: 1
+    } )
+  } );
+}
+
+/**
  * Formats the shared detector-pattern description used by Screen 2 context responses and by Screen 1 when it needs
  * the same dynamic wave-pattern wording.
  * @param isEmitting - whether the source is emitting
@@ -48,6 +73,7 @@ function getSingleSlitLocationKey( slitConfiguration: SlitConfigurationWithNoBar
  * @param bandSpacing - qualitative spacing between bright bands
  * @param envelope - qualitative single-slit envelope category; drives whether the pattern reads as a single central
  *   band or as two groups (one across from each slit) when the geometry separates them
+ * @param bandSpacingDescription - optional preformatted spacing phrase for ruler-based double-slit steady-state descriptions
  * @returns localized detector-pattern description
  */
 export function formatDetectorPatternDescription(
@@ -59,8 +85,22 @@ export function formatDetectorPatternDescription(
   slitSetting: SingleSlitLocationKey = 'rightCovered',
   hitStage: HitStage = 'clear',
   bandSpacing: BandAnalysisResult[ 'spacingCategory' ] = 'somewhatCloseTogether',
-  envelope: EnvelopeCategory = 'brightestAtCenter'
+  envelope: EnvelopeCategory = 'brightestAtCenter',
+  bandSpacingDescription?: string
 ): string {
+  if ( bandSpacingDescription && isEmitting && patternKind === 'doubleSlitInterference' ) {
+    if ( detectionMode === 'intensity' && patternFormation === 'complete' ) {
+      return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
+        spacingDescription: bandSpacingDescription
+      } );
+    }
+    if ( detectionMode === 'hits' && hitStage === 'clear' ) {
+      return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( {
+        spacingDescription: bandSpacingDescription
+      } );
+    }
+  }
+
   return QuantumWaveInterferenceFluent.a11y.waveExperimentState.detectorPattern.format( {
     isEmitting: isEmitting ? 'true' : 'false',
     detectionMode: detectionMode,
@@ -78,11 +118,13 @@ export function formatDetectorPatternDescription(
  * Formats the completed intensity detector pattern from the shared Screen 2 detector-pattern string.
  * @param slitConfiguration - current slit configuration
  * @param analysis - analyzed band/spacing data for the visible detector-screen region
+ * @param bandSpacingDescription - optional preformatted spacing phrase for ruler-based descriptions
  * @returns localized completed detector-pattern description
  */
 export function formatCompleteIntensityDetectorPatternDescription(
   slitConfiguration: SlitConfigurationWithNoBarrier,
-  analysis: BandAnalysisResult
+  analysis: BandAnalysisResult,
+  bandSpacingDescription?: string
 ): string {
   return formatDetectorPatternDescription(
     true,
@@ -93,7 +135,8 @@ export function formatCompleteIntensityDetectorPatternDescription(
     getSingleSlitLocationKey( slitConfiguration ),
     'clear',
     analysis.spacingCategory,
-    analysis.envelopeCategory
+    analysis.envelopeCategory,
+    bandSpacingDescription
   );
 }
 
@@ -103,6 +146,8 @@ export function formatCompleteIntensityDetectorPatternDescription(
  * @param isNoBarrier
  * @param analysis - analyzed band/spacing data for the visible detector-screen region
  * @param spatialDescription - localized spatial description of the visible pattern
+ * @param useSharedDetectorPatternDescription - whether to reuse the shared detector-pattern wording
+ * @param bandSpacingDescription - optional preformatted spacing phrase for ruler-based descriptions
  * @returns localized accessible paragraph text
  */
 export function formatIntensityDescription(
@@ -110,14 +155,14 @@ export function formatIntensityDescription(
   isNoBarrier: boolean,
   analysis: BandAnalysisResult,
   spatialDescription: string,
-  useSharedDetectorPatternDescription = false
+  useSharedDetectorPatternDescription = false,
+  bandSpacingDescription: string = formatQualitativeBandSpacingDescription( analysis.spacingCategory )
 ): string {
   return isDoubleSlit && useSharedDetectorPatternDescription ?
-         formatCompleteIntensityDetectorPatternDescription( 'bothOpen', analysis ) :
+         formatCompleteIntensityDetectorPatternDescription( 'bothOpen', analysis, bandSpacingDescription ) :
          isDoubleSlit ?
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
-           spacing: analysis.spacingCategory,
-           envelope: analysis.envelopeCategory
+           spacingDescription: bandSpacingDescription
          } ) :
          isNoBarrier ?
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityNoBarrierStringProperty.value :
@@ -134,6 +179,7 @@ export function formatIntensityDescription(
  * @param isNoBarrier - whether no barrier is between the source and detector screen
  * @param analysis
  * @param spatialDescription - localized spatial description of the visible pattern
+ * @param bandSpacingDescription - optional preformatted spacing phrase for ruler-based descriptions
  * @returns localized accessible paragraph text
  */
 export function formatLiveHitsDescription(
@@ -141,7 +187,8 @@ export function formatLiveHitsDescription(
   isDoubleSlit: boolean,
   isNoBarrier: boolean,
   analysis: Pick<BandAnalysisResult, 'spacingCategory' | 'envelopeCategory'>,
-  spatialDescription = ''
+  spatialDescription = '',
+  bandSpacingDescription: string = formatQualitativeBandSpacingDescription( analysis.spacingCategory )
 ): string {
   if ( hitStage === 'none' ) {
     return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsNoneStringProperty.value;
@@ -156,7 +203,7 @@ export function formatLiveHitsDescription(
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty.value :
            hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDevelopingStringProperty.value :
            hitStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( {
-                                  spacing: analysis.spacingCategory
+                                  spacingDescription: bandSpacingDescription
                                 } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }

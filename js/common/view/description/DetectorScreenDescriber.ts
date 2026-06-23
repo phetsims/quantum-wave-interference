@@ -19,7 +19,7 @@ import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluen
 import { type DetectionMode } from '../../model/DetectionMode.js';
 import { showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import BandAnalysis from './BandAnalysis.js';
-import { formatIntensityDescription, formatLiveHitsDescription } from './DetectorScreenDescriptionFormatter.js';
+import { formatIntensityDescription, formatLiveHitsDescription, formatMeasuredBandSpacingDescription } from './DetectorScreenDescriptionFormatter.js';
 
 /**
  * Physics-state interface required by DetectorScreenDescriber. The two union branches reflect the two scene
@@ -123,13 +123,17 @@ export default class DetectorScreenDescriber {
         const spatialDescription = isDoubleSlit ?
                                    BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, isRulerVisible, false ) :
                                    BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
+        const bandSpacingDescription = isDoubleSlit && isRulerVisible ?
+                                       formatMeasuredBandSpacingDescription( analysis.averageSpacingMM ) :
+                                       undefined;
 
         descriptionProperty.value = formatIntensityDescription(
           isDoubleSlit,
           slitSetting === 'noBarrier',
           analysis,
           spatialDescription,
-          useSharedDetectorPatternDescription
+          useSharedDetectorPatternDescription,
+          bandSpacingDescription
         );
         return;
       }
@@ -149,8 +153,18 @@ export default class DetectorScreenDescriber {
         getDetectorScreenHalfWidth( scene, detectorScreenHalfWidthProperty )
       );
       const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
+      const bandSpacingDescription = isDoubleSlit && isRulerVisible ?
+                                     formatMeasuredBandSpacingDescription( analysis.averageSpacingMM ) :
+                                     undefined;
 
-      descriptionProperty.value = formatLiveHitsDescription( newStage, isDoubleSlit, slitSetting === 'noBarrier', analysis, spatialDescription );
+      descriptionProperty.value = formatLiveHitsDescription(
+        newStage,
+        isDoubleSlit,
+        slitSetting === 'noBarrier',
+        analysis,
+        spatialDescription,
+        bandSpacingDescription
+      );
     };
 
     // Force a full update when any physics parameter or display setting changes.

@@ -413,7 +413,7 @@ a11y:
                                   }
                                 }
                                 [complete] { $patternKind ->
-                                  [doubleSlitInterference] Across detector screen bright bands are evenly spaced and { $bandSpacing ->
+                                  [doubleSlitInterference] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
                                     [extremelyFarApart] extremely far apart
                                     [veryFarApart] very far apart
                                     [farApart] far apart
@@ -421,11 +421,7 @@ a11y:
                                     [closeTogether] close together
                                     [veryCloseTogether] very close together
                                    *[extremelyCloseTogether] extremely close together
-                                  }, { $envelope ->
-                                    [clusteringIntoTwoFaintSections] clustering into two faint sections, directly across from slits
-                                    [clusteringIntoTwoDistinctSections] clustering into two distinct sections, directly across from slits
-                                   *[brightestAtCenter] brightest band at center
-                                  }.
+                                  }, brightest at center.
                                   [singleSlitDiffraction] { $slitSetting ->
                                     [leftCovered] Across lower part of detector screen is a wide bright area fading toward edges,
                                     brightest part at center.
@@ -463,7 +459,7 @@ a11y:
                                  *[noBarrier] Evenly scattered hits collect across the detector screen.
                                 }
                                *[clear] { $patternKind ->
-                                  [doubleSlitInterference] Across detector screen, evenly-spaced bands are { $bandSpacing ->
+                                  [doubleSlitInterference] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
                                     [extremelyFarApart] extremely far apart
                                     [veryFarApart] very far apart
                                     [farApart] far apart
@@ -471,7 +467,7 @@ a11y:
                                     [closeTogether] close together
                                     [veryCloseTogether] very close together
                                    *[extremelyCloseTogether] extremely close together
-                                  }.
+                                  }, brightest at center.
                                   [singleSlitDiffraction] Bright-band pattern is absent.
                                   [whichPathDiffraction] { $envelope ->
                                     [clusteringIntoTwoFaintSections] Bright bands are gone. Hits are closely clustering into two areas, directly across from the slits.
@@ -1077,22 +1073,21 @@ a11y:
   detectorScreen:
     maxHitsReached:
       accessibleContextResponse: Maximum number of hits reached. Source is off. Clear detector screen to make more observations.
+    bandSpacingDescription: |-
+                            { $spacing ->
+                              [extremelyFarApart] extremely far apart
+                              [veryFarApart] very far apart
+                              [farApart] far apart
+                              [somewhatCloseTogether] somewhat close together
+                              [closeTogether] close together
+                              [veryCloseTogether] very close together
+                             *[extremelyCloseTogether] extremely close together
+                            }
+    measuredBandSpacingDescription: '{ $spacing } apart'
     accessibleParagraph:
       intensityOff:                   Detector screen empty.
       intensity:                      >-
-                                      Evenly spaced bright bands form across the screen. Bands are { $spacing ->
-                                        [extremelyFarApart] extremely far apart
-                                        [veryFarApart] very far apart
-                                        [farApart] far apart
-                                        [somewhatCloseTogether] somewhat close together
-                                        [closeTogether] close together
-                                        [veryCloseTogether] very close together
-                                       *[extremelyCloseTogether] extremely close together
-                                      } across screen, { $envelope ->
-                                        [clusteringIntoTwoFaintSections] clustering into two faint sections, directly across from slits
-                                        [clusteringIntoTwoDistinctSections] clustering into two distinct sections, directly across from slits
-                                       *[brightestAtCenter] brightest band at center
-                                      }.
+                                      Across detector screen, evenly-spaced bright bands are { $spacingDescription }, brightest at center.
       intensitySingleSlit:            >-
                                       { $envelope ->
                                         [clusteringIntoTwoFaintSections] Bright-band pattern is absent. Brightness is closely clustering into two areas, directly across from the slits.
@@ -1105,15 +1100,7 @@ a11y:
       hitsEmerging:                   Hits begin to form faint bands.
       hitsDeveloping:                 Evenly-spaced bands more distinct.
       hitsClear:                      >-
-                                      Across detector screen, evenly-spaced bands are { $spacing ->
-                                        [extremelyFarApart] extremely far apart
-                                        [veryFarApart] very far apart
-                                        [farApart] far apart
-                                        [somewhatCloseTogether] somewhat close together
-                                        [closeTogether] close together
-                                        [veryCloseTogether] very close together
-                                       *[extremelyCloseTogether] extremely close together
-                                      }.
+                                      Across detector screen, evenly-spaced bright bands are { $spacingDescription }, brightest at center.
       hitsSingleSlitEmerging:         >-
                                       Bright-band pattern is absent. Hits collect in a broad region near the center of
                                       the screen, with fewer toward the edges.

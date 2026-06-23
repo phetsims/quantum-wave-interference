@@ -360,6 +360,8 @@ type StringsType = {
       'maxHitsReached': {
         'accessibleContextResponseStringProperty': LocalizedStringProperty;
       };
+      'bandSpacingDescriptionStringProperty': LocalizedStringProperty;
+      'measuredBandSpacingDescriptionStringProperty': LocalizedStringProperty;
       'accessibleParagraph': {
         'intensityOffStringProperty': LocalizedStringProperty;
         'intensityStringProperty': LocalizedStringProperty;
