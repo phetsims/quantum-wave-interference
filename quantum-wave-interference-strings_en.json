@@ -867,7 +867,7 @@
       },
       "zoomButtonGroup": {
         "accessibleParagraph": {
-          "value": "{ $level ->\n  [1] Zoom level 1, full screen shown.\n  [2] Zoom level 2.\n  [3] Zoom level 3.\n  [4] Zoom level 4, max pattern detail.\n *[other] Zoom level { $level }.\n} Use 4 zoom levels to get desired detail of pattern on detector screen."
+          "value": "{ $level ->\n  [1] Zoom level 1.\n  [2] Zoom level 2.\n  [3] Zoom level 3.\n  [4] Zoom level 4.\n *[other] Zoom level { $level }.\n} Use 4 zoom levels to get desired detail of pattern on detector screen."
         }
       }
     },

@@ -1204,10 +1204,10 @@ a11y:
     zoomButtonGroup:
       accessibleParagraph: |-
                            { $level ->
-                             [1] Zoom level 1, full screen shown.
+                             [1] Zoom level 1.
                              [2] Zoom level 2.
                              [3] Zoom level 3.
-                             [4] Zoom level 4, max pattern detail.
+                             [4] Zoom level 4.
                             *[other] Zoom level { $level }.
                            } Use 4 zoom levels to get desired detail of pattern on detector screen.
   detectorScreenButtons:
