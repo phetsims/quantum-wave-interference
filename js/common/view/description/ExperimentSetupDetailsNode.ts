@@ -16,13 +16,14 @@ import { metersPerSecondUnit } from '../../../../../scenery-phet/js/units/meters
 import { metersUnit } from '../../../../../scenery-phet/js/units/metersUnit.js';
 import { micrometersUnit } from '../../../../../scenery-phet/js/units/micrometersUnit.js';
 import { nanometersUnit } from '../../../../../scenery-phet/js/units/nanometersUnit.js';
+import { percentUnit } from '../../../../../scenery-phet/js/units/percentUnit.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
 import QuantumWaveInterferenceConstants from '../../QuantumWaveInterferenceConstants.js';
 import { getWavelengthColorZone, getWavelengthColorZoneStringProperty, WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES } from '../WavelengthColorUtils.js';
+import createCanonicalExperimentDetailsListItems from './createCanonicalExperimentDetailsListItems.js';
 import { type SlitOrientation } from './QuantumWaveInterferenceScreenSummaryContent.js';
 
 // Minimal { min, max } range shape used to avoid a hard dependency on dot/Range in the structural types below.
@@ -39,7 +40,6 @@ type SetupDetailsScene = {
   sourceType: SourceType;
   particleSpeedRange: RangeLike; // m/s — used to decide between m/s and km/s display units
   slitSeparationRange: RangeLike; // mm — used to decide between μm and nm display units
-  slitWidth: number; // mm — constant per scene; only described when includeSlitWidth is set
 };
 
 /**
@@ -49,10 +49,10 @@ type SetupDetailsScene = {
  */
 type SetupDetailsModel = {
   sceneProperty: TReadOnlyProperty<SetupDetailsScene>;
-  currentIsEmittingProperty: TReadOnlyProperty<boolean>;
   currentWavelengthProperty: TReadOnlyProperty<number>; // nm — photon scenes only
   currentParticleSpeedProperty: TReadOnlyProperty<number>; // m/s — matter-wave scenes only
   currentSlitSeparationProperty: TReadOnlyProperty<number>; // mm
+  currentScreenBrightnessProperty: TReadOnlyProperty<number>; // percent
 };
 
 /**
@@ -60,8 +60,6 @@ type SetupDetailsModel = {
  * always present. All fields are optional; defaults produce the full canonical Experiment-screen description.
  */
 type SetupDetailsOptions = {
-  // When provided, adds a "detection mode" list item (wave vs. particle display). Ignored when includeDetectionMode is false.
-  detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
 
   // When provided, appends a "screen distance" list item. Value is in meters.
   screenDistanceProperty?: TReadOnlyProperty<number>;
@@ -69,24 +67,11 @@ type SetupDetailsOptions = {
   // Orientation of the slits used to choose the correct directional string (default: 'leftRight').
   slitOrientation?: SlitOrientation;
 
-  // Extra caller-supplied list items appended after the standard items.
-  additionalListItems?: AccessibleListItem[];
-
   // Set false to suppress the "Current experimental details" leading paragraph (default: true).
   includeLeadingParagraph?: boolean;
 
   // Optional leading paragraph string to use before the list items.
   leadingParagraphStringProperty?: TReadOnlyProperty<string>;
-
-  // Set false to omit the source-emitter (on/off) list item (default: true).
-  includeSourceEmitter?: boolean;
-
-  // Set false to omit the detection-mode list item even when detectionModeProperty is supplied (default: true).
-  includeDetectionMode?: boolean;
-
-  // Set true to add a "slit width" list item describing the constant per-scene slit opening width (default: false).
-  // Used by the Experiment screen, whose magnified slit view shows this width visually.
-  includeSlitWidth?: boolean;
 };
 
 const NANOMETER_RANGE_THRESHOLD_MM = 0.0001;
@@ -103,16 +88,9 @@ export default class ExperimentSetupDetailsNode extends Node {
 
     const slitOrientation = providedOptions.slitOrientation || 'leftRight';
 
-    const sourceTypeProperty = model.sceneProperty.derived( scene => scene.sourceType );
-    const isEmittingStringProperty = model.currentIsEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
     const isPhotonSceneProperty = model.sceneProperty.derived( scene => scene.sourceType === 'photons' );
     const isParticleSceneProperty = model.sceneProperty.derived( scene => scene.sourceType !== 'photons' );
-
-    const sourceEmitterDescriptionStringProperty =
-      QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.sourceEmitter.createProperty( {
-        sourceType: sourceTypeProperty,
-        isEmitting: isEmittingStringProperty
-      } );
+    const isSlitGeometryRelevantProperty = slitConfigurationProperty.derived( slitConfiguration => slitConfiguration !== 'noBarrier' );
 
     const wavelengthStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [ model.currentWavelengthProperty, ...nanometersUnit.getDependentProperties() ] ) ),
@@ -167,40 +145,11 @@ export default class ExperimentSetupDetailsNode extends Node {
         speed: particleSpeedStringProperty
       } );
 
-    const particleSourceTypeProperty = model.sceneProperty.derived(
-      scene => scene.sourceType as 'electrons' | 'neutrons' | 'heliumAtoms'
-    );
-    const particleMassDescriptionStringProperty =
-      QuantumWaveInterferenceFluent.a11y.particleMass.accessibleParagraph.createProperty( {
-        sourceType: particleSourceTypeProperty
-      } );
-
     const slitConfigurationDescriptionStringProperty =
       QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitConfiguration.createProperty( {
         slitSetting: slitConfigurationProperty,
         slitOrientation: slitOrientation
       } );
-
-    // The slit width is a constant per scene, displayed visually only on the Experiment screen, so it is opt-in here.
-    const slitWidthDescriptionStringProperty = providedOptions.includeSlitWidth ?
-                                               QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitWidth.createProperty( {
-                                                 width: DerivedProperty.deriveAny(
-                                                   Array.from( new Set( [ model.sceneProperty, ...micrometersUnit.getDependentProperties() ] ) ),
-                                                   () => {
-                                                     const slitWidthUM = model.sceneProperty.value.slitWidth * MICROMETERS_PER_MILLIMETER;
-
-                                                     // Mirror FrontFacingSlitNode's visual label precision: 0 decimals for >=1 μm, 1 for >=0.1 μm, 2 otherwise.
-                                                     const decimalPlaces = slitWidthUM >= 1 ? 0 :
-                                                                           slitWidthUM >= 0.1 ? 1 : 2;
-                                                     return micrometersUnit.getAccessibleString( slitWidthUM, {
-                                                       decimalPlaces: decimalPlaces,
-                                                       showTrailingZeros: false,
-                                                       showIntegersAsIntegers: true
-                                                     } );
-                                                   }
-                                                 )
-                                               } ) :
-                                               null;
 
     const slitSeparationStringProperty = DerivedProperty.deriveAny(
       Array.from( new Set( [
@@ -240,36 +189,25 @@ export default class ExperimentSetupDetailsNode extends Node {
         distance: slitSeparationStringProperty
       } );
 
-    const listItems: ( TReadOnlyProperty<string> | AccessibleListItem )[] =
-      providedOptions.includeSourceEmitter === false ? [] : [ sourceEmitterDescriptionStringProperty ];
-
-    if ( providedOptions.detectionModeProperty && providedOptions.includeDetectionMode !== false ) {
-      listItems.push(
-        QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.detectionMode.createProperty( {
-          detectionMode: providedOptions.detectionModeProperty
-        } )
-      );
-    }
-
-    listItems.push(
-      {
-        stringProperty: wavelengthDescriptionStringProperty,
-        visibleProperty: isPhotonSceneProperty
-      },
-      {
-        stringProperty: particleSpeedDescriptionStringProperty,
-        visibleProperty: isParticleSceneProperty
-      },
-      {
-        stringProperty: particleMassDescriptionStringProperty,
-        visibleProperty: isParticleSceneProperty
-      },
-      slitConfigurationDescriptionStringProperty
+    const screenBrightnessStringProperty = DerivedProperty.deriveAny(
+      Array.from( new Set( [
+        model.currentScreenBrightnessProperty,
+        ...percentUnit.getDependentProperties()
+      ] ) ),
+      () => percentUnit.getAccessibleString( model.currentScreenBrightnessProperty.value, {
+        decimalPlaces: 0,
+        showTrailingZeros: false,
+        showIntegersAsIntegers: true
+      } )
     );
 
-    listItems.push( slitSeparationDescriptionStringProperty );
+    const screenBrightnessDescriptionStringProperty =
+      QuantumWaveInterferenceFluent.a11y.snapshotsDialog.screenBrightness.createProperty( {
+        brightness: screenBrightnessStringProperty
+      } );
 
     const screenDistanceProperty = providedOptions.screenDistanceProperty;
+    let screenDistanceListItem: AccessibleListItem | undefined;
     if ( screenDistanceProperty ) {
       const screenDistanceStringProperty = DerivedProperty.deriveAny(
         Array.from( new Set( [ screenDistanceProperty, ...metersUnit.getDependentProperties() ] ) ),
@@ -280,16 +218,33 @@ export default class ExperimentSetupDetailsNode extends Node {
         } )
       );
 
-      listItems.push(
-        QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.screenDistance.createProperty( {
+      screenDistanceListItem = {
+        stringProperty: QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.screenDistance.createProperty( {
           distance: screenDistanceStringProperty
-        } )
-      );
+        } ),
+        visibleProperty: isSlitGeometryRelevantProperty
+      };
     }
 
-    slitWidthDescriptionStringProperty && listItems.push( slitWidthDescriptionStringProperty );
-
-    providedOptions.additionalListItems && listItems.push( ...providedOptions.additionalListItems );
+    const listItems = createCanonicalExperimentDetailsListItems<TReadOnlyProperty<string> | AccessibleListItem>( {
+      sourcePhysicsItems: [
+        {
+          stringProperty: wavelengthDescriptionStringProperty,
+          visibleProperty: isPhotonSceneProperty
+        },
+        {
+          stringProperty: particleSpeedDescriptionStringProperty,
+          visibleProperty: isParticleSceneProperty
+        }
+      ],
+      slitConfigurationItem: slitConfigurationDescriptionStringProperty,
+      slitSeparationItem: {
+        stringProperty: slitSeparationDescriptionStringProperty,
+        visibleProperty: isSlitGeometryRelevantProperty
+      },
+      screenDistanceItem: screenDistanceListItem,
+      screenBrightnessItem: screenBrightnessDescriptionStringProperty
+    } );
 
     super( {
       accessibleTemplate: AccessibleList.createTemplateProperty( {

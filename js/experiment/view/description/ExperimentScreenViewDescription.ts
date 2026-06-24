@@ -236,10 +236,7 @@ export default class ExperimentScreenViewDescription extends Node {
     const experimentSetupDetailsListNode = new ExperimentSetupDetailsNode( model, model.currentSlitConfigurationProperty, {
       screenDistanceProperty: model.currentScreenDistanceProperty,
       leadingParagraphStringProperty:
-      QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.experimentDetailsLeadingParagraphStringProperty,
-      includeSourceEmitter: false,
-      includeDetectionMode: false,
-      includeSlitWidth: true
+      QuantumWaveInterferenceFluent.a11y.experimentDetectorScreenDetails.experimentDetailsLeadingParagraphStringProperty
     } );
     this.addChild( experimentSetupDetailsListNode );
 

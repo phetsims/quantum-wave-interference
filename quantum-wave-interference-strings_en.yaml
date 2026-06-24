@@ -73,6 +73,19 @@ resetDetector:                   Reset
 particleDetected:                Particle<br>detected
 notDetected:                     No particle<br>detected
 
+snapshotSlitConfiguration:
+  bothOpen:        Both slits open
+  coverLeft:       Left slit covered
+  coverRight:      Right slit covered
+  detectorLeft:    Detector on left slit
+  detectorRight:   Detector on right slit
+  detectorBoth:    Detector on both slits
+  noBarrier:       No barrier
+  coverTop:        Top slit covered
+  coverBottom:     Bottom slit covered
+  detectorTop:     Detector on top slit
+  detectorBottom:  Detector on bottom slit
+
 # Accessibility strings
 a11y:
   experimentScreen:
@@ -268,7 +281,7 @@ a11y:
                                   *[heliumAtoms] helium atom
                                  } experiment.
                                }
-    experimentDetailsLeadingParagraph: 'Experiment details include:'
+    experimentDetailsLeadingParagraph: 'Experiment details:'
     empty:                      Detector screen is empty.
   # Shared fragments composed into the source beam/packet descriptions on the High Intensity and Single Particles
   # screens. Each fragment resolves its { $variable } placeholders from the referencing message's format() arguments.
@@ -655,7 +668,7 @@ a11y:
     maxHitsReached:           Maximum number of hits reached. Source is off. Clear detector screen to make more observations.
     reset:                    Experiment reset. Source is off and detector screen is empty.
   experimentSetupDetails:
-    leadingParagraph:           'Current experimental details:'
+    leadingParagraph:           'Experiment details:'
     sourceEmitter:              >-
                                 { $sourceType ->
                                   [photons] Photon Source Emitter
@@ -675,25 +688,25 @@ a11y:
     particleSpeed:              'Particle Speed is { $speed }.'
     slitConfiguration:          >-
                                 { $slitSetting ->
-                                  [bothOpen] Both slits open in barrier.
+                                  [bothOpen] Both slits open.
                                   [leftCovered] { $slitOrientation ->
-                                    [topBottom] Top slit covered in barrier.
-                                   *[leftRight] Left slit covered in barrier.
+                                    [topBottom] Top slit covered.
+                                   *[leftRight] Left slit covered.
                                   }
                                   [rightCovered] { $slitOrientation ->
-                                    [topBottom] Bottom slit covered in barrier.
-                                   *[leftRight] Right slit covered in barrier.
+                                    [topBottom] Bottom slit covered.
+                                   *[leftRight] Right slit covered.
                                   }
                                   [leftDetector] { $slitOrientation ->
-                                    [topBottom] Detector on top slit in barrier.
-                                   *[leftRight] Detector on left slit in barrier.
+                                    [topBottom] Detector on top slit.
+                                   *[leftRight] Detector on left slit.
                                   }
                                   [rightDetector] { $slitOrientation ->
-                                    [topBottom] Detector on bottom slit in barrier.
-                                   *[leftRight] Detector on right slit in barrier.
+                                    [topBottom] Detector on bottom slit.
+                                   *[leftRight] Detector on right slit.
                                   }
-                                  [noBarrier] No barrier between source and screen.
-                                 *[bothDetectors] Detectors on both slits in barrier.
+                                  [noBarrier] No barrier.
+                                 *[bothDetectors] Detector on both slits.
                                 }
     slitWidth:                  'Slit width is { $width }.'
     slitSeparation:             'Slit separation distance is { $distance }.'
@@ -1083,7 +1096,8 @@ a11y:
                               [veryCloseTogether] very close together
                              *[extremelyCloseTogether] extremely close together
                             }
-    measuredBandSpacingDescription: '{ $spacing } apart'
+    measuredBandSpacingDescription: 'roughly { $spacing } apart'
+    measuredBandSpacingLessThanOneTenthDescription: less than 0.1 millimeters apart
     accessibleParagraph:
       intensityOff:                   Detector screen empty.
       intensity:                      >-

@@ -22,6 +22,7 @@ import { type PhetioObjectOptions } from '../../../../tandem/js/PhetioObject.js'
 import QuantumWaveInterferenceFluent from '../../QuantumWaveInterferenceFluent.js';
 import type { Snapshot } from '../model/Snapshot.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
+import createCanonicalExperimentDetailsListItems from './description/createCanonicalExperimentDetailsListItems.js';
 import SnapshotCanvasNode from './SnapshotCanvasNode.js';
 import SnapshotMetadataProperties, { type SnapshotMetadataPropertiesOptions } from './SnapshotMetadataProperties.js';
 
@@ -77,6 +78,7 @@ export default class SnapshotNode extends Node {
 
     const {
       headingProperty,
+      isSlitGeometryRelevantProperty,
       wavelengthOrSpeedProperty,
       wavelengthOrSpeedAccessibleProperty,
       slitSeparationProperty,
@@ -125,7 +127,8 @@ export default class SnapshotNode extends Node {
     const slitSepText = new Text( slitSeparationProperty, {
       font: PARAM_FONT,
       fill: 'black',
-      maxWidth: METADATA_WIDTH
+      maxWidth: METADATA_WIDTH,
+      visibleProperty: isSlitGeometryRelevantProperty
     } );
     const slitSettingText = new Text( slitSettingProperty, {
       font: PARAM_FONT,
@@ -139,18 +142,23 @@ export default class SnapshotNode extends Node {
       maxWidth: METADATA_WIDTH
     } );
 
-    const parameterLabelsChildren: Node[] = [ wavelengthOrSpeedText, slitSepText ];
+    // Conditionally include screen distance row on screens that expose barrier-screen distance.
+    const screenDistanceText = screenDistanceProperty ?
+                               new Text( screenDistanceProperty, {
+                                 font: PARAM_FONT,
+                                 fill: 'black',
+                                 maxWidth: METADATA_WIDTH,
+                                 visibleProperty: isSlitGeometryRelevantProperty
+                               } ) :
+                               null;
 
-    // Conditionally include screen distance row (used by the Experiment screen).
-    if ( screenDistanceProperty ) {
-      parameterLabelsChildren.push( new Text( screenDistanceProperty, {
-        font: PARAM_FONT,
-        fill: 'black',
-        maxWidth: METADATA_WIDTH
-      } ) );
-    }
-
-    parameterLabelsChildren.push( slitSettingText, screenBrightnessText );
+    const parameterLabelsChildren: Node[] = createCanonicalExperimentDetailsListItems( {
+      sourcePhysicsItems: [ wavelengthOrSpeedText ],
+      slitConfigurationItem: slitSettingText,
+      slitSeparationItem: slitSepText,
+      screenDistanceItem: screenDistanceText || undefined,
+      screenBrightnessItem: screenBrightnessText
+    } );
 
     const parameterLabels = new VBox( {
       spacing: 2,
@@ -219,7 +227,7 @@ export default class SnapshotNode extends Node {
 
     const nodeChildren: Node[] = [ contentBox, trashButton ];
 
-    // Build PDOM structure when a description provider is supplied (Experiment screen).
+    // Build PDOM structure when a description provider is supplied.
     if ( options.getDescription ) {
       const getDescription = options.getDescription;
 
@@ -232,17 +240,25 @@ export default class SnapshotNode extends Node {
         accessibleParagraph: descriptionProperty
       } );
 
-      const metadataListChildren: Node[] = [
-        new Node( { tagName: 'li', innerContent: wavelengthOrSpeedAccessibleProperty } ),
-        new Node( { tagName: 'li', innerContent: slitSeparationAccessibleProperty } )
-      ];
+      const screenDistanceListItem = screenDistanceAccessibleProperty ?
+                                     new Node( {
+                                       tagName: 'li',
+                                       innerContent: screenDistanceAccessibleProperty,
+                                       visibleProperty: isSlitGeometryRelevantProperty
+                                     } ) :
+                                     null;
 
-      if ( screenDistanceAccessibleProperty ) {
-        metadataListChildren.push( new Node( { tagName: 'li', innerContent: screenDistanceAccessibleProperty } ) );
-      }
-
-      metadataListChildren.push( new Node( { tagName: 'li', innerContent: slitSettingListItemProperty } ) );
-      metadataListChildren.push( new Node( { tagName: 'li', innerContent: screenBrightnessAccessibleProperty } ) );
+      const metadataListChildren: Node[] = createCanonicalExperimentDetailsListItems( {
+        sourcePhysicsItems: [ new Node( { tagName: 'li', innerContent: wavelengthOrSpeedAccessibleProperty } ) ],
+        slitConfigurationItem: new Node( { tagName: 'li', innerContent: slitSettingListItemProperty } ),
+        slitSeparationItem: new Node( {
+          tagName: 'li',
+          innerContent: slitSeparationAccessibleProperty,
+          visibleProperty: isSlitGeometryRelevantProperty
+        } ),
+        screenDistanceItem: screenDistanceListItem || undefined,
+        screenBrightnessItem: new Node( { tagName: 'li', innerContent: screenBrightnessAccessibleProperty } )
+      } );
 
       const metadataListNode = new Node( {
         tagName: 'ul',

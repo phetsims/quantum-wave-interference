@@ -18,6 +18,8 @@ export type QuantumWaveInterferencePatternFormation = 'empty' | 'forming' | 'com
 
 type SingleSlitLocationKey = 'leftCovered' | 'rightCovered';
 
+const MINIMUM_NUMERIC_BAND_SPACING_MM = 0.1;
+
 /**
  * Gets the detector-pattern kind used by shared accessible detector-pattern strings.
  * @param slitConfiguration - current slit configuration
@@ -52,6 +54,10 @@ export function formatQualitativeBandSpacingDescription( spacingCategory: BandAn
  * @returns localized measured band-spacing phrase
  */
 export function formatMeasuredBandSpacingDescription( averageSpacingMM: number ): string {
+  if ( averageSpacingMM < MINIMUM_NUMERIC_BAND_SPACING_MM ) {
+    return QuantumWaveInterferenceFluent.a11y.detectorScreen.measuredBandSpacingLessThanOneTenthDescriptionStringProperty.value;
+  }
+
   return QuantumWaveInterferenceFluent.a11y.detectorScreen.measuredBandSpacingDescription.format( {
     spacing: millimetersUnit.getAccessibleString( averageSpacingMM, {
       decimalPlaces: 1

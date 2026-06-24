@@ -10,7 +10,6 @@ import DerivedProperty from '../../../../../axon/js/DerivedProperty.js';
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
 import Node from '../../../../../scenery/js/nodes/Node.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
 import { type DetectorPatternGraphDescriberScene } from './DetectorPatternGraphDescriber.js';
@@ -34,19 +33,17 @@ type SharedDescriptionScene = DetectorScreenDescriberScene & DetectorPatternGrap
  */
 type SharedDescriptionModel = {
   sceneProperty: TReadOnlyProperty<SharedDescriptionScene>;
-  currentIsEmittingProperty: TReadOnlyProperty<boolean>;
   currentWavelengthProperty: TReadOnlyProperty<number>;
   currentParticleSpeedProperty: TReadOnlyProperty<number>;
   currentSlitSeparationProperty: TReadOnlyProperty<number>;
+  currentBarrierPositionFractionProperty: TReadOnlyProperty<number>;
+  currentScreenBrightnessProperty: TReadOnlyProperty<number>;
 };
 
 /**
  * Options for QuantumWaveInterferenceScreenViewDescription.
  */
 type SharedDescriptionOptions = {
-
-  // When provided, adds a detection-mode item to ExperimentSetupDetailsNode.
-  detectionModeProperty?: TReadOnlyProperty<DetectionMode>;
 
   // When provided, the section heading switches from "Detector Screen and Experiment Details" to "Graph and
   // Experiment Details" while the graph is visible.
@@ -107,9 +104,14 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
     let experimentSetupDetailsNode: Node | null = null;
     if ( includeExperimentSetupDetails ) {
+      const screenDistanceProperty = new DerivedProperty(
+        [ model.sceneProperty, model.currentBarrierPositionFractionProperty ],
+        ( scene, barrierPositionFraction ) => ( 1 - barrierPositionFraction ) * scene.regionWidth
+      );
+
       experimentSetupDetailsNode = new ExperimentSetupDetailsNode( model, slitConfigurationProperty, {
-        detectionModeProperty: providedOptions.detectionModeProperty,
-        slitOrientation: providedOptions.slitOrientation
+        slitOrientation: providedOptions.slitOrientation,
+        screenDistanceProperty: screenDistanceProperty
       } );
       this.addChild( experimentSetupDetailsNode );
     }

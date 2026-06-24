@@ -51,25 +51,25 @@ export type SnapshotMetadataPropertiesOptions = {
 
 const SLIT_SETTING_DISPLAY_MAPS: Record<SlitOrientation, SlitSettingDisplayMap> = {
   leftRight: {
-    bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
-    leftCovered: QuantumWaveInterferenceFluent.coverLeftStringProperty,
-    rightCovered: QuantumWaveInterferenceFluent.coverRightStringProperty,
-    leftDetector: QuantumWaveInterferenceFluent.detectorLeftStringProperty,
-    rightDetector: QuantumWaveInterferenceFluent.detectorRightStringProperty,
-    bothDetectors: QuantumWaveInterferenceFluent.detectorBothStringProperty,
-    noBarrier: QuantumWaveInterferenceFluent.noBarrierStringProperty
+    bothOpen: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.bothOpenStringProperty,
+    leftCovered: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.coverLeftStringProperty,
+    rightCovered: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.coverRightStringProperty,
+    leftDetector: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.detectorLeftStringProperty,
+    rightDetector: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.detectorRightStringProperty,
+    bothDetectors: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.detectorBothStringProperty,
+    noBarrier: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.noBarrierStringProperty
   },
   topBottom: {
-    bothOpen: QuantumWaveInterferenceFluent.bothOpenStringProperty,
+    bothOpen: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.bothOpenStringProperty,
 
     // The model keys use Experiment's overhead left/right slit names; front-facing screens present those same slits
     // as top/bottom.
-    leftCovered: QuantumWaveInterferenceFluent.coverTopStringProperty,
-    rightCovered: QuantumWaveInterferenceFluent.coverBottomStringProperty,
-    leftDetector: QuantumWaveInterferenceFluent.detectorTopStringProperty,
-    rightDetector: QuantumWaveInterferenceFluent.detectorBottomStringProperty,
-    bothDetectors: QuantumWaveInterferenceFluent.detectorBothStringProperty,
-    noBarrier: QuantumWaveInterferenceFluent.noBarrierStringProperty
+    leftCovered: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.coverTopStringProperty,
+    rightCovered: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.coverBottomStringProperty,
+    leftDetector: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.detectorTopStringProperty,
+    rightDetector: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.detectorBottomStringProperty,
+    bothDetectors: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.detectorBothStringProperty,
+    noBarrier: QuantumWaveInterferenceFluent.snapshotSlitConfiguration.noBarrierStringProperty
   }
 };
 
@@ -129,6 +129,9 @@ export default class SnapshotMetadataProperties {
   // Formatted heading shown at the top of the snapshot card, e.g. "Snapshot 1: Intensity".
   public readonly headingProperty: TReadOnlyProperty<string>;
 
+  // Whether slit geometry metadata applies to this snapshot. False when no snapshot is present or the barrier is absent.
+  public readonly isSlitGeometryRelevantProperty: TReadOnlyProperty<boolean>;
+
   // Visual label row showing photon wavelength (nm) for photons, or particle speed (m/s or km/s) for matter particles.
   public readonly wavelengthOrSpeedProperty: TReadOnlyProperty<string>;
 
@@ -147,7 +150,7 @@ export default class SnapshotMetadataProperties {
   // Screen-reader version of screenDistanceProperty. Null when showScreenDistance is false.
   public readonly screenDistanceAccessibleProperty: TReadOnlyProperty<string> | null;
 
-  // Visual label row for the current slit configuration, e.g. "Slits: Both Open".
+  // Visual label row for the current slit configuration, e.g. "Both slits open".
   public readonly slitSettingProperty: TReadOnlyProperty<string>;
 
   // Visual label row for screen brightness as a percentage of the maximum.
@@ -216,6 +219,10 @@ export default class SnapshotMetadataProperties {
         snapshot: title,
         detectionMode: detectionMode
       } ) : ''
+    );
+
+    this.isSlitGeometryRelevantProperty = snapshotProperty.derived(
+      snapshot => !!snapshot && snapshot.slitSetting !== 'noBarrier'
     );
 
     const createSlitSeparationProperty = ( selectString: ( dual: DualString ) => string ): TReadOnlyProperty<string> =>
@@ -353,13 +360,9 @@ export default class SnapshotMetadataProperties {
     this.slitSettingProperty = new DerivedProperty(
       [
         snapshotProperty,
-        QuantumWaveInterferenceFluent.slitsLabelPatternStringProperty,
         ...slitSettingDisplayDependencies
       ],
-      ifSnapshot( snapshot => StringUtils.fillIn(
-        QuantumWaveInterferenceFluent.slitsLabelPatternStringProperty.value,
-        { setting: slitSettingDisplayMap[ snapshot.slitSetting ].value }
-      ), '' )
+      ifSnapshot( snapshot => slitSettingDisplayMap[ snapshot.slitSetting ].value, '' )
     );
     const snapshotSlitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier> = snapshotProperty.derived(
       snapshot => snapshot ? snapshot.slitSetting : 'bothOpen'

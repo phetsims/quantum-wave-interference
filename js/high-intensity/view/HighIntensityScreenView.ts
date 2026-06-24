@@ -913,7 +913,6 @@ export default class HighIntensityScreenView extends ScreenView {
     const screenViewDescription = new QuantumWaveInterferenceScreenViewDescription(
       model,
       model.currentSlitConfigurationProperty, {
-        detectionModeProperty: model.currentDetectionModeProperty,
         screenGraphVisibleProperty: model.isGraphVisibleProperty,
         slitOrientation: 'topBottom',
         detectorScreenDetailsNodes: [ detectorScreenDetailsNode ],

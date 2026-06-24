@@ -203,6 +203,7 @@ export default class DetectorScreenControls extends VBox {
       {
         slitOrientation: options.slitOrientation,
         slitSettingDisplayMap: options.slitSettingDisplayMap,
+        showScreenDistance: true,
         useFrontFacingHitCoordinates: true,
         getDescription: snapshot => SnapshotDescriber.getDescription( snapshot )
       }

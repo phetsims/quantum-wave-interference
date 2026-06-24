@@ -95,6 +95,19 @@ type StringsType = {
   'resetDetectorStringProperty': LocalizedStringProperty;
   'particleDetectedStringProperty': LocalizedStringProperty;
   'notDetectedStringProperty': LocalizedStringProperty;
+  'snapshotSlitConfiguration': {
+    'bothOpenStringProperty': LocalizedStringProperty;
+    'coverLeftStringProperty': LocalizedStringProperty;
+    'coverRightStringProperty': LocalizedStringProperty;
+    'detectorLeftStringProperty': LocalizedStringProperty;
+    'detectorRightStringProperty': LocalizedStringProperty;
+    'detectorBothStringProperty': LocalizedStringProperty;
+    'noBarrierStringProperty': LocalizedStringProperty;
+    'coverTopStringProperty': LocalizedStringProperty;
+    'coverBottomStringProperty': LocalizedStringProperty;
+    'detectorTopStringProperty': LocalizedStringProperty;
+    'detectorBottomStringProperty': LocalizedStringProperty;
+  };
   'a11y': {
     'experimentScreen': {
       'screenButtonsHelpTextStringProperty': LocalizedStringProperty;
@@ -362,6 +375,7 @@ type StringsType = {
       };
       'bandSpacingDescriptionStringProperty': LocalizedStringProperty;
       'measuredBandSpacingDescriptionStringProperty': LocalizedStringProperty;
+      'measuredBandSpacingLessThanOneTenthDescriptionStringProperty': LocalizedStringProperty;
       'accessibleParagraph': {
         'intensityOffStringProperty': LocalizedStringProperty;
         'intensityStringProperty': LocalizedStringProperty;

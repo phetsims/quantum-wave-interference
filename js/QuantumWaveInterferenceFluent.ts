@@ -93,6 +93,17 @@ addToMapIfDefined( 'detect', 'detectStringProperty' );
 addToMapIfDefined( 'resetDetector', 'resetDetectorStringProperty' );
 addToMapIfDefined( 'particleDetected', 'particleDetectedStringProperty' );
 addToMapIfDefined( 'notDetected', 'notDetectedStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_bothOpen', 'snapshotSlitConfiguration.bothOpenStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_coverLeft', 'snapshotSlitConfiguration.coverLeftStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_coverRight', 'snapshotSlitConfiguration.coverRightStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_detectorLeft', 'snapshotSlitConfiguration.detectorLeftStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_detectorRight', 'snapshotSlitConfiguration.detectorRightStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_detectorBoth', 'snapshotSlitConfiguration.detectorBothStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_noBarrier', 'snapshotSlitConfiguration.noBarrierStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_coverTop', 'snapshotSlitConfiguration.coverTopStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_coverBottom', 'snapshotSlitConfiguration.coverBottomStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_detectorTop', 'snapshotSlitConfiguration.detectorTopStringProperty' );
+addToMapIfDefined( 'snapshotSlitConfiguration_detectorBottom', 'snapshotSlitConfiguration.detectorBottomStringProperty' );
 addToMapIfDefined( 'a11y_experimentScreen_screenButtonsHelpText', 'a11y.experimentScreen.screenButtonsHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_highIntensityScreen_screenButtonsHelpText', 'a11y.highIntensityScreen.screenButtonsHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_screenSummary_playAreaExperiment', 'a11y.screenSummary.playAreaExperimentStringProperty' );
@@ -248,6 +259,7 @@ addToMapIfDefined( 'a11y_zoomButtonGroup_zoomLevelResponse', 'a11y.zoomButtonGro
 addToMapIfDefined( 'a11y_detectorScreen_maxHitsReached_accessibleContextResponse', 'a11y.detectorScreen.maxHitsReached.accessibleContextResponseStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_bandSpacingDescription', 'a11y.detectorScreen.bandSpacingDescriptionStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_measuredBandSpacingDescription', 'a11y.detectorScreen.measuredBandSpacingDescriptionStringProperty' );
+addToMapIfDefined( 'a11y_detectorScreen_measuredBandSpacingLessThanOneTenthDescription', 'a11y.detectorScreen.measuredBandSpacingLessThanOneTenthDescriptionStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_intensityOff', 'a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_intensity', 'a11y.detectorScreen.accessibleParagraph.intensityStringProperty' );
 addToMapIfDefined( 'a11y_detectorScreen_accessibleParagraph_intensitySingleSlit', 'a11y.detectorScreen.accessibleParagraph.intensitySingleSlitStringProperty' );
@@ -381,6 +393,19 @@ const QuantumWaveInterferenceFluent = {
   resetDetectorStringProperty: _.get( QuantumWaveInterferenceStrings, 'resetDetectorStringProperty' ),
   particleDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'particleDetectedStringProperty' ),
   notDetectedStringProperty: _.get( QuantumWaveInterferenceStrings, 'notDetectedStringProperty' ),
+  snapshotSlitConfiguration: {
+    bothOpenStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.bothOpenStringProperty' ),
+    coverLeftStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.coverLeftStringProperty' ),
+    coverRightStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.coverRightStringProperty' ),
+    detectorLeftStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.detectorLeftStringProperty' ),
+    detectorRightStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.detectorRightStringProperty' ),
+    detectorBothStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.detectorBothStringProperty' ),
+    noBarrierStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.noBarrierStringProperty' ),
+    coverTopStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.coverTopStringProperty' ),
+    coverBottomStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.coverBottomStringProperty' ),
+    detectorTopStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.detectorTopStringProperty' ),
+    detectorBottomStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.detectorBottomStringProperty' )
+  },
   _comment_1: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
   a11y: {
     experimentScreen: {
@@ -662,6 +687,7 @@ const QuantumWaveInterferenceFluent = {
       },
       bandSpacingDescription: new FluentPattern<{ spacing: 'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether' | TReadOnlyProperty<'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether'> }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_bandSpacingDescription', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.bandSpacingDescriptionStringProperty' ), [{"name":"spacing","variants":["extremelyFarApart","veryFarApart","farApart","somewhatCloseTogether","closeTogether","veryCloseTogether","extremelyCloseTogether"]}] ),
       measuredBandSpacingDescription: new FluentPattern<{ spacing: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_measuredBandSpacingDescription', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.measuredBandSpacingDescriptionStringProperty' ), [{"name":"spacing"}] ),
+      measuredBandSpacingLessThanOneTenthDescriptionStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_measuredBandSpacingLessThanOneTenthDescription', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.measuredBandSpacingLessThanOneTenthDescriptionStringProperty' ) ),
       accessibleParagraph: {
         intensityOffStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_intensityOff', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty' ) ),
         intensity: new FluentPattern<{ spacingDescription: FluentVariable }>( fluentSupport.bundleProperty, 'a11y_detectorScreen_accessibleParagraph_intensity', _.get( QuantumWaveInterferenceStrings, 'a11y.detectorScreen.accessibleParagraph.intensityStringProperty' ), [{"name":"spacingDescription"}] ),

@@ -212,6 +212,41 @@
   "notDetected": {
     "value": "No particle<br>detected"
   },
+  "snapshotSlitConfiguration": {
+    "bothOpen": {
+      "value": "Both slits open"
+    },
+    "coverLeft": {
+      "value": "Left slit covered"
+    },
+    "coverRight": {
+      "value": "Right slit covered"
+    },
+    "detectorLeft": {
+      "value": "Detector on left slit"
+    },
+    "detectorRight": {
+      "value": "Detector on right slit"
+    },
+    "detectorBoth": {
+      "value": "Detector on both slits"
+    },
+    "noBarrier": {
+      "value": "No barrier"
+    },
+    "coverTop": {
+      "value": "Top slit covered"
+    },
+    "coverBottom": {
+      "value": "Bottom slit covered"
+    },
+    "detectorTop": {
+      "value": "Detector on top slit"
+    },
+    "detectorBottom": {
+      "value": "Detector on bottom slit"
+    }
+  },
   "a11y": {
     "experimentScreen": {
       "screenButtonsHelpText": {
@@ -288,7 +323,7 @@
         "value": "{ $detectorScreenStatus ->\n  [empty] { a11y_experimentDetectorScreenDetails_displaySurface } is empty. { $sourceType ->\n    [photons] Photon\n    [electrons] Electron\n    [neutrons] Neutron\n   *[heliumAtoms] Helium atom\n  } experiment ready.\n  [emptyWavePropagating] { a11y_experimentDetectorScreenDetails_displaySurface } is empty.\n *[pattern] { a11y_experimentDetectorScreenDetails_displaySurface } shows { $detectionMode ->\n    [intensity] an intensity pattern\n   *[hits] a hits pattern\n  } of a { $sourceType ->\n    [photons] photon\n    [electrons] electron\n    [neutrons] neutron\n   *[heliumAtoms] helium atom\n  } experiment.\n}"
       },
       "experimentDetailsLeadingParagraph": {
-        "value": "Experiment details include:"
+        "value": "Experiment details:"
       },
       "empty": {
         "value": "Detector screen is empty."
@@ -414,7 +449,7 @@
     },
     "experimentSetupDetails": {
       "leadingParagraph": {
-        "value": "Current experimental details:"
+        "value": "Experiment details:"
       },
       "sourceEmitter": {
         "value": "{ $sourceType ->\n  [photons] Photon Source Emitter\n  [electrons] Electron Source Emitter\n  [neutrons] Neutron Source Emitter\n *[heliumAtoms] Helium Atom Source Emitter\n} { $isEmitting ->\n  [true] on.\n *[false] off.\n}"
@@ -429,7 +464,7 @@
         "value": "Particle Speed is { $speed }."
       },
       "slitConfiguration": {
-        "value": "{ $slitSetting ->\n  [bothOpen] Both slits open in barrier.\n  [leftCovered] { $slitOrientation ->\n    [topBottom] Top slit covered in barrier.\n   *[leftRight] Left slit covered in barrier.\n  }\n  [rightCovered] { $slitOrientation ->\n    [topBottom] Bottom slit covered in barrier.\n   *[leftRight] Right slit covered in barrier.\n  }\n  [leftDetector] { $slitOrientation ->\n    [topBottom] Detector on top slit in barrier.\n   *[leftRight] Detector on left slit in barrier.\n  }\n  [rightDetector] { $slitOrientation ->\n    [topBottom] Detector on bottom slit in barrier.\n   *[leftRight] Detector on right slit in barrier.\n  }\n  [noBarrier] No barrier between source and screen.\n *[bothDetectors] Detectors on both slits in barrier.\n}"
+        "value": "{ $slitSetting ->\n  [bothOpen] Both slits open.\n  [leftCovered] { $slitOrientation ->\n    [topBottom] Top slit covered.\n   *[leftRight] Left slit covered.\n  }\n  [rightCovered] { $slitOrientation ->\n    [topBottom] Bottom slit covered.\n   *[leftRight] Right slit covered.\n  }\n  [leftDetector] { $slitOrientation ->\n    [topBottom] Detector on top slit.\n   *[leftRight] Detector on left slit.\n  }\n  [rightDetector] { $slitOrientation ->\n    [topBottom] Detector on bottom slit.\n   *[leftRight] Detector on right slit.\n  }\n  [noBarrier] No barrier.\n *[bothDetectors] Detector on both slits.\n}"
       },
       "slitWidth": {
         "value": "Slit width is { $width }."
@@ -787,7 +822,10 @@
         "value": "{ $spacing ->\n  [extremelyFarApart] extremely far apart\n  [veryFarApart] very far apart\n  [farApart] far apart\n  [somewhatCloseTogether] somewhat close together\n  [closeTogether] close together\n  [veryCloseTogether] very close together\n *[extremelyCloseTogether] extremely close together\n}"
       },
       "measuredBandSpacingDescription": {
-        "value": "{ $spacing } apart"
+        "value": "roughly { $spacing } apart"
+      },
+      "measuredBandSpacingLessThanOneTenthDescription": {
+        "value": "less than 0.1 millimeters apart"
       },
       "accessibleParagraph": {
         "intensityOff": {
