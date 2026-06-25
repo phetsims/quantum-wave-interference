@@ -120,18 +120,13 @@ export default class DetectorScreenDescriber {
           scene,
           getDetectorScreenHalfWidth( scene, detectorScreenHalfWidthProperty )
         );
-        const spatialDescription = isDoubleSlit ?
-                                   BandAnalysis.formatSpatialArrangementDescription( analysis, isDoubleSlit, isRulerVisible, false ) :
-                                   BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
         const bandSpacingDescription = isDoubleSlit && isRulerVisible ?
                                        formatMeasuredBandSpacingDescription( analysis.averageSpacingMM ) :
                                        undefined;
 
         descriptionProperty.value = formatIntensityDescription(
-          isDoubleSlit,
-          slitSetting === 'noBarrier',
+          slitSetting,
           analysis,
-          spatialDescription,
           useSharedDetectorPatternDescription,
           bandSpacingDescription
         );
@@ -146,23 +141,20 @@ export default class DetectorScreenDescriber {
       }
       hitStage = newStage;
 
-      // Use the theoretical pattern for spatial descriptions so they remain stable as hits accumulate,
-      // rather than jumping with noisy bin data.
+      // Use the theoretical pattern so hit descriptions remain stable as hits accumulate, rather than jumping with
+      // noisy bin data.
       const analysis = BandAnalysis.analyzeTheoreticalPattern(
         scene,
         getDetectorScreenHalfWidth( scene, detectorScreenHalfWidthProperty )
       );
-      const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, false );
       const bandSpacingDescription = isDoubleSlit && isRulerVisible ?
                                      formatMeasuredBandSpacingDescription( analysis.averageSpacingMM ) :
                                      undefined;
 
       descriptionProperty.value = formatLiveHitsDescription(
         newStage,
-        isDoubleSlit,
-        slitSetting === 'noBarrier',
+        slitSetting,
         analysis,
-        spatialDescription,
         bandSpacingDescription
       );
     };

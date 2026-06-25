@@ -454,6 +454,7 @@ export default class SceneModel extends PhetioObject {
       screenHalfWidth: this.fullScreenHalfWidth,
       effectiveWavelength: this.getEffectiveWavelength(),
       slitSetting: this.slitConfigurationProperty.value,
+      envelopeCategory: 'brightestAtCenter',
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
       intensity: this.sourceStrengthProperty.value,

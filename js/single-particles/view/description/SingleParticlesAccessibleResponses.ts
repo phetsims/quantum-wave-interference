@@ -25,7 +25,7 @@ import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitC
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
 import QuantumWaveInterferenceConstants from '../../../common/QuantumWaveInterferenceConstants.js';
 import BandAnalysis, { type BandSpacingCategory, type EnvelopeCategory, type HitStage } from '../../../common/view/description/BandAnalysis.js';
-import { formatDetectorPatternDescription, formatLiveHitsDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
+import { formatLiveHitsDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import { getClockSpeedDescription, type QuantumWaveInterferenceClockSpeedDescription } from '../../../common/view/description/getClockSpeedDescription.js';
 import { getPatternKind, type QuantumWaveInterferencePatternKind } from '../../../common/view/description/getPatternKind.js';
@@ -153,27 +153,16 @@ const formatWaveProgress = (
   } );
 
 function formatHitDescription( state: SingleParticlesResponseState ): string {
-  return state.patternKind === 'doubleSlitInterference' ?
-         formatLiveHitsDescription(
-           state.hitStage,
-           true,
-           false,
-           {
-             spacingCategory: state.bandSpacingDescription,
-             envelopeCategory: state.envelopeCategory
-           }
-         ) :
-         formatDetectorPatternDescription(
-           true,
-           'hits',
-           'collectingHits',
-           state.patternKind,
-           state.waveDisplayMode,
-           state.slitConfiguration === 'leftCovered' ? 'leftCovered' : 'rightCovered',
-           state.hitStage,
-           state.bandSpacingDescription,
-           state.envelopeCategory
-         );
+  return formatLiveHitsDescription(
+    state.hitStage,
+    state.slitConfiguration,
+    {
+      spacingCategory: state.bandSpacingDescription,
+      envelopeCategory: state.envelopeCategory
+    },
+    undefined,
+    true
+  );
 }
 
 export default class SingleParticlesAccessibleResponses extends Node {
@@ -453,7 +442,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
 
     this.lastTransitionWasHit = true;
 
-    if ( before.hitStage !== after.hitStage || this.shouldAddPacketLifecycleContextResponses( after ) ) {
+    if ( before.hitStage !== after.hitStage ) {
       this.addAccessibleContextResponse( formatHitDescription( after ), { responseGroup: HIT_RESPONSE_GROUP } );
     }
   }

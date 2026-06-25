@@ -41,6 +41,7 @@ import { DISPLAY_SLIT_WIDTH, MAX_DISPLAY_SLIT_SEPARATION, MIN_DISPLAY_SLIT_SEPAR
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import { type BarrierType, BarrierTypeValues } from './BarrierType.js';
 import { type DetectionMode } from './DetectionMode.js';
+import { analyzeEnvelopeHeuristic } from './DetectorPatternEnvelope.js';
 import { hasAnyDetector, hasDetectorOnBottomSlit, hasDetectorOnTopSlit, isBottomSlitCovered, isTopSlitCovered, type SlitConfigurationWithNoBarrier, SlitConfigurationWithNoBarrierValues } from './SlitConfiguration.js';
 import { renumberSnapshots, type Snapshot, SnapshotIO } from './Snapshot.js';
 import { type SourceType } from './SourceType.js';
@@ -735,6 +736,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
       screenHalfWidth: this.regionWidth / 2,
       effectiveWavelength: this.getEffectiveWavelength(),
       slitSetting: slitSetting,
+      envelopeCategory: analyzeEnvelopeHeuristic( this )?.category || 'brightestAtCenter',
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,
       intensity: intensity,

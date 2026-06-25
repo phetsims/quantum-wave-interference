@@ -131,12 +131,6 @@ export default class ExperimentScreenViewDescription extends Node {
         scene,
         scene.fullScreenHalfWidth
       );
-      const spatialDescription = BandAnalysis.formatSpatialDescription(
-        analysis,
-        isDoubleSlit,
-        model.isRulerVisibleProperty.value,
-        false
-      );
       const bandSpacingDescription = isDoubleSlit && model.isRulerVisibleProperty.value ?
                                      formatMeasuredBandSpacingDescription( analysis.averageSpacingMM ) :
                                      undefined;
@@ -145,7 +139,7 @@ export default class ExperimentScreenViewDescription extends Node {
       previousHitStage = hitStage;
 
       hitStageResponseNode.addAccessibleContextResponse(
-        formatLiveHitsDescription( hitStage, isDoubleSlit, false, analysis, spatialDescription, bandSpacingDescription ), {
+        formatLiveHitsDescription( hitStage, slitSetting, analysis, bandSpacingDescription ), {
           responseGroup: HIT_STAGE_RESPONSE_GROUP
         }
       );

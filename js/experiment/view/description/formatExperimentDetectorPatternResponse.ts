@@ -52,14 +52,18 @@ export function formatExperimentLiveHitsResponse( model: ExperimentModel ): stri
 
   // Use the theoretical pattern for spatial descriptions so they remain stable as hits accumulate.
   const analysis = BandAnalysis.analyzeTheoreticalPattern( scene, scene.fullScreenHalfWidth );
-  const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, model.isRulerVisibleProperty.value, false );
   const bandSpacingDescription = isDoubleSlit && model.isRulerVisibleProperty.value ?
                                  formatMeasuredBandSpacingDescription( analysis.averageSpacingMM ) :
                                  undefined;
 
   // The Experiment screen's slit configuration never represents a no-barrier setup (its type excludes 'noBarrier'),
   // matching the hit-stage response in ExperimentScreenViewDescription.
-  return formatLiveHitsDescription( hitStage, isDoubleSlit, false, analysis, spatialDescription, bandSpacingDescription );
+  return formatLiveHitsDescription(
+    hitStage,
+    model.currentSlitConfigurationProperty.value,
+    analysis,
+    bandSpacingDescription
+  );
 }
 
 /**

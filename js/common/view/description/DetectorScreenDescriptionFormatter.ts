@@ -80,6 +80,7 @@ export function formatMeasuredBandSpacingDescription( averageSpacingMM: number )
  * @param envelope - qualitative single-slit envelope category; drives whether the pattern reads as a single central
  *   band or as two groups (one across from each slit) when the geometry separates them
  * @param bandSpacingDescription - optional preformatted spacing phrase for ruler-based double-slit steady-state descriptions
+ * @param allowDoubleSlitClustering - whether double-slit branches may use envelope-based grouping language
  * @returns localized detector-pattern description
  */
 export function formatDetectorPatternDescription(
@@ -92,9 +93,15 @@ export function formatDetectorPatternDescription(
   hitStage: HitStage = 'clear',
   bandSpacing: BandAnalysisResult[ 'spacingCategory' ] = 'somewhatCloseTogether',
   envelope: EnvelopeCategory = 'brightestAtCenter',
-  bandSpacingDescription?: string
+  bandSpacingDescription?: string,
+  allowDoubleSlitClustering = false
 ): string {
-  if ( bandSpacingDescription && isEmitting && patternKind === 'doubleSlitInterference' ) {
+  if (
+    bandSpacingDescription &&
+    isEmitting &&
+    patternKind === 'doubleSlitInterference' &&
+    ( !allowDoubleSlitClustering || envelope === 'brightestAtCenter' )
+  ) {
     if ( detectionMode === 'intensity' && patternFormation === 'complete' ) {
       return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
         spacingDescription: bandSpacingDescription
@@ -116,7 +123,8 @@ export function formatDetectorPatternDescription(
     slitSetting: slitSetting,
     hitStage: hitStage,
     bandSpacing: bandSpacing,
-    envelope: envelope
+    envelope: envelope,
+    doubleSlitClustering: allowDoubleSlitClustering ? 'true' : 'false'
   } );
 }
 
@@ -125,12 +133,14 @@ export function formatDetectorPatternDescription(
  * @param slitConfiguration - current slit configuration
  * @param analysis - analyzed band/spacing data for the visible detector-screen region
  * @param bandSpacingDescription - optional preformatted spacing phrase for ruler-based descriptions
+ * @param allowDoubleSlitClustering - whether double-slit branches may use envelope-based grouping language
  * @returns localized completed detector-pattern description
  */
 export function formatCompleteIntensityDetectorPatternDescription(
   slitConfiguration: SlitConfigurationWithNoBarrier,
   analysis: BandAnalysisResult,
-  bandSpacingDescription?: string
+  bandSpacingDescription?: string,
+  allowDoubleSlitClustering = false
 ): string {
   return formatDetectorPatternDescription(
     true,
@@ -142,59 +152,57 @@ export function formatCompleteIntensityDetectorPatternDescription(
     'clear',
     analysis.spacingCategory,
     analysis.envelopeCategory,
-    bandSpacingDescription
+    bandSpacingDescription,
+    allowDoubleSlitClustering
   );
 }
 
 /**
  * Formats the accessible detector-screen description for intensity mode.
- * @param isDoubleSlit - whether the current slit configuration produces a double-slit interference pattern
- * @param isNoBarrier
+ * @param slitConfiguration - current slit configuration
  * @param analysis - analyzed band/spacing data for the visible detector-screen region
- * @param spatialDescription - localized spatial description of the visible pattern
  * @param useSharedDetectorPatternDescription - whether to reuse the shared detector-pattern wording
  * @param bandSpacingDescription - optional preformatted spacing phrase for ruler-based descriptions
+ * @param allowDoubleSlitClustering - whether double-slit branches may use envelope-based grouping language
  * @returns localized accessible paragraph text
  */
 export function formatIntensityDescription(
-  isDoubleSlit: boolean,
-  isNoBarrier: boolean,
+  slitConfiguration: SlitConfigurationWithNoBarrier,
   analysis: BandAnalysisResult,
-  spatialDescription: string,
   useSharedDetectorPatternDescription = false,
-  bandSpacingDescription: string = formatQualitativeBandSpacingDescription( analysis.spacingCategory )
+  bandSpacingDescription: string = formatQualitativeBandSpacingDescription( analysis.spacingCategory ),
+  allowDoubleSlitClustering = false
 ): string {
-  return isDoubleSlit && useSharedDetectorPatternDescription ?
-         formatCompleteIntensityDetectorPatternDescription( 'bothOpen', analysis, bandSpacingDescription ) :
+  const isDoubleSlit = getPatternKind( slitConfiguration ) === 'doubleSlitInterference';
+
+  return useSharedDetectorPatternDescription ?
+         formatCompleteIntensityDetectorPatternDescription( slitConfiguration, analysis, bandSpacingDescription, allowDoubleSlitClustering ) :
          isDoubleSlit ?
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensity.format( {
            spacingDescription: bandSpacingDescription
          } ) :
-         isNoBarrier ?
+         slitConfiguration === 'noBarrier' ?
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityNoBarrierStringProperty.value :
          QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensitySingleSlit.format( {
-           envelope: analysis.envelopeCategory,
-           spatialDescription: spatialDescription
+           envelope: analysis.envelopeCategory
          } );
 }
 
 /**
  * Formats the accessible detector-screen description for the live detector screen in hits mode.
  * @param hitStage - qualitative stage of accumulated hit formation
- * @param isDoubleSlit - whether the current slit configuration produces a double-slit interference pattern
- * @param isNoBarrier - whether no barrier is between the source and detector screen
+ * @param slitConfiguration - current slit configuration
  * @param analysis
- * @param spatialDescription - localized spatial description of the visible pattern
  * @param bandSpacingDescription - optional preformatted spacing phrase for ruler-based descriptions
+ * @param allowDoubleSlitClustering - whether double-slit branches may use envelope-based grouping language
  * @returns localized accessible paragraph text
  */
 export function formatLiveHitsDescription(
   hitStage: HitStage,
-  isDoubleSlit: boolean,
-  isNoBarrier: boolean,
+  slitConfiguration: SlitConfigurationWithNoBarrier,
   analysis: Pick<BandAnalysisResult, 'spacingCategory' | 'envelopeCategory'>,
-  spatialDescription = '',
-  bandSpacingDescription: string = formatQualitativeBandSpacingDescription( analysis.spacingCategory )
+  bandSpacingDescription: string = formatQualitativeBandSpacingDescription( analysis.spacingCategory ),
+  allowDoubleSlitClustering = false
 ): string {
   if ( hitStage === 'none' ) {
     return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsNoneStringProperty.value;
@@ -203,9 +211,29 @@ export function formatLiveHitsDescription(
     return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsFewStringProperty.value;
   }
 
+  const patternKind = getPatternKind( slitConfiguration );
+
   // NOTE: see other duplicate in formatSnapshotHitsDescription below. The live and snapshot descriptions intentionally
   // share the same hit-stage decision tree but target different Fluent strings and count arguments.
-  if ( isDoubleSlit ) {
+  if ( patternKind === 'doubleSlitInterference' ) {
+    if ( allowDoubleSlitClustering ) {
+      return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'clear' ) ?
+             formatDetectorPatternDescription(
+               true,
+               'hits',
+               'collectingHits',
+               patternKind,
+               'electricField',
+               getSingleSlitLocationKey( slitConfiguration ),
+               hitStage,
+               analysis.spacingCategory,
+               analysis.envelopeCategory,
+               bandSpacingDescription,
+               true
+             ) :
+             ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
+    }
+
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty.value :
            hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDevelopingStringProperty.value :
            hitStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( {
@@ -213,17 +241,19 @@ export function formatLiveHitsDescription(
                                 } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
-  else if ( isNoBarrier ) {
-    return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'clear' ) ?
-           QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsNoBarrierStringProperty.value :
-           ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
-  }
   else {
-    return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value :
-           ( hitStage === 'developing' || hitStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSingleSlitClear.format( {
-                                                                   envelope: analysis.envelopeCategory,
-                                                                   spatialDescription: spatialDescription
-                                                                 } ) :
+    return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'clear' ) ?
+           formatDetectorPatternDescription(
+             true,
+             'hits',
+             'collectingHits',
+             patternKind,
+             'electricField',
+             getSingleSlitLocationKey( slitConfiguration ),
+             hitStage,
+             analysis.spacingCategory,
+             analysis.envelopeCategory
+           ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
 }
@@ -231,16 +261,16 @@ export function formatLiveHitsDescription(
 /**
  * Formats the accessible detector-screen description for a saved snapshot in hits mode.
  * @param hitStage - qualitative stage of accumulated hit formation
- * @param isDoubleSlit - whether the snapshot slit configuration produces a double-slit interference pattern
- * @param isNoBarrier - whether no barrier is between the source and detector screen in the snapshot
+ * @param slitConfiguration - snapshot slit configuration
+ * @param analysis - analyzed band/spacing data for the snapshot pattern
  * @param hitCount - number of hits captured in the snapshot
- * @param spatialDescription - localized spatial description of the visible pattern
+ * @param spatialDescription - localized spatial description of the visible double-slit pattern
  * @returns localized accessible paragraph text
  */
 export function formatSnapshotHitsDescription(
   hitStage: HitStage,
-  isDoubleSlit: boolean,
-  isNoBarrier: boolean,
+  slitConfiguration: SlitConfigurationWithNoBarrier,
+  analysis: Pick<BandAnalysisResult, 'envelopeCategory'>,
   hitCount: number,
   spatialDescription: string
 ): string {
@@ -251,30 +281,43 @@ export function formatSnapshotHitsDescription(
     return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsFew.format( { hitCount: hitCount } );
   }
 
+  const patternKind = getPatternKind( slitConfiguration );
+  const envelope = ( patternKind === 'doubleSlitInterference' || patternKind === 'whichPathDiffraction' ) ?
+                   analysis.envelopeCategory :
+                   'brightestAtCenter';
+
   // NOTE: see other duplicate in formatLiveHitsDescription above. The live and snapshot descriptions intentionally
   // share the same hit-stage decision tree but target different Fluent strings and count arguments.
-  if ( isDoubleSlit ) {
-    return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsEmerging.format( { hitCount: hitCount } ) :
+  if ( patternKind === 'doubleSlitInterference' ) {
+    return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsEmerging.format( {
+             envelope: envelope,
+             hitCount: hitCount
+           } ) :
            hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsDeveloping.format( {
+                                       envelope: envelope,
                                        hitCount: hitCount,
                                        spatialDescription: spatialDescription
                                      } ) :
            hitStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsClear.format( {
+                                  envelope: envelope,
                                   hitCount: hitCount,
                                   spatialDescription: spatialDescription
                                 } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
-  else if ( isNoBarrier ) {
+  else if ( patternKind === 'noBarrier' ) {
     return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'clear' ) ?
            QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNoBarrier.format( { hitCount: hitCount } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
   else {
-    return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitEmerging.format( { hitCount: hitCount } ) :
+    return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitEmerging.format( {
+             envelope: envelope,
+             hitCount: hitCount
+           } ) :
            ( hitStage === 'developing' || hitStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitClear.format( {
-                                                                   hitCount: hitCount,
-                                                                   spatialDescription: spatialDescription
+                                                                   envelope: envelope,
+                                                                   hitCount: hitCount
                                                                  } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }

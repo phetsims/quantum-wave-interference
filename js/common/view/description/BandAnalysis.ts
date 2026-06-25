@@ -8,10 +8,9 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 import { type TReadOnlyProperty } from '../../../../../axon/js/TReadOnlyProperty.js';
-import { clamp } from '../../../../../dot/js/util/clamp.js';
 import { millimetersUnit } from '../../../../../scenery-phet/js/units/millimetersUnit.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { getDisplaySlitLayout } from '../../getDisplaySlitLayout.js';
+import { analyzeEnvelopeHeuristic, type EnvelopeCategory, type EnvelopeHeuristicAnalysis, type EnvelopeHeuristicScene } from '../../model/DetectorPatternEnvelope.js';
 import { hasAnyDetector, showsDoubleSlitInterferencePattern, type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import type { Snapshot } from '../../model/Snapshot.js';
 
@@ -29,12 +28,7 @@ type TheoreticalPatternScene = {
   slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
   slitSeparationRange?: { min: number; max: number };
   regionHeight?: number;
-} & ( {
-  screenDistanceProperty: TReadOnlyProperty<number>;
-} | {
-  regionWidth: number;
-  barrierPositionFractionProperty: TReadOnlyProperty<number>;
-} );
+} & EnvelopeHeuristicScene;
 
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
 // updates so they only fire at pedagogically meaningful thresholds.
@@ -66,45 +60,7 @@ const HIT_STAGE_THRESHOLDS: readonly HitStageThreshold[] = [
 // the appropriate Fluent string for screen-reader output.
 export type BandSpacingCategory = 'extremelyFarApart' | 'veryFarApart' | 'farApart' | 'somewhatCloseTogether' | 'closeTogether' | 'veryCloseTogether' | 'extremelyCloseTogether';
 
-// Three-point qualitative scale describing how the single-slit diffraction envelope shapes
-// the double-slit interference pattern. 'brightestAtCenter' means the envelope is broad
-// and all fringes appear roughly equal; the clustering variants indicate the envelope
-// minima have moved inward enough to visibly group fringes into two dimmer side lobes.
-export type EnvelopeCategory = 'brightestAtCenter' | 'clusteringIntoTwoFaintSections' | 'clusteringIntoTwoDistinctSections';
-
-// Intermediate quantities produced by analyzeEnvelopeHeuristic. Exposed as a type so
-// callers (e.g. High Intensity state logging) can inspect individual values for debugging
-// without re-running the heuristic.
-export type EnvelopeHeuristicAnalysis = {
-  category: EnvelopeCategory;
-
-  // Composite heuristic score driving the category thresholds (dimensionless). Higher
-  // values indicate the envelope is more strongly grouping fringes into side lobes.
-  score: number;
-
-  // Dimensionless Fresnel-like separation: d_display² / (λ · L), where d_display is the
-  // display-coordinate slit separation, λ is the effective wavelength (m), and L is the
-  // slit-to-screen distance (m). Captures the ratio of geometric slit spacing to the
-  // diffraction scale.
-  fresnelSeparation: number;
-
-  // Dimensionless ratio d_display / L. Measures how oblique the geometry is; large values
-  // push the single-slit envelope minima toward the central fringe region.
-  geometryRatio: number;
-
-  // Smooth-step gate in [0, 1] applied to fresnelSeparation to suppress the envelope
-  // effect at small geometryRatio values where the paraxial approximation holds well.
-  geometryGate: number;
-
-  // Slit-to-screen distance in meters.
-  slitToScreenDistance: number;
-
-  // Effective slit separation in display-model coordinates (same units as regionHeight).
-  displaySlitSeparation: number;
-
-  // Effective wavelength in meters used for this computation.
-  effectiveWavelength: number;
-};
+export type { EnvelopeCategory, EnvelopeHeuristicAnalysis };
 
 // Results from analyzing an intensity distribution.
 export type BandAnalysisResult = {
@@ -129,16 +85,6 @@ export type BandAnalysisResult = {
   envelopeCategory: EnvelopeCategory;
 };
 
-const ENVELOPE_GEOMETRY_GATE_START = 0.45;
-const ENVELOPE_GEOMETRY_GATE_END = 1.25;
-const FAINT_SECTIONS_ENVELOPE_SCORE = 1.5;
-const DISTINCT_SECTIONS_ENVELOPE_SCORE = 6;
-
-function smoothStep( edge0: number, edge1: number, value: number ): number {
-  const t = clamp( ( value - edge0 ) / ( edge1 - edge0 ), 0, 1 );
-  return t * t * ( 3 - 2 * t );
-}
-
 function getSpacingCategory( averageSpacingMM: number, screenWidthMM: number ): BandSpacingCategory {
   const spacingFraction = screenWidthMM > 0 ? averageSpacingMM / screenWidthMM : 0;
 
@@ -150,12 +96,6 @@ function getSpacingCategory( averageSpacingMM: number, screenWidthMM: number ): 
          spacingFraction >= 0.05 ? 'closeTogether' :
          spacingFraction >= 0.03 ? 'veryCloseTogether' :
          'extremelyCloseTogether';
-}
-
-function getEnvelopeCategory( envelopeScore: number ): EnvelopeCategory {
-  return envelopeScore < FAINT_SECTIONS_ENVELOPE_SCORE ? 'brightestAtCenter' :
-         envelopeScore < DISTINCT_SECTIONS_ENVELOPE_SCORE ? 'clusteringIntoTwoFaintSections' :
-         'clusteringIntoTwoDistinctSections';
 }
 
 function getHitStageFromThresholds( totalHits: number, thresholds: readonly HitStageThreshold[] ): HitStage {
@@ -202,43 +142,7 @@ export default class BandAnalysis {
    * @returns detailed envelope heuristic analysis, or null when the scene cannot support the front-facing heuristic
    */
   public static analyzeEnvelopeHeuristic( scene: TheoreticalPatternScene ): EnvelopeHeuristicAnalysis | null {
-    const lambda = scene.getEffectiveWavelength();
-    const slitToScreenDistance = 'screenDistanceProperty' in scene ?
-                                 scene.screenDistanceProperty.value :
-                                 ( 1 - scene.barrierPositionFractionProperty.value ) * scene.regionWidth;
-
-    if (
-      lambda <= 0 ||
-      slitToScreenDistance <= 0 ||
-      scene.regionHeight === undefined ||
-      scene.slitSeparationRange === undefined
-    ) {
-      return null;
-    }
-
-    const displaySlitSeparation = getDisplaySlitLayout(
-      scene.slitSeparationProperty.value * 1e-3,
-      scene.slitSeparationRange.min * 1e-3,
-      scene.slitSeparationRange.max * 1e-3,
-      scene.regionHeight
-    ).displaySlitSeparation;
-
-    const fresnelSeparation = displaySlitSeparation * displaySlitSeparation /
-                              ( lambda * slitToScreenDistance );
-    const geometryRatio = displaySlitSeparation / slitToScreenDistance;
-    const geometryGate = smoothStep( ENVELOPE_GEOMETRY_GATE_START, ENVELOPE_GEOMETRY_GATE_END, geometryRatio );
-    const score = fresnelSeparation * geometryGate;
-
-    return {
-      category: getEnvelopeCategory( score ),
-      score: score,
-      fresnelSeparation: fresnelSeparation,
-      geometryRatio: geometryRatio,
-      geometryGate: geometryGate,
-      slitToScreenDistance: slitToScreenDistance,
-      displaySlitSeparation: displaySlitSeparation,
-      effectiveWavelength: lambda
-    };
+    return analyzeEnvelopeHeuristic( scene );
   }
 
   /**
@@ -255,7 +159,7 @@ export default class BandAnalysis {
       snapshot.slitWidth * 1e-3,
       snapshot.slitSetting,
       snapshot.slitSeparation * 1e-3,
-      'brightestAtCenter'
+      snapshot.envelopeCategory
     );
   }
 

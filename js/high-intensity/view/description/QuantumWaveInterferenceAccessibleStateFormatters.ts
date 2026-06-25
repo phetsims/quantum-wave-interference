@@ -120,15 +120,16 @@ export const formatDetectorDescription = (
   state: HighIntensitySemanticAccessibleViewState,
   patternFormation: QuantumWaveInterferencePatternFormation = state.patternFormation
 ): string =>
-  state.detectionMode === 'hits' && state.patternKind === 'doubleSlitInterference' ?
+  state.detectionMode === 'hits' ?
   formatLiveHitsDescription(
     state.hitStage,
-    true,
-    false,
+    state.slitConfiguration,
     {
       spacingCategory: state.bandSpacingDescription,
       envelopeCategory: state.envelopeCategory
-    }
+    },
+    undefined,
+    true
   ) :
   formatDetectorPatternDescription(
     state.isEmitting,
@@ -139,5 +140,7 @@ export const formatDetectorDescription = (
     getSingleSlitLocationKey( state ),
     state.hitStage,
     state.bandSpacingDescription,
-    state.envelopeCategory
+    state.envelopeCategory,
+    undefined,
+    true
   );

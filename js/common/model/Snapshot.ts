@@ -15,6 +15,7 @@ import SchemaOrientedIOType from '../../../../tandem/js/types/SchemaOrientedIOTy
 import { type CoreRecord } from '../../../../tandem/js/types/StateSchema.js';
 import StringUnionIO from '../../../../tandem/js/types/StringUnionIO.js';
 import { DetectionModeValues } from './DetectionMode.js';
+import { EnvelopeCategoryValues } from './DetectorPatternEnvelope.js';
 import { SlitConfigurationWithNoBarrierValues } from './SlitConfiguration.js';
 import { SourceTypeValues } from './SourceType.js';
 
@@ -41,6 +42,10 @@ const SNAPSHOT_SCHEMA = {
   screenHalfWidth: NumberIO, // m
   effectiveWavelength: NumberIO, // m
   slitSetting: StringUnionIO( SlitConfigurationWithNoBarrierValues ),
+
+  // Qualitative detector-screen grouping at capture time so snapshot descriptions remain stable after geometry changes.
+  envelopeCategory: StringUnionIO( EnvelopeCategoryValues ),
+
   isEmitting: BooleanIO,
 
   // Detector-screen display brightness percentage at capture time; this changes rendering gain without changing the

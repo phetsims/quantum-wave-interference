@@ -407,17 +407,17 @@ a11y:
                           }
     detectorPattern:      >-
                           { $isEmitting ->
-                            [false] Source is off, so there is no pattern on the detector.
+                            [false] Source is off. Detector screen is empty.
                            *[true] { $detectionMode ->
                               [intensity] { $patternFormation ->
-                                [empty] No pattern has reached the detector screen yet.
+                                [empty] Detector screen is empty while the wave travels toward it.
                                 [forming] { $patternKind ->
                                   [doubleSlitInterference] Evenly-spaced bright bands form on detector screen.
                                   [singleSlitDiffraction] { $slitSetting ->
-                                    [leftCovered] Wide bright area forms on lower part of detector screen.
-                                   *[rightCovered] Wide bright area forms on upper part of detector screen.
+                                    [leftCovered] Broad central area forms on detector screen.
+                                   *[rightCovered] Broad central area forms on detector screen.
                                   }
-                                  [whichPathDiffraction] Wide bright area forms on detector screen.
+                                  [whichPathDiffraction] Broad central area forms on detector screen.
                                  *[noBarrier] { $waveDisplayMode ->
                                     [amplitude] Solid wave forms uniform glow on detector screen.
                                    *[electricField] Plane wave fronts form uniform glow on detector screen.
@@ -426,66 +426,112 @@ a11y:
                                   }
                                 }
                                 [complete] { $patternKind ->
-                                  [doubleSlitInterference] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
-                                    [extremelyFarApart] extremely far apart
-                                    [veryFarApart] very far apart
-                                    [farApart] far apart
-                                    [somewhatCloseTogether] somewhat close together
-                                    [closeTogether] close together
-                                    [veryCloseTogether] very close together
-                                   *[extremelyCloseTogether] extremely close together
-                                  }, brightest at center.
+                                  [doubleSlitInterference] { $doubleSlitClustering ->
+                                    [true] { $envelope ->
+                                      [clusteringIntoTwoFaintSections] Across detector screen, evenly-spaced bright bands are grouped into two close areas.
+                                      [clusteringIntoTwoDistinctSections] Across detector screen, evenly-spaced bright bands are grouped into two distinct areas.
+                                     *[brightestAtCenter] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
+                                        [extremelyFarApart] extremely far apart
+                                        [veryFarApart] very far apart
+                                        [farApart] far apart
+                                        [somewhatCloseTogether] somewhat close together
+                                        [closeTogether] close together
+                                        [veryCloseTogether] very close together
+                                       *[extremelyCloseTogether] extremely close together
+                                      }, brightest at center.
+                                    }
+                                   *[false] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
+                                      [extremelyFarApart] extremely far apart
+                                      [veryFarApart] very far apart
+                                      [farApart] far apart
+                                      [somewhatCloseTogether] somewhat close together
+                                      [closeTogether] close together
+                                      [veryCloseTogether] very close together
+                                     *[extremelyCloseTogether] extremely close together
+                                    }, brightest at center.
+                                  }
                                   [singleSlitDiffraction] { $slitSetting ->
-                                    [leftCovered] Across lower part of detector screen is a wide bright area fading toward edges,
-                                    brightest part at center.
-                                   *[rightCovered] Across upper part of detector screen is a wide bright area fading toward edges,
-                                    brightest part at center.
+                                    [leftCovered] Across detector screen is a broad central area that tapers toward the edges, brightest at center.
+                                   *[rightCovered] Across detector screen is a broad central area that tapers toward the edges, brightest at center.
                                   }
                                   [whichPathDiffraction] { $envelope ->
                                     [clusteringIntoTwoFaintSections] Across detector screen, brightness is closely clustering into two areas, directly across from the slits.
                                     [clusteringIntoTwoDistinctSections] Across detector screen are two distinct bright areas, directly across from the slits, each fading toward its edges.
-                                   *[brightestAtCenter] Across detector screen is a wide bright area fading toward edges, brightest part at center.
+                                   *[brightestAtCenter] Across detector screen is a broad central area that tapers toward the edges, brightest at center.
                                   }
                                  *[noBarrier] Across detector screen is a uniform glow from edge to edge.
                                 }
                                 [paused] Detector pattern formation is paused.
-                                [notApplicable] Detector pattern does not apply to the current setup.
+                                [notApplicable] Detector pattern status is unavailable for the current setup.
                                *[collectingHits] Detector pattern is collecting hits.
                               }
                              *[hits] { $hitStage ->
                                 [none] Detector screen is empty. No particles have arrived yet.
                                 [few] Individual scattered hits on detector screen.
                                 [emerging] { $patternKind ->
-                                  [doubleSlitInterference] Hits begin to form faint bands.
-                                  [singleSlitDiffraction] Bright-band pattern is absent.
-                                  [whichPathDiffraction] Bright bands are gone.
+                                  [doubleSlitInterference] { $doubleSlitClustering ->
+                                    [true] { $envelope ->
+                                      [clusteringIntoTwoFaintSections] Hits begin to form faint bands grouped into two close areas.
+                                      [clusteringIntoTwoDistinctSections] Hits begin to form faint bands grouped into two distinct areas.
+                                     *[brightestAtCenter] Hits begin to form faint bands.
+                                    }
+                                   *[false] Hits begin to form faint bands.
+                                  }
+                                  [singleSlitDiffraction] Hits collect in a broad region near the center of the screen, with fewer toward the edges.
+                                  [whichPathDiffraction] { $envelope ->
+                                    [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
+                                    [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
+                                   *[brightestAtCenter] Hits collect in a broad region near the center of the screen, with fewer toward the edges.
+                                  }
                                  *[noBarrier] Evenly scattered hits across the detector screen.
                                 }
                                 [developing] { $patternKind ->
-                                  [doubleSlitInterference] Evenly-spaced bands more distinct.
-                                  [singleSlitDiffraction] Bright-band pattern is absent.
+                                  [doubleSlitInterference] { $doubleSlitClustering ->
+                                    [true] { $envelope ->
+                                      [clusteringIntoTwoFaintSections] Evenly-spaced bands are grouped into two close areas.
+                                      [clusteringIntoTwoDistinctSections] Evenly-spaced bands are grouped into two distinct areas.
+                                     *[brightestAtCenter] Evenly-spaced bands more distinct.
+                                    }
+                                   *[false] Evenly-spaced bands more distinct.
+                                  }
+                                  [singleSlitDiffraction] Hits form a broad central area that tapers toward the edges.
                                   [whichPathDiffraction] { $envelope ->
-                                    [clusteringIntoTwoFaintSections] Bright bands are gone. Hits are closely clustering into two areas, directly across from the slits.
-                                    [clusteringIntoTwoDistinctSections] Bright bands are gone. Hits collect in two distinct areas, directly across from the slits.
-                                   *[brightestAtCenter] Bright bands are gone.
+                                    [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
+                                    [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
+                                   *[brightestAtCenter] Hits form a broad central area that tapers toward the edges.
                                   }
                                  *[noBarrier] Evenly scattered hits collect across the detector screen.
                                 }
                                *[clear] { $patternKind ->
-                                  [doubleSlitInterference] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
-                                    [extremelyFarApart] extremely far apart
-                                    [veryFarApart] very far apart
-                                    [farApart] far apart
-                                    [somewhatCloseTogether] somewhat close together
-                                    [closeTogether] close together
-                                    [veryCloseTogether] very close together
-                                   *[extremelyCloseTogether] extremely close together
-                                  }, brightest at center.
-                                  [singleSlitDiffraction] Bright-band pattern is absent.
+                                  [doubleSlitInterference] { $doubleSlitClustering ->
+                                    [true] { $envelope ->
+                                      [clusteringIntoTwoFaintSections] Across detector screen, evenly-spaced bright bands are grouped into two close areas.
+                                      [clusteringIntoTwoDistinctSections] Across detector screen, evenly-spaced bright bands are grouped into two distinct areas.
+                                     *[brightestAtCenter] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
+                                        [extremelyFarApart] extremely far apart
+                                        [veryFarApart] very far apart
+                                        [farApart] far apart
+                                        [somewhatCloseTogether] somewhat close together
+                                        [closeTogether] close together
+                                        [veryCloseTogether] very close together
+                                       *[extremelyCloseTogether] extremely close together
+                                      }, brightest at center.
+                                    }
+                                   *[false] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
+                                      [extremelyFarApart] extremely far apart
+                                      [veryFarApart] very far apart
+                                      [farApart] far apart
+                                      [somewhatCloseTogether] somewhat close together
+                                      [closeTogether] close together
+                                      [veryCloseTogether] very close together
+                                     *[extremelyCloseTogether] extremely close together
+                                    }, brightest at center.
+                                  }
+                                  [singleSlitDiffraction] Hits form a broad central area that tapers toward the edges.
                                   [whichPathDiffraction] { $envelope ->
-                                    [clusteringIntoTwoFaintSections] Bright bands are gone. Hits are closely clustering into two areas, directly across from the slits.
-                                    [clusteringIntoTwoDistinctSections] Bright bands are gone. Hits collect in two distinct areas, directly across from the slits.
-                                   *[brightestAtCenter] Bright bands are gone.
+                                    [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
+                                    [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
+                                   *[brightestAtCenter] Hits form a broad central area that tapers toward the edges.
                                   }
                                  *[noBarrier] Evenly scattered hits collect across the detector screen.
                                 }
@@ -1039,9 +1085,11 @@ a11y:
     accessibleParagraph:
       intensityOff:           Graph is empty. Source is off.
       intensity:              >-
-                              Graph traces intensity versus position with tall central peak and smaller
-                              peaks on either side.
-                              { $spatialDescription }
+                              { $envelope ->
+                                [clusteringIntoTwoFaintSections] Graph traces intensity versus position with repeated peaks grouped into two close areas.
+                                [clusteringIntoTwoDistinctSections] Graph traces intensity versus position with repeated peaks grouped into two distinct areas.
+                               *[brightestAtCenter] Graph traces intensity versus position with tall central peak and smaller peaks on either side. { $spatialDescription }
+                              }
       intensitySingleSlit:    >-
                               { $envelope ->
                                 [clusteringIntoTwoFaintSections] Graph traces intensity versus position as two peaks that are close together.
@@ -1053,21 +1101,30 @@ a11y:
       hitsFew:                >-
                               A few bars at scattered positions across histogram.
       hitsEmerging:           >-
-                              Histogram growing. Some bars are becoming taller than others at repeated
-                              positions across graph.
+                              { $envelope ->
+                                [clusteringIntoTwoFaintSections] Histogram growing, with bars beginning to group into two close areas.
+                                [clusteringIntoTwoDistinctSections] Histogram growing, with bars beginning to group into two distinct areas.
+                               *[brightestAtCenter] Histogram growing. Some bars are becoming taller than others at repeated positions across graph.
+                              }
       hitsDeveloping:         >-
-                              Taller bars at regular intervals, with shorter bars between them.
-                              { $spatialDescription }
+                              { $envelope ->
+                                [clusteringIntoTwoFaintSections] Taller bars at regular intervals are grouped into two close areas.
+                                [clusteringIntoTwoDistinctSections] Taller bars at regular intervals are grouped into two distinct areas.
+                               *[brightestAtCenter] Taller bars at regular intervals, with shorter bars between them. { $spatialDescription }
+                              }
       hitsClear:              >-
-                              Histogram shows a tall central peak with repeating side peaks and lower bars
-                              between them. { $spatialDescription }
+                              { $envelope ->
+                                [clusteringIntoTwoFaintSections] Histogram shows repeated peaks grouped into two close areas, with lower bars between peaks.
+                                [clusteringIntoTwoDistinctSections] Histogram shows repeated peaks grouped into two distinct areas, with lower bars between peaks.
+                               *[brightestAtCenter] Histogram shows a tall central peak with repeating side peaks and lower bars between them. { $spatialDescription }
+                              }
       hitsSingleSlitEmerging: >-
                               Histogram growing, with taller bars near center and shorter bars toward edges.
       hitsSingleSlitClear:    >-
                               { $envelope ->
                                 [clusteringIntoTwoFaintSections] Histogram shows two peaks that are close together.
                                 [clusteringIntoTwoDistinctSections] Histogram shows two distinct peaks.
-                               *[brightestAtCenter] Histogram shows a broad central peak that tapers toward edges. { $spatialDescription }
+                               *[brightestAtCenter] Histogram shows a broad central peak that tapers toward edges.
                               }
       hitsNoBarrier:          Histogram shows evenly distributed hits across graph.
     zoomButtonGroup:
@@ -1104,9 +1161,9 @@ a11y:
                                       Across detector screen, evenly-spaced bright bands are { $spacingDescription }, brightest at center.
       intensitySingleSlit:            >-
                                       { $envelope ->
-                                        [clusteringIntoTwoFaintSections] Bright-band pattern is absent. Brightness is closely clustering into two areas, directly across from the slits.
-                                        [clusteringIntoTwoDistinctSections] Bright-band pattern is absent. Detector screen shows two distinct bright areas, directly across from the slits.
-                                       *[brightestAtCenter] Bright-band pattern is absent. Detector screen shows a wide central bright area, brightest in the middle and fading toward the edges. { $spatialDescription }
+                                        [clusteringIntoTwoFaintSections] Brightness is closely clustering into two areas, directly across from the slits.
+                                        [clusteringIntoTwoDistinctSections] Detector screen shows two distinct bright areas, directly across from the slits.
+                                       *[brightestAtCenter] Detector screen shows a broad central area, brightest in the middle and tapering toward the edges.
                                       }
       intensityNoBarrier:             Plane wave fronts move directly to the detector screen. Uniform glow from plane wave fronts.
       hitsNone:                       Detector screen is empty. No particles have arrived yet.
@@ -1116,13 +1173,12 @@ a11y:
       hitsClear:                      >-
                                       Across detector screen, evenly-spaced bright bands are { $spacingDescription }, brightest at center.
       hitsSingleSlitEmerging:         >-
-                                      Bright-band pattern is absent. Hits collect in a broad region near the center of
-                                      the screen, with fewer toward the edges.
+                                      Hits collect in a broad region near the center of the screen, with fewer toward the edges.
       hitsSingleSlitClear:            >-
                                       { $envelope ->
-                                        [clusteringIntoTwoFaintSections] Bright-band pattern is absent. Hits are closely clustering into two areas, directly across from the slits.
-                                        [clusteringIntoTwoDistinctSections] Bright-band pattern is absent. Hits collect in two distinct areas, directly across from the slits.
-                                       *[brightestAtCenter] Bright-band pattern is absent. Hits form a broad central area that tapers toward the edges. { $spatialDescription }
+                                        [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
+                                        [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
+                                       *[brightestAtCenter] Hits form a broad central area that tapers toward the edges.
                                       }
       hitsNoBarrier:                  Evenly scattered hits across the detector screen.
       snapshotHitsNone:               |-
@@ -1136,30 +1192,50 @@ a11y:
                                          *[other] Detector screen shows a total of { $hitCount } hits.
                                       }
       snapshotHitsEmerging:           |-
-                                      More particles, and faint vertical stripes are becoming visible with gaps between them. { $hitCount ->
+                                      { $envelope ->
+                                        [clusteringIntoTwoFaintSections] More particles, and faint vertical stripes are grouped into two close areas.
+                                        [clusteringIntoTwoDistinctSections] More particles, and faint vertical stripes are grouped into two distinct areas.
+                                       *[brightestAtCenter] More particles, and faint vertical stripes are becoming visible with gaps between them.
+                                      } { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
                                          *[other] Detector screen shows a total of { $hitCount } hits.
                                       }
       snapshotHitsDeveloping:         |-
-                                      Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $hitCount ->
+                                      { $envelope ->
+                                        [clusteringIntoTwoFaintSections] Individual impacts are gathering into evenly-spaced bands grouped into two close areas.
+                                        [clusteringIntoTwoDistinctSections] Individual impacts are gathering into evenly-spaced bands grouped into two distinct areas.
+                                       *[brightestAtCenter] Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $spatialDescription }
+                                      } { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
                                          *[other] Detector screen shows a total of { $hitCount } hits.
-                                      } { $spatialDescription }
+                                      }
       snapshotHitsClear:              |-
-                                      Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $hitCount ->
+                                      { $envelope ->
+                                        [clusteringIntoTwoFaintSections] Distinct vertical bands are grouped into two close areas.
+                                        [clusteringIntoTwoDistinctSections] Distinct vertical bands are grouped into two distinct areas.
+                                       *[brightestAtCenter] Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $spatialDescription }
+                                      } { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
                                          *[other] Detector screen shows a total of { $hitCount } hits.
-                                      } { $spatialDescription }
+                                      }
       snapshotHitsSingleSlitEmerging: |-
-                                      More particles in a broad region near the center of the screen, with fewer toward the edges. { $hitCount ->
+                                      { $envelope ->
+                                        [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
+                                        [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
+                                       *[brightestAtCenter] Hits collect in a broad region near the center of the screen, with fewer toward the edges.
+                                      } { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
                                          *[other] Detector screen shows a total of { $hitCount } hits.
                                       }
       snapshotHitsSingleSlitClear:    |-
-                                      Hits form a broad central band that tapers toward the edges. { $hitCount ->
+                                      { $envelope ->
+                                        [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
+                                        [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
+                                       *[brightestAtCenter] Hits form a broad central area that tapers toward the edges.
+                                      } { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
                                          *[other] Detector screen shows a total of { $hitCount } hits.
-                                      } { $spatialDescription }
+                                      }
       snapshotHitsNoBarrier:          |-
                                       Evenly scattered hits across the detector screen. { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.
@@ -1199,7 +1275,7 @@ a11y:
       noRulerSingleSlit:
         select_style:
           bands: >-
-                 A broad central band centered on the screen, tapering toward the edges.
+                 A broad central area centered on the screen, tapering toward the edges.
           peaks: >-
                  A broad central peak, tapering toward the edges.
     zoomButtonGroup:
