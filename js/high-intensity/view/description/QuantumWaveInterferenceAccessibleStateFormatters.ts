@@ -14,7 +14,7 @@ import { picometersUnit } from '../../../../../scenery-phet/js/units/picometersU
 import { formatDetectorPatternDescription, formatLiveHitsDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import { getWavelengthColorZoneStringProperty } from '../../../common/view/WavelengthColorUtils.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferencePatternFormation, type QuantumWaveInterferencePatternKind } from './HighIntensityAccessibleViewState.js';
+import { type HighIntensitySemanticAccessibleViewState, type QuantumWaveInterferencePatternFormation } from './HighIntensityAccessibleViewState.js';
 
 /**
  * String-literal union used as a Fluent-compatible boolean selector. Fluent message variants are keyed on
@@ -29,10 +29,6 @@ export type FluentBoolean = 'true' | 'false';
  */
 export function toFluentBoolean( value: boolean ): FluentBoolean {
   return value ? 'true' : 'false';
-}
-
-function getPatternKindKey( patternKind: QuantumWaveInterferencePatternKind ): QuantumWaveInterferencePatternKind {
-  return patternKind;
 }
 
 type SingleSlitLocationKey = 'leftCovered' | 'rightCovered';
@@ -135,7 +131,7 @@ export const formatDetectorDescription = (
     state.isEmitting,
     state.detectionMode,
     patternFormation,
-    getPatternKindKey( state.patternKind ),
+    state.patternKind,
     state.waveDisplayMode,
     getSingleSlitLocationKey( state ),
     state.hitStage,

@@ -454,6 +454,9 @@ export default class SceneModel extends PhetioObject {
       screenHalfWidth: this.fullScreenHalfWidth,
       effectiveWavelength: this.getEffectiveWavelength(),
       slitSetting: this.slitConfigurationProperty.value,
+
+      // The Experiment screen never clusters the Both Open pattern into side lobes, so snapshots always capture the
+      // broad envelope. BaseSceneModel computes this via the heuristic, but here it is fixed.
       envelopeCategory: 'brightestAtCenter',
       isEmitting: this.isEmittingProperty.value,
       brightness: this.screenBrightnessProperty.value,

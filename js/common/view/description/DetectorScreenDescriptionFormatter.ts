@@ -12,25 +12,13 @@ import { type DetectionMode } from '../../model/DetectionMode.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type WaveDisplayMode } from '../../model/WaveDisplayMode.js';
 import { type BandAnalysisResult, type EnvelopeCategory, type HitStage } from './BandAnalysis.js';
+import { getPatternKind, type QuantumWaveInterferencePatternKind } from './getPatternKind.js';
 
-export type QuantumWaveInterferencePatternKind = 'doubleSlitInterference' | 'singleSlitDiffraction' | 'whichPathDiffraction' | 'noBarrier';
 export type QuantumWaveInterferencePatternFormation = 'empty' | 'forming' | 'complete' | 'collectingHits' | 'paused' | 'notApplicable';
 
 type SingleSlitLocationKey = 'leftCovered' | 'rightCovered';
 
 const MINIMUM_NUMERIC_BAND_SPACING_MM = 0.1;
-
-/**
- * Gets the detector-pattern kind used by shared accessible detector-pattern strings.
- * @param slitConfiguration - current slit configuration
- * @returns pattern kind for accessible detector-pattern descriptions
- */
-export function getPatternKind( slitConfiguration: SlitConfigurationWithNoBarrier ): QuantumWaveInterferencePatternKind {
-  return slitConfiguration === 'bothOpen' ? 'doubleSlitInterference' :
-         ( slitConfiguration === 'leftCovered' || slitConfiguration === 'rightCovered' ) ? 'singleSlitDiffraction' :
-         slitConfiguration === 'noBarrier' ? 'noBarrier' :
-         'whichPathDiffraction';
-}
 
 function getSingleSlitLocationKey( slitConfiguration: SlitConfigurationWithNoBarrier ): SingleSlitLocationKey {
   return slitConfiguration === 'leftCovered' ? 'leftCovered' :
