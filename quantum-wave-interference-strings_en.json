@@ -56,9 +56,6 @@
   "emissionRate": {
     "value": "Emission Rate"
   },
-  "slitsLabelPattern": {
-    "value": "Slits: {{setting}}"
-  },
   "snapshotLabelValuePattern": {
     "value": "{{label}}: {{value}}"
   },
@@ -434,9 +431,6 @@
       "screenCleared": {
         "value": "{ $isRestarting ->\n  [true] { $sourceRestartedResponse }\n *[false] Wave area cleared. Sim still paused.\n}"
       },
-      "hitStageChanged": {
-        "value": "Hits pattern is now { $hitStage ->\n  [none] empty.\n  [few] showing individual scattered hits.\n  [emerging] { $patternKind ->\n    [noBarrier] showing evenly scattered hits.\n   *[doubleSlitInterference] forming faint bands.\n    [singleSlitDiffraction] showing a broad central area.\n    [whichPathDiffraction] showing a broad central area.\n  }\n  [developing] { $patternKind ->\n    [noBarrier] showing evenly scattered hits.\n   *[doubleSlitInterference] forming evenly spaced bands.\n    [singleSlitDiffraction] showing a broad central area.\n    [whichPathDiffraction] showing a broad central area.\n  }\n *[clear] { $patternKind ->\n    [noBarrier] showing evenly scattered hits.\n   *[doubleSlitInterference] showing evenly spaced bands.\n    [singleSlitDiffraction] showing a broad central area.\n    [whichPathDiffraction] showing a broad central area.\n  }\n}"
-      },
       "waveProgressChanged": {
         "value": "{ $waveProgressStage ->\n  [sourceOff] Source is off, so no wave is traveling.\n  [atSlits] { $waveDisplayMode ->\n    [amplitude] { $patternKind ->\n      [doubleSlitInterference] Solid circular waves emerge from both slits and overlap.\n      [singleSlitDiffraction] Solid circular wave emerges from open slit only.\n      [whichPathDiffraction] As detection events occur, solid circular waves emerge from both slits one at a time\n      and do not interact.\n     *[noBarrier] Solid wave moves directly toward the detector screen.\n    }\n   *[electricField] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the detector screen.\n    }\n    [realPart] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the detector screen.\n    }\n    [imaginaryPart] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the detector screen.\n    }\n  }\n  [interferingAfterSlits] { $waveDisplayMode ->\n    [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward detector screen.\n   *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.\n    [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.\n    [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.\n  }\n  [diffractingAfterSlits] { $waveDisplayMode ->\n    [amplitude] Solid circular wave spreads toward detector screen.\n   *[electricField] Circular wave fronts spread toward detector screen.\n    [realPart] Circular wave fronts spread toward detector screen.\n    [imaginaryPart] Circular wave fronts spread toward detector screen.\n  }\n  [whichPathAfterSlits] { $waveDisplayMode ->\n    [amplitude] Non-interacting solid circular waves spread toward detector screen.\n   *[electricField] Non-interacting circular wave fronts spread toward detector screen.\n    [realPart] Non-interacting circular wave fronts spread toward detector screen.\n    [imaginaryPart] Non-interacting circular wave fronts spread toward detector screen.\n  }\n  [directToScreen] { $waveDisplayMode ->\n    [amplitude] Solid wave moves directly toward the detector screen.\n   *[electricField] Plane wave fronts move directly toward the detector screen.\n    [realPart] Plane wave fronts move directly toward the detector screen.\n    [imaginaryPart] Plane wave fronts move directly toward the detector screen.\n  }\n *[hittingScreen] { $waveDisplayMode ->\n    [amplitude] Solid wave reached the detector screen.\n   *[electricField] Wave fronts reached the detector screen.\n    [realPart] Wave fronts reached the detector screen.\n    [imaginaryPart] Wave fronts reached the detector screen.\n  }\n}"
       },
@@ -451,12 +445,6 @@
       "leadingParagraph": {
         "value": "Experiment details:"
       },
-      "sourceEmitter": {
-        "value": "{ $sourceType ->\n  [photons] Photon Source Emitter\n  [electrons] Electron Source Emitter\n  [neutrons] Neutron Source Emitter\n *[heliumAtoms] Helium Atom Source Emitter\n} { $isEmitting ->\n  [true] on.\n *[false] off.\n}"
-      },
-      "detectionMode": {
-        "value": "Screen Detection set to { $detectionMode ->\n  [intensity] Intensity Mode.\n *[hits] Hits Mode.\n}"
-      },
       "wavelength": {
         "value": "Wavelength is { $wavelength }, in { $color } zone."
       },
@@ -466,19 +454,11 @@
       "slitConfiguration": {
         "value": "{ $slitSetting ->\n  [bothOpen] Both slits open.\n  [leftCovered] { $slitOrientation ->\n    [topBottom] Top slit covered.\n   *[leftRight] Left slit covered.\n  }\n  [rightCovered] { $slitOrientation ->\n    [topBottom] Bottom slit covered.\n   *[leftRight] Right slit covered.\n  }\n  [leftDetector] { $slitOrientation ->\n    [topBottom] Detector on top slit.\n   *[leftRight] Detector on left slit.\n  }\n  [rightDetector] { $slitOrientation ->\n    [topBottom] Detector on bottom slit.\n   *[leftRight] Detector on right slit.\n  }\n  [noBarrier] No barrier.\n *[bothDetectors] Detector on both slits.\n}"
       },
-      "slitWidth": {
-        "value": "Slit width is { $width }."
-      },
       "slitSeparation": {
         "value": "Slit separation distance is { $distance }."
       },
       "screenDistance": {
         "value": "Barrier-screen distance is { $distance }."
-      }
-    },
-    "particleMass": {
-      "accessibleParagraph": {
-        "value": "{ $sourceType ->\n  [electrons] Electron mass is 9.1 times 10 to the negative 31 kilograms.\n  [neutrons] Neutron mass is 1.7 times 10 to the negative 27 kilograms.\n *[heliumAtoms] Helium atom particle mass is 6.6 times 10 to the negative 27 kilograms.\n}"
       }
     },
     "emitterButton": {
@@ -854,15 +834,6 @@
         },
         "hitsClear": {
           "value": "Across detector screen, evenly-spaced bright bands are { $spacingDescription }, brightest at center."
-        },
-        "hitsSingleSlitEmerging": {
-          "value": "Hits collect in a broad region near the center of the screen, with fewer toward the edges."
-        },
-        "hitsSingleSlitClear": {
-          "value": "{ $envelope ->\n  [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.\n  [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.\n *[brightestAtCenter] Hits form a broad central area that tapers toward the edges.\n}"
-        },
-        "hitsNoBarrier": {
-          "value": "Evenly scattered hits across the detector screen."
         },
         "snapshotHitsNone": {
           "value": "Detector screen is empty. { $hitCount ->\n    [one] Detector screen shows a total of 1 hit.\n   *[other] Detector screen shows a total of { $hitCount } hits.\n} No particles have arrived yet."

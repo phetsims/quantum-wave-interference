@@ -20,7 +20,6 @@ intensity:                       Intensity
 sourceIntensity:                 Source Intensity
 particleSpeed:                   Particle Speed
 emissionRate:                    Emission Rate
-slitsLabelPattern:               'Slits: {{setting}}'
 snapshotLabelValuePattern:       '{{label}}: {{value}}'
 snapshotHeadingPattern:          '{{snapshot}}: {{detectionMode}}'
 electronMassLabel:               'm<sub>e</sub> = 9.1×10<sup>−31</sup> kg'
@@ -624,29 +623,6 @@ a11y:
                                 [true] { $sourceRestartedResponse }
                                *[false] Wave area cleared. Sim still paused.
                               }
-    hitStageChanged:          >-
-                              Hits pattern is now { $hitStage ->
-                                [none] empty.
-                                [few] showing individual scattered hits.
-                                [emerging] { $patternKind ->
-                                  [noBarrier] showing evenly scattered hits.
-                                 *[doubleSlitInterference] forming faint bands.
-                                  [singleSlitDiffraction] showing a broad central area.
-                                  [whichPathDiffraction] showing a broad central area.
-                                }
-                                [developing] { $patternKind ->
-                                  [noBarrier] showing evenly scattered hits.
-                                 *[doubleSlitInterference] forming evenly spaced bands.
-                                  [singleSlitDiffraction] showing a broad central area.
-                                  [whichPathDiffraction] showing a broad central area.
-                                }
-                               *[clear] { $patternKind ->
-                                  [noBarrier] showing evenly scattered hits.
-                                 *[doubleSlitInterference] showing evenly spaced bands.
-                                  [singleSlitDiffraction] showing a broad central area.
-                                  [whichPathDiffraction] showing a broad central area.
-                                }
-                              }
     waveProgressChanged:      >-
                               { $waveProgressStage ->
                                 [sourceOff] Source is off, so no wave is traveling.
@@ -715,21 +691,6 @@ a11y:
     reset:                    Experiment reset. Source is off and detector screen is empty.
   experimentSetupDetails:
     leadingParagraph:           'Experiment details:'
-    sourceEmitter:              >-
-                                { $sourceType ->
-                                  [photons] Photon Source Emitter
-                                  [electrons] Electron Source Emitter
-                                  [neutrons] Neutron Source Emitter
-                                 *[heliumAtoms] Helium Atom Source Emitter
-                                } { $isEmitting ->
-                                  [true] on.
-                                 *[false] off.
-                                }
-    detectionMode:              >-
-                                Screen Detection set to { $detectionMode ->
-                                  [intensity] Intensity Mode.
-                                 *[hits] Hits Mode.
-                                }
     wavelength:                 'Wavelength is { $wavelength }, in { $color } zone.'
     particleSpeed:              'Particle Speed is { $speed }.'
     slitConfiguration:          >-
@@ -754,16 +715,8 @@ a11y:
                                   [noBarrier] No barrier.
                                  *[bothDetectors] Detector on both slits.
                                 }
-    slitWidth:                  'Slit width is { $width }.'
     slitSeparation:             'Slit separation distance is { $distance }.'
     screenDistance:             'Barrier-screen distance is { $distance }.'
-  particleMass:
-    accessibleParagraph: >-
-                         { $sourceType ->
-                           [electrons] Electron mass is 9.1 times 10 to the negative 31 kilograms.
-                           [neutrons] Neutron mass is 1.7 times 10 to the negative 27 kilograms.
-                          *[heliumAtoms] Helium atom particle mass is 6.6 times 10 to the negative 27 kilograms.
-                         }
   emitterButton:
     accessibleName:               >-
                                   { $sourceType ->
@@ -1172,15 +1125,6 @@ a11y:
       hitsDeveloping:                 Evenly-spaced bands more distinct.
       hitsClear:                      >-
                                       Across detector screen, evenly-spaced bright bands are { $spacingDescription }, brightest at center.
-      hitsSingleSlitEmerging:         >-
-                                      Hits collect in a broad region near the center of the screen, with fewer toward the edges.
-      hitsSingleSlitClear:            >-
-                                      { $envelope ->
-                                        [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
-                                        [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
-                                       *[brightestAtCenter] Hits form a broad central area that tapers toward the edges.
-                                      }
-      hitsNoBarrier:                  Evenly scattered hits across the detector screen.
       snapshotHitsNone:               |-
                                       Detector screen is empty. { $hitCount ->
                                           [one] Detector screen shows a total of 1 hit.

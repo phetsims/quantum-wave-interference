@@ -41,7 +41,6 @@ type StringsType = {
   'sourceIntensityStringProperty': LocalizedStringProperty;
   'particleSpeedStringProperty': LocalizedStringProperty;
   'emissionRateStringProperty': LocalizedStringProperty;
-  'slitsLabelPatternStringProperty': LocalizedStringProperty;
   'snapshotLabelValuePatternStringProperty': LocalizedStringProperty;
   'snapshotHeadingPatternStringProperty': LocalizedStringProperty;
   'electronMassLabelStringProperty': LocalizedStringProperty;
@@ -189,24 +188,17 @@ type StringsType = {
       'waveDisplayChangedStringProperty': LocalizedStringProperty;
       'toolChangedStringProperty': LocalizedStringProperty;
       'screenClearedStringProperty': LocalizedStringProperty;
-      'hitStageChangedStringProperty': LocalizedStringProperty;
       'waveProgressChangedStringProperty': LocalizedStringProperty;
       'maxHitsReachedStringProperty': LocalizedStringProperty;
       'resetStringProperty': LocalizedStringProperty;
     };
     'experimentSetupDetails': {
       'leadingParagraphStringProperty': LocalizedStringProperty;
-      'sourceEmitterStringProperty': LocalizedStringProperty;
-      'detectionModeStringProperty': LocalizedStringProperty;
       'wavelengthStringProperty': LocalizedStringProperty;
       'particleSpeedStringProperty': LocalizedStringProperty;
       'slitConfigurationStringProperty': LocalizedStringProperty;
-      'slitWidthStringProperty': LocalizedStringProperty;
       'slitSeparationStringProperty': LocalizedStringProperty;
       'screenDistanceStringProperty': LocalizedStringProperty;
-    };
-    'particleMass': {
-      'accessibleParagraphStringProperty': LocalizedStringProperty;
     };
     'emitterButton': {
       'accessibleNameStringProperty': LocalizedStringProperty;
@@ -386,9 +378,6 @@ type StringsType = {
         'hitsEmergingStringProperty': LocalizedStringProperty;
         'hitsDevelopingStringProperty': LocalizedStringProperty;
         'hitsClearStringProperty': LocalizedStringProperty;
-        'hitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
-        'hitsSingleSlitClearStringProperty': LocalizedStringProperty;
-        'hitsNoBarrierStringProperty': LocalizedStringProperty;
         'snapshotHitsNoneStringProperty': LocalizedStringProperty;
         'snapshotHitsFewStringProperty': LocalizedStringProperty;
         'snapshotHitsEmergingStringProperty': LocalizedStringProperty;
