@@ -13,6 +13,7 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
+import { type DualString } from '../../../../axon/js/AccessibleStrings.js';
 import BooleanProperty from '../../../../axon/js/BooleanProperty.js';
 import DerivedProperty from '../../../../axon/js/DerivedProperty.js';
 import EnumerationProperty from '../../../../axon/js/EnumerationProperty.js';
@@ -25,6 +26,8 @@ import ResetAllButton from '../../../../scenery-phet/js/buttons/ResetAllButton.j
 import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import TimeControlNode from '../../../../scenery-phet/js/TimeControlNode.js';
 import TimeSpeed from '../../../../scenery-phet/js/TimeSpeed.js';
+import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
+import { nanometersUnit } from '../../../../scenery-phet/js/units/nanometersUnit.js';
 import AlignGroup from '../../../../scenery/js/layout/constraints/AlignGroup.js';
 import AlignBox from '../../../../scenery/js/layout/nodes/AlignBox.js';
 import HBox from '../../../../scenery/js/layout/nodes/HBox.js';
@@ -42,11 +45,40 @@ import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import BrightnessControl from './BrightnessControl.js';
 import SnapshotDescriber from './description/SnapshotDescriber.js';
+import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import SnapshotButton from './SnapshotButton.js';
 import SnapshotIndicatorDotsNode from './SnapshotIndicatorDotsNode.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
 import ViewSnapshotsButton from './ViewSnapshotsButton.js';
 import WaveDisplaySection from './WaveDisplaySection.js';
+
+function formatFrontFacingSlitSeparation( slitSepMM: number, snapshot: Snapshot ): DualString {
+  if ( snapshot.sourceType === 'photons' ) {
+    const slitSeparationUM = slitSepMM * 1000;
+    return micrometersUnit.getDualString( slitSeparationUM, {
+      decimalPlaces: QuantumWaveInterferenceConstants.getCompactDecimalPlacesForMaxValue( slitSeparationUM ),
+      showTrailingZeros: true
+    } );
+  }
+
+  const slitSeparationNM = slitSepMM * 1e6;
+  return nanometersUnit.getDualString( slitSeparationNM, {
+    decimalPlaces: QuantumWaveInterferenceConstants.getCompactDecimalPlacesForMaxValue( slitSeparationNM ),
+    showTrailingZeros: true
+  } );
+}
+
+function formatFrontFacingScreenDistance( snapshot: Snapshot ): DualString {
+  const regionWidth = snapshot.screenHalfWidth * 2;
+  const measuringTapeUnits = getMeasuringTapeUnits( regionWidth );
+  const screenDistance = snapshot.screenDistance / regionWidth *
+                         QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH *
+                         measuringTapeUnits.multiplier;
+  return measuringTapeUnits.unit.getDualString( screenDistance, {
+    decimalPlaces: 2,
+    showTrailingZeros: true
+  } );
+}
 
 /**
  * Model state and actions shared by the detector-screen controls on the High Intensity and Single Particles screens.
@@ -203,6 +235,8 @@ export default class DetectorScreenControls extends VBox {
       {
         slitOrientation: options.slitOrientation,
         slitSettingDisplayMap: options.slitSettingDisplayMap,
+        formatSlitSeparation: formatFrontFacingSlitSeparation,
+        formatScreenDistance: formatFrontFacingScreenDistance,
         showScreenDistance: true,
         useFrontFacingHitCoordinates: true,
         getDescription: snapshot => SnapshotDescriber.getDescription( snapshot )

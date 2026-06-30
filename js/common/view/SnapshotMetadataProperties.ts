@@ -43,7 +43,10 @@ export type SnapshotMetadataPropertiesOptions = {
   slitSettingDisplayMap?: Partial<SlitSettingDisplayMap>;
 
   // Formats the visual and accessible slit separation value (in mm). Uses micrometers if < 0.1 mm, else millimeters.
-  formatSlitSeparation?: ( slitSepMM: number ) => DualString;
+  formatSlitSeparation?: ( slitSepMM: number, snapshot: Snapshot ) => DualString;
+
+  // Formats the visual and accessible barrier-screen distance value for a captured snapshot.
+  formatScreenDistance?: ( snapshot: Snapshot ) => DualString;
 
   // When true, a screen distance row is included in the metadata labels.
   showScreenDistance?: boolean;
@@ -90,6 +93,13 @@ function DEFAULT_FORMAT_SLIT_SEPARATION( slitSepMM: number ): DualString {
            decimalPlaces: 2,
            showTrailingZeros: true
          } );
+}
+
+function DEFAULT_FORMAT_SCREEN_DISTANCE( snapshot: Snapshot ): DualString {
+  return metersUnit.getDualString( snapshot.screenDistance, {
+    decimalPlaces: 2,
+    showTrailingZeros: true
+  } );
 }
 
 function ifSnapshot<T>( compute: ( snapshot: Snapshot ) => T, empty: T ): ( snapshot: Snapshot | null ) => T {
@@ -194,6 +204,7 @@ export default class SnapshotMetadataProperties {
     ] as const;
 
     const formatSlitSeparation = options.formatSlitSeparation || DEFAULT_FORMAT_SLIT_SEPARATION;
+    const formatScreenDistance = options.formatScreenDistance || DEFAULT_FORMAT_SCREEN_DISTANCE;
 
     const titleProperty = new DerivedProperty(
       [ snapshotProperty, QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty ],
@@ -232,11 +243,12 @@ export default class SnapshotMetadataProperties {
           QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
           QuantumWaveInterferenceFluent.slitSeparationStringProperty,
           ...micrometersUnit.getDependentProperties(),
-          ...millimetersUnit.getDependentProperties()
+          ...millimetersUnit.getDependentProperties(),
+          ...nanometersUnit.getDependentProperties()
         ] ) ),
         () => ifSnapshot( snapshot => formatLabelValue(
           QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
-          selectString( formatSlitSeparation( snapshot.slitSeparation ) )
+          selectString( formatSlitSeparation( snapshot.slitSeparation, snapshot ) )
         ), '' )( snapshotProperty.value )
       );
 
@@ -246,9 +258,10 @@ export default class SnapshotMetadataProperties {
       Array.from( new Set( [
         snapshotProperty,
         ...micrometersUnit.getDependentProperties(),
-        ...millimetersUnit.getDependentProperties()
+        ...millimetersUnit.getDependentProperties(),
+        ...nanometersUnit.getDependentProperties()
       ] ) ),
-      () => ifSnapshot( snapshot => formatSlitSeparation( snapshot.slitSeparation ).accessibleString, '' )(
+      () => ifSnapshot( snapshot => formatSlitSeparation( snapshot.slitSeparation, snapshot ).accessibleString, '' )(
         snapshotProperty.value
       )
     );
@@ -418,21 +431,18 @@ export default class SnapshotMetadataProperties {
 
     this.screenDistanceProperty = options.showScreenDistance ?
                                   DerivedProperty.deriveAny(
-                                    [
+                                    Array.from( new Set( [
                                       snapshotProperty,
                                       QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty,
                                       QuantumWaveInterferenceFluent.screenDistanceStringProperty,
-                                      ...metersUnit.getDependentProperties()
-                                    ],
+                                      ...metersUnit.getDependentProperties(),
+                                      ...micrometersUnit.getDependentProperties(),
+                                      ...nanometersUnit.getDependentProperties()
+                                    ] ) ),
                                     () => ifSnapshot( snapshot => {
-                                      const screenDistanceValue = metersUnit.getVisualSymbolPatternString(
-                                        snapshot.screenDistance, {
-                                          decimalPlaces: 2,
-                                          showTrailingZeros: true
-                                        } );
                                       return formatLabelValue(
                                         QuantumWaveInterferenceFluent.screenDistanceStringProperty.value,
-                                        screenDistanceValue
+                                        formatScreenDistance( snapshot ).visualString
                                       );
                                     }, '' )( snapshotProperty.value )
                                   ) :
@@ -440,14 +450,13 @@ export default class SnapshotMetadataProperties {
 
     if ( options.showScreenDistance ) {
       const screenDistanceAccessibleValueProperty = DerivedProperty.deriveAny(
-        [
+        Array.from( new Set( [
           snapshotProperty,
-          ...metersUnit.getDependentProperties()
-        ],
-        () => ifSnapshot( snapshot => metersUnit.getAccessibleString( snapshot.screenDistance, {
-          decimalPlaces: 2,
-          showTrailingZeros: true
-        } ), '' )( snapshotProperty.value )
+          ...metersUnit.getDependentProperties(),
+          ...micrometersUnit.getDependentProperties(),
+          ...nanometersUnit.getDependentProperties()
+        ] ) ),
+        () => ifSnapshot( snapshot => formatScreenDistance( snapshot ).accessibleString, '' )( snapshotProperty.value )
       );
       const screenDistanceDescriptionProperty =
         QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.screenDistance.createProperty( {

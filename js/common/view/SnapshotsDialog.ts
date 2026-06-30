@@ -43,7 +43,10 @@ type SnapshotsDialogOptions = {
   slitSettingDisplayMap?: Partial<Record<SlitConfigurationWithNoBarrier, TReadOnlyProperty<string>>>;
 
   // Formats visual and accessible slit separation in millimeters for the snapshot details row.
-  formatSlitSeparation?: ( slitSepMM: number ) => DualString;
+  formatSlitSeparation?: ( slitSepMM: number, snapshot: Snapshot ) => DualString;
+
+  // Formats visual and accessible barrier-screen distance for the snapshot details row.
+  formatScreenDistance?: ( snapshot: Snapshot ) => DualString;
 
   // Whether snapshots should include the screen-distance details row.
   showScreenDistance?: boolean;
@@ -102,6 +105,7 @@ export default class SnapshotsDialog extends Dialog {
         slitOrientation: providedOptions?.slitOrientation,
         slitSettingDisplayMap: providedOptions?.slitSettingDisplayMap,
         formatSlitSeparation: providedOptions?.formatSlitSeparation,
+        formatScreenDistance: providedOptions?.formatScreenDistance,
         showScreenDistance: providedOptions?.showScreenDistance,
         getDescription: providedOptions?.getDescription,
         useFrontFacingHitCoordinates: providedOptions?.useFrontFacingHitCoordinates,
