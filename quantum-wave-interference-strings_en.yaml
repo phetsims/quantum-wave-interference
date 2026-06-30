@@ -417,13 +417,13 @@ a11y:
                                     }
                                    *[false] Hits begin to form faint bands.
                                   }
-                                  [singleSlitDiffraction] Hits collect in a broad region near the center of the screen, with fewer toward the edges.
+                                  [singleSlitDiffraction] Hits collect in broad central area, fewer hits toward edges.
                                   [whichPathDiffraction] { $envelope ->
                                     [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
                                     [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
-                                   *[brightestAtCenter] Hits collect in a broad region near the center of the screen, with fewer toward the edges.
+                                   *[brightestAtCenter] Hits collect in broad central area, fewer hits toward edges.
                                   }
-                                 *[noBarrier] Evenly scattered hits across the detector screen.
+                                 *[noBarrier] Hits build up evenly across detector screen.
                                 }
                                 [developing] { $patternKind ->
                                   [doubleSlitInterference] { $doubleSlitClustering ->
@@ -434,15 +434,15 @@ a11y:
                                     }
                                    *[false] Evenly-spaced bands more distinct.
                                   }
-                                  [singleSlitDiffraction] Hits form a broad central area that tapers toward the edges.
+                                  [singleSlitDiffraction] Hits collect in broad central area, fewer hits toward edges.
                                   [whichPathDiffraction] { $envelope ->
                                     [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
                                     [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
-                                   *[brightestAtCenter] Hits form a broad central area that tapers toward the edges.
+                                   *[brightestAtCenter] Hits collect in broad central area, fewer hits toward edges.
                                   }
-                                 *[noBarrier] Evenly scattered hits collect across the detector screen.
+                                 *[noBarrier] Hits scatter evenly from edge to edge.
                                 }
-                               *[clear] { $patternKind ->
+                               *[steadyStatePattern] { $patternKind ->
                                   [doubleSlitInterference] { $doubleSlitClustering ->
                                     [true] { $envelope ->
                                       [clusteringIntoTwoFaintSections] Across detector screen, evenly-spaced bright bands are grouped into two close areas.
@@ -451,13 +451,13 @@ a11y:
                                     }
                                    *[false] Across detector screen, evenly-spaced bright bands are { a11y.detectorScreen.bandSpacingDescription }, brightest at center.
                                   }
-                                  [singleSlitDiffraction] Hits form a broad central area that tapers toward the edges.
+                                  [singleSlitDiffraction] Across detector screen, hits form broad central bright area with fewer hits toward edges.
                                   [whichPathDiffraction] { $envelope ->
                                     [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
                                     [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
-                                   *[brightestAtCenter] Hits form a broad central area that tapers toward the edges.
+                                   *[brightestAtCenter] Across detector screen, hits form broad central bright area with fewer hits toward edges.
                                   }
-                                 *[noBarrier] Evenly scattered hits collect across the detector screen.
+                                 *[noBarrier] Across detector screen, hits form uniform glow from edge to edge.
                                 }
                               }
                             }
@@ -935,21 +935,23 @@ a11y:
                                 [clusteringIntoTwoDistinctSections] Taller bars at regular intervals are grouped into two distinct areas.
                                *[brightestAtCenter] Taller bars at regular intervals, with shorter bars between them. { $spatialDescription }
                               }
-      hitsClear:              >-
+      hitsSteadyStatePattern: >-
                               { $envelope ->
                                 [clusteringIntoTwoFaintSections] Histogram shows repeated peaks grouped into two close areas, with lower bars between peaks.
                                 [clusteringIntoTwoDistinctSections] Histogram shows repeated peaks grouped into two distinct areas, with lower bars between peaks.
                                *[brightestAtCenter] Histogram shows a tall central peak with repeating side peaks and lower bars between them. { $spatialDescription }
                               }
       hitsSingleSlitEmerging: >-
-                              Histogram growing, with taller bars near center and shorter bars toward edges.
+                              Histogram growing in broad central area, with fewer hits toward edges.
       hitsSingleSlitClear:    >-
                               { $envelope ->
                                 [clusteringIntoTwoFaintSections] Histogram shows two peaks that are close together.
                                 [clusteringIntoTwoDistinctSections] Histogram shows two distinct peaks.
-                               *[brightestAtCenter] Histogram shows a broad central peak that tapers toward edges.
+                               *[brightestAtCenter] Histogram shows broad central peak with fewer hits toward edges.
                               }
-      hitsNoBarrier:          Histogram shows evenly distributed hits across graph.
+      hitsNoBarrierEmerging:  Histogram builds up evenly across graph.
+      hitsNoBarrierDeveloping: Histogram bars scatter evenly from edge to edge.
+      hitsNoBarrierSteadyStatePattern: Histogram shows uniform hits from edge to edge.
     zoomButtonGroup:
       accessibleParagraph: '{ a11y.zoomButtonGroup.sixLevelAccessibleParagraph }'
   zoomButtonGroup:
@@ -1003,7 +1005,7 @@ a11y:
       hitsFew:                        Individual scattered hits on detector screen.
       hitsEmerging:                   Hits begin to form faint bands.
       hitsDeveloping:                 Evenly-spaced bands more distinct.
-      hitsClear:                      >-
+      hitsSteadyStatePattern:         >-
                                       Across detector screen, evenly-spaced bright bands are { $spacingDescription }, brightest at center.
       snapshotHitsNone:               |-
                                       Detector screen is empty. { a11y.detectorScreen.snapshotHitTotal } No particles have arrived yet.
@@ -1021,7 +1023,7 @@ a11y:
                                         [clusteringIntoTwoDistinctSections] Individual impacts are gathering into evenly-spaced bands grouped into two distinct areas.
                                        *[brightestAtCenter] Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $spatialDescription }
                                       } { a11y.detectorScreen.snapshotHitTotal }
-      snapshotHitsClear:              |-
+      snapshotHitsSteadyStatePattern: |-
                                       { $envelope ->
                                         [clusteringIntoTwoFaintSections] Distinct vertical bands are grouped into two close areas.
                                         [clusteringIntoTwoDistinctSections] Distinct vertical bands are grouped into two distinct areas.
@@ -1031,16 +1033,20 @@ a11y:
                                       { $envelope ->
                                         [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
                                         [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
-                                       *[brightestAtCenter] Hits collect in a broad region near the center of the screen, with fewer toward the edges.
+                                       *[brightestAtCenter] Hits collect in broad central area, fewer hits toward edges.
                                       } { a11y.detectorScreen.snapshotHitTotal }
       snapshotHitsSingleSlitClear:    |-
                                       { $envelope ->
                                         [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
                                         [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
-                                       *[brightestAtCenter] Hits form a broad central area that tapers toward the edges.
+                                       *[brightestAtCenter] Across detector screen, hits form broad central bright area with fewer hits toward edges.
                                       } { a11y.detectorScreen.snapshotHitTotal }
-      snapshotHitsNoBarrier:          |-
-                                      Evenly scattered hits across the detector screen. { a11y.detectorScreen.snapshotHitTotal }
+      snapshotHitsNoBarrierEmerging:  |-
+                                      Hits build up evenly across detector screen. { a11y.detectorScreen.snapshotHitTotal }
+      snapshotHitsNoBarrierDeveloping: |-
+                                      Hits scatter evenly from edge to edge. { a11y.detectorScreen.snapshotHitTotal }
+      snapshotHitsNoBarrierSteadyStatePattern: |-
+                                      Across detector screen, hits form uniform glow from edge to edge. { a11y.detectorScreen.snapshotHitTotal }
     spatialDescription:
       rulerDoubleSlit:
         select_style:

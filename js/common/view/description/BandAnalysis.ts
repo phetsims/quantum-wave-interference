@@ -32,7 +32,7 @@ type TheoreticalPatternScene = {
 
 // Qualitative stage of hit accumulation, used by describers to select which description string to show and to throttle
 // updates so they only fire at pedagogically meaningful thresholds.
-export type HitStage = 'none' | 'few' | 'emerging' | 'developing' | 'clear';
+export type HitStage = 'none' | 'few' | 'emerging' | 'developing' | 'steadyStatePattern';
 
 type NonEmptyHitStage = Exclude<HitStage, 'none'>;
 
@@ -46,13 +46,13 @@ type HitStageThreshold = {
 // Hit-stage thresholds, as inclusive minima:
 // 1+   few        individual scattered hits
 // 188+ emerging   faint bands begin forming
-// 375+ developing bands become more distinct
-// 563+ clear      stable band-spacing description, filled from the current geometry
+// 300+ developing bands become more distinct
+// 563+ steadyStatePattern stable band-spacing description, filled from the current geometry
 const HIT_STAGE_THRESHOLDS: readonly HitStageThreshold[] = [
   { minimumHits: 1, hitStage: 'few' },
   { minimumHits: 188, hitStage: 'emerging' },
-  { minimumHits: 375, hitStage: 'developing' },
-  { minimumHits: 563, hitStage: 'clear' }
+  { minimumHits: 300, hitStage: 'developing' },
+  { minimumHits: 563, hitStage: 'steadyStatePattern' }
 ];
 
 // Seven-point qualitative scale for the spacing between adjacent double-slit bright bands,

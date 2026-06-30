@@ -359,10 +359,12 @@ type StringsType = {
         'hitsFewStringProperty': LocalizedStringProperty;
         'hitsEmergingStringProperty': LocalizedStringProperty;
         'hitsDevelopingStringProperty': LocalizedStringProperty;
-        'hitsClearStringProperty': LocalizedStringProperty;
+        'hitsSteadyStatePatternStringProperty': LocalizedStringProperty;
         'hitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
         'hitsSingleSlitClearStringProperty': LocalizedStringProperty;
-        'hitsNoBarrierStringProperty': LocalizedStringProperty;
+        'hitsNoBarrierEmergingStringProperty': LocalizedStringProperty;
+        'hitsNoBarrierDevelopingStringProperty': LocalizedStringProperty;
+        'hitsNoBarrierSteadyStatePatternStringProperty': LocalizedStringProperty;
       };
       'zoomButtonGroup': {
         'accessibleParagraphStringProperty': LocalizedStringProperty;
@@ -389,15 +391,17 @@ type StringsType = {
         'hitsFewStringProperty': LocalizedStringProperty;
         'hitsEmergingStringProperty': LocalizedStringProperty;
         'hitsDevelopingStringProperty': LocalizedStringProperty;
-        'hitsClearStringProperty': LocalizedStringProperty;
+        'hitsSteadyStatePatternStringProperty': LocalizedStringProperty;
         'snapshotHitsNoneStringProperty': LocalizedStringProperty;
         'snapshotHitsFewStringProperty': LocalizedStringProperty;
         'snapshotHitsEmergingStringProperty': LocalizedStringProperty;
         'snapshotHitsDevelopingStringProperty': LocalizedStringProperty;
-        'snapshotHitsClearStringProperty': LocalizedStringProperty;
+        'snapshotHitsSteadyStatePatternStringProperty': LocalizedStringProperty;
         'snapshotHitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
         'snapshotHitsSingleSlitClearStringProperty': LocalizedStringProperty;
-        'snapshotHitsNoBarrierStringProperty': LocalizedStringProperty;
+        'snapshotHitsNoBarrierEmergingStringProperty': LocalizedStringProperty;
+        'snapshotHitsNoBarrierDevelopingStringProperty': LocalizedStringProperty;
+        'snapshotHitsNoBarrierSteadyStatePatternStringProperty': LocalizedStringProperty;
       };
       'spatialDescription': {
         'rulerDoubleSlitStringProperty': LocalizedStringProperty;

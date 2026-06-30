@@ -101,7 +101,7 @@ export default class GraphDescriber {
                                       envelope: 'brightestAtCenter',
                                       spatialDescription: spatialDescription
                                     } ) :
-                                    newStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsClear.format( {
+                                    newStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSteadyStatePattern.format( {
                                       envelope: 'brightestAtCenter',
                                       spatialDescription: spatialDescription
                                     } ) :
@@ -110,15 +110,16 @@ export default class GraphDescriber {
       else if ( isNoBarrier ) {
         descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
                                     newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
-                                    ( newStage === 'emerging' || newStage === 'developing' || newStage === 'clear' ) ?
-                                    QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierStringProperty.value :
+                                    newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierEmergingStringProperty.value :
+                                    newStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierDevelopingStringProperty.value :
+                                    newStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierSteadyStatePatternStringProperty.value :
                                     ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
       }
       else {
         descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
                                     newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
                                     newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value :
-                                    ( newStage === 'developing' || newStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitClear.format( {
+                                    ( newStage === 'developing' || newStage === 'steadyStatePattern' ) ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitClear.format( {
                                       envelope: envelope
                                     } ) :
                                     ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();

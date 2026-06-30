@@ -69,7 +69,7 @@ export function formatDetectorPatternDescription(
   patternFormation: QuantumWaveInterferencePatternFormation,
   patternKind: QuantumWaveInterferencePatternKind,
   waveDisplayMode: WaveDisplayMode = 'electricField',
-  hitStage: HitStage = 'clear',
+  hitStage: HitStage = 'steadyStatePattern',
   bandSpacing: BandAnalysisResult[ 'spacingCategory' ] = 'somewhatCloseTogether',
   envelope: EnvelopeCategory = 'brightestAtCenter',
   bandSpacingDescription?: string,
@@ -86,8 +86,8 @@ export function formatDetectorPatternDescription(
         spacingDescription: bandSpacingDescription
       } );
     }
-    if ( detectionMode === 'hits' && hitStage === 'clear' ) {
-      return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( {
+    if ( detectionMode === 'hits' && hitStage === 'steadyStatePattern' ) {
+      return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSteadyStatePattern.format( {
         spacingDescription: bandSpacingDescription
       } );
     }
@@ -125,7 +125,7 @@ export function formatCompleteIntensityDetectorPatternDescription(
     'complete',
     getPatternKind( slitConfiguration ),
     'electricField',
-    'clear',
+    'steadyStatePattern',
     analysis.spacingCategory,
     analysis.envelopeCategory,
     bandSpacingDescription,
@@ -193,7 +193,7 @@ export function formatLiveHitsDescription(
   // share the same hit-stage decision tree but target different Fluent strings and count arguments.
   if ( patternKind === 'doubleSlitInterference' ) {
     if ( allowDoubleSlitClustering ) {
-      return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'clear' ) ?
+      return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'steadyStatePattern' ) ?
              formatDetectorPatternDescription(
                true,
                'hits',
@@ -211,13 +211,13 @@ export function formatLiveHitsDescription(
 
     return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsEmergingStringProperty.value :
            hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsDevelopingStringProperty.value :
-           hitStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsClear.format( {
-                                  spacingDescription: bandSpacingDescription
-                                } ) :
+           hitStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.hitsSteadyStatePattern.format( {
+                                             spacingDescription: bandSpacingDescription
+                                           } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
   else {
-    return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'clear' ) ?
+    return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'steadyStatePattern' ) ?
            formatDetectorPatternDescription(
              true,
              'hits',
@@ -272,16 +272,23 @@ export function formatSnapshotHitsDescription(
                                        hitCount: hitCount,
                                        spatialDescription: spatialDescription
                                      } ) :
-           hitStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsClear.format( {
-                                  envelope: envelope,
-                                  hitCount: hitCount,
-                                  spatialDescription: spatialDescription
-                                } ) :
+           hitStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSteadyStatePattern.format( {
+                                             envelope: envelope,
+                                             hitCount: hitCount,
+                                             spatialDescription: spatialDescription
+                                           } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
   else if ( patternKind === 'noBarrier' ) {
-    return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'clear' ) ?
-           QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNoBarrier.format( { hitCount: hitCount } ) :
+    return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNoBarrierEmerging.format( {
+             hitCount: hitCount
+           } ) :
+           hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNoBarrierDeveloping.format( {
+                                       hitCount: hitCount
+                                     } ) :
+           hitStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNoBarrierSteadyStatePattern.format( {
+                                             hitCount: hitCount
+                                           } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
   else {
@@ -289,10 +296,10 @@ export function formatSnapshotHitsDescription(
              envelope: envelope,
              hitCount: hitCount
            } ) :
-           ( hitStage === 'developing' || hitStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitClear.format( {
-                                                                   envelope: envelope,
-                                                                   hitCount: hitCount
-                                                                 } ) :
+           ( hitStage === 'developing' || hitStage === 'steadyStatePattern' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitClear.format( {
+                                                                                envelope: envelope,
+                                                                                hitCount: hitCount
+                                                                              } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
 }

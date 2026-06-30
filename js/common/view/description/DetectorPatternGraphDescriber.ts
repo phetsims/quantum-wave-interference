@@ -45,9 +45,10 @@ export default class DetectorPatternGraphDescriber {
 
   /**
    * Reactive string description of the current detector-pattern graph state. Updates whenever the qualitative hit
-   * stage crosses a pedagogical threshold (none → few → emerging → developing → clear), whenever the scene switches,
-   * or whenever any physics parameter that changes the spatial description changes (wavelength, slit separation, etc.).
-   * Callers should bind this to an accessibleParagraph on a PDOM Node so screen readers receive the updated text.
+   * stage crosses a pedagogical threshold (none → few → emerging → developing → steadyStatePattern), whenever the
+   * scene switches, or whenever any physics parameter that changes the spatial description changes (wavelength, slit
+   * separation, etc.). Callers should bind this to an accessibleParagraph on a PDOM Node so screen readers receive the
+   * updated text.
    */
   public readonly descriptionProperty: TReadOnlyProperty<string>;
 
@@ -122,7 +123,7 @@ export default class DetectorPatternGraphDescriber {
                                       envelope: envelope,
                                       spatialDescription: spatialDescription
                                     } ) :
-                                    newStage === 'clear' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsClear.format( {
+                                    newStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSteadyStatePattern.format( {
                                       envelope: envelope,
                                       spatialDescription: spatialDescription
                                     } ) :
@@ -131,15 +132,16 @@ export default class DetectorPatternGraphDescriber {
       else if ( isNoBarrier ) {
         descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
                                     newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
-                                    ( newStage === 'emerging' || newStage === 'developing' || newStage === 'clear' ) ?
-                                    QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierStringProperty.value :
+                                    newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierEmergingStringProperty.value :
+                                    newStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierDevelopingStringProperty.value :
+                                    newStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierSteadyStatePatternStringProperty.value :
                                     ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
       }
       else {
         descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
                                     newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
                                     newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value :
-                                    ( newStage === 'developing' || newStage === 'clear' ) ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitClear.format( {
+                                    ( newStage === 'developing' || newStage === 'steadyStatePattern' ) ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitClear.format( {
                                       envelope: envelope
                                     } ) :
                                     ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
