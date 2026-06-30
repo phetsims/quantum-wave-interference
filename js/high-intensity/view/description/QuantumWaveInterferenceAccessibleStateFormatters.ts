@@ -31,13 +31,6 @@ export function toFluentBoolean( value: boolean ): FluentBoolean {
   return value ? 'true' : 'false';
 }
 
-type SingleSlitLocationKey = 'leftCovered' | 'rightCovered';
-
-function getSingleSlitLocationKey( state: HighIntensitySemanticAccessibleViewState ): SingleSlitLocationKey {
-  return state.slitConfiguration === 'leftCovered' ? 'leftCovered' :
-         'rightCovered';
-}
-
 /**
  * Formats a localized string describing the current beam/source state (emission status, source type, wavelength color,
  * wavefront spacing, display mode, and slit configuration). Used in both transition context responses and
@@ -133,7 +126,6 @@ export const formatDetectorDescription = (
     patternFormation,
     state.patternKind,
     state.waveDisplayMode,
-    getSingleSlitLocationKey( state ),
     state.hitStage,
     state.bandSpacingDescription,
     state.envelopeCategory,

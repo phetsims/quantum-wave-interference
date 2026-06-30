@@ -360,6 +360,7 @@ type StringsType = {
     };
     'zoomButtonGroup': {
       'zoomLevelResponseStringProperty': LocalizedStringProperty;
+      'sixLevelAccessibleParagraphStringProperty': LocalizedStringProperty;
     };
     'detectorScreen': {
       'maxHitsReached': {

@@ -359,16 +359,7 @@ a11y:
       accessibleHelpText: Use added detector probe to measure probability of detecting particle in circular region of wave area.
     detectorPatternGraph:
       zoomButtonGroup:
-        accessibleParagraph: |-
-                             { $level ->
-                               [1] Zoom level 1.
-                               [2] Zoom level 2.
-                               [3] Zoom level 3.
-                               [4] Zoom level 4.
-                               [5] Zoom level 5.
-                               [6] Zoom level 6.
-                              *[other] Zoom level { $level }.
-                             } Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph.
+        accessibleParagraph: '{ a11y.zoomButtonGroup.sixLevelAccessibleParagraph }'
   waveExperimentState:
     sourceBeam:           >-
                           { $isEmitting ->
@@ -412,10 +403,7 @@ a11y:
                                 [empty] Detector screen is empty while the wave travels toward it.
                                 [forming] { $patternKind ->
                                   [doubleSlitInterference] Evenly-spaced bright bands form on detector screen.
-                                  [singleSlitDiffraction] { $slitSetting ->
-                                    [leftCovered] Broad central area forms on detector screen.
-                                   *[rightCovered] Broad central area forms on detector screen.
-                                  }
+                                  [singleSlitDiffraction] Broad central area forms on detector screen.
                                   [whichPathDiffraction] Broad central area forms on detector screen.
                                  *[noBarrier] { $waveDisplayMode ->
                                     [amplitude] Solid wave forms uniform glow on detector screen.
@@ -429,30 +417,11 @@ a11y:
                                     [true] { $envelope ->
                                       [clusteringIntoTwoFaintSections] Across detector screen, evenly-spaced bright bands are grouped into two close areas.
                                       [clusteringIntoTwoDistinctSections] Across detector screen, evenly-spaced bright bands are grouped into two distinct areas.
-                                     *[brightestAtCenter] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
-                                        [extremelyFarApart] extremely far apart
-                                        [veryFarApart] very far apart
-                                        [farApart] far apart
-                                        [somewhatCloseTogether] somewhat close together
-                                        [closeTogether] close together
-                                        [veryCloseTogether] very close together
-                                       *[extremelyCloseTogether] extremely close together
-                                      }, brightest at center.
+                                     *[brightestAtCenter] Across detector screen, evenly-spaced bright bands are { a11y.detectorScreen.bandSpacingDescription }, brightest at center.
                                     }
-                                   *[false] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
-                                      [extremelyFarApart] extremely far apart
-                                      [veryFarApart] very far apart
-                                      [farApart] far apart
-                                      [somewhatCloseTogether] somewhat close together
-                                      [closeTogether] close together
-                                      [veryCloseTogether] very close together
-                                     *[extremelyCloseTogether] extremely close together
-                                    }, brightest at center.
+                                   *[false] Across detector screen, evenly-spaced bright bands are { a11y.detectorScreen.bandSpacingDescription }, brightest at center.
                                   }
-                                  [singleSlitDiffraction] { $slitSetting ->
-                                    [leftCovered] Across detector screen is a broad central area that tapers toward the edges, brightest at center.
-                                   *[rightCovered] Across detector screen is a broad central area that tapers toward the edges, brightest at center.
-                                  }
+                                  [singleSlitDiffraction] Across detector screen is a broad central area that tapers toward the edges, brightest at center.
                                   [whichPathDiffraction] { $envelope ->
                                     [clusteringIntoTwoFaintSections] Across detector screen, brightness is closely clustering into two areas, directly across from the slits.
                                     [clusteringIntoTwoDistinctSections] Across detector screen are two distinct bright areas, directly across from the slits, each fading toward its edges.
@@ -506,25 +475,9 @@ a11y:
                                     [true] { $envelope ->
                                       [clusteringIntoTwoFaintSections] Across detector screen, evenly-spaced bright bands are grouped into two close areas.
                                       [clusteringIntoTwoDistinctSections] Across detector screen, evenly-spaced bright bands are grouped into two distinct areas.
-                                     *[brightestAtCenter] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
-                                        [extremelyFarApart] extremely far apart
-                                        [veryFarApart] very far apart
-                                        [farApart] far apart
-                                        [somewhatCloseTogether] somewhat close together
-                                        [closeTogether] close together
-                                        [veryCloseTogether] very close together
-                                       *[extremelyCloseTogether] extremely close together
-                                      }, brightest at center.
+                                     *[brightestAtCenter] Across detector screen, evenly-spaced bright bands are { a11y.detectorScreen.bandSpacingDescription }, brightest at center.
                                     }
-                                   *[false] Across detector screen, evenly-spaced bright bands are { $bandSpacing ->
-                                      [extremelyFarApart] extremely far apart
-                                      [veryFarApart] very far apart
-                                      [farApart] far apart
-                                      [somewhatCloseTogether] somewhat close together
-                                      [closeTogether] close together
-                                      [veryCloseTogether] very close together
-                                     *[extremelyCloseTogether] extremely close together
-                                    }, brightest at center.
+                                   *[false] Across detector screen, evenly-spaced bright bands are { a11y.detectorScreen.bandSpacingDescription }, brightest at center.
                                   }
                                   [singleSlitDiffraction] Hits form a broad central area that tapers toward the edges.
                                   [whichPathDiffraction] { $envelope ->
@@ -1018,16 +971,7 @@ a11y:
                                          *[hits] Hits histogram hidden.
                                         }
     zoomButtonGroup:
-      accessibleParagraph: |-
-                           { $level ->
-                             [1] Zoom level 1.
-                             [2] Zoom level 2.
-                             [3] Zoom level 3.
-                             [4] Zoom level 4.
-                             [5] Zoom level 5.
-                             [6] Zoom level 6.
-                            *[other] Zoom level { $level }.
-                           } Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph.
+      accessibleParagraph: '{ a11y.zoomButtonGroup.sixLevelAccessibleParagraph }'
   detectorPatternGraph:
     accessibleParagraph:
       intensityOff:           Graph is empty. Source is off.
@@ -1075,18 +1019,21 @@ a11y:
                               }
       hitsNoBarrier:          Histogram shows evenly distributed hits across graph.
     zoomButtonGroup:
-      accessibleParagraph: |-
-                           { $level ->
-                             [1] Zoom level 1.
-                             [2] Zoom level 2.
-                             [3] Zoom level 3.
-                             [4] Zoom level 4.
-                             [5] Zoom level 5.
-                             [6] Zoom level 6.
-                            *[other] Zoom level { $level }.
-                           } Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph.
+      accessibleParagraph: '{ a11y.zoomButtonGroup.sixLevelAccessibleParagraph }'
   zoomButtonGroup:
     zoomLevelResponse: 'Zoom level { $level } of { $max }.'
+    # Shared 6-level zoom-button help paragraph, referenced by the graph zoom controls on the High Intensity and
+    # Single Particles screens. Defined once here so the wording stays in sync across those controls.
+    sixLevelAccessibleParagraph: |-
+                                 { $level ->
+                                   [1] Zoom level 1.
+                                   [2] Zoom level 2.
+                                   [3] Zoom level 3.
+                                   [4] Zoom level 4.
+                                   [5] Zoom level 5.
+                                   [6] Zoom level 6.
+                                  *[other] Zoom level { $level }.
+                                 } Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph.
   detectorScreen:
     maxHitsReached:
       accessibleContextResponse: Maximum number of hits reached. Source is off. Clear detector screen to make more observations.

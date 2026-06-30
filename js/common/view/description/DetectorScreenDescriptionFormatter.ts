@@ -16,14 +16,7 @@ import { getPatternKind, type QuantumWaveInterferencePatternKind } from './getPa
 
 export type QuantumWaveInterferencePatternFormation = 'empty' | 'forming' | 'complete' | 'collectingHits' | 'paused' | 'notApplicable';
 
-type SingleSlitLocationKey = 'leftCovered' | 'rightCovered';
-
 const MINIMUM_NUMERIC_BAND_SPACING_MM = 0.1;
-
-function getSingleSlitLocationKey( slitConfiguration: SlitConfigurationWithNoBarrier ): SingleSlitLocationKey {
-  return slitConfiguration === 'leftCovered' ? 'leftCovered' :
-         'rightCovered';
-}
 
 /**
  * Formats one of the existing qualitative band-spacing categories for insertion into detector-screen descriptions.
@@ -62,7 +55,6 @@ export function formatMeasuredBandSpacingDescription( averageSpacingMM: number )
  * @param patternKind - kind of detector pattern produced by the current setup
  * @param waveDisplayMode - current wave display mode; defaults to electric field for callers where the selected
  *   branch does not use wave display mode
- * @param slitSetting - current slit setting, used by single-slit branches
  * @param hitStage - current hit accumulation stage
  * @param bandSpacing - qualitative spacing between bright bands
  * @param envelope - qualitative single-slit envelope category; drives whether the pattern reads as a single central
@@ -77,7 +69,6 @@ export function formatDetectorPatternDescription(
   patternFormation: QuantumWaveInterferencePatternFormation,
   patternKind: QuantumWaveInterferencePatternKind,
   waveDisplayMode: WaveDisplayMode = 'electricField',
-  slitSetting: SingleSlitLocationKey = 'rightCovered',
   hitStage: HitStage = 'clear',
   bandSpacing: BandAnalysisResult[ 'spacingCategory' ] = 'somewhatCloseTogether',
   envelope: EnvelopeCategory = 'brightestAtCenter',
@@ -108,9 +99,8 @@ export function formatDetectorPatternDescription(
     patternFormation: patternFormation,
     patternKind: patternKind,
     waveDisplayMode: waveDisplayMode,
-    slitSetting: slitSetting,
     hitStage: hitStage,
-    bandSpacing: bandSpacing,
+    spacing: bandSpacing,
     envelope: envelope,
     doubleSlitClustering: allowDoubleSlitClustering ? 'true' : 'false'
   } );
@@ -136,7 +126,6 @@ export function formatCompleteIntensityDetectorPatternDescription(
     'complete',
     getPatternKind( slitConfiguration ),
     'electricField',
-    getSingleSlitLocationKey( slitConfiguration ),
     'clear',
     analysis.spacingCategory,
     analysis.envelopeCategory,
@@ -212,7 +201,6 @@ export function formatLiveHitsDescription(
                'collectingHits',
                patternKind,
                'electricField',
-               getSingleSlitLocationKey( slitConfiguration ),
                hitStage,
                analysis.spacingCategory,
                analysis.envelopeCategory,
@@ -237,7 +225,6 @@ export function formatLiveHitsDescription(
              'collectingHits',
              patternKind,
              'electricField',
-             getSingleSlitLocationKey( slitConfiguration ),
              hitStage,
              analysis.spacingCategory,
              analysis.envelopeCategory
