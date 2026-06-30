@@ -387,11 +387,11 @@ a11y:
                                     }
                                    *[false] Across detector screen, evenly-spaced bright bands are { a11y.detectorScreen.bandSpacingDescription }, brightest at center.
                                   }
-                                  [singleSlitDiffraction] Across detector screen is a broad central area that tapers toward the edges, brightest at center.
+                                  [singleSlitDiffraction] Across detector screen, a broad central bright area tapers toward edges.
                                   [whichPathDiffraction] { $envelope ->
                                     [clusteringIntoTwoFaintSections] Across detector screen, brightness is closely clustering into two areas, directly across from the slits.
                                     [clusteringIntoTwoDistinctSections] Across detector screen are two distinct bright areas, directly across from the slits, each fading toward its edges.
-                                   *[brightestAtCenter] Across detector screen is a broad central area that tapers toward the edges, brightest at center.
+                                   *[brightestAtCenter] Across detector screen, a broad central bright area tapers toward edges.
                                   }
                                  *[noBarrier] Across detector screen is a uniform glow from edge to edge.
                                 }
