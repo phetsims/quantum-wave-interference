@@ -382,12 +382,7 @@ a11y:
                                     [clusteringIntoTwoDistinctSections] Two distinct bright areas form on detector screen, directly across from the slits.
                                    *[brightestAtCenter] Broad central area forms on detector screen.
                                   }
-                                 *[noBarrier] { $waveDisplayMode ->
-                                    [amplitude] Solid wave forms uniform glow on detector screen.
-                                   *[electricField] Plane wave fronts form uniform glow on detector screen.
-                                    [realPart] Plane wave fronts form uniform glow on detector screen.
-                                    [imaginaryPart] Plane wave fronts form uniform glow on detector screen.
-                                  }
+                                 *[noBarrier] Uniform glow forms on detector screen.
                                 }
                                 [complete] { $patternKind ->
                                   [doubleSlitInterference] { $doubleSlitClustering ->
@@ -404,7 +399,7 @@ a11y:
                                     [clusteringIntoTwoDistinctSections] Across detector screen are two distinct bright areas, directly across from the slits, each fading toward its edges.
                                    *[brightestAtCenter] Across detector screen, a broad central bright area tapers toward edges.
                                   }
-                                 *[noBarrier] Across detector screen is a uniform glow from edge to edge.
+                                 *[noBarrier] Across detector screen, uniform glow spans edge to edge.
                                 }
                                 [paused] Detector pattern formation is paused.
                                 [notApplicable] Detector pattern status is unavailable for the current setup.

@@ -98,7 +98,6 @@ export function formatDetectorPatternDescription(
     detectionMode: detectionMode,
     patternFormation: patternFormation,
     patternKind: patternKind,
-    waveDisplayMode: waveDisplayMode,
     hitStage: hitStage,
     spacing: bandSpacing,
     envelope: envelope,
