@@ -148,6 +148,11 @@ type StringsType = {
       'lowercasePluralStringProperty': LocalizedStringProperty;
       'sentenceCaseSingularStringProperty': LocalizedStringProperty;
     };
+    'experimentStateClauses': {
+      'slitConfigurationStringProperty': LocalizedStringProperty;
+      'detectionResultStringProperty': LocalizedStringProperty;
+      'detectionResultSourceOffStringProperty': LocalizedStringProperty;
+    };
     'sourceWaveFragments': {
       'lowercaseColorStringProperty': LocalizedStringProperty;
       'capitalizedColorAndBlackStringProperty': LocalizedStringProperty;

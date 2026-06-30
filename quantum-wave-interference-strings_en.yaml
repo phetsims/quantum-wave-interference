@@ -118,85 +118,15 @@ a11y:
                                [false] sim is paused. { $isMaxHitsReached ->
                                  [true] Source is off. Max number of { a11y.particleNouns.lowercaseSingular } hits reached. Detector screen shows hits pattern.
                                 *[false] { $isEmitting ->
-                                   [true] Source emits { a11y.particleNouns.lowercasePlural } directly at double-slit barrier with { $slitSetting ->
-                                     [bothOpen] both slits open
-                                     [leftCovered] { $slitOrientation ->
-                                       [topBottom] top slit covered
-                                      *[leftRight] left slit covered
-                                     }
-                                     [rightCovered] { $slitOrientation ->
-                                       [topBottom] bottom slit covered
-                                      *[leftRight] right slit covered
-                                     }
-                                     [leftDetector] { $slitOrientation ->
-                                       [topBottom] detector on top slit
-                                      *[leftRight] detector on left slit
-                                     }
-                                     [rightDetector] { $slitOrientation ->
-                                       [topBottom] detector on bottom slit
-                                      *[leftRight] detector on right slit
-                                     }
-                                     [noBarrier] no barrier
-                                    *[bothDetectors] detectors on both slits
-                                   }. { $detectionMode ->
-                                     [intensity] { $hasHits ->
-                                       [true] Detector screen shows intensity pattern.
-                                      *[false] Detector screen is empty.
-                                     }
-                                    *[hits] { $hasHits ->
-                                       [false] Detector screen has no hits.
-                                      *[true] Detector screen shows hits pattern.
-                                     }
-                                   }
-                                  *[false] Source is off. { $detectionMode ->
-                                     [intensity] Detector screen is empty.
-                                    *[hits] { $hasHits ->
-                                       [false] Detector screen is empty.
-                                      *[true] Detector screen shows hits pattern.
-                                     }
-                                   }
+                                   [true] Source emits { a11y.particleNouns.lowercasePlural } directly at double-slit barrier with { a11y.experimentStateClauses.slitConfiguration }. { a11y.experimentStateClauses.detectionResult }
+                                  *[false] Source is off. { a11y.experimentStateClauses.detectionResultSourceOff }
                                  }
                                }
                               *[true] { $isMaxHitsReached ->
                                  [true] source is off. Max number of { a11y.particleNouns.lowercaseSingular } hits reached. Detector screen shows hits pattern.
                                 *[false] { $isEmitting ->
-                                   [true] source emits { a11y.particleNouns.lowercasePlural } directly at double-slit barrier with { $slitSetting ->
-                                     [bothOpen] both slits open
-                                     [leftCovered] { $slitOrientation ->
-                                       [topBottom] top slit covered
-                                      *[leftRight] left slit covered
-                                     }
-                                     [rightCovered] { $slitOrientation ->
-                                       [topBottom] bottom slit covered
-                                      *[leftRight] right slit covered
-                                     }
-                                     [leftDetector] { $slitOrientation ->
-                                       [topBottom] detector on top slit
-                                      *[leftRight] detector on left slit
-                                     }
-                                     [rightDetector] { $slitOrientation ->
-                                       [topBottom] detector on bottom slit
-                                      *[leftRight] detector on right slit
-                                     }
-                                     [noBarrier] no barrier
-                                    *[bothDetectors] detectors on both slits
-                                   }. { $detectionMode ->
-                                     [intensity] { $hasHits ->
-                                       [true] Detector screen shows intensity pattern.
-                                      *[false] Detector screen is empty.
-                                     }
-                                    *[hits] { $hasHits ->
-                                       [false] Detector screen has no hits.
-                                      *[true] Detector screen shows hits pattern.
-                                     }
-                                   }
-                                  *[false] source is off. { $detectionMode ->
-                                     [intensity] Detector screen is empty.
-                                    *[hits] { $hasHits ->
-                                       [false] Detector screen is empty.
-                                      *[true] Detector screen shows hits pattern.
-                                     }
-                                   }
+                                   [true] source emits { a11y.particleNouns.lowercasePlural } directly at double-slit barrier with { a11y.experimentStateClauses.slitConfiguration }. { a11y.experimentStateClauses.detectionResult }
+                                  *[false] source is off. { a11y.experimentStateClauses.detectionResultSourceOff }
                                  }
                                }
                              }
@@ -272,6 +202,52 @@ a11y:
                             [neutrons] Neutron
                            *[heliumAtoms] Helium atom
                           }
+  # Shared fragments composed into the screen-summary currentDetails message. Each fragment resolves its
+  # { $variable } placeholders from the referencing message's format() arguments. Extracted so the paused and
+  # playing branches of currentDetails (which are identical apart from sentence-initial capitalization) do not
+  # each repeat these selectors.
+  experimentStateClauses:
+    slitConfiguration:        >-
+                              { $slitSetting ->
+                                [bothOpen] both slits open
+                                [leftCovered] { $slitOrientation ->
+                                  [topBottom] top slit covered
+                                 *[leftRight] left slit covered
+                                }
+                                [rightCovered] { $slitOrientation ->
+                                  [topBottom] bottom slit covered
+                                 *[leftRight] right slit covered
+                                }
+                                [leftDetector] { $slitOrientation ->
+                                  [topBottom] detector on top slit
+                                 *[leftRight] detector on left slit
+                                }
+                                [rightDetector] { $slitOrientation ->
+                                  [topBottom] detector on bottom slit
+                                 *[leftRight] detector on right slit
+                                }
+                                [noBarrier] no barrier
+                               *[bothDetectors] detectors on both slits
+                              }
+    detectionResult:          >-
+                              { $detectionMode ->
+                                [intensity] { $hasHits ->
+                                  [true] Detector screen shows intensity pattern.
+                                 *[false] Detector screen is empty.
+                                }
+                               *[hits] { $hasHits ->
+                                  [false] Detector screen has no hits.
+                                 *[true] Detector screen shows hits pattern.
+                                }
+                              }
+    detectionResultSourceOff: >-
+                              { $detectionMode ->
+                                [intensity] Detector screen is empty.
+                               *[hits] { $hasHits ->
+                                  [false] Detector screen is empty.
+                                 *[true] Detector screen shows hits pattern.
+                                }
+                              }
   # Shared fragments composed into the source beam/packet descriptions on the High Intensity and Single Particles
   # screens. Each fragment resolves its { $variable } placeholders from the referencing message's format() arguments.
   sourceWaveFragments:
