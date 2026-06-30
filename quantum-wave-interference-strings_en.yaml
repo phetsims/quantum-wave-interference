@@ -116,19 +116,9 @@ a11y:
     currentDetails:          >-
                              Currently, { $isPlaying ->
                                [false] sim is paused. { $isMaxHitsReached ->
-                                 [true] Source is off. Max number of { $sourceType ->
-                                   [photons] photon
-                                   [electrons] electron
-                                   [neutrons] neutron
-                                  *[heliumAtoms] helium atom
-                                 } hits reached. Detector screen shows hits pattern.
+                                 [true] Source is off. Max number of { a11y.particleNouns.lowercaseSingular } hits reached. Detector screen shows hits pattern.
                                 *[false] { $isEmitting ->
-                                   [true] Source emits { $sourceType ->
-                                     [photons] photons
-                                     [electrons] electrons
-                                     [neutrons] neutrons
-                                   *[heliumAtoms] helium atoms
-                                   } directly at double-slit barrier with { $slitSetting ->
+                                   [true] Source emits { a11y.particleNouns.lowercasePlural } directly at double-slit barrier with { $slitSetting ->
                                      [bothOpen] both slits open
                                      [leftCovered] { $slitOrientation ->
                                        [topBottom] top slit covered
@@ -168,19 +158,9 @@ a11y:
                                  }
                                }
                               *[true] { $isMaxHitsReached ->
-                                 [true] source is off. Max number of { $sourceType ->
-                                   [photons] photon
-                                   [electrons] electron
-                                   [neutrons] neutron
-                                  *[heliumAtoms] helium atom
-                                 } hits reached. Detector screen shows hits pattern.
+                                 [true] source is off. Max number of { a11y.particleNouns.lowercaseSingular } hits reached. Detector screen shows hits pattern.
                                 *[false] { $isEmitting ->
-                                   [true] source emits { $sourceType ->
-                                     [photons] photons
-                                     [electrons] electrons
-                                     [neutrons] neutrons
-                                   *[heliumAtoms] helium atoms
-                                   } directly at double-slit barrier with { $slitSetting ->
+                                   [true] source emits { a11y.particleNouns.lowercasePlural } directly at double-slit barrier with { $slitSetting ->
                                      [bothOpen] both slits open
                                      [leftCovered] { $slitOrientation ->
                                        [topBottom] top slit covered
@@ -223,12 +203,7 @@ a11y:
     interactionHint:         >-
                              { $isEmitting ->
                                [true] Adjust source or slits and watch for changes on detector screen.
-                              *[false] Turn on { $sourceType ->
-                                 [photons] photon
-                                 [electrons] electron
-                                 [neutrons] neutron
-                                *[heliumAtoms] helium atom
-                               } source and observe detector screen.
+                              *[false] Turn on { a11y.particleNouns.lowercaseSingular } source and observe detector screen.
                              }
   snapshotNode:
     deleteSnapshotAccessibleName: 'Delete { $snapshotTitle }'
@@ -263,25 +238,40 @@ a11y:
     # wave area, so the "experiment ready" invitation would be wrong.
     leadingParagraph:          >-
                                { $detectorScreenStatus ->
-                                 [empty] { a11y.experimentDetectorScreenDetails.displaySurface } is empty. { $sourceType ->
-                                   [photons] Photon
-                                   [electrons] Electron
-                                   [neutrons] Neutron
-                                  *[heliumAtoms] Helium atom
-                                 } experiment ready.
+                                 [empty] { a11y.experimentDetectorScreenDetails.displaySurface } is empty. { a11y.particleNouns.sentenceCaseSingular } experiment ready.
                                  [emptyWavePropagating] { a11y.experimentDetectorScreenDetails.displaySurface } is empty.
                                 *[pattern] { a11y.experimentDetectorScreenDetails.displaySurface } shows { $detectionMode ->
                                    [intensity] an intensity pattern
                                   *[hits] a hits pattern
-                                 } of a { $sourceType ->
-                                   [photons] photon
-                                   [electrons] electron
-                                   [neutrons] neutron
-                                  *[heliumAtoms] helium atom
-                                 } experiment.
+                                 } of a { a11y.particleNouns.lowercaseSingular } experiment.
                                }
     experimentDetailsLeadingParagraph: 'Experiment details:'
     empty:                      Detector screen is empty.
+  # Shared particle-noun fragments keyed on $sourceType, composed into many messages so the four particle names stay
+  # consistent. Three case-forms are provided for the different grammatical positions they appear in. Each fragment
+  # resolves $sourceType from the referencing message's format() arguments.
+  particleNouns:
+    lowercaseSingular:    >-
+                          { $sourceType ->
+                            [photons] photon
+                            [electrons] electron
+                            [neutrons] neutron
+                           *[heliumAtoms] helium atom
+                          }
+    lowercasePlural:      >-
+                          { $sourceType ->
+                            [photons] photons
+                            [electrons] electrons
+                            [neutrons] neutrons
+                           *[heliumAtoms] helium atoms
+                          }
+    sentenceCaseSingular: >-
+                          { $sourceType ->
+                            [photons] Photon
+                            [electrons] Electron
+                            [neutrons] Neutron
+                           *[heliumAtoms] Helium atom
+                          }
   # Shared fragments composed into the source beam/packet descriptions on the High Intensity and Single Particles
   # screens. Each fragment resolves its { $variable } placeholders from the referencing message's format() arguments.
   sourceWaveFragments:
@@ -504,12 +494,7 @@ a11y:
                                *[false] Source off.
                               }
     particleTypeChanged:      >-
-                              { $sourceType ->
-                                [photons] Photon
-                                [electrons] Electron
-                                [neutrons] Neutron
-                               *[heliumAtoms] Helium atom
-                              } experiment { $isEmitting ->
+                              { a11y.particleNouns.sentenceCaseSingular } experiment { $isEmitting ->
                                 [true] in progress.
                                *[false] ready to start.
                               }
@@ -868,30 +853,10 @@ a11y:
                                }
     accessibleContextResponse: >-
                                { $change ->
-                                 [more] More { $sourceType ->
-                                   [photons] photons
-                                   [electrons] electrons
-                                   [neutrons] neutrons
-                                  *[heliumAtoms] helium atoms
-                                 }.
-                                 [less] Less { $sourceType ->
-                                   [photons] photons
-                                   [electrons] electrons
-                                   [neutrons] neutrons
-                                  *[heliumAtoms] helium atoms
-                                 }.
-                                 [max] Max { $sourceType ->
-                                   [photons] photons
-                                   [electrons] electrons
-                                   [neutrons] neutrons
-                                  *[heliumAtoms] helium atoms
-                                 }.
-                                *[zero] Zero { $sourceType ->
-                                   [photons] photons
-                                   [electrons] electrons
-                                   [neutrons] neutrons
-                                  *[heliumAtoms] helium atoms
-                                 }.
+                                 [more] More { a11y.particleNouns.lowercasePlural }.
+                                 [less] Less { a11y.particleNouns.lowercasePlural }.
+                                 [max] Max { a11y.particleNouns.lowercasePlural }.
+                                *[zero] Zero { a11y.particleNouns.lowercasePlural }.
                                }
   brightnessSlider:
     accessibleName:     Screen Brightness
@@ -906,25 +871,10 @@ a11y:
     accessibleHelpText:        Change particle type for source emitter and change experiment setup.
     accessibleContextResponse: >-
                                { $isMaxHitsReached ->
-                                 [true] { $sourceType ->
-                                   [photons] Photon
-                                   [electrons] Electron
-                                   [neutrons] Neutron
-                                  *[heliumAtoms] Helium atom
-                                 } experiment at max hits. Clear detector screen to make more observations.
+                                 [true] { a11y.particleNouns.sentenceCaseSingular } experiment at max hits. Clear detector screen to make more observations.
                                 *[false] { $isEmitting ->
-                                   [true] { $sourceType ->
-                                     [photons] Photon
-                                     [electrons] Electron
-                                     [neutrons] Neutron
-                                    *[heliumAtoms] Helium atom
-                                   } experiment, detector pattern changed.
-                                  *[false] Source off. { $sourceType ->
-                                     [photons] Photon
-                                     [electrons] Electron
-                                     [neutrons] Neutron
-                                    *[heliumAtoms] Helium atom
-                                   } experiment ready to start.
+                                   [true] { a11y.particleNouns.sentenceCaseSingular } experiment, detector pattern changed.
+                                  *[false] Source off. { a11y.particleNouns.sentenceCaseSingular } experiment ready to start.
                                  }
                                }
     photonsRadioButton:
@@ -1049,6 +999,13 @@ a11y:
                             }
     measuredBandSpacingDescription: 'roughly { $spacing } apart'
     measuredBandSpacingLessThanOneTenthDescription: less than 0.1 millimeters apart
+    # Shared running-total clause appended to every snapshot hits paragraph, e.g. "Detector screen shows a total of 3
+    # hits." Defined once so the count wording stays consistent across all snapshot stages.
+    snapshotHitTotal: |-
+                      { $hitCount ->
+                        [one] Detector screen shows a total of 1 hit.
+                       *[other] Detector screen shows a total of { $hitCount } hits.
+                      }
     accessibleParagraph:
       intensityOff:                   Detector screen empty.
       intensity:                      >-
@@ -1067,65 +1024,41 @@ a11y:
       hitsClear:                      >-
                                       Across detector screen, evenly-spaced bright bands are { $spacingDescription }, brightest at center.
       snapshotHitsNone:               |-
-                                      Detector screen is empty. { $hitCount ->
-                                          [one] Detector screen shows a total of 1 hit.
-                                         *[other] Detector screen shows a total of { $hitCount } hits.
-                                      } No particles have arrived yet.
+                                      Detector screen is empty. { a11y.detectorScreen.snapshotHitTotal } No particles have arrived yet.
       snapshotHitsFew:                |-
-                                      A handful of particles are visible at scattered positions across the screen. { $hitCount ->
-                                          [one] Detector screen shows a total of 1 hit.
-                                         *[other] Detector screen shows a total of { $hitCount } hits.
-                                      }
+                                      A handful of particles are visible at scattered positions across the screen. { a11y.detectorScreen.snapshotHitTotal }
       snapshotHitsEmerging:           |-
                                       { $envelope ->
                                         [clusteringIntoTwoFaintSections] More particles, and faint vertical stripes are grouped into two close areas.
                                         [clusteringIntoTwoDistinctSections] More particles, and faint vertical stripes are grouped into two distinct areas.
                                        *[brightestAtCenter] More particles, and faint vertical stripes are becoming visible with gaps between them.
-                                      } { $hitCount ->
-                                          [one] Detector screen shows a total of 1 hit.
-                                         *[other] Detector screen shows a total of { $hitCount } hits.
-                                      }
+                                      } { a11y.detectorScreen.snapshotHitTotal }
       snapshotHitsDeveloping:         |-
                                       { $envelope ->
                                         [clusteringIntoTwoFaintSections] Individual impacts are gathering into evenly-spaced bands grouped into two close areas.
                                         [clusteringIntoTwoDistinctSections] Individual impacts are gathering into evenly-spaced bands grouped into two distinct areas.
                                        *[brightestAtCenter] Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $spatialDescription }
-                                      } { $hitCount ->
-                                          [one] Detector screen shows a total of 1 hit.
-                                         *[other] Detector screen shows a total of { $hitCount } hits.
-                                      }
+                                      } { a11y.detectorScreen.snapshotHitTotal }
       snapshotHitsClear:              |-
                                       { $envelope ->
                                         [clusteringIntoTwoFaintSections] Distinct vertical bands are grouped into two close areas.
                                         [clusteringIntoTwoDistinctSections] Distinct vertical bands are grouped into two distinct areas.
                                        *[brightestAtCenter] Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $spatialDescription }
-                                      } { $hitCount ->
-                                          [one] Detector screen shows a total of 1 hit.
-                                         *[other] Detector screen shows a total of { $hitCount } hits.
-                                      }
+                                      } { a11y.detectorScreen.snapshotHitTotal }
       snapshotHitsSingleSlitEmerging: |-
                                       { $envelope ->
                                         [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
                                         [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
                                        *[brightestAtCenter] Hits collect in a broad region near the center of the screen, with fewer toward the edges.
-                                      } { $hitCount ->
-                                          [one] Detector screen shows a total of 1 hit.
-                                         *[other] Detector screen shows a total of { $hitCount } hits.
-                                      }
+                                      } { a11y.detectorScreen.snapshotHitTotal }
       snapshotHitsSingleSlitClear:    |-
                                       { $envelope ->
                                         [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.
                                         [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.
                                        *[brightestAtCenter] Hits form a broad central area that tapers toward the edges.
-                                      } { $hitCount ->
-                                          [one] Detector screen shows a total of 1 hit.
-                                         *[other] Detector screen shows a total of { $hitCount } hits.
-                                      }
+                                      } { a11y.detectorScreen.snapshotHitTotal }
       snapshotHitsNoBarrier:          |-
-                                      Evenly scattered hits across the detector screen. { $hitCount ->
-                                          [one] Detector screen shows a total of 1 hit.
-                                         *[other] Detector screen shows a total of { $hitCount } hits.
-                                      }
+                                      Evenly scattered hits across the detector screen. { a11y.detectorScreen.snapshotHitTotal }
     spatialDescription:
       rulerDoubleSlit:
         select_style:

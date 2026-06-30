@@ -143,6 +143,11 @@ type StringsType = {
       'experimentDetailsLeadingParagraphStringProperty': LocalizedStringProperty;
       'emptyStringProperty': LocalizedStringProperty;
     };
+    'particleNouns': {
+      'lowercaseSingularStringProperty': LocalizedStringProperty;
+      'lowercasePluralStringProperty': LocalizedStringProperty;
+      'sentenceCaseSingularStringProperty': LocalizedStringProperty;
+    };
     'sourceWaveFragments': {
       'lowercaseColorStringProperty': LocalizedStringProperty;
       'capitalizedColorAndBlackStringProperty': LocalizedStringProperty;
@@ -369,6 +374,7 @@ type StringsType = {
       'bandSpacingDescriptionStringProperty': LocalizedStringProperty;
       'measuredBandSpacingDescriptionStringProperty': LocalizedStringProperty;
       'measuredBandSpacingLessThanOneTenthDescriptionStringProperty': LocalizedStringProperty;
+      'snapshotHitTotalStringProperty': LocalizedStringProperty;
       'accessibleParagraph': {
         'intensityOffStringProperty': LocalizedStringProperty;
         'intensityStringProperty': LocalizedStringProperty;
