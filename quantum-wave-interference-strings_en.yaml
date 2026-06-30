@@ -674,17 +674,11 @@ a11y:
                                   [realPart] Non-interacting circular wave fronts spread toward detector screen.
                                   [imaginaryPart] Non-interacting circular wave fronts spread toward detector screen.
                                 }
-                                [directToScreen] { $waveDisplayMode ->
+                               *[directToScreen] { $waveDisplayMode ->
                                   [amplitude] Solid wave moves directly toward the detector screen.
                                  *[electricField] Plane wave fronts move directly toward the detector screen.
                                   [realPart] Plane wave fronts move directly toward the detector screen.
                                   [imaginaryPart] Plane wave fronts move directly toward the detector screen.
-                                }
-                               *[hittingScreen] { $waveDisplayMode ->
-                                  [amplitude] Solid wave reached the detector screen.
-                                 *[electricField] Wave fronts reached the detector screen.
-                                  [realPart] Wave fronts reached the detector screen.
-                                  [imaginaryPart] Wave fronts reached the detector screen.
                                 }
                               }
     maxHitsReached:           Maximum number of hits reached. Source is off. Clear detector screen to make more observations.

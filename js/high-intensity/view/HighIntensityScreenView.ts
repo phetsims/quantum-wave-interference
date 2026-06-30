@@ -217,7 +217,6 @@ const getWaveProgress = (
     wavefrontFraction >= 0.25 ? 'quarter' :
     'none';
   const stage: QuantumWaveInterferenceWaveProgressStage =
-    hasReachedScreen ? 'hittingScreen' :
     patternKind === 'noBarrier' ? 'directToScreen' :
     Math.abs( wavefrontFraction - slitFraction ) <= slitWindow ? 'atSlits' :
     !hasReachedSlits ? 'travelingToSlits' :

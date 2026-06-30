@@ -113,10 +113,8 @@ function getPacketWaveProgressStage(
   const slitSeparationFraction = scene.slitSeparationProperty.value * 1e-3 / scene.regionWidth;
   const circularWavesOverlapFraction = slitFraction + Math.max( slitWindow, slitSeparationFraction / 2 );
   const hasReachedSlits = packetFraction >= slitFraction;
-  const hasReachedScreen = packetFraction >= 1;
 
-  return hasReachedScreen ? 'hittingScreen' :
-         patternKind === 'noBarrier' ? 'directToScreen' :
+  return patternKind === 'noBarrier' ? 'directToScreen' :
          Math.abs( packetFraction - slitFraction ) <= slitWindow ? 'atSlits' :
          !hasReachedSlits ? 'travelingToSlits' :
          patternKind === 'doubleSlitInterference' && packetFraction < circularWavesOverlapFraction ? 'atSlits' :

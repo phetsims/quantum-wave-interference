@@ -36,8 +36,9 @@ export type QuantumWaveInterferencePatternFormation = 'empty' | 'forming' | 'com
 // Ordered roughly from source to screen: 'sourceOff' — emitter is inactive; 'travelingToSlits' — wavefront
 // is between the source and the barrier; 'atSlits' — wavefront is at or immediately past the barrier;
 // 'interferingAfterSlits' / 'diffractingAfterSlits' / 'whichPathAfterSlits' — post-barrier propagation
-// styled by pattern kind; 'directToScreen' — no barrier present; 'hittingScreen' — wavefront has reached the detector.
-export type QuantumWaveInterferenceWaveProgressStage = 'sourceOff' | 'travelingToSlits' | 'atSlits' | 'interferingAfterSlits' | 'diffractingAfterSlits' | 'whichPathAfterSlits' | 'directToScreen' | 'hittingScreen';
+// styled by pattern kind; 'directToScreen' — no barrier present. Arrival at the detector screen is not a stage of its
+// own: it is captured by the 'full' checkpoint and the hasReachedScreen flag, and narrated by the hit/pattern responses.
+export type QuantumWaveInterferenceWaveProgressStage = 'sourceOff' | 'travelingToSlits' | 'atSlits' | 'interferingAfterSlits' | 'diffractingAfterSlits' | 'whichPathAfterSlits' | 'directToScreen';
 
 // Discretized distance milestone of the wavefront across the simulation region (0 %, 25 %, 50 %, 75 %, 100 %).
 // Used to fire screen-reader alerts at meaningful spatial thresholds without flooding with continuous updates.
