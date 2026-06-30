@@ -368,9 +368,20 @@ a11y:
                               [intensity] { $patternFormation ->
                                 [empty] Detector screen is empty while the wave travels toward it.
                                 [forming] { $patternKind ->
-                                  [doubleSlitInterference] Evenly-spaced bright bands form on detector screen.
+                                  [doubleSlitInterference] { $doubleSlitClustering ->
+                                    [true] { $envelope ->
+                                      [clusteringIntoTwoFaintSections] Evenly-spaced bright bands form on detector screen, grouped into two close areas.
+                                      [clusteringIntoTwoDistinctSections] Evenly-spaced bright bands form on detector screen, grouped into two distinct areas.
+                                     *[brightestAtCenter] Evenly-spaced bright bands form on detector screen.
+                                    }
+                                   *[false] Evenly-spaced bright bands form on detector screen.
+                                  }
                                   [singleSlitDiffraction] Broad central area forms on detector screen.
-                                  [whichPathDiffraction] Broad central area forms on detector screen.
+                                  [whichPathDiffraction] { $envelope ->
+                                    [clusteringIntoTwoFaintSections] Two close bright areas form on detector screen, directly across from the slits.
+                                    [clusteringIntoTwoDistinctSections] Two distinct bright areas form on detector screen, directly across from the slits.
+                                   *[brightestAtCenter] Broad central area forms on detector screen.
+                                  }
                                  *[noBarrier] { $waveDisplayMode ->
                                     [amplitude] Solid wave forms uniform glow on detector screen.
                                    *[electricField] Plane wave fronts form uniform glow on detector screen.
