@@ -157,8 +157,28 @@ export default class MeasurementToolsLayerNode extends Node {
       tandem.createTandem( 'positionPlotNode' )
     );
 
+    // The time and position plots are large panels that can bury the smaller, more mobile stopwatch and measuring tape;
+    // interviews showed users losing the small tools behind the charts. Split the tools into two layers so the small
+    // tools always render in front of the charts. Because moveToFront() only reorders a node among its siblings, the
+    // charts still reorder among themselves (chart-vs-chart) and the small tools among themselves, but a chart can never
+    // rise above a small tool.
+    const chartsLayer = new Node( {
+      children: [ timePlotNode, positionPlotNode ]
+    } );
+
+    // Rendered after (in front of) the charts layer, so the small tools stay reachable at all times.
+    const frontToolsLayer = new Node( {
+      children: [ stopwatchNode, measuringTapeNode ]
+    } );
+
+    // MeasuringTapeNode already moves itself to the front of its layer when dragged; mirror that for the stopwatch so
+    // the two small tools alternate front-most within frontToolsLayer when they overlap.
+    stopwatchNode.addInputListener( {
+      down: () => stopwatchNode.moveToFront()
+    } );
+
     super( {
-      children: [ stopwatchNode, measuringTapeNode, timePlotNode, positionPlotNode ]
+      children: [ chartsLayer, frontToolsLayer ]
     } );
 
     this.model = model;
