@@ -1,7 +1,7 @@
 // Copyright 2026, University of Colorado Boulder
 
 /**
- * Provides a shared per-scene detector-screen texture. The texture is rendered with the same logic used by Experiment
+ * Provides shared per-scene detector-screen textures. Textures are rendered with the same logic used by Experiment
  * snapshots, so live and captured detector screens stay pixel-consistent while the live path keeps its persistent
  * canvas and incremental hit rendering optimization.
  *
@@ -23,9 +23,19 @@ const SCREEN_HEIGHT = ExperimentConstants.FRONT_FACING_ROW_HEIGHT;
 // front-facing zoom so the cropped visible region is still downsampled by this factor at every zoom level.
 const SUPERSAMPLE = QuantumWaveInterferenceQueryParameters.experimentDetectorTextureScale;
 
+type DetectorScreenTextureScaleMode = 'zoomDependent' | 'fullDetector';
+const DEFAULT_TEXTURE_SCALE_MODE: DetectorScreenTextureScaleMode = 'zoomDependent';
+
+type DetectorScreenTextureOptions = {
+
+  // zoomDependent is used by the front-facing detector so its cropped visible region stays supersampled at every zoom.
+  // fullDetector is used by overhead views that need a stable full-detector pattern independent of front-facing zoom.
+  scaleMode?: DetectorScreenTextureScaleMode;
+};
+
 /**
- * Per-scene mutable state for the detector-screen texture. A single instance lives in sceneTextureMap for as long as
- * its SceneModel is reachable. Callers receive a reference to canvas directly and must treat it as read-only; the
+ * Per-scene mutable state for one detector-screen texture mode. Instances live in mode-specific WeakMaps for as long
+ * as their SceneModel is reachable. Callers receive a reference to canvas directly and must treat it as read-only; the
  * cache owns the canvas and may resize or repaint it at any time.
  */
 type SceneTextureCache = {
@@ -42,29 +52,56 @@ type SceneTextureCache = {
   lastRenderParameters: DetectorScreenTextureRenderParameters | null;
 };
 
-// Top-level cache keyed by SceneModel so each scene keeps its own full detector texture.
-// WeakMap prevents the cache from extending a scene's lifetime: if a SceneModel becomes unreachable,
-// its full-screen texture cache can be garbage collected with it.
+// Top-level caches keyed by SceneModel so each scene keeps separate zoom-dependent and full-detector textures.
+// WeakMaps prevent the caches from extending a scene's lifetime: if a SceneModel becomes unreachable,
+// its texture caches can be garbage collected with it.
 //
 // Cached textures should not go stale during normal use. Each SceneTextureCache registers listeners on the scene
 // that mark it dirty whenever rendering inputs change, and the texture is lazily repainted on the next request.
-const sceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
+const zoomDependentSceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
+const fullDetectorSceneTextureMap = new WeakMap<SceneModel, SceneTextureCache>();
 
 // Log once when the render cap is reached, so QA/designers know why new dots stop appearing.
 let hasLoggedRenderCap = false;
 
 /**
- * Returns the pixel-per-model-unit scale factor for the backing texture at the current zoom level.
- * The scale grows as the user zooms in (smaller visible fraction), so the cropped visible region is always
- * downsampled by the SUPERSAMPLE factor regardless of zoom level.
+ * Returns the fraction of the full detector represented by the backing texture's displayed region.
+ */
+function getTextureVisibleFraction(
+  sceneModel: SceneModel,
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number> | null,
+  scaleMode: DetectorScreenTextureScaleMode
+): number {
+  if ( scaleMode === 'fullDetector' ) {
+    return 1;
+  }
+
+  if ( !detectorScreenScaleIndexProperty ) {
+    throw new Error( 'detectorScreenScaleIndexProperty is required for zoom-dependent detector textures' );
+  }
+
+  return getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value ) /
+         sceneModel.fullScreenHalfWidth;
+}
+
+/**
+ * Returns the pixel-per-model-unit scale factor for the backing texture. For the zoom-dependent front-facing detector,
+ * the scale grows as the user zooms in so the cropped visible region is always downsampled by SUPERSAMPLE. For
+ * full-detector rendering, the scale is fixed so overhead views do not change pattern resolution or hit radius with
+ * the front-facing detector zoom.
  */
 function getTextureRenderScale(
   sceneModel: SceneModel,
-  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number> | null,
+  scaleMode: DetectorScreenTextureScaleMode
 ): number {
-  const visibleFraction = getDetectorScreenHalfWidthForScaleIndex( detectorScreenScaleIndexProperty.value ) /
-                          sceneModel.fullScreenHalfWidth;
-  return SUPERSAMPLE / visibleFraction;
+  return SUPERSAMPLE / getTextureVisibleFraction( sceneModel, detectorScreenScaleIndexProperty, scaleMode );
+}
+
+function getSceneTextureMap( scaleMode: DetectorScreenTextureScaleMode ): WeakMap<SceneModel, SceneTextureCache> {
+  return scaleMode === 'zoomDependent'
+         ? zoomDependentSceneTextureMap
+         : fullDetectorSceneTextureMap;
 }
 
 function resetCacheRenderingState( cache: SceneTextureCache ): void {
@@ -79,9 +116,10 @@ function resetCacheRenderingState( cache: SceneTextureCache ): void {
 function updateCacheTextureSize(
   cache: SceneTextureCache,
   sceneModel: SceneModel,
-  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number> | null,
+  scaleMode: DetectorScreenTextureScaleMode
 ): void {
-  const renderScale = getTextureRenderScale( sceneModel, detectorScreenScaleIndexProperty );
+  const renderScale = getTextureRenderScale( sceneModel, detectorScreenScaleIndexProperty, scaleMode );
 
   if ( cache.renderScale === renderScale ) {
     return;
@@ -106,9 +144,10 @@ function updateCacheTextureSize(
 function renderSceneTexture(
   cache: SceneTextureCache,
   sceneModel: SceneModel,
-  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number> | null,
+  scaleMode: DetectorScreenTextureScaleMode
 ): void {
-  updateCacheTextureSize( cache, sceneModel, detectorScreenScaleIndexProperty );
+  updateCacheTextureSize( cache, sceneModel, detectorScreenScaleIndexProperty, scaleMode );
 
   const context = cache.context;
   const renderState = createDetectorScreenRenderStateFromSceneModel( sceneModel );
@@ -166,9 +205,10 @@ function renderSceneTexture(
  */
 function createSceneTextureCache(
   sceneModel: SceneModel,
-  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+  detectorScreenScaleIndexProperty: TReadOnlyProperty<number> | null,
+  scaleMode: DetectorScreenTextureScaleMode
 ): SceneTextureCache {
-  const renderScale = getTextureRenderScale( sceneModel, detectorScreenScaleIndexProperty );
+  const renderScale = getTextureRenderScale( sceneModel, detectorScreenScaleIndexProperty, scaleMode );
   const textureWidth = Math.ceil( SCREEN_WIDTH * renderScale );
   const textureHeight = Math.ceil( SCREEN_HEIGHT * renderScale );
 
@@ -210,29 +250,46 @@ function createSceneTextureCache(
   return cache;
 }
 
+function isDetectorScreenTextureOptions(
+  argument: TReadOnlyProperty<number> | DetectorScreenTextureOptions | undefined
+): argument is DetectorScreenTextureOptions {
+  return !!argument && 'scaleMode' in argument;
+}
+
 /**
- * Gets the shared full detector-screen texture for the specified scene, rendering it lazily on demand.
+ * Gets the shared detector-screen texture for the specified scene, rendering it lazily on demand.
  *
  * The returned canvas is mutable and shared — callers must not resize or paint onto it. Its pixel dimensions
- * change with the zoom level (detectorScreenScaleIndexProperty) so that the cropped visible region is always
- * downsampled by the SUPERSAMPLE factor. Callers that draw the canvas into another context (e.g. via drawImage)
- * should re-request the texture each frame because the canvas reference itself is stable but its contents and
- * size can change between calls.
+ * can change between calls for zoom-dependent textures, so callers should re-request the texture each frame before
+ * drawing it into another context (e.g. via drawImage).
+ *
+ * By default, textures are zoom-dependent for the front-facing detector. Pass { scaleMode: 'fullDetector' } to request
+ * a stable full-detector texture for overhead rendering that should not change with front-facing detector zoom.
  */
 function getDetectorScreenTexture(
   sceneModel: SceneModel,
-  detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+  detectorScreenScaleIndexPropertyOrOptions?: TReadOnlyProperty<number> | DetectorScreenTextureOptions,
+  providedOptions?: DetectorScreenTextureOptions
 ): HTMLCanvasElement {
+  const detectorScreenScaleIndexProperty = isDetectorScreenTextureOptions( detectorScreenScaleIndexPropertyOrOptions ) ?
+                                           null :
+                                           detectorScreenScaleIndexPropertyOrOptions || null;
+  const options = isDetectorScreenTextureOptions( detectorScreenScaleIndexPropertyOrOptions ) ?
+                  detectorScreenScaleIndexPropertyOrOptions :
+                  providedOptions;
+  const scaleMode = options?.scaleMode || DEFAULT_TEXTURE_SCALE_MODE;
+  const sceneTextureMap = getSceneTextureMap( scaleMode );
+
   let cache = sceneTextureMap.get( sceneModel );
   if ( !cache ) {
-    cache = createSceneTextureCache( sceneModel, detectorScreenScaleIndexProperty );
+    cache = createSceneTextureCache( sceneModel, detectorScreenScaleIndexProperty, scaleMode );
     sceneTextureMap.set( sceneModel, cache );
   }
 
-  updateCacheTextureSize( cache, sceneModel, detectorScreenScaleIndexProperty );
+  updateCacheTextureSize( cache, sceneModel, detectorScreenScaleIndexProperty, scaleMode );
 
   if ( cache.dirty ) {
-    renderSceneTexture( cache, sceneModel, detectorScreenScaleIndexProperty );
+    renderSceneTexture( cache, sceneModel, detectorScreenScaleIndexProperty, scaleMode );
   }
 
   return cache.canvas;

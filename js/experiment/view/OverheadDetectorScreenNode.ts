@@ -107,8 +107,7 @@ export default class OverheadDetectorScreenNode extends Node {
     this.overheadPatternNode = new OverheadDetectorPatternNode(
       DETECTOR_DX,
       DETECTOR_DY,
-      DETECTOR_LEFT_HEIGHT,
-      detectorScreenScaleIndexProperty
+      DETECTOR_LEFT_HEIGHT
     );
     this.parallelogramNode.addChild( this.overheadPatternNode );
 

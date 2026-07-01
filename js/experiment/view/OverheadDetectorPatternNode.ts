@@ -8,7 +8,6 @@
  * @author Sam Reid (PhET Interactive Simulations)
  */
 
-import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import CanvasNode from '../../../../scenery/js/nodes/CanvasNode.js';
 import SceneModel from '../model/SceneModel.js';
@@ -20,7 +19,6 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
   private readonly dx: number;
   private readonly dy: number;
   private readonly leftHeight: number;
-  private readonly detectorScreenScaleIndexProperty: TReadOnlyProperty<number>;
 
   // The active scene model whose detector data is rendered. Null until the first updatePattern() call.
   private sceneModel: SceneModel | null = null;
@@ -31,14 +29,11 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
    * @param dy - vertical skew offset of the right edge in local coordinates; positive means the right edge sits lower
    *   than the left edge, producing the overhead perspective slant
    * @param leftHeight - height of the left (vertical) edge in local coordinates
-   * @param detectorScreenScaleIndexProperty - zoom level index for the detector screen; triggers a repaint whenever
-   *   the scale changes
    */
   public constructor(
     dx: number,
     dy: number,
-    leftHeight: number,
-    detectorScreenScaleIndexProperty: TReadOnlyProperty<number>
+    leftHeight: number
   ) {
     super( {
       canvasBounds: new Bounds2( 0, 0, dx, leftHeight + dy )
@@ -47,10 +42,8 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
     this.dx = dx;
     this.dy = dy;
     this.leftHeight = leftHeight;
-    this.detectorScreenScaleIndexProperty = detectorScreenScaleIndexProperty;
 
     this.updateClipAndBounds();
-    detectorScreenScaleIndexProperty.link( () => this.invalidatePaint() );
   }
 
   private updateClipAndBounds(): void {
@@ -75,7 +68,7 @@ export default class OverheadDetectorPatternNode extends CanvasNode {
       return;
     }
 
-    const texture = getDetectorScreenTexture( this.sceneModel, this.detectorScreenScaleIndexProperty );
+    const texture = getDetectorScreenTexture( this.sceneModel, { scaleMode: 'fullDetector' } );
     const sourceWidth = texture.width;
     const sourceHeight = texture.height;
 
