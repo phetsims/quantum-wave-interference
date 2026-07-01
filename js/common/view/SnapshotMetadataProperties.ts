@@ -102,10 +102,6 @@ function DEFAULT_FORMAT_SCREEN_DISTANCE( snapshot: Snapshot ): DualString {
   } );
 }
 
-function ifSnapshot<T>( compute: ( snapshot: Snapshot ) => T, empty: T ): ( snapshot: Snapshot | null ) => T {
-  return snapshot => snapshot ? compute( snapshot ) : empty;
-}
-
 function formatLabelValue( label: string, value: string ): string {
   return StringUtils.fillIn(
     QuantumWaveInterferenceFluent.snapshotLabelValuePatternStringProperty.value,
@@ -206,6 +202,13 @@ export default class SnapshotMetadataProperties {
     const formatSlitSeparation = options.formatSlitSeparation || DEFAULT_FORMAT_SLIT_SEPARATION;
     const formatScreenDistance = options.formatScreenDistance || DEFAULT_FORMAT_SCREEN_DISTANCE;
 
+    // Empty snapshot slots are represented by snapshotProperty.value === null. Metadata Properties still feed string-only
+    // UI and PDOM sinks, so use an empty string for those hidden slots rather than widening every consumer to string|null.
+    const getCurrentSnapshotString = ( compute: ( snapshot: Snapshot ) => string ): string => {
+      const snapshot = snapshotProperty.value;
+      return snapshot ? compute( snapshot ) : '';
+    };
+
     const titleProperty = new DerivedProperty(
       [ snapshotProperty, QuantumWaveInterferenceFluent.snapshotNumberPatternStringProperty ],
       ( snapshot, pattern ) => snapshot
@@ -219,9 +222,11 @@ export default class SnapshotMetadataProperties {
         QuantumWaveInterferenceFluent.intensityStringProperty,
         QuantumWaveInterferenceFluent.hitsStringProperty
       ],
-      ifSnapshot( snapshot => snapshot.detectionMode === 'intensity' ?
-                              QuantumWaveInterferenceFluent.intensityStringProperty.value :
-                              QuantumWaveInterferenceFluent.hitsStringProperty.value, '' )
+      ( snapshot, intensityString, hitsString ) => snapshot ?
+                                                  ( snapshot.detectionMode === 'intensity' ?
+                                                    intensityString :
+                                                    hitsString ) :
+                                                  ''
     );
 
     this.headingProperty = new DerivedProperty(
@@ -246,10 +251,10 @@ export default class SnapshotMetadataProperties {
           ...millimetersUnit.getDependentProperties(),
           ...nanometersUnit.getDependentProperties()
         ] ) ),
-        () => ifSnapshot( snapshot => formatLabelValue(
+        () => getCurrentSnapshotString( snapshot => formatLabelValue(
           QuantumWaveInterferenceFluent.slitSeparationStringProperty.value,
           selectString( formatSlitSeparation( snapshot.slitSeparation, snapshot ) )
-        ), '' )( snapshotProperty.value )
+        ) )
       );
 
     this.slitSeparationProperty = createSlitSeparationProperty( dual => dual.visualString );
@@ -261,9 +266,7 @@ export default class SnapshotMetadataProperties {
         ...millimetersUnit.getDependentProperties(),
         ...nanometersUnit.getDependentProperties()
       ] ) ),
-      () => ifSnapshot( snapshot => formatSlitSeparation( snapshot.slitSeparation, snapshot ).accessibleString, '' )(
-        snapshotProperty.value
-      )
+      () => getCurrentSnapshotString( snapshot => formatSlitSeparation( snapshot.slitSeparation, snapshot ).accessibleString )
     );
     const slitSeparationDescriptionProperty =
       QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.slitSeparation.createProperty( {
@@ -288,7 +291,7 @@ export default class SnapshotMetadataProperties {
           ...kilometersPerSecondUnit.getDependentProperties(),
           ...metersPerSecondUnit.getDependentProperties()
         ] ) ),
-        () => ifSnapshot( snapshot => {
+        () => getCurrentSnapshotString( snapshot => {
           if ( snapshot.sourceType === 'photons' ) {
             return formatLabelValue(
               SceneryPhetFluent.wavelengthStringProperty.value,
@@ -303,7 +306,7 @@ export default class SnapshotMetadataProperties {
                              formatUnitValue( kilometersPerSecondUnit, roundSymmetric( speed / 1000 ) ) :
                              formatUnitValue( metersPerSecondUnit, roundSymmetric( speed ) );
           return formatLabelValue( QuantumWaveInterferenceFluent.particleSpeedStringProperty.value, speedValue );
-        }, '' )( snapshotProperty.value )
+        } )
       );
 
     this.wavelengthOrSpeedProperty = createWavelengthOrSpeedProperty(
@@ -314,10 +317,8 @@ export default class SnapshotMetadataProperties {
         snapshotProperty,
         ...nanometersUnit.getDependentProperties()
       ] ) ),
-      () => ifSnapshot(
-        snapshot => nanometersUnit.getAccessibleString( roundSymmetric( snapshot.wavelength ), NUMBER_FORMAT_OPTIONS ),
-        ''
-      )( snapshotProperty.value )
+      () => getCurrentSnapshotString( snapshot =>
+        nanometersUnit.getAccessibleString( roundSymmetric( snapshot.wavelength ), NUMBER_FORMAT_OPTIONS ) )
     );
 
     const wavelengthColorStringProperty = DerivedProperty.deriveAny(
@@ -325,9 +326,9 @@ export default class SnapshotMetadataProperties {
         snapshotProperty,
         ...WAVELENGTH_COLOR_ZONE_STRING_PROPERTIES
       ] ) ),
-      () => ifSnapshot( snapshot => getWavelengthColorZoneStringProperty(
+      () => getCurrentSnapshotString( snapshot => getWavelengthColorZoneStringProperty(
         getWavelengthColorZone( roundSymmetric( snapshot.wavelength ) )
-      ).value, '' )( snapshotProperty.value )
+      ).value )
     );
 
     const wavelengthDescriptionProperty =
@@ -342,7 +343,7 @@ export default class SnapshotMetadataProperties {
         ...kilometersPerSecondUnit.getDependentProperties(),
         ...metersPerSecondUnit.getDependentProperties()
       ] ) ),
-      () => ifSnapshot( snapshot => {
+      () => getCurrentSnapshotString( snapshot => {
         if ( snapshot.sourceType === 'photons' ) {
           return '';
         }
@@ -353,7 +354,7 @@ export default class SnapshotMetadataProperties {
         return speed >= 10000 ?
                kilometersPerSecondUnit.getAccessibleString( roundSymmetric( speed / 1000 ), NUMBER_FORMAT_OPTIONS ) :
                metersPerSecondUnit.getAccessibleString( roundSymmetric( speed ), NUMBER_FORMAT_OPTIONS );
-      }, '' )( snapshotProperty.value )
+      } )
     );
 
     const particleSpeedDescriptionProperty =
@@ -375,7 +376,7 @@ export default class SnapshotMetadataProperties {
         snapshotProperty,
         ...slitSettingDisplayDependencies
       ],
-      ifSnapshot( snapshot => slitSettingDisplayMap[ snapshot.slitSetting ].value, '' )
+      snapshot => snapshot ? slitSettingDisplayMap[ snapshot.slitSetting ].value : ''
     );
     const snapshotSlitSettingProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier> = snapshotProperty.derived(
       snapshot => snapshot ? snapshot.slitSetting : 'bothOpen'
@@ -397,7 +398,7 @@ export default class SnapshotMetadataProperties {
         QuantumWaveInterferenceFluent.screenBrightnessStringProperty,
         ...percentUnit.getDependentProperties()
       ],
-      () => ifSnapshot( snapshot => {
+      () => getCurrentSnapshotString( snapshot => {
         return formatLabelValue(
           QuantumWaveInterferenceFluent.screenBrightnessStringProperty.value,
           percentUnit.getVisualSymbolPatternString( snapshot.brightness, {
@@ -406,7 +407,7 @@ export default class SnapshotMetadataProperties {
             showIntegersAsIntegers: true
           } )
         );
-      }, '' )( snapshotProperty.value )
+      } )
     );
 
     const screenBrightnessAccessibleValueProperty = DerivedProperty.deriveAny(
@@ -414,11 +415,11 @@ export default class SnapshotMetadataProperties {
         snapshotProperty,
         ...percentUnit.getDependentProperties()
       ],
-      () => ifSnapshot( snapshot => percentUnit.getAccessibleString( snapshot.brightness, {
+      () => getCurrentSnapshotString( snapshot => percentUnit.getAccessibleString( snapshot.brightness, {
         decimalPlaces: 0,
         showTrailingZeros: false,
         showIntegersAsIntegers: true
-      } ), '' )( snapshotProperty.value )
+      } ) )
     );
     const screenBrightnessDescriptionProperty =
       QuantumWaveInterferenceFluent.a11y.snapshotsDialog.screenBrightness.createProperty( {
@@ -439,12 +440,12 @@ export default class SnapshotMetadataProperties {
                                       ...micrometersUnit.getDependentProperties(),
                                       ...nanometersUnit.getDependentProperties()
                                     ] ) ),
-                                    () => ifSnapshot( snapshot => {
+                                    () => getCurrentSnapshotString( snapshot => {
                                       return formatLabelValue(
                                         QuantumWaveInterferenceFluent.screenDistanceStringProperty.value,
                                         formatScreenDistance( snapshot ).visualString
                                       );
-                                    }, '' )( snapshotProperty.value )
+                                    } )
                                   ) :
                                   null;
 
@@ -456,7 +457,7 @@ export default class SnapshotMetadataProperties {
           ...micrometersUnit.getDependentProperties(),
           ...nanometersUnit.getDependentProperties()
         ] ) ),
-        () => ifSnapshot( snapshot => formatScreenDistance( snapshot ).accessibleString, '' )( snapshotProperty.value )
+        () => getCurrentSnapshotString( snapshot => formatScreenDistance( snapshot ).accessibleString )
       );
       const screenDistanceDescriptionProperty =
         QuantumWaveInterferenceFluent.a11y.experimentSetupDetails.screenDistance.createProperty( {
