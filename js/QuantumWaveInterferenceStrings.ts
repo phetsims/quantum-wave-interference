@@ -384,6 +384,7 @@ type StringsType = {
       'measuredBandSpacingDescriptionStringProperty': LocalizedStringProperty;
       'measuredBandSpacingLessThanOneTenthDescriptionStringProperty': LocalizedStringProperty;
       'snapshotHitTotalStringProperty': LocalizedStringProperty;
+      'snapshotHitsParagraphStringProperty': LocalizedStringProperty;
       'accessibleParagraph': {
         'intensityOffStringProperty': LocalizedStringProperty;
         'intensityStringProperty': LocalizedStringProperty;
@@ -394,22 +395,10 @@ type StringsType = {
         'hitsEmergingStringProperty': LocalizedStringProperty;
         'hitsDevelopingStringProperty': LocalizedStringProperty;
         'hitsSteadyStatePatternStringProperty': LocalizedStringProperty;
-        'snapshotHitsNoneStringProperty': LocalizedStringProperty;
-        'snapshotHitsFewStringProperty': LocalizedStringProperty;
-        'snapshotHitsEmergingStringProperty': LocalizedStringProperty;
-        'snapshotHitsDevelopingStringProperty': LocalizedStringProperty;
-        'snapshotHitsSteadyStatePatternStringProperty': LocalizedStringProperty;
-        'snapshotHitsSingleSlitEmergingStringProperty': LocalizedStringProperty;
-        'snapshotHitsSingleSlitClearStringProperty': LocalizedStringProperty;
-        'snapshotHitsNoBarrierEmergingStringProperty': LocalizedStringProperty;
-        'snapshotHitsNoBarrierDevelopingStringProperty': LocalizedStringProperty;
-        'snapshotHitsNoBarrierSteadyStatePatternStringProperty': LocalizedStringProperty;
       };
       'spatialDescription': {
         'rulerDoubleSlitStringProperty': LocalizedStringProperty;
         'noRulerDoubleSlitStringProperty': LocalizedStringProperty;
-        'rulerDoubleSlitArrangementStringProperty': LocalizedStringProperty;
-        'noRulerDoubleSlitArrangementStringProperty': LocalizedStringProperty;
         'rulerSingleSlitStringProperty': LocalizedStringProperty;
         'noRulerSingleSlitStringProperty': LocalizedStringProperty;
       };

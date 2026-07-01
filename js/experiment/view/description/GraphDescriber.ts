@@ -57,7 +57,7 @@ export default class GraphDescriber {
           sceneModel,
           sceneModel.fullScreenHalfWidth
         );
-        const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
+        const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible );
         const envelope = hasAnyDetector( slitSetting ) ? analysis.envelopeCategory : 'brightestAtCenter';
 
         descriptionProperty.value = isDoubleSlit
@@ -87,7 +87,7 @@ export default class GraphDescriber {
         sceneModel,
         sceneModel.fullScreenHalfWidth
       );
-      const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
+      const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible );
       const envelope = hasAnyDetector( slitSetting ) ? analysis.envelopeCategory : 'brightestAtCenter';
 
       // NOTE: see other duplicate in

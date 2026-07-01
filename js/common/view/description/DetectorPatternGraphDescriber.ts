@@ -81,7 +81,7 @@ export default class DetectorPatternGraphDescriber {
         }
 
         const analysis = BandAnalysis.analyzeTheoreticalPattern( scene, scene.regionWidth / 2 );
-        const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
+        const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible );
         const envelope = ( isDoubleSlit || hasAnyDetector( slitSetting ) ) ?
                          analysis.envelopeCategory :
                          'brightestAtCenter';
@@ -110,7 +110,7 @@ export default class DetectorPatternGraphDescriber {
       // Use the theoretical pattern for spatial descriptions so they remain stable as hits accumulate,
       // rather than jumping with noisy bin data.
       const analysis = BandAnalysis.analyzeTheoreticalPattern( scene, scene.regionWidth / 2 );
-      const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible, true );
+      const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible );
       const envelope = ( isDoubleSlit || hasAnyDetector( slitSetting ) ) ?
                        analysis.envelopeCategory :
                        'brightestAtCenter';

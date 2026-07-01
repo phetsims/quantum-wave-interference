@@ -8,25 +8,22 @@
  */
 
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
-import { showsDoubleSlitInterferencePattern } from '../../model/SlitConfiguration.js';
 import type { Snapshot } from '../../model/Snapshot.js';
 import BandAnalysis from './BandAnalysis.js';
-import { formatIntensityDescription, formatSnapshotHitsDescription } from './DetectorScreenDescriptionFormatter.js';
+import { formatIntensityDescription, formatLiveHitsDescription } from './DetectorScreenDescriptionFormatter.js';
 
 export default class SnapshotDescriber {
 
   /**
    * Returns a localized accessible-paragraph string describing a detector-screen snapshot.
    *
-   * The description follows the same qualitative band-analysis structure used for the live detector screen.
-   * For 'intensity' mode it describes the intensity pattern (or reports "off" when the source is not
-   * emitting); for particle-detection modes it describes the hit count and spatial arrangement.
+   * The description reuses the same wording as the live detector screen. For 'intensity' mode it describes the
+   * intensity pattern (or reports "off" when the source is not emitting); for particle-detection modes it gives the
+   * live hits description followed by the total hit count captured in the snapshot.
    *
    * @param snapshot - the snapshot whose data drives the description
    */
   public static getDescription( snapshot: Snapshot ): string {
-    const isDoubleSlit = showsDoubleSlitInterferencePattern( snapshot.slitSetting );
-
     if ( snapshot.detectionMode === 'intensity' ) {
       if ( !snapshot.isEmitting ) {
         return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.intensityOffStringProperty.value;
@@ -40,8 +37,14 @@ export default class SnapshotDescriber {
     const hitCount = snapshot.hits.length;
     const hitStage = BandAnalysis.getHitStage( hitCount );
     const analysis = BandAnalysis.analyzeTheoreticalPatternFromSnapshot( snapshot );
-    const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, false, false );
+    const liveDescription = formatLiveHitsDescription( hitStage, snapshot.slitSetting, analysis, undefined, true );
 
-    return formatSnapshotHitsDescription( hitStage, snapshot.slitSetting, analysis, hitCount, spatialDescription );
+    // At 0 hits the live description already says the screen is empty, so the running-total sentence is omitted.
+    return hitStage === 'none' ?
+           liveDescription :
+           QuantumWaveInterferenceFluent.a11y.detectorScreen.snapshotHitsParagraph.format( {
+             description: liveDescription,
+             hitCount: hitCount
+           } );
   }
 }

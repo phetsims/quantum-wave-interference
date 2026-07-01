@@ -189,8 +189,6 @@ export function formatLiveHitsDescription(
 
   const patternKind = getPatternKind( slitConfiguration );
 
-  // NOTE: see other duplicate in formatSnapshotHitsDescription below. The live and snapshot descriptions intentionally
-  // share the same hit-stage decision tree but target different Fluent strings and count arguments.
   if ( patternKind === 'doubleSlitInterference' ) {
     if ( allowDoubleSlitClustering ) {
       return ( hitStage === 'emerging' || hitStage === 'developing' || hitStage === 'steadyStatePattern' ) ?
@@ -228,78 +226,6 @@ export function formatLiveHitsDescription(
              analysis.spacingCategory,
              analysis.envelopeCategory
            ) :
-           ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
-  }
-}
-
-/**
- * Formats the accessible detector-screen description for a saved snapshot in hits mode.
- * @param hitStage - qualitative stage of accumulated hit formation
- * @param slitConfiguration - snapshot slit configuration
- * @param analysis - analyzed band/spacing data for the snapshot pattern
- * @param hitCount - number of hits captured in the snapshot
- * @param spatialDescription - localized spatial description of the visible double-slit pattern
- * @returns localized accessible paragraph text
- */
-export function formatSnapshotHitsDescription(
-  hitStage: HitStage,
-  slitConfiguration: SlitConfigurationWithNoBarrier,
-  analysis: Pick<BandAnalysisResult, 'envelopeCategory'>,
-  hitCount: number,
-  spatialDescription: string
-): string {
-  if ( hitStage === 'none' ) {
-    return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNone.format( { hitCount: hitCount } );
-  }
-  if ( hitStage === 'few' ) {
-    return QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsFew.format( { hitCount: hitCount } );
-  }
-
-  const patternKind = getPatternKind( slitConfiguration );
-  const envelope = ( patternKind === 'doubleSlitInterference' || patternKind === 'whichPathDiffraction' ) ?
-                   analysis.envelopeCategory :
-                   'brightestAtCenter';
-
-  // NOTE: see other duplicate in formatLiveHitsDescription above. The live and snapshot descriptions intentionally
-  // share the same hit-stage decision tree but target different Fluent strings and count arguments.
-  if ( patternKind === 'doubleSlitInterference' ) {
-    return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsEmerging.format( {
-             envelope: envelope,
-             hitCount: hitCount
-           } ) :
-           hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsDeveloping.format( {
-                                       envelope: envelope,
-                                       hitCount: hitCount,
-                                       spatialDescription: spatialDescription
-                                     } ) :
-           hitStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSteadyStatePattern.format( {
-                                             envelope: envelope,
-                                             hitCount: hitCount,
-                                             spatialDescription: spatialDescription
-                                           } ) :
-           ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
-  }
-  else if ( patternKind === 'noBarrier' ) {
-    return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNoBarrierEmerging.format( {
-             hitCount: hitCount
-           } ) :
-           hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNoBarrierDeveloping.format( {
-                                       hitCount: hitCount
-                                     } ) :
-           hitStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsNoBarrierSteadyStatePattern.format( {
-                                             hitCount: hitCount
-                                           } ) :
-           ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
-  }
-  else {
-    return hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitEmerging.format( {
-             envelope: envelope,
-             hitCount: hitCount
-           } ) :
-           ( hitStage === 'developing' || hitStage === 'steadyStatePattern' ) ? QuantumWaveInterferenceFluent.a11y.detectorScreen.accessibleParagraph.snapshotHitsSingleSlitClear.format( {
-                                                                                envelope: envelope,
-                                                                                hitCount: hitCount
-                                                                              } ) :
            ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
   }
 }

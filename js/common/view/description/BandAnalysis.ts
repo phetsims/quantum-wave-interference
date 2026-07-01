@@ -246,87 +246,45 @@ export default class BandAnalysis {
   }
 
   /**
-   * Formats a spatial description for bands/peaks using either ruler-anchored or relative terms.
+   * Formats a spatial description of the graph peaks using either ruler-anchored or relative terms.
+   *
+   * Pure formatter; live describers subscribe to physics, ruler, zoom, hit-stage, and Fluent-bundle changes before
+   * calling this helper.
+   *
    * @param analysis - result from analyzeHitBins or analyzeTheoreticalPattern
    * @param isDoubleSlit - true for double-slit (interference fringes), false for single slit
    * @param isRulerVisible - whether the ruler is currently shown
-   * @param usePeakLanguage - true for graph descriptions ("peaks"), false for screen descriptions ("bands")
    */
   public static formatSpatialDescription(
-    analysis: BandAnalysisResult, isDoubleSlit: boolean, isRulerVisible: boolean, usePeakLanguage: boolean
-  ): string {
-    return BandAnalysis.formatSpatialDescriptionWithStyle( analysis, isDoubleSlit, isRulerVisible, usePeakLanguage, true );
-  }
-
-  /**
-   * Formats only the relative/measurement arrangement of the visible double-slit bands/peaks. This supports
-   * descriptions that mention the band count elsewhere in the same sentence.
-   */
-  public static formatSpatialArrangementDescription(
-    analysis: BandAnalysisResult, isDoubleSlit: boolean, isRulerVisible: boolean, usePeakLanguage: boolean
-  ): string {
-    return BandAnalysis.formatSpatialDescriptionWithStyle( analysis, isDoubleSlit, isRulerVisible, usePeakLanguage, false );
-  }
-
-  // Pure formatter; live describers subscribe to physics, ruler, zoom, hit-stage, and Fluent-bundle changes before
-  // calling this helper. Snapshot descriptions call it from immutable snapshot state.
-  private static formatSpatialDescriptionWithStyle(
-    analysis: BandAnalysisResult,
-    isDoubleSlit: boolean,
-    isRulerVisible: boolean,
-    usePeakLanguage: boolean,
-    includeDoubleSlitCount: boolean
+    analysis: BandAnalysisResult, isDoubleSlit: boolean, isRulerVisible: boolean
   ): string {
     if ( analysis.bandCount === 0 ) {
       return '';
     }
 
-    const style = usePeakLanguage ? 'peaks' : 'bands';
     const hasRulerMeasurement = isRulerVisible &&
                                 ( isDoubleSlit ? analysis.averageSpacingMM > 0 : analysis.centralWidthMM > 0 );
 
     if ( isDoubleSlit ) {
-      if ( hasRulerMeasurement ) {
-        return includeDoubleSlitCount ?
-               QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerDoubleSlit.format( {
-                 style: style,
-                 count: analysis.bandCount,
-                 spacing: millimetersUnit.getAccessibleString( analysis.averageSpacingMM, {
-                   decimalPlaces: 1
-                 } )
-               } ) :
-               QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerDoubleSlitArrangement.format( {
-                 style: style,
-                 spacing: millimetersUnit.getAccessibleString( analysis.averageSpacingMM, {
-                   decimalPlaces: 1
-                 } )
-               } );
-      }
-      else {
-        return includeDoubleSlitCount ?
-               QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerDoubleSlit.format( {
-                 style: style,
-                 count: analysis.bandCount
-               } ) :
-               QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerDoubleSlitArrangement.format( {
-                 style: style
-               } );
-      }
+      return hasRulerMeasurement ?
+             QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerDoubleSlit.format( {
+               count: analysis.bandCount,
+               spacing: millimetersUnit.getAccessibleString( analysis.averageSpacingMM, {
+                 decimalPlaces: 1
+               } )
+             } ) :
+             QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerDoubleSlit.format( {
+               count: analysis.bandCount
+             } );
     }
     else {
-      if ( hasRulerMeasurement ) {
-        return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerSingleSlit.format( {
-          style: style,
-          centralWidth: millimetersUnit.getAccessibleString( analysis.centralWidthMM, {
-            decimalPlaces: 1
-          } )
-        } );
-      }
-      else {
-        return QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerSingleSlit.format( {
-          style: style
-        } );
-      }
+      return hasRulerMeasurement ?
+             QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.rulerSingleSlit.format( {
+               centralWidth: millimetersUnit.getAccessibleString( analysis.centralWidthMM, {
+                 decimalPlaces: 1
+               } )
+             } ) :
+             QuantumWaveInterferenceFluent.a11y.detectorScreen.spatialDescription.noRulerSingleSlitStringProperty.value;
     }
   }
 }

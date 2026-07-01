@@ -847,6 +847,9 @@
       "snapshotHitTotal": {
         "value": "{ $hitCount ->\n  [one] Detector screen shows a total of 1 hit.\n *[other] Detector screen shows a total of { $hitCount } hits.\n}"
       },
+      "snapshotHitsParagraph": {
+        "value": "{ $description } { a11y_detectorScreen_snapshotHitTotal }"
+      },
       "accessibleParagraph": {
         "intensityOff": {
           "value": "Detector screen empty."
@@ -874,56 +877,20 @@
         },
         "hitsSteadyStatePattern": {
           "value": "Across detector screen, evenly-spaced bright bands are { $spacingDescription }, brightest at center."
-        },
-        "snapshotHitsNone": {
-          "value": "Detector screen is empty. { a11y_detectorScreen_snapshotHitTotal } No particles have arrived yet."
-        },
-        "snapshotHitsFew": {
-          "value": "A handful of particles are visible at scattered positions across the screen. { a11y_detectorScreen_snapshotHitTotal }"
-        },
-        "snapshotHitsEmerging": {
-          "value": "{ $envelope ->\n  [clusteringIntoTwoFaintSections] More particles, and faint vertical stripes are grouped into two close areas.\n  [clusteringIntoTwoDistinctSections] More particles, and faint vertical stripes are grouped into two distinct areas.\n *[brightestAtCenter] More particles, and faint vertical stripes are becoming visible with gaps between them.\n} { a11y_detectorScreen_snapshotHitTotal }"
-        },
-        "snapshotHitsDeveloping": {
-          "value": "{ $envelope ->\n  [clusteringIntoTwoFaintSections] Individual impacts are gathering into evenly-spaced bands grouped into two close areas.\n  [clusteringIntoTwoDistinctSections] Individual impacts are gathering into evenly-spaced bands grouped into two distinct areas.\n *[brightestAtCenter] Individual impacts are gathering into distinct vertical bands, separated by regions with fewer particles. { $spatialDescription }\n} { a11y_detectorScreen_snapshotHitTotal }"
-        },
-        "snapshotHitsSteadyStatePattern": {
-          "value": "{ $envelope ->\n  [clusteringIntoTwoFaintSections] Distinct vertical bands are grouped into two close areas.\n  [clusteringIntoTwoDistinctSections] Distinct vertical bands are grouped into two distinct areas.\n *[brightestAtCenter] Distinct vertical bands fill the screen, with dense stripes separated by nearly empty gaps. { $spatialDescription }\n} { a11y_detectorScreen_snapshotHitTotal }"
-        },
-        "snapshotHitsSingleSlitEmerging": {
-          "value": "{ $envelope ->\n  [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.\n  [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.\n *[brightestAtCenter] Hits collect in broad central area, fewer hits toward edges.\n} { a11y_detectorScreen_snapshotHitTotal }"
-        },
-        "snapshotHitsSingleSlitClear": {
-          "value": "{ $envelope ->\n  [clusteringIntoTwoFaintSections] Hits are closely clustering into two areas, directly across from the slits.\n  [clusteringIntoTwoDistinctSections] Hits collect in two distinct areas, directly across from the slits.\n *[brightestAtCenter] Across detector screen, hits form broad central bright area with fewer hits toward edges.\n} { a11y_detectorScreen_snapshotHitTotal }"
-        },
-        "snapshotHitsNoBarrierEmerging": {
-          "value": "Hits build up evenly across detector screen. { a11y_detectorScreen_snapshotHitTotal }"
-        },
-        "snapshotHitsNoBarrierDeveloping": {
-          "value": "Hits scatter evenly from edge to edge. { a11y_detectorScreen_snapshotHitTotal }"
-        },
-        "snapshotHitsNoBarrierSteadyStatePattern": {
-          "value": "Across detector screen, hits form uniform glow from edge to edge. { a11y_detectorScreen_snapshotHitTotal }"
         }
       },
       "spatialDescription": {
         "rulerDoubleSlit": {
-          "value": "{ $style ->\n  [bands] { $count } bands centered at 0 millimeters, spaced roughly { $spacing } apart.\n  *[peaks] { $count } peaks centered at 0 millimeters, spaced roughly { $spacing } apart.\n}"
+          "value": "{ $count } peaks centered at 0 millimeters, spaced roughly { $spacing } apart."
         },
         "noRulerDoubleSlit": {
-          "value": "{ $style ->\n  [bands] { $count } bands centered on the screen, spread symmetrically to either side.\n  *[peaks] { $count } peaks centered on the graph, spread symmetrically to either side.\n}"
-        },
-        "rulerDoubleSlitArrangement": {
-          "value": "{ $style ->\n  [bands] Bands centered at 0 millimeters, spaced roughly { $spacing } apart.\n  *[peaks] Peaks centered at 0 millimeters, spaced roughly { $spacing } apart.\n}"
-        },
-        "noRulerDoubleSlitArrangement": {
-          "value": "{ $style ->\n  [bands] Bands are centered on screen and spread symmetrically to either side.\n  *[peaks] Peaks are centered on graph and spread symmetrically to either side.\n}"
+          "value": "{ $count } peaks centered on the graph, spread symmetrically to either side."
         },
         "rulerSingleSlit": {
-          "value": "{ $style ->\n  [bands] The central band spans roughly { $centralWidth }, centered at 0.\n  *[peaks] The central peak spans roughly { $centralWidth }, centered at 0.\n}"
+          "value": "The central peak spans roughly { $centralWidth }, centered at 0."
         },
         "noRulerSingleSlit": {
-          "value": "{ $style ->\n  [bands] A broad central area centered on the screen, tapering toward the edges.\n  *[peaks] A broad central peak, tapering toward the edges.\n}"
+          "value": "A broad central peak, tapering toward the edges."
         }
       },
       "zoomButtonGroup": {
