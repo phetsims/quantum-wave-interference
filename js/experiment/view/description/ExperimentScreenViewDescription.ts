@@ -72,6 +72,10 @@ export default class ExperimentScreenViewDescription extends Node {
       sourceStartedResponseNode.addAccessibleContextResponse(
         QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceStarted.format( {
           isPlaying: model.isPlayingProperty.value ? 'true' : 'false',
+
+          // The Experiment screen does not auto-resume playback when the source turns on (issue #306 targets the High
+          // Intensity and Single Particles screens only), so this response never announces an auto-resume.
+          autoResumed: 'false',
           timeSpeed: getClockSpeedDescription( model )
         } ),
         { flush: true }

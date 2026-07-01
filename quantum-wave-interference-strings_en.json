@@ -406,7 +406,7 @@
     },
     "waveExperimentResponses": {
       "sourceStarted": {
-        "value": "{ $isPlaying ->\n  [false] Source started. Sim is paused.\n *[true] Source started on { $timeSpeed } speed.\n}"
+        "value": "{ $isPlaying ->\n  [false] Source started. Sim is paused.\n *[true] { $autoResumed ->\n    [true] Source started, sim now playing on { $timeSpeed } speed.\n   *[false] Source started on { $timeSpeed } speed.\n  }\n}"
       },
       "sourceRestarted": {
         "value": "Source restarted."

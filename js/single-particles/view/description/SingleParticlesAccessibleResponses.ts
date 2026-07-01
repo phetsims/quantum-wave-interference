@@ -123,10 +123,19 @@ function getPacketWaveProgressStage(
          'diffractingAfterSlits';
 }
 
-function formatSourceStarted( state: SingleParticlesResponseState ): string {
+/**
+ * Formats the source-started context response, comparing the before/after snapshots so it can announce when turning the
+ * emitter on auto-resumed a paused sim (issue #306) as a single combined response.
+ *
+ * @param before - semantic snapshot captured before the source turned on
+ * @param after - semantic snapshot captured after the source turned on
+ * @returns the localized source-started context response
+ */
+function formatSourceStarted( before: SingleParticlesResponseState, after: SingleParticlesResponseState ): string {
   return QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceStarted.format( {
-    isPlaying: state.isPlaying ? 'true' : 'false',
-    timeSpeed: state.clockSpeedDescription
+    isPlaying: after.isPlaying ? 'true' : 'false',
+    autoResumed: ( !before.isPlaying && after.isPlaying ) ? 'true' : 'false',
+    timeSpeed: after.clockSpeedDescription
   } );
 }
 
@@ -244,7 +253,17 @@ export default class SingleParticlesAccessibleResponses extends Node {
     // Changes that have their own responses elsewhere (scene radio buttons, slit configuration controls, parameter
     // sliders, probe measurements, time controls) only refresh the baseline snapshot so later guards compare against
     // current values.
-    const updateStateSilently = () => { this.previousState = this.getResponseState(); };
+    const updateStateSilently = () => {
+
+      // While an emitter turn-on is still pending its own source-changed response, skip refreshing the baseline. Turning
+      // the source on auto-resumes a paused sim (issue #306), which fires this play-state listener before
+      // handleSourceChanged runs; refreshing here would make before.isEmitting === after.isEmitting and suppress the
+      // source-started response. The mismatch only exists during that transient window, so normal play/pause toggles
+      // (emitter unchanged) still refresh the baseline as before.
+      if ( this.previousState.isEmitting === model.currentIsEmittingProperty.value ) {
+        this.previousState = this.getResponseState();
+      }
+    };
     model.sceneProperty.lazyLink( updateStateSilently );
     model.currentSlitConfigurationProperty.lazyLink( updateStateSilently );
     model.currentWavelengthProperty.lazyLink( updateStateSilently );
@@ -397,7 +416,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
 
     if ( after.isEmitting ) {
       this.lastTransitionWasHit = false;
-      this.addAccessibleContextResponse( formatSourceStarted( after ), { flush: true } );
+      this.addAccessibleContextResponse( formatSourceStarted( before, after ), { flush: true } );
 
       if ( after.isPlaying && this.shouldAddPacketLifecycleContextResponses( after ) ) {
         this.addAccessibleContextResponse( formatPacketBeamDescription( after ) );

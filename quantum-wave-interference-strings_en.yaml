@@ -466,7 +466,10 @@ a11y:
     sourceStarted:            >-
                               { $isPlaying ->
                                 [false] Source started. Sim is paused.
-                               *[true] Source started on { $timeSpeed } speed.
+                               *[true] { $autoResumed ->
+                                  [true] Source started, sim now playing on { $timeSpeed } speed.
+                                 *[false] Source started on { $timeSpeed } speed.
+                                }
                               }
     sourceRestarted:          Source restarted.
     advancingWave:            '{ $beamDescription }'

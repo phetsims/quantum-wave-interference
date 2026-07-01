@@ -118,6 +118,10 @@ export default class QuantumWaveInterferenceTransitionDescriber {
         contextResponses = [
           QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.sourceStarted.format( {
             isPlaying: after.isPlaying ? 'true' : 'false',
+
+            // Turning the emitter on auto-resumes a paused sim (issue #306), so announce the resumed playback in one
+            // combined response rather than letting a separate play/pause alert compete with the source-start response.
+            autoResumed: ( !before.isPlaying && after.isPlaying ) ? 'true' : 'false',
             timeSpeed: after.clockSpeedDescription
           } )
         ];

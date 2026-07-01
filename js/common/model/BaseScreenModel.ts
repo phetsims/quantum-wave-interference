@@ -224,6 +224,18 @@ export default abstract class BaseScreenModel<T extends BaseSceneModel> implemen
       phetioFeatured: true
     } );
 
+    // When the user turns the emitter on while the sim is paused, automatically resume playback so the emission is
+    // visible. Students sometimes forget the sim is paused, press the emitter, see nothing happen, and think the
+    // button is broken. See https://github.com/phetsims/quantum-wave-interference/issues/306. Only ON transitions
+    // resume playback; turning the emitter off never changes the play state, so the automatic max-hits shutoff in
+    // BaseSceneModel leaves the play state untouched. This listener is registered before the view's accessible-response
+    // describers subscribe to currentIsEmittingProperty, so their "after" snapshots observe the resumed play state.
+    this.currentIsEmittingProperty.lazyLink( isEmitting => {
+      if ( isEmitting ) {
+        this.isPlayingProperty.value = true;
+      }
+    } );
+
     this.timeSpeedProperty = new TimeSpeedProperty( tandem.createTandem( 'timeSpeedProperty' ) );
 
     this.toolsTandem = tandem.createTandem( 'tools' );

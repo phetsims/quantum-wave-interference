@@ -95,7 +95,15 @@ export default class HighIntensityAccessibleResponses extends Node {
     };
 
     const updateStateSilently = () => {
-      this.previousState = this.getAccessibleViewState();
+
+      // While an emitter turn-on is still pending its own source-changed response, skip refreshing the baseline. Turning
+      // the source on auto-resumes a paused sim (issue #306), which fires this play-state listener before the
+      // 'sourceChanged' emitTransition runs; refreshing here would make before.isEmitting === after.isEmitting and
+      // suppress the source-started response. The mismatch only exists during that transient window, so normal
+      // play/pause toggles (emitter unchanged) still refresh the baseline as before.
+      if ( this.previousState.isEmitting === model.currentIsEmittingProperty.value ) {
+        this.previousState = this.getAccessibleViewState();
+      }
     };
 
     model.currentIsEmittingProperty.lazyLink( () => emitTransition( { type: 'sourceChanged' } ) );
