@@ -179,6 +179,12 @@
   "imaginaryPart": {
     "value": "Imaginary Part"
   },
+  "waveFunctionRealPart": {
+    "value": "Wave Function: Real Part"
+  },
+  "waveFunctionImaginaryPart": {
+    "value": "Wave Function: Imaginary Part"
+  },
   "coverTop": {
     "value": "Cover Top"
   },

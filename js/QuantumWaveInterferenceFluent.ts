@@ -83,6 +83,8 @@ addToMapIfDefined( 'electricField', 'electricFieldStringProperty' );
 addToMapIfDefined( 'amplitude', 'amplitudeStringProperty' );
 addToMapIfDefined( 'realPart', 'realPartStringProperty' );
 addToMapIfDefined( 'imaginaryPart', 'imaginaryPartStringProperty' );
+addToMapIfDefined( 'waveFunctionRealPart', 'waveFunctionRealPartStringProperty' );
+addToMapIfDefined( 'waveFunctionImaginaryPart', 'waveFunctionImaginaryPartStringProperty' );
 addToMapIfDefined( 'coverTop', 'coverTopStringProperty' );
 addToMapIfDefined( 'coverBottom', 'coverBottomStringProperty' );
 addToMapIfDefined( 'detectorTop', 'detectorTopStringProperty' );
@@ -386,6 +388,9 @@ const QuantumWaveInterferenceFluent = {
   amplitudeStringProperty: _.get( QuantumWaveInterferenceStrings, 'amplitudeStringProperty' ),
   realPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'realPartStringProperty' ),
   imaginaryPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'imaginaryPartStringProperty' ),
+  _comment_1: new FluentComment( {"comment":"y-axis headings for the Plot tools, clarifying that the plotted quantity is part of the wave function","associatedKey":"waveFunctionRealPart"} ),
+  waveFunctionRealPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'waveFunctionRealPartStringProperty' ),
+  waveFunctionImaginaryPartStringProperty: _.get( QuantumWaveInterferenceStrings, 'waveFunctionImaginaryPartStringProperty' ),
   coverTopStringProperty: _.get( QuantumWaveInterferenceStrings, 'coverTopStringProperty' ),
   coverBottomStringProperty: _.get( QuantumWaveInterferenceStrings, 'coverBottomStringProperty' ),
   detectorTopStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorTopStringProperty' ),
@@ -409,7 +414,7 @@ const QuantumWaveInterferenceFluent = {
     detectorTopStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.detectorTopStringProperty' ),
     detectorBottomStringProperty: _.get( QuantumWaveInterferenceStrings, 'snapshotSlitConfiguration.detectorBottomStringProperty' )
   },
-  _comment_1: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
+  _comment_2: new FluentComment( {"comment":"Accessibility strings","associatedKey":"a11y"} ),
   a11y: {
     experimentScreen: {
       screenButtonsHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_experimentScreen_screenButtonsHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.experimentScreen.screenButtonsHelpTextStringProperty' ) )

@@ -214,7 +214,7 @@ export default class WavePlotChartNode extends InteractiveHighlighting( Node ) {
       font: LABEL_FONT,
       rotation: -Math.PI / 2,
       fill: options.axisLabelFill,
-      maxWidth: this.chartHeight * 0.75
+      maxWidth: this.chartHeight * 0.9
     } );
 
     const xAxisLabel = new Text( options.xAxisLabelStringProperty, {

@@ -61,6 +61,10 @@ electricField:                   Electric Field
 amplitude:                       Amplitude
 realPart:                        Real Part
 imaginaryPart:                   Imaginary Part
+
+# y-axis headings for the Plot tools, clarifying that the plotted quantity is part of the wave function
+waveFunctionRealPart:            'Wave Function: Real Part'
+waveFunctionImaginaryPart:       'Wave Function: Imaginary Part'
 coverTop:                        Cover Top
 coverBottom:                     Cover Bottom
 detectorTop:                     Detector Top

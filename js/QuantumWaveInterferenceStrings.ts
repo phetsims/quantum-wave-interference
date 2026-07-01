@@ -84,6 +84,8 @@ type StringsType = {
   'amplitudeStringProperty': LocalizedStringProperty;
   'realPartStringProperty': LocalizedStringProperty;
   'imaginaryPartStringProperty': LocalizedStringProperty;
+  'waveFunctionRealPartStringProperty': LocalizedStringProperty;
+  'waveFunctionImaginaryPartStringProperty': LocalizedStringProperty;
   'coverTopStringProperty': LocalizedStringProperty;
   'coverBottomStringProperty': LocalizedStringProperty;
   'detectorTopStringProperty': LocalizedStringProperty;

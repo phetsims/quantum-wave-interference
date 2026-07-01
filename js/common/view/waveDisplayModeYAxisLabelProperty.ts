@@ -20,17 +20,15 @@ import { type WaveDisplayMode } from '../model/WaveDisplayMode.js';
  * @param activeDisplayModeProperty - the current wave display mode for the active scene
  * @returns a read-only property that resolves to the localized y-axis label for the given mode
  */
-export default function waveDisplayModeYAxisLabelProperty(
-  activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode>
-): TReadOnlyProperty<string> {
+export default function waveDisplayModeYAxisLabelProperty( activeDisplayModeProperty: TReadOnlyProperty<WaveDisplayMode> ): TReadOnlyProperty<string> {
 
   return new DerivedProperty(
     [
       activeDisplayModeProperty,
       QuantumWaveInterferenceFluent.electricFieldStringProperty,
       QuantumWaveInterferenceFluent.amplitudeStringProperty,
-      QuantumWaveInterferenceFluent.realPartStringProperty,
-      QuantumWaveInterferenceFluent.imaginaryPartStringProperty
+      QuantumWaveInterferenceFluent.waveFunctionRealPartStringProperty,
+      QuantumWaveInterferenceFluent.waveFunctionImaginaryPartStringProperty
     ],
     ( mode, electricField, amplitude, realPart, imaginaryPart ) =>
       mode === 'electricField' ? electricField :
