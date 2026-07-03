@@ -102,20 +102,10 @@ export default class QuantumWaveInterferenceScreenSummaryContent extends ScreenS
     const currentDetailsContentProperty =
       QuantumWaveInterferenceFluent.a11y.screenSummary.currentDetails.createProperty( currentDetailsOptions );
 
-    const defaultInteractionHintContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {
+    const interactionHintContentProperty = QuantumWaveInterferenceFluent.a11y.screenSummary.interactionHint.createProperty( {
       sourceType: sourceTypeProperty,
       isEmitting: isEmittingStringProperty
     } );
-
-    const interactionHintContentProperty = new DerivedProperty(
-      [
-        defaultInteractionHintContentProperty,
-        model.currentIsMaxHitsReachedProperty,
-        QuantumWaveInterferenceFluent.a11y.screenSummary.maxHitsReachedHintStringProperty
-      ],
-      ( defaultInteractionHint, isMaxHitsReached, maxHitsReachedHint ) =>
-        isMaxHitsReached ? maxHitsReachedHint : defaultInteractionHint
-    );
 
     super( {
       playAreaContent: providedOptions.playAreaContent,

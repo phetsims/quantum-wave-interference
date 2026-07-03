@@ -121,7 +121,6 @@ type StringsType = {
       'playAreaHighIntensityStringProperty': LocalizedStringProperty;
       'playAreaSingleParticlesStringProperty': LocalizedStringProperty;
       'controlAreaStringProperty': LocalizedStringProperty;
-      'maxHitsReachedHintStringProperty': LocalizedStringProperty;
       'currentDetailsStringProperty': LocalizedStringProperty;
       'interactionHintStringProperty': LocalizedStringProperty;
     };

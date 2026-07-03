@@ -274,11 +274,8 @@
       "controlArea": {
         "value": "Measurement tools can be added or removed to assist with data collection and analysis. Reset sim to start over."
       },
-      "maxHitsReachedHint": {
-        "value": "Clear detector screen to make more observations."
-      },
       "currentDetails": {
-        "value": "Currently, { $isPlaying ->\n  [false] sim is paused. { $isMaxHitsReached ->\n    [true] Source is off. Max number of { a11y_particleNouns_lowercaseSingular } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] Source emits { a11y_particleNouns_lowercasePlural } directly at double-slit barrier with { a11y_experimentStateClauses_slitConfiguration }. { a11y_experimentStateClauses_detectionResult }\n     *[false] Source is off. { a11y_experimentStateClauses_detectionResultSourceOff }\n    }\n  }\n *[true] { $isMaxHitsReached ->\n    [true] source is off. Max number of { a11y_particleNouns_lowercaseSingular } hits reached. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] source emits { a11y_particleNouns_lowercasePlural } directly at double-slit barrier with { a11y_experimentStateClauses_slitConfiguration }. { a11y_experimentStateClauses_detectionResult }\n     *[false] source is off. { a11y_experimentStateClauses_detectionResultSourceOff }\n    }\n  }\n}"
+        "value": "Currently, { $isPlaying ->\n  [false] sim is paused. { $isMaxHitsReached ->\n    [true] Source is off. { maximumHitsReached }. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] Source emits { a11y_particleNouns_lowercasePlural } directly at double-slit barrier with { a11y_experimentStateClauses_slitConfiguration }. { a11y_experimentStateClauses_detectionResult }\n     *[false] Source is off. { a11y_experimentStateClauses_detectionResultSourceOff }\n    }\n  }\n *[true] { $isMaxHitsReached ->\n    [true] source is off. { maximumHitsReached }. Detector screen shows hits pattern.\n   *[false] { $isEmitting ->\n      [true] source emits { a11y_particleNouns_lowercasePlural } directly at double-slit barrier with { a11y_experimentStateClauses_slitConfiguration }. { a11y_experimentStateClauses_detectionResult }\n     *[false] source is off. { a11y_experimentStateClauses_detectionResultSourceOff }\n    }\n  }\n}"
       },
       "interactionHint": {
         "value": "{ $isEmitting ->\n  [true] Adjust source or slits and watch for changes on detector screen.\n *[false] Turn on { a11y_particleNouns_lowercaseSingular } source and observe detector screen.\n}"
@@ -463,7 +460,7 @@
         "value": "{ $waveProgressStage ->\n  [sourceOff] Source is off, so no wave is traveling.\n  [atSlits] { $waveDisplayMode ->\n    [amplitude] { $patternKind ->\n      [doubleSlitInterference] Solid circular waves emerge from both slits and overlap.\n      [singleSlitDiffraction] Solid circular wave emerges from open slit only.\n      [whichPathDiffraction] As detection events occur, solid circular waves emerge from both slits one at a time\n      and do not interact.\n     *[noBarrier] Solid wave moves directly toward the detector screen.\n    }\n   *[electricField] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the detector screen.\n    }\n    [realPart] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the detector screen.\n    }\n    [imaginaryPart] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the detector screen.\n    }\n  }\n  [interferingAfterSlits] { $waveDisplayMode ->\n    [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward detector screen.\n   *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.\n    [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.\n    [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.\n  }\n  [diffractingAfterSlits] { $waveDisplayMode ->\n    [amplitude] Solid circular wave spreads toward detector screen.\n   *[electricField] Circular wave fronts spread toward detector screen.\n    [realPart] Circular wave fronts spread toward detector screen.\n    [imaginaryPart] Circular wave fronts spread toward detector screen.\n  }\n  [whichPathAfterSlits] { $waveDisplayMode ->\n    [amplitude] Non-interacting solid circular waves spread toward detector screen.\n   *[electricField] Non-interacting circular wave fronts spread toward detector screen.\n    [realPart] Non-interacting circular wave fronts spread toward detector screen.\n    [imaginaryPart] Non-interacting circular wave fronts spread toward detector screen.\n  }\n *[directToScreen] { $waveDisplayMode ->\n    [amplitude] Solid wave moves directly toward the detector screen.\n   *[electricField] Plane wave fronts move directly toward the detector screen.\n    [realPart] Plane wave fronts move directly toward the detector screen.\n    [imaginaryPart] Plane wave fronts move directly toward the detector screen.\n  }\n}"
       },
       "maxHitsReached": {
-        "value": "Maximum number of hits reached. Source is off. Clear detector screen to make more observations."
+        "value": "{ maximumHitsReached }. Source is off."
       },
       "reset": {
         "value": "Experiment reset. Source is off and detector screen is empty."
@@ -695,7 +692,7 @@
         "value": "Change particle type for source emitter and change experiment setup."
       },
       "accessibleContextResponse": {
-        "value": "{ $isMaxHitsReached ->\n  [true] { a11y_particleNouns_sentenceCaseSingular } experiment at max hits. Clear detector screen to make more observations.\n *[false] { $isEmitting ->\n    [true] { a11y_particleNouns_sentenceCaseSingular } experiment, detector pattern changed.\n   *[false] Source off. { a11y_particleNouns_sentenceCaseSingular } experiment ready to start.\n  }\n}"
+        "value": "{ $isMaxHitsReached ->\n  [true] { a11y_particleNouns_sentenceCaseSingular } experiment at max hits.\n *[false] { $isEmitting ->\n    [true] { a11y_particleNouns_sentenceCaseSingular } experiment, detector pattern changed.\n   *[false] Source off. { a11y_particleNouns_sentenceCaseSingular } experiment ready to start.\n  }\n}"
       },
       "photonsRadioButton": {
         "accessibleContextResponse": {
@@ -832,7 +829,7 @@
     "detectorScreen": {
       "maxHitsReached": {
         "accessibleContextResponse": {
-          "value": "Maximum number of hits reached. Source is off. Clear detector screen to make more observations."
+          "value": "{ maximumHitsReached }. Source is off."
         }
       },
       "bandSpacingDescription": {

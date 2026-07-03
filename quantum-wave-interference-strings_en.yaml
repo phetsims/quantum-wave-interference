@@ -116,18 +116,17 @@ a11y:
     controlArea:             >-
                              Measurement tools can be added or removed to assist with data collection and analysis.
                              Reset sim to start over.
-    maxHitsReachedHint:      Clear detector screen to make more observations.
     currentDetails:          >-
                              Currently, { $isPlaying ->
                                [false] sim is paused. { $isMaxHitsReached ->
-                                 [true] Source is off. Max number of { a11y.particleNouns.lowercaseSingular } hits reached. Detector screen shows hits pattern.
+                                 [true] Source is off. { maximumHitsReached }. Detector screen shows hits pattern.
                                 *[false] { $isEmitting ->
                                    [true] Source emits { a11y.particleNouns.lowercasePlural } directly at double-slit barrier with { a11y.experimentStateClauses.slitConfiguration }. { a11y.experimentStateClauses.detectionResult }
                                   *[false] Source is off. { a11y.experimentStateClauses.detectionResultSourceOff }
                                  }
                                }
                               *[true] { $isMaxHitsReached ->
-                                 [true] source is off. Max number of { a11y.particleNouns.lowercaseSingular } hits reached. Detector screen shows hits pattern.
+                                 [true] source is off. { maximumHitsReached }. Detector screen shows hits pattern.
                                 *[false] { $isEmitting ->
                                    [true] source emits { a11y.particleNouns.lowercasePlural } directly at double-slit barrier with { a11y.experimentStateClauses.slitConfiguration }. { a11y.experimentStateClauses.detectionResult }
                                   *[false] source is off. { a11y.experimentStateClauses.detectionResultSourceOff }
@@ -608,7 +607,7 @@ a11y:
                                   [imaginaryPart] Plane wave fronts move directly toward the detector screen.
                                 }
                               }
-    maxHitsReached:           Maximum number of hits reached. Source is off. Clear detector screen to make more observations.
+    maxHitsReached:           '{ maximumHitsReached }. Source is off.'
     reset:                    Experiment reset. Source is off and detector screen is empty.
   experimentSetupDetails:
     leadingParagraph:           'Experiment details:'
@@ -860,7 +859,7 @@ a11y:
     accessibleHelpText:        Change particle type for source emitter and change experiment setup.
     accessibleContextResponse: >-
                                { $isMaxHitsReached ->
-                                 [true] { a11y.particleNouns.sentenceCaseSingular } experiment at max hits. Clear detector screen to make more observations.
+                                 [true] { a11y.particleNouns.sentenceCaseSingular } experiment at max hits.
                                 *[false] { $isEmitting ->
                                    [true] { a11y.particleNouns.sentenceCaseSingular } experiment, detector pattern changed.
                                   *[false] Source off. { a11y.particleNouns.sentenceCaseSingular } experiment ready to start.
@@ -977,7 +976,7 @@ a11y:
                                  } Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph.
   detectorScreen:
     maxHitsReached:
-      accessibleContextResponse: Maximum number of hits reached. Source is off. Clear detector screen to make more observations.
+      accessibleContextResponse: '{ maximumHitsReached }. Source is off.'
     bandSpacingDescription: |-
                             { $spacing ->
                               [extremelyFarApart] extremely far apart
