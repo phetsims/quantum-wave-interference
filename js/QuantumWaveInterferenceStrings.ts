@@ -199,6 +199,7 @@ type StringsType = {
       'waveDisplayChangedStringProperty': LocalizedStringProperty;
       'toolChangedStringProperty': LocalizedStringProperty;
       'screenClearedStringProperty': LocalizedStringProperty;
+      'waveProgressTargetStringProperty': LocalizedStringProperty;
       'waveProgressChangedStringProperty': LocalizedStringProperty;
       'maxHitsReachedStringProperty': LocalizedStringProperty;
       'resetStringProperty': LocalizedStringProperty;

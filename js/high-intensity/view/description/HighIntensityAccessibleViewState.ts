@@ -97,8 +97,9 @@ export type HighIntensitySemanticAccessibleViewState = {
   // Full single-slit envelope heuristic details used to produce envelopeCategory.
   envelopeHeuristic: EnvelopeHeuristicAnalysis | null;
 
-  // Localized description of the current graph/histogram pattern, produced by DetectorPatternGraphDescriber. Used
-  // when a response must describe the graph surface instead of the detector screen (graph view is active).
+  // Localized description of the current graph/histogram pattern, formatted freshly by
+  // DetectorPatternGraphDescriber.formatDescription at snapshot time. Used when a response must describe the graph
+  // surface instead of the detector screen (graph view is active).
   graphPatternDescription: string;
   hitStage: HitStage;
   totalHits: number;

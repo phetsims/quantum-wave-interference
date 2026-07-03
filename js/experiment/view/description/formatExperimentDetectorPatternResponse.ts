@@ -78,7 +78,12 @@ export function formatExperimentLiveHitsResponse( model: ExperimentModel ): stri
  * @returns localized current-state context response for the selected detection mode
  */
 export function formatExperimentDetectorScreenResponse( model: ExperimentModel, mode: DetectionMode ): string {
-  const screenEmptyResponse = QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.screenEmptyStringProperty.value;
+
+  // The Experiment screen's graph lives in an accordion box beside the detector screen, so the screen is always
+  // the visible detection surface here.
+  const screenEmptyResponse = QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.screenEmpty.format( {
+    surface: 'detectorScreen'
+  } );
 
   return mode === 'intensity' ?
          ( model.currentIsEmittingProperty.value ? formatExperimentDetectorPatternResponse( model ) : screenEmptyResponse ) :

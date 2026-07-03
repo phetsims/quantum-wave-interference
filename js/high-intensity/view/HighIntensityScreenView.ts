@@ -239,8 +239,9 @@ export default class HighIntensityScreenView extends ScreenView {
 
   private readonly model: HighIntensityModel;
 
-  // Produces the current graph/histogram pattern description, used both as the graph bullet in the
-  // "Graph and Experiment Details" list and as the graph-surface substitute in pattern-formation responses.
+  // Produces the current graph/histogram pattern description, used as the graph bullet in the
+  // "Graph and Experiment Details" list. Context responses instead format the description freshly via
+  // DetectorPatternGraphDescriber.formatDescription so they never read a not-yet-recomputed reactive value.
   private readonly detectorPatternGraphDescriber: DetectorPatternGraphDescriber;
   private readonly waveVisualizationNode: WaveVisualizationNode;
   private readonly detectorScreenNode: DetectorScreenNode;
@@ -310,8 +311,6 @@ export default class HighIntensityScreenView extends ScreenView {
     this.timePlotNode = measurementToolNodes.timePlotNode;
     this.positionPlotNode = measurementToolNodes.positionPlotNode;
 
-    // Created before HighIntensityAccessibleResponses because the responses node snapshots getAccessibleViewState()
-    // in its constructor, and the semantic state includes this describer's current graph pattern description.
     this.detectorPatternGraphDescriber = new DetectorPatternGraphDescriber( model.sceneProperty, new BooleanProperty( false ) );
 
     const getAccessibleViewState = () => this.getAccessibleViewState();
@@ -420,7 +419,10 @@ export default class HighIntensityScreenView extends ScreenView {
       bandSpacingDescription: bandAnalysis.spacingCategory,
       envelopeCategory: bandAnalysis.envelopeCategory,
       envelopeHeuristic: envelopeHeuristic,
-      graphPatternDescription: this.detectorPatternGraphDescriber.descriptionProperty.value,
+      // Formatted freshly rather than read from detectorPatternGraphDescriber.descriptionProperty: transition
+      // listeners can snapshot this state before the describer's own listeners have recomputed that reactive value,
+      // which would describe the previous hit stage. The ruler is never available on this screen, so pass false.
+      graphPatternDescription: DetectorPatternGraphDescriber.formatDescription( scene, false ),
       hitStage: hitStage,
       totalHits: scene.totalHitsProperty.value,
       patternFormation: getPatternFormation( scene, this.model ),

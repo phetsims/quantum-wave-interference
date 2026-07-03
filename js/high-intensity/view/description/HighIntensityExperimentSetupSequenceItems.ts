@@ -83,7 +83,11 @@ const formatWaveProgress = (
   QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.format( {
     waveProgressStage: stage,
     waveDisplayMode: state.waveDisplayMode,
-    patternKind: state.patternKind
+    patternKind: state.patternKind,
+
+    // While the graph view is active, the wave travels toward the graph that replaces the detector screen.
+    // isGraphVisibleProperty is already a template dependency, so this item re-derives when the view switches.
+    surface: state.displayMode === 'graph' ? 'graph' : 'detectorScreen'
   } );
 
 function getAfterSlitsStage( state: HighIntensityAccessibleViewState ): SequenceWaveProgressStage {

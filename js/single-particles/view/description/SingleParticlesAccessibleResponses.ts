@@ -25,13 +25,14 @@ import { type SlitConfigurationWithNoBarrier } from '../../../common/model/SlitC
 import { type WaveDisplayMode } from '../../../common/model/WaveDisplayMode.js';
 import QuantumWaveInterferenceConstants from '../../../common/QuantumWaveInterferenceConstants.js';
 import BandAnalysis, { type BandSpacingCategory, type EnvelopeCategory, type HitStage } from '../../../common/view/description/BandAnalysis.js';
+import DetectorPatternGraphDescriber from '../../../common/view/description/DetectorPatternGraphDescriber.js';
 import { formatLiveHitsDescription } from '../../../common/view/description/DetectorScreenDescriptionFormatter.js';
 import formatSourceStoppedResponse from '../../../common/view/description/formatSourceStoppedResponse.js';
 import { getClockSpeedDescription, type QuantumWaveInterferenceClockSpeedDescription } from '../../../common/view/description/getClockSpeedDescription.js';
 import { getPatternKind, type QuantumWaveInterferencePatternKind } from '../../../common/view/description/getPatternKind.js';
 import { getWavePeakSpacingCategory, type WavePeakSpacingCategory } from '../../../common/view/description/getWavePeakSpacingCategory.js';
 import { getWavelengthColorZone, type WavelengthColorZone } from '../../../common/view/WavelengthColorUtils.js';
-import { type QuantumWaveInterferenceWaveProgressStage } from '../../../high-intensity/view/description/HighIntensityAccessibleViewState.js';
+import { type QuantumWaveInterferenceDisplayMode, type QuantumWaveInterferenceWaveProgressStage } from '../../../high-intensity/view/description/HighIntensityAccessibleViewState.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type DetectorProbeState } from '../../model/DetectorProbe.js';
 import type SingleParticlesModel from '../../model/SingleParticlesModel.js';
@@ -60,6 +61,10 @@ type SingleParticlesResponseState = {
   isPacketActive: boolean;
   isMaxHitsReached: boolean;
   detectorProbeState: DetectorProbeState;
+
+  // Whether the detector output is shown on the detector screen or on the histogram that replaces it, so responses
+  // describe the visible surface.
+  displayMode: QuantumWaveInterferenceDisplayMode;
   slitConfiguration: SlitConfigurationWithNoBarrier;
   waveDisplayMode: WaveDisplayMode;
   wavelengthNM: number;
@@ -156,7 +161,10 @@ const formatWaveProgress = (
   QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.format( {
     waveProgressStage: stage,
     waveDisplayMode: state.waveDisplayMode,
-    patternKind: state.patternKind
+    patternKind: state.patternKind,
+
+    // While the graph view is active, the wave travels toward the histogram that replaces the detector screen.
+    surface: state.displayMode === 'graph' ? 'graph' : 'detectorScreen'
   } );
 
 function formatHitDescription( state: SingleParticlesResponseState ): string {
@@ -323,6 +331,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       this.model.currentIsEmittingProperty,
       this.model.currentIsPacketActiveProperty,
       this.model.currentAutoRepeatProperty,
+      this.model.isGraphVisibleProperty,
       this.model.currentSlitConfigurationProperty,
       this.model.currentWavelengthProperty,
       this.model.currentParticleSpeedProperty,
@@ -358,6 +367,7 @@ export default class SingleParticlesAccessibleResponses extends Node {
       isPacketActive: scene.isPacketActiveProperty.value,
       isMaxHitsReached: scene.isMaxHitsReachedProperty.value,
       detectorProbeState: scene.detectorProbe.stateProperty.value,
+      displayMode: this.model.isGraphVisibleProperty.value ? 'graph' : 'screen',
       slitConfiguration: slitConfiguration,
       waveDisplayMode: scene.activeWaveDisplayModeProperty.value,
       wavelengthNM: roundSymmetric( scene.wavelengthProperty.value ),
@@ -442,11 +452,12 @@ export default class SingleParticlesAccessibleResponses extends Node {
   }
 
   /**
-   * Announces the hit that ends a packet on the detector screen, using the stage-aware hits description ("Individual
-   * scattered hits appear...", "Hits form evenly spaced bands...") with the running hit count. In auto-repeat, repeated
-   * same-stage hits stay silent, but qualitative hit-stage changes still announce as the detector pattern accumulates.
-   * Decreases (clear screen, parameter changes) and scene swaps stay silent because their causes have their own
-   * responses.
+   * Announces the hit that ends a packet, using the stage-aware hits description ("Individual scattered hits
+   * appear...", "Hits form evenly spaced bands...") with the running hit count. In auto-repeat, repeated same-stage
+   * hits stay silent, but qualitative hit-stage changes still announce as the detector pattern accumulates. While
+   * the graph view is active, the histogram replaces the detector screen, so each milestone announces the
+   * histogram's own progressing description instead of the hidden screen's. Decreases (clear screen, parameter
+   * changes) and scene swaps stay silent because their causes have their own responses.
    */
   private handleTotalHitsChanged(): void {
     const before = this.previousState;
@@ -460,7 +471,14 @@ export default class SingleParticlesAccessibleResponses extends Node {
     this.lastTransitionWasHit = true;
 
     if ( before.hitStage !== after.hitStage ) {
-      this.addAccessibleContextResponse( formatHitDescription( after ), { responseGroup: HIT_RESPONSE_GROUP } );
+
+      // Formatted freshly via the static formatter (never a reactive description Property) because this listener
+      // runs before the graph describer's own hit listeners have recomputed. The ruler is never available on this
+      // screen, so pass false.
+      const response = after.displayMode === 'graph' ?
+                       DetectorPatternGraphDescriber.formatDescription( after.scene, false ) :
+                       formatHitDescription( after );
+      this.addAccessibleContextResponse( response, { responseGroup: HIT_RESPONSE_GROUP } );
     }
   }
 

@@ -486,7 +486,14 @@ a11y:
                                 [true] in progress.
                                *[false] ready to start.
                               }
-    screenEmpty:              Screen is empty. Start particle source.
+    # Names whichever detection surface is currently displayed — the detector screen, the intensity graph, or the
+    # hits histogram when the graph view replaces the screen — so the prompt never describes a hidden surface.
+    screenEmpty:              >-
+                              { $surface ->
+                                [graph] Graph is empty.
+                                [histogram] Histogram empty.
+                               *[detectorScreen] Screen is empty.
+                              } Start particle source.
     hitsIncreasing:           Individual hits increasing on detector screen.
     slitConfigurationChanged: >-
                               { $isRestarting ->
@@ -549,6 +556,13 @@ a11y:
                                 [true] { $sourceRestartedResponse }
                                *[false] Wave area cleared. Sim still paused.
                               }
+    # Destination named by the wave-progress responses below: the detector screen, or the graph when the graph view
+    # replaces the screen. Includes the sentence-ending period, mirroring a11y.sourceWaveFragments.slitTarget.
+    waveProgressTarget:       >-
+                              { $surface ->
+                                [graph] graph.
+                               *[detectorScreen] detector screen.
+                              }
     waveProgressChanged:      >-
                               { $waveProgressStage ->
                                 [sourceOff] Source is off, so no wave is traveling.
@@ -558,53 +572,53 @@ a11y:
                                     [singleSlitDiffraction] Solid circular wave emerges from open slit only.
                                     [whichPathDiffraction] As detection events occur, solid circular waves emerge from both slits one at a time
                                     and do not interact.
-                                   *[noBarrier] Solid wave moves directly toward the detector screen.
+                                   *[noBarrier] Solid wave moves directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
                                   }
                                  *[electricField] { $patternKind ->
                                     [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
                                     [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
                                     [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits
                                     one at a time and do not interact.
-                                   *[noBarrier] Plane wave fronts move directly toward the detector screen.
+                                   *[noBarrier] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
                                   }
                                   [realPart] { $patternKind ->
                                     [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
                                     [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
                                     [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits
                                     one at a time and do not interact.
-                                   *[noBarrier] Plane wave fronts move directly toward the detector screen.
+                                   *[noBarrier] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
                                   }
                                   [imaginaryPart] { $patternKind ->
                                     [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
                                     [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
                                     [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits
                                     one at a time and do not interact.
-                                   *[noBarrier] Plane wave fronts move directly toward the detector screen.
+                                   *[noBarrier] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
                                   }
                                 }
                                 [interferingAfterSlits] { $waveDisplayMode ->
-                                  [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward detector screen.
-                                 *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
-                                  [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
-                                  [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.
+                                  [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward { a11y.waveExperimentResponses.waveProgressTarget }
+                                 *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y.waveExperimentResponses.waveProgressTarget }
+                                  [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y.waveExperimentResponses.waveProgressTarget }
+                                  [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y.waveExperimentResponses.waveProgressTarget }
                                 }
                                 [diffractingAfterSlits] { $waveDisplayMode ->
-                                  [amplitude] Solid circular wave spreads toward detector screen.
-                                 *[electricField] Circular wave fronts spread toward detector screen.
-                                  [realPart] Circular wave fronts spread toward detector screen.
-                                  [imaginaryPart] Circular wave fronts spread toward detector screen.
+                                  [amplitude] Solid circular wave spreads toward { a11y.waveExperimentResponses.waveProgressTarget }
+                                 *[electricField] Circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
+                                  [realPart] Circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
+                                  [imaginaryPart] Circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
                                 }
                                 [whichPathAfterSlits] { $waveDisplayMode ->
-                                  [amplitude] Non-interacting solid circular waves spread toward detector screen.
-                                 *[electricField] Non-interacting circular wave fronts spread toward detector screen.
-                                  [realPart] Non-interacting circular wave fronts spread toward detector screen.
-                                  [imaginaryPart] Non-interacting circular wave fronts spread toward detector screen.
+                                  [amplitude] Non-interacting solid circular waves spread toward { a11y.waveExperimentResponses.waveProgressTarget }
+                                 *[electricField] Non-interacting circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
+                                  [realPart] Non-interacting circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
+                                  [imaginaryPart] Non-interacting circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
                                 }
                                *[directToScreen] { $waveDisplayMode ->
-                                  [amplitude] Solid wave moves directly toward the detector screen.
-                                 *[electricField] Plane wave fronts move directly toward the detector screen.
-                                  [realPart] Plane wave fronts move directly toward the detector screen.
-                                  [imaginaryPart] Plane wave fronts move directly toward the detector screen.
+                                  [amplitude] Solid wave moves directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
+                                 *[electricField] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
+                                  [realPart] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
+                                  [imaginaryPart] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
                                 }
                               }
     maxHitsReached:           '{ maximumHitsReached }. Source is off.'

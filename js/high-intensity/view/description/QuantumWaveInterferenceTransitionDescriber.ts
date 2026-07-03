@@ -65,6 +65,19 @@ function getTrend( before: number, after: number ): QuantumWaveInterferenceValue
          'decreased';
 }
 
+/**
+ * Selects the Fluent $surface variant for the empty-surface prompt: the detector screen, or — when the graph view
+ * replaces the screen — the intensity graph or the hits histogram, matching the graph's own state-description wording.
+ *
+ * @param state - accessible view state whose display and detection modes select the visible surface
+ * @returns the $surface variant for a11y.waveExperimentResponses.screenEmpty
+ */
+function getEmptySurface( state: HighIntensityAccessibleViewState ): 'detectorScreen' | 'graph' | 'histogram' {
+  return state.displayMode === 'screen' ? 'detectorScreen' :
+         state.detectionMode === 'hits' ? 'histogram' :
+         'graph';
+}
+
 export default class QuantumWaveInterferenceTransitionDescriber {
 
   /**
@@ -152,11 +165,15 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       // screen's detection-mode responses. In hits mode, "empty" means no hits have accumulated; leftover hits with the
       // source off are still described as the current pattern rather than reported as empty. In intensity mode the
       // screen empties as soon as the source stops, so "Start particle source." only applies while the source is off
-      // (when emitting but the wave has not yet arrived, formatDetectorDescription reports that instead).
+      // (when emitting but the wave has not yet arrived, the pattern description reports that instead). While the
+      // graph view is active there is no detector screen to describe, so the graph's own pattern description is
+      // announced instead.
       const screenEmpty = after.detectionMode === 'hits' ? after.totalHits === 0 : !after.isEmitting;
       contextResponses = [
-        screenEmpty ? QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.screenEmptyStringProperty.value :
-        after.displayMode === 'graph' && after.detectionMode === 'intensity' ? after.graphPatternDescription :
+        screenEmpty ? QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.screenEmpty.format( {
+          surface: getEmptySurface( after )
+        } ) :
+        after.displayMode === 'graph' ? after.graphPatternDescription :
         formatDetectorDescription( after )
       ];
     }
@@ -235,7 +252,12 @@ export default class QuantumWaveInterferenceTransitionDescriber {
       flushBeforeResponses = isRestarting;
     }
     else if ( action.type === 'hitStageChanged' ) {
+
+      // While the graph view is active, the histogram replaces the detector screen, so each hit-stage milestone
+      // announces the histogram's own progressing description instead of the hidden screen's.
       contextResponses = [
+        after.displayMode === 'graph' ?
+        after.graphPatternDescription :
         formatDetectorDescription( after, 'collectingHits' )
       ];
     }
@@ -246,17 +268,17 @@ export default class QuantumWaveInterferenceTransitionDescriber {
           QuantumWaveInterferenceFluent.a11y.waveExperimentResponses.waveProgressChanged.format( {
             waveProgressStage: waveProgressStage,
             waveDisplayMode: after.waveDisplayMode,
-            patternKind: after.patternKind
+            patternKind: after.patternKind,
+            surface: after.displayMode === 'graph' ? 'graph' : 'detectorScreen'
           } )
         ];
     }
     else if ( action.type === 'patternFormationStarted' || action.type === 'patternFormationComplete' ) {
 
-      // While the graph view is active in intensity mode, there is no detector screen to describe, so announce the
-      // graph's own pattern description instead. Hits-mode text tracks the hit count and never mentions the screen,
-      // so it is used regardless of the active view.
+      // While the graph view is active, there is no detector screen to describe, so announce the graph's own
+      // pattern description instead — the intensity trace in intensity mode, or the histogram in hits mode.
       contextResponses = [
-        after.displayMode === 'graph' && after.detectionMode === 'intensity' ?
+        after.displayMode === 'graph' ?
         after.graphPatternDescription :
         formatDetectorDescription( after )
       ];

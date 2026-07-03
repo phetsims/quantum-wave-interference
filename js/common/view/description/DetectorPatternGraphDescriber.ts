@@ -44,6 +44,86 @@ function getDetectionMode( scene: DetectorPatternGraphDescriberScene ): Detectio
 export default class DetectorPatternGraphDescriber {
 
   /**
+   * Formats the localized description of the detector-pattern graph for the scene's current state. In intensity mode
+   * the description traces the theoretical intensity curve; in hits mode it describes the histogram at the current
+   * qualitative hit stage (none → few → emerging → developing → steadyStatePattern).
+   *
+   * Reads the scene's current Property values at call time, so it always reflects the latest state — use this from
+   * context responses that must describe the graph the instant a transition is detected, before this class's
+   * reactive descriptionProperty has necessarily been recomputed by its own listeners. The same wording backs the
+   * PDOM state description via descriptionProperty, keeping state and responses aligned.
+   *
+   * @param scene - scene whose physics state (hits, wavelength, slit geometry, speed) drives the description
+   * @param isRulerVisible - whether the ruler is visible, which selects measured vs qualitative spatial phrasing
+   * @returns localized description of the current graph/histogram pattern
+   */
+  public static formatDescription( scene: DetectorPatternGraphDescriberScene, isRulerVisible: boolean ): string {
+    const detectionMode = getDetectionMode( scene );
+    const slitSetting = scene.slitConfigurationProperty.value;
+    const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
+    const isNoBarrier = slitSetting === 'noBarrier';
+
+    if ( detectionMode === 'intensity' && !scene.isEmittingProperty.value ) {
+      return QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensityOffStringProperty.value;
+    }
+
+    // Use the theoretical pattern for spatial descriptions so they remain stable as hits accumulate,
+    // rather than jumping with noisy bin data.
+    const analysis = BandAnalysis.analyzeTheoreticalPattern( scene, scene.regionWidth / 2 );
+    const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible );
+    const envelope = ( isDoubleSlit || hasAnyDetector( slitSetting ) ) ?
+                     analysis.envelopeCategory :
+                     'brightestAtCenter';
+
+    if ( detectionMode === 'intensity' ) {
+      return isDoubleSlit ?
+             QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensity.format( {
+               envelope: envelope,
+               spatialDescription: spatialDescription
+             } ) :
+             isNoBarrier ?
+             QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensityNoBarrierStringProperty.value :
+             QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensitySingleSlit.format( {
+               envelope: envelope
+             } );
+    }
+
+    const hitStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value );
+
+    if ( isDoubleSlit ) {
+      return hitStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
+             hitStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
+             hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsEmerging.format( { envelope: envelope } ) :
+             hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsDeveloping.format( {
+               envelope: envelope,
+               spatialDescription: spatialDescription
+             } ) :
+             hitStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSteadyStatePattern.format( {
+               envelope: envelope,
+               spatialDescription: spatialDescription
+             } ) :
+             ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
+    }
+    else if ( isNoBarrier ) {
+      return hitStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
+             hitStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
+             hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierEmergingStringProperty.value :
+             hitStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierDevelopingStringProperty.value :
+             hitStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierSteadyStatePatternStringProperty.value :
+             ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
+    }
+    else {
+      return hitStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
+             hitStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
+             hitStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value :
+             ( hitStage === 'developing' || hitStage === 'steadyStatePattern' ) ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitClear.format( {
+               envelope: envelope
+             } ) :
+             ( () => { throw new Error( `Unrecognized hitStage: ${hitStage}` ); } )();
+    }
+  }
+
+  /**
    * Reactive string description of the current detector-pattern graph state. Updates whenever the qualitative hit
    * stage crosses a pedagogical threshold (none → few → emerging → developing → steadyStatePattern), whenever the
    * scene switches, or whenever any physics parameter that changes the spatial description changes (wavelength, slit
@@ -68,84 +148,17 @@ export default class DetectorPatternGraphDescriber {
     // This update flow remains local so graph wording can evolve separately from detector-screen wording.
     const update = () => {
       const scene = sceneProperty.value;
-      const detectionMode = getDetectionMode( scene );
-      const isRulerVisible = isRulerVisibleProperty.value;
-      const slitSetting = scene.slitConfigurationProperty.value;
-      const isDoubleSlit = showsDoubleSlitInterferencePattern( slitSetting );
-      const isNoBarrier = slitSetting === 'noBarrier';
-
-      if ( detectionMode === 'intensity' ) {
-        if ( !scene.isEmittingProperty.value ) {
-          descriptionProperty.value = QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensityOffStringProperty.value;
-          return;
-        }
-
-        const analysis = BandAnalysis.analyzeTheoreticalPattern( scene, scene.regionWidth / 2 );
-        const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible );
-        const envelope = ( isDoubleSlit || hasAnyDetector( slitSetting ) ) ?
-                         analysis.envelopeCategory :
-                         'brightestAtCenter';
-
-        descriptionProperty.value = isDoubleSlit ?
-                                    QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensity.format( {
-                                      envelope: envelope,
-                                      spatialDescription: spatialDescription
-                                    } ) :
-                                    isNoBarrier ?
-                                    QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensityNoBarrierStringProperty.value :
-                                    QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.intensitySingleSlit.format( {
-                                      envelope: envelope
-                                    } );
-        return;
-      }
 
       // Hits mode: only recompute description when the qualitative stage changes.
-      const totalHits = scene.totalHitsProperty.value;
-      const newStage = BandAnalysis.getHitStage( totalHits );
-      if ( newStage === hitStage ) {
-        return;
+      if ( getDetectionMode( scene ) === 'hits' ) {
+        const newStage = BandAnalysis.getHitStage( scene.totalHitsProperty.value );
+        if ( newStage === hitStage ) {
+          return;
+        }
+        hitStage = newStage;
       }
-      hitStage = newStage;
 
-      // Use the theoretical pattern for spatial descriptions so they remain stable as hits accumulate,
-      // rather than jumping with noisy bin data.
-      const analysis = BandAnalysis.analyzeTheoreticalPattern( scene, scene.regionWidth / 2 );
-      const spatialDescription = BandAnalysis.formatSpatialDescription( analysis, isDoubleSlit, isRulerVisible );
-      const envelope = ( isDoubleSlit || hasAnyDetector( slitSetting ) ) ?
-                       analysis.envelopeCategory :
-                       'brightestAtCenter';
-
-      if ( isDoubleSlit ) {
-        descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
-                                    newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
-                                    newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsEmerging.format( { envelope: envelope } ) :
-                                    newStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsDeveloping.format( {
-                                      envelope: envelope,
-                                      spatialDescription: spatialDescription
-                                    } ) :
-                                    newStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSteadyStatePattern.format( {
-                                      envelope: envelope,
-                                      spatialDescription: spatialDescription
-                                    } ) :
-                                    ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
-      }
-      else if ( isNoBarrier ) {
-        descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
-                                    newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
-                                    newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierEmergingStringProperty.value :
-                                    newStage === 'developing' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierDevelopingStringProperty.value :
-                                    newStage === 'steadyStatePattern' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoBarrierSteadyStatePatternStringProperty.value :
-                                    ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
-      }
-      else {
-        descriptionProperty.value = newStage === 'none' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsNoneStringProperty.value :
-                                    newStage === 'few' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsFewStringProperty.value :
-                                    newStage === 'emerging' ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitEmergingStringProperty.value :
-                                    ( newStage === 'developing' || newStage === 'steadyStatePattern' ) ? QuantumWaveInterferenceFluent.a11y.detectorPatternGraph.accessibleParagraph.hitsSingleSlitClear.format( {
-                                      envelope: envelope
-                                    } ) :
-                                    ( () => { throw new Error( `Unrecognized newStage: ${newStage}` ); } )();
-      }
+      descriptionProperty.value = DetectorPatternGraphDescriber.formatDescription( scene, isRulerVisibleProperty.value );
     };
 
     const fullUpdate = () => {
