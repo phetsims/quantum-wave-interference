@@ -844,11 +844,8 @@
       "measuredBandSpacingLessThanOneTenthDescription": {
         "value": "less than 0.1 millimeters apart"
       },
-      "snapshotHitTotal": {
-        "value": "{ $hitCount ->\n  [one] Detector screen shows a total of 1 hit.\n *[other] Detector screen shows a total of { $hitCount } hits.\n}"
-      },
       "snapshotHitsParagraph": {
-        "value": "{ $description } { a11y_detectorScreen_snapshotHitTotal }"
+        "value": "{ $description }"
       },
       "accessibleParagraph": {
         "intensityOff": {

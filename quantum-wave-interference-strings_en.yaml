@@ -990,17 +990,10 @@ a11y:
                             }
     measuredBandSpacingDescription: 'roughly { $spacing } apart'
     measuredBandSpacingLessThanOneTenthDescription: less than 0.1 millimeters apart
-    # Shared running-total clause appended to snapshot hits paragraphs via snapshotHitsParagraph, e.g. "Detector screen
-    # shows a total of 3 hits." Defined once so the count wording stays consistent across all snapshot stages.
-    snapshotHitTotal: |-
-                      { $hitCount ->
-                        [one] Detector screen shows a total of 1 hit.
-                       *[other] Detector screen shows a total of { $hitCount } hits.
-                      }
 
     # Composes a snapshot hits paragraph: the same description used for the live detector screen, followed by the
     # running total of hits captured in the snapshot.
-    snapshotHitsParagraph: '{ $description } { a11y.detectorScreen.snapshotHitTotal }'
+    snapshotHitsParagraph: '{ $description }'
     accessibleParagraph:
       intensityOff:                   Detector screen empty.
       intensity:                      >-

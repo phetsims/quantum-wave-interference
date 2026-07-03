@@ -383,7 +383,6 @@ type StringsType = {
       'bandSpacingDescriptionStringProperty': LocalizedStringProperty;
       'measuredBandSpacingDescriptionStringProperty': LocalizedStringProperty;
       'measuredBandSpacingLessThanOneTenthDescriptionStringProperty': LocalizedStringProperty;
-      'snapshotHitTotalStringProperty': LocalizedStringProperty;
       'snapshotHitsParagraphStringProperty': LocalizedStringProperty;
       'accessibleParagraph': {
         'intensityOffStringProperty': LocalizedStringProperty;

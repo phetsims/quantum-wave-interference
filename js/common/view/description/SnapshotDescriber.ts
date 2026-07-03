@@ -43,8 +43,7 @@ export default class SnapshotDescriber {
     return hitStage === 'none' ?
            liveDescription :
            QuantumWaveInterferenceFluent.a11y.detectorScreen.snapshotHitsParagraph.format( {
-             description: liveDescription,
-             hitCount: hitCount
+             description: liveDescription
            } );
   }
 }
