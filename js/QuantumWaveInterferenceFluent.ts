@@ -177,6 +177,8 @@ addToMapIfDefined( 'a11y_experimentSetupDetails_screenDistance', 'a11y.experimen
 addToMapIfDefined( 'a11y_emitterButton_accessibleName', 'a11y.emitterButton.accessibleNameStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_accessibleHelpText', 'a11y.emitterButton.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_emitterButton_singleParticleAccessibleHelpText', 'a11y.emitterButton.singleParticleAccessibleHelpTextStringProperty' );
+addToMapIfDefined( 'a11y_autoRepeatCheckbox_accessibleName', 'a11y.autoRepeatCheckbox.accessibleNameStringProperty' );
+addToMapIfDefined( 'a11y_autoRepeatCheckbox_accessibleHelpText', 'a11y.autoRepeatCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleHelpText', 'a11y.rulerCheckbox.accessibleHelpTextStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleContextResponseChecked', 'a11y.rulerCheckbox.accessibleContextResponseCheckedStringProperty' );
 addToMapIfDefined( 'a11y_rulerCheckbox_accessibleContextResponseUnchecked', 'a11y.rulerCheckbox.accessibleContextResponseUncheckedStringProperty' );
@@ -530,10 +532,11 @@ const QuantumWaveInterferenceFluent = {
     emitterButton: {
       accessibleName: new FluentPattern<{ sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleNameStringProperty' ), [{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
       accessibleHelpText: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'photons' | 'electrons' | 'neutrons' | 'heliumAtoms' | TReadOnlyProperty<'photons' | 'electrons' | 'neutrons' | 'heliumAtoms'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.accessibleHelpTextStringProperty' ), [{"name":"isEmitting","variants":["true","false"]},{"name":"sourceType","variants":["photons","electrons","neutrons","heliumAtoms"]}] ),
-      _comment_0: new FluentComment( {"comment":"Single Particles screen: the emitter is a switch whose guidance reflects the Auto-repeat checkbox state.","associatedKey":"singleParticleAccessibleHelpText"} ),
-      _comment_1: new FluentComment( {"comment":"When Auto-repeat is off the source fires one packet then auto-returns to off; when on it behaves like a","associatedKey":"singleParticleAccessibleHelpText"} ),
-      _comment_2: new FluentComment( {"comment":"continuous on/off switch. Mass of the particle is appended for matter sources (not photons).","associatedKey":"singleParticleAccessibleHelpText"} ),
-      singleParticleAccessibleHelpText: new FluentPattern<{ autoRepeat: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'>, sourceType: 'electrons' | 'neutrons' | 'heliumAtoms' | 'photons' | TReadOnlyProperty<'electrons' | 'neutrons' | 'heliumAtoms' | 'photons'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_singleParticleAccessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.singleParticleAccessibleHelpTextStringProperty' ), [{"name":"autoRepeat","variants":["true","false"]},{"name":"isEmitting","variants":["true","false"]},{"name":"sourceType","variants":["electrons","neutrons","heliumAtoms","photons"]}] )
+      singleParticleAccessibleHelpText: new FluentPattern<{ isEmitting: 'true' | 'false' | TReadOnlyProperty<'true' | 'false'> }>( fluentSupport.bundleProperty, 'a11y_emitterButton_singleParticleAccessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.emitterButton.singleParticleAccessibleHelpTextStringProperty' ), [{"name":"isEmitting","variants":["true","false"]}] )
+    },
+    autoRepeatCheckbox: {
+      accessibleNameStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_autoRepeatCheckbox_accessibleName', _.get( QuantumWaveInterferenceStrings, 'a11y.autoRepeatCheckbox.accessibleNameStringProperty' ) ),
+      accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_autoRepeatCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.autoRepeatCheckbox.accessibleHelpTextStringProperty' ) )
     },
     rulerCheckbox: {
       accessibleHelpTextStringProperty: new FluentConstant( fluentSupport.bundleProperty, 'a11y_rulerCheckbox_accessibleHelpText', _.get( QuantumWaveInterferenceStrings, 'a11y.rulerCheckbox.accessibleHelpTextStringProperty' ) ),

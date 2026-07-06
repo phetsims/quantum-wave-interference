@@ -156,6 +156,8 @@ export default class SingleParticlesScreenView extends ScreenView {
         touchAreaYDilation: 4,
         mouseAreaXDilation: 5,
         mouseAreaYDilation: 4,
+        accessibleName: QuantumWaveInterferenceFluent.a11y.autoRepeatCheckbox.accessibleNameStringProperty,
+        accessibleHelpText: QuantumWaveInterferenceFluent.a11y.autoRepeatCheckbox.accessibleHelpTextStringProperty,
 
         // Nested under the panel that contains this checkbox in the view.
         tandem: sourceControlPanelTandem.createTandem( 'autoRepeatCheckbox' )
@@ -172,7 +174,6 @@ export default class SingleParticlesScreenView extends ScreenView {
       model.sceneProperty,
       model.currentIsEmittingProperty,
       model.currentIsEmitterEnabledProperty,
-      model.currentAutoRepeatProperty,
       {
         tandem: tandem.createTandem( 'emitterNode' )
       }
@@ -444,9 +445,9 @@ export default class SingleParticlesScreenView extends ScreenView {
         screenGraphVisibleProperty: model.isGraphVisibleProperty,
         slitOrientation: 'topBottom',
         detectorScreenDetailsNodes: [ detectorScreenDetailsNode ],
-        // Tab order: Source Emitter, then Auto-repeat checkbox, then the source controls (Wavelength). The checkbox is
+        // Tab order: Source Emitter, then Auto-fire checkbox, then the source controls (Wavelength). The checkbox is
         // visually inside sourceControlPanel, so listing it before the panel pulls it out to sit right after the
-        // emitter, keeping the tightly-related Source Emitter and Auto-repeat controls adjacent. See
+        // emitter, keeping the tightly-related Source Emitter and Auto-fire controls adjacent. See
         // https://github.com/phetsims/quantum-wave-interference/issues/268.
         sourceNodes: [ emitterNode, autoRepeatCheckbox, maxHitsReachedPanel, sourceControlPanel, sceneRadioButtonGroup ],
         slitNodes: [ bottomRow, waveRegionNode.doubleSlitNode ],

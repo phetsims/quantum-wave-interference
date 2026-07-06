@@ -35,8 +35,8 @@ const BUTTON_CENTER_X_FRACTION = 0.32;
 const BUTTON_CENTER_Y_FRACTION = 0.5;
 
 /**
- * Minimal scene contract required by this node. Only sourceType is needed to drive the accessible name and help text
- * of the emit button; using a structural type keeps this view decoupled from any concrete scene model class.
+ * Minimal scene contract required by this node. Only sourceType is needed to drive the accessible name of the emit
+ * button; using a structural type keeps this view decoupled from any concrete scene model class.
  */
 type SceneLike = { sourceType: SourceType };
 
@@ -46,7 +46,6 @@ export default class SingleParticleEmitterNode extends Node {
     sceneProperty: TReadOnlyProperty<SceneLike>,
     isEmittingProperty: TProperty<boolean>,
     isEmitterEnabledProperty: TReadOnlyProperty<boolean>,
-    autoRepeatProperty: TReadOnlyProperty<boolean>,
     providedOptions: SingleParticleEmitterNodeOptions
   ) {
 
@@ -66,7 +65,6 @@ export default class SingleParticleEmitterNode extends Node {
 
     const sourceTypeProperty = sceneProperty.derived( scene => scene.sourceType );
     const isEmittingStringProperty = isEmittingProperty.derived( isEmitting => isEmitting ? 'true' : 'false' );
-    const autoRepeatStringProperty = autoRepeatProperty.derived( autoRepeat => autoRepeat ? 'true' : 'false' );
 
     // NOTE: see other duplicate in quantum-wave-interference/js/high-intensity/view/HighIntensitySourceBeamThumbnailNode.ts.
     // These button options stay inline because RoundStickyToggleButton and LaserPointerNode own different option
@@ -78,16 +76,14 @@ export default class SingleParticleEmitterNode extends Node {
       valueDownSoundPlayer: sharedSoundPlayers.get( 'toggleOn' ),
 
       // Convey the source emitter as a switch with on/off states (matching the Experiment and High Intensity screens),
-      // rather than the default toggle-button "pressed" state. When Auto-repeat is checked it behaves exactly like the
+      // rather than the default toggle-button "pressed" state. When Auto-fire is checked it behaves exactly like the
       // on/off switches on the other screens; when unchecked it auto-returns to off after firing a single packet.
       accessibleRoleConfiguration: 'switch',
       accessibleName: QuantumWaveInterferenceFluent.a11y.emitterButton.accessibleName.createProperty( {
         sourceType: sourceTypeProperty
       } ),
       accessibleHelpText: QuantumWaveInterferenceFluent.a11y.emitterButton.singleParticleAccessibleHelpText.createProperty( {
-        autoRepeat: autoRepeatStringProperty,
-        isEmitting: isEmittingStringProperty,
-        sourceType: sourceTypeProperty
+        isEmitting: isEmittingStringProperty
       } ),
       tandem: providedOptions.tandem.createTandem( 'button' ),
 

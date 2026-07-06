@@ -217,6 +217,10 @@ type StringsType = {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'singleParticleAccessibleHelpTextStringProperty': LocalizedStringProperty;
     };
+    'autoRepeatCheckbox': {
+      'accessibleNameStringProperty': LocalizedStringProperty;
+      'accessibleHelpTextStringProperty': LocalizedStringProperty;
+    };
     'rulerCheckbox': {
       'accessibleHelpTextStringProperty': LocalizedStringProperty;
       'accessibleContextResponseCheckedStringProperty': LocalizedStringProperty;
