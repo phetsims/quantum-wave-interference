@@ -31,8 +31,8 @@ import WaveVisualizationNode from './WaveVisualizationNode.js';
 // slit state needed to render the wave visualization and double slit.
 type WaveRegionModel = {
 
-  // Active scene, including the scene-specific allowed slit separation range (in millimeters).
-  readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene & { readonly slitSeparationRange: Range }>;
+  // Active scene, including the scene-specific slit separation display range (in millimeters).
+  readonly sceneProperty: TReadOnlyProperty<WaveVisualizableScene & { readonly slitSeparationDisplayRange: Range }>;
 
   // Whether the active source is emitting.
   readonly currentIsEmittingProperty: TReadOnlyProperty<boolean>;
@@ -96,9 +96,9 @@ export default class WaveRegionNode extends Node {
       y: options.waveRegionTop
     } );
 
-    const slitSeparationRangeProperty = new DerivedProperty(
+    const slitSeparationDisplayRangeProperty = new DerivedProperty(
       [ model.sceneProperty ],
-      scene => scene.slitSeparationRange
+      scene => scene.slitSeparationDisplayRange
     );
 
     const doubleSlitNodeOptions = combineOptions<DoubleSlitNodeOptions>( {
@@ -120,7 +120,7 @@ export default class WaveRegionNode extends Node {
       model.currentBarrierTypeProperty,
       model.currentBarrierPositionFractionProperty,
       model.currentSlitSeparationProperty,
-      slitSeparationRangeProperty,
+      slitSeparationDisplayRangeProperty,
       model.currentIsEmittingProperty,
       model.isPlayingProperty,
       doubleSlitNodeOptions

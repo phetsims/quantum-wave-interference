@@ -85,7 +85,7 @@ const THUMBNAIL_LINE_START_Y_OFFSET = 2 * MINI_SYMBOL_SCALE;
  */
 type SourceBeamThumbnailSceneLike = {
   sourceType: SourceType;
-  slitSeparationRange: Range;
+  slitSeparationDisplayRange: Range;
 };
 
 /**
@@ -359,8 +359,8 @@ export default class HighIntensitySourceBeamThumbnailNode<T extends SourceBeamTh
 
         const { displaySlitSeparation, displaySlitWidth } = getDisplaySlitLayout(
           slitSeparation,
-          scene.slitSeparationRange.min,
-          scene.slitSeparationRange.max,
+          scene.slitSeparationDisplayRange.min,
+          scene.slitSeparationDisplayRange.max,
           MINI_SYMBOL_SQUARE_SIZE
         );
 

@@ -95,7 +95,7 @@ const rowSoundPlayer = new ValueChangeSoundPlayer( new Range( MIN_Y_FRACTION, MA
 export type PositionPlotSlitProperties = {
   barrierTypeProperty: TReadOnlyProperty<BarrierType>;
   slitSeparationProperty: TReadOnlyProperty<number>;
-  slitSeparationRangeProperty: TReadOnlyProperty<Range>;
+  slitSeparationDisplayRangeProperty: TReadOnlyProperty<Range>;
   slitConfigurationProperty: TReadOnlyProperty<SlitConfigurationWithNoBarrier>;
 };
 
@@ -378,7 +378,7 @@ export default class PositionPlotNode extends Node {
       descriptionDependencies: Array.from( new Set( [
         this.slitProperties.barrierTypeProperty,
         this.slitProperties.slitSeparationProperty,
-        this.slitProperties.slitSeparationRangeProperty,
+        this.slitProperties.slitSeparationDisplayRangeProperty,
         this.slitProperties.slitConfigurationProperty,
         ...QuantumWaveInterferenceFluent.a11y.positionPlot.accessibleValue.getDependentProperties(),
         ...QuantumWaveInterferenceFluent.a11y.positionPlot.accessibleRegion.getDependentProperties()
@@ -455,11 +455,11 @@ export default class PositionPlotNode extends Node {
       return 'noSlit';
     }
 
-    const slitSeparationRange = this.slitProperties.slitSeparationRangeProperty.value;
+    const slitSeparationDisplayRange = this.slitProperties.slitSeparationDisplayRangeProperty.value;
     const layout = getDisplaySlitLayout(
       this.slitProperties.slitSeparationProperty.value,
-      slitSeparationRange.min,
-      slitSeparationRange.max,
+      slitSeparationDisplayRange.min,
+      slitSeparationDisplayRange.max,
       this.waveRegionHeight
     );
 

@@ -24,6 +24,7 @@ export type EnvelopeHeuristicScene = {
   getEffectiveWavelength(): number;
   slitSeparationProperty: TReadOnlyProperty<number>;
   slitSeparationRange?: { min: number; max: number };
+  slitSeparationDisplayRange?: { min: number; max: number };
   regionHeight?: number;
 } & ( {
   screenDistanceProperty: TReadOnlyProperty<number>;
@@ -100,10 +101,11 @@ export function analyzeEnvelopeHeuristic( scene: EnvelopeHeuristicScene ): Envel
     return null;
   }
 
+  const slitSeparationDisplayRange = scene.slitSeparationDisplayRange || scene.slitSeparationRange;
   const displaySlitSeparation = getDisplaySlitLayout(
     scene.slitSeparationProperty.value * 1e-3,
-    scene.slitSeparationRange.min * 1e-3,
-    scene.slitSeparationRange.max * 1e-3,
+    slitSeparationDisplayRange.min * 1e-3,
+    slitSeparationDisplayRange.max * 1e-3,
     scene.regionHeight
   ).displaySlitSeparation;
 

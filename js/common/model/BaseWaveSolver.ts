@@ -62,12 +62,12 @@ export default abstract class BaseWaveSolver implements WaveSolver {
   /**
    * Minimum physical center-to-center slit separation in meters, used for display-coordinate scaling.
    */
-  private slitSeparationMin = 0.25e-3;
+  private slitSeparationDisplayMin = 0.25e-3;
 
   /**
    * Maximum physical center-to-center slit separation in meters, used for display-coordinate scaling.
    */
-  private slitSeparationMax = 3e-3;
+  private slitSeparationDisplayMax = 3e-3;
 
   /**
    * Horizontal barrier position as a fraction of regionWidth.
@@ -188,8 +188,8 @@ export default abstract class BaseWaveSolver implements WaveSolver {
     this.setIfDefined( params.displayWavelengths, value => { this.displayWavelengths = value; } );
     this.setIfDefined( params.barrierType, value => { this.barrierType = value; } );
     this.setIfDefined( params.slitSeparation, value => { this.slitSeparation = value; } );
-    this.setIfDefined( params.slitSeparationMin, value => { this.slitSeparationMin = value; } );
-    this.setIfDefined( params.slitSeparationMax, value => { this.slitSeparationMax = value; } );
+    this.setIfDefined( params.slitSeparationDisplayMin, value => { this.slitSeparationDisplayMin = value; } );
+    this.setIfDefined( params.slitSeparationDisplayMax, value => { this.slitSeparationDisplayMax = value; } );
     this.setIfDefined( params.barrierFractionX, value => { this.barrierFractionX = value; } );
     this.setIfDefined( params.isTopSlitOpen, value => { this.isTopSlitOpen = value; } );
     this.setIfDefined( params.isBottomSlitOpen, value => { this.isBottomSlitOpen = value; } );
@@ -600,7 +600,12 @@ export default abstract class BaseWaveSolver implements WaveSolver {
    * @returns Display-coordinate slit separation and aperture width.
    */
   private getDisplaySlitGeometry(): { displaySlitSeparation: number; displaySlitWidth: number } {
-    return getDisplaySlitLayout( this.slitSeparation, this.slitSeparationMin, this.slitSeparationMax, this.regionHeight );
+    return getDisplaySlitLayout(
+      this.slitSeparation,
+      this.slitSeparationDisplayMin,
+      this.slitSeparationDisplayMax,
+      this.regionHeight
+    );
   }
 
   /**

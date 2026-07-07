@@ -177,7 +177,7 @@ export default class DoubleSlitNode extends Node {
     barrierTypeProperty: TReadOnlyProperty<BarrierType>,
     barrierPositionFractionProperty: TProperty<number>,
     slitSeparationProperty: TReadOnlyProperty<number>,
-    slitSeparationRangeProperty: TReadOnlyProperty<Range>,
+    slitSeparationDisplayRangeProperty: TReadOnlyProperty<Range>,
     currentIsEmittingProperty: TReadOnlyProperty<boolean>,
     isPlayingProperty: TReadOnlyProperty<boolean>,
     providedOptions: DoubleSlitNodeOptions
@@ -370,12 +370,12 @@ export default class DoubleSlitNode extends Node {
     barrierContainer.addInputListener( createDragListener( 'barrierDragListener' ) );
 
     // Lay out all barrier geometry whenever anything that affects it changes: barrier type, position, slit separation
-    // (and its range, which can change per scene), the cover/detector state, or interactivity.
+    // (and its display range, which can change per scene), the cover/detector state, or interactivity.
     Multilink.multilink(
-      [ barrierTypeProperty, barrierPositionFractionProperty, slitSeparationProperty, slitSeparationRangeProperty,
+      [ barrierTypeProperty, barrierPositionFractionProperty, slitSeparationProperty, slitSeparationDisplayRangeProperty,
         options.isTopSlitCoveredProperty, options.isBottomSlitCoveredProperty,
         options.topDetectorCountProperty, options.bottomDetectorCountProperty, isInteractiveProperty ],
-      ( barrierType, slitPositionFraction, slitSeparation, slitSeparationRange,
+      ( barrierType, slitPositionFraction, slitSeparation, slitSeparationDisplayRange,
         isTopCovered, isBottomCovered ) => {
 
         // The barrier is only drawn for the 'doubleSlit' type; for 'none' hide everything and skip layout.
@@ -393,8 +393,8 @@ export default class DoubleSlitNode extends Node {
         // Map the physical slit separation to a view distance between the two slit centers.
         const { displaySlitSeparation } = getDisplaySlitLayout(
           slitSeparation,
-          slitSeparationRange.min,
-          slitSeparationRange.max,
+          slitSeparationDisplayRange.min,
+          slitSeparationDisplayRange.max,
           WAVE_REGION_HEIGHT
         );
 

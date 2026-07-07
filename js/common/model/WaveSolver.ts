@@ -106,11 +106,11 @@ export type WaveSolverParameters = {
   // Physical slit-center separation in meters.
   slitSeparation?: number;
 
-  // Minimum physical slit-center separation in meters, used to map the control range to display coordinates.
-  slitSeparationMin?: number;
+  // Minimum physical slit-center separation in meters, used to map physical separation to display coordinates.
+  slitSeparationDisplayMin?: number;
 
-  // Maximum physical slit-center separation in meters, used to map the control range to display coordinates.
-  slitSeparationMax?: number;
+  // Maximum physical slit-center separation in meters, used to map physical separation to display coordinates.
+  slitSeparationDisplayMax?: number;
 
   // Physical slit aperture width in meters.
   slitWidth?: number;

@@ -42,7 +42,11 @@ import TimePlotNode from './TimePlotNode.js';
 
 // Scene state needed by the measuring tape and plot tools. The structural type keeps this shared Node
 // independent of the concrete High Intensity and Single Particles scene model classes.
-type MeasurementSceneLike = WaveVisualizableScene & { sourceType: string; regionWidth: number; slitSeparationRange: Range };
+type MeasurementSceneLike = WaveVisualizableScene & {
+  sourceType: string;
+  regionWidth: number;
+  slitSeparationDisplayRange: Range;
+};
 
 // Structural model type for the shared measurement tools parent Node. It includes only the active
 // scene, visibility Properties, and model-backed tool state needed to construct and synchronize the tools.
@@ -137,9 +141,9 @@ export default class MeasurementToolsLayerNode extends Node {
       tandem.createTandem( 'timePlotNode' )
     );
 
-    const slitSeparationRangeProperty = new DerivedProperty(
+    const slitSeparationDisplayRangeProperty = new DerivedProperty(
       [ model.sceneProperty ],
-      scene => scene.slitSeparationRange
+      scene => scene.slitSeparationDisplayRange
     );
 
     const positionPlotNode = new PositionPlotNode(
@@ -151,7 +155,7 @@ export default class MeasurementToolsLayerNode extends Node {
       {
         barrierTypeProperty: model.currentBarrierTypeProperty,
         slitSeparationProperty: model.currentSlitSeparationProperty,
-        slitSeparationRangeProperty: slitSeparationRangeProperty,
+        slitSeparationDisplayRangeProperty: slitSeparationDisplayRangeProperty,
         slitConfigurationProperty: model.currentSlitConfigurationProperty
       },
       tandem.createTandem( 'positionPlotNode' )

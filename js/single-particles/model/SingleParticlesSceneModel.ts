@@ -486,8 +486,8 @@ export default class SingleParticlesSceneModel extends BaseSceneModel {
   private createPacketReEmission( selectedSlit: 'topSlit' | 'bottomSlit', eventTime: number ): GaussianPacketReEmission {
     const { displaySlitSeparation, displaySlitWidth } = getDisplaySlitLayout(
       this.slitSeparationProperty.value * 1e-3,
-      this.slitSeparationRange.min * 1e-3,
-      this.slitSeparationRange.max * 1e-3,
+      this.slitSeparationDisplayRange.min * 1e-3,
+      this.slitSeparationDisplayRange.max * 1e-3,
       this.regionHeight
     );
 

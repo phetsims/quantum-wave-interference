@@ -134,6 +134,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
   public readonly slitWidth: number;
   public readonly particleSpeedRange: Range;
   public readonly slitSeparationRange: Range;
+  public readonly slitSeparationDisplayRange: Range;
   public readonly regionWidth: number;
   public readonly regionHeight: number;
   private readonly defaultWaveSpeed: number;
@@ -215,8 +216,9 @@ export default abstract class BaseSceneModel extends PhetioObject {
                               this.regionHeight * 1e3;
     const slitSeparationMax = MAX_DISPLAY_SLIT_SEPARATION / QuantumWaveInterferenceConstants.WAVE_REGION_HEIGHT *
                               this.regionHeight * 1e3;
+    this.slitSeparationDisplayRange = new Range( slitSeparationMin, slitSeparationMax );
     const defaultSlitSeparationConfig = {
-      range: new Range( slitSeparationMin, slitSeparationMax ),
+      range: this.slitSeparationDisplayRange,
       defaultValue: slitSeparationMin + DEFAULT_SLIT_SEPARATION_FRACTION * ( slitSeparationMax - slitSeparationMin )
     };
     const slitSeparationConfig = typeof options.slitSeparationConfig === 'function' ?
@@ -436,8 +438,8 @@ export default abstract class BaseSceneModel extends PhetioObject {
       displayWavelengths: displayWavelengths,
       barrierType: this.barrierTypeProperty.value,
       slitSeparation: this.slitSeparationProperty.value * 1e-3,
-      slitSeparationMin: this.slitSeparationRange.min * 1e-3,
-      slitSeparationMax: this.slitSeparationRange.max * 1e-3,
+      slitSeparationDisplayMin: this.slitSeparationDisplayRange.min * 1e-3,
+      slitSeparationDisplayMax: this.slitSeparationDisplayRange.max * 1e-3,
       slitWidth: this.slitWidth * 1e-3,
       barrierFractionX: this.barrierPositionFractionProperty.value,
       isTopSlitOpen: this.isTopSlitOpen(),
