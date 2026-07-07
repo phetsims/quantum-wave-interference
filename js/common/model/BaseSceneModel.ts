@@ -289,7 +289,7 @@ export default abstract class BaseSceneModel extends PhetioObject {
 
     this.barrierPositionFractionProperty = new NumberProperty( 0.5, {
       units: null,
-      range: new Range( 0.25, 0.75 ),
+      range: QuantumWaveInterferenceConstants.BARRIER_POSITION_FRACTION_RANGE,
       tandem: tandem.createTandem( 'barrierPositionFractionProperty' ),
       phetioFeatured: true
     } );

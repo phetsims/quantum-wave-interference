@@ -145,6 +145,9 @@ export default class QuantumWaveInterferenceConstants {
   // Shared vertical placement for the source-type scene button group.
   public static readonly SCENE_BUTTON_GROUP_CENTER_Y = 470;
 
+  // Allowed horizontal barrier/slit position as a fraction of the wave region width.
+  public static readonly BARRIER_POSITION_FRACTION_RANGE = new Range( 0.38, 0.62 );
+
   // Shared top edge for the source control panels on screens that visually align with the Experiment screen.
   public static readonly SOURCE_CONTROL_PANEL_TOP = 178;
 

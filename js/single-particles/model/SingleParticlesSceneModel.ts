@@ -78,7 +78,7 @@ const SINGLE_PARTICLES_SLIT_SEPARATION_CONFIGS: Record<SourceType, SlitSeparatio
     defaultValue: 2 * NANOMETER_TO_MM
   },
   heliumAtoms: {
-    range: new Range( 0.10 * NANOMETER_TO_MM, 0.50 * NANOMETER_TO_MM ),
+    range: new Range( 0.10 * NANOMETER_TO_MM, 0.40 * NANOMETER_TO_MM ),
     defaultValue: 0.30 * NANOMETER_TO_MM
   }
 };

@@ -51,20 +51,20 @@ const NANOMETER_TO_MM = 1E-6;
 
 const HIGH_INTENSITY_SLIT_SEPARATION_CONFIGS: Record<SourceType, SlitSeparationConfig> = {
   photons: {
-    range: new Range( 1 * MICROMETER_TO_MM, 5 * MICROMETER_TO_MM ),
-    defaultValue: 3 * MICROMETER_TO_MM
+    range: new Range( 1 * MICROMETER_TO_MM, 3 * MICROMETER_TO_MM ),
+    defaultValue: 2 * MICROMETER_TO_MM
   },
   electrons: {
-    range: new Range( 1 * NANOMETER_TO_MM, 5 * NANOMETER_TO_MM ),
-    defaultValue: 3 * NANOMETER_TO_MM
+    range: new Range( 1 * NANOMETER_TO_MM, 3 * NANOMETER_TO_MM ),
+    defaultValue: 2 * NANOMETER_TO_MM
   },
   neutrons: {
-    range: new Range( 1 * NANOMETER_TO_MM, 5 * NANOMETER_TO_MM ),
-    defaultValue: 3 * NANOMETER_TO_MM
+    range: new Range( 1 * NANOMETER_TO_MM, 3 * NANOMETER_TO_MM ),
+    defaultValue: 2 * NANOMETER_TO_MM
   },
   heliumAtoms: {
-    range: new Range( 0.10 * NANOMETER_TO_MM, 0.60 * NANOMETER_TO_MM ),
-    defaultValue: 0.40 * NANOMETER_TO_MM
+    range: new Range( 0.10 * NANOMETER_TO_MM, 0.40 * NANOMETER_TO_MM ),
+    defaultValue: 0.30 * NANOMETER_TO_MM
   }
 };
 
