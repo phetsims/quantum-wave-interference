@@ -6,7 +6,7 @@
  * PositionPlotNode compose this node for their chart display.
  *
  * The chart's zero baseline is placed at the bottom for the unipolar amplitude display mode and at
- * the vertical center for bipolar modes (real, imaginary, electric field). Callers push data via
+ * the vertical center for bipolar modes (real part, electric field). Callers push data via
  * `setDataPathFromPoints`, passing raw model values and an amplitude scale.
  *
  * @author Sam Reid (PhET Interactive Simulations)

@@ -361,11 +361,10 @@ type CoherenceGroupDisplayState = {
 
 /**
  * Final display state after reducing physical coherence groups to the combined single-wave display.
- * real/imaginary are the representative value used by real/imaginary display modes.
+ * real is the representative value used by the signed-component display modes.
  */
 type FieldDisplayState = {
   real: number;
-  imaginary: number;
   intensity: number;
   visibility: number;
 };
@@ -389,7 +388,6 @@ function getDisplayState(
   if ( groupStates.length === 0 ) {
     return {
       real: 0,
-      imaginary: 0,
       intensity: 0,
       visibility: 1
     };
@@ -413,7 +411,6 @@ function getDisplayState(
                 0;
   return {
     real: strongestGroup ? strongestGroup.real * scale : 0,
-    imaginary: strongestGroup ? strongestGroup.imaginary * scale : 0,
     intensity: totalIntensity,
     visibility: getSampleVisibility( groupStates, amplitudeScale )
   };

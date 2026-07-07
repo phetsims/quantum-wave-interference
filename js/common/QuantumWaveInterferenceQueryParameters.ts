@@ -28,7 +28,7 @@ const QuantumWaveInterferenceQueryParameters = QueryStringMachine.getAll( {
   },
 
   // Additional amplitude-only contrast multiplier for the wave visualization's Amplitude display modes.
-  // This leaves Electric Field, Real part, and Imaginary part color behavior at the base color-power setting.
+  // This leaves Electric Field and Real part color behavior at the base color-power setting.
   waveVisualizationAmplitudeColorPowerMultiplier: {
     type: 'number',
     defaultValue: 1.5,
