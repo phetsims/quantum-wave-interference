@@ -176,14 +176,8 @@
   "realPart": {
     "value": "Real Part"
   },
-  "imaginaryPart": {
-    "value": "Imaginary Part"
-  },
   "waveFunctionRealPart": {
     "value": "Wave Function: Real Part"
-  },
-  "waveFunctionImaginaryPart": {
-    "value": "Wave Function: Imaginary Part"
   },
   "coverTop": {
     "value": "Cover Top"
@@ -370,7 +364,7 @@
         "value": "PLACEHOLDER MESSAGE : AUTO REPEAT MODE CONTINUES TO SEND PARTICLES"
       },
       "sourcePacket": {
-        "value": "{ $waveDisplayMode ->\n  [amplitude] Round packet of solid { a11y_sourceWaveFragments_lowercaseColor } wave\n  moves toward { a11y_sourceWaveFragments_slitTarget }\n *[electricField] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n  [realPart] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n  [imaginaryPart] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n}"
+        "value": "{ $waveDisplayMode ->\n  [amplitude] Round packet of solid { a11y_sourceWaveFragments_lowercaseColor } wave\n  moves toward { a11y_sourceWaveFragments_slitTarget }\n *[electricField] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n  [realPart] Round packet of { a11y_sourceWaveFragments_lowercaseColor } and black\n  waves moves toward { a11y_sourceWaveFragments_slitTarget }\n  { a11y_sourceWaveFragments_wavePeakSpacing }\n}"
       }
     },
     "singleParticlesScreen": {
@@ -392,7 +386,7 @@
     },
     "waveExperimentState": {
       "sourceBeam": {
-        "value": "{ $isEmitting ->\n  [false] No beam is visible in the wave area.\n *[true] { $waveDisplayMode ->\n    [amplitude] Solid { a11y_sourceWaveFragments_lowercaseColor } wave moves toward\n    { a11y_sourceWaveFragments_slitTarget }\n   *[electricField] { a11y_sourceWaveFragments_capitalizedColorAndBlack } plane wave fronts\n    move toward { a11y_sourceWaveFragments_slitTarget }\n    { a11y_sourceWaveFragments_wavePeakSpacing }\n    [realPart] { a11y_sourceWaveFragments_capitalizedColorAndBlack } plane wave fronts\n    move toward { a11y_sourceWaveFragments_slitTarget }\n    { a11y_sourceWaveFragments_wavePeakSpacing }\n    [imaginaryPart] { a11y_sourceWaveFragments_capitalizedColorAndBlack } plane wave fronts\n    move toward { a11y_sourceWaveFragments_slitTarget }\n    { a11y_sourceWaveFragments_wavePeakSpacing }\n  }\n}"
+        "value": "{ $isEmitting ->\n  [false] No beam is visible in the wave area.\n *[true] { $waveDisplayMode ->\n    [amplitude] Solid { a11y_sourceWaveFragments_lowercaseColor } wave moves toward\n    { a11y_sourceWaveFragments_slitTarget }\n   *[electricField] { a11y_sourceWaveFragments_capitalizedColorAndBlack } plane wave fronts\n    move toward { a11y_sourceWaveFragments_slitTarget }\n    { a11y_sourceWaveFragments_wavePeakSpacing }\n    [realPart] { a11y_sourceWaveFragments_capitalizedColorAndBlack } plane wave fronts\n    move toward { a11y_sourceWaveFragments_slitTarget }\n    { a11y_sourceWaveFragments_wavePeakSpacing }\n  }\n}"
       },
       "photonDetail": {
         "value": "Photon wavelength is { $wavelength }, in the { $color } zone."
@@ -448,7 +442,7 @@
         "value": "Screen brightness { $brightnessTrend ->\n  [increased] increased.\n  [decreased] decreased.\n *[unchanged] unchanged.\n}"
       },
       "waveDisplayChanged": {
-        "value": "Wave display changed to { $waveDisplayMode ->\n  [electricField] Electric Field.\n  [realPart] Real Part.\n  [imaginaryPart] Imaginary Part.\n *[amplitude] Amplitude.\n}"
+        "value": "Wave display changed to { $waveDisplayMode ->\n  [electricField] Electric Field.\n  [realPart] Real Part.\n *[amplitude] Amplitude.\n}"
       },
       "toolChanged": {
         "value": "{ $tool ->\n  [measuringTape] Measuring tape\n  [stopwatch] Stopwatch\n  [timePlot] Time plot\n *[positionPlot] Position plot\n} { $isVisible ->\n  [true] shown.\n *[false] hidden.\n}"
@@ -460,7 +454,7 @@
         "value": "{ $surface ->\n  [graph] graph.\n *[detectorScreen] detector screen.\n}"
       },
       "waveProgressChanged": {
-        "value": "{ $waveProgressStage ->\n  [sourceOff] Source is off, so no wave is traveling.\n  [atSlits] { $waveDisplayMode ->\n    [amplitude] { $patternKind ->\n      [doubleSlitInterference] Solid circular waves emerge from both slits and overlap.\n      [singleSlitDiffraction] Solid circular wave emerges from open slit only.\n      [whichPathDiffraction] As detection events occur, solid circular waves emerge from both slits one at a time\n      and do not interact.\n     *[noBarrier] Solid wave moves directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n    }\n   *[electricField] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n    }\n    [realPart] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n    }\n    [imaginaryPart] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n    }\n  }\n  [interferingAfterSlits] { $waveDisplayMode ->\n    [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward { a11y_waveExperimentResponses_waveProgressTarget }\n   *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y_waveExperimentResponses_waveProgressTarget }\n    [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y_waveExperimentResponses_waveProgressTarget }\n    [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y_waveExperimentResponses_waveProgressTarget }\n  }\n  [diffractingAfterSlits] { $waveDisplayMode ->\n    [amplitude] Solid circular wave spreads toward { a11y_waveExperimentResponses_waveProgressTarget }\n   *[electricField] Circular wave fronts spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n    [realPart] Circular wave fronts spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n    [imaginaryPart] Circular wave fronts spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n  }\n  [whichPathAfterSlits] { $waveDisplayMode ->\n    [amplitude] Non-interacting solid circular waves spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n   *[electricField] Non-interacting circular wave fronts spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n    [realPart] Non-interacting circular wave fronts spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n    [imaginaryPart] Non-interacting circular wave fronts spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n  }\n *[directToScreen] { $waveDisplayMode ->\n    [amplitude] Solid wave moves directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n   *[electricField] Plane wave fronts move directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n    [realPart] Plane wave fronts move directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n    [imaginaryPart] Plane wave fronts move directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n  }\n}"
+        "value": "{ $waveProgressStage ->\n  [sourceOff] Source is off, so no wave is traveling.\n  [atSlits] { $waveDisplayMode ->\n    [amplitude] { $patternKind ->\n      [doubleSlitInterference] Solid circular waves emerge from both slits and overlap.\n      [singleSlitDiffraction] Solid circular wave emerges from open slit only.\n      [whichPathDiffraction] As detection events occur, solid circular waves emerge from both slits one at a time\n      and do not interact.\n     *[noBarrier] Solid wave moves directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n    }\n   *[electricField] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n    }\n    [realPart] { $patternKind ->\n      [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.\n      [singleSlitDiffraction] Circular wave fronts emerge from open slit only.\n      [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits\n      one at a time and do not interact.\n     *[noBarrier] Plane wave fronts move directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n    }\n  }\n  [interferingAfterSlits] { $waveDisplayMode ->\n    [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward { a11y_waveExperimentResponses_waveProgressTarget }\n   *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y_waveExperimentResponses_waveProgressTarget }\n    [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y_waveExperimentResponses_waveProgressTarget }\n  }\n  [diffractingAfterSlits] { $waveDisplayMode ->\n    [amplitude] Solid circular wave spreads toward { a11y_waveExperimentResponses_waveProgressTarget }\n   *[electricField] Circular wave fronts spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n    [realPart] Circular wave fronts spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n  }\n  [whichPathAfterSlits] { $waveDisplayMode ->\n    [amplitude] Non-interacting solid circular waves spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n   *[electricField] Non-interacting circular wave fronts spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n    [realPart] Non-interacting circular wave fronts spread toward { a11y_waveExperimentResponses_waveProgressTarget }\n  }\n *[directToScreen] { $waveDisplayMode ->\n    [amplitude] Solid wave moves directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n   *[electricField] Plane wave fronts move directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n    [realPart] Plane wave fronts move directly toward the { a11y_waveExperimentResponses_waveProgressTarget }\n  }\n}"
       },
       "maxHitsReached": {
         "value": "{ maximumHitsReached }. Source is off."
@@ -557,7 +551,7 @@
         }
       },
       "accessibleParagraph": {
-        "value": "Chart shows { $waveDisplayMode ->\n  [electricField] electric field\n  [realPart] real part of wave function\n  [imaginaryPart] imaginary part of wave function\n *[amplitude] amplitude\n} at probe position versus time."
+        "value": "Chart shows { $waveDisplayMode ->\n  [electricField] electric field\n  [realPart] real part of wave function\n *[amplitude] amplitude\n} at probe position versus time."
       }
     },
     "positionPlot": {
@@ -574,7 +568,7 @@
         "value": "{ $slitState ->\n  [openSlit] { $region } of wave area, across open slit\n  [coveredSlit] { $region } of wave area, across covered slit\n  [detectorSlit] { $region } of wave area, across slit with detector\n *[noSlit] { $region } of wave area\n}"
       },
       "accessibleParagraph": {
-        "value": "Chart shows { $waveDisplayMode ->\n  [electricField] electric field\n  [realPart] real part of wave function\n  [imaginaryPart] imaginary part of wave function\n *[amplitude] amplitude\n} versus position along selected row of wave area."
+        "value": "Chart shows { $waveDisplayMode ->\n  [electricField] electric field\n  [realPart] real part of wave function\n *[amplitude] amplitude\n} versus position along selected row of wave area."
       }
     },
     "detectorProbe": {
@@ -749,7 +743,7 @@
     },
     "matterWaveDisplayComboBox": {
       "accessibleHelpText": {
-        "value": "Choose real part, imaginary part, or amplitude display for matter wave function."
+        "value": "Choose real part or amplitude display for matter wave function."
       }
     },
     "zoomInButton": {

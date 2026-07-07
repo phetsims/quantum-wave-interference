@@ -4,7 +4,7 @@
  * Utilities for mapping wave display modes to the polarity expected by plot displays.
  *
  * Unipolar signals (amplitude - values in [0, +infinity)) have a baseline at the bottom of the
- * chart. Bipolar signals (real part, imaginary part, electric field - values in
+ * chart. Bipolar signals (real part, electric field - values in
  * (-infinity, +infinity)) have a baseline at the vertical center.
  *
  * @author Sam Reid (PhET Interactive Simulations)

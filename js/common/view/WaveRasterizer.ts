@@ -306,7 +306,6 @@ function getDisplayModeIntensity(
 ): number {
   const boostedAmplitudeScale = amplitudeScale * colorPower * WAVE_VISUALIZATION_AMPLITUDE_COLOR_POWER_MULTIPLIER;
   const real = displayState.real * amplitudeScale;
-  const imaginary = displayState.imaginary * amplitudeScale;
   const scaledAmplitude = displayMode === 'amplitude' ?
                           Math.sqrt( displayState.intensity ) * boostedAmplitudeScale :
                           0;
@@ -315,7 +314,6 @@ function getDisplayModeIntensity(
                                               ( 1 - FIELD_DISPLAY_CUTOFF ) * scaledAmplitude * scaledAmplitude, 0, 1 ) :
          displayMode === 'electricField' ? getPhaseDisplayIntensity( real * colorPower ) * phaseVisibility :
          displayMode === 'realPart' ? getPhaseDisplayIntensity( real * colorPower ) * phaseVisibility :
-         displayMode === 'imaginaryPart' ? getPhaseDisplayIntensity( imaginary * colorPower ) * phaseVisibility :
          ( () => { throw new Error( `Unrecognized displayMode: ${displayMode}` ); } )();
 }
 
@@ -377,8 +375,8 @@ type FieldDisplayState = {
  * color mappers.
  *
  * getFieldSampleRGBA and getFieldLayerRGBA call this after grouping components. It adds intensities
- * incoherently across decohered groups, uses the strongest group as the representative phase for real
- * and imaginary display modes, and computes the visibility used to fade or alpha-mask weak support.
+ * incoherently across decohered groups, uses the strongest group as the representative phase for signed-component
+ * display modes, and computes the visibility used to fade or alpha-mask weak support.
  *
  * @param groupStates - Per-coherence-group summaries for one sampled cell or layer.
  * @param amplitudeScale - Scale factor used for visibility fallback when support is not explicit.
@@ -401,7 +399,7 @@ function getDisplayState(
   let strongestGroup: CoherenceGroupDisplayState | null = null;
 
   // Match the kernel's representative-complex policy without allocating that Complex: add intensities
-  // incoherently across groups, then use the strongest group's phase for real/imaginary displays.
+  // incoherently across groups, then use the strongest group's phase for signed-component displays.
   for ( let i = 0; i < groupStates.length; i++ ) {
     const groupState = groupStates[ i ];
     totalIntensity += groupState.intensity;

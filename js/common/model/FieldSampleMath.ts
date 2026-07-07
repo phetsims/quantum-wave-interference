@@ -71,7 +71,7 @@ export function computeSampleIntensity( sample: FieldSample ): number {
  *
  * If there is one coherence group, this is the coherent sum. If there are multiple groups, the
  * returned phase is taken from the strongest group and the magnitude is scaled to the total
- * decoherent intensity. That keeps old real/imaginary displays finite while preserving intensity.
+ * decoherent intensity. That keeps signed-component displays finite while preserving intensity.
  */
 export function getRepresentativeComplex( sample: FieldSample ): Complex {
   if ( sample.kind !== 'field' ) {

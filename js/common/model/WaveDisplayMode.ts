@@ -4,7 +4,7 @@
  * WaveDisplayMode enumerates how the wave is rendered in the wave visualization region.
  *
  * For photons: 'amplitude' or 'electricField'
- * For matter particles (electrons, neutrons, helium atoms): 'amplitude', 'realPart', or 'imaginaryPart'
+ * For matter particles (electrons, neutrons, helium atoms): 'amplitude' or 'realPart'
  *
  * For all source types, 'amplitude' displays the complex magnitude sqrt( re^2 + im^2 ).
  *
@@ -14,7 +14,7 @@
 export const PhotonWaveDisplayModeValues = [ 'amplitude', 'electricField' ] as const;
 export type PhotonWaveDisplayMode = typeof PhotonWaveDisplayModeValues[number];
 
-export const MatterWaveDisplayModeValues = [ 'amplitude', 'realPart', 'imaginaryPart' ] as const;
+export const MatterWaveDisplayModeValues = [ 'amplitude', 'realPart' ] as const;
 export type MatterWaveDisplayMode = typeof MatterWaveDisplayModeValues[number];
 
 export type WaveDisplayMode = PhotonWaveDisplayMode | MatterWaveDisplayMode;
@@ -33,6 +33,5 @@ export function getDisplayedWaveValue( re: number, im: number, displayMode: Wave
   return displayMode === 'amplitude' ? Math.sqrt( re * re + im * im ) :
          displayMode === 'electricField' ? re :
          displayMode === 'realPart' ? re :
-         displayMode === 'imaginaryPart' ? im :
          ( () => { throw new Error( `Unrecognized displayMode: ${displayMode}` ); } )();
 }

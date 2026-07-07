@@ -4,7 +4,7 @@
  * WaveDisplaySection is the wave display / wave function display combo box section used by
  * both the High Intensity and Single Particles screens. When the Photons scene is selected, it shows
  * photon display modes (Amplitude, Electric Field). For matter-particle scenes, it shows
- * matter wave display modes (Amplitude, Real part, Imaginary part) under a "Wave Function Display" heading.
+ * matter wave display modes (Amplitude, Real part) under a "Wave Function Display" heading.
  *
  * @author Sam Reid (PhET Interactive Simulations)
  */
@@ -111,7 +111,6 @@ export default class WaveDisplaySection extends VBox {
 
     const matterWaveDisplayItems: ComboBoxItem<MatterWaveDisplayMode>[] = [
       { value: 'realPart', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.realPartStringProperty ), tandemName: 'realPartItem' },
-      { value: 'imaginaryPart', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.imaginaryPartStringProperty ), tandemName: 'imaginaryPartItem' },
 
       // Amplitude displays sqrt( re^2 + im^2 ) for all source types.
       { value: 'amplitude', createNode: () => createComboBoxText( QuantumWaveInterferenceFluent.amplitudeStringProperty ), tandemName: 'amplitudeItem' }

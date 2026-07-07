@@ -85,7 +85,7 @@ Text is the [beam description](#beam) (varies with wave display × particle colo
 
 By slit configuration × wave display:
 
-| | Amplitude display | E-field / real / imaginary displays |
+| | Amplitude display | E-field / real displays |
 |---|---|---|
 | both open (interference) | “Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward `{detector screen}`.” | “Overlapping circular wave fronts add and cancel, and spread checkered pattern toward `{detector screen}`.” |
 | one covered (diffraction) | “Solid circular wave spreads toward `{detector screen}`.” | “Circular wave fronts spread toward `{detector screen}`.” |
@@ -267,7 +267,7 @@ Paragraph: “Zoom level `{3}`. Use up to 6 zoom levels to zoom in on small data
 
 <details><summary><b>⊙ Measurement tool nodes</b> — <b>[when a tool is added]</b> — probes and charts in the wave area</summary>
 
-- **Time Plot Probe** — “Move probe to choose which point of wave area is graphed over time.” · Chart “Time Plot Chart” — “Move chart to a convenient position.” · Chart paragraph: “Chart shows ⟨electric field · real part of wave function · imaginary part of wave function · amplitude⟩ at probe position versus time.”
+- **Time Plot Probe** — “Move probe to choose which point of wave area is graphed over time.” · Chart “Time Plot Chart” — “Move chart to a convenient position.” · Chart paragraph: “Chart shows ⟨electric field · real part of wave function · amplitude⟩ at probe position versus time.”
 - **Position Plot Probe** — “Move probe up or down to choose which row of wave area is graphed.” · Value: “`{Center}` of wave area⟨, across open slit · , across covered slit · , across slit with detector · —⟩” (region ⟨Near top · Above center · Center · Below center · Near bottom⟩) · Chart paragraph: “Chart shows ⟨…⟩ versus position along selected row of wave area.”
 - Measuring tape and stopwatch interaction text **[common: scenery-phet]** — not expanded here (UNKNOWN exact strings; capture via harness when needed).
 `a11y.timePlot.*, a11y.positionPlot.*`
@@ -277,10 +277,10 @@ Paragraph: “Zoom level `{3}`. Use up to 6 zoom levels to zoom in on small data
 
 ## CONTROL AREA
 
-<details><summary><b>⊙ Wave Display</b> — combo box — <b>[photon scene]</b> “Electric Field · Amplitude” / <b>[matter]</b> “Real Part · Imaginary Part · Amplitude” — 🔊 on change</summary>
+<details><summary><b>⊙ Wave Display</b> — combo box — <b>[photon scene]</b> “Electric Field · Amplitude” / <b>[matter]</b> “Real Part · Amplitude” — 🔊 on change</summary>
 
-Help **[photon]**: “Choose Electric Field or Amplitude display for photon wave.” · **[matter]**: “Choose real part, imaginary part, or amplitude display for matter wave function.”
-🔊 **on change:** “Wave display changed to ⟨Electric Field. · Real Part. · Imaginary Part. · Amplitude.⟩” `a11y.photonWaveDisplayComboBox / matterWaveDisplayComboBox, …waveDisplayChanged` · trigger `:119`
+Help **[photon]**: “Choose Electric Field or Amplitude display for photon wave.” · **[matter]**: “Choose real part or amplitude display for matter wave function.”
+🔊 **on change:** “Wave display changed to ⟨Electric Field. · Real Part. · Amplitude.⟩” `a11y.photonWaveDisplayComboBox / matterWaveDisplayComboBox, …waveDisplayChanged` · trigger `:119`
 </details>
 
 <details><summary><b>⊙ Time Controls</b> — <b>[common: scenery-phet]</b> — Pause/Play · Step Forward · Sim Speeds — 🔊 responses inside</summary>
@@ -339,7 +339,7 @@ Screen buttons: “Home Screen” (“Go to Home Screen.”), “Experiment Scre
 
 Frame by wave display mode:
 - **[Amplitude]** “Solid `{red}` wave moves toward `{slitted barrier.}`”
-- **[E-field / real / imaginary]** “`{Red}` and black plane wave fronts move toward `{slitted barrier.}` Wave peaks, ⟨extremely far apart · very far apart · far apart · somewhat close together · close together · very close together · extremely close together⟩.”
+- **[E-field / real]** “`{Red}` and black plane wave fronts move toward `{slitted barrier.}` Wave peaks, ⟨extremely far apart · very far apart · far apart · somewhat close together · close together · very close together · extremely close together⟩.”
 
 Color: photons ⟨violet · blue · indigo · green · yellow · orange · red⟩ by wavelength ([S4](#s4)); matter particles “gray”.
 Destination: “slitted barrier.” — “detector screen.” **[when no barrier]**.

@@ -27,14 +27,12 @@ export default function waveDisplayModeYAxisLabelProperty( activeDisplayModeProp
       activeDisplayModeProperty,
       QuantumWaveInterferenceFluent.electricFieldStringProperty,
       QuantumWaveInterferenceFluent.amplitudeStringProperty,
-      QuantumWaveInterferenceFluent.waveFunctionRealPartStringProperty,
-      QuantumWaveInterferenceFluent.waveFunctionImaginaryPartStringProperty
+      QuantumWaveInterferenceFluent.waveFunctionRealPartStringProperty
     ],
-    ( mode, electricField, amplitude, realPart, imaginaryPart ) =>
+    ( mode, electricField, amplitude, realPart ) =>
       mode === 'electricField' ? electricField :
       mode === 'amplitude' ? amplitude :
       mode === 'realPart' ? realPart :
-      mode === 'imaginaryPart' ? imaginaryPart :
       ( () => { throw new Error( `Unrecognized displayMode: ${mode}` ); } )()
   );
 }

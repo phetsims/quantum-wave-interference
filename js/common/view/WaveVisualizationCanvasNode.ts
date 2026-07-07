@@ -10,7 +10,7 @@
  * The color mapping depends on the source and wave display mode. Photon scenes use the visible color
  * for the current wavelength, while matter-particle scenes use a neutral gray base color. The active
  * display mode determines whether the sampled complex amplitudes are shown as amplitude, real part,
- * imaginary part, or electric field.
+ * or electric field.
  *
  * The renderer uses the solver's explicit FieldSample status instead of inferring status from zero
  * amplitude, so dark interference nodes are rendered as reached field rather than neutral background.

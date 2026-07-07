@@ -60,11 +60,9 @@ waveFunctionDisplay:             Wave Function Display
 electricField:                   Electric Field
 amplitude:                       Amplitude
 realPart:                        Real Part
-imaginaryPart:                   Imaginary Part
 
 # y-axis headings for the Plot tools, clarifying that the plotted quantity is part of the wave function
 waveFunctionRealPart:            'Wave Function: Real Part'
-waveFunctionImaginaryPart:       'Wave Function: Imaginary Part'
 coverTop:                        Cover Top
 coverBottom:                     Cover Bottom
 detectorTop:                     Detector Top
@@ -318,9 +316,6 @@ a11y:
                                 [realPart] Round packet of { a11y.sourceWaveFragments.lowercaseColor } and black
                                 waves moves toward { a11y.sourceWaveFragments.slitTarget }
                                 { a11y.sourceWaveFragments.wavePeakSpacing }
-                                [imaginaryPart] Round packet of { a11y.sourceWaveFragments.lowercaseColor } and black
-                                waves moves toward { a11y.sourceWaveFragments.slitTarget }
-                                { a11y.sourceWaveFragments.wavePeakSpacing }
                               }
   singleParticlesScreen:
     screenButtonsHelpText: Explore how one particle at a time builds a probability pattern.
@@ -340,9 +335,6 @@ a11y:
                               move toward { a11y.sourceWaveFragments.slitTarget }
                               { a11y.sourceWaveFragments.wavePeakSpacing }
                               [realPart] { a11y.sourceWaveFragments.capitalizedColorAndBlack } plane wave fronts
-                              move toward { a11y.sourceWaveFragments.slitTarget }
-                              { a11y.sourceWaveFragments.wavePeakSpacing }
-                              [imaginaryPart] { a11y.sourceWaveFragments.capitalizedColorAndBlack } plane wave fronts
                               move toward { a11y.sourceWaveFragments.slitTarget }
                               { a11y.sourceWaveFragments.wavePeakSpacing }
                             }
@@ -538,7 +530,6 @@ a11y:
                               Wave display changed to { $waveDisplayMode ->
                                 [electricField] Electric Field.
                                 [realPart] Real Part.
-                                [imaginaryPart] Imaginary Part.
                                *[amplitude] Amplitude.
                               }
     toolChanged:              >-
@@ -588,37 +579,26 @@ a11y:
                                     one at a time and do not interact.
                                    *[noBarrier] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
                                   }
-                                  [imaginaryPart] { $patternKind ->
-                                    [doubleSlitInterference] Circular wave fronts emerge from both slits and overlap.
-                                    [singleSlitDiffraction] Circular wave fronts emerge from open slit only.
-                                    [whichPathDiffraction] As detection events occur, circular wave fronts emerge from both slits
-                                    one at a time and do not interact.
-                                   *[noBarrier] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
-                                  }
                                 }
                                 [interferingAfterSlits] { $waveDisplayMode ->
                                   [amplitude] Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward { a11y.waveExperimentResponses.waveProgressTarget }
                                  *[electricField] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y.waveExperimentResponses.waveProgressTarget }
                                   [realPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y.waveExperimentResponses.waveProgressTarget }
-                                  [imaginaryPart] Overlapping circular wave fronts add and cancel, and spread checkered pattern toward { a11y.waveExperimentResponses.waveProgressTarget }
                                 }
                                 [diffractingAfterSlits] { $waveDisplayMode ->
                                   [amplitude] Solid circular wave spreads toward { a11y.waveExperimentResponses.waveProgressTarget }
                                  *[electricField] Circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
                                   [realPart] Circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
-                                  [imaginaryPart] Circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
                                 }
                                 [whichPathAfterSlits] { $waveDisplayMode ->
                                   [amplitude] Non-interacting solid circular waves spread toward { a11y.waveExperimentResponses.waveProgressTarget }
                                  *[electricField] Non-interacting circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
                                   [realPart] Non-interacting circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
-                                  [imaginaryPart] Non-interacting circular wave fronts spread toward { a11y.waveExperimentResponses.waveProgressTarget }
                                 }
                                *[directToScreen] { $waveDisplayMode ->
                                   [amplitude] Solid wave moves directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
                                  *[electricField] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
                                   [realPart] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
-                                  [imaginaryPart] Plane wave fronts move directly toward the { a11y.waveExperimentResponses.waveProgressTarget }
                                 }
                               }
     maxHitsReached:           '{ maximumHitsReached }. Source is off.'
@@ -703,7 +683,6 @@ a11y:
                           Chart shows { $waveDisplayMode ->
                             [electricField] electric field
                             [realPart] real part of wave function
-                            [imaginaryPart] imaginary part of wave function
                            *[amplitude] amplitude
                           } at probe position versus time.
   positionPlot:
@@ -728,7 +707,6 @@ a11y:
                          Chart shows { $waveDisplayMode ->
                            [electricField] electric field
                            [realPart] real part of wave function
-                           [imaginaryPart] imaginary part of wave function
                           *[amplitude] amplitude
                          } versus position along selected row of wave area.
   detectorProbe:
@@ -878,7 +856,7 @@ a11y:
   photonWaveDisplayComboBox:
     accessibleHelpText: Choose Electric Field or Amplitude display for photon wave.
   matterWaveDisplayComboBox:
-    accessibleHelpText: Choose real part, imaginary part, or amplitude display for matter wave function.
+    accessibleHelpText: Choose real part or amplitude display for matter wave function.
   zoomInButton:
     accessibleName: Zoom In
   zoomOutButton:
