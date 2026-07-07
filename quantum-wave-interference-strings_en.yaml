@@ -37,7 +37,6 @@ detectorRight:                   Detector Right
 detectorBoth:                    Detector Both
 noBarrier:                       No Barrier
 hits:                            Hits
-hitsCountPattern:                'Hits: {{count}}'
 detectorHitsCountPattern:        '{{count}} Hits'
 screenGraphSwitch.screen:        Screen
 screenGraphSwitch.graph:         Graph

@@ -350,7 +350,6 @@ const QuantumWaveInterferenceFluent = {
   detectorBothStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorBothStringProperty' ),
   noBarrierStringProperty: _.get( QuantumWaveInterferenceStrings, 'noBarrierStringProperty' ),
   hitsStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsStringProperty' ),
-  hitsCountPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'hitsCountPatternStringProperty' ),
   detectorHitsCountPatternStringProperty: _.get( QuantumWaveInterferenceStrings, 'detectorHitsCountPatternStringProperty' ),
   screenGraphSwitch: {
     screenStringProperty: _.get( QuantumWaveInterferenceStrings, 'screenGraphSwitch.screenStringProperty' ),

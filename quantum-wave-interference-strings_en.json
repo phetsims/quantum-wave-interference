@@ -107,9 +107,6 @@
   "hits": {
     "value": "Hits"
   },
-  "hitsCountPattern": {
-    "value": "Hits: {{count}}"
-  },
   "detectorHitsCountPattern": {
     "value": "{{count}} Hits"
   },

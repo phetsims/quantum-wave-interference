@@ -15,14 +15,11 @@ import { TReadOnlyProperty } from '../../../../axon/js/TReadOnlyProperty.js';
 import Bounds2 from '../../../../dot/js/Bounds2.js';
 import optionize from '../../../../phet-core/js/optionize.js';
 import PickRequired from '../../../../phet-core/js/types/PickRequired.js';
-import StringUtils from '../../../../phetcommon/js/util/StringUtils.js';
-import PhetFont from '../../../../scenery-phet/js/PhetFont.js';
 import PlusMinusZoomButtonGroup from '../../../../scenery-phet/js/PlusMinusZoomButtonGroup.js';
 import { micrometersUnit } from '../../../../scenery-phet/js/units/micrometersUnit.js';
 import VBox from '../../../../scenery/js/layout/nodes/VBox.js';
 import Node, { NodeOptions } from '../../../../scenery/js/nodes/Node.js';
 import Rectangle from '../../../../scenery/js/nodes/Rectangle.js';
-import Text from '../../../../scenery/js/nodes/Text.js';
 import type Tandem from '../../../../tandem/js/Tandem.js';
 import Animation from '../../../../twixt/js/Animation.js';
 import Easing from '../../../../twixt/js/Easing.js';
@@ -60,7 +57,6 @@ const HORIZONTAL_ZOOM_BUTTON_MARGIN = 6;
 const SNAPSHOT_FLASH_INITIAL_OPACITY = 0.8;
 const SNAPSHOT_FLASH_DURATION = 0.6;
 const DETECTOR_ACTION_BUTTON_MIN_WIDTH = 36;
-const SPAN_TICK_LENGTH = 8;
 const SPAN_ARROW_Y = -10;
 
 type SelfOptions = {
@@ -224,40 +220,12 @@ export default class FrontFacingDetectorScreenNode extends Node {
     } );
     this.addChild( this.horizontalZoomButtonGroupParagraphNode );
 
-    // Hit count text - only visible in Hits mode, positioned above the screen on the right side (per design:
-    // "Above the screen... on the right, there is a readout displaying the total number of detected hits (only if
-    // 'Hits' selected)")
-    const hitCountText = new Text( '', {
-      font: new PhetFont( 12 ),
-      fill: 'black',
-      maxWidth: 100
-    } );
-    this.addChild( hitCountText );
-
     this.addChild( new DetectorScreenScaleIndicatorNode( detectorScreenScaleIndexProperty, SCREEN_WIDTH, SPAN_ARROW_Y ) );
 
-    // Update the hit count text and canvas when hits change or locale strings change
-    const updateDisplay = () => {
-      if ( sceneModel.detectionModeProperty.value === 'hits' ) {
-        hitCountText.string = StringUtils.fillIn(
-          QuantumWaveInterferenceFluent.hitsCountPatternStringProperty.value,
-          {
-            count: sceneModel.totalHitsProperty.value
-          }
-        );
-        hitCountText.right = SCREEN_WIDTH;
-        hitCountText.bottom = SPAN_ARROW_Y - SPAN_TICK_LENGTH / 2 - 2;
-        hitCountText.visible = true;
-      }
-      else {
-        hitCountText.visible = false;
-      }
-      this.screenCanvasNode.invalidatePaint();
-    };
+    const invalidateDetectorScreen = () => this.screenCanvasNode.invalidatePaint();
 
-    sceneModel.hitsChangedEmitter.addListener( updateDisplay );
-    sceneModel.detectionModeProperty.link( () => updateDisplay() );
-    QuantumWaveInterferenceFluent.hitsCountPatternStringProperty.lazyLink( updateDisplay );
+    sceneModel.hitsChangedEmitter.addListener( invalidateDetectorScreen );
+    sceneModel.detectionModeProperty.link( invalidateDetectorScreen );
     sceneModel.isEmittingProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.screenBrightnessProperty.link( () => this.screenCanvasNode.invalidatePaint() );
     sceneModel.sourceStrengthProperty.link( () => this.screenCanvasNode.invalidatePaint() );

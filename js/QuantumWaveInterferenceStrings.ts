@@ -58,7 +58,6 @@ type StringsType = {
   'detectorBothStringProperty': LocalizedStringProperty;
   'noBarrierStringProperty': LocalizedStringProperty;
   'hitsStringProperty': LocalizedStringProperty;
-  'hitsCountPatternStringProperty': LocalizedStringProperty;
   'detectorHitsCountPatternStringProperty': LocalizedStringProperty;
   'screenGraphSwitch': {
     'screenStringProperty': LocalizedStringProperty;
