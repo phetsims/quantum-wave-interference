@@ -5,7 +5,8 @@
  * - Three gray barrier rectangles (top, central, bottom) with gaps for two slits
  * - Covered slit overlays (darker fill when a slit is covered)
  * - Detector slit overlays (yellow stroke when a detector is on a slit)
- * - A green draggable double-headed arrow below the wave region for adjusting slit-to-screen distance
+ * - A visual-only barrier-to-screen distance indicator below the wave region
+ * - A green draggable double-headed arrow below the distance indicator for adjusting slit-to-screen distance
  *
  * The barrier position is set by barrierPositionFractionProperty (fraction of wave region width).
  * Slit separation is mapped from the model range to a visible view range.
@@ -38,6 +39,7 @@ import { type BarrierType } from '../model/BarrierType.js';
 import { type SourceType } from '../model/SourceType.js';
 import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
+import BarrierScreenDistanceIndicatorNode from './BarrierScreenDistanceIndicatorNode.js';
 import { type SlitBarrierViewStateFragment } from './description/QuantumWaveInterferenceAccessibleViewState.js';
 import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
 import SlitDetectorNode from './SlitDetectorNode.js';
@@ -341,6 +343,13 @@ export default class DoubleSlitNode extends Node {
     this.addChild( arrowNode );
     this.pdomOrder = [ arrowNode ];
 
+    const barrierScreenDistanceIndicatorNode = new BarrierScreenDistanceIndicatorNode(
+      sceneProperty,
+      barrierTypeProperty,
+      barrierPositionFractionProperty
+    );
+    this.addChild( barrierScreenDistanceIndicatorNode );
+
     barrierContainer.cursor = 'ew-resize';
 
     // Pointer dragging of the barrier. The arrow and the barrier rectangles each get their own listener (and tandem)
@@ -443,8 +452,8 @@ export default class DoubleSlitNode extends Node {
         topSlitDetectorNode.layoutDetector( barrierX, topBarrierBottom, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, 'above' );
         bottomSlitDetectorNode.layoutDetector( barrierX, centralBarrierBottom, BARRIER_VIEW_WIDTH, DISPLAY_SLIT_WIDTH, 'below' );
 
-        // Center the drag arrow horizontally on the barrier, just below the wave region.
-        const arrowY = WAVE_REGION_HEIGHT + 12;
+        // Center the drag arrow horizontally on the barrier, below the distance indicator.
+        const arrowY = WAVE_REGION_HEIGHT + 26;
         const barrierCenterX = barrierX + BARRIER_VIEW_WIDTH / 2;
         arrowNode.setTailAndTip( barrierCenterX - ARROW_WIDTH / 2, arrowY, barrierCenterX + ARROW_WIDTH / 2, arrowY );
       }
