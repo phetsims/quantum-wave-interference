@@ -19,9 +19,9 @@ import CurrentDetectorProbe from './CurrentDetectorProbe.js';
 import SingleParticlesSceneModel from './SingleParticlesSceneModel.js';
 
 // Single Particles uses slower continuous-wave motion than High Intensity so individual packet travel is visible at
-// normal speed. The fast factor is much larger (8×) to let users skip ahead without losing packet-scale detail.
+// normal speed. The fast factor is much larger (16×) to let users skip ahead without losing packet-scale detail.
 const NORMAL_TIME_SPEED_FACTOR = 0.7;
-const FAST_TIME_SPEED_FACTOR = 8;
+const FAST_TIME_SPEED_FACTOR = 16;
 
 // Only the tandem is required; all other PhetioObjectOptions use defaults supplied by BaseScreenModel.
 type SingleParticlesModelOptions = PickRequired<PhetioObjectOptions, 'tandem'>;
