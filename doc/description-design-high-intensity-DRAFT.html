@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive Description Design — High Intensity Screen (QWI)</title>
+<style>
+  :root {
+    --paper:#FCFCFA; --ink:#22303C; --soft:#5A6B7A; --line:#DDE3E8;
+    --blue:#2E5E8C; --amber:#9A6200; --amber-bg:#FBF3E2; --amber-line:#E5CD9C;
+    --green:#206E5E; --green-bg:#E4F2EE; --violet:#A05B96; --red:#A83232;
+    --gray:#8A94A0;
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: "Segoe UI", -apple-system, sans-serif;
+    --mono: Consolas, "Cascadia Code", monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); line-height:1.55; font-size:15px; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 36px 26px 90px; }
+  header { border-bottom: 3px solid var(--blue); padding-bottom: 16px; margin-bottom: 18px; }
+  .eyebrow { text-transform:uppercase; letter-spacing:.12em; font-size:12px; color:var(--blue); font-weight:600; }
+  h1 { font-size:28px; margin:6px 0 4px; line-height:1.2; }
+  .meta { color:var(--soft); font-size:13.5px; }
+  h2 { color:var(--blue); font-size:20px; border-bottom:2px solid var(--blue); padding-bottom:4px; margin:44px 0 12px; }
+  h3 { font-size:16.5px; margin:26px 0 8px; }
+  h3 .cm { font-size:12px; }
+  a { color:var(--blue); }
+
+  /* conventions */
+  .h { font-family:var(--serif); }                                     /* heard text */
+  .f { background:var(--green-bg); color:var(--green); border-radius:3px; padding:0 4px; font-family:var(--serif); } /* fill-in */
+  .w { display:inline-block; font-size:11.5px; background:var(--amber-bg); color:var(--amber);
+       border:1px solid var(--amber-line); border-radius:3px; padding:0 6px; font-weight:600; margin-right:3px; } /* condition */
+  .cm { font-size:11px; border:1px solid var(--line); color:var(--gray); border-radius:3px; padding:0 5px; vertical-align:1px; white-space:nowrap; } /* common code */
+  .rs { font-size:11px; color:#fff; background:var(--violet); border-radius:8px; padding:0 7px; font-weight:600; white-space:nowrap; } /* response */
+  .vc { font-size:11px; color:var(--gray); border:1px solid var(--line); border-radius:8px; padding:0 7px; font-weight:600; } /* ×N */
+  .sc { color:var(--green); }                                          /* slot scale ⟨…⟩ */
+  .src { font-size:12px; color:var(--gray); font-family:var(--mono); margin-top:4px; overflow-wrap:anywhere; }
+  .unknown { color:var(--red); font-weight:600; font-size:12.5px; }
+  .note { color:var(--soft); font-size:13.5px; }
+  code { font-family:var(--mono); font-size:.92em; background:#EFF2F5; border-radius:3px; padding:0 4px; }
+
+  .callout { border-left:4px solid var(--blue); background:#F0F5FA; border-radius:0 4px 4px 0;
+             padding:10px 16px; margin:14px 0; font-size:14px; }
+  .callout.warn { border-color:#C97B0F; background:var(--amber-bg); }
+  .callout.warn::before { content:"⚠ "; color:#C97B0F; font-weight:700; }
+  .callout b:first-child { color:var(--blue); }
+  .callout.warn b:first-child { color:#9A6200; }
+
+  details { border:1px solid var(--line); border-radius:4px; margin:8px 0; background:#fff; }
+  details[open] { box-shadow:0 1px 3px rgba(34,48,60,.07); }
+  summary { cursor:pointer; padding:8px 14px; font-size:14.5px; list-style-position:outside; }
+  summary:hover { background:#F5F8FB; }
+  summary b { font-size:15px; }
+  .body { padding: 2px 18px 14px 30px; border-top:1px solid var(--line); }
+  .body p { margin:8px 0; }
+  .body ul { margin:6px 0; padding-left:20px; }
+  .body li { margin:3px 0; }
+
+  table { border-collapse:collapse; font-size:13.5px; margin:10px 0; }
+  th { background:#EDF1F5; color:var(--blue); text-align:left; padding:6px 10px; border:1px solid var(--line);
+       font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; }
+  td { border:1px solid var(--line); padding:6px 10px; vertical-align:top; }
+  .tblwrap { overflow-x:auto; }
+  td .env { display:block; margin-top:3px; }
+  td .et { font-size:10px; color:var(--amber); background:var(--amber-bg); border-radius:3px; padding:0 4px; margin-right:4px; white-space:nowrap; }
+  td .same { color:var(--gray); font-style:italic; }
+
+  .toolbar { position:sticky; top:0; z-index:5; background:var(--paper); border-bottom:1px solid var(--line);
+             padding:8px 0; margin-bottom:6px; display:flex; gap:10px; align-items:center; }
+  .toolbar button { font:600 12.5px var(--sans); color:var(--blue); background:#fff; border:1px solid var(--blue);
+                    border-radius:4px; padding:4px 12px; cursor:pointer; }
+  .toolbar button:hover, .toolbar button:focus-visible { background:#E8F0F8; outline:2px solid var(--blue); outline-offset:1px; }
+  .toolbar .hint { font-size:12px; color:var(--gray); }
+
+  @media print {
+    details { border:none; } .toolbar { display:none; }
+    details:not([open]) > .body { display:block; } /* fallback; JS also opens all before print */
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Quantum Wave Interference · generated draft v2 · 2026-07-07</div>
+  <h1>Interactive Description Design — High Intensity Screen</h1>
+  <div class="meta">Derived from <code>quantum-wave-interference-strings_en.yaml</code>, sim + common-code TypeScript, and runtime
+  capture via the interact harness. <b>Do not hand-edit — regenerate.</b> This HTML rendering and the sibling <code>.md</code> are
+  generated from the same content; the .md is the artifact of record.</div>
+</header>
+
+<div class="toolbar">
+  <button onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">Expand all</button>
+  <button onclick="document.querySelectorAll('details').forEach(d=>d.open=false)">Collapse all</button>
+  <span class="hint">Collapsed = the structural map · expanded = the full spec</span>
+</div>
+
+<div class="callout"><b>How to read:</b> <span class="h">serif text is what the user hears</span> · <span class="f">{650 nanometers}</span> = dynamic
+fill-in with example value · <span class="w">when hits mode</span> = exists only under a condition · <span class="rs">🔊 response</span> = spoken
+once when something happens (everything else is PDOM state, readable any time) · <span class="cm">common: joist</span> = authored in shared
+PhET libraries, included so nothing a learner hears is missing · <span class="unknown">UNKNOWN</span> = not recoverable from YAML or code.</div>
+
+<!-- ============================== SCREEN SUMMARY ============================== -->
+<h2>Screen Summary</h2>
+<p>Read first on entering the screen, inside the standard scaffold <span class="cm">common: joist</span>:</p>
+<p class="h" style="color:var(--soft)">“The High Intensity Screen changes as you play with it. It has a Play Area and a Control Area.”<br>
+…four designed parts below…<br>“This screen has custom interactions. If needed, check out keyboard shortcuts under Sim Resources.”</p>
+
+<p><b>Play Area overview</b> — static:<br><span class="h">“A zoomed-in wave area shows a particle source, double-slit barrier, and detector
+screen. When the source is on, waves travel through available slits and build a pattern on the detector screen. You can change particle
+type, slit configuration, wave display, detector view, and measurement tools.”</span></p>
+
+<p><b>Control Area overview</b> — static (shared by all three screens):<br><span class="h">“Measurement tools can be added or removed to
+assist with data collection and analysis. Reset sim to start over.”</span></p>
+
+<details><summary><b>Current Details</b> — dynamic <span class="vc">×10 paths</span> — <span class="h">e.g. “Currently, source is off. Detector screen is empty.”</span></summary>
+<div class="body">
+<p><span class="h">“Currently,”</span> … then exactly one path. The paused branch prefixes <span class="h">“sim is paused.”</span> and re-capitalizes; otherwise the four states are shared:</p>
+<div class="tblwrap"><table>
+<tr><th>Path</th><th>Rendered text (photon example)</th></tr>
+<tr><td><span class="w">max hits</span></td><td class="h">“Source is off. Maximum hits reached. Detector screen shows hits pattern.”</td></tr>
+<tr><td><span class="w">emitting</span></td><td class="h">“Source emits <span class="f">photons</span> directly at double-slit barrier with <span class="f">both slits open</span>.” <span class="note">+ result below</span></td></tr>
+<tr><td class="note">— result, intensity</td><td class="h">“Detector screen shows intensity pattern.” <span class="note">or</span> “Detector screen is empty.” <span class="w">wavefront hasn't reached screen</span></td></tr>
+<tr><td class="note">— result, hits</td><td class="h">“Detector screen shows hits pattern.” <span class="note">or</span> “Detector screen has no hits.” <span class="w">none yet</span></td></tr>
+<tr><td><span class="w">source off</span></td><td class="h">“Source is off.” + “Detector screen is empty.” <span class="note">or</span> “Detector screen shows hits pattern.” <span class="w">leftover hits</span></td></tr>
+</table></div>
+<p class="note">Slit clause uses <b>top/bottom</b> wording on this screen. “Has pattern” means: intensity → wavefront has actually reached the screen; hits → at least one hit.</p>
+<div class="src">a11y.screenSummary.currentDetails + experimentStateClauses.* · QuantumWaveInterferenceScreenSummaryContent.ts:91–103 · has-pattern: HighIntensityScreenView.ts:340–352</div>
+</div></details>
+
+<details><summary><b>Interaction Hint</b> — dynamic <span class="vc">×2</span> — <span class="h">e.g. “Turn on photon source and observe detector screen.”</span></summary>
+<div class="body">
+<p><span class="w">source off</span> <span class="h">“Turn on <span class="f">photon</span> source and observe detector screen.”</span> (noun follows particle type)</p>
+<p><span class="w">source on</span> <span class="h">“Adjust source or slits and watch for changes on detector screen.”</span></p>
+<div class="src">a11y.screenSummary.interactionHint</div>
+</div></details>
+
+<!-- ============================== PLAY AREA ============================== -->
+<h2>Play Area</h2>
+
+<h3>H3 · Detector Screen and Experiment Details</h3>
+<p><span class="w">graph view</span> the heading reads <span class="h">“Graph and Experiment Details”</span> instead.</p>
+
+<details><summary><b>¶ Status paragraph</b> <span class="vc">×3 + graph</span> — <span class="h">e.g. “Detector screen is empty. Photon experiment ready.”</span></summary>
+<div class="body">
+<p><span class="w">empty, nothing traveling</span> <span class="h">“<span class="f">Detector screen</span> is empty. <span class="f">Photon</span> experiment ready.”</span></p>
+<p><span class="w">empty, waves en route</span> <span class="h">“<span class="f">Detector screen</span> is empty.”</span> <span class="note">— the “ready” invitation is deliberately dropped</span></p>
+<p><span class="w">pattern present</span> <span class="h">“<span class="f">Detector screen</span> shows <span class="f">an intensity pattern</span> of a <span class="f">photon</span> experiment.”</span></p>
+<p><span class="w">graph view</span> subject becomes <span class="h">“Graph”</span></p>
+<div class="src">a11y.experimentDetectorScreenDetails.leadingParagraph · status: HighIntensityScreenView.ts:862–878</div>
+</div></details>
+
+<p style="margin-top:14px"><b>Milestone list</b> — items appear as the experiment progresses. Each PDOM item has a spoken <span class="rs">🔊 twin</span> announced when the milestone is reached; the item then remains readable here.</p>
+
+<details><summary><b>• Advancing beam</b> <span class="w">source on ∧ playing</span> — <span class="h">e.g. “Red and black plane wave fronts move toward slitted barrier. Wave peaks, very far apart.”</span></summary>
+<div class="body">
+<p>Text is the <a href="#beam">beam description</a> (wave display × color × barrier × peak spacing, ×~30). 🔊 twin: announced after “Source started…” — see <a href="#cascade">source-restart cascade</a>.</p>
+</div></details>
+
+<details><summary><b>• Wave behavior after slits</b> <span class="w">past slits ∧ barrier exists</span> <span class="vc">×8</span> — <span class="h">e.g. “Overlapping circular wave fronts add and cancel, and spread checkered pattern toward detector screen.”</span></summary>
+<div class="body">
+<div class="tblwrap"><table>
+<tr><th></th><th>Amplitude display</th><th>E-field / real / imaginary</th></tr>
+<tr><td><span class="w">both open</span></td><td class="h">“Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward <span class="f">detector screen</span>.”</td><td class="h">“Overlapping circular wave fronts add and cancel, and spread checkered pattern toward <span class="f">detector screen</span>.”</td></tr>
+<tr><td><span class="w">one covered</span></td><td class="h">“Solid circular wave spreads toward <span class="f">detector screen</span>.”</td><td class="h">“Circular wave fronts spread toward <span class="f">detector screen</span>.”</td></tr>
+<tr><td><span class="w">which-path detectors</span></td><td class="h">“Non-interacting solid circular waves spread toward <span class="f">detector screen</span>.”</td><td class="h">“Non-interacting circular wave fronts spread toward <span class="f">detector screen</span>.”</td></tr>
+</table></div>
+<p class="note">Destination becomes “graph.” in graph view. No-barrier scenes never show this item. 🔊 twin at the moment the wavefront passes the slits; an at-slits stage is response-only — see <a href="#rprogress">wave-progress responses</a>.</p>
+<div class="src">a11y.waveExperimentResponses.waveProgressChanged · HighIntensityExperimentSetupSequenceItems.ts:119–161</div>
+</div></details>
+
+<details><summary><b>• Hits accumulating</b> <span class="w">hits mode ∧ collecting</span> — <span class="h">e.g. “Individual scattered hits on detector screen.”</span> — wording advances with hit stage</summary>
+<div class="body"><p>Text from the <a href="#mhits">hits matrix</a> at the current stage. 🔊 twin per stage threshold (<a href="#s1">scale S1</a>); duplicates suppressed.</p></div></details>
+
+<details><summary><b>• Completed intensity pattern</b> <span class="w">intensity ∧ complete ∧ screen view</span> — <span class="h">e.g. “Across detector screen, evenly-spaced bright bands are very close together, brightest at center.”</span></summary>
+<div class="body"><p>Text from the <a href="#mint">intensity matrix</a>, complete row. 🔊 twin once when formation completes; a forming-stage announcement is response-only.</p></div></details>
+
+<details><summary><b>• Graph pattern</b> <span class="w">graph view ∧ (hits ∨ pattern)</span> — <span class="h">e.g. “Graph traces intensity versus position with tall central peak and smaller peaks on either side. 9 peaks centered on the graph, spread symmetrically to either side.”</span></summary>
+<div class="body"><p>Text from <a href="#mgraph">graph pattern descriptions</a>.</p><div class="src">graph bullet: HighIntensityScreenView.ts:885–896</div></div></details>
+
+<p style="margin-top:14px"><b>¶ “Experiment details:”</b> — settings list, values always current:</p>
+<div class="tblwrap"><table>
+<tr><th>Item</th><th>Example</th><th>Exists when</th></tr>
+<tr><td>Wavelength</td><td class="h">“Wavelength is <span class="f">650 nanometers</span>, in <span class="f">red</span> zone.”</td><td><span class="w">photon scene</span></td></tr>
+<tr><td>Particle Speed</td><td class="h">“Particle Speed is <span class="f">600 kilometers per second</span>.”</td><td><span class="w">matter scenes</span></td></tr>
+<tr><td>Slit configuration</td><td class="h">“Both slits open.” <span class="note">(top/bottom wording, ×7)</span></td><td>always</td></tr>
+<tr><td>Slit separation</td><td class="h">“Slit separation distance is <span class="f">3 micrometers</span>.”</td><td><span class="w">slits exist</span></td></tr>
+<tr><td>Barrier-screen distance</td><td class="h">“Barrier-screen distance is <span class="f">0 meters</span>.” ⚠</td><td>always</td></tr>
+<tr><td>Screen brightness</td><td class="h">“Screen brightness is <span class="f">50 percent</span>.”</td><td>always</td></tr>
+</table></div>
+<div class="callout warn"><b>Unit bug:</b> the barrier-screen distance renders as “0 meters” — a micrometer-scale value formatted with the
+meters unit (<code>QuantumWaveInterferenceScreenViewDescription.ts:107–110</code>). Single Particles likely affected too.</div>
+<p class="note">Unit phrases formatted by shared PhetUnit code <span class="cm">common: scenery-phet</span>.</p>
+<div class="src">a11y.experimentSetupDetails.* · ExperimentSetupDetailsNode.ts</div>
+
+<h3>H3 · Source Controls</h3>
+
+<details><summary><b>⊙ Source emitter</b> — switch — name <span class="h">“<span class="f">Photon</span> Source Emitter”</span> follows particle type <span class="vc">help ×5</span> <span class="rs">🔊 on toggle</span></summary>
+<div class="body">
+<p>Help: <span class="w">off, photons</span> <span class="h">“Turn source on to start experiment.”</span> · <span class="w">off, matter</span> same + mass sentence, e.g. <span class="h">“Electron mass is 9.1 times 10 to the negative 31 kilograms.”</span> · <span class="w">on</span> <span class="h">“Turn source off to stop experiment.”</span></p>
+<p><span class="rs">🔊 on→on</span> <span class="h">“Source started on <span class="f">normal</span> speed.”</span> — or <span class="h">“Source started, sim now playing on <span class="f">normal</span> speed.”</span> <span class="w">auto-resumed a paused sim</span> — or <span class="h">“Source started. Sim is paused.”</span> <span class="w">still paused</span>. If playing, followed by the <a href="#beam">beam description</a>. <i>Flushes stale speech; never interrupted.</i></p>
+<p><span class="rs">🔊 on→off</span> <span class="h">“Source off.”</span> — or <span class="h">“Source off. Hits data remain.”</span> <span class="w">hits mode with hits on screen</span></p>
+<p class="note">Switch role semantics <span class="cm">common: sun</span>.</p>
+<div class="src">a11y.emitterButton.*, waveExperimentResponses.sourceStarted/sourceStopped · trigger: HighIntensityAccessibleResponses.ts:109</div>
+</div></details>
+
+<details><summary><b>⊙ Wavelength</b> — slider <span class="w">photon scene</span> — value <span class="h">“<span class="f">650</span>, <span class="f">red</span> zone”</span> <span class="rs">🔊 on change</span></summary>
+<div class="body">
+<p>Help: <span class="h">“Change wavelength of emitted photons in nanometers from shortest, violet, to longest, red.”</span></p>
+<p>Value spoken automatically as the slider moves (native slider semantics <span class="cm">common: sun</span>): <span class="h">“<span class="f">650</span>, <span class="f">red</span> zone”</span> — zones <span class="sc">⟨violet · blue · indigo · green · yellow · orange · red⟩</span> (<a href="#s4">S4</a>).</p>
+<p><span class="rs">🔊 on change</span> <span class="h">“Wavelength changed. Experiment changed. Previous hits cleared.”</span> — <span class="w">source on ∧ playing</span> fires the <a href="#cascade">source-restart cascade</a> instead. <i>Self-interrupting group.</i></p>
+<p class="note">The qualitative “Shorter wavelength, bright bands get closer together.” response exists in the YAML for this slider but is wired only on the Experiment screen — it does <b>not</b> fire here.</p>
+<div class="src">a11y.wavelengthSlider.* · trigger :115</div>
+</div></details>
+
+<details><summary><b>⊙ Particle Speed</b> — slider <span class="w">matter scene</span> — replaces Wavelength <span class="rs">🔊 on change</span></summary>
+<div class="body">
+<p>Help: <span class="h">“Change speed of emitted particles in kilometers or meters per second.”</span> <span class="unknown">UNKNOWN:</span> spoken value format not verified at runtime.</p>
+<p><span class="rs">🔊 on change</span> <span class="h">“Particle speed changed.”</span> — <span class="w">source on ∧ playing</span> <a href="#cascade">restart cascade</a>.</p>
+<div class="src">a11y.particleSpeedSlider.accessibleHelpText · trigger :116</div>
+</div></details>
+
+<details><summary><b>⊙ Particle Type</b> — radio group ×4 — <span class="h">“Photons · Electrons · Neutrons · Helium Atoms”</span> <span class="rs">🔊 on change</span></summary>
+<div class="body">
+<p>Name <span class="h">“Particle Type”</span> · Help <span class="h">“Change particle type for source emitter and change experiment setup.”</span> · group semantics <span class="cm">common: sun</span></p>
+<p><span class="rs">🔊 on change</span> <span class="h">“<span class="f">Electron</span> experiment ready to start.”</span> — or <span class="h">“…in progress.”</span> <span class="w">emitting</span>. If the change turned the source off, that <span class="h">“Source off.”</span> response precedes this one.</p>
+<p class="note"><b>Design note recovered from code:</b> the per-button YAML responses (“Now experimenting with electrons…”) are deliberately <b>disabled on this screen</b> — the screen-level response speaks instead (<code>HighIntensityScreenView.ts:460–463</code>).</p>
+<div class="src">a11y.sceneRadioButtonGroup.*, waveExperimentResponses.particleTypeChanged · trigger :110</div>
+</div></details>
+
+<h3>H3 · Slits and Screen Configuration</h3>
+
+<details><summary><b>⊙ Slit Configuration</b> — combo box ×7 — <span class="h">“Both Open · Cover Left · … · No Barrier”</span> <span class="rs">🔊 on change</span></summary>
+<div class="body">
+<p>Name <span class="h">“Slit Configuration”</span> · Help <span class="h">“Choose slit configuration for barrier.”</span> · popup semantics <span class="cm">common: sun ComboBox</span></p>
+<p><span class="rs">🔊 on change</span> <span class="h">“In barrier, top slit covered.” / “Detector added to bottom slit in barrier.” / “Barrier removed from experiment.”</span> etc. — <span class="w">source on ∧ playing</span> <a href="#cascade">restart cascade</a> instead.</p>
+<p><span class="unknown">UNKNOWN:</span> the combo box also has its own YAML response (left/right wording); whether it is suppressed on this screen is unverified — check for double-speak.</p>
+<div class="src">a11y.waveExperimentResponses.slitConfigurationChanged · trigger :112</div>
+</div></details>
+
+<details><summary><b>⊙ Slit Separation</b> — slider <span class="rs">🔊 on change</span></summary>
+<div class="body">
+<p>Help: <span class="h">“Change distance between centers of slits in barrier.”</span></p>
+<p><span class="rs">🔊 on change</span> <span class="h">“Slit separation changed. Experiment changed. Previous hits cleared.”</span> — or <a href="#cascade">restart cascade</a>. <i>Self-interrupting group.</i></p>
+<div class="src">a11y.slitSeparationSlider.* · trigger :113</div>
+</div></details>
+
+<details><summary><b>⊙ Barrier-Screen Distance</b> — slider — object response ×4 <span class="rs">🔊 restart only</span></summary>
+<div class="body">
+<p>Help <span class="w">photons</span> <span class="h">“Move slitted barrier closer to or farther from detector screen in micrometers.”</span> / <span class="w">matter</span> <span class="h">“…in nanometers.”</span></p>
+<p><span class="rs">🔊 while sliding</span> <span class="sc">⟨</span><span class="h">“Closer to detector screen.” · “Farther from…” · “Closest…” · “Farthest…”</span><span class="sc">⟩</span></p>
+<p><span class="rs">🔊 on change</span> otherwise silent — <span class="w">source on ∧ playing</span> <a href="#cascade">restart cascade</a>.</p>
+<div class="src">a11y.barrierPositionSlider.* · trigger :114 · object-response wiring believed in DoubleSlitNode.ts (<span class="unknown">UNKNOWN</span>)</div>
+</div></details>
+
+<h3>H3 · Detector Screen Controls</h3>
+
+<details><summary><b>⊙ Screen / Graph</b> — toggle switch — <span class="h">“Screen, Switch to Graph” ⇄ “Graph, Switch to Screen”</span> <span class="rs">🔊 on toggle</span></summary>
+<div class="body">
+<p>Help: <span class="h">“Choose screen or graph representation for data analysis.”</span> · naming pattern <span class="cm">common: sun ToggleSwitch</span></p>
+<p><span class="rs">🔊 → graph</span> <span class="h">“Graph shown. <span class="f">Graph traces intensity versus position with tall central peak and smaller peaks on either side. 9 peaks centered on the graph, spread symmetrically to either side.</span>”</span> (runtime-verified)</p>
+<p><span class="rs">🔊 → screen</span> <span class="h">“Detector screen shown.”</span></p>
+<div class="src">a11y.screenGraphSwitch, waveExperimentResponses.displayModeChanged · trigger :117</div>
+</div></details>
+
+<details><summary><b>⊙ Detection Mode</b> — radio ×2 — <span class="h">“Intensity · Hits”</span> <span class="rs">🔊 on change</span></summary>
+<div class="body">
+<p>Help: <span class="h">“Choose continuous intensity pattern or individual hits pattern for particle detection.”</span></p>
+<p><span class="rs">🔊 on change</span> current pattern description for the new mode from the <a href="#mhits">matrices</a> — or if the visible surface is empty: <span class="h">“Screen is empty. Start particle source.”</span> (graph view: <span class="h">“Graph is empty…” / “Histogram empty…”</span>)</p>
+<div class="callout warn">Known interaction: mode change + an immediately following progress update can speak the same sentence twice (dedup covers progress actions only).</div>
+<div class="src">a11y.detectionModeRadioButtons.*, waveExperimentResponses.screenEmpty · trigger :111</div>
+</div></details>
+
+<details><summary><b>⊙ Screen Brightness</b> — slider — value <span class="h">“<span class="f">50</span> percent”</span> <span class="cm">common</span> <span class="rs">🔊 on change ×3</span></summary>
+<div class="body">
+<p>Help: <span class="h">“Adjust brightness for pattern on detector screen.”</span> · percent value text <span class="cm">common: scenery-phet percentUnit</span></p>
+<p><span class="rs">🔊 on change</span> <span class="h">“Screen brightness <span class="sc">⟨increased. · decreased. · unchanged.⟩</span>”</span></p>
+<div class="src">a11y.brightnessSlider.*, …brightnessChanged · trigger :118</div>
+</div></details>
+
+<details><summary><b>⊙ Take Snapshot</b> — button — help counts stored <span class="vc">×6</span> <span class="rs">🔊 on press ×2</span></summary>
+<div class="body">
+<p>Help: <span class="h">“Capture and store up to <span class="f">4</span> snapshots of detector screen pattern.”</span> — prefixed <span class="h">“One/Two/Three/Four snapshots stored.”</span> as they accumulate.</p>
+<p><span class="rs">🔊 on press</span> <span class="h">“Detector screen snapshot stored.”</span> (runtime-verified) — at the limit: <span class="h">“Max number of snapshots stored. View snapshots to review or delete.”</span></p>
+<div class="src">a11y.detectorScreenButtons.takeSnapshot.*</div>
+</div></details>
+
+<details><summary><b>⊙ View Snapshots</b> — button <span class="rs">🔊 opens dialog</span> — dialog contents inside</summary>
+<div class="body">
+<p>Help: <span class="h">“After taking snapshots, open for comparison or deletion.”</span> — gains stored-count prefix once snapshots exist. <span class="rs">🔊 on open</span> <span class="h">“<span class="f">1 snapshot</span> ready to review.”</span></p>
+<p><b>Snapshots dialog</b> (dialog semantics <span class="cm">common: sun Dialog</span>): heading <span class="h">“<span class="f">2</span> <span class="f">Photon</span> Experiment <span class="f">Snapshots</span>”</span> · per snapshot: pattern description (same strings as the <a href="#mhits">matrices</a>) + <span class="h">“Screen brightness is <span class="f">50 percent</span>.”</span> · <span class="h">“Delete <span class="f">Snapshot 1</span>”</span> buttons — <span class="rs">🔊</span> <span class="h">“Snapshot deleted.” / “Snapshot deleted, dialog closed.”</span> <span class="w">last one</span></p>
+<div class="src">a11y.snapshotsDialog.*, a11y.snapshotNode.*</div>
+</div></details>
+
+<details><summary><b>⊙ Tool checkboxes ×4</b> — Measuring Tape · Stopwatch · Time Plot · Position Plot <span class="rs">🔊 shown/hidden</span></summary>
+<div class="body">
+<p>Checkbox semantics <span class="cm">common: sun</span>. Help texts:</p>
+<ul>
+<li class="h">“Add measuring tape to measure distances on detector screen or graph. Once added, move with keyboard shortcuts.”</li>
+<li class="h">“Add stopwatch to time experiment. Once added, Start, Pause, Reset Stopwatch, and move with keyboard shortcuts.”</li>
+<li class="h">“Use added time plot to graph wave value at position over time.”</li>
+<li class="h">“Use added position plot to graph wave value across positions in wave area.”</li>
+</ul>
+<p><span class="rs">🔊 on toggle</span> <span class="h">“<span class="sc">⟨Measuring tape · Stopwatch · Time plot · Position plot⟩</span> <span class="sc">⟨shown. · hidden.⟩</span>”</span></p>
+<div class="src">a11y.*Checkbox.accessibleHelpText, …toolChanged · triggers :120–123</div>
+</div></details>
+
+<details><summary><b>⊙ Graph zoom</b> <span class="w">graph view</span> — <span class="h">“Zoom Out · Zoom In”</span> + level paragraph <span class="rs">🔊 per press</span></summary>
+<div class="body">
+<p>Paragraph: <span class="h">“Zoom level <span class="f">3</span>. Use up to 6 zoom levels to zoom in on small data sets or zoom out on large data sets and optimize amount of data visible on graph.”</span></p>
+<p><span class="rs">🔊 per press</span> <span class="h">“Zoom level <span class="f">4</span> of <span class="f">6</span>.”</span> (runtime-verified)</p>
+<div class="src">a11y.zoomInButton/zoomOutButton/zoomButtonGroup.*</div>
+</div></details>
+
+<details><summary><b>⊙ Measurement tool nodes</b> <span class="w">a tool is added</span> — probes and charts in the wave area</summary>
+<div class="body">
+<ul>
+<li><b>Time Plot Probe</b> — <span class="h">“Move probe to choose which point of wave area is graphed over time.”</span> · chart <span class="h">“Time Plot Chart” — “Move chart to a convenient position.”</span> · paragraph: <span class="h">“Chart shows <span class="sc">⟨electric field · real part of wave function · imaginary part of wave function · amplitude⟩</span> at probe position versus time.”</span></li>
+<li><b>Position Plot Probe</b> — <span class="h">“Move probe up or down to choose which row of wave area is graphed.”</span> · value: <span class="h">“<span class="f">Center</span> of wave area<span class="sc">⟨, across open slit · , across covered slit · , across slit with detector · —⟩</span>”</span> (region <span class="sc">⟨Near top · Above center · Center · Below center · Near bottom⟩</span>) · paragraph: <span class="h">“Chart shows ⟨…⟩ versus position along selected row of wave area.”</span></li>
+<li>Measuring tape and stopwatch interaction text <span class="cm">common: scenery-phet</span> — <span class="unknown">UNKNOWN</span> exact strings; harness pass needed with tools added.</li>
+</ul>
+<div class="src">a11y.timePlot.*, a11y.positionPlot.*</div>
+</div></details>
+
+<!-- ============================== CONTROL AREA ============================== -->
+<h2>Control Area</h2>
+
+<details><summary><b>⊙ Wave Display</b> — combo box — <span class="w">photon</span> <span class="h">“Electric Field · Amplitude”</span> / <span class="w">matter</span> <span class="h">“Real Part · Imaginary Part · Amplitude”</span> <span class="rs">🔊 on change</span></summary>
+<div class="body">
+<p>Help <span class="w">photon</span> <span class="h">“Choose Electric Field or Amplitude display for photon wave.”</span> · <span class="w">matter</span> <span class="h">“Choose real part, imaginary part, or amplitude display for matter wave function.”</span></p>
+<p><span class="rs">🔊 on change</span> <span class="h">“Wave display changed to <span class="sc">⟨Electric Field. · Real Part. · Imaginary Part. · Amplitude.⟩</span>”</span></p>
+<div class="src">a11y.photonWaveDisplayComboBox / matterWaveDisplayComboBox, …waveDisplayChanged · trigger :119</div>
+</div></details>
+
+<details><summary><b>⊙ Time Controls</b> <span class="cm">common: scenery-phet</span> — Pause/Play · Step Forward · Sim Speeds <span class="rs">🔊 inside</span></summary>
+<div class="body">
+<p>All text and responses authored in scenery-phet (runtime-verified on this sim):</p>
+<ul>
+<li>Group help: <span class="h">“Pause sim to step through little by little.”</span></li>
+<li><b>Pause/Play</b> (name flips) — <span class="rs">🔊</span> <span class="h">“Sim paused.” / “Sim playing.”</span></li>
+<li><b>Step Forward</b> — enabled while paused — <span class="rs">🔊</span> <span class="h">“Stepping forward.”</span> · help while playing: <span class="h">“Pause sim to step forward little by little.”</span> / paused: <span class="h">“Play sim to resume chosen speed.”</span></li>
+<li><b>Sim Speeds</b> radio ×3 <span class="h">“Slow · Normal · Fast”</span> — help: <span class="h">“For closer observations Play sim on slower speed.”</span> — <span class="rs">🔊 silent on change</span> (runtime-verified; deliberate — the speed is voiced later inside <span class="h">“Source started on <span class="f">slow</span> speed.”</span>)</li>
+</ul>
+<p class="note">The sim's own speeds description in the YAML (<code>a11y.timeControlNode.simSpeedDescription</code>) did <b>not</b> appear in this screen's PDOM at runtime. <span class="unknown">UNKNOWN</span> where it attaches.</p>
+</div></details>
+
+<details><summary><b>⊙ Erase</b> — button — name <span class="cm">common: scenery-phet EraserButton</span> <span class="rs">🔊 one response per press</span></summary>
+<div class="body">
+<p>Name: <span class="h">“Erase”</span>. <span class="rs">🔊 on press</span> <span class="h">“Wave area cleared. Sim still paused.”</span> (runtime-verified while paused) — <span class="w">source on ∧ playing</span> <a href="#cascade">restart cascade</a> instead. Property listeners are suppressed during the clear so exactly one response speaks (<code>HighIntensityAccessibleResponses.ts:214–229</code>).</p>
+</div></details>
+
+<details><summary><b>⊙ Reset All</b> — button <span class="cm">common: scenery-phet ResetAllButton</span> <span class="rs">🔊 “Everything reset.”</span></summary>
+<div class="body">
+<p>Name <span class="h">“Reset All”</span> · <span class="rs">🔊 on press</span> <span class="h">“Everything reset.”</span> <span class="cm">common</span> (runtime-verified)</p>
+<div class="callout warn">The sim defines its own reset response — <span class="h">“Experiment reset. Source is off and detector screen is empty.”</span>
+(<code>a11y.waveExperimentResponses.reset</code>) — and the transition describer supports it, but <b>it never fired at runtime</b> and no
+listener emits the reset action. Either wire it or remove the string.</div>
+</div></details>
+
+<!-- ============================== SIM SCREENS / RESOURCES ============================== -->
+<h2>Sim Screens <span class="cm">common: joist</span></h2>
+<p>Buttons: <span class="h">“Home Screen” (“Go to Home Screen.”), “Experiment Screen”, “High Intensity Screen”, “Single Particles Screen”</span>.
+Semantics and the “Go to {name} Screen.” pattern are joist; the one-line descriptions are sim-authored:</p>
+<ul>
+<li class="h">“Explore how source, slit, and detector settings shape intensity and hits patterns.”</li>
+<li class="h">“Explore how interfering waves build patterns on a detector screen.”</li>
+<li class="h">“Explore how one particle at a time builds a probability pattern.”</li>
+</ul>
+
+<h2>Sim Resources <span class="cm">common: joist</span></h2>
+<ul>
+<li><b>Preferences</b> — opens preferences dialog (not expanded here)</li>
+<li><b>All Audio</b> — toggle — <span class="rs">🔊</span> <span class="h">“Audio Features on.” / “Audio Features off.”</span> (runtime-verified)</li>
+<li><b>Keyboard Shortcuts</b> — opens the keyboard help dialog (documented separately)</li>
+<li><b>PhET Menu</b></li>
+</ul>
+
+<!-- ============================== SHARED BLOCKS ============================== -->
+<h2 id="shared">Shared blocks</h2>
+
+<div id="cascade" style="border:1px solid #D9C3E3; background:#F8F3FA; border-radius:4px; padding:12px 16px; margin:12px 0;">
+<b style="color:var(--violet)">🔊 SOURCE-RESTART CASCADE</b> — fired by: slit configuration · slit separation · wavelength · particle speed · barrier position · erase <span class="w">source on ∧ playing</span><br>
+<span class="h">“Source restarted.”</span> → then the current <a href="#beam">beam description</a>. <i>Flushes stale queued speech first; never self-interrupted.</i>
+<div class="src">a11y.waveExperimentResponses.sourceRestarted + advancingWave — the YAML shares the fragment the same way</div>
+</div>
+
+<details id="beam"><summary><b>Beam description</b> <span class="vc">×~30</span> — used by milestone 1, source start, restart cascade — <span class="h">e.g. “Red and black plane wave fronts move toward slitted barrier. Wave peaks, very far apart.” (default state)</span></summary>
+<div class="body">
+<p><span class="w">Amplitude</span> <span class="h">“Solid <span class="f">red</span> wave moves toward <span class="f">slitted barrier.</span>”</span></p>
+<p><span class="w">E-field / real / imaginary</span> <span class="h">“<span class="f">Red</span> and black plane wave fronts move toward <span class="f">slitted barrier.</span> Wave peaks, <span class="sc">⟨extremely far apart · very far apart · far apart · somewhat close together · close together · very close together · extremely close together⟩</span>.”</span></p>
+<p class="note">Color: photons by wavelength (<a href="#s4">S4</a>); matter particles “gray”. Destination “detector screen.” <span class="w">no barrier</span>.</p>
+<div class="src">a11y.waveExperimentState.sourceBeam + a11y.sourceWaveFragments.* · getWavePeakSpacingCategory.ts</div>
+</div></details>
+
+<details id="mhits"><summary><b>Detector pattern — hits mode</b> <span class="vc">×26</span> — used by milestone 3, 🔊 hit-stage, 🔊 detection-mode, snapshots dialog</summary>
+<div class="body">
+<div class="tblwrap"><table>
+<tr><th>stage</th><th>double slit</th><th>single slit</th><th>which-path detectors</th><th>no barrier</th></tr>
+<tr><td><span class="w">none</span> 0</td><td colspan="4" class="h">“Detector screen is empty. No particles have arrived yet.” <span class="note">— all setups</span></td></tr>
+<tr><td><span class="w">few</span> 1+</td><td colspan="4" class="h">“Individual scattered hits on detector screen.” <span class="note">— all setups</span></td></tr>
+<tr><td><span class="w">emerging</span> 188+</td>
+<td class="h">“Hits begin to form faint bands.”<span class="env"><span class="et">two close areas</span>“…faint bands grouped into two close areas.”</span><span class="env"><span class="et">two distinct areas</span>“…grouped into two distinct areas.”</span></td>
+<td class="h">“Hits collect in broad central area, fewer hits toward edges.”</td>
+<td class="h">“Hits collect in broad central area, fewer hits toward edges.”<span class="env"><span class="et">two close areas</span>“Hits are closely clustering into two areas, directly across from the slits.”</span><span class="env"><span class="et">two distinct areas</span>“Hits collect in two distinct areas, directly across from the slits.”</span></td>
+<td class="h">“Hits build up evenly across detector screen.”</td></tr>
+<tr><td><span class="w">developing</span> 300+</td>
+<td class="h">“Evenly-spaced bands more distinct.”<span class="env"><span class="et">clustering</span>“Evenly-spaced bands are grouped into two ⟨close · distinct⟩ areas.”</span></td>
+<td><span class="same">same as emerging</span></td>
+<td><span class="same">same as emerging (all three strings)</span></td>
+<td class="h">“Hits scatter evenly from edge to edge.”</td></tr>
+<tr><td><span class="w">steady pattern</span> 563+</td>
+<td class="h">“Across detector screen, evenly-spaced bright bands are <span class="sc">⟨spacing ×7 — <a href="#s2">S2</a>⟩</span>, brightest at center.”<span class="env"><span class="et">clustering</span>“…bright bands are grouped into two ⟨close · distinct⟩ areas.”</span></td>
+<td class="h">“Across detector screen, hits form broad central bright area with fewer hits toward edges.”</td>
+<td class="h">“Across detector screen, hits form broad central bright area with fewer hits toward edges.”<span class="env"><span class="et">clustering</span><span class="same">same strings as emerging</span></span></td>
+<td class="h">“Across detector screen, hits form uniform glow from edge to edge.”</td></tr>
+</table></div>
+<p class="note">Full-width rows: those stages ignore the barrier setup. “Same as” cells are real string reuse in the YAML — visible so deliberate plateaus can be reviewed.</p>
+<div class="src">a11y.waveExperimentState.detectorPattern (hits branch)</div>
+</div></details>
+
+<details id="mint"><summary><b>Detector pattern — intensity mode</b> <span class="vc">×14</span> — used by milestone 4, 🔊 pattern-formation, 🔊 detection-mode</summary>
+<div class="body">
+<div class="tblwrap"><table>
+<tr><th>stage</th><th>double slit</th><th>single slit</th><th>which-path detectors</th><th>no barrier</th></tr>
+<tr><td><span class="w">empty</span></td><td colspan="4" class="h">“Detector screen is empty while the wave travels toward it.” <span class="note">— all setups</span></td></tr>
+<tr><td><span class="w">forming</span></td>
+<td class="h">“Evenly-spaced bright bands form on detector screen.”<span class="env"><span class="et">clustering</span>“…grouped into two ⟨close · distinct⟩ areas.”</span></td>
+<td class="h">“Broad central area forms on detector screen.”</td>
+<td class="h">“Broad central area forms on detector screen.”<span class="env"><span class="et">clustering</span>“Two ⟨close · distinct⟩ bright areas form on detector screen, directly across from the slits.”</span></td>
+<td class="h">“Uniform glow forms on detector screen.”</td></tr>
+<tr><td><span class="w">complete</span></td>
+<td class="h">“Across detector screen, evenly-spaced bright bands are <span class="sc">⟨spacing ×7 — <a href="#s2">S2</a>⟩</span>, brightest at center.”<span class="env"><span class="et">clustering</span>“…grouped into two ⟨close · distinct⟩ areas.”</span></td>
+<td class="h">“Across detector screen, a broad central bright area tapers toward edges.”</td>
+<td class="h">“Across detector screen, a broad central bright area tapers toward edges.”<span class="env"><span class="et">clustering</span>“…brightness is closely clustering into two areas…” / “…two distinct bright areas, directly across from the slits, each fading toward its edges.”</span></td>
+<td class="h">“Across detector screen, uniform glow spans edge to edge.”</td></tr>
+<tr><td><span class="w">paused</span></td><td colspan="4" class="h">“Detector pattern formation is paused.” <span class="note">— all setups</span></td></tr>
+</table></div>
+<p class="note">Also: <span class="h">“Source is off. Detector screen is empty.”</span> <span class="w">source off</span>.</p>
+<div class="src">a11y.waveExperimentState.detectorPattern (intensity branch)</div>
+</div></details>
+
+<details id="mgraph"><summary><b>Graph pattern descriptions</b> <span class="vc">×~20</span> — used by the graph milestone bullet and 🔊 responses while graph view is active</summary>
+<div class="body">
+<p><b>Intensity (trace):</b> <span class="h">“Graph is empty. Source is off.”</span> · <span class="h">“Graph traces intensity versus position with tall central peak and smaller peaks on either side. <span class="f">9 peaks centered on the graph, spread symmetrically to either side.</span>”</span> (double slit; clustering variants: <span class="h">“…repeated peaks grouped into two ⟨close · distinct⟩ areas.”</span>) · single slit: <span class="h">“…as a single broad peak centered on the graph, tapering smoothly toward the edges.”</span> · no barrier: <span class="h">“Graph traces uniform intensity versus position as a flat horizontal line.”</span></p>
+<p><b>Hits (histogram):</b> <span class="h">“Histogram empty. No particles counted.”</span> → <span class="h">“A few bars at scattered positions across histogram.”</span> → <span class="h">“Histogram growing. Some bars are becoming taller than others at repeated positions across graph.”</span> → <span class="h">“Taller bars at regular intervals, with shorter bars between them.”</span> → <span class="h">“Histogram shows a tall central peak with repeating side peaks and lower bars between them.”</span> · single-slit and no-barrier variants parallel the detector matrix.</p>
+<p class="note">The spatial sentence on this screen is always the no-ruler form — the ruler is never available here (<code>HighIntensityScreenView.ts:425</code>).</p>
+<div class="src">a11y.detectorPatternGraph.accessibleParagraph.*, a11y.detectorScreen.spatialDescription.*</div>
+</div></details>
+
+<details id="rprogress"><summary><b>🔊 Wave-progress responses</b> — response-only <span class="vc">×~20</span> — per stage change; “traveling to slits” and “direct to screen” are deliberately silent</summary>
+<div class="body">
+<ul>
+<li><b>at slits</b> — <span class="h">“Circular wave fronts emerge from both slits and overlap.”</span> (E-field family, both open) / <span class="h">“Solid circular waves emerge from both slits and overlap.”</span> (amplitude) / <span class="h">“…emerges from open slit only.”</span> (one covered) / <span class="h">“As detection events occur, ⟨solid circular waves · circular wave fronts⟩ emerge from both slits one at a time and do not interact.”</span> (which-path)</li>
+<li><b>after slits</b> — the same 8 strings as milestone item 2 (spoken twin)</li>
+<li><b>source off</b> — <span class="h">“Source is off, so no wave is traveling.”</span></li>
+</ul>
+<p class="note">Destination says “graph.” in graph view. Exact-duplicate consecutive announcements are dropped.</p>
+<div class="src">a11y.waveExperimentResponses.waveProgressChanged · stages: HighIntensityScreenView.ts:179–236 (thresholds shared with Single Particles)</div>
+</div></details>
+
+<p><span class="rs">🔊 Max hits</span> — <span class="h">“Maximum hits reached. Source is off.”</span> — fired when the hit cap is reached; the emitter also turns off. <span class="src" style="display:inline">…maxHitsReached · trigger :127–131</span></p>
+
+<!-- ============================== SCALES ============================== -->
+<h2>Qualitative scales — the vocabulary of “how it looks”</h2>
+<p class="note">Category boundaries live in analysis code, not YAML; they select which string variant renders.</p>
+<ul>
+<li id="s1"><b>S1 · Hit stages</b> (total hits): none 0 · few 1+ · emerging 188+ · developing 300+ · steady pattern 563+ — <code>BandAnalysis.ts:51–56</code></li>
+<li id="s2"><b>S2 · Band spacing</b> (fringe spacing ÷ screen width): extremely far apart ≥.50 · very far apart ≥.33 · far apart ≥.16 · somewhat close together ≥.08 · close together ≥.05 · very close together ≥.03 · extremely close together below — default photon pattern tuned mid-scale — <code>BandAnalysis.ts:88–99</code>. The same seven phrases describe wave-peak spacing in beam descriptions.</li>
+<li id="s4"><b>S4 · Photon color zones</b>: violet · blue · indigo · green · yellow · orange · red — <code>WavelengthColorUtils.ts</code></li>
+<li id="s5"><b>S5 · Envelope</b>: brightest at center · clustering into two close areas · clustering into two distinct areas — boundaries <span class="unknown">UNKNOWN</span> (not extracted)</li>
+<li id="s6"><b>S6 · Pattern formation</b> (intensity): empty → forming → complete · paused <span class="w">paused mid-formation</span> — <code>HighIntensityScreenView.ts:133–152</code></li>
+<li><b>Wave progress stages</b>: source off → traveling to slits <i>(silent)</i> → at slits → ⟨interfering · diffracting · non-interacting⟩ after slits → (no barrier: direct to screen, <i>silent</i>)</li>
+</ul>
+
+<!-- ============================== RESPONSE INDEX ============================== -->
+<h2>Response index — every 🔊 on this screen</h2>
+<div class="tblwrap"><table>
+<tr><th>Trigger</th><th>Response (first line)</th><th>Queueing</th></tr>
+<tr><td>Source on</td><td class="h">“Source started on <span class="f">normal</span> speed.” + beam</td><td>flush, uninterruptible</td></tr>
+<tr><td>Source off</td><td class="h">“Source off.” (+ “Hits data remain.”)</td><td>group</td></tr>
+<tr><td>Particle type</td><td class="h">“<span class="f">Electron</span> experiment ready to start.”</td><td>group</td></tr>
+<tr><td>Detection mode</td><td class="h">pattern description or “…empty. Start particle source.”</td><td>group</td></tr>
+<tr><td>Slit configuration</td><td class="h">“In barrier, top slit covered.” etc.</td><td>group / restart→flush</td></tr>
+<tr><td>Slit separation / wavelength / speed</td><td class="h">“<span class="f">X</span> changed. Experiment changed. Previous hits cleared.”</td><td>group / restart→flush</td></tr>
+<tr><td>Barrier position</td><td>silent, or restart cascade</td><td>flush when restarting</td></tr>
+<tr><td>Screen/Graph view</td><td class="h">“Graph shown. <span class="f">state</span>” / “Detector screen shown.”</td><td>group</td></tr>
+<tr><td>Brightness</td><td class="h">“Screen brightness ⟨increased·decreased·unchanged⟩.”</td><td>group</td></tr>
+<tr><td>Wave display</td><td class="h">“Wave display changed to <span class="f">X</span>.”</td><td>group</td></tr>
+<tr><td>Tool toggles</td><td class="h">“<span class="f">Tool</span> ⟨shown·hidden⟩.”</td><td>group</td></tr>
+<tr><td>Hit stage crossed</td><td>matrix string for new stage</td><td>group + dedup</td></tr>
+<tr><td>Max hits</td><td class="h">“Maximum hits reached. Source is off.”</td><td>group</td></tr>
+<tr><td>Hits cleared / Erase</td><td class="h">“Wave area cleared. Sim still paused.” or restart</td><td>group / flush</td></tr>
+<tr><td>Wave progress</td><td>stage strings</td><td>group + dedup</td></tr>
+<tr><td>Pattern formation start/complete</td><td>matrix strings</td><td>group + dedup</td></tr>
+<tr><td>Snapshot / View / Delete</td><td class="h">“Detector screen snapshot stored.” etc.</td><td>component-level</td></tr>
+<tr><td>Zoom</td><td class="h">“Zoom level <span class="f">4</span> of <span class="f">6</span>.”</td><td>component-level</td></tr>
+<tr><td>Pause/Play · Step</td><td class="h">“Sim paused.” / “Sim playing.” / “Stepping forward.” <span class="cm">common</span></td><td>component-level</td></tr>
+<tr><td>Sim speed</td><td><i>silent</i> (voiced later in “Source started on <span class="f">slow</span> speed.”)</td><td>—</td></tr>
+<tr><td>Reset All</td><td class="h">“Everything reset.” <span class="cm">common</span> ⚠ sim reset string never fires</td><td>component-level</td></tr>
+<tr><td>All Audio</td><td class="h">“Audio Features ⟨on·off⟩.” <span class="cm">common</span></td><td>component-level</td></tr>
+</table></div>
+
+<!-- ============================== GENERATION NOTES ============================== -->
+<h2>Generation notes — unresolved in this draft</h2>
+<ol>
+<li>Slit Configuration combo: possible double response (own YAML response vs. screen-level) — needs runtime trace.</li>
+<li>⚠ “Barrier-screen distance is 0 meters” — unit bug, fix pending.</li>
+<li>⚠ Sim reset response (“Experiment reset…”) defined but never fires — wire or remove.</li>
+<li>Particle-speed spoken value format (matter scenes) — not exercised.</li>
+<li>Envelope-category thresholds (S5) — not extracted.</li>
+<li>Measuring tape / stopwatch common-code strings — not captured; harness pass needed with tools added.</li>
+<li>Preferences and Keyboard Shortcuts dialog contents — out of scope for this screen document.</li>
+</ol>
+
+</div>
+<script>
+  // Print with everything expanded, then restore the reader's collapsed/expanded state.
+  window.addEventListener( 'beforeprint', () => {
+    document.querySelectorAll( 'details' ).forEach( d => { d.dataset.wasOpen = d.open; d.open = true; } );
+  } );
+  window.addEventListener( 'afterprint', () => {
+    document.querySelectorAll( 'details' ).forEach( d => { d.open = d.dataset.wasOpen === 'true'; } );
+  } );
+</script>
+</body>
+</html>
