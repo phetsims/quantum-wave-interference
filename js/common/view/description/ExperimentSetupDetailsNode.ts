@@ -64,6 +64,9 @@ type SetupDetailsOptions = {
   // When provided, appends a "screen distance" list item. Value is in meters.
   screenDistanceProperty?: TReadOnlyProperty<number>;
 
+  // Optional formatter for the screen distance accessible value. Input value is in meters.
+  formatScreenDistance?: ( screenDistance: number ) => string;
+
   // Orientation of the slits used to choose the correct directional string (default: 'leftRight').
   slitOrientation?: SlitOrientation;
 
@@ -209,13 +212,21 @@ export default class ExperimentSetupDetailsNode extends Node {
     const screenDistanceProperty = providedOptions.screenDistanceProperty;
     let screenDistanceListItem: AccessibleListItem | undefined;
     if ( screenDistanceProperty ) {
-      const screenDistanceStringProperty = DerivedProperty.deriveAny(
-        Array.from( new Set( [ screenDistanceProperty, ...metersUnit.getDependentProperties() ] ) ),
-        () => metersUnit.getAccessibleString( screenDistanceProperty.value, {
+      const formatScreenDistance = providedOptions.formatScreenDistance || ( ( screenDistance: number ) =>
+        metersUnit.getAccessibleString( screenDistance, {
           decimalPlaces: 2,
           showTrailingZeros: true,
           showIntegersAsIntegers: true
-        } )
+        } ) );
+      const screenDistanceStringProperty = DerivedProperty.deriveAny(
+        Array.from( new Set( [
+          model.sceneProperty,
+          screenDistanceProperty,
+          ...metersUnit.getDependentProperties(),
+          ...micrometersUnit.getDependentProperties(),
+          ...nanometersUnit.getDependentProperties()
+        ] ) ),
+        () => formatScreenDistance( screenDistanceProperty.value )
       );
 
       screenDistanceListItem = {

@@ -45,7 +45,7 @@ import QuantumWaveInterferenceColors from '../QuantumWaveInterferenceColors.js';
 import QuantumWaveInterferenceConstants from '../QuantumWaveInterferenceConstants.js';
 import BrightnessControl from './BrightnessControl.js';
 import SnapshotDescriber from './description/SnapshotDescriber.js';
-import getMeasuringTapeUnits from './getMeasuringTapeUnits.js';
+import formatFrontFacingScreenDistance from './formatFrontFacingScreenDistance.js';
 import SnapshotButton from './SnapshotButton.js';
 import SnapshotIndicatorDotsNode from './SnapshotIndicatorDotsNode.js';
 import SnapshotsDialog from './SnapshotsDialog.js';
@@ -64,18 +64,6 @@ function formatFrontFacingSlitSeparation( slitSepMM: number, snapshot: Snapshot 
   const slitSeparationNM = slitSepMM * 1e6;
   return nanometersUnit.getDualString( slitSeparationNM, {
     decimalPlaces: QuantumWaveInterferenceConstants.getCompactDecimalPlacesForMaxValue( slitSeparationNM ),
-    showTrailingZeros: true
-  } );
-}
-
-function formatFrontFacingScreenDistance( snapshot: Snapshot ): DualString {
-  const regionWidth = snapshot.screenHalfWidth * 2;
-  const measuringTapeUnits = getMeasuringTapeUnits( regionWidth );
-  const screenDistance = snapshot.screenDistance / regionWidth *
-                         QuantumWaveInterferenceConstants.WAVE_REGION_WIDTH *
-                         measuringTapeUnits.multiplier;
-  return measuringTapeUnits.unit.getDualString( screenDistance, {
-    decimalPlaces: 2,
     showTrailingZeros: true
   } );
 }
@@ -236,7 +224,10 @@ export default class DetectorScreenControls extends VBox {
         slitOrientation: options.slitOrientation,
         slitSettingDisplayMap: options.slitSettingDisplayMap,
         formatSlitSeparation: formatFrontFacingSlitSeparation,
-        formatScreenDistance: formatFrontFacingScreenDistance,
+        formatScreenDistance: snapshot => formatFrontFacingScreenDistance(
+          snapshot.screenDistance,
+          snapshot.screenHalfWidth * 2
+        ),
         showScreenDistance: true,
         useFrontFacingHitCoordinates: true,
         getDescription: snapshot => SnapshotDescriber.getDescription( snapshot )

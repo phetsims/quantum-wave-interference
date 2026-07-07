@@ -12,6 +12,7 @@ import Node from '../../../../../scenery/js/nodes/Node.js';
 import QuantumWaveInterferenceFluent from '../../../QuantumWaveInterferenceFluent.js';
 import { type SlitConfigurationWithNoBarrier } from '../../model/SlitConfiguration.js';
 import { type SourceType } from '../../model/SourceType.js';
+import formatFrontFacingScreenDistance from '../formatFrontFacingScreenDistance.js';
 import { type DetectorPatternGraphDescriberScene } from './DetectorPatternGraphDescriber.js';
 import { type DetectorScreenDescriberScene } from './DetectorScreenDescriber.js';
 import ExperimentSetupDetailsNode from './ExperimentSetupDetailsNode.js';
@@ -111,7 +112,11 @@ export default class QuantumWaveInterferenceScreenViewDescription extends Node {
 
       experimentSetupDetailsNode = new ExperimentSetupDetailsNode( model, slitConfigurationProperty, {
         slitOrientation: providedOptions.slitOrientation,
-        screenDistanceProperty: screenDistanceProperty
+        screenDistanceProperty: screenDistanceProperty,
+        formatScreenDistance: screenDistance => formatFrontFacingScreenDistance(
+          screenDistance,
+          model.sceneProperty.value.regionWidth
+        ).accessibleString
       } );
       this.addChild( experimentSetupDetailsNode );
     }
