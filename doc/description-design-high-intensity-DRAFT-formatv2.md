@@ -1,18 +1,21 @@
 # Interactive Description Design — High Intensity Screen
 
 **Quantum Wave Interference** · GENERATED DRAFT v2 · 2026-07-07
-Derived from `quantum-wave-interference-strings_en.yaml`, sim + common-code TypeScript, and runtime capture via the interact harness. Do not hand-edit — regenerate.
 
-**How to read this document**
+> [!IMPORTANT]
+> Derived from `quantum-wave-interference-strings_en.yaml`, sim + common-code TypeScript, and runtime capture via the
+> interact harness. **Do not hand-edit — regenerate.**
 
-- Collapsed, this document is the structural map of the screen. Every ▶ triangle expands one element's full text and variants. **The summary line always tells you: what it is, when it exists, how many variants (×N), and one example.**
-- “Curly-quoted text” is exactly what the user hears. Everything else is document machinery.
-- `{650 nanometers}` marks a dynamic fill-in, shown with an example value.
-- **[when …]** marks content that exists only under a condition.
-- 🔊 marks a spoken response (announced once, when something happens). Everything unmarked is PDOM state (readable on demand, always current).
-- **[common: joist]** / **[common: scenery-phet]** / **[common: sun]** marks text authored in shared PhET libraries, not this sim — included here so nothing a learner hears is missing from this document.
-- ⚠ marks a confirmed issue found during generation. UNKNOWN marks facts not recoverable from YAML or code — honest gaps, not omissions.
-- Shared content used from several places is defined once in [Shared blocks](#shared) and linked, mirroring how the strings themselves are shared.
+> [!NOTE]
+> **How to read this document**
+> - Collapsed, this document is the structural map of the screen. Every ▶ triangle expands one element's full text and variants. **The summary line always tells you: what it is, when it exists, how many variants (×N), and one example.**
+> - “Curly-quoted text” is exactly what the user hears. Everything else is document machinery.
+> - `{650 nanometers}` marks a dynamic fill-in, shown with an example value.
+> - **[when …]** marks content that exists only under a condition.
+> - 🔊 marks a spoken response (announced once, when something happens). Everything unmarked is PDOM state (readable on demand, always current).
+> - **[common: joist]** / **[common: scenery-phet]** / **[common: sun]** marks text authored in shared PhET libraries, not this sim — included here so nothing a learner hears is missing from this document.
+> - ⚠ marks a confirmed issue found during generation. UNKNOWN marks facts not recoverable from YAML or code — honest gaps, not omissions.
+> - Shared content used from several places is defined once in [Shared blocks](#shared) and linked, mirroring how the strings themselves are shared.
 
 ---
 
@@ -66,7 +69,7 @@ Slit clause uses **top/bottom** wording on this screen (“top slit covered”, 
 
 - **[when empty, nothing traveling]** “`{Detector screen}` is empty. `{Photon}` experiment ready.”
 - **[when empty, waves en route]** “`{Detector screen}` is empty.” — the “ready” invitation is deliberately dropped
-- **[when pattern present]** “`{Detector screen}` shows `{an intensity pattern}` of a `{photon}` experiment.” ⚠ renders “a **electron**” — article bug
+- **[when pattern present]** “`{Detector screen}` shows `{an intensity pattern}` of a `{photon}` experiment.”
 - **[when graph view]** subject becomes “Graph”
 
 `a11y.experimentDetectorScreenDetails.leadingParagraph` · status computed `HighIntensityScreenView.ts:862–878`
@@ -85,7 +88,7 @@ Text is the [beam description](#beam) (varies with wave display × particle colo
 
 By slit configuration × wave display:
 
-| | Amplitude display | E-field / real displays |
+| | Amplitude display | E-field / real / imaginary displays |
 |---|---|---|
 | both open (interference) | “Overlapping solid circular waves add and cancel, and spread fan-shaped rays toward `{detector screen}`.” | “Overlapping circular wave fronts add and cancel, and spread checkered pattern toward `{detector screen}`.” |
 | one covered (diffraction) | “Solid circular wave spreads toward `{detector screen}`.” | “Circular wave fronts spread toward `{detector screen}`.” |
@@ -123,8 +126,12 @@ Text from the [graph pattern descriptions](#matrix-graph).
 | Particle Speed | “Particle Speed is `{600 kilometers per second}`.” | matter scenes |
 | Slit configuration | “Both slits open.” (top/bottom wording, ×7 — same forms as [combo box](#slit-combo)) | always |
 | Slit separation | “Slit separation distance is `{3 micrometers}`.” | slits exist |
-| Barrier-screen distance | “Barrier-screen distance is `{0 meters}`.” ⚠ unit bug — micrometer-scale value formatted in meters (`QuantumWaveInterferenceScreenViewDescription.ts:107–110`) | always |
+| Barrier-screen distance | “Barrier-screen distance is `{0 meters}`.” ⚠ | always |
 | Screen brightness | “Screen brightness is `{50 percent}`.” | always |
+
+> [!WARNING]
+> **Unit bug:** the barrier-screen distance renders as “0 meters” — a micrometer-scale value is formatted with the
+> meters unit (`QuantumWaveInterferenceScreenViewDescription.ts:107–110`). Single Particles likely affected too.
 
 Unit phrases (“nanometers”, “percent”…) formatted by shared PhetUnit code **[common: scenery-phet]**.
 `a11y.experimentSetupDetails.*` · `ExperimentSetupDetailsNode.ts`
@@ -217,7 +224,9 @@ Help: “Choose screen or graph representation for data analysis.” · Switch n
 
 Name “Detection Mode” · Help “Choose continuous intensity pattern or individual hits pattern for particle detection.”
 🔊 **on change:** current pattern description for the new mode from the [matrices](#matrix-hits) — or, if the visible surface is empty: “Screen is empty. Start particle source.” (graph view: “Graph is empty…” / “Histogram empty…”).
-⚠ Known interaction: mode change + an immediately following progress update can speak the same sentence twice (dedup covers progress actions only).
+> [!WARNING]
+> Known interaction: mode change + an immediately following progress update can speak the same sentence twice
+> (dedup covers progress actions only).
 `a11y.detectionModeRadioButtons.*, a11y.waveExperimentResponses.screenEmpty` · trigger `:111`
 </details>
 
@@ -267,7 +276,7 @@ Paragraph: “Zoom level `{3}`. Use up to 6 zoom levels to zoom in on small data
 
 <details><summary><b>⊙ Measurement tool nodes</b> — <b>[when a tool is added]</b> — probes and charts in the wave area</summary>
 
-- **Time Plot Probe** — “Move probe to choose which point of wave area is graphed over time.” · Chart “Time Plot Chart” — “Move chart to a convenient position.” · Chart paragraph: “Chart shows ⟨electric field · real part of wave function · amplitude⟩ at probe position versus time.”
+- **Time Plot Probe** — “Move probe to choose which point of wave area is graphed over time.” · Chart “Time Plot Chart” — “Move chart to a convenient position.” · Chart paragraph: “Chart shows ⟨electric field · real part of wave function · imaginary part of wave function · amplitude⟩ at probe position versus time.”
 - **Position Plot Probe** — “Move probe up or down to choose which row of wave area is graphed.” · Value: “`{Center}` of wave area⟨, across open slit · , across covered slit · , across slit with detector · —⟩” (region ⟨Near top · Above center · Center · Below center · Near bottom⟩) · Chart paragraph: “Chart shows ⟨…⟩ versus position along selected row of wave area.”
 - Measuring tape and stopwatch interaction text **[common: scenery-phet]** — not expanded here (UNKNOWN exact strings; capture via harness when needed).
 `a11y.timePlot.*, a11y.positionPlot.*`
@@ -277,10 +286,10 @@ Paragraph: “Zoom level `{3}`. Use up to 6 zoom levels to zoom in on small data
 
 ## CONTROL AREA
 
-<details><summary><b>⊙ Wave Display</b> — combo box — <b>[photon scene]</b> “Electric Field · Amplitude” / <b>[matter]</b> “Real Part · Amplitude” — 🔊 on change</summary>
+<details><summary><b>⊙ Wave Display</b> — combo box — <b>[photon scene]</b> “Electric Field · Amplitude” / <b>[matter]</b> “Real Part · Imaginary Part · Amplitude” — 🔊 on change</summary>
 
-Help **[photon]**: “Choose Electric Field or Amplitude display for photon wave.” · **[matter]**: “Choose real part or amplitude display for matter wave function.”
-🔊 **on change:** “Wave display changed to ⟨Electric Field. · Real Part. · Amplitude.⟩” `a11y.photonWaveDisplayComboBox / matterWaveDisplayComboBox, …waveDisplayChanged` · trigger `:119`
+Help **[photon]**: “Choose Electric Field or Amplitude display for photon wave.” · **[matter]**: “Choose real part, imaginary part, or amplitude display for matter wave function.”
+🔊 **on change:** “Wave display changed to ⟨Electric Field. · Real Part. · Imaginary Part. · Amplitude.⟩” `a11y.photonWaveDisplayComboBox / matterWaveDisplayComboBox, …waveDisplayChanged` · trigger `:119`
 </details>
 
 <details><summary><b>⊙ Time Controls</b> — <b>[common: scenery-phet]</b> — Pause/Play · Step Forward · Sim Speeds — 🔊 responses inside</summary>
@@ -303,7 +312,10 @@ Name: “Erase” (`scenery-phet-strings eraserButton.accessibleName`).
 <details><summary><b>⊙ Reset All</b> — button — <b>[common: scenery-phet ResetAllButton]</b> — 🔊 “Everything reset.”</summary>
 
 Name: “Reset All” · 🔊 **on press:** “Everything reset.” **[common]** (runtime-verified).
-⚠ The sim defines its own reset response — “Experiment reset. Source is off and detector screen is empty.” (`a11y.waveExperimentResponses.reset`) — and the transition describer supports it, but **it never fired at runtime** and no listener emits the `reset` action. Either wire it or remove the string.
+> [!WARNING]
+> The sim defines its own reset response — “Experiment reset. Source is off and detector screen is empty.”
+> (`a11y.waveExperimentResponses.reset`) — and the transition describer supports it, but **it never fired at
+> runtime** and no listener emits the `reset` action. Either wire it or remove the string.
 </details>
 
 ---
@@ -339,7 +351,7 @@ Screen buttons: “Home Screen” (“Go to Home Screen.”), “Experiment Scre
 
 Frame by wave display mode:
 - **[Amplitude]** “Solid `{red}` wave moves toward `{slitted barrier.}`”
-- **[E-field / real]** “`{Red}` and black plane wave fronts move toward `{slitted barrier.}` Wave peaks, ⟨extremely far apart · very far apart · far apart · somewhat close together · close together · very close together · extremely close together⟩.”
+- **[E-field / real / imaginary]** “`{Red}` and black plane wave fronts move toward `{slitted barrier.}` Wave peaks, ⟨extremely far apart · very far apart · far apart · somewhat close together · close together · very close together · extremely close together⟩.”
 
 Color: photons ⟨violet · blue · indigo · green · yellow · orange · red⟩ by wavelength ([S4](#s4)); matter particles “gray”.
 Destination: “slitted barrier.” — “detector screen.” **[when no barrier]**.
@@ -457,8 +469,7 @@ Category boundaries live in analysis code, not YAML; they select which string va
 
 1. Slit Configuration combo: possible double response (own YAML response vs. screen-level) — needs runtime trace on this screen.
 2. ⚠ “Barrier-screen distance is 0 meters” — unit bug, fix pending.
-3. ⚠ “a electron experiment” — article bug, fix pending.
-4. ⚠ Sim reset response (“Experiment reset…”) defined but never fires — wire or remove.
+3. ⚠ Sim reset response (“Experiment reset…”) defined but never fires — wire or remove.
 5. Particle-speed spoken value format (matter scenes) — not exercised.
 6. Envelope-category thresholds (S5) — not extracted.
 7. Measuring tape / stopwatch interaction strings **[common]** — not captured; harness pass needed with tools added.
